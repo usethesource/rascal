@@ -2178,8 +2178,8 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
 	
 	
   private static class $Tag {
-    public final static AbstractStackNode[] prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116();
-    private static final AbstractStackNode[] _init_prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
+    public final static AbstractStackNode prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116();
+    private static final AbstractStackNode _init_prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-8, 4, "$TagString", null, null);
@@ -2193,10 +2193,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-4, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_contents_$TagString__tag__Foldable_tag__category___67_111_109_109_101_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116();
-    private static final AbstractStackNode[] _init_prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
+    public final static AbstractStackNode prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116();
+    private static final AbstractStackNode _init_prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-15, 6, "$Expression", null, null);
@@ -2214,10 +2214,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-9, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Expression_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression__tag__Foldable_tag__category___67_111_109_109_101_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116();
-    private static final AbstractStackNode[] _init_prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
+    public final static AbstractStackNode prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116 = _init_prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116();
+    private static final AbstractStackNode _init_prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-18, 2, "$Name", null, null);
@@ -2227,13 +2227,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-16, 0, prod__lit___64__char_class___range__64_64_, new char[] {64}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Empty_$Tag__lit___64_$layouts_LAYOUTLIST_name_$Name__tag__Foldable_tag__category___67_111_109_109_101_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DateAndTime {
-    public final static AbstractStackNode[] prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_ = _init_prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_();
-    private static final AbstractStackNode[] _init_prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_() {
+    public final static AbstractStackNode prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_ = _init_prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_();
+    private static final AbstractStackNode _init_prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new OptionalStackNode(-29, 4, regular__opt__$TimeZonePart, new NonTerminalStackNode(-30, 0, "$TimeZonePart", null, null), null, null);
@@ -2247,13 +2247,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-25, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__$DateAndTime__lit___36_$DatePart_lit_T_$TimePartNoTZ_opt__$TimeZonePart_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Pattern {
-    public final static AbstractStackNode[] prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_ = _init_prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_();
-    private static final AbstractStackNode[] _init_prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_() {
+    public final static AbstractStackNode prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_ = _init_prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_();
+    private static final AbstractStackNode _init_prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-36, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, null, null);
@@ -2263,10 +2263,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-34, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__MultiVariable_$Pattern__qualifiedName_$QualifiedName_$layouts_LAYOUTLIST_lit___42_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_() {
+    public final static AbstractStackNode prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_();
+    private static final AbstractStackNode _init_prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-102, 2, "$Pattern", null, null);
@@ -2276,10 +2276,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-100, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Descendant_$Pattern__lit___47_$layouts_LAYOUTLIST_pattern_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_() {
+    public final static AbstractStackNode prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_();
+    private static final AbstractStackNode _init_prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-116, 6, "$Pattern", null, null);
@@ -2297,10 +2297,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-110, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Guarded_$Pattern__lit___91_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___93_$layouts_LAYOUTLIST_pattern_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_() {
+    public final static AbstractStackNode prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_();
+    private static final AbstractStackNode _init_prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-109, 6, "$Pattern", null, null);
@@ -2318,10 +2318,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-103, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__TypedVariableBecomes_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-39, 2, "$Name", null, null);
@@ -2331,10 +2331,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-37, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__TypedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-48, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -2348,10 +2348,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-40, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__List_$Pattern__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-59, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2369,10 +2369,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-49, 0, "$BasicType", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__ReifiedType_$Pattern__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_() {
+    public final static AbstractStackNode prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_();
+    private static final AbstractStackNode _init_prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-121, 4, "$Pattern", null, null);
@@ -2386,10 +2386,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-117, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__VariableBecomes_$Pattern__name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_pattern_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-70, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2407,10 +2407,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-60, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__CallOrTree_$Pattern__expression_$Pattern_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-79, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -2424,19 +2424,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-71, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_ = _init_prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_() {
+    public final static AbstractStackNode prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_ = _init_prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-80, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__QualifiedName_$Pattern__qualifiedName_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-90, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2450,19 +2450,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-82, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Map_$Pattern__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Literal_$Pattern__literal_$Literal_ = _init_prod__Literal_$Pattern__literal_$Literal_();
-    private static final AbstractStackNode[] _init_prod__Literal_$Pattern__literal_$Literal_() {
+    public final static AbstractStackNode prod__Literal_$Pattern__literal_$Literal_ = _init_prod__Literal_$Pattern__literal_$Literal_();
+    private static final AbstractStackNode _init_prod__Literal_$Pattern__literal_$Literal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-81, 0, "$Literal", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Literal_$Pattern__literal_$Literal_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_() {
+    public final static AbstractStackNode prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_ = _init_prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_();
+    private static final AbstractStackNode _init_prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-124, 2, "$Pattern", null, null);
@@ -2472,10 +2472,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-122, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Anti_$Pattern__lit___33_$layouts_LAYOUTLIST_pattern_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
-    private static final AbstractStackNode[] _init_prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
+    public final static AbstractStackNode prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
+    private static final AbstractStackNode _init_prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-99, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -2489,13 +2489,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-91, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Tuple_$Pattern__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Prod {
-    public final static AbstractStackNode[] prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_ = _init_prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_ = _init_prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new SeparatedListStackNode(-130, 2, regular__iter_star_seps__$Sym__$layouts_LAYOUTLIST, new NonTerminalStackNode(-131, 0, "$Sym", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-132, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
@@ -2505,10 +2505,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new SeparatedListStackNode(-126, 0, regular__iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST, new NonTerminalStackNode(-127, 0, "$ProdModifier", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-128, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Unlabeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left = _init_prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left();
-    private static final AbstractStackNode[] _init_prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left() {
+    public final static AbstractStackNode prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left = _init_prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left();
+    private static final AbstractStackNode _init_prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-159, 4, "$Prod", null, null);
@@ -2522,10 +2522,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-155, 0, "$Prod", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__All_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable = _init_prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable() {
+    public final static AbstractStackNode prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable = _init_prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable();
+    private static final AbstractStackNode _init_prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-139, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2543,10 +2543,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-133, 0, "$Assoc", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__AssociativityGroup_$Prod__associativity_$Assoc_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_group_$Prod_$layouts_LAYOUTLIST_lit___41__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_ = _init_prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_();
-    private static final AbstractStackNode[] _init_prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_() {
+    public final static AbstractStackNode prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_ = _init_prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_();
+    private static final AbstractStackNode _init_prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-142, 2, "$Name", null, null);
@@ -2556,10 +2556,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-140, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Reference_$Prod__lit___58_$layouts_LAYOUTLIST_referenced_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left = _init_prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left();
-    private static final AbstractStackNode[] _init_prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left() {
+    public final static AbstractStackNode prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left = _init_prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left();
+    private static final AbstractStackNode _init_prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-164, 4, "$Prod", null, null);
@@ -2573,19 +2573,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-160, 0, "$Prod", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__First_$Prod__lhs_$Prod_$layouts_LAYOUTLIST_conditional__lit___62__not_follow__lit___62_$layouts_LAYOUTLIST_rhs_$Prod__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Others_$Prod__lit___46_46_46_ = _init_prod__Others_$Prod__lit___46_46_46_();
-    private static final AbstractStackNode[] _init_prod__Others_$Prod__lit___46_46_46_() {
+    public final static AbstractStackNode prod__Others_$Prod__lit___46_46_46_ = _init_prod__Others_$Prod__lit___46_46_46_();
+    private static final AbstractStackNode _init_prod__Others_$Prod__lit___46_46_46_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-143, 0, prod__lit___46_46_46__char_class___range__46_46_char_class___range__46_46_char_class___range__46_46_, new char[] {46,46,46}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Others_$Prod__lit___46_46_46_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_ = _init_prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_ = _init_prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new SeparatedListStackNode(-152, 6, regular__iter_star_seps__$Sym__$layouts_LAYOUTLIST, new NonTerminalStackNode(-153, 0, "$Sym", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-154, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
@@ -2603,13 +2603,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new SeparatedListStackNode(-144, 0, regular__iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST, new NonTerminalStackNode(-145, 0, "$ProdModifier", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-146, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Labeled_$Prod__modifiers_iter_star_seps__$ProdModifier__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_args_iter_star_seps__$Sym__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $UnicodeEscape {
-    public final static AbstractStackNode[] prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_ = _init_prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_();
-    private static final AbstractStackNode[] _init_prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_() {
+    public final static AbstractStackNode prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_ = _init_prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_();
+    private static final AbstractStackNode _init_prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
       tmp[5] = new CharStackNode(-171, 5, new char[][]{{48,57},{65,70},{97,102}}, null, null);
@@ -2625,13 +2625,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-165, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[5].setParentProduction(RascalRascal.prod__$UnicodeEscape__lit___92_iter__char_class___range__117_117_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_char_class___range__48_57_range__65_70_range__97_102_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $OctalIntegerLiteral {
-    public final static AbstractStackNode[] prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new ListStackNode(-179, 1, regular__iter__char_class___range__48_55, new CharStackNode(-180, 0, new char[][]{{48,55}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
@@ -2639,76 +2639,76 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-178, 0, new char[][]{{48,48}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$OctalIntegerLiteral__char_class___range__48_48_conditional__iter__char_class___range__48_55__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $BooleanLiteral {
-    public final static AbstractStackNode[] prod__$BooleanLiteral__lit_false_ = _init_prod__$BooleanLiteral__lit_false_();
-    private static final AbstractStackNode[] _init_prod__$BooleanLiteral__lit_false_() {
+    public final static AbstractStackNode prod__$BooleanLiteral__lit_false_ = _init_prod__$BooleanLiteral__lit_false_();
+    private static final AbstractStackNode _init_prod__$BooleanLiteral__lit_false_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-190, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$BooleanLiteral__lit_false_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$BooleanLiteral__lit_true_ = _init_prod__$BooleanLiteral__lit_true_();
-    private static final AbstractStackNode[] _init_prod__$BooleanLiteral__lit_true_() {
+    public final static AbstractStackNode prod__$BooleanLiteral__lit_true_ = _init_prod__$BooleanLiteral__lit_true_();
+    private static final AbstractStackNode _init_prod__$BooleanLiteral__lit_true_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-191, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$BooleanLiteral__lit_true_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Toplevel {
-    public final static AbstractStackNode[] prod__GivenVisibility_$Toplevel__declaration_$Declaration_ = _init_prod__GivenVisibility_$Toplevel__declaration_$Declaration_();
-    private static final AbstractStackNode[] _init_prod__GivenVisibility_$Toplevel__declaration_$Declaration_() {
+    public final static AbstractStackNode prod__GivenVisibility_$Toplevel__declaration_$Declaration_ = _init_prod__GivenVisibility_$Toplevel__declaration_$Declaration_();
+    private static final AbstractStackNode _init_prod__GivenVisibility_$Toplevel__declaration_$Declaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-189, 0, "$Declaration", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__GivenVisibility_$Toplevel__declaration_$Declaration_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ProdModifier {
-    public final static AbstractStackNode[] prod__Bracket_$ProdModifier__lit_bracket_ = _init_prod__Bracket_$ProdModifier__lit_bracket_();
-    private static final AbstractStackNode[] _init_prod__Bracket_$ProdModifier__lit_bracket_() {
+    public final static AbstractStackNode prod__Bracket_$ProdModifier__lit_bracket_ = _init_prod__Bracket_$ProdModifier__lit_bracket_();
+    private static final AbstractStackNode _init_prod__Bracket_$ProdModifier__lit_bracket_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-192, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Bracket_$ProdModifier__lit_bracket_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Associativity_$ProdModifier__associativity_$Assoc_ = _init_prod__Associativity_$ProdModifier__associativity_$Assoc_();
-    private static final AbstractStackNode[] _init_prod__Associativity_$ProdModifier__associativity_$Assoc_() {
+    public final static AbstractStackNode prod__Associativity_$ProdModifier__associativity_$Assoc_ = _init_prod__Associativity_$ProdModifier__associativity_$Assoc_();
+    private static final AbstractStackNode _init_prod__Associativity_$ProdModifier__associativity_$Assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-193, 0, "$Assoc", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Associativity_$ProdModifier__associativity_$Assoc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tag_$ProdModifier__tag_$Tag_ = _init_prod__Tag_$ProdModifier__tag_$Tag_();
-    private static final AbstractStackNode[] _init_prod__Tag_$ProdModifier__tag_$Tag_() {
+    public final static AbstractStackNode prod__Tag_$ProdModifier__tag_$Tag_ = _init_prod__Tag_$ProdModifier__tag_$Tag_();
+    private static final AbstractStackNode _init_prod__Tag_$ProdModifier__tag_$Tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-194, 0, "$Tag", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Tag_$ProdModifier__tag_$Tag_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $TypeVar {
-    public final static AbstractStackNode[] prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_ = _init_prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_();
-    private static final AbstractStackNode[] _init_prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_() {
+    public final static AbstractStackNode prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_ = _init_prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_();
+    private static final AbstractStackNode _init_prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-202, 6, "$Type", null, null);
@@ -2726,10 +2726,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-196, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Bounded_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___60_58_$layouts_LAYOUTLIST_bound_$Type_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-205, 2, "$Name", null, null);
@@ -2739,25 +2739,25 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-203, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Free_$TypeVar__lit___38_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $FunctionModifiers {
-    public final static AbstractStackNode[] prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_ = _init_prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_ = _init_prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-271, 0, regular__iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST, new NonTerminalStackNode(-272, 0, "$FunctionModifier", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-273, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__List_$FunctionModifiers__modifiers_iter_star_seps__$FunctionModifier__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Comprehension {
-    public final static AbstractStackNode[] prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-236, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -2779,10 +2779,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-220, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-253, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2812,10 +2812,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-237, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__Map_$Comprehension__lit___40_$layouts_LAYOUTLIST_from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-270, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -2837,31 +2837,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-254, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__List_$Comprehension__lit___91_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Type {
-    public final static AbstractStackNode[] prod__Selector_$Type__selector_$DataTypeSelector_ = _init_prod__Selector_$Type__selector_$DataTypeSelector_();
-    private static final AbstractStackNode[] _init_prod__Selector_$Type__selector_$DataTypeSelector_() {
+    public final static AbstractStackNode prod__Selector_$Type__selector_$DataTypeSelector_ = _init_prod__Selector_$Type__selector_$DataTypeSelector_();
+    private static final AbstractStackNode _init_prod__Selector_$Type__selector_$DataTypeSelector_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-274, 0, "$DataTypeSelector", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Selector_$Type__selector_$DataTypeSelector_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Structured_$Type__structured_$StructuredType_ = _init_prod__Structured_$Type__structured_$StructuredType_();
-    private static final AbstractStackNode[] _init_prod__Structured_$Type__structured_$StructuredType_() {
+    public final static AbstractStackNode prod__Structured_$Type__structured_$StructuredType_ = _init_prod__Structured_$Type__structured_$StructuredType_();
+    private static final AbstractStackNode _init_prod__Structured_$Type__structured_$StructuredType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-275, 0, "$StructuredType", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Structured_$Type__structured_$StructuredType_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket();
-    private static final AbstractStackNode[] _init_prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket() {
+    public final static AbstractStackNode prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket();
+    private static final AbstractStackNode _init_prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-280, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -2875,58 +2875,58 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-276, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Bracket_$Type__lit___40_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_lit___41__bracket);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Function_$Type__function_$FunctionType_ = _init_prod__Function_$Type__function_$FunctionType_();
-    private static final AbstractStackNode[] _init_prod__Function_$Type__function_$FunctionType_() {
+    public final static AbstractStackNode prod__Function_$Type__function_$FunctionType_ = _init_prod__Function_$Type__function_$FunctionType_();
+    private static final AbstractStackNode _init_prod__Function_$Type__function_$FunctionType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-281, 0, "$FunctionType", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Function_$Type__function_$FunctionType_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_ = _init_prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_();
-    private static final AbstractStackNode[] _init_prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_() {
+    public final static AbstractStackNode prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_ = _init_prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_();
+    private static final AbstractStackNode _init_prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-282, 0, "$UserType", null, new ICompletionFilter[] {new StringMatchRestriction(new char[] {108,101,120,105,99,97,108}), new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {115,121,110,116,97,120}), new StringMatchRestriction(new char[] {107,101,121,119,111,114,100}), new StringMatchRestriction(new char[] {101,120,116,101,110,100}), new StringMatchRestriction(new char[] {108,97,121,111,117,116})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__User_$Type__conditional__user_$UserType__delete__$HeaderKeyword_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Basic_$Type__basic_$BasicType_ = _init_prod__Basic_$Type__basic_$BasicType_();
-    private static final AbstractStackNode[] _init_prod__Basic_$Type__basic_$BasicType_() {
+    public final static AbstractStackNode prod__Basic_$Type__basic_$BasicType_ = _init_prod__Basic_$Type__basic_$BasicType_();
+    private static final AbstractStackNode _init_prod__Basic_$Type__basic_$BasicType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-283, 0, "$BasicType", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Basic_$Type__basic_$BasicType_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Variable_$Type__typeVar_$TypeVar_ = _init_prod__Variable_$Type__typeVar_$TypeVar_();
-    private static final AbstractStackNode[] _init_prod__Variable_$Type__typeVar_$TypeVar_() {
+    public final static AbstractStackNode prod__Variable_$Type__typeVar_$TypeVar_ = _init_prod__Variable_$Type__typeVar_$TypeVar_();
+    private static final AbstractStackNode _init_prod__Variable_$Type__typeVar_$TypeVar_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-284, 0, "$TypeVar", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Variable_$Type__typeVar_$TypeVar_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Symbol_$Type__symbol_$Sym_ = _init_prod__Symbol_$Type__symbol_$Sym_();
-    private static final AbstractStackNode[] _init_prod__Symbol_$Type__symbol_$Sym_() {
+    public final static AbstractStackNode prod__Symbol_$Type__symbol_$Sym_ = _init_prod__Symbol_$Type__symbol_$Sym_();
+    private static final AbstractStackNode _init_prod__Symbol_$Type__symbol_$Sym_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-285, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Symbol_$Type__symbol_$Sym_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Declaration {
-    public final static AbstractStackNode[] prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-299, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -2956,19 +2956,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-287, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__Alias_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_alias_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_base_$Type_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_ = _init_prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_();
-    private static final AbstractStackNode[] _init_prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_() {
+    public final static AbstractStackNode prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_ = _init_prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_();
+    private static final AbstractStackNode _init_prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-286, 0, "$FunctionDeclaration", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Function_$Declaration__functionDeclaration_$FunctionDeclaration_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[3] = new NonTerminalStackNode(-303, 3, "$layouts_LAYOUTLIST", null, null);
@@ -2990,10 +2990,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new LiteralStackNode(-302, 2, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, null, null);
       tmp[2].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Rule_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_lit_rule_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_patternAction_$PatternWithAction_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new LiteralStackNode(-323, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3027,10 +3027,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-309, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__Annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new LiteralStackNode(-342, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3064,10 +3064,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-324, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__Tag_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_tag_$layouts_LAYOUTLIST_kind_$Kind_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit_on_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-355, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3089,10 +3089,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-343, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Variable_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_ = _init_prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_ = _init_prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-364, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3114,10 +3114,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-356, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__DataAbstract_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-381, 12, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3147,13 +3147,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-365, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__Data_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_data_$layouts_LAYOUTLIST_user_$UserType_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_variants_iter_seps__$Variant__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Class {
-    public final static AbstractStackNode[] prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
+    public final static AbstractStackNode prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
+    private static final AbstractStackNode _init_prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-406, 4, "$Class", null, null);
@@ -3167,10 +3167,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-402, 0, "$Class", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-388, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -3184,10 +3184,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-382, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__SimpleCharclass_$Class__lit___91_$layouts_LAYOUTLIST_ranges_iter_star_seps__$Range__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket();
-    private static final AbstractStackNode[] _init_prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket() {
+    public final static AbstractStackNode prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket();
+    private static final AbstractStackNode _init_prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-411, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -3201,10 +3201,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-407, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Bracket_$Class__lit___40_$layouts_LAYOUTLIST_charclass_$Class_$layouts_LAYOUTLIST_lit___41__bracket);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_ = _init_prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_();
-    private static final AbstractStackNode[] _init_prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_() {
+    public final static AbstractStackNode prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_ = _init_prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_();
+    private static final AbstractStackNode _init_prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-391, 2, "$Class", null, null);
@@ -3214,10 +3214,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-389, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Complement_$Class__lit___33_$layouts_LAYOUTLIST_charClass_$Class_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
+    public final static AbstractStackNode prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
+    private static final AbstractStackNode _init_prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-396, 4, "$Class", null, null);
@@ -3231,10 +3231,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-392, 0, "$Class", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Difference_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Class__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
+    public final static AbstractStackNode prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left = _init_prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left();
+    private static final AbstractStackNode _init_prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-401, 4, "$Class", null, null);
@@ -3248,22 +3248,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-397, 0, "$Class", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Intersection_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Class__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Bound {
-    public final static AbstractStackNode[] prod__Empty_$Bound__ = _init_prod__Empty_$Bound__();
-    private static final AbstractStackNode[] _init_prod__Empty_$Bound__() {
+    public final static AbstractStackNode prod__Empty_$Bound__ = _init_prod__Empty_$Bound__();
+    private static final AbstractStackNode _init_prod__Empty_$Bound__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-412, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Empty_$Bound__);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_ = _init_prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_() {
+    public final static AbstractStackNode prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_ = _init_prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_();
+    private static final AbstractStackNode _init_prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-415, 2, "$Expression", null, null);
@@ -3273,13 +3273,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-413, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$Bound__lit___59_$layouts_LAYOUTLIST_expression_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $FunctionType {
-    public final static AbstractStackNode[] prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-435, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -3297,13 +3297,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-425, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__TypeArguments_$FunctionType__type_$Type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Case {
-    public final static AbstractStackNode[] prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable = _init_prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable() {
+    public final static AbstractStackNode prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable = _init_prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable();
+    private static final AbstractStackNode _init_prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-442, 2, "$PatternWithAction", null, null);
@@ -3313,10 +3313,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-440, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__PatternWithAction_$Case__lit_case_$layouts_LAYOUTLIST_patternWithAction_$PatternWithAction__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable = _init_prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable() {
+    public final static AbstractStackNode prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable = _init_prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-447, 4, "$Statement", null, null);
@@ -3330,13 +3330,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-443, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Statement {
-    public final static AbstractStackNode[] prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-483, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3350,10 +3350,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-479, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Fail_$Statement__lit_fail_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_ = _init_prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_();
-    private static final AbstractStackNode[] _init_prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_() {
+    public final static AbstractStackNode prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_ = _init_prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_();
+    private static final AbstractStackNode _init_prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[0] = new LiteralStackNode(-500, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, null, null);
@@ -3375,10 +3375,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[8] = new NonTerminalStackNode(-510, 8, "$Statement", null, null);
       tmp[8].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__TryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-488, 4, "$Statement", null, null);
@@ -3392,10 +3392,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-484, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Insert_$Statement__lit_insert_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-515, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3409,10 +3409,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-511, 0, prod__lit_continue__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_char_class___range__117_117_char_class___range__101_101_, new char[] {99,111,110,116,105,110,117,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Continue_$Statement__lit_continue_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-520, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3426,19 +3426,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-516, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Assert_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_ = _init_prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_();
-    private static final AbstractStackNode[] _init_prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_() {
+    public final static AbstractStackNode prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_ = _init_prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_();
+    private static final AbstractStackNode _init_prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-690, 0, "$FunctionDeclaration", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__FunctionDeclaration_$Statement__functionDeclaration_$FunctionDeclaration_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[0] = new NonTerminalStackNode(-522, 0, "$Expression", null, null);
@@ -3448,19 +3448,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new LiteralStackNode(-524, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
       tmp[2].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Expression_$Statement__expression_$Expression_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__EmptyStatement_$Statement__lit___59_ = _init_prod__EmptyStatement_$Statement__lit___59_();
-    private static final AbstractStackNode[] _init_prod__EmptyStatement_$Statement__lit___59_() {
+    public final static AbstractStackNode prod__EmptyStatement_$Statement__lit___59_ = _init_prod__EmptyStatement_$Statement__lit___59_();
+    private static final AbstractStackNode _init_prod__EmptyStatement_$Statement__lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-521, 0, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__EmptyStatement_$Statement__lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc = _init_prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc = _init_prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new SeparatedListStackNode(-529, 4, regular__iter_seps__$Catch__$layouts_LAYOUTLIST, new NonTerminalStackNode(-530, 0, "$Catch", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-531, 1, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
@@ -3474,10 +3474,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-525, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Try_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_ = _init_prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_ = _init_prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new LiteralStackNode(-546, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3511,10 +3511,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-532, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__DoWhile_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_do_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
-    private static final AbstractStackNode[] _init_prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
+    public final static AbstractStackNode prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
+    private static final AbstractStackNode _init_prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new NonTerminalStackNode(-561, 10, "$Statement", null, null);
@@ -3540,10 +3540,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-547, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__For_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_ = _init_prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-570, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3565,10 +3565,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-562, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__AssertWithMessage_$Statement__lit_assert_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_message_$Expression_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
-    private static final AbstractStackNode[] _init_prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
+    public final static AbstractStackNode prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
+    private static final AbstractStackNode _init_prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new NonTerminalStackNode(-585, 10, "$Statement", null, null);
@@ -3594,10 +3594,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-571, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__While_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_ = _init_prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_();
-    private static final AbstractStackNode[] _init_prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_() {
+    public final static AbstractStackNode prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_ = _init_prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_();
+    private static final AbstractStackNode _init_prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-590, 4, "$Statement", null, null);
@@ -3611,10 +3611,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-586, 0, "$Assignable", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Assignment_$Statement__assignable_$Assignable_$layouts_LAYOUTLIST_operator_$Assignment_$layouts_LAYOUTLIST_statement_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
-    private static final AbstractStackNode[] _init_prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
+    public final static AbstractStackNode prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_ = _init_prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_();
+    private static final AbstractStackNode _init_prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new NonTerminalStackNode(-605, 10, "$Statement", null, null);
@@ -3640,10 +3640,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-591, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__Solve_$Statement__lit_solve_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_variables_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_bound_$Bound_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-621, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3657,10 +3657,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-617, 0, prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,114,101,97,107}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Break_$Statement__lit_break_$layouts_LAYOUTLIST_target_$Target_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_ = _init_prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_ = _init_prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-689, 2, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3670,10 +3670,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-687, 0, "$LocalVariableDeclaration", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__VariableDeclaration_$Statement__declaration_$LocalVariableDeclaration_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_ = _init_prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-616, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -3691,10 +3691,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-606, 0, prod__lit_global__char_class___range__103_103_char_class___range__108_108_char_class___range__111_111_char_class___range__98_98_char_class___range__97_97_char_class___range__108_108_, new char[] {103,108,111,98,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__GlobalDirective_$Statement__lit_global_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_names_iter_seps__$QualifiedName__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[0] = new LiteralStackNode(-489, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, null, null);
@@ -3704,10 +3704,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new NonTerminalStackNode(-491, 2, "$Statement", null, null);
       tmp[2].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Return_$Statement__lit_return_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-630, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -3725,10 +3725,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[5] = new NonTerminalStackNode(-629, 5, "$layouts_LAYOUTLIST", null, null);
       tmp[5].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__NonEmptyBlock_$Statement__label_$Label_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-496, 4, "$Statement", null, null);
@@ -3742,10 +3742,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-492, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Append_$Statement__lit_append_$layouts_LAYOUTLIST_dataTarget_$DataTarget_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc = _init_prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-499, 2, "$Statement", null, null);
@@ -3755,10 +3755,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-497, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Throw_$Statement__lit_throw_$layouts_LAYOUTLIST_statement_$Statement__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_ = _init_prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_();
-    private static final AbstractStackNode[] _init_prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_() {
+    public final static AbstractStackNode prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_ = _init_prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_();
+    private static final AbstractStackNode _init_prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-650, 2, "$Visit", null, null);
@@ -3768,10 +3768,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-648, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Visit_$Statement__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_ = _init_prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_();
-    private static final AbstractStackNode[] _init_prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_() {
+    public final static AbstractStackNode prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_ = _init_prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_();
+    private static final AbstractStackNode _init_prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new EmptyStackNode(-647, 12, regular__empty, null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {101,108,115,101})});
@@ -3801,10 +3801,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-631, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__IfThen_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_conditional__empty__not_follow__lit_else_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new LiteralStackNode(-667, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -3838,10 +3838,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-651, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__Switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_ = _init_prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_();
-    private static final AbstractStackNode[] _init_prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_() {
+    public final static AbstractStackNode prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_ = _init_prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_();
+    private static final AbstractStackNode _init_prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new NonTerminalStackNode(-686, 14, "$Statement", null, null);
@@ -3875,13 +3875,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-668, 0, "$Label", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__IfThenElse_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_thenStatement_$Statement_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_elseStatement_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Renamings {
-    public final static AbstractStackNode[] prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new SeparatedListStackNode(-712, 2, regular__iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode(-713, 0, "$Renaming", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-714, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-715, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, null, null), new NonTerminalStackNode(-716, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
@@ -3891,22 +3891,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-710, 0, prod__lit_renaming__char_class___range__114_114_char_class___range__101_101_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__103_103_, new char[] {114,101,110,97,109,105,110,103}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$Renamings__lit_renaming_$layouts_LAYOUTLIST_renamings_iter_seps__$Renaming__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringLiteral {
-    public final static AbstractStackNode[] prod__NonInterpolated_$StringLiteral__constant_$StringConstant_ = _init_prod__NonInterpolated_$StringLiteral__constant_$StringConstant_();
-    private static final AbstractStackNode[] _init_prod__NonInterpolated_$StringLiteral__constant_$StringConstant_() {
+    public final static AbstractStackNode prod__NonInterpolated_$StringLiteral__constant_$StringConstant_ = _init_prod__NonInterpolated_$StringLiteral__constant_$StringConstant_();
+    private static final AbstractStackNode _init_prod__NonInterpolated_$StringLiteral__constant_$StringConstant_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-717, 0, "$StringConstant", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__NonInterpolated_$StringLiteral__constant_$StringConstant_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_();
-    private static final AbstractStackNode[] _init_prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_() {
+    public final static AbstractStackNode prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_();
+    private static final AbstractStackNode _init_prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-722, 4, "$StringTail", null, null);
@@ -3920,10 +3920,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-718, 0, "$PreStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Template_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_();
-    private static final AbstractStackNode[] _init_prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_() {
+    public final static AbstractStackNode prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_();
+    private static final AbstractStackNode _init_prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-727, 4, "$StringTail", null, null);
@@ -3937,43 +3937,43 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-723, 0, "$PreStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Interpolated_$StringLiteral__pre_$PreStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Visibility {
-    public final static AbstractStackNode[] prod__Public_$Visibility__lit_public_ = _init_prod__Public_$Visibility__lit_public_();
-    private static final AbstractStackNode[] _init_prod__Public_$Visibility__lit_public_() {
+    public final static AbstractStackNode prod__Public_$Visibility__lit_public_ = _init_prod__Public_$Visibility__lit_public_();
+    private static final AbstractStackNode _init_prod__Public_$Visibility__lit_public_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-741, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Public_$Visibility__lit_public_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$Visibility__ = _init_prod__Default_$Visibility__();
-    private static final AbstractStackNode[] _init_prod__Default_$Visibility__() {
+    public final static AbstractStackNode prod__Default_$Visibility__ = _init_prod__Default_$Visibility__();
+    private static final AbstractStackNode _init_prod__Default_$Visibility__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-742, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$Visibility__);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Private_$Visibility__lit_private_ = _init_prod__Private_$Visibility__lit_private_();
-    private static final AbstractStackNode[] _init_prod__Private_$Visibility__lit_private_() {
+    public final static AbstractStackNode prod__Private_$Visibility__lit_private_ = _init_prod__Private_$Visibility__lit_private_();
+    private static final AbstractStackNode _init_prod__Private_$Visibility__lit_private_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-743, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Private_$Visibility__lit_private_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PostPathChars {
-    public final static AbstractStackNode[] prod__$PostPathChars__lit___62_$URLChars_lit___124_ = _init_prod__$PostPathChars__lit___62_$URLChars_lit___124_();
-    private static final AbstractStackNode[] _init_prod__$PostPathChars__lit___62_$URLChars_lit___124_() {
+    public final static AbstractStackNode prod__$PostPathChars__lit___62_$URLChars_lit___124_ = _init_prod__$PostPathChars__lit___62_$URLChars_lit___124_();
+    private static final AbstractStackNode _init_prod__$PostPathChars__lit___62_$URLChars_lit___124_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-746, 2, prod__lit___124__char_class___range__124_124_, new char[] {124}, null, null);
@@ -3983,61 +3983,61 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-744, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$PostPathChars__lit___62_$URLChars_lit___124_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $NamedBackslash {
-    public final static AbstractStackNode[] prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_ = _init_prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_();
-    private static final AbstractStackNode[] _init_prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_() {
+    public final static AbstractStackNode prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_ = _init_prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_();
+    private static final AbstractStackNode _init_prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-752, 0, new char[][]{{92,92}}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{60,60},{62,62},{92,92}})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$NamedBackslash__conditional__char_class___range__92_92__not_follow__char_class___range__60_60_range__62_62_range__92_92_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Command {
-    public final static AbstractStackNode[] prod__Import_$Command__imported_$Import_ = _init_prod__Import_$Command__imported_$Import_();
-    private static final AbstractStackNode[] _init_prod__Import_$Command__imported_$Import_() {
+    public final static AbstractStackNode prod__Import_$Command__imported_$Import_ = _init_prod__Import_$Command__imported_$Import_();
+    private static final AbstractStackNode _init_prod__Import_$Command__imported_$Import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-793, 0, "$Import", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Import_$Command__imported_$Import_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Expression_$Command__expression_$Expression_ = _init_prod__Expression_$Command__expression_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Expression_$Command__expression_$Expression_() {
+    public final static AbstractStackNode prod__Expression_$Command__expression_$Expression_ = _init_prod__Expression_$Command__expression_$Expression_();
+    private static final AbstractStackNode _init_prod__Expression_$Command__expression_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-794, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Expression_$Command__expression_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Statement_$Command__statement_$Statement_ = _init_prod__Statement_$Command__statement_$Statement_();
-    private static final AbstractStackNode[] _init_prod__Statement_$Command__statement_$Statement_() {
+    public final static AbstractStackNode prod__Statement_$Command__statement_$Statement_ = _init_prod__Statement_$Command__statement_$Statement_();
+    private static final AbstractStackNode _init_prod__Statement_$Command__statement_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-795, 0, "$Statement", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Statement_$Command__statement_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Declaration_$Command__declaration_$Declaration_ = _init_prod__Declaration_$Command__declaration_$Declaration_();
-    private static final AbstractStackNode[] _init_prod__Declaration_$Command__declaration_$Declaration_() {
+    public final static AbstractStackNode prod__Declaration_$Command__declaration_$Declaration_ = _init_prod__Declaration_$Command__declaration_$Declaration_();
+    private static final AbstractStackNode _init_prod__Declaration_$Command__declaration_$Declaration_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-796, 0, "$Declaration", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Declaration_$Command__declaration_$Declaration_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_ = _init_prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_();
-    private static final AbstractStackNode[] _init_prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_() {
+    public final static AbstractStackNode prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_ = _init_prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_();
+    private static final AbstractStackNode _init_prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-799, 2, "$ShellCommand", null, null);
@@ -4047,13 +4047,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-797, 0, prod__lit___58__char_class___range__58_58_, new char[] {58}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Shell_$Command__lit___58_$layouts_LAYOUTLIST_command_$ShellCommand_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Visit {
-    public final static AbstractStackNode[] prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-775, 12, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -4083,10 +4083,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-761, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__DefaultStrategy_$Visit__lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[14] = new LiteralStackNode(-792, 14, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -4120,22 +4120,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-776, 0, "$Strategy", null, null);
       tmp[0].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__GivenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ProtocolTail {
-    public final static AbstractStackNode[] prod__Post_$ProtocolTail__post_$PostProtocolChars_ = _init_prod__Post_$ProtocolTail__post_$PostProtocolChars_();
-    private static final AbstractStackNode[] _init_prod__Post_$ProtocolTail__post_$PostProtocolChars_() {
+    public final static AbstractStackNode prod__Post_$ProtocolTail__post_$PostProtocolChars_ = _init_prod__Post_$ProtocolTail__post_$PostProtocolChars_();
+    private static final AbstractStackNode _init_prod__Post_$ProtocolTail__post_$PostProtocolChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-800, 0, "$PostProtocolChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Post_$ProtocolTail__post_$PostProtocolChars_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_ = _init_prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_();
-    private static final AbstractStackNode[] _init_prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_() {
+    public final static AbstractStackNode prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_ = _init_prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_();
+    private static final AbstractStackNode _init_prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-805, 4, "$ProtocolTail", null, null);
@@ -4149,13 +4149,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-801, 0, "$MidProtocolChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PreStringChars {
-    public final static AbstractStackNode[] prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-817, 2, new char[][]{{60,60}}, null, null);
@@ -4165,37 +4165,37 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-814, 0, new char[][]{{34,34}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$PreStringChars__char_class___range__34_34_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $QualifiedName {
-    public final static AbstractStackNode[] prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_ = _init_prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_();
-    private static final AbstractStackNode[] _init_prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_() {
+    public final static AbstractStackNode prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_ = _init_prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_();
+    private static final AbstractStackNode _init_prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-829, 0, regular__iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST, new NonTerminalStackNode(-830, 0, "$Name", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-831, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-832, 2, prod__lit___58_58__char_class___range__58_58_char_class___range__58_58_, new char[] {58,58}, null, null), new NonTerminalStackNode(-833, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {58,58})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$QualifiedName__conditional__names_iter_seps__$Name__$layouts_LAYOUTLIST_lit___58_58_$layouts_LAYOUTLIST__not_follow__lit___58_58_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $URLChars {
-    public final static AbstractStackNode[] prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_ = _init_prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_();
-    private static final AbstractStackNode[] _init_prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_() {
+    public final static AbstractStackNode prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_ = _init_prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_();
+    private static final AbstractStackNode _init_prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new ListStackNode(-849, 0, regular__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535, new CharStackNode(-850, 0, new char[][]{{0,8},{11,12},{14,31},{33,59},{61,123},{125,65535}}, null, null), false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$URLChars__iter_star__char_class___range__0_8_range__11_12_range__14_31_range__33_59_range__61_123_range__125_65535_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringMiddle {
-    public final static AbstractStackNode[] prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_ = _init_prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_();
-    private static final AbstractStackNode[] _init_prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_() {
+    public final static AbstractStackNode prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_ = _init_prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_();
+    private static final AbstractStackNode _init_prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-842, 4, "$StringMiddle", null, null);
@@ -4209,10 +4209,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-838, 0, "$MidStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Template_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringMiddle_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_ = _init_prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_();
-    private static final AbstractStackNode[] _init_prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_() {
+    public final static AbstractStackNode prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_ = _init_prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_();
+    private static final AbstractStackNode _init_prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-847, 4, "$StringMiddle", null, null);
@@ -4226,31 +4226,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-843, 0, "$MidStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Mid_$StringMiddle__mid_$MidStringChars_ = _init_prod__Mid_$StringMiddle__mid_$MidStringChars_();
-    private static final AbstractStackNode[] _init_prod__Mid_$StringMiddle__mid_$MidStringChars_() {
+    public final static AbstractStackNode prod__Mid_$StringMiddle__mid_$MidStringChars_ = _init_prod__Mid_$StringMiddle__mid_$MidStringChars_();
+    private static final AbstractStackNode _init_prod__Mid_$StringMiddle__mid_$MidStringChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-848, 0, "$MidStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Mid_$StringMiddle__mid_$MidStringChars_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $TimeZonePart {
-    public final static AbstractStackNode[] prod__$TimeZonePart__lit_Z_ = _init_prod__$TimeZonePart__lit_Z_();
-    private static final AbstractStackNode[] _init_prod__$TimeZonePart__lit_Z_() {
+    public final static AbstractStackNode prod__$TimeZonePart__lit_Z_ = _init_prod__$TimeZonePart__lit_Z_();
+    private static final AbstractStackNode _init_prod__$TimeZonePart__lit_Z_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-851, 0, prod__lit_Z__char_class___range__90_90_, new char[] {90}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$TimeZonePart__lit_Z_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-854, 2, new char[][]{{48,57}}, null, null);
@@ -4260,10 +4260,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-852, 0, new char[][]{{43,43},{45,45}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new CharStackNode(-859, 4, new char[][]{{48,57}}, null, null);
@@ -4277,10 +4277,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-855, 0, new char[][]{{43,43},{45,45}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_ = _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
       tmp[5] = new CharStackNode(-865, 5, new char[][]{{48,57}}, null, null);
@@ -4296,13 +4296,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-860, 0, new char[][]{{43,43},{45,45}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[5].setParentProduction(RascalRascal.prod__$TimeZonePart__char_class___range__43_43_range__45_45_char_class___range__48_49_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ShellCommand {
-    public final static AbstractStackNode[] prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_() {
+    public final static AbstractStackNode prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-868, 2, "$QualifiedName", null, null);
@@ -4312,28 +4312,28 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-866, 0, prod__lit_edit__char_class___range__101_101_char_class___range__100_100_char_class___range__105_105_char_class___range__116_116_, new char[] {101,100,105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Edit_$ShellCommand__lit_edit_$layouts_LAYOUTLIST_name_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Help_$ShellCommand__lit_help_ = _init_prod__Help_$ShellCommand__lit_help_();
-    private static final AbstractStackNode[] _init_prod__Help_$ShellCommand__lit_help_() {
+    public final static AbstractStackNode prod__Help_$ShellCommand__lit_help_ = _init_prod__Help_$ShellCommand__lit_help_();
+    private static final AbstractStackNode _init_prod__Help_$ShellCommand__lit_help_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-869, 0, prod__lit_help__char_class___range__104_104_char_class___range__101_101_char_class___range__108_108_char_class___range__112_112_, new char[] {104,101,108,112}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Help_$ShellCommand__lit_help_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Quit_$ShellCommand__lit_quit_ = _init_prod__Quit_$ShellCommand__lit_quit_();
-    private static final AbstractStackNode[] _init_prod__Quit_$ShellCommand__lit_quit_() {
+    public final static AbstractStackNode prod__Quit_$ShellCommand__lit_quit_ = _init_prod__Quit_$ShellCommand__lit_quit_();
+    private static final AbstractStackNode _init_prod__Quit_$ShellCommand__lit_quit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-870, 0, prod__lit_quit__char_class___range__113_113_char_class___range__117_117_char_class___range__105_105_char_class___range__116_116_, new char[] {113,117,105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Quit_$ShellCommand__lit_quit_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_ = _init_prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_();
-    private static final AbstractStackNode[] _init_prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_() {
+    public final static AbstractStackNode prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_ = _init_prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_();
+    private static final AbstractStackNode _init_prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-875, 4, "$Expression", null, null);
@@ -4347,19 +4347,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-871, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__SetOption_$ShellCommand__lit_set_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_expression_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__History_$ShellCommand__lit_history_ = _init_prod__History_$ShellCommand__lit_history_();
-    private static final AbstractStackNode[] _init_prod__History_$ShellCommand__lit_history_() {
+    public final static AbstractStackNode prod__History_$ShellCommand__lit_history_ = _init_prod__History_$ShellCommand__lit_history_();
+    private static final AbstractStackNode _init_prod__History_$ShellCommand__lit_history_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-876, 0, prod__lit_history__char_class___range__104_104_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_char_class___range__121_121_, new char[] {104,105,115,116,111,114,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__History_$ShellCommand__lit_history_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_() {
+    public final static AbstractStackNode prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-879, 2, "$QualifiedName", null, null);
@@ -4369,10 +4369,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-877, 0, prod__lit_unimport__char_class___range__117_117_char_class___range__110_110_char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {117,110,105,109,112,111,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Unimport_$ShellCommand__lit_unimport_$layouts_LAYOUTLIST_name_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_() {
+    public final static AbstractStackNode prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_ = _init_prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-882, 2, "$QualifiedName", null, null);
@@ -4382,40 +4382,40 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-880, 0, prod__lit_undeclare__char_class___range__117_117_char_class___range__110_110_char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__101_101_, new char[] {117,110,100,101,99,108,97,114,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Undeclare_$ShellCommand__lit_undeclare_$layouts_LAYOUTLIST_name_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ListModules_$ShellCommand__lit_modules_ = _init_prod__ListModules_$ShellCommand__lit_modules_();
-    private static final AbstractStackNode[] _init_prod__ListModules_$ShellCommand__lit_modules_() {
+    public final static AbstractStackNode prod__ListModules_$ShellCommand__lit_modules_ = _init_prod__ListModules_$ShellCommand__lit_modules_();
+    private static final AbstractStackNode _init_prod__ListModules_$ShellCommand__lit_modules_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-883, 0, prod__lit_modules__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_char_class___range__115_115_, new char[] {109,111,100,117,108,101,115}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ListModules_$ShellCommand__lit_modules_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ListDeclarations_$ShellCommand__lit_declarations_ = _init_prod__ListDeclarations_$ShellCommand__lit_declarations_();
-    private static final AbstractStackNode[] _init_prod__ListDeclarations_$ShellCommand__lit_declarations_() {
+    public final static AbstractStackNode prod__ListDeclarations_$ShellCommand__lit_declarations_ = _init_prod__ListDeclarations_$ShellCommand__lit_declarations_();
+    private static final AbstractStackNode _init_prod__ListDeclarations_$ShellCommand__lit_declarations_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-885, 0, prod__lit_declarations__char_class___range__100_100_char_class___range__101_101_char_class___range__99_99_char_class___range__108_108_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_, new char[] {100,101,99,108,97,114,97,116,105,111,110,115}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ListDeclarations_$ShellCommand__lit_declarations_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Test_$ShellCommand__lit_test_ = _init_prod__Test_$ShellCommand__lit_test_();
-    private static final AbstractStackNode[] _init_prod__Test_$ShellCommand__lit_test_() {
+    public final static AbstractStackNode prod__Test_$ShellCommand__lit_test_ = _init_prod__Test_$ShellCommand__lit_test_();
+    private static final AbstractStackNode _init_prod__Test_$ShellCommand__lit_test_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-884, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Test_$ShellCommand__lit_test_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $LocationLiteral {
-    public final static AbstractStackNode[] prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_ = _init_prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_();
-    private static final AbstractStackNode[] _init_prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_() {
+    public final static AbstractStackNode prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_ = _init_prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_();
+    private static final AbstractStackNode _init_prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-888, 2, "$PathPart", null, null);
@@ -4425,22 +4425,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-886, 0, "$ProtocolPart", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$LocationLiteral__protocolPart_$ProtocolPart_$layouts_LAYOUTLIST_pathPart_$PathPart_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Range {
-    public final static AbstractStackNode[] prod__Character_$Range__character_$Char_ = _init_prod__Character_$Range__character_$Char_();
-    private static final AbstractStackNode[] _init_prod__Character_$Range__character_$Char_() {
+    public final static AbstractStackNode prod__Character_$Range__character_$Char_ = _init_prod__Character_$Range__character_$Char_();
+    private static final AbstractStackNode _init_prod__Character_$Range__character_$Char_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-901, 0, "$Char", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Character_$Range__character_$Char_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_ = _init_prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_();
-    private static final AbstractStackNode[] _init_prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_() {
+    public final static AbstractStackNode prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_ = _init_prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_();
+    private static final AbstractStackNode _init_prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-906, 4, "$Char", null, null);
@@ -4454,13 +4454,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-902, 0, "$Char", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__FromTo_$Range__start_$Char_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_end_$Char_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $JustTime {
-    public final static AbstractStackNode[] prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_ = _init_prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_();
-    private static final AbstractStackNode[] _init_prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_() {
+    public final static AbstractStackNode prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_ = _init_prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_();
+    private static final AbstractStackNode _init_prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new OptionalStackNode(-918, 2, regular__opt__$TimeZonePart, new NonTerminalStackNode(-919, 0, "$TimeZonePart", null, null), null, null);
@@ -4470,13 +4470,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-916, 0, prod__lit___36_84__char_class___range__36_36_char_class___range__84_84_, new char[] {36,84}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$JustTime__lit___36_84_$TimePartNoTZ_opt__$TimeZonePart_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringCharacter {
-    public final static AbstractStackNode[] prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_ = _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_();
-    private static final AbstractStackNode[] _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_() {
+    public final static AbstractStackNode prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_ = _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_();
+    private static final AbstractStackNode _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-935, 2, new char[][]{{39,39}}, null, null);
@@ -4486,37 +4486,37 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-932, 0, new char[][]{{10,10}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$StringCharacter__$OctalEscapeSequence_ = _init_prod__$StringCharacter__$OctalEscapeSequence_();
-    private static final AbstractStackNode[] _init_prod__$StringCharacter__$OctalEscapeSequence_() {
+    public final static AbstractStackNode prod__$StringCharacter__$OctalEscapeSequence_ = _init_prod__$StringCharacter__$OctalEscapeSequence_();
+    private static final AbstractStackNode _init_prod__$StringCharacter__$OctalEscapeSequence_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-936, 0, "$OctalEscapeSequence", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$StringCharacter__$OctalEscapeSequence_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$StringCharacter__$UnicodeEscape_ = _init_prod__$StringCharacter__$UnicodeEscape_();
-    private static final AbstractStackNode[] _init_prod__$StringCharacter__$UnicodeEscape_() {
+    public final static AbstractStackNode prod__$StringCharacter__$UnicodeEscape_ = _init_prod__$StringCharacter__$UnicodeEscape_();
+    private static final AbstractStackNode _init_prod__$StringCharacter__$UnicodeEscape_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-937, 0, "$UnicodeEscape", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$StringCharacter__$UnicodeEscape_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_();
-    private static final AbstractStackNode[] _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_() {
+    public final static AbstractStackNode prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_();
+    private static final AbstractStackNode _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-938, 0, new char[][]{{0,33},{35,38},{40,59},{61,61},{63,91},{93,65535}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_65535_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_ = _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_();
-    private static final AbstractStackNode[] _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_() {
+    public final static AbstractStackNode prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_ = _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_();
+    private static final AbstractStackNode _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-940, 1, new char[][]{{34,34},{39,39},{60,60},{62,62},{92,92},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
@@ -4524,25 +4524,25 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-939, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $layouts_LAYOUTLIST {
-    public final static AbstractStackNode[] prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_ = _init_prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_();
-    private static final AbstractStackNode[] _init_prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_() {
+    public final static AbstractStackNode prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_ = _init_prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_();
+    private static final AbstractStackNode _init_prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new ListStackNode(-942, 0, regular__iter_star__$LAYOUT, new NonTerminalStackNode(-943, 0, "$LAYOUT", null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}}), new StringFollowRestriction(new char[] {47,47}), new StringFollowRestriction(new char[] {47,42})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$layouts_LAYOUTLIST__conditional__iter_star__$LAYOUT__not_follow__char_class___range__9_10_range__13_13_range__32_32_not_follow__lit___47_47_not_follow__lit___47_42_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DataTarget {
-    public final static AbstractStackNode[] prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_ = _init_prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_();
-    private static final AbstractStackNode[] _init_prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_() {
+    public final static AbstractStackNode prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_ = _init_prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_();
+    private static final AbstractStackNode _init_prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-986, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, null, null);
@@ -4552,22 +4552,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-984, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Labeled_$DataTarget__label_$Name_$layouts_LAYOUTLIST_lit___58_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Empty_$DataTarget__ = _init_prod__Empty_$DataTarget__();
-    private static final AbstractStackNode[] _init_prod__Empty_$DataTarget__() {
+    public final static AbstractStackNode prod__Empty_$DataTarget__ = _init_prod__Empty_$DataTarget__();
+    private static final AbstractStackNode _init_prod__Empty_$DataTarget__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-987, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Empty_$DataTarget__);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $RealLiteral {
-    public final static AbstractStackNode[] prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-990, 1, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null);
@@ -4575,10 +4575,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new ListStackNode(-988, 0, regular__iter__char_class___range__48_57, new CharStackNode(-989, 0, new char[][]{{48,57}}, null, null), true, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new OptionalStackNode(-998, 4, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(-999, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null), null, null);
@@ -4592,10 +4592,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new ListStackNode(-991, 0, regular__iter__char_class___range__48_57, new CharStackNode(-992, 0, new char[][]{{48,57}}, null, null), true, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__$RealLiteral__iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new OptionalStackNode(-1010, 6, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(-1011, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null), null, null);
@@ -4613,10 +4613,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new ListStackNode(-1000, 0, regular__iter__char_class___range__48_57, new CharStackNode(-1001, 0, new char[][]{{48,57}}, null, null), true, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[0] = new LiteralStackNode(-1012, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, null);
@@ -4626,10 +4626,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new OptionalStackNode(-1015, 2, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(-1016, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null), null, null);
       tmp[2].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[6];
       
       tmp[5] = new OptionalStackNode(-1032, 5, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(-1033, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null), null, null);
@@ -4645,10 +4645,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1024, 0, prod__lit___46__char_class___range__46_46_, new char[] {46}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{46,46}})}, null);
       tmp[0].setProduction(tmp);
       tmp[5].setParentProduction(RascalRascal.prod__$RealLiteral__conditional__lit___46__not_precede__char_class___range__46_46_iter__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
-    private static final AbstractStackNode[] _init_prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
+    public final static AbstractStackNode prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = _init_prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_();
+    private static final AbstractStackNode _init_prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
       tmp[3] = new OptionalStackNode(-1022, 3, regular__opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102, new CharStackNode(-1023, 0, new char[][]{{68,68},{70,70},{100,100},{102,102}}, null, null), null, null);
@@ -4660,34 +4660,34 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new ListStackNode(-1017, 0, regular__iter__char_class___range__48_57, new CharStackNode(-1018, 0, new char[][]{{48,57}}, null, null), true, null, null);
       tmp[0].setProduction(tmp);
       tmp[3].setParentProduction(RascalRascal.prod__$RealLiteral__iter__char_class___range__48_57_conditional__lit___46__not_follow__lit___46_iter_star__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $layouts_$default$ {
-    public final static AbstractStackNode[] prod__$layouts_$default$__ = _init_prod__$layouts_$default$__();
-    private static final AbstractStackNode[] _init_prod__$layouts_$default$__() {
+    public final static AbstractStackNode prod__$layouts_$default$__ = _init_prod__$layouts_$default$__();
+    private static final AbstractStackNode _init_prod__$layouts_$default$__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-1036, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$layouts_$default$__);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Replacement {
-    public final static AbstractStackNode[] prod__Unconditional_$Replacement__replacementExpression_$Expression_ = _init_prod__Unconditional_$Replacement__replacementExpression_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Unconditional_$Replacement__replacementExpression_$Expression_() {
+    public final static AbstractStackNode prod__Unconditional_$Replacement__replacementExpression_$Expression_ = _init_prod__Unconditional_$Replacement__replacementExpression_$Expression_();
+    private static final AbstractStackNode _init_prod__Unconditional_$Replacement__replacementExpression_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1039, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Unconditional_$Replacement__replacementExpression_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new SeparatedListStackNode(-1044, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode(-1045, 0, "$Expression", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-1046, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-1047, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, null, null), new NonTerminalStackNode(-1048, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
@@ -4701,64 +4701,64 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1040, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Assoc {
-    public final static AbstractStackNode[] prod__Right_$Assoc__lit_right_ = _init_prod__Right_$Assoc__lit_right_();
-    private static final AbstractStackNode[] _init_prod__Right_$Assoc__lit_right_() {
+    public final static AbstractStackNode prod__Right_$Assoc__lit_right_ = _init_prod__Right_$Assoc__lit_right_();
+    private static final AbstractStackNode _init_prod__Right_$Assoc__lit_right_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1061, 0, prod__lit_right__char_class___range__114_114_char_class___range__105_105_char_class___range__103_103_char_class___range__104_104_char_class___range__116_116_, new char[] {114,105,103,104,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Right_$Assoc__lit_right_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NonAssociative_$Assoc__lit_non_assoc_ = _init_prod__NonAssociative_$Assoc__lit_non_assoc_();
-    private static final AbstractStackNode[] _init_prod__NonAssociative_$Assoc__lit_non_assoc_() {
+    public final static AbstractStackNode prod__NonAssociative_$Assoc__lit_non_assoc_ = _init_prod__NonAssociative_$Assoc__lit_non_assoc_();
+    private static final AbstractStackNode _init_prod__NonAssociative_$Assoc__lit_non_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1062, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__NonAssociative_$Assoc__lit_non_assoc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Left_$Assoc__lit_left_ = _init_prod__Left_$Assoc__lit_left_();
-    private static final AbstractStackNode[] _init_prod__Left_$Assoc__lit_left_() {
+    public final static AbstractStackNode prod__Left_$Assoc__lit_left_ = _init_prod__Left_$Assoc__lit_left_();
+    private static final AbstractStackNode _init_prod__Left_$Assoc__lit_left_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1063, 0, prod__lit_left__char_class___range__108_108_char_class___range__101_101_char_class___range__102_102_char_class___range__116_116_, new char[] {108,101,102,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Left_$Assoc__lit_left_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Associative_$Assoc__lit_assoc_ = _init_prod__Associative_$Assoc__lit_assoc_();
-    private static final AbstractStackNode[] _init_prod__Associative_$Assoc__lit_assoc_() {
+    public final static AbstractStackNode prod__Associative_$Assoc__lit_assoc_ = _init_prod__Associative_$Assoc__lit_assoc_();
+    private static final AbstractStackNode _init_prod__Associative_$Assoc__lit_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1064, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Associative_$Assoc__lit_assoc_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $RegExpModifier {
-    public final static AbstractStackNode[] prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_ = _init_prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_();
-    private static final AbstractStackNode[] _init_prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_() {
+    public final static AbstractStackNode prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_ = _init_prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_();
+    private static final AbstractStackNode _init_prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new ListStackNode(-1067, 0, regular__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115, new CharStackNode(-1068, 0, new char[][]{{100,100},{105,105},{109,109},{115,115}}, null, null), false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RegExpModifier__iter_star__char_class___range__100_100_range__105_105_range__109_109_range__115_115_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $MidStringChars {
-    public final static AbstractStackNode[] prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-1072, 2, new char[][]{{60,60}}, null, null);
@@ -4768,22 +4768,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1069, 0, new char[][]{{62,62}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$MidStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__60_60__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $RegExp {
-    public final static AbstractStackNode[] prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
-    private static final AbstractStackNode[] _init_prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
+    public final static AbstractStackNode prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
+    private static final AbstractStackNode _init_prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-1073, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101();
-    private static final AbstractStackNode[] _init_prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101() {
+    public final static AbstractStackNode prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101 = _init_prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101();
+    private static final AbstractStackNode _init_prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-1076, 2, new char[][]{{62,62}}, null, null);
@@ -4793,10 +4793,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1074, 0, new char[][]{{60,60}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$RegExp__char_class___range__60_60_expression_$Expression_char_class___range__62_62__tag__category___77_101_116_97_86_97_114_105_97_98_108_101);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_ = _init_prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_();
-    private static final AbstractStackNode[] _init_prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_() {
+    public final static AbstractStackNode prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_ = _init_prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_();
+    private static final AbstractStackNode _init_prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1082, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -4810,10 +4810,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1077, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__$RegExp__lit___60_$Name_lit___58_iter_star__$NamedRegExp_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RegExp__lit___60_$Name_lit___62_ = _init_prod__$RegExp__lit___60_$Name_lit___62_();
-    private static final AbstractStackNode[] _init_prod__$RegExp__lit___60_$Name_lit___62_() {
+    public final static AbstractStackNode prod__$RegExp__lit___60_$Name_lit___62_ = _init_prod__$RegExp__lit___60_$Name_lit___62_();
+    private static final AbstractStackNode _init_prod__$RegExp__lit___60_$Name_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1085, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -4823,10 +4823,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1083, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$RegExp__lit___60_$Name_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
-    private static final AbstractStackNode[] _init_prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
+    public final static AbstractStackNode prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
+    private static final AbstractStackNode _init_prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-1087, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, null, null);
@@ -4834,31 +4834,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1086, 0, new char[][]{{92,92}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$RegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RegExp__$Backslash_ = _init_prod__$RegExp__$Backslash_();
-    private static final AbstractStackNode[] _init_prod__$RegExp__$Backslash_() {
+    public final static AbstractStackNode prod__$RegExp__$Backslash_ = _init_prod__$RegExp__$Backslash_();
+    private static final AbstractStackNode _init_prod__$RegExp__$Backslash_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1088, 0, "$Backslash", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RegExp__$Backslash_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PathPart {
-    public final static AbstractStackNode[] prod__NonInterpolated_$PathPart__pathChars_$PathChars_ = _init_prod__NonInterpolated_$PathPart__pathChars_$PathChars_();
-    private static final AbstractStackNode[] _init_prod__NonInterpolated_$PathPart__pathChars_$PathChars_() {
+    public final static AbstractStackNode prod__NonInterpolated_$PathPart__pathChars_$PathChars_ = _init_prod__NonInterpolated_$PathPart__pathChars_$PathChars_();
+    private static final AbstractStackNode _init_prod__NonInterpolated_$PathPart__pathChars_$PathChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1096, 0, "$PathChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__NonInterpolated_$PathPart__pathChars_$PathChars_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_ = _init_prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_();
-    private static final AbstractStackNode[] _init_prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_() {
+    public final static AbstractStackNode prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_ = _init_prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_();
+    private static final AbstractStackNode _init_prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1101, 4, "$PathTail", null, null);
@@ -4872,13 +4872,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1097, 0, "$PrePathChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Interpolated_$PathPart__pre_$PrePathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringTemplate {
-    public final static AbstractStackNode[] prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_ = _init_prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_ = _init_prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[19];
       
       tmp[18] = new LiteralStackNode(-1141, 18, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -4920,10 +4920,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1119, 0, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new char[] {100,111}, null, null);
       tmp[0].setProduction(tmp);
       tmp[18].setParentProduction(RascalRascal.prod__DoWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
       tmp[16] = new LiteralStackNode(-1162, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -4961,10 +4961,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1142, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[16].setParentProduction(RascalRascal.prod__While_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[29];
       
       tmp[28] = new LiteralStackNode(-1228, 28, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -5026,10 +5026,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1188, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, null, null);
       tmp[0].setProduction(tmp);
       tmp[28].setParentProduction(RascalRascal.prod__IfThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
       tmp[16] = new LiteralStackNode(-1187, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -5067,10 +5067,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1163, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[16].setParentProduction(RascalRascal.prod__For_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[17];
       
       tmp[16] = new LiteralStackNode(-1253, 16, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -5108,13 +5108,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1229, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, null, null);
       tmp[0].setProduction(tmp);
       tmp[16].setParentProduction(RascalRascal.prod__IfThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DecimalIntegerLiteral {
-    public final static AbstractStackNode[] prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new ListStackNode(-1255, 1, regular__iter_star__char_class___range__48_57, new CharStackNode(-1256, 0, new char[][]{{48,57}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
@@ -5122,76 +5122,76 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1254, 0, new char[][]{{49,57}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$DecimalIntegerLiteral__char_class___range__49_57_conditional__iter_star__char_class___range__48_57__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1257, 0, prod__lit_0__char_class___range__48_48_, new char[] {48}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$DecimalIntegerLiteral__conditional__lit_0__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $LAYOUT {
-    public final static AbstractStackNode[] prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_ = _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_();
-    private static final AbstractStackNode[] _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_() {
+    public final static AbstractStackNode prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_ = _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_();
+    private static final AbstractStackNode _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-1272, 0, new char[][]{{9,10},{13,13},{32,32}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$LAYOUT__$Comment_ = _init_prod__$LAYOUT__$Comment_();
-    private static final AbstractStackNode[] _init_prod__$LAYOUT__$Comment_() {
+    public final static AbstractStackNode prod__$LAYOUT__$Comment_ = _init_prod__$LAYOUT__$Comment_();
+    private static final AbstractStackNode _init_prod__$LAYOUT__$Comment_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1273, 0, "$Comment", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$LAYOUT__$Comment_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Word {
-    public final static AbstractStackNode[] prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_ = _init_prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_();
-    private static final AbstractStackNode[] _init_prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_() {
+    public final static AbstractStackNode prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_ = _init_prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_();
+    private static final AbstractStackNode _init_prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new ListStackNode(-1270, 0, regular__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535, new CharStackNode(-1271, 0, new char[][]{{0,8},{11,12},{14,31},{33,65535}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{0,8},{11,12},{14,31},{33,65535}})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Word__conditional__iter__char_class___range__0_8_range__11_12_range__14_31_range__33_65535__not_follow__char_class___range__0_8_range__11_12_range__14_31_range__33_65535_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Body {
-    public final static AbstractStackNode[] prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_ = _init_prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_ = _init_prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-1267, 0, regular__iter_star_seps__$Toplevel__$layouts_LAYOUTLIST, new NonTerminalStackNode(-1268, 0, "$Toplevel", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-1269, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Import {
-    public final static AbstractStackNode[] prod__Syntax_$Import__syntax_$SyntaxDefinition_ = _init_prod__Syntax_$Import__syntax_$SyntaxDefinition_();
-    private static final AbstractStackNode[] _init_prod__Syntax_$Import__syntax_$SyntaxDefinition_() {
+    public final static AbstractStackNode prod__Syntax_$Import__syntax_$SyntaxDefinition_ = _init_prod__Syntax_$Import__syntax_$SyntaxDefinition_();
+    private static final AbstractStackNode _init_prod__Syntax_$Import__syntax_$SyntaxDefinition_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1288, 0, "$SyntaxDefinition", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Syntax_$Import__syntax_$SyntaxDefinition_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1293, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5205,10 +5205,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1289, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1298, 4, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5222,13 +5222,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1294, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $UserType {
-    public final static AbstractStackNode[] prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-1286, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -5246,22 +5246,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1276, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Name_$UserType__name_$QualifiedName_ = _init_prod__Name_$UserType__name_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Name_$UserType__name_$QualifiedName_() {
+    public final static AbstractStackNode prod__Name_$UserType__name_$QualifiedName_ = _init_prod__Name_$UserType__name_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Name_$UserType__name_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1287, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Name_$UserType__name_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $FunctionBody {
-    public final static AbstractStackNode[] prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1309, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -5275,13 +5275,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1303, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class start__$Command {
-    public final static AbstractStackNode[] prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_ = _init_prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_ = _init_prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-1319, 2, "$layouts_LAYOUTLIST", null, null);
@@ -5291,64 +5291,64 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1317, 0, "$layouts_LAYOUTLIST", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $IntegerLiteral {
-    public final static AbstractStackNode[] prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_ = _init_prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_() {
+    public final static AbstractStackNode prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_ = _init_prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_();
+    private static final AbstractStackNode _init_prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1325, 0, "$DecimalIntegerLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__DecimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_ = _init_prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_() {
+    public final static AbstractStackNode prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_ = _init_prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_();
+    private static final AbstractStackNode _init_prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1326, 0, "$OctalIntegerLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__OctalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_ = _init_prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_() {
+    public final static AbstractStackNode prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_ = _init_prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_();
+    private static final AbstractStackNode _init_prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1327, 0, "$HexIntegerLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__HexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Target {
-    public final static AbstractStackNode[] prod__Labeled_$Target__name_$Name_ = _init_prod__Labeled_$Target__name_$Name_();
-    private static final AbstractStackNode[] _init_prod__Labeled_$Target__name_$Name_() {
+    public final static AbstractStackNode prod__Labeled_$Target__name_$Name_ = _init_prod__Labeled_$Target__name_$Name_();
+    private static final AbstractStackNode _init_prod__Labeled_$Target__name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1323, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Labeled_$Target__name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Empty_$Target__ = _init_prod__Empty_$Target__();
-    private static final AbstractStackNode[] _init_prod__Empty_$Target__() {
+    public final static AbstractStackNode prod__Empty_$Target__ = _init_prod__Empty_$Target__();
+    private static final AbstractStackNode _init_prod__Empty_$Target__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-1324, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Empty_$Target__);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $SyntaxDefinition {
-    public final static AbstractStackNode[] prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new LiteralStackNode(-1348, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5374,10 +5374,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1338, 0, "$Start", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__Language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-1357, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5399,10 +5399,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1349, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-1366, 8, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5424,10 +5424,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1358, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new LiteralStackNode(-1377, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -5453,106 +5453,106 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1367, 0, "$Visibility", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__Layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Kind {
-    public final static AbstractStackNode[] prod__All_$Kind__lit_all_ = _init_prod__All_$Kind__lit_all_();
-    private static final AbstractStackNode[] _init_prod__All_$Kind__lit_all_() {
+    public final static AbstractStackNode prod__All_$Kind__lit_all_ = _init_prod__All_$Kind__lit_all_();
+    private static final AbstractStackNode _init_prod__All_$Kind__lit_all_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1378, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__All_$Kind__lit_all_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Module_$Kind__lit_module_ = _init_prod__Module_$Kind__lit_module_();
-    private static final AbstractStackNode[] _init_prod__Module_$Kind__lit_module_() {
+    public final static AbstractStackNode prod__Module_$Kind__lit_module_ = _init_prod__Module_$Kind__lit_module_();
+    private static final AbstractStackNode _init_prod__Module_$Kind__lit_module_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1379, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Module_$Kind__lit_module_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Variable_$Kind__lit_variable_ = _init_prod__Variable_$Kind__lit_variable_();
-    private static final AbstractStackNode[] _init_prod__Variable_$Kind__lit_variable_() {
+    public final static AbstractStackNode prod__Variable_$Kind__lit_variable_ = _init_prod__Variable_$Kind__lit_variable_();
+    private static final AbstractStackNode _init_prod__Variable_$Kind__lit_variable_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1380, 0, prod__lit_variable__char_class___range__118_118_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__98_98_char_class___range__108_108_char_class___range__101_101_, new char[] {118,97,114,105,97,98,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Variable_$Kind__lit_variable_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Rule_$Kind__lit_rule_ = _init_prod__Rule_$Kind__lit_rule_();
-    private static final AbstractStackNode[] _init_prod__Rule_$Kind__lit_rule_() {
+    public final static AbstractStackNode prod__Rule_$Kind__lit_rule_ = _init_prod__Rule_$Kind__lit_rule_();
+    private static final AbstractStackNode _init_prod__Rule_$Kind__lit_rule_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1381, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Rule_$Kind__lit_rule_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Anno_$Kind__lit_anno_ = _init_prod__Anno_$Kind__lit_anno_();
-    private static final AbstractStackNode[] _init_prod__Anno_$Kind__lit_anno_() {
+    public final static AbstractStackNode prod__Anno_$Kind__lit_anno_ = _init_prod__Anno_$Kind__lit_anno_();
+    private static final AbstractStackNode _init_prod__Anno_$Kind__lit_anno_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1382, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Anno_$Kind__lit_anno_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Data_$Kind__lit_data_ = _init_prod__Data_$Kind__lit_data_();
-    private static final AbstractStackNode[] _init_prod__Data_$Kind__lit_data_() {
+    public final static AbstractStackNode prod__Data_$Kind__lit_data_ = _init_prod__Data_$Kind__lit_data_();
+    private static final AbstractStackNode _init_prod__Data_$Kind__lit_data_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1383, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Data_$Kind__lit_data_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tag_$Kind__lit_tag_ = _init_prod__Tag_$Kind__lit_tag_();
-    private static final AbstractStackNode[] _init_prod__Tag_$Kind__lit_tag_() {
+    public final static AbstractStackNode prod__Tag_$Kind__lit_tag_ = _init_prod__Tag_$Kind__lit_tag_();
+    private static final AbstractStackNode _init_prod__Tag_$Kind__lit_tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1384, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Tag_$Kind__lit_tag_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Function_$Kind__lit_function_ = _init_prod__Function_$Kind__lit_function_();
-    private static final AbstractStackNode[] _init_prod__Function_$Kind__lit_function_() {
+    public final static AbstractStackNode prod__Function_$Kind__lit_function_ = _init_prod__Function_$Kind__lit_function_();
+    private static final AbstractStackNode _init_prod__Function_$Kind__lit_function_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1385, 0, prod__lit_function__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_, new char[] {102,117,110,99,116,105,111,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Function_$Kind__lit_function_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__View_$Kind__lit_view_ = _init_prod__View_$Kind__lit_view_();
-    private static final AbstractStackNode[] _init_prod__View_$Kind__lit_view_() {
+    public final static AbstractStackNode prod__View_$Kind__lit_view_ = _init_prod__View_$Kind__lit_view_();
+    private static final AbstractStackNode _init_prod__View_$Kind__lit_view_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1386, 0, prod__lit_view__char_class___range__118_118_char_class___range__105_105_char_class___range__101_101_char_class___range__119_119_, new char[] {118,105,101,119}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__View_$Kind__lit_view_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Alias_$Kind__lit_alias_ = _init_prod__Alias_$Kind__lit_alias_();
-    private static final AbstractStackNode[] _init_prod__Alias_$Kind__lit_alias_() {
+    public final static AbstractStackNode prod__Alias_$Kind__lit_alias_ = _init_prod__Alias_$Kind__lit_alias_();
+    private static final AbstractStackNode _init_prod__Alias_$Kind__lit_alias_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1387, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Alias_$Kind__lit_alias_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Mapping__$Expression {
-    public final static AbstractStackNode[] prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_ = _init_prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_() {
+    public final static AbstractStackNode prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_ = _init_prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_();
+    private static final AbstractStackNode _init_prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1402, 4, "$Expression", null, null);
@@ -5566,13 +5566,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1398, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PostProtocolChars {
-    public final static AbstractStackNode[] prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_ = _init_prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_();
-    private static final AbstractStackNode[] _init_prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_() {
+    public final static AbstractStackNode prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_ = _init_prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_();
+    private static final AbstractStackNode _init_prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1409, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, null, null);
@@ -5582,13 +5582,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1407, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $MidPathChars {
-    public final static AbstractStackNode[] prod__$MidPathChars__lit___62_$URLChars_lit___60_ = _init_prod__$MidPathChars__lit___62_$URLChars_lit___60_();
-    private static final AbstractStackNode[] _init_prod__$MidPathChars__lit___62_$URLChars_lit___60_() {
+    public final static AbstractStackNode prod__$MidPathChars__lit___62_$URLChars_lit___60_ = _init_prod__$MidPathChars__lit___62_$URLChars_lit___60_();
+    private static final AbstractStackNode _init_prod__$MidPathChars__lit___62_$URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1428, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
@@ -5598,40 +5598,40 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1426, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$MidPathChars__lit___62_$URLChars_lit___60_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Char {
-    public final static AbstractStackNode[] prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1429, 0, "$OctalEscapeSequence", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Char__$OctalEscapeSequence__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1430, 0, "$UnicodeEscape", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-1431, 0, new char[][]{{0,31},{33,33},{35,38},{40,44},{46,59},{61,61},{63,90},{94,65535}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_65535__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-1433, 1, new char[][]{{32,32},{34,34},{39,39},{45,45},{60,60},{62,62},{91,93},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
@@ -5639,13 +5639,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1432, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PrePathChars {
-    public final static AbstractStackNode[] prod__$PrePathChars__$URLChars_lit___60_ = _init_prod__$PrePathChars__$URLChars_lit___60_();
-    private static final AbstractStackNode[] _init_prod__$PrePathChars__$URLChars_lit___60_() {
+    public final static AbstractStackNode prod__$PrePathChars__$URLChars_lit___60_ = _init_prod__$PrePathChars__$URLChars_lit___60_();
+    private static final AbstractStackNode _init_prod__$PrePathChars__$URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new LiteralStackNode(-1435, 1, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
@@ -5653,70 +5653,70 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1434, 0, "$URLChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$PrePathChars__$URLChars_lit___60_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Strategy {
-    public final static AbstractStackNode[] prod__BottomUpBreak_$Strategy__lit_bottom_up_break_ = _init_prod__BottomUpBreak_$Strategy__lit_bottom_up_break_();
-    private static final AbstractStackNode[] _init_prod__BottomUpBreak_$Strategy__lit_bottom_up_break_() {
+    public final static AbstractStackNode prod__BottomUpBreak_$Strategy__lit_bottom_up_break_ = _init_prod__BottomUpBreak_$Strategy__lit_bottom_up_break_();
+    private static final AbstractStackNode _init_prod__BottomUpBreak_$Strategy__lit_bottom_up_break_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1440, 0, prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {98,111,116,116,111,109,45,117,112,45,98,114,101,97,107}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__BottomUpBreak_$Strategy__lit_bottom_up_break_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Outermost_$Strategy__lit_outermost_ = _init_prod__Outermost_$Strategy__lit_outermost_();
-    private static final AbstractStackNode[] _init_prod__Outermost_$Strategy__lit_outermost_() {
+    public final static AbstractStackNode prod__Outermost_$Strategy__lit_outermost_ = _init_prod__Outermost_$Strategy__lit_outermost_();
+    private static final AbstractStackNode _init_prod__Outermost_$Strategy__lit_outermost_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1441, 0, prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {111,117,116,101,114,109,111,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Outermost_$Strategy__lit_outermost_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__BottomUp_$Strategy__lit_bottom_up_ = _init_prod__BottomUp_$Strategy__lit_bottom_up_();
-    private static final AbstractStackNode[] _init_prod__BottomUp_$Strategy__lit_bottom_up_() {
+    public final static AbstractStackNode prod__BottomUp_$Strategy__lit_bottom_up_ = _init_prod__BottomUp_$Strategy__lit_bottom_up_();
+    private static final AbstractStackNode _init_prod__BottomUp_$Strategy__lit_bottom_up_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1442, 0, prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_, new char[] {98,111,116,116,111,109,45,117,112}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__BottomUp_$Strategy__lit_bottom_up_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Innermost_$Strategy__lit_innermost_ = _init_prod__Innermost_$Strategy__lit_innermost_();
-    private static final AbstractStackNode[] _init_prod__Innermost_$Strategy__lit_innermost_() {
+    public final static AbstractStackNode prod__Innermost_$Strategy__lit_innermost_ = _init_prod__Innermost_$Strategy__lit_innermost_();
+    private static final AbstractStackNode _init_prod__Innermost_$Strategy__lit_innermost_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1443, 0, prod__lit_innermost__char_class___range__105_105_char_class___range__110_110_char_class___range__110_110_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new char[] {105,110,110,101,114,109,111,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Innermost_$Strategy__lit_innermost_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TopDownBreak_$Strategy__lit_top_down_break_ = _init_prod__TopDownBreak_$Strategy__lit_top_down_break_();
-    private static final AbstractStackNode[] _init_prod__TopDownBreak_$Strategy__lit_top_down_break_() {
+    public final static AbstractStackNode prod__TopDownBreak_$Strategy__lit_top_down_break_ = _init_prod__TopDownBreak_$Strategy__lit_top_down_break_();
+    private static final AbstractStackNode _init_prod__TopDownBreak_$Strategy__lit_top_down_break_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1444, 0, prod__lit_top_down_break__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new char[] {116,111,112,45,100,111,119,110,45,98,114,101,97,107}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__TopDownBreak_$Strategy__lit_top_down_break_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TopDown_$Strategy__lit_top_down_ = _init_prod__TopDown_$Strategy__lit_top_down_();
-    private static final AbstractStackNode[] _init_prod__TopDown_$Strategy__lit_top_down_() {
+    public final static AbstractStackNode prod__TopDown_$Strategy__lit_top_down_ = _init_prod__TopDown_$Strategy__lit_top_down_();
+    private static final AbstractStackNode _init_prod__TopDown_$Strategy__lit_top_down_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1445, 0, prod__lit_top_down__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_, new char[] {116,111,112,45,100,111,119,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__TopDown_$Strategy__lit_top_down_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ModuleParameters {
-    public final static AbstractStackNode[] prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1465, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -5730,619 +5730,619 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1457, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $RascalKeywords {
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_solve_ = _init_prod__$RascalKeywords__lit_solve_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_solve_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_solve_ = _init_prod__$RascalKeywords__lit_solve_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_solve_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1466, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new char[] {115,111,108,118,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_solve_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_rel_ = _init_prod__$RascalKeywords__lit_rel_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_rel_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_rel_ = _init_prod__$RascalKeywords__lit_rel_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_rel_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1467, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_rel_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_false_ = _init_prod__$RascalKeywords__lit_false_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_false_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_false_ = _init_prod__$RascalKeywords__lit_false_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_false_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1468, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {102,97,108,115,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_false_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_any_ = _init_prod__$RascalKeywords__lit_any_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_any_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_any_ = _init_prod__$RascalKeywords__lit_any_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_any_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1469, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_any_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_all_ = _init_prod__$RascalKeywords__lit_all_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_all_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_all_ = _init_prod__$RascalKeywords__lit_all_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_all_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1470, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_all_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_real_ = _init_prod__$RascalKeywords__lit_real_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_real_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_real_ = _init_prod__$RascalKeywords__lit_real_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_real_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1472, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_real_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_finally_ = _init_prod__$RascalKeywords__lit_finally_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_finally_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_finally_ = _init_prod__$RascalKeywords__lit_finally_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_finally_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1471, 0, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new char[] {102,105,110,97,108,108,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_finally_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_bool_ = _init_prod__$RascalKeywords__lit_bool_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_bool_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_bool_ = _init_prod__$RascalKeywords__lit_bool_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_bool_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1473, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_bool_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_datetime_ = _init_prod__$RascalKeywords__lit_datetime_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_datetime_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_datetime_ = _init_prod__$RascalKeywords__lit_datetime_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_datetime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1474, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_datetime_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_while_ = _init_prod__$RascalKeywords__lit_while_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_while_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_while_ = _init_prod__$RascalKeywords__lit_while_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_while_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1477, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new char[] {119,104,105,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_while_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_case_ = _init_prod__$RascalKeywords__lit_case_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_case_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_case_ = _init_prod__$RascalKeywords__lit_case_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_case_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1476, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new char[] {99,97,115,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_case_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_layout_ = _init_prod__$RascalKeywords__lit_layout_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_layout_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_layout_ = _init_prod__$RascalKeywords__lit_layout_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_layout_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1475, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_layout_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_num_ = _init_prod__$RascalKeywords__lit_num_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_num_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_num_ = _init_prod__$RascalKeywords__lit_num_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_num_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1478, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_num_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_set_ = _init_prod__$RascalKeywords__lit_set_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_set_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_set_ = _init_prod__$RascalKeywords__lit_set_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_set_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1479, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_set_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_bag_ = _init_prod__$RascalKeywords__lit_bag_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_bag_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_bag_ = _init_prod__$RascalKeywords__lit_bag_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_bag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1480, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_bag_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_assoc_ = _init_prod__$RascalKeywords__lit_assoc_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_assoc_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_assoc_ = _init_prod__$RascalKeywords__lit_assoc_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1481, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {97,115,115,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_assoc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_for_ = _init_prod__$RascalKeywords__lit_for_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_for_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_for_ = _init_prod__$RascalKeywords__lit_for_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_for_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1482, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new char[] {102,111,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_for_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_bracket_ = _init_prod__$RascalKeywords__lit_bracket_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_bracket_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_bracket_ = _init_prod__$RascalKeywords__lit_bracket_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_bracket_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1483, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new char[] {98,114,97,99,107,101,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_bracket_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_fun_ = _init_prod__$RascalKeywords__lit_fun_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_fun_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_fun_ = _init_prod__$RascalKeywords__lit_fun_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_fun_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1484, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_fun_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_visit_ = _init_prod__$RascalKeywords__lit_visit_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_visit_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_visit_ = _init_prod__$RascalKeywords__lit_visit_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1485, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new char[] {118,105,115,105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_visit_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_return_ = _init_prod__$RascalKeywords__lit_return_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_return_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_return_ = _init_prod__$RascalKeywords__lit_return_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_return_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1490, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new char[] {114,101,116,117,114,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_return_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_else_ = _init_prod__$RascalKeywords__lit_else_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_else_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_else_ = _init_prod__$RascalKeywords__lit_else_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_else_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1489, 0, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new char[] {101,108,115,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_else_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_in_ = _init_prod__$RascalKeywords__lit_in_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_in_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_in_ = _init_prod__$RascalKeywords__lit_in_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_in_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1488, 0, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new char[] {105,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_in_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_it_ = _init_prod__$RascalKeywords__lit_it_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_it_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_it_ = _init_prod__$RascalKeywords__lit_it_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_it_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1487, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_it_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_join_ = _init_prod__$RascalKeywords__lit_join_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_join_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_join_ = _init_prod__$RascalKeywords__lit_join_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_join_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1486, 0, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new char[] {106,111,105,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_join_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_if_ = _init_prod__$RascalKeywords__lit_if_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_if_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_if_ = _init_prod__$RascalKeywords__lit_if_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_if_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1491, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new char[] {105,102}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_if_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_non_assoc_ = _init_prod__$RascalKeywords__lit_non_assoc_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_non_assoc_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_non_assoc_ = _init_prod__$RascalKeywords__lit_non_assoc_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_non_assoc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1492, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new char[] {110,111,110,45,97,115,115,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_non_assoc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_repeat_ = _init_prod__$RascalKeywords__lit_repeat_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_repeat_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_repeat_ = _init_prod__$RascalKeywords__lit_repeat_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_repeat_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1493, 0, prod__lit_repeat__char_class___range__114_114_char_class___range__101_101_char_class___range__112_112_char_class___range__101_101_char_class___range__97_97_char_class___range__116_116_, new char[] {114,101,112,101,97,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_repeat_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_one_ = _init_prod__$RascalKeywords__lit_one_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_one_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_one_ = _init_prod__$RascalKeywords__lit_one_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_one_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1494, 0, prod__lit_one__char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_, new char[] {111,110,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_one_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_str_ = _init_prod__$RascalKeywords__lit_str_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_str_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_str_ = _init_prod__$RascalKeywords__lit_str_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_str_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1495, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_str_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_node_ = _init_prod__$RascalKeywords__lit_node_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_node_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_node_ = _init_prod__$RascalKeywords__lit_node_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_node_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1496, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_node_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_catch_ = _init_prod__$RascalKeywords__lit_catch_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_catch_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_catch_ = _init_prod__$RascalKeywords__lit_catch_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_catch_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1497, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {99,97,116,99,104}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_catch_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_type_ = _init_prod__$RascalKeywords__lit_type_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_type_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_type_ = _init_prod__$RascalKeywords__lit_type_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1499, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_type_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_notin_ = _init_prod__$RascalKeywords__lit_notin_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_notin_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_notin_ = _init_prod__$RascalKeywords__lit_notin_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_notin_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1498, 0, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new char[] {110,111,116,105,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_notin_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_extend_ = _init_prod__$RascalKeywords__lit_extend_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_extend_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_extend_ = _init_prod__$RascalKeywords__lit_extend_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_extend_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1501, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_extend_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_append_ = _init_prod__$RascalKeywords__lit_append_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_append_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_append_ = _init_prod__$RascalKeywords__lit_append_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_append_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1500, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {97,112,112,101,110,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_append_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_data_ = _init_prod__$RascalKeywords__lit_data_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_data_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_data_ = _init_prod__$RascalKeywords__lit_data_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_data_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1502, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new char[] {100,97,116,97}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_data_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_tag_ = _init_prod__$RascalKeywords__lit_tag_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_tag_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_tag_ = _init_prod__$RascalKeywords__lit_tag_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_tag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1503, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new char[] {116,97,103}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_tag_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_dynamic_ = _init_prod__$RascalKeywords__lit_dynamic_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_dynamic_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_dynamic_ = _init_prod__$RascalKeywords__lit_dynamic_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_dynamic_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1504, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_dynamic_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_list_ = _init_prod__$RascalKeywords__lit_list_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_list_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_list_ = _init_prod__$RascalKeywords__lit_list_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_list_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1505, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_list_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_non_terminal_ = _init_prod__$RascalKeywords__lit_non_terminal_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_non_terminal_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_non_terminal_ = _init_prod__$RascalKeywords__lit_non_terminal_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_non_terminal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1506, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_non_terminal_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_value_ = _init_prod__$RascalKeywords__lit_value_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_value_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_value_ = _init_prod__$RascalKeywords__lit_value_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_value_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1507, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_value_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__$BasicType_ = _init_prod__$RascalKeywords__$BasicType_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__$BasicType_() {
+    public final static AbstractStackNode prod__$RascalKeywords__$BasicType_ = _init_prod__$RascalKeywords__$BasicType_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__$BasicType_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1508, 0, "$BasicType", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__$BasicType_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_try_ = _init_prod__$RascalKeywords__lit_try_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_try_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_try_ = _init_prod__$RascalKeywords__lit_try_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_try_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1509, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new char[] {116,114,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_try_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_void_ = _init_prod__$RascalKeywords__lit_void_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_void_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_void_ = _init_prod__$RascalKeywords__lit_void_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_void_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1510, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_void_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_public_ = _init_prod__$RascalKeywords__lit_public_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_public_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_public_ = _init_prod__$RascalKeywords__lit_public_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_public_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1511, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new char[] {112,117,98,108,105,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_public_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_anno_ = _init_prod__$RascalKeywords__lit_anno_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_anno_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_anno_ = _init_prod__$RascalKeywords__lit_anno_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_anno_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1512, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new char[] {97,110,110,111}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_anno_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_insert_ = _init_prod__$RascalKeywords__lit_insert_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_insert_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_insert_ = _init_prod__$RascalKeywords__lit_insert_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_insert_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1513, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {105,110,115,101,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_insert_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_loc_ = _init_prod__$RascalKeywords__lit_loc_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_loc_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_loc_ = _init_prod__$RascalKeywords__lit_loc_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_loc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1515, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_loc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_assert_ = _init_prod__$RascalKeywords__lit_assert_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_assert_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_assert_ = _init_prod__$RascalKeywords__lit_assert_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_assert_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1514, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new char[] {97,115,115,101,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_assert_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_import_ = _init_prod__$RascalKeywords__lit_import_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_import_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_import_ = _init_prod__$RascalKeywords__lit_import_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1516, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_import_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_start_ = _init_prod__$RascalKeywords__lit_start_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_start_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_start_ = _init_prod__$RascalKeywords__lit_start_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1517, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_start_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_test_ = _init_prod__$RascalKeywords__lit_test_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_test_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_test_ = _init_prod__$RascalKeywords__lit_test_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_test_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1518, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_test_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_map_ = _init_prod__$RascalKeywords__lit_map_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_map_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_map_ = _init_prod__$RascalKeywords__lit_map_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_map_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1519, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_map_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_true_ = _init_prod__$RascalKeywords__lit_true_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_true_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_true_ = _init_prod__$RascalKeywords__lit_true_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_true_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1520, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new char[] {116,114,117,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_true_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_private_ = _init_prod__$RascalKeywords__lit_private_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_private_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_private_ = _init_prod__$RascalKeywords__lit_private_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_private_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1521, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new char[] {112,114,105,118,97,116,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_private_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_module_ = _init_prod__$RascalKeywords__lit_module_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_module_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_module_ = _init_prod__$RascalKeywords__lit_module_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_module_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1522, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {109,111,100,117,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_module_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_throws_ = _init_prod__$RascalKeywords__lit_throws_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_throws_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_throws_ = _init_prod__$RascalKeywords__lit_throws_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_throws_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1523, 0, prod__lit_throws__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_char_class___range__115_115_, new char[] {116,104,114,111,119,115}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_throws_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_default_ = _init_prod__$RascalKeywords__lit_default_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_default_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_default_ = _init_prod__$RascalKeywords__lit_default_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_default_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1524, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_default_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_alias_ = _init_prod__$RascalKeywords__lit_alias_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_alias_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_alias_ = _init_prod__$RascalKeywords__lit_alias_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_alias_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1525, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new char[] {97,108,105,97,115}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_alias_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_throw_ = _init_prod__$RascalKeywords__lit_throw_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_throw_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_throw_ = _init_prod__$RascalKeywords__lit_throw_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_throw_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1526, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new char[] {116,104,114,111,119}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_throw_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_rule_ = _init_prod__$RascalKeywords__lit_rule_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_rule_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_rule_ = _init_prod__$RascalKeywords__lit_rule_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_rule_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1527, 0, prod__lit_rule__char_class___range__114_114_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new char[] {114,117,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_rule_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_switch_ = _init_prod__$RascalKeywords__lit_switch_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_switch_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_switch_ = _init_prod__$RascalKeywords__lit_switch_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_switch_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1528, 0, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {115,119,105,116,99,104}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_switch_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_fail_ = _init_prod__$RascalKeywords__lit_fail_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_fail_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_fail_ = _init_prod__$RascalKeywords__lit_fail_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_fail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1529, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new char[] {102,97,105,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_fail_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_int_ = _init_prod__$RascalKeywords__lit_int_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_int_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_int_ = _init_prod__$RascalKeywords__lit_int_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_int_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1530, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_int_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_constructor_ = _init_prod__$RascalKeywords__lit_constructor_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_constructor_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_constructor_ = _init_prod__$RascalKeywords__lit_constructor_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_constructor_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1531, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_constructor_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$RascalKeywords__lit_tuple_ = _init_prod__$RascalKeywords__lit_tuple_();
-    private static final AbstractStackNode[] _init_prod__$RascalKeywords__lit_tuple_() {
+    public final static AbstractStackNode prod__$RascalKeywords__lit_tuple_ = _init_prod__$RascalKeywords__lit_tuple_();
+    private static final AbstractStackNode _init_prod__$RascalKeywords__lit_tuple_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1532, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$RascalKeywords__lit_tuple_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $NamedRegExp {
-    public final static AbstractStackNode[] prod__$NamedRegExp__lit___60_$Name_lit___62_ = _init_prod__$NamedRegExp__lit___60_$Name_lit___62_();
-    private static final AbstractStackNode[] _init_prod__$NamedRegExp__lit___60_$Name_lit___62_() {
+    public final static AbstractStackNode prod__$NamedRegExp__lit___60_$Name_lit___62_ = _init_prod__$NamedRegExp__lit___60_$Name_lit___62_();
+    private static final AbstractStackNode _init_prod__$NamedRegExp__lit___60_$Name_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1536, 2, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -6352,10 +6352,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1534, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$NamedRegExp__lit___60_$Name_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
-    private static final AbstractStackNode[] _init_prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
+    public final static AbstractStackNode prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
+    private static final AbstractStackNode _init_prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-1538, 1, new char[][]{{47,47},{60,60},{62,62},{92,92}}, null, null);
@@ -6363,31 +6363,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1537, 0, new char[][]{{92,92}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$NamedRegExp__$NamedBackslash_ = _init_prod__$NamedRegExp__$NamedBackslash_();
-    private static final AbstractStackNode[] _init_prod__$NamedRegExp__$NamedBackslash_() {
+    public final static AbstractStackNode prod__$NamedRegExp__$NamedBackslash_ = _init_prod__$NamedRegExp__$NamedBackslash_();
+    private static final AbstractStackNode _init_prod__$NamedRegExp__$NamedBackslash_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1539, 0, "$NamedBackslash", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$NamedRegExp__$NamedBackslash_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
-    private static final AbstractStackNode[] _init_prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
+    public final static AbstractStackNode prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_ = _init_prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_();
+    private static final AbstractStackNode _init_prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-1540, 0, new char[][]{{0,46},{48,59},{61,61},{63,91},{93,65535}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_65535_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $RegExpLiteral {
-    public final static AbstractStackNode[] prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_ = _init_prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_();
-    private static final AbstractStackNode[] _init_prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_() {
+    public final static AbstractStackNode prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_ = _init_prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_();
+    private static final AbstractStackNode _init_prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
       tmp[3] = new NonTerminalStackNode(-1557, 3, "$RegExpModifier", null, null);
@@ -6399,13 +6399,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1553, 0, prod__lit___47__char_class___range__47_47_, new char[] {47}, null, null);
       tmp[0].setProduction(tmp);
       tmp[3].setParentProduction(RascalRascal.prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $OctalEscapeSequence {
-    public final static AbstractStackNode[] prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_();
-    private static final AbstractStackNode[] _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_() {
+    public final static AbstractStackNode prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_();
+    private static final AbstractStackNode _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[4];
       
       tmp[3] = new CharStackNode(-1595, 3, new char[][]{{48,55}}, null, null);
@@ -6417,10 +6417,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1592, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[3].setParentProduction(RascalRascal.prod__$OctalEscapeSequence__lit___92_char_class___range__48_51_char_class___range__48_55_char_class___range__48_55_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_();
-    private static final AbstractStackNode[] _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
+    public final static AbstractStackNode prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_();
+    private static final AbstractStackNode _init_prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-1598, 2, new char[][]{{48,55}}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
@@ -6430,10 +6430,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1596, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$OctalEscapeSequence__lit___92_char_class___range__48_55_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_();
-    private static final AbstractStackNode[] _init_prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
+    public final static AbstractStackNode prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_ = _init_prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_();
+    private static final AbstractStackNode _init_prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-1600, 1, new char[][]{{48,55}}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,55}})});
@@ -6441,13 +6441,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1599, 0, prod__lit___92__char_class___range__92_92_, new char[] {92}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$OctalEscapeSequence__lit___92_conditional__char_class___range__48_55__not_follow__char_class___range__48_55_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $HexIntegerLiteral {
-    public final static AbstractStackNode[] prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new ListStackNode(-1607, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode(-1608, 0, new char[][]{{48,57},{65,70},{97,102}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
@@ -6457,13 +6457,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1605, 0, new char[][]{{48,48}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_conditional__iter__char_class___range__48_57_range__65_70_range__97_102__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PostStringChars {
-    public final static AbstractStackNode[] prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-1604, 2, new char[][]{{34,34}}, null, null);
@@ -6473,13 +6473,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1601, 0, new char[][]{{62,62}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ModuleActuals {
-    public final static AbstractStackNode[] prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-1619, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -6493,13 +6493,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1611, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PathChars {
-    public final static AbstractStackNode[] prod__$PathChars__$URLChars_char_class___range__124_124_ = _init_prod__$PathChars__$URLChars_char_class___range__124_124_();
-    private static final AbstractStackNode[] _init_prod__$PathChars__$URLChars_char_class___range__124_124_() {
+    public final static AbstractStackNode prod__$PathChars__$URLChars_char_class___range__124_124_ = _init_prod__$PathChars__$URLChars_char_class___range__124_124_();
+    private static final AbstractStackNode _init_prod__$PathChars__$URLChars_char_class___range__124_124_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new CharStackNode(-1621, 1, new char[][]{{124,124}}, null, null);
@@ -6507,253 +6507,253 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1620, 0, "$URLChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$PathChars__$URLChars_char_class___range__124_124_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DateTimeLiteral {
-    public final static AbstractStackNode[] prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_ = _init_prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_();
-    private static final AbstractStackNode[] _init_prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_() {
+    public final static AbstractStackNode prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_ = _init_prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_();
+    private static final AbstractStackNode _init_prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1627, 0, "$JustTime", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__TimeLiteral_$DateTimeLiteral__time_$JustTime_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DateLiteral_$DateTimeLiteral__date_$JustDate_ = _init_prod__DateLiteral_$DateTimeLiteral__date_$JustDate_();
-    private static final AbstractStackNode[] _init_prod__DateLiteral_$DateTimeLiteral__date_$JustDate_() {
+    public final static AbstractStackNode prod__DateLiteral_$DateTimeLiteral__date_$JustDate_ = _init_prod__DateLiteral_$DateTimeLiteral__date_$JustDate_();
+    private static final AbstractStackNode _init_prod__DateLiteral_$DateTimeLiteral__date_$JustDate_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1628, 0, "$JustDate", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__DateLiteral_$DateTimeLiteral__date_$JustDate_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_ = _init_prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_();
-    private static final AbstractStackNode[] _init_prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_() {
+    public final static AbstractStackNode prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_ = _init_prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_();
+    private static final AbstractStackNode _init_prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1629, 0, "$DateAndTime", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__DateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $BasicType {
-    public final static AbstractStackNode[] prod__Set_$BasicType__lit_set_ = _init_prod__Set_$BasicType__lit_set_();
-    private static final AbstractStackNode[] _init_prod__Set_$BasicType__lit_set_() {
+    public final static AbstractStackNode prod__Set_$BasicType__lit_set_ = _init_prod__Set_$BasicType__lit_set_();
+    private static final AbstractStackNode _init_prod__Set_$BasicType__lit_set_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1641, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new char[] {115,101,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Set_$BasicType__lit_set_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DateTime_$BasicType__lit_datetime_ = _init_prod__DateTime_$BasicType__lit_datetime_();
-    private static final AbstractStackNode[] _init_prod__DateTime_$BasicType__lit_datetime_() {
+    public final static AbstractStackNode prod__DateTime_$BasicType__lit_datetime_ = _init_prod__DateTime_$BasicType__lit_datetime_();
+    private static final AbstractStackNode _init_prod__DateTime_$BasicType__lit_datetime_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1642, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new char[] {100,97,116,101,116,105,109,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__DateTime_$BasicType__lit_datetime_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__String_$BasicType__lit_str_ = _init_prod__String_$BasicType__lit_str_();
-    private static final AbstractStackNode[] _init_prod__String_$BasicType__lit_str_() {
+    public final static AbstractStackNode prod__String_$BasicType__lit_str_ = _init_prod__String_$BasicType__lit_str_();
+    private static final AbstractStackNode _init_prod__String_$BasicType__lit_str_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1643, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new char[] {115,116,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__String_$BasicType__lit_str_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedReifiedType_$BasicType__lit_reified_ = _init_prod__ReifiedReifiedType_$BasicType__lit_reified_();
-    private static final AbstractStackNode[] _init_prod__ReifiedReifiedType_$BasicType__lit_reified_() {
+    public final static AbstractStackNode prod__ReifiedReifiedType_$BasicType__lit_reified_ = _init_prod__ReifiedReifiedType_$BasicType__lit_reified_();
+    private static final AbstractStackNode _init_prod__ReifiedReifiedType_$BasicType__lit_reified_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1644, 0, prod__lit_reified__char_class___range__114_114_char_class___range__101_101_char_class___range__105_105_char_class___range__102_102_char_class___range__105_105_char_class___range__101_101_char_class___range__100_100_, new char[] {114,101,105,102,105,101,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedReifiedType_$BasicType__lit_reified_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedType_$BasicType__lit_type_ = _init_prod__ReifiedType_$BasicType__lit_type_();
-    private static final AbstractStackNode[] _init_prod__ReifiedType_$BasicType__lit_type_() {
+    public final static AbstractStackNode prod__ReifiedType_$BasicType__lit_type_ = _init_prod__ReifiedType_$BasicType__lit_type_();
+    private static final AbstractStackNode _init_prod__ReifiedType_$BasicType__lit_type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1645, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new char[] {116,121,112,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedType_$BasicType__lit_type_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedTypeParameter_$BasicType__lit_parameter_ = _init_prod__ReifiedTypeParameter_$BasicType__lit_parameter_();
-    private static final AbstractStackNode[] _init_prod__ReifiedTypeParameter_$BasicType__lit_parameter_() {
+    public final static AbstractStackNode prod__ReifiedTypeParameter_$BasicType__lit_parameter_ = _init_prod__ReifiedTypeParameter_$BasicType__lit_parameter_();
+    private static final AbstractStackNode _init_prod__ReifiedTypeParameter_$BasicType__lit_parameter_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1646, 0, prod__lit_parameter__char_class___range__112_112_char_class___range__97_97_char_class___range__114_114_char_class___range__97_97_char_class___range__109_109_char_class___range__101_101_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_, new char[] {112,97,114,97,109,101,116,101,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedTypeParameter_$BasicType__lit_parameter_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bag_$BasicType__lit_bag_ = _init_prod__Bag_$BasicType__lit_bag_();
-    private static final AbstractStackNode[] _init_prod__Bag_$BasicType__lit_bag_() {
+    public final static AbstractStackNode prod__Bag_$BasicType__lit_bag_ = _init_prod__Bag_$BasicType__lit_bag_();
+    private static final AbstractStackNode _init_prod__Bag_$BasicType__lit_bag_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1647, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new char[] {98,97,103}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Bag_$BasicType__lit_bag_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Real_$BasicType__lit_real_ = _init_prod__Real_$BasicType__lit_real_();
-    private static final AbstractStackNode[] _init_prod__Real_$BasicType__lit_real_() {
+    public final static AbstractStackNode prod__Real_$BasicType__lit_real_ = _init_prod__Real_$BasicType__lit_real_();
+    private static final AbstractStackNode _init_prod__Real_$BasicType__lit_real_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1648, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new char[] {114,101,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Real_$BasicType__lit_real_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Node_$BasicType__lit_node_ = _init_prod__Node_$BasicType__lit_node_();
-    private static final AbstractStackNode[] _init_prod__Node_$BasicType__lit_node_() {
+    public final static AbstractStackNode prod__Node_$BasicType__lit_node_ = _init_prod__Node_$BasicType__lit_node_();
+    private static final AbstractStackNode _init_prod__Node_$BasicType__lit_node_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1649, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new char[] {110,111,100,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Node_$BasicType__lit_node_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Int_$BasicType__lit_int_ = _init_prod__Int_$BasicType__lit_int_();
-    private static final AbstractStackNode[] _init_prod__Int_$BasicType__lit_int_() {
+    public final static AbstractStackNode prod__Int_$BasicType__lit_int_ = _init_prod__Int_$BasicType__lit_int_();
+    private static final AbstractStackNode _init_prod__Int_$BasicType__lit_int_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1650, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new char[] {105,110,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Int_$BasicType__lit_int_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Map_$BasicType__lit_map_ = _init_prod__Map_$BasicType__lit_map_();
-    private static final AbstractStackNode[] _init_prod__Map_$BasicType__lit_map_() {
+    public final static AbstractStackNode prod__Map_$BasicType__lit_map_ = _init_prod__Map_$BasicType__lit_map_();
+    private static final AbstractStackNode _init_prod__Map_$BasicType__lit_map_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1651, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new char[] {109,97,112}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Map_$BasicType__lit_map_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tuple_$BasicType__lit_tuple_ = _init_prod__Tuple_$BasicType__lit_tuple_();
-    private static final AbstractStackNode[] _init_prod__Tuple_$BasicType__lit_tuple_() {
+    public final static AbstractStackNode prod__Tuple_$BasicType__lit_tuple_ = _init_prod__Tuple_$BasicType__lit_tuple_();
+    private static final AbstractStackNode _init_prod__Tuple_$BasicType__lit_tuple_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1652, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new char[] {116,117,112,108,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Tuple_$BasicType__lit_tuple_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedFunction_$BasicType__lit_fun_ = _init_prod__ReifiedFunction_$BasicType__lit_fun_();
-    private static final AbstractStackNode[] _init_prod__ReifiedFunction_$BasicType__lit_fun_() {
+    public final static AbstractStackNode prod__ReifiedFunction_$BasicType__lit_fun_ = _init_prod__ReifiedFunction_$BasicType__lit_fun_();
+    private static final AbstractStackNode _init_prod__ReifiedFunction_$BasicType__lit_fun_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1653, 0, prod__lit_fun__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_, new char[] {102,117,110}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedFunction_$BasicType__lit_fun_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Loc_$BasicType__lit_loc_ = _init_prod__Loc_$BasicType__lit_loc_();
-    private static final AbstractStackNode[] _init_prod__Loc_$BasicType__lit_loc_() {
+    public final static AbstractStackNode prod__Loc_$BasicType__lit_loc_ = _init_prod__Loc_$BasicType__lit_loc_();
+    private static final AbstractStackNode _init_prod__Loc_$BasicType__lit_loc_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1657, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new char[] {108,111,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Loc_$BasicType__lit_loc_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Value_$BasicType__lit_value_ = _init_prod__Value_$BasicType__lit_value_();
-    private static final AbstractStackNode[] _init_prod__Value_$BasicType__lit_value_() {
+    public final static AbstractStackNode prod__Value_$BasicType__lit_value_ = _init_prod__Value_$BasicType__lit_value_();
+    private static final AbstractStackNode _init_prod__Value_$BasicType__lit_value_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1658, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new char[] {118,97,108,117,101}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Value_$BasicType__lit_value_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__List_$BasicType__lit_list_ = _init_prod__List_$BasicType__lit_list_();
-    private static final AbstractStackNode[] _init_prod__List_$BasicType__lit_list_() {
+    public final static AbstractStackNode prod__List_$BasicType__lit_list_ = _init_prod__List_$BasicType__lit_list_();
+    private static final AbstractStackNode _init_prod__List_$BasicType__lit_list_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1654, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new char[] {108,105,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__List_$BasicType__lit_list_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_ = _init_prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_();
-    private static final AbstractStackNode[] _init_prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_() {
+    public final static AbstractStackNode prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_ = _init_prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_();
+    private static final AbstractStackNode _init_prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1655, 0, prod__lit_non_terminal__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_, new char[] {110,111,110,45,116,101,114,109,105,110,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedNonTerminal_$BasicType__lit_non_terminal_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Num_$BasicType__lit_num_ = _init_prod__Num_$BasicType__lit_num_();
-    private static final AbstractStackNode[] _init_prod__Num_$BasicType__lit_num_() {
+    public final static AbstractStackNode prod__Num_$BasicType__lit_num_ = _init_prod__Num_$BasicType__lit_num_();
+    private static final AbstractStackNode _init_prod__Num_$BasicType__lit_num_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1656, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new char[] {110,117,109}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Num_$BasicType__lit_num_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Relation_$BasicType__lit_rel_ = _init_prod__Relation_$BasicType__lit_rel_();
-    private static final AbstractStackNode[] _init_prod__Relation_$BasicType__lit_rel_() {
+    public final static AbstractStackNode prod__Relation_$BasicType__lit_rel_ = _init_prod__Relation_$BasicType__lit_rel_();
+    private static final AbstractStackNode _init_prod__Relation_$BasicType__lit_rel_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1659, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new char[] {114,101,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Relation_$BasicType__lit_rel_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Void_$BasicType__lit_void_ = _init_prod__Void_$BasicType__lit_void_();
-    private static final AbstractStackNode[] _init_prod__Void_$BasicType__lit_void_() {
+    public final static AbstractStackNode prod__Void_$BasicType__lit_void_ = _init_prod__Void_$BasicType__lit_void_();
+    private static final AbstractStackNode _init_prod__Void_$BasicType__lit_void_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1660, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new char[] {118,111,105,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Void_$BasicType__lit_void_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedConstructor_$BasicType__lit_constructor_ = _init_prod__ReifiedConstructor_$BasicType__lit_constructor_();
-    private static final AbstractStackNode[] _init_prod__ReifiedConstructor_$BasicType__lit_constructor_() {
+    public final static AbstractStackNode prod__ReifiedConstructor_$BasicType__lit_constructor_ = _init_prod__ReifiedConstructor_$BasicType__lit_constructor_();
+    private static final AbstractStackNode _init_prod__ReifiedConstructor_$BasicType__lit_constructor_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1661, 0, prod__lit_constructor__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__99_99_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_, new char[] {99,111,110,115,116,114,117,99,116,111,114}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedConstructor_$BasicType__lit_constructor_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bool_$BasicType__lit_bool_ = _init_prod__Bool_$BasicType__lit_bool_();
-    private static final AbstractStackNode[] _init_prod__Bool_$BasicType__lit_bool_() {
+    public final static AbstractStackNode prod__Bool_$BasicType__lit_bool_ = _init_prod__Bool_$BasicType__lit_bool_();
+    private static final AbstractStackNode _init_prod__Bool_$BasicType__lit_bool_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1662, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new char[] {98,111,111,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Bool_$BasicType__lit_bool_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedAdt_$BasicType__lit_adt_ = _init_prod__ReifiedAdt_$BasicType__lit_adt_();
-    private static final AbstractStackNode[] _init_prod__ReifiedAdt_$BasicType__lit_adt_() {
+    public final static AbstractStackNode prod__ReifiedAdt_$BasicType__lit_adt_ = _init_prod__ReifiedAdt_$BasicType__lit_adt_();
+    private static final AbstractStackNode _init_prod__ReifiedAdt_$BasicType__lit_adt_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1663, 0, prod__lit_adt__char_class___range__97_97_char_class___range__100_100_char_class___range__116_116_, new char[] {97,100,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__ReifiedAdt_$BasicType__lit_adt_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $FunctionDeclaration {
-    public final static AbstractStackNode[] prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[15];
       
       tmp[0] = new NonTerminalStackNode(-1693, 0, "$Tags", null, null);
@@ -6787,10 +6787,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[14] = new LiteralStackNode(-1711, 14, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
       tmp[14].setProduction(tmp);
       tmp[14].setParentProduction(RascalRascal.prod__Conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
+    public final static AbstractStackNode prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable = _init_prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new LiteralStackNode(-1692, 10, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -6816,10 +6816,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1682, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__Expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_();
-    private static final AbstractStackNode[] _init_prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_() {
+    public final static AbstractStackNode prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_ = _init_prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_();
+    private static final AbstractStackNode _init_prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-1718, 6, prod__lit___59__char_class___range__59_59_, new char[] {59}, null, null);
@@ -6837,10 +6837,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1712, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable = _init_prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable() {
+    public final static AbstractStackNode prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable = _init_prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-1725, 6, "$FunctionBody", null, null);
@@ -6858,13 +6858,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1719, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Variant {
-    public final static AbstractStackNode[] prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-1740, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -6882,13 +6882,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1730, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__NAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class start__$PreModule {
-    public final static AbstractStackNode[] prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_ = _init_prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_ = _init_prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-1746, 2, "$layouts_LAYOUTLIST", null, null);
@@ -6898,13 +6898,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1744, 0, "$layouts_LAYOUTLIST", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Declarator {
-    public final static AbstractStackNode[] prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new SeparatedListStackNode(-1764, 2, regular__iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode(-1765, 0, "$Variable", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-1766, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-1767, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, null, null), new NonTerminalStackNode(-1768, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
@@ -6914,13 +6914,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1762, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StructuredType {
-    public final static AbstractStackNode[] prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-1814, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -6938,13 +6938,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1804, 0, "$BasicType", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $TimePartNoTZ {
-    public final static AbstractStackNode[] prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new OptionalStackNode(-1826, 8, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(-1827, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(-1828, 0, new char[][]{{44,44},{46,46}}, null, null), new CharStackNode(-1829, 1, new char[][]{{48,57}}, null, null), new OptionalStackNode(-1830, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(-1831, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(-1832, 0, new char[][]{{48,57}}, null, null), new OptionalStackNode(-1833, 1, regular__opt__char_class___range__48_57, new CharStackNode(-1834, 0, new char[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
@@ -6966,10 +6966,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1818, 0, new char[][]{{48,50}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_ = _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new OptionalStackNode(-1841, 6, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(-1842, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(-1843, 0, new char[][]{{44,44},{46,46}}, null, null), new CharStackNode(-1844, 1, new char[][]{{48,57}}, null, null), new OptionalStackNode(-1845, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode(-1846, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, new AbstractStackNode[]{new CharStackNode(-1847, 0, new char[][]{{48,57}}, null, null), new OptionalStackNode(-1848, 1, regular__opt__char_class___range__48_57, new CharStackNode(-1849, 0, new char[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
@@ -6987,22 +6987,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1835, 0, new char[][]{{48,50}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Name {
-    public final static AbstractStackNode[] prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_ = _init_prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_();
-    private static final AbstractStackNode[] _init_prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_() {
+    public final static AbstractStackNode prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_ = _init_prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_();
+    private static final AbstractStackNode _init_prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SequenceStackNode(-1857, 0, regular__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new AbstractStackNode[]{new CharStackNode(-1858, 0, new char[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90},{95,95},{97,122}})}, null), new ListStackNode(-1859, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(-1860, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})})}, null, new ICompletionFilter[] {new StringMatchRestriction(new char[] {105,109,112,111,114,116}), new StringMatchRestriction(new char[] {105,110}), new StringMatchRestriction(new char[] {97,108,108}), new StringMatchRestriction(new char[] {102,97,108,115,101}), new StringMatchRestriction(new char[] {97,110,110,111}), new StringMatchRestriction(new char[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new char[] {108,97,121,111,117,116}), new StringMatchRestriction(new char[] {106,111,105,110}), new StringMatchRestriction(new char[] {100,97,116,97}), new StringMatchRestriction(new char[] {105,116}), new StringMatchRestriction(new char[] {115,119,105,116,99,104}), new StringMatchRestriction(new char[] {114,101,116,117,114,110}), new StringMatchRestriction(new char[] {99,97,115,101}), new StringMatchRestriction(new char[] {115,116,114}), new StringMatchRestriction(new char[] {119,104,105,108,101}), new StringMatchRestriction(new char[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new char[] {115,111,108,118,101}), new StringMatchRestriction(new char[] {110,111,116,105,110}), new StringMatchRestriction(new char[] {105,110,115,101,114,116}), new StringMatchRestriction(new char[] {101,108,115,101}), new StringMatchRestriction(new char[] {116,121,112,101}), new StringMatchRestriction(new char[] {99,97,116,99,104}), new StringMatchRestriction(new char[] {116,114,121}), new StringMatchRestriction(new char[] {110,117,109}), new StringMatchRestriction(new char[] {110,111,100,101}), new StringMatchRestriction(new char[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new char[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new char[] {116,114,117,101}), new StringMatchRestriction(new char[] {98,97,103}), new StringMatchRestriction(new char[] {118,111,105,100}), new StringMatchRestriction(new char[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new char[] {97,115,115,111,99}), new StringMatchRestriction(new char[] {116,101,115,116}), new StringMatchRestriction(new char[] {105,102}), new StringMatchRestriction(new char[] {102,97,105,108}), new StringMatchRestriction(new char[] {108,105,115,116}), new StringMatchRestriction(new char[] {114,101,97,108}), new StringMatchRestriction(new char[] {114,101,108}), new StringMatchRestriction(new char[] {116,97,103}), new StringMatchRestriction(new char[] {101,120,116,101,110,100}), new StringMatchRestriction(new char[] {97,112,112,101,110,100}), new StringMatchRestriction(new char[] {114,101,112,101,97,116}), new StringMatchRestriction(new char[] {116,104,114,111,119}), new StringMatchRestriction(new char[] {111,110,101}), new StringMatchRestriction(new char[] {115,116,97,114,116}), new StringMatchRestriction(new char[] {115,101,116}), new StringMatchRestriction(new char[] {109,111,100,117,108,101}), new StringMatchRestriction(new char[] {97,110,121}), new StringMatchRestriction(new char[] {105,110,116}), new StringMatchRestriction(new char[] {112,117,98,108,105,99}), new StringMatchRestriction(new char[] {98,111,111,108}), new StringMatchRestriction(new char[] {118,97,108,117,101}), new StringMatchRestriction(new char[] {114,117,108,101}), new StringMatchRestriction(new char[] {110,111,110,45,116,101,114,109,105,110,97,108}), new StringMatchRestriction(new char[] {102,117,110}), new StringMatchRestriction(new char[] {99,111,110,115,116,114,117,99,116,111,114}), new StringMatchRestriction(new char[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new char[] {97,115,115,101,114,116}), new StringMatchRestriction(new char[] {108,111,99}), new StringMatchRestriction(new char[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new char[] {116,104,114,111,119,115}), new StringMatchRestriction(new char[] {116,117,112,108,101}), new StringMatchRestriction(new char[] {102,111,114}), new StringMatchRestriction(new char[] {118,105,115,105,116}), new StringMatchRestriction(new char[] {97,108,105,97,115}), new StringMatchRestriction(new char[] {109,97,112})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Name__conditional__seq___conditional__char_class___range__65_90_range__95_95_range__97_122__not_precede__char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalKeywords_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new ListStackNode(-1863, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(-1864, 0, new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
@@ -7012,58 +7012,58 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-1861, 0, new char[][]{{92,92}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_conditional__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Start {
-    public final static AbstractStackNode[] prod__Absent_$Start__ = _init_prod__Absent_$Start__();
-    private static final AbstractStackNode[] _init_prod__Absent_$Start__() {
+    public final static AbstractStackNode prod__Absent_$Start__ = _init_prod__Absent_$Start__();
+    private static final AbstractStackNode _init_prod__Absent_$Start__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-1866, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Absent_$Start__);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Present_$Start__lit_start_ = _init_prod__Present_$Start__lit_start_();
-    private static final AbstractStackNode[] _init_prod__Present_$Start__lit_start_() {
+    public final static AbstractStackNode prod__Present_$Start__lit_start_ = _init_prod__Present_$Start__lit_start_();
+    private static final AbstractStackNode _init_prod__Present_$Start__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-1867, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Present_$Start__lit_start_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Formals {
-    public final static AbstractStackNode[] prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-1870, 0, regular__iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode(-1871, 0, "$Pattern", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-1872, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-1873, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, null, null), new NonTerminalStackNode(-1874, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Tags {
-    public final static AbstractStackNode[] prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_ = _init_prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_ = _init_prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-1875, 0, regular__iter_star_seps__$Tag__$layouts_LAYOUTLIST, new NonTerminalStackNode(-1876, 0, "$Tag", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-1877, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$Tags__tags_iter_star_seps__$Tag__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class start__$Commands {
-    public final static AbstractStackNode[] prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_ = _init_prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_ = _init_prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-1880, 2, "$layouts_LAYOUTLIST", null, null);
@@ -7073,25 +7073,25 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1878, 0, "$layouts_LAYOUTLIST", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__start__$Commands__$layouts_LAYOUTLIST_top_$Commands_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Backslash {
-    public final static AbstractStackNode[] prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
-    private static final AbstractStackNode[] _init_prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
+    public final static AbstractStackNode prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_ = _init_prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_();
+    private static final AbstractStackNode _init_prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new CharStackNode(-1881, 0, new char[][]{{92,92}}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{47,47},{60,60},{62,62},{92,92}})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$Backslash__conditional__char_class___range__92_92__not_follow__char_class___range__47_47_range__60_60_range__62_62_range__92_92_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $CaseInsensitiveStringConstant {
-    public final static AbstractStackNode[] prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1885, 2, prod__lit___39__char_class___range__39_39_, new char[] {39}, null, null);
@@ -7101,13 +7101,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1882, 0, prod__lit___39__char_class___range__39_39_, new char[] {39}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $JustDate {
-    public final static AbstractStackNode[] prod__$JustDate__lit___36_$DatePart_ = _init_prod__$JustDate__lit___36_$DatePart_();
-    private static final AbstractStackNode[] _init_prod__$JustDate__lit___36_$DatePart_() {
+    public final static AbstractStackNode prod__$JustDate__lit___36_$DatePart_ = _init_prod__$JustDate__lit___36_$DatePart_();
+    private static final AbstractStackNode _init_prod__$JustDate__lit___36_$DatePart_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new NonTerminalStackNode(-1908, 1, "$DatePart", null, null);
@@ -7115,13 +7115,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1907, 0, prod__lit___36__char_class___range__36_36_, new char[] {36}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$JustDate__lit___36_$DatePart_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PathTail {
-    public final static AbstractStackNode[] prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_ = _init_prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_();
-    private static final AbstractStackNode[] _init_prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_() {
+    public final static AbstractStackNode prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_ = _init_prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_();
+    private static final AbstractStackNode _init_prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1918, 4, "$PathTail", null, null);
@@ -7135,22 +7135,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1914, 0, "$MidPathChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Mid_$PathTail__mid_$MidPathChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$PathTail_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Post_$PathTail__post_$PostPathChars_ = _init_prod__Post_$PathTail__post_$PostPathChars_();
-    private static final AbstractStackNode[] _init_prod__Post_$PathTail__post_$PostPathChars_() {
+    public final static AbstractStackNode prod__Post_$PathTail__post_$PostPathChars_ = _init_prod__Post_$PathTail__post_$PostPathChars_();
+    private static final AbstractStackNode _init_prod__Post_$PathTail__post_$PostPathChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1919, 0, "$PostPathChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Post_$PathTail__post_$PostPathChars_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $MidProtocolChars {
-    public final static AbstractStackNode[] prod__$MidProtocolChars__lit___62_$URLChars_lit___60_ = _init_prod__$MidProtocolChars__lit___62_$URLChars_lit___60_();
-    private static final AbstractStackNode[] _init_prod__$MidProtocolChars__lit___62_$URLChars_lit___60_() {
+    public final static AbstractStackNode prod__$MidProtocolChars__lit___62_$URLChars_lit___60_ = _init_prod__$MidProtocolChars__lit___62_$URLChars_lit___60_();
+    private static final AbstractStackNode _init_prod__$MidProtocolChars__lit___62_$URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1922, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
@@ -7160,13 +7160,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1920, 0, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$MidProtocolChars__lit___62_$URLChars_lit___60_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PatternWithAction {
-    public final static AbstractStackNode[] prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_ = _init_prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_();
-    private static final AbstractStackNode[] _init_prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_() {
+    public final static AbstractStackNode prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_ = _init_prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_();
+    private static final AbstractStackNode _init_prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1934, 4, "$Statement", null, null);
@@ -7180,10 +7180,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1930, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Arbitrary_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_ = _init_prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_();
-    private static final AbstractStackNode[] _init_prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_() {
+    public final static AbstractStackNode prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_ = _init_prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_();
+    private static final AbstractStackNode _init_prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1939, 4, "$Replacement", null, null);
@@ -7197,13 +7197,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1935, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DataTypeSelector {
-    public final static AbstractStackNode[] prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_ = _init_prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_();
-    private static final AbstractStackNode[] _init_prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_() {
+    public final static AbstractStackNode prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_ = _init_prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_();
+    private static final AbstractStackNode _init_prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1944, 4, "$Name", null, null);
@@ -7217,22 +7217,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1940, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Selector_$DataTypeSelector__sort_$QualifiedName_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_production_$Name_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringTail {
-    public final static AbstractStackNode[] prod__Post_$StringTail__post_$PostStringChars_ = _init_prod__Post_$StringTail__post_$PostStringChars_();
-    private static final AbstractStackNode[] _init_prod__Post_$StringTail__post_$PostStringChars_() {
+    public final static AbstractStackNode prod__Post_$StringTail__post_$PostStringChars_ = _init_prod__Post_$StringTail__post_$PostStringChars_();
+    private static final AbstractStackNode _init_prod__Post_$StringTail__post_$PostStringChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1945, 0, "$PostStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Post_$StringTail__post_$PostStringChars_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_();
-    private static final AbstractStackNode[] _init_prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_() {
+    public final static AbstractStackNode prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_();
+    private static final AbstractStackNode _init_prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1950, 4, "$StringTail", null, null);
@@ -7246,10 +7246,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1946, 0, "$MidStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__MidTemplate_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_template_$StringTemplate_$layouts_LAYOUTLIST_tail_$StringTail_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_();
-    private static final AbstractStackNode[] _init_prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_() {
+    public final static AbstractStackNode prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_ = _init_prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_();
+    private static final AbstractStackNode _init_prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-1955, 4, "$StringTail", null, null);
@@ -7263,13 +7263,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1951, 0, "$MidStringChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__MidInterpolated_$StringTail__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringTail_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class start__$Module {
-    public final static AbstractStackNode[] prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_ = _init_prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_ = _init_prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-1958, 2, "$layouts_LAYOUTLIST", null, null);
@@ -7279,13 +7279,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-1956, 0, "$layouts_LAYOUTLIST", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__start__$Module__$layouts_LAYOUTLIST_top_$Module_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $StringConstant {
-    public final static AbstractStackNode[] prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116();
-    private static final AbstractStackNode[] _init_prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116() {
+    public final static AbstractStackNode prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116 = _init_prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116();
+    private static final AbstractStackNode _init_prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-1983, 2, prod__lit___34__char_class___range__34_34_, new char[] {34}, null, null);
@@ -7295,13 +7295,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1980, 0, prod__lit___34__char_class___range__34_34_, new char[] {34}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$StringConstant__lit___34_iter_star__$StringCharacter_lit___34__tag__category___67_111_110_115_116_97_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $LocalVariableDeclaration {
-    public final static AbstractStackNode[] prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_ = _init_prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_();
-    private static final AbstractStackNode[] _init_prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_() {
+    public final static AbstractStackNode prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_ = _init_prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_();
+    private static final AbstractStackNode _init_prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-1994, 2, "$Declarator", null, null);
@@ -7311,22 +7311,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-1992, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new char[] {100,121,110,97,109,105,99}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Dynamic_$LocalVariableDeclaration__lit_dynamic_$layouts_LAYOUTLIST_declarator_$Declarator_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$LocalVariableDeclaration__declarator_$Declarator_ = _init_prod__Default_$LocalVariableDeclaration__declarator_$Declarator_();
-    private static final AbstractStackNode[] _init_prod__Default_$LocalVariableDeclaration__declarator_$Declarator_() {
+    public final static AbstractStackNode prod__Default_$LocalVariableDeclaration__declarator_$Declarator_ = _init_prod__Default_$LocalVariableDeclaration__declarator_$Declarator_();
+    private static final AbstractStackNode _init_prod__Default_$LocalVariableDeclaration__declarator_$Declarator_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-1995, 0, "$Declarator", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$LocalVariableDeclaration__declarator_$Declarator_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Parameters {
-    public final static AbstractStackNode[] prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2018, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -7340,10 +7340,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2014, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_ = _init_prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_ = _init_prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2025, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -7361,13 +7361,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2019, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__VarArgs_$Parameters__lit___40_$layouts_LAYOUTLIST_formals_$Formals_$layouts_LAYOUTLIST_lit___46_46_46_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $DatePart {
-    public final static AbstractStackNode[] prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_ = _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_ = _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[8];
       
       tmp[7] = new CharStackNode(-2033, 7, new char[][]{{48,57}}, null, null);
@@ -7387,10 +7387,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-2026, 0, new char[][]{{48,57}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[7].setParentProduction(RascalRascal.prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_49_char_class___range__48_57_char_class___range__48_51_char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_ = _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_();
-    private static final AbstractStackNode[] _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_() {
+    public final static AbstractStackNode prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_ = _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_();
+    private static final AbstractStackNode _init_prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_() {
       AbstractStackNode[] tmp = new AbstractStackNode[10];
       
       tmp[9] = new CharStackNode(-2043, 9, new char[][]{{48,57}}, null, null);
@@ -7414,79 +7414,79 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-2034, 0, new char[][]{{48,57}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[9].setParentProduction(RascalRascal.prod__$DatePart__char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_char_class___range__48_57_lit___char_class___range__48_49_char_class___range__48_57_lit___char_class___range__48_51_char_class___range__48_57_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $HeaderKeyword {
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_lexical_ = _init_prod__$HeaderKeyword__lit_lexical_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_lexical_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_lexical_ = _init_prod__$HeaderKeyword__lit_lexical_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_lexical_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2064, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new char[] {108,101,120,105,99,97,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_lexical_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_layout_ = _init_prod__$HeaderKeyword__lit_layout_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_layout_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_layout_ = _init_prod__$HeaderKeyword__lit_layout_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_layout_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2065, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new char[] {108,97,121,111,117,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_layout_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_extend_ = _init_prod__$HeaderKeyword__lit_extend_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_extend_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_extend_ = _init_prod__$HeaderKeyword__lit_extend_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_extend_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2066, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new char[] {101,120,116,101,110,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_extend_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_syntax_ = _init_prod__$HeaderKeyword__lit_syntax_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_syntax_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_syntax_ = _init_prod__$HeaderKeyword__lit_syntax_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_syntax_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2067, 0, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new char[] {115,121,110,116,97,120}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_syntax_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_keyword_ = _init_prod__$HeaderKeyword__lit_keyword_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_keyword_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_keyword_ = _init_prod__$HeaderKeyword__lit_keyword_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_keyword_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2068, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new char[] {107,101,121,119,111,114,100}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_keyword_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_import_ = _init_prod__$HeaderKeyword__lit_import_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_import_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_import_ = _init_prod__$HeaderKeyword__lit_import_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_import_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2069, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new char[] {105,109,112,111,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_import_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$HeaderKeyword__lit_start_ = _init_prod__$HeaderKeyword__lit_start_();
-    private static final AbstractStackNode[] _init_prod__$HeaderKeyword__lit_start_() {
+    public final static AbstractStackNode prod__$HeaderKeyword__lit_start_ = _init_prod__$HeaderKeyword__lit_start_();
+    private static final AbstractStackNode _init_prod__$HeaderKeyword__lit_start_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2070, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__$HeaderKeyword__lit_start_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Assignable {
-    public final static AbstractStackNode[] prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
-    private static final AbstractStackNode[] _init_prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
+    public final static AbstractStackNode prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
+    private static final AbstractStackNode _init_prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2098, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -7500,10 +7500,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2090, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Tuple_$Assignable__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket();
-    private static final AbstractStackNode[] _init_prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket() {
+    public final static AbstractStackNode prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket();
+    private static final AbstractStackNode _init_prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2103, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -7517,10 +7517,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2099, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Bracket_$Assignable__lit___40_$layouts_LAYOUTLIST_arg_$Assignable_$layouts_LAYOUTLIST_lit___41__bracket);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2114, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -7538,10 +7538,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2104, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Constructor_$Assignable__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_seps__$Assignable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_ = _init_prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_();
-    private static final AbstractStackNode[] _init_prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_() {
+    public final static AbstractStackNode prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_ = _init_prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_();
+    private static final AbstractStackNode _init_prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[0] = new NonTerminalStackNode(-2115, 0, "$Assignable", null, null);
@@ -7555,19 +7555,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[4] = new NonTerminalStackNode(-2119, 4, "$Name", null, null);
       tmp[4].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__FieldAccess_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Variable_$Assignable__qualifiedName_$QualifiedName_ = _init_prod__Variable_$Assignable__qualifiedName_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Variable_$Assignable__qualifiedName_$QualifiedName_() {
+    public final static AbstractStackNode prod__Variable_$Assignable__qualifiedName_$QualifiedName_ = _init_prod__Variable_$Assignable__qualifiedName_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Variable_$Assignable__qualifiedName_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2130, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Variable_$Assignable__qualifiedName_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_ = _init_prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_();
-    private static final AbstractStackNode[] _init_prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_() {
+    public final static AbstractStackNode prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_ = _init_prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_();
+    private static final AbstractStackNode _init_prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2124, 4, "$Name", null, null);
@@ -7581,10 +7581,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2120, 0, "$Assignable", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Annotation_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_annotation_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_ = _init_prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_();
-    private static final AbstractStackNode[] _init_prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_() {
+    public final static AbstractStackNode prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_ = _init_prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_();
+    private static final AbstractStackNode _init_prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2129, 4, "$Expression", null, null);
@@ -7598,10 +7598,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2125, 0, "$Assignable", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__IfDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2137, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -7619,109 +7619,109 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2131, 0, "$Assignable", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $FunctionModifier {
-    public final static AbstractStackNode[] prod__Test_$FunctionModifier__lit_test_ = _init_prod__Test_$FunctionModifier__lit_test_();
-    private static final AbstractStackNode[] _init_prod__Test_$FunctionModifier__lit_test_() {
+    public final static AbstractStackNode prod__Test_$FunctionModifier__lit_test_ = _init_prod__Test_$FunctionModifier__lit_test_();
+    private static final AbstractStackNode _init_prod__Test_$FunctionModifier__lit_test_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2138, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new char[] {116,101,115,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Test_$FunctionModifier__lit_test_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$FunctionModifier__lit_default_ = _init_prod__Default_$FunctionModifier__lit_default_();
-    private static final AbstractStackNode[] _init_prod__Default_$FunctionModifier__lit_default_() {
+    public final static AbstractStackNode prod__Default_$FunctionModifier__lit_default_ = _init_prod__Default_$FunctionModifier__lit_default_();
+    private static final AbstractStackNode _init_prod__Default_$FunctionModifier__lit_default_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2139, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new char[] {100,101,102,97,117,108,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$FunctionModifier__lit_default_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Java_$FunctionModifier__lit_java_ = _init_prod__Java_$FunctionModifier__lit_java_();
-    private static final AbstractStackNode[] _init_prod__Java_$FunctionModifier__lit_java_() {
+    public final static AbstractStackNode prod__Java_$FunctionModifier__lit_java_ = _init_prod__Java_$FunctionModifier__lit_java_();
+    private static final AbstractStackNode _init_prod__Java_$FunctionModifier__lit_java_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2140, 0, prod__lit_java__char_class___range__106_106_char_class___range__97_97_char_class___range__118_118_char_class___range__97_97_, new char[] {106,97,118,97}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Java_$FunctionModifier__lit_java_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Assignment {
-    public final static AbstractStackNode[] prod__Addition_$Assignment__lit___43_61_ = _init_prod__Addition_$Assignment__lit___43_61_();
-    private static final AbstractStackNode[] _init_prod__Addition_$Assignment__lit___43_61_() {
+    public final static AbstractStackNode prod__Addition_$Assignment__lit___43_61_ = _init_prod__Addition_$Assignment__lit___43_61_();
+    private static final AbstractStackNode _init_prod__Addition_$Assignment__lit___43_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2144, 0, prod__lit___43_61__char_class___range__43_43_char_class___range__61_61_, new char[] {43,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Addition_$Assignment__lit___43_61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Product_$Assignment__lit___42_61_ = _init_prod__Product_$Assignment__lit___42_61_();
-    private static final AbstractStackNode[] _init_prod__Product_$Assignment__lit___42_61_() {
+    public final static AbstractStackNode prod__Product_$Assignment__lit___42_61_ = _init_prod__Product_$Assignment__lit___42_61_();
+    private static final AbstractStackNode _init_prod__Product_$Assignment__lit___42_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2145, 0, prod__lit___42_61__char_class___range__42_42_char_class___range__61_61_, new char[] {42,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Product_$Assignment__lit___42_61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Division_$Assignment__lit___47_61_ = _init_prod__Division_$Assignment__lit___47_61_();
-    private static final AbstractStackNode[] _init_prod__Division_$Assignment__lit___47_61_() {
+    public final static AbstractStackNode prod__Division_$Assignment__lit___47_61_ = _init_prod__Division_$Assignment__lit___47_61_();
+    private static final AbstractStackNode _init_prod__Division_$Assignment__lit___47_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2146, 0, prod__lit___47_61__char_class___range__47_47_char_class___range__61_61_, new char[] {47,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Division_$Assignment__lit___47_61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfDefined_$Assignment__lit___63_61_ = _init_prod__IfDefined_$Assignment__lit___63_61_();
-    private static final AbstractStackNode[] _init_prod__IfDefined_$Assignment__lit___63_61_() {
+    public final static AbstractStackNode prod__IfDefined_$Assignment__lit___63_61_ = _init_prod__IfDefined_$Assignment__lit___63_61_();
+    private static final AbstractStackNode _init_prod__IfDefined_$Assignment__lit___63_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2147, 0, prod__lit___63_61__char_class___range__63_63_char_class___range__61_61_, new char[] {63,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__IfDefined_$Assignment__lit___63_61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$Assignment__lit___61_ = _init_prod__Default_$Assignment__lit___61_();
-    private static final AbstractStackNode[] _init_prod__Default_$Assignment__lit___61_() {
+    public final static AbstractStackNode prod__Default_$Assignment__lit___61_ = _init_prod__Default_$Assignment__lit___61_();
+    private static final AbstractStackNode _init_prod__Default_$Assignment__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2148, 0, prod__lit___61__char_class___range__61_61_, new char[] {61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$Assignment__lit___61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Intersection_$Assignment__lit___38_61_ = _init_prod__Intersection_$Assignment__lit___38_61_();
-    private static final AbstractStackNode[] _init_prod__Intersection_$Assignment__lit___38_61_() {
+    public final static AbstractStackNode prod__Intersection_$Assignment__lit___38_61_ = _init_prod__Intersection_$Assignment__lit___38_61_();
+    private static final AbstractStackNode _init_prod__Intersection_$Assignment__lit___38_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2149, 0, prod__lit___38_61__char_class___range__38_38_char_class___range__61_61_, new char[] {38,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Intersection_$Assignment__lit___38_61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Subtraction_$Assignment__lit___45_61_ = _init_prod__Subtraction_$Assignment__lit___45_61_();
-    private static final AbstractStackNode[] _init_prod__Subtraction_$Assignment__lit___45_61_() {
+    public final static AbstractStackNode prod__Subtraction_$Assignment__lit___45_61_ = _init_prod__Subtraction_$Assignment__lit___45_61_();
+    private static final AbstractStackNode _init_prod__Subtraction_$Assignment__lit___45_61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2150, 0, prod__lit___45_61__char_class___range__45_45_char_class___range__61_61_, new char[] {45,61}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Subtraction_$Assignment__lit___45_61_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ProtocolChars {
-    public final static AbstractStackNode[] prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_ = _init_prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_();
-    private static final AbstractStackNode[] _init_prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_() {
+    public final static AbstractStackNode prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_ = _init_prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_();
+    private static final AbstractStackNode _init_prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2143, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new char[] {58,47,47}, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{9,10},{13,13},{32,32}})});
@@ -7731,34 +7731,34 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-2141, 0, new char[][]{{124,124}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$ProtocolChars__char_class___range__124_124_$URLChars_conditional__lit___58_47_47__not_follow__char_class___range__9_10_range__13_13_range__32_32_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Field {
-    public final static AbstractStackNode[] prod__Name_$Field__fieldName_$Name_ = _init_prod__Name_$Field__fieldName_$Name_();
-    private static final AbstractStackNode[] _init_prod__Name_$Field__fieldName_$Name_() {
+    public final static AbstractStackNode prod__Name_$Field__fieldName_$Name_ = _init_prod__Name_$Field__fieldName_$Name_();
+    private static final AbstractStackNode _init_prod__Name_$Field__fieldName_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2160, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Name_$Field__fieldName_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Index_$Field__fieldIndex_$IntegerLiteral_ = _init_prod__Index_$Field__fieldIndex_$IntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__Index_$Field__fieldIndex_$IntegerLiteral_() {
+    public final static AbstractStackNode prod__Index_$Field__fieldIndex_$IntegerLiteral_ = _init_prod__Index_$Field__fieldIndex_$IntegerLiteral_();
+    private static final AbstractStackNode _init_prod__Index_$Field__fieldIndex_$IntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2161, 0, "$IntegerLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Index_$Field__fieldIndex_$IntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Comment {
-    public final static AbstractStackNode[] prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116 = _init_prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116();
-    private static final AbstractStackNode[] _init_prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116() {
+    public final static AbstractStackNode prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116 = _init_prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116();
+    private static final AbstractStackNode _init_prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new CharStackNode(-2180, 2, new char[][]{{10,10}}, null, null);
@@ -7768,10 +7768,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2177, 0, prod__lit___47_47__char_class___range__47_47_char_class___range__47_47_, new char[] {47,47}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_65535_char_class___range__10_10__tag__category___67_111_109_109_101_110_116);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116 = _init_prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116();
-    private static final AbstractStackNode[] _init_prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116() {
+    public final static AbstractStackNode prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116 = _init_prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116();
+    private static final AbstractStackNode _init_prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2186, 2, prod__lit___42_47__char_class___range__42_42_char_class___range__47_47_, new char[] {42,47}, null, null);
@@ -7781,13 +7781,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2181, 0, prod__lit___47_42__char_class___range__47_47_char_class___range__42_42_, new char[] {47,42}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$Comment__lit___47_42_iter_star__alt___conditional__char_class___range__42_42__not_follow__char_class___range__47_47_char_class___range__0_41_range__43_65535_lit___42_47__tag__category___67_111_109_109_101_110_116);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Label {
-    public final static AbstractStackNode[] prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_ = _init_prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_();
-    private static final AbstractStackNode[] _init_prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_() {
+    public final static AbstractStackNode prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_ = _init_prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_();
+    private static final AbstractStackNode _init_prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2199, 2, prod__lit___58__char_class___range__58_58_, new char[] {58}, null, null);
@@ -7797,31 +7797,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2197, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$Label__name_$Name_$layouts_LAYOUTLIST_lit___58_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Empty_$Label__ = _init_prod__Empty_$Label__();
-    private static final AbstractStackNode[] _init_prod__Empty_$Label__() {
+    public final static AbstractStackNode prod__Empty_$Label__ = _init_prod__Empty_$Label__();
+    private static final AbstractStackNode _init_prod__Empty_$Label__() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new EpsilonStackNode(-2200, 0);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Empty_$Label__);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ProtocolPart {
-    public final static AbstractStackNode[] prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_ = _init_prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_();
-    private static final AbstractStackNode[] _init_prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_() {
+    public final static AbstractStackNode prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_ = _init_prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_();
+    private static final AbstractStackNode _init_prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2201, 0, "$ProtocolChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__NonInterpolated_$ProtocolPart__protocolChars_$ProtocolChars_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_ = _init_prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_();
-    private static final AbstractStackNode[] _init_prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_() {
+    public final static AbstractStackNode prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_ = _init_prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_();
+    private static final AbstractStackNode _init_prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2206, 4, "$ProtocolTail", null, null);
@@ -7835,13 +7835,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2202, 0, "$PreProtocolChars", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Interpolated_$ProtocolPart__pre_$PreProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PreModule {
-    public final static AbstractStackNode[] prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_ = _init_prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_ = _init_prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new SeparatedListStackNode(-2221, 4, regular__iter_star_seps__$Word__$layouts_LAYOUTLIST, new NonTerminalStackNode(-2222, 0, "$Word", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2223, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
@@ -7855,13 +7855,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2217, 0, "$Header", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_rest_iter_star_seps__$Word__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $TagString {
-    public final static AbstractStackNode[] prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_ = _init_prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_();
-    private static final AbstractStackNode[] _init_prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_() {
+    public final static AbstractStackNode prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_ = _init_prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_();
+    private static final AbstractStackNode _init_prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2242, 2, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -7871,13 +7871,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2235, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$TagString__lit___123_iter_star__alt___seq___char_class___range__92_92_char_class___range__125_125_char_class___range__0_124_range__126_65535_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Nonterminal {
-    public final static AbstractStackNode[] prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new ListStackNode(-2244, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(-2245, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
@@ -7885,13 +7885,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-2243, 0, new char[][]{{65,90}}, new IEnterFilter[] {new CharPrecedeRestriction(new char[][]{{65,90}})}, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$Nonterminal__conditional__char_class___range__65_90__not_precede__char_class___range__65_90_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__delete__$RascalReservedKeywords_not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Mapping__$Pattern {
-    public final static AbstractStackNode[] prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_ = _init_prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_();
-    private static final AbstractStackNode[] _init_prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_() {
+    public final static AbstractStackNode prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_ = _init_prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_();
+    private static final AbstractStackNode _init_prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2262, 4, "$Pattern", null, null);
@@ -7905,13 +7905,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2258, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Mapping__$Pattern__from_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Pattern_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Expression {
-    public final static AbstractStackNode[] prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_ = _init_prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_();
-    private static final AbstractStackNode[] _init_prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_() {
+    public final static AbstractStackNode prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_ = _init_prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_();
+    private static final AbstractStackNode _init_prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2488, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
@@ -7921,10 +7921,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2486, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__TransitiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___43__not_follow__lit___61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left = _init_prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left = _init_prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new NonTerminalStackNode(-2588, 8, "$Expression", null, null);
@@ -7946,10 +7946,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2580, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__IfThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2524, 4, "$Expression", null, null);
@@ -7963,10 +7963,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2520, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Join_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_join_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2633, 4, "$Expression", null, null);
@@ -7980,10 +7980,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2629, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__And_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2554, 4, "$Expression", null, null);
@@ -7997,10 +7997,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2550, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__In_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_in_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2297, 4, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8014,10 +8014,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2289, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__List_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2539, 4, "$Expression", null, null);
@@ -8031,10 +8031,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2535, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Intersection_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_ = _init_prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_();
-    private static final AbstractStackNode[] _init_prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_() {
+    public final static AbstractStackNode prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_ = _init_prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_();
+    private static final AbstractStackNode _init_prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[0] = new NonTerminalStackNode(-2310, 0, "$Label", null, null);
@@ -8044,10 +8044,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new NonTerminalStackNode(-2312, 2, "$Visit", null, null);
       tmp[2].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2332, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8065,10 +8065,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2322, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new char[] {97,108,108}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__All_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[0] = new NonTerminalStackNode(-2346, 0, "$Parameters", null, null);
@@ -8086,10 +8086,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[6] = new LiteralStackNode(-2354, 6, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
       tmp[6].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__VoidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-2345, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8119,10 +8119,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2333, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__StepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2593, 4, "$Expression", null, null);
@@ -8136,10 +8136,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2589, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Equals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2433, 4, "$Name", null, null);
@@ -8153,10 +8153,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2429, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Has_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_has_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new LiteralStackNode(-2444, 10, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8182,10 +8182,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[4] = new NonTerminalStackNode(-2438, 4, "$Name", null, null);
       tmp[4].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__FieldUpdate_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_key_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_replacement_$Expression_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2369, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8199,10 +8199,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2361, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_ = _init_prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_();
-    private static final AbstractStackNode[] _init_prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_() {
+    public final static AbstractStackNode prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_ = _init_prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_();
+    private static final AbstractStackNode _init_prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2372, 2, "$Type", null, null);
@@ -8212,10 +8212,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2370, 0, prod__lit___35__char_class___range__35_35_, new char[] {35}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__ReifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2465, 4, "$Name", null, null);
@@ -8229,10 +8229,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2461, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-2390, 12, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8262,10 +8262,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2374, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__Reducer_$Expression__lit___40_$layouts_LAYOUTLIST_init_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_result_$Expression_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2638, 4, "$Expression", null, null);
@@ -8279,10 +8279,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2634, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Or_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2428, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8300,10 +8300,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2418, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new char[] {97,110,121}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Any_$Expression__lit_any_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2579, 4, "$Expression", null, null);
@@ -8317,10 +8317,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2575, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__LessThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[13];
       
       tmp[12] = new LiteralStackNode(-2509, 12, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8350,10 +8350,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2497, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[12].setParentProduction(RascalRascal.prod__SetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-2276, 8, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8375,10 +8375,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2268, 0, prod__lit___91__char_class___range__91_91_, new char[] {91}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Range_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2519, 4, "$Expression", null, null);
@@ -8392,10 +8392,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2515, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Product_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___42_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_ = _init_prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_();
-    private static final AbstractStackNode[] _init_prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_() {
+    public final static AbstractStackNode prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_ = _init_prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_();
+    private static final AbstractStackNode _init_prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2491, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {61})});
@@ -8405,10 +8405,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2489, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__TransitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_conditional__lit___42__not_follow__lit___61_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2529, 4, "$Expression", null, null);
@@ -8422,19 +8422,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2525, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Literal_$Expression__literal_$Literal_ = _init_prod__Literal_$Expression__literal_$Literal_();
-    private static final AbstractStackNode[] _init_prod__Literal_$Expression__literal_$Literal_() {
+    public final static AbstractStackNode prod__Literal_$Expression__literal_$Literal_ = _init_prod__Literal_$Expression__literal_$Literal_();
+    private static final AbstractStackNode _init_prod__Literal_$Expression__literal_$Literal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2277, 0, "$Literal", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Literal_$Expression__literal_$Literal_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_ = _init_prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_() {
+    public final static AbstractStackNode prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_ = _init_prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_();
+    private static final AbstractStackNode _init_prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2482, 2, "$Expression", null, null);
@@ -8444,10 +8444,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2480, 0, prod__lit___33__char_class___range__33_33_, new char[] {33}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Negation_$Expression__lit___33_$layouts_LAYOUTLIST_argument_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2288, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8465,10 +8465,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2278, 0, "$BasicType", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__ReifiedType_$Expression__basicType_$BasicType_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[0] = new NonTerminalStackNode(-2298, 0, "$Expression", null, null);
@@ -8486,19 +8486,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[6] = new LiteralStackNode(-2308, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
       tmp[6].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__CallOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Comprehension_$Expression__comprehension_$Comprehension_ = _init_prod__Comprehension_$Expression__comprehension_$Comprehension_();
-    private static final AbstractStackNode[] _init_prod__Comprehension_$Expression__comprehension_$Comprehension_() {
+    public final static AbstractStackNode prod__Comprehension_$Expression__comprehension_$Comprehension_ = _init_prod__Comprehension_$Expression__comprehension_$Comprehension_();
+    private static final AbstractStackNode _init_prod__Comprehension_$Expression__comprehension_$Comprehension_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2309, 0, "$Comprehension", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Comprehension_$Expression__comprehension_$Comprehension_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2476, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -8516,10 +8516,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2466, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2321, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -8533,10 +8533,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2313, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2574, 4, "$Expression", null, null);
@@ -8550,10 +8550,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2570, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__LessThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_conditional__lit___60__not_follow__lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2603, 4, "$Expression", null, null);
@@ -8567,10 +8567,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2599, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__IfDefinedOtherwise_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2628, 4, "$Expression", null, null);
@@ -8584,10 +8584,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2624, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Implication_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2514, 4, "$Expression", null, null);
@@ -8601,10 +8601,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2510, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Composition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_o_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2598, 4, "$Expression", null, null);
@@ -8618,10 +8618,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2594, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket();
-    private static final AbstractStackNode[] _init_prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket() {
+    public final static AbstractStackNode prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket = _init_prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket();
+    private static final AbstractStackNode _init_prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2359, 4, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -8635,10 +8635,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2355, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_ = _init_prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_();
-    private static final AbstractStackNode[] _init_prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_() {
+    public final static AbstractStackNode prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_ = _init_prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_();
+    private static final AbstractStackNode _init_prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2449, 4, "$Name", null, null);
@@ -8652,19 +8652,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2445, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__FieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_ = _init_prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_() {
+    public final static AbstractStackNode prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_ = _init_prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2360, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__QualifiedName_$Expression__qualifiedName_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[0] = new NonTerminalStackNode(-2540, 0, "$Expression", null, null);
@@ -8678,10 +8678,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[4] = new NonTerminalStackNode(-2544, 4, "$Expression", null, null);
       tmp[4].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Addition_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___43_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
-    private static final AbstractStackNode[] _init_prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
+    public final static AbstractStackNode prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
+    private static final AbstractStackNode _init_prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2460, 6, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -8699,10 +8699,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2450, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__FieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2608, 4, "$Expression", null, null);
@@ -8716,10 +8716,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2604, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NoMatch_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___33_58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2496, 4, "$Name", null, null);
@@ -8733,10 +8733,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2492, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__GetAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2623, 4, "$Expression", null, null);
@@ -8750,10 +8750,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2619, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Equivalence_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___60_61_61_62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_ = _init_prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_();
-    private static final AbstractStackNode[] _init_prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_() {
+    public final static AbstractStackNode prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_ = _init_prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_();
+    private static final AbstractStackNode _init_prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2479, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, null, null);
@@ -8763,10 +8763,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2477, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__IsDefined_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___63_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_ = _init_prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_() {
+    public final static AbstractStackNode prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_ = _init_prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_();
+    private static final AbstractStackNode _init_prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2485, 2, "$Expression", null, null);
@@ -8776,19 +8776,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2483, 0, prod__lit____char_class___range__45_45_, new char[] {45}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Negative_$Expression__lit___$layouts_LAYOUTLIST_argument_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__It_$Expression__lit_it_ = _init_prod__It_$Expression__lit_it_();
-    private static final AbstractStackNode[] _init_prod__It_$Expression__lit_it_() {
+    public final static AbstractStackNode prod__It_$Expression__lit_it_ = _init_prod__It_$Expression__lit_it_();
+    private static final AbstractStackNode _init_prod__It_$Expression__lit_it_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new LiteralStackNode(-2373, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new char[] {105,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__It_$Expression__lit_it_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2564, 4, "$Expression", null, null);
@@ -8802,10 +8802,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2560, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__GreaterThan_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2397, 4, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -8819,10 +8819,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2391, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NonEmptyBlock_$Expression__lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2534, 4, "$Expression", null, null);
@@ -8836,10 +8836,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2530, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Modulo_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___37_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2569, 4, "$Expression", null, null);
@@ -8853,10 +8853,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2565, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__GreaterThanOrEq_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___62_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2613, 4, "$Expression", null, null);
@@ -8870,10 +8870,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2609, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
+    public final static AbstractStackNode prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = _init_prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left();
+    private static final AbstractStackNode _init_prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2549, 4, "$Expression", null, null);
@@ -8887,10 +8887,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2545, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
-    private static final AbstractStackNode[] _init_prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
+    public final static AbstractStackNode prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = _init_prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_();
+    private static final AbstractStackNode _init_prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-2408, 8, prod__lit___125__char_class___range__125_125_, new char[] {125}, null, null);
@@ -8912,10 +8912,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2398, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Closure_$Expression__type_$Type_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = _init_prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2559, 4, "$Expression", null, null);
@@ -8929,10 +8929,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2555, 0, "$Expression", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NotIn_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit_notin_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
-    private static final AbstractStackNode[] _init_prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
+    public final static AbstractStackNode prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_ = _init_prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_();
+    private static final AbstractStackNode _init_prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new LiteralStackNode(-2417, 4, prod__lit___62__char_class___range__62_62_, new char[] {62}, null, null);
@@ -8946,10 +8946,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2409, 0, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
-    private static final AbstractStackNode[] _init_prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
+    public final static AbstractStackNode prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = _init_prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc();
+    private static final AbstractStackNode _init_prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2618, 4, "$Expression", null, null);
@@ -8963,13 +8963,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2614, 0, "$Pattern", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Match_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_61_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $ImportedModule {
-    public final static AbstractStackNode[] prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_ = _init_prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_();
-    private static final AbstractStackNode[] _init_prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_() {
+    public final static AbstractStackNode prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_ = _init_prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_();
+    private static final AbstractStackNode _init_prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2662, 2, "$ModuleActuals", null, null);
@@ -8979,10 +8979,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2660, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Actuals_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_ = _init_prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_();
-    private static final AbstractStackNode[] _init_prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_() {
+    public final static AbstractStackNode prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_ = _init_prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_();
+    private static final AbstractStackNode _init_prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2667, 4, "$Renamings", null, null);
@@ -8996,19 +8996,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2663, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__ActualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$ImportedModule__name_$QualifiedName_ = _init_prod__Default_$ImportedModule__name_$QualifiedName_();
-    private static final AbstractStackNode[] _init_prod__Default_$ImportedModule__name_$QualifiedName_() {
+    public final static AbstractStackNode prod__Default_$ImportedModule__name_$QualifiedName_ = _init_prod__Default_$ImportedModule__name_$QualifiedName_();
+    private static final AbstractStackNode _init_prod__Default_$ImportedModule__name_$QualifiedName_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2668, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$ImportedModule__name_$QualifiedName_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_ = _init_prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_();
-    private static final AbstractStackNode[] _init_prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_() {
+    public final static AbstractStackNode prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_ = _init_prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_();
+    private static final AbstractStackNode _init_prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2671, 2, "$Renamings", null, null);
@@ -9018,25 +9018,25 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2669, 0, "$QualifiedName", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Renamings_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_renamings_$Renamings_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Commands {
-    public final static AbstractStackNode[] prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_ = _init_prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_ = _init_prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new SeparatedListStackNode(-2696, 0, regular__iter_seps__$Command__$layouts_LAYOUTLIST, new NonTerminalStackNode(-2697, 0, "$Command", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2698, 1, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__List_$Commands__commands_iter_seps__$Command__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Header {
-    public final static AbstractStackNode[] prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_ = _init_prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_ = _init_prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new SeparatedListStackNode(-2715, 6, regular__iter_star_seps__$Import__$layouts_LAYOUTLIST, new NonTerminalStackNode(-2716, 0, "$Import", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2717, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
@@ -9054,10 +9054,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2709, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Default_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_ = _init_prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_ = _init_prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new SeparatedListStackNode(-2726, 8, regular__iter_star_seps__$Import__$layouts_LAYOUTLIST, new NonTerminalStackNode(-2727, 0, "$Import", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2728, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
@@ -9079,13 +9079,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2718, 0, "$Tags", null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Parameters_$Header__tags_$Tags_$layouts_LAYOUTLIST_lit_module_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_params_$ModuleParameters_$layouts_LAYOUTLIST_imports_iter_star_seps__$Import__$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $NonterminalLabel {
-    public final static AbstractStackNode[] prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
-    private static final AbstractStackNode[] _init_prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
+    public final static AbstractStackNode prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_ = _init_prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_();
+    private static final AbstractStackNode _init_prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_() {
       AbstractStackNode[] tmp = new AbstractStackNode[2];
       
       tmp[1] = new ListStackNode(-2730, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode(-2731, 0, new char[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{48,57},{65,90},{95,95},{97,122}})});
@@ -9093,13 +9093,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new CharStackNode(-2729, 0, new char[][]{{97,122}}, null, null);
       tmp[0].setProduction(tmp);
       tmp[1].setParentProduction(RascalRascal.prod__$NonterminalLabel__char_class___range__97_122_conditional__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122__not_follow__char_class___range__48_57_range__65_90_range__95_95_range__97_122_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Sym {
-    public final static AbstractStackNode[] prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_ = _init_prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_();
-    private static final AbstractStackNode[] _init_prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_() {
+    public final static AbstractStackNode prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_ = _init_prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_();
+    private static final AbstractStackNode _init_prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[0] = new NonTerminalStackNode(-2740, 0, "$Sym", null, null);
@@ -9109,10 +9109,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[2] = new LiteralStackNode(-2742, 2, prod__lit___36__char_class___range__36_36_, new char[] {36}, null, null);
       tmp[2].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__EndOfLine_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___36_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_ = _init_prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_();
-    private static final AbstractStackNode[] _init_prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_() {
+    public final static AbstractStackNode prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_ = _init_prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_();
+    private static final AbstractStackNode _init_prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2739, 2, "$Nonterminal", null, null);
@@ -9122,10 +9122,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2737, 0, prod__lit___38__char_class___range__38_38_, new char[] {38}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Parameter_$Sym__lit___38_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_ = _init_prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_();
-    private static final AbstractStackNode[] _init_prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_() {
+    public final static AbstractStackNode prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_ = _init_prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_();
+    private static final AbstractStackNode _init_prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2745, 2, prod__lit___63__char_class___range__63_63_, new char[] {63}, null, null);
@@ -9135,19 +9135,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2743, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Optional_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___63_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_ = _init_prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_();
-    private static final AbstractStackNode[] _init_prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_() {
+    public final static AbstractStackNode prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_ = _init_prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_();
+    private static final AbstractStackNode _init_prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2746, 0, "$CaseInsensitiveStringConstant", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__CaseInsensitiveLiteral_$Sym__cistring_$CaseInsensitiveStringConstant_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_ = _init_prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_();
-    private static final AbstractStackNode[] _init_prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_() {
+    public final static AbstractStackNode prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_ = _init_prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_();
+    private static final AbstractStackNode _init_prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-2755, 8, prod__lit___43__char_class___range__43_43_, new char[] {43}, null, null);
@@ -9169,19 +9169,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2747, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__IterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Literal_$Sym__string_$StringConstant_ = _init_prod__Literal_$Sym__string_$StringConstant_();
-    private static final AbstractStackNode[] _init_prod__Literal_$Sym__string_$StringConstant_() {
+    public final static AbstractStackNode prod__Literal_$Sym__string_$StringConstant_ = _init_prod__Literal_$Sym__string_$StringConstant_();
+    private static final AbstractStackNode _init_prod__Literal_$Sym__string_$StringConstant_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2756, 0, "$StringConstant", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Literal_$Sym__string_$StringConstant_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_ = _init_prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_();
-    private static final AbstractStackNode[] _init_prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_() {
+    public final static AbstractStackNode prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_ = _init_prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_();
+    private static final AbstractStackNode _init_prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2759, 2, prod__lit___42__char_class___range__42_42_, new char[] {42}, null, null);
@@ -9191,10 +9191,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2757, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__IterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
+    public final static AbstractStackNode prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
+    private static final AbstractStackNode _init_prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2852, 4, "$Sym", null, null);
@@ -9208,10 +9208,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2848, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Unequal_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___92_$layouts_LAYOUTLIST_match_$Sym__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
-    private static final AbstractStackNode[] _init_prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
+    public final static AbstractStackNode prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
+    private static final AbstractStackNode _init_prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2847, 4, "$Sym", null, null);
@@ -9225,10 +9225,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2843, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NotFollow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___33_62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_ = _init_prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_();
-    private static final AbstractStackNode[] _init_prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_() {
+    public final static AbstractStackNode prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_ = _init_prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_();
+    private static final AbstractStackNode _init_prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2762, 2, "$Sym", null, null);
@@ -9238,10 +9238,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2760, 0, prod__lit___94__char_class___range__94_94_, new char[] {94}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__StartOfLine_$Sym__lit___94_$layouts_LAYOUTLIST_symbol_$Sym_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2776, 2, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -9251,10 +9251,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2774, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Empty_$Sym__lit___40_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[0] = new NonTerminalStackNode(-2763, 0, "$Nonterminal", null, new ICompletionFilter[] {new StringFollowRequirement(new char[] {91})});
@@ -9272,10 +9272,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[6] = new LiteralStackNode(-2773, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
       tmp[6].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Parametrized_$Sym__conditional__nonterminal_$Nonterminal__follow__lit___91_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[0] = new LiteralStackNode(-2783, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
@@ -9293,10 +9293,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[6] = new LiteralStackNode(-2791, 6, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
       tmp[6].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Sequence_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_sequence_iter_seps__$Sym__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right = _init_prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right();
-    private static final AbstractStackNode[] _init_prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right() {
+    public final static AbstractStackNode prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right = _init_prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right();
+    private static final AbstractStackNode _init_prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2832, 4, "$Sym", null, null);
@@ -9310,19 +9310,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2828, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Precede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_ = _init_prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_();
-    private static final AbstractStackNode[] _init_prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_() {
+    public final static AbstractStackNode prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_ = _init_prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_();
+    private static final AbstractStackNode _init_prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2777, 0, "$Nonterminal", null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {91})});
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Nonterminal_$Sym__conditional__nonterminal_$Nonterminal__not_follow__lit___91_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_ = _init_prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_() {
+    public final static AbstractStackNode prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_ = _init_prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_();
+    private static final AbstractStackNode _init_prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2782, 4, "$IntegerLiteral", null, null);
@@ -9336,10 +9336,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2778, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Column_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_column_$IntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
-    private static final AbstractStackNode[] _init_prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
+    public final static AbstractStackNode prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left = _init_prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left();
+    private static final AbstractStackNode _init_prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2842, 4, "$Sym", null, null);
@@ -9353,10 +9353,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2838, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Follow_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___62_62_$layouts_LAYOUTLIST_match_$Sym__assoc__left);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_ = _init_prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_();
-    private static final AbstractStackNode[] _init_prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_() {
+    public final static AbstractStackNode prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_ = _init_prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_();
+    private static final AbstractStackNode _init_prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-2813, 8, prod__lit___42__char_class___range__42_42_, new char[] {42}, null, null);
@@ -9378,19 +9378,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2805, 0, prod__lit___123__char_class___range__123_123_, new char[] {123}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__IterStarSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___42_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__CharacterClass_$Sym__charClass_$Class_ = _init_prod__CharacterClass_$Sym__charClass_$Class_();
-    private static final AbstractStackNode[] _init_prod__CharacterClass_$Sym__charClass_$Class_() {
+    public final static AbstractStackNode prod__CharacterClass_$Sym__charClass_$Class_ = _init_prod__CharacterClass_$Sym__charClass_$Class_();
+    private static final AbstractStackNode _init_prod__CharacterClass_$Sym__charClass_$Class_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2814, 0, "$Class", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__CharacterClass_$Sym__charClass_$Class_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
-    private static final AbstractStackNode[] _init_prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
+    public final static AbstractStackNode prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = _init_prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_();
+    private static final AbstractStackNode _init_prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_() {
       AbstractStackNode[] tmp = new AbstractStackNode[9];
       
       tmp[8] = new LiteralStackNode(-2804, 8, prod__lit___41__char_class___range__41_41_, new char[] {41}, null, null);
@@ -9412,10 +9412,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2792, 0, prod__lit___40__char_class___range__40_40_, new char[] {40}, null, null);
       tmp[0].setProduction(tmp);
       tmp[8].setParentProduction(RascalRascal.prod__Alternative_$Sym__lit___40_$layouts_LAYOUTLIST_first_$Sym_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_alternatives_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_ = _init_prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_();
-    private static final AbstractStackNode[] _init_prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_() {
+    public final static AbstractStackNode prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_ = _init_prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_();
+    private static final AbstractStackNode _init_prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2817, 2, "$NonterminalLabel", null, null);
@@ -9425,10 +9425,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2815, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Labeled_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_label_$NonterminalLabel_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_();
-    private static final AbstractStackNode[] _init_prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_() {
+    public final static AbstractStackNode prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_ = _init_prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_();
+    private static final AbstractStackNode _init_prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new LiteralStackNode(-2824, 6, prod__lit___93__char_class___range__93_93_, new char[] {93}, null, null);
@@ -9446,10 +9446,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2818, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new char[] {115,116,97,114,116}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Start_$Sym__lit_start_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___93_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right = _init_prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right();
-    private static final AbstractStackNode[] _init_prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right() {
+    public final static AbstractStackNode prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right = _init_prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right();
+    private static final AbstractStackNode _init_prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2837, 4, "$Sym", null, null);
@@ -9463,10 +9463,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2833, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__NotPrecede_$Sym__match_$Sym_$layouts_LAYOUTLIST_lit___33_60_60_$layouts_LAYOUTLIST_symbol_$Sym__assoc__right);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_ = _init_prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_();
-    private static final AbstractStackNode[] _init_prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_() {
+    public final static AbstractStackNode prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_ = _init_prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_();
+    private static final AbstractStackNode _init_prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2827, 2, prod__lit___43__char_class___range__43_43_, new char[] {43}, null, null);
@@ -9476,13 +9476,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2825, 0, "$Sym", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Iter_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___43_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Catch {
-    public final static AbstractStackNode[] prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable = _init_prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable() {
+    public final static AbstractStackNode prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable = _init_prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2876, 4, "$Statement", null, null);
@@ -9496,10 +9496,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2872, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {99,97,116,99,104}, null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Catch__lit_catch_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable = _init_prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable();
-    private static final AbstractStackNode[] _init_prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable() {
+    public final static AbstractStackNode prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable = _init_prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable();
+    private static final AbstractStackNode _init_prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-2883, 6, "$Statement", null, null);
@@ -9517,13 +9517,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2877, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new char[] {99,97,116,99,104}, null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__Binding_$Catch__lit_catch_$layouts_LAYOUTLIST_pattern_$Pattern_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_body_$Statement__tag__Foldable);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Renaming {
-    public final static AbstractStackNode[] prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_ = _init_prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_();
-    private static final AbstractStackNode[] _init_prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_() {
+    public final static AbstractStackNode prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_ = _init_prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_();
+    private static final AbstractStackNode _init_prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2871, 4, "$Name", null, null);
@@ -9537,13 +9537,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2867, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Default_$Renaming__from_$Name_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_to_$Name_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Signature {
-    public final static AbstractStackNode[] prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_ = _init_prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_();
-    private static final AbstractStackNode[] _init_prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_() {
+    public final static AbstractStackNode prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_ = _init_prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_();
+    private static final AbstractStackNode _init_prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_() {
       AbstractStackNode[] tmp = new AbstractStackNode[7];
       
       tmp[6] = new NonTerminalStackNode(-2900, 6, "$Parameters", null, null);
@@ -9561,10 +9561,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2894, 0, "$FunctionModifiers", null, null);
       tmp[0].setProduction(tmp);
       tmp[6].setParentProduction(RascalRascal.prod__NoThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
-    private static final AbstractStackNode[] _init_prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
+    public final static AbstractStackNode prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = _init_prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_();
+    private static final AbstractStackNode _init_prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_() {
       AbstractStackNode[] tmp = new AbstractStackNode[11];
       
       tmp[10] = new SeparatedListStackNode(-2911, 10, regular__iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode(-2912, 0, "$Type", null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2913, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode(-2914, 2, prod__lit___44__char_class___range__44_44_, new char[] {44}, null, null), new NonTerminalStackNode(-2915, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
@@ -9590,13 +9590,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2901, 0, "$FunctionModifiers", null, null);
       tmp[0].setProduction(tmp);
       tmp[10].setParentProduction(RascalRascal.prod__WithThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $TypeArg {
-    public final static AbstractStackNode[] prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_();
-    private static final AbstractStackNode[] _init_prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_() {
+    public final static AbstractStackNode prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_ = _init_prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_();
+    private static final AbstractStackNode _init_prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2924, 2, "$Name", null, null);
@@ -9606,22 +9606,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2922, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Named_$TypeArg__type_$Type_$layouts_LAYOUTLIST_name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Default_$TypeArg__type_$Type_ = _init_prod__Default_$TypeArg__type_$Type_();
-    private static final AbstractStackNode[] _init_prod__Default_$TypeArg__type_$Type_() {
+    public final static AbstractStackNode prod__Default_$TypeArg__type_$Type_ = _init_prod__Default_$TypeArg__type_$Type_();
+    private static final AbstractStackNode _init_prod__Default_$TypeArg__type_$Type_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2925, 0, "$Type", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Default_$TypeArg__type_$Type_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Variable {
-    public final static AbstractStackNode[] prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_ = _init_prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_();
-    private static final AbstractStackNode[] _init_prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_() {
+    public final static AbstractStackNode prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_ = _init_prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_();
+    private static final AbstractStackNode _init_prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_() {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
       
       tmp[4] = new NonTerminalStackNode(-2920, 4, "$Expression", null, null);
@@ -9635,22 +9635,22 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2916, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[4].setParentProduction(RascalRascal.prod__Initialized_$Variable__name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_initial_$Expression_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__UnInitialized_$Variable__name_$Name_ = _init_prod__UnInitialized_$Variable__name_$Name_();
-    private static final AbstractStackNode[] _init_prod__UnInitialized_$Variable__name_$Name_() {
+    public final static AbstractStackNode prod__UnInitialized_$Variable__name_$Name_ = _init_prod__UnInitialized_$Variable__name_$Name_();
+    private static final AbstractStackNode _init_prod__UnInitialized_$Variable__name_$Name_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2921, 0, "$Name", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__UnInitialized_$Variable__name_$Name_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $PreProtocolChars {
-    public final static AbstractStackNode[] prod__$PreProtocolChars__lit___124_$URLChars_lit___60_ = _init_prod__$PreProtocolChars__lit___124_$URLChars_lit___60_();
-    private static final AbstractStackNode[] _init_prod__$PreProtocolChars__lit___124_$URLChars_lit___60_() {
+    public final static AbstractStackNode prod__$PreProtocolChars__lit___124_$URLChars_lit___60_ = _init_prod__$PreProtocolChars__lit___124_$URLChars_lit___60_();
+    private static final AbstractStackNode _init_prod__$PreProtocolChars__lit___124_$URLChars_lit___60_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new LiteralStackNode(-2941, 2, prod__lit___60__char_class___range__60_60_, new char[] {60}, null, null);
@@ -9660,79 +9660,79 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new LiteralStackNode(-2939, 0, prod__lit___124__char_class___range__124_124_, new char[] {124}, null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__$PreProtocolChars__lit___124_$URLChars_lit___60_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Literal {
-    public final static AbstractStackNode[] prod__Location_$Literal__locationLiteral_$LocationLiteral_ = _init_prod__Location_$Literal__locationLiteral_$LocationLiteral_();
-    private static final AbstractStackNode[] _init_prod__Location_$Literal__locationLiteral_$LocationLiteral_() {
+    public final static AbstractStackNode prod__Location_$Literal__locationLiteral_$LocationLiteral_ = _init_prod__Location_$Literal__locationLiteral_$LocationLiteral_();
+    private static final AbstractStackNode _init_prod__Location_$Literal__locationLiteral_$LocationLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2952, 0, "$LocationLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Location_$Literal__locationLiteral_$LocationLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Real_$Literal__realLiteral_$RealLiteral_ = _init_prod__Real_$Literal__realLiteral_$RealLiteral_();
-    private static final AbstractStackNode[] _init_prod__Real_$Literal__realLiteral_$RealLiteral_() {
+    public final static AbstractStackNode prod__Real_$Literal__realLiteral_$RealLiteral_ = _init_prod__Real_$Literal__realLiteral_$RealLiteral_();
+    private static final AbstractStackNode _init_prod__Real_$Literal__realLiteral_$RealLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2953, 0, "$RealLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Real_$Literal__realLiteral_$RealLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_ = _init_prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_();
-    private static final AbstractStackNode[] _init_prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_() {
+    public final static AbstractStackNode prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_ = _init_prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_();
+    private static final AbstractStackNode _init_prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2954, 0, "$RegExpLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__RegExp_$Literal__regExpLiteral_$RegExpLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Integer_$Literal__integerLiteral_$IntegerLiteral_ = _init_prod__Integer_$Literal__integerLiteral_$IntegerLiteral_();
-    private static final AbstractStackNode[] _init_prod__Integer_$Literal__integerLiteral_$IntegerLiteral_() {
+    public final static AbstractStackNode prod__Integer_$Literal__integerLiteral_$IntegerLiteral_ = _init_prod__Integer_$Literal__integerLiteral_$IntegerLiteral_();
+    private static final AbstractStackNode _init_prod__Integer_$Literal__integerLiteral_$IntegerLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2955, 0, "$IntegerLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Integer_$Literal__integerLiteral_$IntegerLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_ = _init_prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_();
-    private static final AbstractStackNode[] _init_prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_() {
+    public final static AbstractStackNode prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_ = _init_prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_();
+    private static final AbstractStackNode _init_prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2956, 0, "$BooleanLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__Boolean_$Literal__booleanLiteral_$BooleanLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_ = _init_prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_();
-    private static final AbstractStackNode[] _init_prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_() {
+    public final static AbstractStackNode prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_ = _init_prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_();
+    private static final AbstractStackNode _init_prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2957, 0, "$DateTimeLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__DateTime_$Literal__dateTimeLiteral_$DateTimeLiteral_);
-      return tmp;
+      return tmp[0];
 	}
-    public final static AbstractStackNode[] prod__String_$Literal__stringLiteral_$StringLiteral_ = _init_prod__String_$Literal__stringLiteral_$StringLiteral_();
-    private static final AbstractStackNode[] _init_prod__String_$Literal__stringLiteral_$StringLiteral_() {
+    public final static AbstractStackNode prod__String_$Literal__stringLiteral_$StringLiteral_ = _init_prod__String_$Literal__stringLiteral_$StringLiteral_();
+    private static final AbstractStackNode _init_prod__String_$Literal__stringLiteral_$StringLiteral_() {
       AbstractStackNode[] tmp = new AbstractStackNode[1];
       
       tmp[0] = new NonTerminalStackNode(-2958, 0, "$StringLiteral", null, null);
       tmp[0].setProduction(tmp);
       tmp[0].setParentProduction(RascalRascal.prod__String_$Literal__stringLiteral_$StringLiteral_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	
   private static class $Module {
-    public final static AbstractStackNode[] prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_ = _init_prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_();
-    private static final AbstractStackNode[] _init_prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_() {
+    public final static AbstractStackNode prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_ = _init_prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_();
+    private static final AbstractStackNode _init_prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_() {
       AbstractStackNode[] tmp = new AbstractStackNode[3];
       
       tmp[2] = new NonTerminalStackNode(-2967, 2, "$Body", null, null);
@@ -9742,7 +9742,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
       tmp[0] = new NonTerminalStackNode(-2965, 0, "$Header", null, null);
       tmp[0].setProduction(tmp);
       tmp[2].setParentProduction(RascalRascal.prod__Default_$Module__header_$Header_$layouts_LAYOUTLIST_body_$Body_);
-      return tmp;
+      return tmp[0];
 	}
   }
 	

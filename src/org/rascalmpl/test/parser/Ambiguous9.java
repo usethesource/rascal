@@ -89,14 +89,14 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	}
 	
 	public void S(){
-		expect(S_EXPECT_1);
+		expect(S_EXPECT_1[0]);
 	}
 	
 	public void E(){
-		expect(E_EXPECT_1);
-		expect(E_EXPECT_2);
+		expect(E_EXPECT_1[0]);
+		expect(E_EXPECT_2[0]);
 		
-		expect(E_EXPECT_3);
+		expect(E_EXPECT_3[0]);
 	}
 	
 	public IConstructor executeParser(){
