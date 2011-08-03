@@ -199,11 +199,8 @@ public class IO {
 		return values.bool(ctx.getResolverRegistry().isFile(sloc.getURI()));
 	}
 	
-	public IValue mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
-		//File f = new File(sloc.getURI().getPath());
-		//System.err.println("mkDirectory: " + sloc.getURI().getPath());
-		//return values.bool(f.mkdir());
-		return values.bool(ctx.getResolverRegistry().mkDirectory(sloc.getURI()));
+	public void mkDirectory(ISourceLocation sloc, IEvaluatorContext ctx) throws IOException {
+		ctx.getResolverRegistry().mkDirectory(sloc.getURI());
 	}
 	
 	public IValue listEntries(ISourceLocation sloc, IEvaluatorContext ctx) {

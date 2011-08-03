@@ -72,16 +72,16 @@ public class URIResolverRegistry {
 		return resolver.isDirectory(uri);
 	}
 	
-	public boolean mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(URI uri) throws IOException {
 		IURIOutputStreamResolver resolver = outputResolvers.get(uri.getScheme());
 		
 		if (resolver == null) {
-			return false;
+			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		
 		mkParentDir(uri);
 		
-		return resolver.mkDirectory(uri);
+		resolver.mkDirectory(uri);
 	}
 
 	public boolean isFile(URI uri) {

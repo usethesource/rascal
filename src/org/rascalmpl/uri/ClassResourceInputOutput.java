@@ -171,21 +171,21 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		}
 	}
 
-	public boolean mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(URI uri) throws IOException {
+		String parent = getParent(uri);
+		String child = getChild(uri);
+
 		try {
-			String parent = getParent(uri);
-			String child = getChild(uri);
-			
 			URL res = clazz.getResource(parent);
 			if(res == null)
 				throw new FileNotFoundException(parent);
 			URI parentUri = res.toURI();
 			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), parentUri.getPath() + child, parentUri.getQuery(), parentUri.getFragment());
 
-			return registry.mkDirectory(childUri);
+			registry.mkDirectory(childUri);
 		} catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
-		}
+		} 
 	}
 
 	

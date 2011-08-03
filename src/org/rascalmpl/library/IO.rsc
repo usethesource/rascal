@@ -88,7 +88,8 @@ public java bool isDirectory(loc file);
 @doc{Create a directory}
 @javaClass{org.rascalmpl.library.IO}
 @reflect{Uses URI Resolver Registry}
-public java bool mkDirectory(loc file);
+public java void mkDirectory(loc file)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @doc{Check whether a certain location is a file}
 @javaClass{org.rascalmpl.library.IO}

@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -249,20 +250,23 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
-	public boolean mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(URI uri) throws IOException {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-						return reg.mkDirectory(full);
+					reg.mkDirectory(full);
+					return;
 				}
 			}
-			return false;
+			
+			
+			throw new FileNotFoundException("Parent of " + uri + " could not be found");
 		} 
 		catch (URISyntaxException e) {
-			return false;
+			throw new IOException(e.getMessage(), e);
 		}
 	}
 
