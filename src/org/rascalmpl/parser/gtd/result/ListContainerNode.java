@@ -20,7 +20,7 @@ public class ListContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 }

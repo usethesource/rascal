@@ -24,7 +24,7 @@ public class CharNode extends AbstractNode{
 		this.character = character;
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 	

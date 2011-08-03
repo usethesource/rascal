@@ -7,10 +7,10 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
+import org.rascalmpl.parser.uptr.NodeToUPTR.CycleMark;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 

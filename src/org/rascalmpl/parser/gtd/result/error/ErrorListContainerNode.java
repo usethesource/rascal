@@ -22,7 +22,7 @@ public class ErrorListContainerNode extends AbstractContainerNode{
 		super(input, offset, endOffset, false, isSeparator, isLayout);
 	}
 	
-	public int getID(){
+	public int getTypeIdentifier(){
 		return ID;
 	}
 }

@@ -7,7 +7,6 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.ListContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode.CycleMark;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
@@ -29,12 +28,39 @@ public class NodeToUPTR implements INodeConverter{
 		listContainerNodeConverter = new ListContainerNodeConverter();
 	}
 	
+	/**
+	 * Internal helper class for cycle detection and handling.
+	 */
+	protected static class CycleMark{
+		public int depth = Integer.MAX_VALUE;
+		
+		public CycleMark(){
+			super();
+		}
+		
+		/**
+		 * Marks the depth at which a cycle was detected.
+		 */
+		public void setMark(int depth){
+			if(depth < this.depth){
+				this.depth = depth;
+			}
+		}
+		
+		/**
+		 * Resets the mark.
+		 */
+		public void reset(){
+			depth = Integer.MAX_VALUE;
+		}
+	}
+	
 	protected static class IsInError{
 		public boolean inError;
 	}
 	
 	protected IConstructor convert(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
-		switch(node.getID()){
+		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
 				return CharNodeConverter.convertToUPTR((CharNode) node);
 			case LiteralNode.ID:
@@ -44,12 +70,12 @@ public class NodeToUPTR implements INodeConverter{
 			case ListContainerNode.ID:
 				return listContainerNodeConverter.convertToUPTR(this, (ListContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			default:
-				throw new RuntimeException("Incorrect result node id: "+node.getID());
+				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
 	}
 	
 	protected IConstructor convertWithErrors(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
-		switch(node.getID()){
+		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
 				return CharNodeConverter.convertToUPTR((CharNode) node);
 			case LiteralNode.ID:
@@ -65,7 +91,7 @@ public class NodeToUPTR implements INodeConverter{
 			case ExpectedNode.ID:
 				return ExpectedNodeConverter.convertToUPTR(this, (ExpectedNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			default:
-				throw new RuntimeException("Incorrect result node id: "+node.getID());
+				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
 	}
 	
