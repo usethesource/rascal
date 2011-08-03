@@ -78,8 +78,4 @@ public class ExpectedNode extends AbstractNode{
 	public boolean isNonterminalSeparator(){
 		return isSeparator;
 	}
-	
-	public void setRejected(){
-		throw new UnsupportedOperationException();
-	}
 }

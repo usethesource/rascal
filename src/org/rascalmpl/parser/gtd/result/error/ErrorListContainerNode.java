@@ -15,6 +15,11 @@ import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 
+/**
+ * A error list result node.
+ * This node is equivalent to the regular list result node, but (directly or
+ * indirectly) contains incomplete parse results.
+ */
 public class ErrorListContainerNode extends AbstractContainerNode{
 	public final static int ID = 7;
 	
