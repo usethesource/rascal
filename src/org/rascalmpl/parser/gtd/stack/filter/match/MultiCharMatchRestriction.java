@@ -3,6 +3,10 @@ package org.rascalmpl.parser.gtd.stack.filter.match;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
+/**
+ * A filter that restricts the indicated part of the input string from matching
+ * any of the, with this filter associated, series of characters.
+ */
 public class MultiCharMatchRestriction implements ICompletionFilter{
 	private final char[][] characters;
 	

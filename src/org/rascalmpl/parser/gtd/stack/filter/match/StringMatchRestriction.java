@@ -14,6 +14,10 @@ package org.rascalmpl.parser.gtd.stack.filter.match;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
+/**
+ * A filter that restricts the indicated part of the input string from matching
+ * a specific string.
+ */
 public class StringMatchRestriction implements ICompletionFilter{
 	private final char[] string;
 	
