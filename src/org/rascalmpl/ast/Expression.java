@@ -676,6 +676,54 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isAsType() {
+    return false;
+  }
+
+  static public class AsType extends Expression {
+    // Production: sig("AsType",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","argument")])
+  
+    
+    private final org.rascalmpl.ast.Type type;
+    private final org.rascalmpl.ast.Expression argument;
+  
+    public AsType(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression argument) {
+      super(node);
+      
+      this.type = type;
+      this.argument = argument;
+    }
+  
+    @Override
+    public boolean isAsType() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionAsType(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Type getType() {
+      return this.type;
+    }
+  
+    @Override
+    public boolean hasType() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getArgument() {
+      return this.argument;
+    }
+  
+    @Override
+    public boolean hasArgument() {
+      return true;
+    }	
+  }
   public boolean isTypedVariable() {
     return false;
   }
@@ -1425,54 +1473,6 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasName() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }	
-  }
-  public boolean isGuarded() {
-    return false;
-  }
-
-  static public class Guarded extends Expression {
-    // Production: sig("Guarded",[arg("org.rascalmpl.ast.Type","type"),arg("org.rascalmpl.ast.Expression","pattern")])
-  
-    
-    private final org.rascalmpl.ast.Type type;
-    private final org.rascalmpl.ast.Expression pattern;
-  
-    public Guarded(IConstructor node , org.rascalmpl.ast.Type type,  org.rascalmpl.ast.Expression pattern) {
-      super(node);
-      
-      this.type = type;
-      this.pattern = pattern;
-    }
-  
-    @Override
-    public boolean isGuarded() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionGuarded(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Type getType() {
-      return this.type;
-    }
-  
-    @Override
-    public boolean hasType() {
       return true;
     }
     @Override

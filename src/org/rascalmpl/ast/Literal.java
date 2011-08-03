@@ -72,6 +72,13 @@ public abstract class Literal extends AbstractAST {
   public org.rascalmpl.ast.BooleanLiteral getBooleanLiteral() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasRationalLiteral() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasStringLiteral() {
     return false;
   }
@@ -110,6 +117,43 @@ public abstract class Literal extends AbstractAST {
   
 
   
+  public boolean isRational() {
+    return false;
+  }
+
+  static public class Rational extends Literal {
+    // Production: sig("Rational",[arg("org.rascalmpl.ast.RationalLiteral","rationalLiteral")])
+  
+    
+    private final org.rascalmpl.ast.RationalLiteral rationalLiteral;
+  
+    public Rational(IConstructor node , org.rascalmpl.ast.RationalLiteral rationalLiteral) {
+      super(node);
+      
+      this.rationalLiteral = rationalLiteral;
+    }
+  
+    @Override
+    public boolean isRational() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitLiteralRational(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.RationalLiteral getRationalLiteral() {
+      return this.rationalLiteral;
+    }
+  
+    @Override
+    public boolean hasRationalLiteral() {
+      return true;
+    }	
+  }
   public boolean isLocation() {
     return false;
   }

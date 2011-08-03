@@ -791,7 +791,7 @@ public class ASTBuilder {
 			}
 			
 			return false;
-		}else if (exp.isGuarded()) {
+		}else if (exp.isAsType()) {
 			IConstructor expressionType = Symbols.typeToSymbol(exp.getType(), lexicalFather, layout);
 
 			// the declared type inside the pattern must match the produced type outside the brackets

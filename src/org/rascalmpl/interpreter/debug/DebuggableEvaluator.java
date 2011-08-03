@@ -45,7 +45,7 @@ import org.rascalmpl.ast.Expression.FieldUpdate;
 import org.rascalmpl.ast.Expression.GetAnnotation;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.Guarded;
+import org.rascalmpl.ast.Expression.AsType;
 import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
 import org.rascalmpl.ast.Expression.IfThenElse;
 import org.rascalmpl.ast.Expression.Implication;
@@ -297,9 +297,9 @@ public class DebuggableEvaluator extends Evaluator {
 
 
 	@Override
-	public Result<IValue> visitExpressionGuarded(Guarded x) {
+	public Result<IValue> visitExpressionAsType(AsType x) {
 		suspend(x);
-		return super.visitExpressionGuarded(x);
+		return super.visitExpressionAsType(x);
 	}
 
 	@Override

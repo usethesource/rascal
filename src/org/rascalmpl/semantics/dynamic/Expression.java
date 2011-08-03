@@ -913,9 +913,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
-	static public class Guarded extends org.rascalmpl.ast.Expression.Guarded {
+	static public class AsType extends org.rascalmpl.ast.Expression.AsType {
 
-		public Guarded(IConstructor __param1, org.rascalmpl.ast.Type __param2,
+		public AsType(IConstructor __param1, org.rascalmpl.ast.Type __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}

@@ -25,15 +25,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Catch;
-import org.rascalmpl.ast.Char;
-import org.rascalmpl.ast.Declarator;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.IASTVisitor;
-import org.rascalmpl.ast.LocalVariableDeclaration;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.Variant;
+import org.rascalmpl.ast.*;
+import org.rascalmpl.ast.Literal.Rational;
+import org.rascalmpl.ast.RationalLiteral.Ambiguity;
+import org.rascalmpl.ast.RationalLiteral.Lexical;
+import org.rascalmpl.ast.Statement.Filter;
 import org.rascalmpl.ast.Assignable.Annotation;
 import org.rascalmpl.ast.Assignable.Constructor;
 import org.rascalmpl.ast.Assignable.FieldAccess;
@@ -107,7 +103,7 @@ import org.rascalmpl.ast.Expression.FieldUpdate;
 import org.rascalmpl.ast.Expression.GetAnnotation;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.Guarded;
+import org.rascalmpl.ast.Expression.AsType;
 import org.rascalmpl.ast.Expression.Has;
 import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
 import org.rascalmpl.ast.Expression.IfThenElse;
@@ -866,7 +862,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return list(eX(x.getLhs()), BoxADT.GE, eX(x.getRhs()));
 	}
 
-	public IValue visitExpressionGuarded(Guarded x) {
+	public IValue visitExpressionAsType(AsType x) {
 		return L(x.getClass().toString());
 	}
 
@@ -3579,6 +3575,31 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	@Override
 	public IValue visitFunctionModifierTest(Test x) {
 		return L("test");
+	}
+
+	@Override
+	public IValue visitLiteralRational(Rational x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitStatementFilter(Filter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public IValue visitRationalLiteralLexical(Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitRationalLiteralAmbiguity(Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

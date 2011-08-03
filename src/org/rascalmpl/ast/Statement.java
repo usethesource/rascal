@@ -546,6 +546,32 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
+  public boolean isFilter() {
+    return false;
+  }
+
+  static public class Filter extends Statement {
+    // Production: sig("Filter",[])
+  
+    
+  
+    public Filter(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isFilter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementFilter(this);
+    }
+  
+    	
+  }
   public boolean isExpression() {
     return false;
   }
