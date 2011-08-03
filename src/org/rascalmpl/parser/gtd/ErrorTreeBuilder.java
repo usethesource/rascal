@@ -34,7 +34,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ErrorTreeBuilder{
-	private final static AbstractNode[] NO_CHILDREN = new AbstractNode[]{};
+	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
 	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
@@ -249,7 +249,7 @@ public class ErrorTreeBuilder{
 			
 			int length = unmatchableNode.getLength();
 			
-			AbstractNode[] children = new AbstractNode[length];
+			CharNode[] children = new CharNode[length];
 			for(int i = children.length - 1; i >= 0; --i){
 				children[i] = CharNode.createCharNode(input[location + i]);
 			}
