@@ -81,14 +81,14 @@ public class PropertyManager {
 		int nrExplicitProperties = 0;
 		int nrStdProperties = 0;
 		for(IValue v : props){
-			String pname = ((IConstructor) v).getName();
+			IConstructor c = (IConstructor) v;
+			String pname = c.getName();
 			if(pname.startsWith("_child")){
 			} 
-			else if(pname.startsWith("std")){
-				pname = stripStd(pname);
+			else if(pname.equals("std")){
+				pname = ((IConstructor)c.get(0)).getName();
 				nrStdProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
 			} else {
-				
 				nrExplicitProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
 			}
 		}
@@ -96,12 +96,6 @@ public class PropertyManager {
 		stdValues = new PropertyValue[nrStdProperties];
 	}
 	
-	
-	private String stripStd(String s){
-		int stdLength = "std".length();
-		return s.substring(stdLength,stdLength+1).toLowerCase() + s.substring(stdLength+1);
-	}
-
 	private void setProperties(IFigureConstructionEnv fpa, IList props) {
 		int stdPropsIndex = 0;
 		int explicitPropsIndex = 0;
@@ -112,9 +106,10 @@ public class PropertyManager {
 			if(pname.startsWith("_child")){
 				continue;
 			}
-			if(pname.startsWith("std")){
+			if(pname.equals("std")){
 				// convert stdSize to size
-				pname = stripStd(pname);
+				c = (IConstructor)c.get(0);
+				pname = c.getName();
 				stdPropsIndex = Properties.propertySetters.get(pname).execute(stdValues, stdPropsIndex, c, fpa, this);
 			} else {
 				explicitPropsIndex = Properties.propertySetters.get(pname).execute(explicitValues, explicitPropsIndex, c, fpa, this);
