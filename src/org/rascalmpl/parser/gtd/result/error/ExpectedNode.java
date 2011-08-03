@@ -15,7 +15,6 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 
 public class ExpectedNode extends AbstractNode{
 	public final static int ID = 8;
@@ -76,19 +75,11 @@ public class ExpectedNode extends AbstractNode{
 		return false;
 	}
 	
-	public boolean isRejected(){
-		return false;
-	}
-	
-	public boolean isSeparator(){
+	public boolean isNonterminalSeparator(){
 		return isSeparator;
 	}
 	
 	public void setRejected(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public void addAlternative(IConstructor production, Link children){
 		throw new UnsupportedOperationException();
 	}
 }

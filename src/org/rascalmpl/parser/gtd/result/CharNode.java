@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+/**
+ * A character result node.
+ */
 public class CharNode extends AbstractNode{
 	public final static int ID = 2;
 	
@@ -28,19 +31,31 @@ public class CharNode extends AbstractNode{
 		return ID;
 	}
 	
-	public int getCharValue(){
+	/**
+	 * Retrieve the character in this result.
+	 */
+	public char getCharacter(){
 		return character;
 	}
 	
+	/**
+	 * Characters have a length.
+	 */
 	public boolean isEmpty(){
 		return false;
 	}
 	
-	public boolean isSeparator(){
+	/**
+	 * Characters aren't non-terminals.
+	 */
+	public boolean isNonterminalSeparator(){
 		return false;
 	}
 	
-	// Cache the results for all 7-bit ascii characters.
+	/**
+	 * Create a new character node.
+	 * If it's a 7 bit ascii character cache it as well, so we can reuse it.
+	 */
 	public static CharNode createCharNode(char character){
 		if(character < charNodeConstants.length){
 			CharNode charNode = charNodeConstants[character];

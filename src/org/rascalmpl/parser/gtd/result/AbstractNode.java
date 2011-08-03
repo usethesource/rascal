@@ -43,7 +43,7 @@ public abstract class AbstractNode{
 	public abstract boolean isEmpty();
 	
 	/**
-	 * Checks whether or not this node represents a separator.
+	 * Checks whether or not this node represents a non-terminal separator.
 	 */
-	public abstract boolean isSeparator();
+	public abstract boolean isNonterminalSeparator();
 }

@@ -16,7 +16,7 @@ public class CharNodeConverter{
 	}
 	
 	public static IConstructor convertToUPTR(CharNode node){
-		int charNumber = node.getCharValue();
+		int charNumber = node.getCharacter();
 		
 		if(charNumber < 128){
 			IConstructor result = cache[charNumber];

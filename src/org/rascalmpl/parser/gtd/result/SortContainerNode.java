@@ -13,6 +13,10 @@ package org.rascalmpl.parser.gtd.result;
 
 import java.net.URI;
 
+/**
+ * A sort result node.
+ * Sorts are a type of containers.
+ */
 public class SortContainerNode extends AbstractContainerNode{
 	public final static int ID = 4;
 	

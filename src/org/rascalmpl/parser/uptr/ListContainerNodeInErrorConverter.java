@@ -170,7 +170,7 @@ public class ListContainerNodeInErrorConverter{
 					return;
 				}
 				
-				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){
 						prefixNode = cycle;
@@ -219,7 +219,7 @@ public class ListContainerNodeInErrorConverter{
 					continue;
 				}
 				
-				if(prefixNode.isEmpty() && !prefixNode.isSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){
 						gatherProduction(converter, prefix, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, actionExecutor, environment);
