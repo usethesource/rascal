@@ -81,7 +81,7 @@ public class Ambiguous1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -91,7 +91,7 @@ public class Ambiguous1 extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		Ambiguous1 a1 = new Ambiguous1();
-		IConstructor result = a1.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		IConstructor result = a1.executeParser();
 		System.out.println(result);
 		
 		System.out.println("[S(A(a)),S(a)] <- good");

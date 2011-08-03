@@ -85,7 +85,7 @@ public class LeftRecursion extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -95,7 +95,7 @@ public class LeftRecursion extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		LeftRecursion lr = new LeftRecursion();
-		IConstructor result = lr.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = lr.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(A(A(A(a),a),a)) <- good");

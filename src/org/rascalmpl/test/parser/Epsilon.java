@@ -54,7 +54,7 @@ public class Epsilon extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, new char[]{}, new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, new char[]{}, new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -64,7 +64,7 @@ public class Epsilon extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		Epsilon e = new Epsilon();
-		IConstructor result = e.parse(NONTERMINAL_START_S, null, new char[]{}, new NodeToUPTR());
+		IConstructor result = e.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S() <- good");

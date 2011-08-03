@@ -14,6 +14,9 @@ package org.rascalmpl.parser.gtd.result.struct;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
+/**
+ * A structure that links a result node to a set of prefixes.
+ */
 public class Link{
 	private final ArrayList<Link> prefixes;
 	private final AbstractNode node;

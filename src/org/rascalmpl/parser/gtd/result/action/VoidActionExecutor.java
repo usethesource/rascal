@@ -13,6 +13,9 @@ package org.rascalmpl.parser.gtd.result.action;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 
+/**
+ * A dummy action executor.
+ */
 public class VoidActionExecutor implements IActionExecutor{
 	
 	public VoidActionExecutor(){

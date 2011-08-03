@@ -78,7 +78,7 @@ public class Optional1 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -88,7 +88,7 @@ public class Optional1 extends SGTDBF implements IParserTest{
 	
 	public static void main(String[] args){
 		Optional1 o1 = new Optional1();
-		IConstructor result = o1.parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
+		IConstructor result = o1.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S(a,O?(O(a))) <- good");

@@ -76,7 +76,7 @@ public class AmbiguousNestedPlusList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -86,7 +86,7 @@ public class AmbiguousNestedPlusList extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		AmbiguousNestedPlusList anpl = new AmbiguousNestedPlusList();
-		IConstructor result = anpl.parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new NodeToUPTR());
+		IConstructor result = anpl.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([A+(A([a]+([a](a))),A([a]+([a](a)))),A+(A([a]+([a](a),[a](a))))]) <- good");

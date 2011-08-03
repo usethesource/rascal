@@ -96,7 +96,7 @@ public class CycleEpsilon extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -106,7 +106,7 @@ public class CycleEpsilon extends SGTDBF implements IParserTest{
 
 	public static void main(String[] args){
 		CycleEpsilon ce = new CycleEpsilon();
-		IConstructor result = ce.parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		IConstructor result = ce.executeParser();
 		System.out.println(result);
 		
 		System.out.println("S([A([A(cycle(A,1),cycle(A,1)),A()],cycle(A,1)),A(cycle(A,1),[A(cycle(A,1),cycle(A,1)),A()]),A(a)]) <- good");

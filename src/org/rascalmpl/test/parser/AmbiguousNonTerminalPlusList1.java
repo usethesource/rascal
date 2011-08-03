@@ -91,7 +91,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
@@ -101,7 +101,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 
 	public static void main(String[] args){
 		AmbiguousNonTerminalPlusList1 nrpl1 = new AmbiguousNonTerminalPlusList1();
-		IConstructor result = nrpl1.parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		IConstructor result = nrpl1.executeParser();
 		System.out.println(result);
 		
 		System.out.println("[S(a,A+(A(a),A(a))),S(A+(A(a),A(a)),a)] <- good");
