@@ -14,13 +14,14 @@ package org.rascalmpl.parser.gtd.result;
 import java.net.URI;
 
 /**
- * A list result node.
- * Lists are a type of container.
+ * A 'expandable' result node.
+ * Expandables, like sorts, are a types of containers.
+ * With expandables we refer to lists, optional and sequences and such.
  */
-public class ListContainerNode extends AbstractContainerNode{
+public class ExpandableContainerNode extends AbstractContainerNode{
 	public final static int ID = 5;
 	
-	public ListContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
+	public ExpandableContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super(input, offset, endOffset, isNullable, isSeparator, isLayout);
 	}
 	

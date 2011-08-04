@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.ListContainerNode;
+import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -27,6 +27,10 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+/**
+ * A converter for 'expandable' container result nodes.
+ * In the case of the UPTR format, this implies variations of lists.
+ */
 public class ListContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
@@ -42,6 +46,10 @@ public class ListContainerNodeConverter{
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>>();
 	}
 	
+	/**
+	 * A helper structure for keeping track of cycles inside lists.
+	 * These cycles can occur due to nullable elements and separators.
+	 */
 	protected static class CycleNode extends AbstractNode{
 		public final AbstractNode[] cycle;
 		
@@ -72,9 +80,12 @@ public class ListContainerNodeConverter{
 		}
 	}
 	
+	/**
+	 * A helper structure for storing shared prefixes of lists.
+	 */
 	protected static class SharedPrefix{
-		public IConstructor[] prefix;
-		public Object environment;
+		public final IConstructor[] prefix;
+		public final Object environment;
 		
 		public SharedPrefix(IConstructor[] prefix, Object environment){
 			super();
@@ -84,8 +95,12 @@ public class ListContainerNodeConverter{
 		}
 	}
 	
+	/**
+	 * Construct the UPTR representation for the given production.
+	 * Additionally, it handles all semantic actions related 'events' associated with it.
+	 */
 	private Object buildAlternative(NodeToUPTR converter, IConstructor[] prefix, ForwardLink<AbstractNode> postFix, IConstructor production, ArrayList<IConstructor> gatheredAlternatives, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
-		Object newEnvironment = actionExecutor.enteringListProduction(production, environment);
+		Object newEnvironment = actionExecutor.enteringListProduction(production, environment); // Fire a 'entering production' event to enable environment handling.
 		
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		for(int i = 0; i < prefix.length; ++i){
@@ -99,21 +114,21 @@ public class ListContainerNodeConverter{
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
 			
-			newEnvironment = actionExecutor.enteringListNode(production, index++, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, index++, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			
-			if(!(node instanceof CycleNode)){
+			if(!(node instanceof CycleNode)){ // Not a cycle.
 				IConstructor constructedNode = converter.convert(node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(constructedNode == null){
-					actionExecutor.exitedListProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 					return null;
 				}
 				
 				childrenListWriter.append(constructedNode);
-			}else{
+			}else{ // Cycle.
 				CycleNode cycleNode = (CycleNode) node;
 				IConstructor[] constructedCycle = constructCycle(converter, production, cycleNode, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(constructedCycle == null){
-					actionExecutor.exitedListProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 					return null;
 				}
 				
@@ -129,46 +144,51 @@ public class ListContainerNodeConverter{
 		}
 		
 		IConstructor result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-		result = actionExecutor.filterListProduction(result, newEnvironment);
+		result = actionExecutor.filterListProduction(result, newEnvironment); // Execute the semantic actions associated with this list.
 		if(result == null){
-			actionExecutor.exitedListProduction(production, true, newEnvironment);
+			actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 			return null;
 		}
 
-		actionExecutor.exitedListProduction(production, false, newEnvironment);
+		actionExecutor.exitedListProduction(production, false, newEnvironment); // Successful construction.
 		
 		gatheredAlternatives.add(result);
 		
 		return newEnvironment;
 	}
 	
+	/**
+	 * Construct the UPTR representation for the given cycle.
+	 */
 	private IConstructor[] constructCycle(NodeToUPTR converter, IConstructor production, CycleNode cycleNode, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
-		Object newEnvironment = actionExecutor.enteringListProduction(production, environment);
+		Object newEnvironment = actionExecutor.enteringListProduction(production, environment); // Fire a 'entering production' event to enable environment handling.
 		
 		AbstractNode[] cycleElements = cycleNode.cycle;
 		
 		int nrOfCycleElements = cycleElements.length;
 		IConstructor[] convertedCycle;
-		if(nrOfCycleElements == 1){
+		if(nrOfCycleElements == 1){ // A single element cycle (non-separated list).
 			convertedCycle = new IConstructor[1];
 			
-			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			IConstructor element = converter.convert(cycleElements[0], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 			if(element == null){
-				actionExecutor.exitedListProduction(production, true, newEnvironment);
+				actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 				return null;
 			}
 			convertedCycle[0] = element;
-		}else{
+		}else{ // A multi element cycle (separated list).
+			// The last node in the array is the actual list element.
+			// Since cycles aren't allowed to start or end at separators, construct the cycle with the element both at the begin and end.
 			convertedCycle = new IConstructor[nrOfCycleElements + 1];
 			
-			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment);
+			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			convertedCycle[0] = converter.convert(cycleElements[nrOfCycleElements - 1], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 			for(int i = 0; i < nrOfCycleElements; ++i){
-				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment);
+				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 				IConstructor element = converter.convert(cycleElements[i], stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(element == null) {
-					actionExecutor.exitedListProduction(production, true, newEnvironment);
+					actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 					return null;
 				}
 				convertedCycle[i + 1] = element;
@@ -176,35 +196,38 @@ public class ListContainerNodeConverter{
 		}
 		
 		IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(production), VF.integer(1));
-		cycle = actionExecutor.filterListCycle(cycle, environment);
+		cycle = actionExecutor.filterListCycle(cycle, environment); // Execute the semantic actions associated with the list this cycle belongs to.
 		if(cycle == null){
 			return convertedCycle;
 		}
 		
 		IConstructor elements = VF.constructor(Factory.Tree_Appl, production, VF.list(convertedCycle));
-		elements = actionExecutor.filterListProduction(elements, newEnvironment);
+		elements = actionExecutor.filterListProduction(elements, newEnvironment); // Execute the semantic actions associated with this list.
 		if(elements == null){
-			actionExecutor.exitedListProduction(production, true, newEnvironment);
+			actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 			return null;
 		}
 		
-		actionExecutor.exitedListProduction(production, false, newEnvironment);
+		actionExecutor.exitedListProduction(production, false, newEnvironment); // Successful construction.
 		
-		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle));
+		IConstructor constructedCycle = VF.constructor(Factory.Tree_Amb, VF.set(elements, cycle)); // Execute the semantic actions associated with this ambiguous list.
 		constructedCycle = actionExecutor.filterListAmbiguity(constructedCycle, newEnvironment);
 		if(constructedCycle == null) return null;
 		
 		return new IConstructor[]{constructedCycle};
 	}
 	
+	/**
+	 * Gather all the alternatives ending with the given child.
+	 */
 	protected void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix> sharedPrefixCache, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		AbstractNode childNode = child.getNode();
 		
-		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){
+		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
 			ArrayList<AbstractNode> blackList = new ArrayList<AbstractNode>();
-			if(childNode.isEmpty()){
+			if(childNode.isEmpty()){ // Child starts a cycle.
 				CycleNode cycle = gatherCycle(child, new AbstractNode[]{childNode}, blackList);
-				if(cycle != null){
+				if(cycle != null){ // Encountered a cycle.
 					if(cycle.cycle.length == 1){
 						gatherProduction(converter, child, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor, environment);
 					}else{
@@ -214,50 +237,60 @@ public class ListContainerNodeConverter{
 					return;
 				}
 			}
+			// Encountered non-cyclic child.
 			gatherProduction(converter, child, new ForwardLink<AbstractNode>(NO_NODES, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor, environment);
-		}else{
+		}else{ // Has a single epsilon result.
 			buildAlternative(converter, NO_CHILDREN, NO_NODES, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
+	/**
+	 * Gathers all alternatives for the given production related to the given child and postfix.
+	 */
 	private void gatherProduction(NodeToUPTR converter, Link child, ForwardLink<AbstractNode> postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		do{
 			ArrayList<Link> prefixes = child.getPrefixes();
-			if(prefixes == null){
+			if(prefixes == null){ // Start of the production encountered.
 				buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 				return;
 			}
 			
+			// One prefix, so not ambiguous at this point.
 			if(prefixes.size() == 1){
 				Link prefix = prefixes.get(0);
 				
-				if(prefix == null){
+				if(prefix == null){ // Start of the production encountered.
 					buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 					return;
 				}
 				
 				AbstractNode prefixNode = prefix.getNode();
-				if(blackList.contains(prefixNode)) return;
+				if(blackList.contains(prefixNode)) return; // Prefix node is not allowed (due to being part of a cycle already gathered cycle).
 				
-				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle (separators can't start or end cycles, only elements can).
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
-					if(cycle != null){
+					if(cycle != null){ // Encountered cycle, insert it.
 						prefixNode = cycle;
 					}
 				}
 				
 				child = prefix;
 				postFix = new ForwardLink<AbstractNode>(postFix, prefixNode);
-				continue;
+				continue; // Reuse the stack frame for the next iteration (part of the conditional tail-recursion optimization; this is required to prevent stack-overflows when flattening long lists).
 			}
 			
+			// Multiple prefixes, so the list is ambiguous at this point.
 			gatherAmbiguousProduction(converter, prefixes, postFix, gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor, environment);
 			
 			break;
 		}while(true);
 	}
 	
+	/**
+	 * Gathers all alternatives for the given ambiguous production related to the given child and postfix.
+	 */
 	private void gatherAmbiguousProduction(NodeToUPTR converter, ArrayList<Link> prefixes, ForwardLink<AbstractNode> postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix> sharedPrefixCache, PositionStore positionStore, ArrayList<AbstractNode> blackList, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
+		// Check if we've been at this node before. If so reuse the cached prefix.
 		SharedPrefix sharedPrefix = sharedPrefixCache.get(prefixes);
 		if(sharedPrefix != null){
 			IConstructor[] cachedPrefix = sharedPrefix.prefix;
@@ -265,7 +298,7 @@ public class ListContainerNodeConverter{
 				buildAlternative(converter, cachedPrefix, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, sharedPrefix.environment);
 			}
 			
-			// Check if there is a null prefix in this node's prefix list; if so handle the 'starts the production' case.
+			// Check if there is a null prefix in this node's prefix list (this can happen if this node both start the list and has an empty prefix).
 			for(int i = prefixes.size() - 1; i >= 0; --i){
 				if(prefixes.get(i) == null){
 					buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
@@ -275,20 +308,21 @@ public class ListContainerNodeConverter{
 			return;
 		}
 		
+		// Gather all alternative prefixes.
 		ArrayList<IConstructor> gatheredPrefixes = new ArrayList<IConstructor>();
 		
 		for(int i = prefixes.size() - 1; i >= 0; --i){
 			Link prefix = prefixes.get(i);
 			
-			if(prefix == null){
+			if(prefix == null){ // List start node encountered.
 				buildAlternative(converter, NO_CHILDREN, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			}else{
 				AbstractNode prefixNode = prefix.getNode();
-				if(blackList.contains(prefixNode)) continue;
+				if(blackList.contains(prefixNode)) continue; // Prefix node is not allowed (due to being part of a cycle already gathered cycle).
 				
-				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle.
+				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle (separators can't start or end cycles, only elements can).
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
-					if(cycle != null){
+					if(cycle != null){ // Encountered a cycle.
 						gatherProduction(converter, prefix, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, filteringTracker, actionExecutor, environment);
 						continue;
 					}
@@ -300,6 +334,7 @@ public class ListContainerNodeConverter{
 		
 		int nrOfGatheredPrefixes = gatheredPrefixes.size();
 		
+		// Non-ambiguous prefix.
 		if(nrOfGatheredPrefixes == 1){
 			IConstructor prefixAlternative = gatheredPrefixes.get(0);
 			IList prefixAlternativeChildrenList = TreeAdapter.getArgs(prefixAlternative);
@@ -313,7 +348,7 @@ public class ListContainerNodeConverter{
 			Object newEnvironment = buildAlternative(converter, prefixAlternativeChildren, postFix, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			
 			sharedPrefixCache.put(prefixes, new SharedPrefix(newEnvironment != null ? prefixAlternativeChildren : null, newEnvironment));
-		}else if(nrOfGatheredPrefixes > 0){
+		}else if(nrOfGatheredPrefixes > 0){ // Ambiguous prefix.
 			ISetWriter ambSublist = VF.setWriter(Factory.Tree);
 			
 			for(int i = nrOfGatheredPrefixes - 1; i >= 0; --i){
@@ -325,12 +360,12 @@ public class ListContainerNodeConverter{
 			
 			IConstructor prefixResult = VF.constructor(Factory.Tree_Amb, ambSublist.done());
 			prefixResult = actionExecutor.filterListAmbiguity(prefixResult, environment);
-			if(prefixResult == null){
+			if(prefixResult == null){ // Ambiguous list prefix got filtered, remember this.
 				sharedPrefixCache.put(prefixes, new SharedPrefix(null, null));
 				return;
 			}
 			
-			// Splice the elements into the list if the ambiguity cluster got filtered properly.
+			// Splice the elements into the list if a single alternative remained after filtering the ambiguity cluster.
 			if(TreeAdapter.isAppl(prefixResult)){
 				if(ProductionAdapter.getType(TreeAdapter.getProduction(prefixResult)).equals(ProductionAdapter.getType(production))){
 					IConstructor filteredAlternative = gatheredPrefixes.get(0);
@@ -357,14 +392,17 @@ public class ListContainerNodeConverter{
 		}
 	}
 	
+	/**
+	 * Gathers the cycle related to the given child.
+	 */
 	private CycleNode gatherCycle(Link child, AbstractNode[] postFix, ArrayList<AbstractNode> blackList){
 		AbstractNode originNode = child.getNode();
 		
-		blackList.add(originNode);
+		blackList.add(originNode); // Prevent the cycle node from being traversed again.
 		
 		OUTER : do{
 			ArrayList<Link> prefixes = child.getPrefixes();
-			if(prefixes == null){
+			if(prefixes == null){ // Encountered the start of the list (so no cycle detected).
 				return null;
 			}
 			
@@ -375,11 +413,11 @@ public class ListContainerNodeConverter{
 				if(prefix == null) continue;
 				AbstractNode prefixNode = prefix.getNode();
 				
-				if(prefixNode == originNode){
+				if(prefixNode == originNode){ // Cycle detected.
 					return new CycleNode(postFix);
 				}
 				
-				if(prefixNode.isEmpty()){
+				if(prefixNode.isEmpty()){ // Only empty nodes can be part of a cycle.
 					int length = postFix.length;
 					AbstractNode[] newPostFix = new AbstractNode[length + 1];
 					System.arraycopy(postFix, 0, newPostFix, 1, length);
@@ -389,6 +427,7 @@ public class ListContainerNodeConverter{
 					postFix = newPostFix;
 					continue OUTER;
 				}
+				// Fall through means no cycle was detected.
 			}
 			break;
 		}while(true);
@@ -396,15 +435,18 @@ public class ListContainerNodeConverter{
 		return null;
 	}
 	
-	public IConstructor convertToUPTR(NodeToUPTR converter, ListContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
+	/**
+	 * Converts the given expandable container result node to the UPTR format.
+	 */
+	public IConstructor convertToUPTR(NodeToUPTR converter, ExpandableContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 		
 		IConstructor rhs = ProductionAdapter.getType(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
-		if(depth <= cycleMark.depth){
-			if(!hasSideEffects){
+		if(depth <= cycleMark.depth){ // Only check for sharing if we are not currently inside a cycle.
+			if(!hasSideEffects){ // If this sort node and its direct and indirect children do not rely on side-effects from semantic actions, check the cache for existing results.
 				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.get(rhs, endOffset);
@@ -419,14 +461,14 @@ public class ListContainerNodeConverter{
 		
 		ISourceLocation sourceLocation = null;
 		URI input = node.getInput();
-		if(!(node.isLayout() || input == null)){
+		if(!(node.isLayout() || input == null)){ // Construct a source location annotation if this sort container does not represent a layout non-terminal and if it's available.
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		
 		int index = stack.contains(node);
-		if(index != -1){ // Cycle found.
+		if(index != -1){ // Cycle detected.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhs, VF.integer(depth - index));
 			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
@@ -438,9 +480,9 @@ public class ListContainerNodeConverter{
 		
 		int childDepth = depth + 1;
 		
-		stack.push(node, depth); // Push.
+		stack.push(node, depth); // Push this node on the stack.
 		
-		// Gather
+		// Gather the alternatives.
 		HashMap<ArrayList<Link>, SharedPrefix> sharedPrefixCache = new HashMap<ArrayList<Link>, SharedPrefix>();
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
 		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, filteringTracker, actionExecutor, environment);
@@ -452,7 +494,7 @@ public class ListContainerNodeConverter{
 			}
 		}
 		
-		// Output.
+		// Construct the resulting tree containing all gathered alternatives.
 		IConstructor result = null;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
@@ -474,10 +516,10 @@ public class ListContainerNodeConverter{
 			if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		}
 		
-		stack.dirtyPurge(); // Pop.
+		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		if(result != null && depth < cycleMark.depth){
-			if(!hasSideEffects){
+		if(result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
+			if(!hasSideEffects){ // Cache side-effect free tree.
 				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.get(rhs, endOffset);
@@ -492,7 +534,7 @@ public class ListContainerNodeConverter{
 				levelCache = new ObjectIntegerKeyedHashMap<IConstructor, IConstructor>();
 				levelCache.putUnsafe(rhs, endOffset, result);
 				preCache.put(offset, levelCache);
-			}else{
+			}else{ // Cache tree with side-effects.
 				ObjectIntegerKeyedHashSet<IConstructor> levelCache = cache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.getEquivalent(result, endOffset);
