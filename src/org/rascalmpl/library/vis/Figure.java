@@ -16,6 +16,7 @@ package org.rascalmpl.library.vis;
 
 import java.util.Vector;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -402,39 +403,24 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	
-	public void executeKeyDownHandlers(ICallbackEnv env,IValue keySym, IMap modifiers){
-		Type[] types = {keySym.getType(),modifiers.getType()};
-		IValue[] args = {keySym,modifiers};
-		if(isHandlerPropertySet(Properties.ON_KEY_DOWN)){
-			properties.executeVoidHandlerProperty(env,Properties.ON_KEY_DOWN, types, args);
+	public boolean executeKeyHandlers(ICallbackEnv env,IValue keySym, IBool keyDown, IMap modifiers){
+		Type[] types = {keySym.getType(),keyDown.getType(),modifiers.getType()};
+		IValue[] args = {keySym,keyDown,modifiers};
+		if(isHandlerPropertySet(Properties.ON_KEY)){
+			return ((IBool)properties.executeHandlerProperty(env, Properties.ON_KEY, types, args)).getValue();
 		}
-	}
-	
-	public void executeKeyUpHandlers(ICallbackEnv env,IValue keySym, IMap modifiers){
-		Type[] types = {keySym.getType(),modifiers.getType()};
-		IValue[] args = {keySym,modifiers};
-		if(isHandlerPropertySet(Properties.ON_KEY_UP)){
-			properties.executeVoidHandlerProperty(env,Properties.ON_KEY_UP, types, args);
-		}
+		return false;
 	}
 
-	public void executeMouseOverOffHandlers(ICallbackEnv env,Properties prop) {
-		if (isHandlerPropertySet(prop)) {
-			executeHandlerProperty(env,prop);
+	public boolean executeMouseMoveHandlers(ICallbackEnv env, IBool enter, Properties prop) {
+		Type[] types = {enter.getType()};
+		IValue[] args = {enter};
+		if(isHandlerPropertySet(Properties.ON_KEY)){
+			return ((IBool)properties.executeHandlerProperty(env, Properties.ON_MOUSEMOVE, types, args)).getValue();
 		}
+		return false;
 	}
 
-	public void executeMouseOverHandlers(ICallbackEnv env) {
-		if(properties.isHandlerPropertySet(Properties.ON_MOUSEOVER)){
-			executeMouseOverOffHandlers(env,Properties.ON_MOUSEOVER);
-		}
-	}
-
-	public void executeMouseOffHandlers(ICallbackEnv env) {
-		if(properties.isHandlerPropertySet(Properties.ON_MOUSEOFF)){
-			executeMouseOverOffHandlers(env,Properties.ON_MOUSEOFF);
-		}
-	}
 
 	public boolean mouseInside(double mouseX, double mouseY) {
 		//System.out.printf("mouse over %s %f %f %f %f %f %f\n", this, mouseX, getLeft(),mouseY,getTop(),size.getWidth(), size.getHeight());

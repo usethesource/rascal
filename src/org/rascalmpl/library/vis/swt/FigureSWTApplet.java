@@ -16,9 +16,11 @@ import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
@@ -49,6 +51,7 @@ import org.rascalmpl.library.vis.containers.WhiteSpace;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.interaction.MouseOver;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
 import org.rascalmpl.library.vis.swt.zorder.IHasZOrderStableComparator;
@@ -202,7 +205,7 @@ public class FigureSWTApplet extends Composite
 				cmp = figuresUnderMouse.get(i).sequenceNr - figuresUnderMousePrev.get(j).sequenceNr;
 			}
 			if(cmp < 0){
-				figuresUnderMouse.get(i).executeMouseOverHandlers(env);
+				figuresUnderMouse.get(i).executeMouseMoveHandlers(env, ValueFactory.getInstance().bool(true), Properties.ON_MOUSEMOVE);
 				int index = Collections.binarySearch(mouseOverFigures, figuresUnderMouse.get(i));
 				if(index >= 0){
 					mouseOverFigures.get(index).setMouseOver();
@@ -210,7 +213,7 @@ public class FigureSWTApplet extends Composite
 				}
 				i++;
 			} else if(cmp > 0){
-				figuresUnderMousePrev.get(j).executeMouseOffHandlers(env);
+				figuresUnderMouse.get(i).executeMouseMoveHandlers(env, ValueFactory.getInstance().bool(false), Properties.ON_MOUSEMOVE);
 				int index = Collections.binarySearch(mouseOverFigures, figuresUnderMousePrev.get(j));
 				if(index >= 0 ){
 					mouseOverFigures.get(index).unsetMouseOver();
@@ -232,26 +235,28 @@ public class FigureSWTApplet extends Composite
 		mouseOverFigures.add(mouseOver);
 	}
 	
-	@Override
-	public void keyPressed(KeyEvent e) {
+	
+	private void handleKey(KeyEvent e,boolean down){
 		env.beginCallbackBatch();
 		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
 		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
-		for (Figure fig : figuresUnderMouse) {
-			fig.executeKeyDownHandlers(env,keySym, keyboardModifierMap);
+		IBool keyDown = ValueFactory.getInstance().bool(down);
+		for(int i = figuresUnderMouse.size()-1 ; i >= 0; i--){
+			if(!figuresUnderMouse.get(i).executeKeyHandlers(env, keySym, keyDown, keyboardModifierMap)){
+				break;
+			}
 		}
 		env.endCallbackBatch();
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		handleKey(e,true);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		env.beginCallbackBatch();
-		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
-		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
-		for (Figure fig : figuresUnderMouse) {
-			fig.executeKeyUpHandlers(env,keySym, keyboardModifierMap);
-		}
-		env.endCallbackBatch();
+		handleKey(e,false);
 	}
 	
 	private void resize(){
