@@ -38,8 +38,7 @@ public enum Properties {
 	LABEL(Types.FIGURE,null),
 	
 	MOUSE_CLICK(Types.HANDLER,null,"void ()","h"),
-	ON_MOUSEOVER(Types.HANDLER,null,"void ()","h"),
-	ON_MOUSEOFF(Types.HANDLER,null,"void ()","h"),
+	ON_MOUSEMOVE(Types.HANDLER,null,"bool ()","h"),
 	
 	DOI(Types.INT,1000000),           // scheduled for removal
 	FONT_SIZE(Types.INT,12),
@@ -67,8 +66,7 @@ public enum Properties {
 	FONT(Types.STR,"Helvetica"),
 	TEXT(Types.STR,""),
 	
-	ON_KEY_DOWN(Types.HANDLER,null,"void (KeySym,map[KeyModifier,bool])","kh"),
-	ON_KEY_UP(Types.HANDLER,null,"void (KeySym,map[KeyModifier,bool])","kh");
+	ON_KEY(Types.HANDLER,null,"bool (KeySym, bool down, map[KeyModifier,bool])","kh");
 	
 	
 	public Object stdDefault;
@@ -141,8 +139,7 @@ public enum Properties {
 		put("label", new PropertySetters.SingleFigurePropertySetter(LABEL));
 		
 		put("onClick", new PropertySetters.SingleHandlerPropertySetter(MOUSE_CLICK));
-		put("onMouseOver",  new PropertySetters.SingleHandlerPropertySetter(ON_MOUSEOVER));
-		put("onMouseOff",  new PropertySetters.SingleHandlerPropertySetter(ON_MOUSEOFF));
+		put("onMouseMove",  new PropertySetters.SingleHandlerPropertySetter(ON_MOUSEMOVE));
 		
 		put("doi", new PropertySetters.SingleIntPropertySetter(DOI));
 		put("fontSize", new PropertySetters.SingleIntPropertySetter(FONT_SIZE));
@@ -174,8 +171,7 @@ public enum Properties {
 		put("font", new PropertySetters.SingleStrPropertySetter(FONT));
 		put("text", new PropertySetters.SingleStrPropertySetter(TEXT));
 		
-		put("onKeyDown", new PropertySetters.SingleHandlerPropertySetter(ON_KEY_DOWN));
-		put("onKeyUp", new PropertySetters.SingleHandlerPropertySetter(ON_KEY_UP));
+		put("onKey", new PropertySetters.SingleHandlerPropertySetter(ON_KEY));
 	}};
 	
 	
