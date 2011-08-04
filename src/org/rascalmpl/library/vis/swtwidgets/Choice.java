@@ -28,6 +28,7 @@ public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 	public Choice(IFigureConstructionEnv env, String[] choices, IValue fun, PropertyManager properties) {
 		super(env, fun, properties);
 		widget = makeWidget(env.getSWTParent(), env,choices);
+		widget.setVisible(false);
 	}
 	
 

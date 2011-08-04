@@ -1,34 +1,24 @@
-package org.rascalmpl.library.vis.containers;
+package org.rascalmpl.library.vis.compose;
 
-import org.rascalmpl.library.vis.Figure;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swtwidgets.Scrollable;
+import org.rascalmpl.library.vis.util.BoundingBox;
 
-public abstract class LayoutProxy extends WithInnerFig {
+public class WithDependantWidthHeight extends Scrollable{
+	
+	BoundingBox realSize;
 
-	// Figure which is merely a wrapper for the inner figure from a layout perspective
-	
-	public LayoutProxy(Figure inner, PropertyManager properties) {
-		super(inner, properties);
+	public WithDependantWidthHeight(boolean widthMajor,IConstructor inner, PropertyManager properties,IFigureConstructionEnv env) {
+		super(!widthMajor,widthMajor, env,inner,properties);
 	}
 	
-	@Override
-	public void bbox(){
-		innerFig.bbox();
-		for(boolean flip : BOTH_DIMENSIONS){
-			setResizableX(flip, innerFig.getResizableX(flip));
-		}
-		minSize.set(innerFig.minSize);
+	public BoundingBox getMinViewingSize() {
+		return innerFig.size;
 	}
 	
-	
-	@Override
-	public void layout(){
-		for(boolean flip : BOTH_DIMENSIONS){
-			innerFig.takeDesiredWidth(flip, size.getWidth(flip));
-		}
-		innerFig.layout();
-	}
-	
+
 	public boolean isHShrinkPropertySet(){
 		return innerFig.isHShrinkPropertySet();
 	}

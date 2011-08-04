@@ -114,15 +114,11 @@ public abstract class WithInnerFig extends Figure {
 		}
 	}
 	
-	public void activate(){
+	public void setLocationOfChildren(){
 		if(innerFig!=null){
-			innerFig.activate();
-		}
-	}
-	
-	public void suspend(){
-		if(innerFig!=null){
-			innerFig.suspend();
+			innerFig.globalLocation.set(globalLocation);
+			innerFig.globalLocation.add(innerFigLocation);
+			innerFig.setLocationOfChildren();
 		}
 	}
 	

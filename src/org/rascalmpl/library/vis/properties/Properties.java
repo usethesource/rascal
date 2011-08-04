@@ -8,7 +8,6 @@ import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.util.Dimension;
 
 public enum Properties {
-	MOUSE_STICK(Types.BOOL,true),// scheduled for removal
 	SHAPE_CLOSED(Types.BOOL,false), 	// scheduled for removal
 	SHAPE_CONNECTED(Types.BOOL,false),// scheduled for removal
 	SHAPE_CURVED(Types.BOOL,false),	// scheduled for removal
@@ -48,6 +47,7 @@ public enum Properties {
 	HGROW(Types.REAL, 1.0, Dimension.X),
 	HSHRINK(Types.REAL, 1.0, Dimension.X),
 	HALIGN(Types.REAL,0.5,Dimension.X),
+	INNER_ALIGN(Types.REAL,0.5),
 	HCONNECT(Types.REAL,0.5,Dimension.X),
 	VCONNECT(Types.REAL, 0.5, Dimension.Y),
 	INNERRADIUS(Types.REAL,0.0), // scheduled for removal
@@ -100,7 +100,6 @@ public enum Properties {
 	
 	@SuppressWarnings({ "rawtypes", "serial" })
 	public static final HashMap<String, PropertySetters.PropertySetter> propertySetters = new HashMap<String, PropertySetters.PropertySetter>() {{
-		put("mouseStick" , new PropertySetters.SingleBooleanPropertySetter(MOUSE_STICK));
 		put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
 		put("shapeConnected", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CONNECTED));
 		put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
@@ -149,6 +148,7 @@ public enum Properties {
 		put("fontSize", new PropertySetters.SingleIntPropertySetter(FONT_SIZE));
 		
 		put("halign", new PropertySetters.SingleIntOrRealPropertySetter(HALIGN));
+		put("innerAlign", new PropertySetters.SingleIntOrRealPropertySetter(HALIGN));
 		put("hgrow", new PropertySetters.SingleIntOrRealPropertySetter(HGROW));
 		put("hshrink", new PropertySetters.SingleIntOrRealPropertySetter(HSHRINK));
 		put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));

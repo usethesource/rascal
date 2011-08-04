@@ -13,21 +13,31 @@ import org.rascalmpl.library.vis.util.NameResolver;
 
 public class Scrollable extends SWTWidgetFigure<FigureSWTApplet> {
 
-	Figure innerFig;
+	public Figure innerFig;
+	boolean hscroll, vscroll;
 	
-	public Scrollable(IFigureConstructionEnv env, IConstructor inner, PropertyManager properties) {
+	public Scrollable(boolean hscroll,boolean vscroll,IFigureConstructionEnv env, IConstructor inner, PropertyManager properties) {
 		super(env,  properties);
+		System.out.printf("Scrollable %s \n",inner);
 		widget = makeWidget(env.getSWTParent(), env,inner);
 		innerFig = widget.getFigure();
+		widget.setVisible(false);
 	}
 	
 	FigureSWTApplet makeWidget(Composite comp, IFigureConstructionEnv env,IConstructor inner) {
-		return new FigureSWTApplet(comp, inner,env.getFigureExecEnv(),true,true);
+		return new FigureSWTApplet(comp, inner,env.getFigureExecEnv(),hscroll,vscroll);
 	}
 	
 	public void bbox(){
 		super.bbox();
 		innerFig.bbox();
+		if(!hscroll){
+			minSize.setWidth(innerFig.minSize.getWidth() + FigureSWTApplet.scrollbarSize.getWidth());
+		}
+		if(!vscroll){
+			minSize.setHeight(innerFig.minSize.getHeight() + FigureSWTApplet.scrollbarSize.getHeight());
+		}
+		setResizable();
 	}
 
 	public void init(){

@@ -38,12 +38,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class Overlay extends Compose{
 	
 	private static boolean debug = false;
-	IEvaluatorContext ctx;
 	int where; 
 	
 	public Overlay(Figure[] figures, PropertyManager properties) {
 		super(figures, properties);
-		this.ctx = ctx;
 	}
 	
 	@Override
@@ -250,17 +248,6 @@ public class Overlay extends Compose{
 		public void layout() {
 		}
 
-		@Override
-		public void activate() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void suspend() {
-			// TODO Auto-generated method stub
-			
-		}
 		
 	}
 

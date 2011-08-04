@@ -26,6 +26,7 @@ import org.rascalmpl.library.vis.compose.HVCat;
 import org.rascalmpl.library.vis.compose.Grid;
 import org.rascalmpl.library.vis.compose.Overlay;
 import org.rascalmpl.library.vis.compose.Pack;
+import org.rascalmpl.library.vis.compose.WithDependantWidthHeight;
 import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Ellipse;
 import org.rascalmpl.library.vis.containers.HAxis;
@@ -115,6 +116,7 @@ public class FigureFactory {
 		TREE,
 		TREEMAP,
 		WEDGE,// scheduled for removal...
+		WITH_DEPENDANT_WIDTH_HEIGHT,
 		XAXIS
 		}
 					  
@@ -158,6 +160,7 @@ public class FigureFactory {
     	put("_tree",		Primitives.TREE);
        	put("_treemap",		Primitives.TREEMAP);
     	put("_wedge",		Primitives.WEDGE);
+    	put("_withDependantWidthHeight",		Primitives.WITH_DEPENDANT_WIDTH_HEIGHT);
     	put("_xaxis",		Primitives.XAXIS);
     }};
 	
@@ -296,7 +299,7 @@ public class FigureFactory {
 			
 		case HVCAT:
 			children = makeList(env,c.get(0),properties,childPropsNext);
-			return new HVCat( children, properties);
+			return new HVCat(false, children, properties);
 			
 		case GRID:
 			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
@@ -345,8 +348,7 @@ public class FigureFactory {
 			
 
 		case SCROLLABLE:
-			//throw new Error("Scrollable temporary out of order");
-			return new Scrollable(env, (IConstructor)c.get(0),  properties);
+			return new Scrollable(((IBool)c.get(0)).getValue(), ((IBool)c.get(1)).getValue(), env, (IConstructor)c.get(2),  properties);
 			
 		case SPACE:
 			return new Space( makeChild(env,c,properties,childPropsNext), properties );
@@ -374,6 +376,10 @@ public class FigureFactory {
 
 		case WEDGE:			
 			return new Wedge( makeChild(env,c,properties,childPropsNext), properties );
+			
+		case WITH_DEPENDANT_WIDTH_HEIGHT:
+			return new WithDependantWidthHeight(((IBool)c.get(0)).getValue(), (IConstructor)c.get(1),  properties,  env);
+			
 		}
 		throw RuntimeExceptionFactory.illegalArgument(c, env.getRascalContext().getCurrentAST(),  env.getRascalContext().getStackTrace());
 	}

@@ -17,9 +17,6 @@ public class FigureSwitch extends Compose{
 		super(figures, properties);
 		this.callback = callback;
 		choice = 0;
-		for(Figure fig : figures){
-			fig.suspend();
-		}
 	}
 	
 
@@ -30,10 +27,7 @@ public class FigureSwitch extends Compose{
 			newChoice = 0;
 		}
 		if(newChoice != choice){
-			figures[choice].suspend();
 			choice = newChoice;
-			figures[choice].activate();
-			
 		}
 		
 	}

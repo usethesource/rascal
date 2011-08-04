@@ -67,18 +67,18 @@ public abstract class Container extends WithInnerFig {
 	
 	
 	public void layout(){
+		if(innerFig == null) return;
 		double lw = getLineWidthProperty();
 		innerFigLocation.clear();
 		for(boolean flip : BOTH_DIMENSIONS){
-			if(innerFig != null) {
 				double sizeWithouthBorders = size.getWidth(flip) - lw ;
 				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(flip);
 				innerFig.takeDesiredWidth(flip, innerDesiredWidth);
-				innerFigLocation.addX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
-				innerFig.globalLocation.setX(flip,globalLocation.getX(flip) + innerFigLocation.getX(flip));
-			}
 		}
-		if(innerFig!=null) innerFig.layout();
+		innerFig.layout();
+		for(boolean flip : BOTH_DIMENSIONS){
+			innerFigLocation.setX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
+		}
 	}
 
 	@Override
@@ -91,6 +91,7 @@ public abstract class Container extends WithInnerFig {
 	
 	@Override
 	public void drawPart(Rectangle r,GraphicsContext gc){
+		
 		applyProperties(gc);
 		drawContainer(gc);
 		super.drawPart(r,gc);
@@ -110,12 +111,6 @@ public abstract class Container extends WithInnerFig {
 	
 	abstract String containerName();
 	
-	@Override 
-	public boolean keyPressed(int key, int keyCode){
-		if(innerFig != null)
-			return innerFig.keyPressed(key, keyCode);
-		return false;
-	}
 	
 	@Override
 	public String  toString(){

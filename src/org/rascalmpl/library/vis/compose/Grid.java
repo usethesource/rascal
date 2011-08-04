@@ -414,6 +414,7 @@ public class Grid extends Figure {
 			}
 			left+=gapSize + colWidth;
 		}
+		size.setWidth(flip, left - gapSize);
 	}
 
 	double nrHGaps(boolean flip) {
@@ -457,7 +458,17 @@ public class Grid extends Figure {
 			c = collumn;
 		}
 		pos[r][c].setX(flip, val);
-		figureMatrix[r][c].globalLocation.setX(flip, globalLocation.getX(flip) + val);
+	}
+	
+
+	public void setLocationOfChildren(){
+		for(int row = 0 ; row < figureMatrix.length ; row++){
+			for(int column = 0 ; column < figureMatrix[0].length ; column++){
+				figureMatrix[row][column].globalLocation.set(globalLocation);
+				figureMatrix[row][column].globalLocation.add(pos[row][column]);
+				figureMatrix[row][column].setLocationOfChildren();
+			}
+		}
 	}
 
 	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
@@ -499,7 +510,7 @@ public class Grid extends Figure {
 		int endRow = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForY(), rect.getYDown() - getTop()));
 		int startColumn = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForX(), rect.getX() - getLeft()));
 		int endColumn = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForX(), rect.getXRight() - getLeft()));
-		
+		//System.out.printf("Drawpart grid rows %d till %d of %d  collumns %d till %d of %d\n", startRow, endRow, figureMatrix.length, startColumn, endColumn, figureMatrix[0].length);
 		for(int row = startRow ; row <= endRow ; row++){
 			for(int collumn = startColumn ; collumn <= endColumn; collumn++){
 				if(		(row == startRow && columnBorders.getForY()[startRow] < rect.getY())
@@ -600,20 +611,4 @@ public class Grid extends Figure {
 		return false;
 	}
 	
-
-	public void activate(){
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.activate();
-			}
-		}
-	}
-
-	public void suspend(){
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.suspend();
-			}
-		}
-	}
 }

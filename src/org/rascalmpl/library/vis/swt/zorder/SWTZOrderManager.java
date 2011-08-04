@@ -133,15 +133,17 @@ public class SWTZOrderManager implements ISWTZOrdering {
 		allElements.add(c);
 	}
 	
+	
 	private void setZOrder() {
 		Collections.sort(allElements, IHasZOrderComparator.instance);
 		Control prev = null;
 		for(IHasZOrder elem : allElements){
 			Control cur = elem.getElement();
-			if(prev == null) cur.moveBelow(null);
+			if(prev == null) cur.moveBelow(parent);
 			else cur.moveAbove(prev);
 			prev = cur;
 		}
+		
 	}
 
 

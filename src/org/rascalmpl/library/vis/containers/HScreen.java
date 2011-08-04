@@ -15,6 +15,8 @@ public class HScreen extends WithInnerFig {
 	double projectionsHeight;
 	boolean bottom;
 	
+	// TODO: this is currently violating some invariants
+	
 	public HScreen(boolean flip, boolean bottom, Figure inner, PropertyManager properties) {
 		super(inner,properties);
 		projections = new Vector<HScreen.ProjectionPlacement>();
@@ -52,7 +54,7 @@ public class HScreen extends WithInnerFig {
 		projectionsHeight = 0;
 		
 		for(ProjectionPlacement p : projections){
-			Figure actualProjection = p.projection.projection;
+			Figure actualProjection = p.projection.nonLocalFigure;
 			projectionsHeight = Math.max(projectionsHeight,
 					actualProjection.minSize.getHeight(flip) / actualProjection.getVShrinkProperty(flip));
 		}
@@ -93,7 +95,7 @@ public class HScreen extends WithInnerFig {
 		innerFig.layout();
 		for(ProjectionPlacement p : projections){
 			Figure projectFrom = p.projection.innerFig;
-			Figure projection = p.projection.projection;
+			Figure projection = p.projection.nonLocalFigure;
 			//System.out.printf("Set innerfig %s %s\n",projectFrom.globalLocation.getX(flip),globalLocation.getX(flip));
 			p.location.setX(flip, projectFrom.globalLocation.getX(flip) - globalLocation.getX(flip));
 			p.location.setY(flip, screenTop);
@@ -110,7 +112,7 @@ public class HScreen extends WithInnerFig {
 	public void draw(GraphicsContext gc) {
 		innerFig.draw(gc);
 		for(ProjectionPlacement p : projections){
-			p.projection.projection.draw(gc );
+			p.projection.nonLocalFigure.draw(gc );
 		}
 		//drawScreen(left, top);
 	}
@@ -132,7 +134,7 @@ public class HScreen extends WithInnerFig {
 
 		if(innerFig.getFiguresUnderMouse(c, result)) return true;
 		for(ProjectionPlacement pfig : projections){
-			if(pfig.projection.projection.getFiguresUnderMouse(c, result)){
+			if(pfig.projection.nonLocalFigure.getFiguresUnderMouse(c, result)){
 				break;
 			}
 		}

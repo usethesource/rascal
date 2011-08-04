@@ -13,7 +13,6 @@
 package org.rascalmpl.library.vis.swt;
 
 import java.util.Collections;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -22,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
@@ -35,47 +33,58 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.FigureApplet;
 import org.rascalmpl.library.vis.FigureFactory;
 import org.rascalmpl.library.vis.KeySymFactory;
-import org.rascalmpl.library.vis.containers.Box;
 import org.rascalmpl.library.vis.containers.Overlap;
-import org.rascalmpl.library.vis.containers.Space;
 import org.rascalmpl.library.vis.containers.WhiteSpace;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrderStableComparator;
 import org.rascalmpl.library.vis.swt.zorder.SWTZOrderManager;
 import org.rascalmpl.library.vis.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.ForBothDimensions;
 import org.rascalmpl.library.vis.util.KeySymTranslate;
 import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class FigureSWTApplet extends ScrolledComposite 
-	implements IFigureConstructionEnv, PaintListener, MouseListener,MouseMoveListener,  ControlListener, MouseTrackListener, DisposeListener, KeyListener {
+public class FigureSWTApplet extends Composite 
+	implements IFigureConstructionEnv, PaintListener, MouseListener,MouseMoveListener, 
+	ControlListener, MouseTrackListener, DisposeListener, KeyListener , SelectionListener{
 
+	public static BoundingBox scrollableMinSize; 
+	public static BoundingBox scrollbarSize; // width of vertical scrollbar, height of horizontal
 	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER ;
 	private static boolean debug = false;
+	private BoundingBox size;
+	private Coordinate location;
 	private Vector<FigureSWTApplet> children;
-	private Composite inner;
 	public static IMap keyboardModifierMap = 
 		ValueFactoryFactory.getValueFactory().map(KeySymFactory.KeyModifier, TypeFactory.getInstance().boolType()); // there is only 1 keyboard , hence static
 	private Coordinate mouseLocation;
 	Figure figure; 
 	private Vector<Figure> figuresUnderMouse; 
 	private Vector<Figure> figuresUnderMousePrev;
-	private BoundingBox lastSize;
 	volatile GC gc;
 	private FigureExecutionEnvironment env;
 	private SWTZOrderManager zorderManager;
 	private Vector<Overlap> overlapFigures;
 	private Vector<MouseOver> mouseOverFigures;
+	private Vector<IHasZOrder> visibleSWTElements;
+	private Vector<IHasZOrder> prevVisibleSWTElements;
 
 
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env){
@@ -85,85 +94,80 @@ public class FigureSWTApplet extends ScrolledComposite
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env,boolean hscroll,boolean vscroll) {
 		super(parent, SWT_FLAGS);
 		this.env = env;
-		inner = new Composite(this, 0);
+		zorderManager = new SWTZOrderManager(this,this);
+		mouseLocation = new Coordinate();
+		overlapFigures = new Vector<Overlap>();
+		mouseOverFigures = new Stack<MouseOver>();
+		children = new Vector<FigureSWTApplet>();
 		figuresUnderMouse = new Vector<Figure>();
 		figuresUnderMousePrev = new Vector<Figure>();
-		inner.addPaintListener(this);
-		inner.addMouseMoveListener(this);
-		inner.addMouseListener(this);
-		inner.addKeyListener(this);
-		addControlListener(this);
-		mouseLocation = new Coordinate();
-		setContent(inner);
-		setAlwaysShowScrollBars(false);
-		setExpandHorizontal(hscroll);
-		setExpandVertical(vscroll);
-		children = new Vector<FigureSWTApplet>();
-		lastSize = null;
+		location = new Coordinate(0,0);
+		size = new BoundingBox();
+		visibleSWTElements = new Vector<IHasZOrder>();
+		prevVisibleSWTElements = new Vector<IHasZOrder>();
+		
+		if(parent.getParent() instanceof FigureSWTApplet){
+			((FigureSWTApplet)parent.getParent()).registerChild(this);
+		}
+
 		Figure fig = FigureFactory.make(this, cfig, null, null);
 		fig = new WhiteSpace( fig, new PropertyManager());
 		this.figure = fig;
-		zorderManager = new SWTZOrderManager(this,inner);
-		overlapFigures = new Vector<Overlap>();
-		mouseOverFigures = new Stack<MouseOver>();
+		System.out.printf("Creating %s\n", this);
+		getHorizontalBar().addSelectionListener(this);
+		getVerticalBar().addSelectionListener(this);
+		getHorizontalBar().setVisible(false);
+		getVerticalBar().setVisible(false);
+		addControlListener(this);
+		addMouseListener(this);
+		addMouseMoveListener(this);
+		addPaintListener(this);
+		addKeyListener(this);
 	}
 
 	private void draw(GC swtGC) {
-		long startTime = System.nanoTime();
-		swtGC.setBackground(SWTFontsAndColors.getColor(SWT.COLOR_WHITE));
-		GraphicsContext gc = new SWTGraphicsContext(swtGC);
-		figure.draw(gc);
-		for(Overlap f : overlapFigures){
-			if(!(f.nonLocalFigure instanceof SWTWidgetFigure)) f.nonLocalFigure.draw(gc);
-		}
-		gc.dispose();
-		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
+		drawPart(new Rectangle(location, size),new SWTGraphicsContext(swtGC,visibleSWTElements));
 	}
 	
 	public void drawPart(Rectangle part,GraphicsContext gc){
 		long startTime = System.nanoTime();
+		gc.translate(-location.getX(), -location.getY());
 		figure.drawPart(part,gc);
-		
+
 		for(Overlap f : overlapFigures){
-			if(f.nonLocalFigure.overlapsWith(part)){
+			if(!(f.nonLocalFigure instanceof SWTWidgetFigure) && f.nonLocalFigure.overlapsWith(part)){
 				f.nonLocalFigure.drawPart(part,gc);
 			}
 		}
 		gc.dispose();
 		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing (part) took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
+		makeOffscreenElementsInvisble();
 	}
 	
 	public void layoutForce(){
-		layoutFigures(true);
+		layoutFigures();
 		for(FigureSWTApplet child : children){
 			child.layoutForce();
 		}
-		inner.redraw();
+		redraw();
 	}
 
-	private void layoutFigures(boolean force) {
+	private void layoutFigures() {
 		overlapFigures.clear();
-		org.eclipse.swt.graphics.Rectangle r = getClientArea();
-		BoundingBox curSize = new BoundingBox(r.width,r.height);
-		boolean resized = !(curSize.isEq(lastSize));
-		lastSize = curSize;
-		if (resized || force) {
-			BoundingBox viewPort = 
-				new BoundingBox(
-						Math.max(curSize.getWidth(),
-								figure.minSize.getWidth() / figure.getHShrinkProperty()),
-						Math.max(curSize.getHeight(),
-									figure.minSize.getHeight() / figure.getVShrinkProperty()));
-			for (boolean flip : Figure.BOTH_DIMENSIONS) {
-				figure.takeDesiredWidth(flip,viewPort.getWidth(flip));
-			}
-			
-			figure.layout();
-			setMinSize((int) Math.ceil(viewPort.getWidth()),
-				(int) Math.ceil(viewPort.getHeight()));
-			handleZOrder();	
+		BoundingBox minViewSize = figure.getMinViewingSize();
+		BoundingBox viewPort = 
+			new BoundingBox(	Math.max(size.getWidth(), minViewSize.getWidth()),
+								Math.max(size.getHeight(), minViewSize.getHeight()));
+		for (boolean flip : Figure.BOTH_DIMENSIONS) {
+			figure.takeDesiredWidth(flip,viewPort.getWidth(flip));
 		}
+		
+		figure.layout();
+		figure.globalLocation.set(0,0);
+		figure.setLocationOfChildren();
+		handleZOrder();	
 		updateFiguresUnderMouse(true);
+		
 	}
 
 	private void handleZOrder() {
@@ -219,7 +223,7 @@ public class FigureSWTApplet extends ScrolledComposite
 		}
 		if(mouseOverChanged && env.isBatchEmpty()) {
 			handleZOrder(); // rehandle z ordering now that we now what is under mouse
-			inner.redraw();
+			redraw();
 		}
 		env.endCallbackBatch(true);
 	}
@@ -250,6 +254,90 @@ public class FigureSWTApplet extends ScrolledComposite
 		env.endCallbackBatch();
 	}
 	
+	private void resize(){
+		Point s = getSize();
+		size.set(s.x,s.y);
+		boolean oldHScroll = getHorizontalBar().isVisible();
+		boolean oldVScroll = getVerticalBar().isVisible();
+		enableScrollBarsIfNeeded();
+		scaleScrollBars();
+		if(	!getHorizontalBar().isVisible() 
+			|| !getVerticalBar().isVisible() 
+			|| (getHorizontalBar().isVisible() && !oldHScroll)
+			|| (getVerticalBar().isVisible() && !oldVScroll)){
+			layoutFigures();
+		}
+		redraw();
+		
+	}
+	
+	private void scaleScrollBars(){
+		ForBothDimensions<ScrollBar> bars = new ForBothDimensions<ScrollBar>(getHorizontalBar(),getVerticalBar());
+		for(boolean flip : Figure.BOTH_DIMENSIONS){
+			ScrollBar bar = bars.getForX(flip);
+			double diff = figure.getMinViewingSize().getWidth(flip) - size.getWidth(flip);
+			location.setX(flip,Math.max(0,Math.min(diff,location.getX(flip))));
+			if(!bar.isVisible()) {
+				bar.setMaximum(0);
+			}
+			bar.setMinimum(0);
+			bar.setMaximum(FigureApplet.ceil( figure.getMinViewingSize().getWidth(flip)));
+			bar.setIncrement(50);
+			int selSize = FigureApplet.floor(size.getWidth(flip));
+			bar.setPageIncrement(selSize);
+			bar.setThumb(selSize);
+			
+		}
+	}
+
+	private void enableScrollBarsIfNeeded() {
+		BoundingBox minViewSize = figure.getMinViewingSize();
+		if(size.getWidth() < minViewSize.getWidth()){
+			getHorizontalBar().setVisible(true);
+			if(size.getHeight() - getHorizontalBar().getSize().y < minViewSize.getHeight()){
+				getVerticalBar().setVisible(true);
+			} else {
+				getVerticalBar().setVisible(false);
+			}
+		} else {
+			if(size.getHeight()  < minViewSize.getHeight()){
+				getVerticalBar().setVisible(true);
+				if(size.getWidth() - getVerticalBar().getSize().x < minViewSize.getWidth()){
+					getHorizontalBar().setVisible(true);
+				} else {
+					getHorizontalBar().setVisible(false);
+				}
+			} else {
+				getHorizontalBar().setVisible(false);
+				getVerticalBar().setVisible(false);
+			}
+		}
+		org.eclipse.swt.graphics.Rectangle s = getClientArea();
+		size.set(s.width,s.height);
+	}
+	
+
+	public void makeOffscreenElementsInvisble(){
+		Collections.sort(visibleSWTElements, IHasZOrderStableComparator.instance);
+		int i = 0; int j = 0;
+		while(i < prevVisibleSWTElements.size() ){
+			IHasZOrder prev = prevVisibleSWTElements.get(i);
+			if(j >= visibleSWTElements.size() || prev.getStableOrder() < visibleSWTElements.get(j).getStableOrder()){
+				prev.setVisible(false);
+				i++;
+			} else if(prev.getStableOrder() > visibleSWTElements.get(j).getStableOrder()){
+				j++;
+			} else {
+				i++;
+				j++;
+			}
+		}
+		Vector<IHasZOrder> tmp = prevVisibleSWTElements;
+		prevVisibleSWTElements = visibleSWTElements;
+		visibleSWTElements = tmp;
+		visibleSWTElements.clear();
+	}
+	
 	@Override
 	public void mouseMove(MouseEvent e) {
 		mouseLocation.set(e.x,e.y);
@@ -273,10 +361,6 @@ public class FigureSWTApplet extends ScrolledComposite
 
 	@Override
 	public void paintControl(PaintEvent e) {
-		if(lastSize == null){
-			lastSize = new BoundingBox();
-			layoutFigures(true);
-		}
 		draw(e.gc);
 	}
 	
@@ -286,7 +370,7 @@ public class FigureSWTApplet extends ScrolledComposite
 
 	@Override
 	public void controlResized(ControlEvent e) {
-		layoutFigures(false);
+		resize();
 		redraw();
 	}
 
@@ -314,14 +398,13 @@ public class FigureSWTApplet extends ScrolledComposite
 		gc.dispose();
 	}
 	
-	
 	public void registerChild(FigureSWTApplet child){
 		children.add(child);
 	}
 
 	@Override
 	public Composite getSWTParent() {
-		return inner;
+		return this;
 	}
 
 	@Override
@@ -345,5 +428,28 @@ public class FigureSWTApplet extends ScrolledComposite
 	
 	public void addOverlapFigure(Overlap overlap){
 		overlapFigures.add(overlap);
+	}
+	
+	public String toString(){
+		return "FigureSWTApplet" + ((WhiteSpace)figure).innerFig.toString();
+	}
+
+	@Override
+	public void widgetSelected(SelectionEvent e) {
+		ForBothDimensions<ScrollBar> bars = new ForBothDimensions<ScrollBar>(getHorizontalBar(), getVerticalBar());
+		for(boolean flip : Figure.BOTH_DIMENSIONS){
+			ScrollBar bar = bars.getForX(flip);
+			location.setX(flip,bar.getSelection());
+		}
+		redraw();
+		
+	}
+
+	@Override
+	public void widgetDefaultSelected(SelectionEvent e) {
+	}
+	
+	public  Vector<IHasZOrder> getVisibleSWTElementsVector(){
+		return visibleSWTElements;
 	}
 }
