@@ -409,12 +409,16 @@ public str save(ConceptName cn, str text, bool newConcept){
       writeFile(c.file, text);
       println("Parsing concept");
       concepts[cn] = parseConcept(c.file, directory.path);
+      println("New concept:");
+      iprintln(concepts[cn][related={}][details=[]]);
       thisCourse.concepts = concepts;
       thisCourse = recompileCourse(thisCourse);
+      println("New Course from concept:");
+      iprintln(thisCourse[concepts=()][refinements={}][related=()]);
       warnings = thisCourse.warnings;
       reinitialize(thisCourse, enabledCategories);
       println("parsed, returning feedback");
-      return saveFeedback("", showConcept(cn));
+      return saveFeedback(showConcept(cn), "");
     } catch ConceptError(e): {
        return saveFeedback(e, "");
     }

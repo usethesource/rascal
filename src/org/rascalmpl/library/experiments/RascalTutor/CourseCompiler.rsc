@@ -23,10 +23,34 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 
 // TODO: hack to prevent deployed tutor from compiling all the time
-private bool deployedMode = true;
+private bool deployedMode = !writingAllowed();
 
 public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>\n\nDetails:\n\nCategories:\n\nSyntax:\n\nTypes:\n\nFunction:\n\nSynopsis:\n\nDescription:\n\nExamples:\n\nBenefits:\n\nPitfalls:\n\nQuestions:\n\n";
+return "Name: <cn>
+       '
+       'Details:
+       '
+       'Categories:
+       '
+       'Syntax:
+       '
+       'Types:
+       '
+       'Function:
+       '
+       'Synopsis:
+       '
+       'Description:
+       '
+       'Examples:
+       '
+       'Benefits:
+       '
+       'Pitfalls:
+       '
+       'Questions:
+       '
+       ";
 }
 
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
