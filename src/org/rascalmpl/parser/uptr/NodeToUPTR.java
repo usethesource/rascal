@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.ListContainerNode;
+import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -29,7 +29,7 @@ public class NodeToUPTR implements INodeConverter{
 	}
 	
 	/**
-	 * Internal helper class for cycle detection and handling.
+	 * Internal helper structure for cycle detection and handling.
 	 */
 	protected static class CycleMark{
 		public int depth = Integer.MAX_VALUE;
@@ -67,8 +67,8 @@ public class NodeToUPTR implements INodeConverter{
 				return literalNodeConverter.convertToUPTR((LiteralNode) node);
 			case SortContainerNode.ID:
 				return sortContainerNodeConverter.convertToUPTR(this, (SortContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-			case ListContainerNode.ID:
-				return listContainerNodeConverter.convertToUPTR(this, (ListContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+			case ExpandableContainerNode.ID:
+				return listContainerNodeConverter.convertToUPTR(this, (ExpandableContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			default:
 				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
@@ -82,8 +82,8 @@ public class NodeToUPTR implements INodeConverter{
 				return literalNodeConverter.convertToUPTR((LiteralNode) node);
 			case SortContainerNode.ID:
 				return SortContainerNodeInErrorConverter.convertToUPTR(this, (SortContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			case ListContainerNode.ID:
-				return ListContainerNodeInErrorConverter.convertToUPTR(this, (ListContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
+			case ExpandableContainerNode.ID:
+				return ListContainerNodeInErrorConverter.convertToUPTR(this, (ExpandableContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			case ErrorSortContainerNode.ID:
 				return ErrorSortContainerNodeConverter.convertToUPTR(this, (ErrorSortContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
 			case ErrorListContainerNode.ID:

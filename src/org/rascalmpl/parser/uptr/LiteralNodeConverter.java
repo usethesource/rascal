@@ -8,6 +8,9 @@ import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
+/**
+ * A converter for literal result nodes.
+ */
 public class LiteralNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
@@ -19,6 +22,9 @@ public class LiteralNodeConverter{
 		cache = new PointerKeyedHashMap<LiteralNode, IConstructor>();
 	}
 	
+	/**
+	 * Converts the given literal result node to the UPTR format.
+	 */
 	public IConstructor convertToUPTR(LiteralNode node){
 		IConstructor result = cache.get(node);
 		if(result != null) return result;

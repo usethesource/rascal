@@ -14,6 +14,9 @@ import org.rascalmpl.parser.uptr.NodeToUPTR.CycleMark;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
+/**
+ * A converter for 'expected' result nodes.
+ */
 public class ExpectedNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
@@ -21,6 +24,9 @@ public class ExpectedNodeConverter{
 		super();
 	}
 	
+	/**
+	 * Converts the given 'expected' result node to the UPTR format.
+	 */
 	public static IConstructor convertToUPTR(NodeToUPTR converter, ExpectedNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
 		AbstractNode[] mismatchedChildren = node.getMismatchedChildren();
@@ -30,6 +36,7 @@ public class ExpectedNodeConverter{
 		
 		IConstructor result = VF.constructor(Factory.Tree_Expected, node.getSymbol(), childrenListWriter.done());
 		URI input = node.getInput();
+		// Only annotate position information on non-layout nodes (if possible).
 		if(!(node.isLayout() || input == null)){
 			int offset = node.getOffset();
 			int endOffset = node.getEndOffset();

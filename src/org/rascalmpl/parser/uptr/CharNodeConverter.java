@@ -6,6 +6,9 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
+/**
+ * A converter for character result nodes.
+ */
 public class CharNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
@@ -15,9 +18,13 @@ public class CharNodeConverter{
 		super();
 	}
 	
+	/**
+	 * Converts the given character result node to the UPTR format.
+	 */
 	public static IConstructor convertToUPTR(CharNode node){
 		int charNumber = node.getCharacter();
 		
+		// Cache 7-bit ASCII character results.
 		if(charNumber < 128){
 			IConstructor result = cache[charNumber];
 			if(result != null) return result;

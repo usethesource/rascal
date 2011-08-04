@@ -24,6 +24,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
+/**
+ * A converter for sort container result nodes.
+ */
 public class SortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
@@ -38,31 +41,41 @@ public class SortContainerNodeConverter{
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<IConstructor>>();
 	}
 	
+	/**
+	 * Gather all the alternatives ending with the given child.
+	 */
 	private void gatherAlternatives(NodeToUPTR converter, Link child, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		AbstractNode resultNode = child.getNode();
 		
-		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){
+		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
 			gatherProduction(converter, child, new ForwardLink(NO_NODES, resultNode), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
-		}else{
+		}else{ // Has a single epsilon result.
 			buildAlternative(converter, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
+	/**
+	 * Gathers all alternatives for the given production related to the given child and postfix.
+	 */
 	private void gatherProduction(NodeToUPTR converter, Link child, ForwardLink<AbstractNode> postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
-		if(prefixes == null){
+		if(prefixes == null){ // Reached the start of the production.
 			buildAlternative(converter, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 			return;
 		}
 		
-		for(int i = prefixes.size() - 1; i >= 0; --i){
+		for(int i = prefixes.size() - 1; i >= 0; --i){ // Traverse all the prefixes (can be more then one in case of ambiguity).
 			Link prefix = prefixes.get(i);
 			gatherProduction(converter, prefix, new ForwardLink<AbstractNode>(postFix, prefix.getNode()), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
+	/**
+	 * Construct the UPTR representation for the given production.
+	 * Additionally, it handles all semantic actions related 'events' associated with it.
+	 */
 	private void buildAlternative(NodeToUPTR converter, ForwardLink<AbstractNode> postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
-		Object newEnvironment = actionExecutor.enteringProduction(production, environment);
+		Object newEnvironment = actionExecutor.enteringProduction(production, environment); // Fire a 'entering production' event to enable environment handling.
 		
 		int postFixLength = postFix.length;
 		IListWriter childrenListWriter = VF.listWriter(Factory.Tree);
@@ -70,11 +83,11 @@ public class SortContainerNodeConverter{
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
 			
-			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment);
+			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			
 			IConstructor constructedNode = converter.convert(node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			if(constructedNode == null){
-				actionExecutor.exitedProduction(production, true, newEnvironment);
+				actionExecutor.exitedProduction(production, true, newEnvironment); // Filtered.
 				return;
 			}
 			childrenListWriter.append(constructedNode);
@@ -82,18 +95,21 @@ public class SortContainerNodeConverter{
 		
 		IConstructor result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
 		
-		result = actionExecutor.filterProduction(result, environment);
+		result = actionExecutor.filterProduction(result, environment); // Execute the semantic actions associated with this node.
 		if(result == null){
-			actionExecutor.exitedProduction(production, true, environment);
+			actionExecutor.exitedProduction(production, true, environment); // Filtered.
 			return;
 		}
 		
-		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
+		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation); // Add location information (if available).
 		
 		gatheredAlternatives.add(result);
-		actionExecutor.exitedProduction(production, false, environment);
+		actionExecutor.exitedProduction(production, false, environment); // Successful construction.
 	}
 	
+	/**
+	 * Converts the given sort container result node to the UPTR format.
+	 */
 	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
@@ -101,8 +117,8 @@ public class SortContainerNodeConverter{
 		IConstructor rhs = ProductionAdapter.getType(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
-		if(depth <= cycleMark.depth){
-			if(!hasSideEffects){
+		if(depth <= cycleMark.depth){ // Only check for sharing if we are not currently inside a cycle.
+			if(!hasSideEffects){ // If this sort node and its direct and indirect children do not rely on side-effects from semantic actions, check the cache for existing results.
 				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.get(rhs, endOffset);
@@ -117,14 +133,14 @@ public class SortContainerNodeConverter{
 		
 		ISourceLocation sourceLocation = null;
 		URI input = node.getInput();
-		if(!(node.isLayout() || input == null)){
+		if(!(node.isLayout() || input == null)){ // Construct a source location annotation if this sort container does not represent a layout non-terminal and if it's available.
 			int beginLine = positionStore.findLine(offset);
 			int endLine = positionStore.findLine(endOffset);
 			sourceLocation = VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 		}
 		
 		int index = stack.contains(node);
-		if(index != -1){ // Cycle found.
+		if(index != -1){ // Cycle detected.
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhs, VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
@@ -136,9 +152,9 @@ public class SortContainerNodeConverter{
 		
 		int childDepth = depth + 1;
 		
-		stack.push(node, depth); // Push.
+		stack.push(node, depth); // Push this node on the stack.
 		
-		// Gather
+		// Gather the alternatives.
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
 		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
@@ -149,7 +165,7 @@ public class SortContainerNodeConverter{
 			}
 		}
 		
-		// Output.
+		// Construct the resulting tree containing all gathered alternatives.
 		IConstructor result = null;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
@@ -170,10 +186,10 @@ public class SortContainerNodeConverter{
 			}
 		}
 		
-		stack.dirtyPurge(); // Pop.
+		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		if(result != null && depth < cycleMark.depth){
-			if(!hasSideEffects){
+		if(result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
+			if(!hasSideEffects){ // Cache side-effect free tree.
 				ObjectIntegerKeyedHashMap<IConstructor, IConstructor> levelCache = preCache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.get(rhs, endOffset);
@@ -188,7 +204,7 @@ public class SortContainerNodeConverter{
 				levelCache = new ObjectIntegerKeyedHashMap<IConstructor, IConstructor>();
 				levelCache.putUnsafe(rhs, endOffset, result);
 				preCache.put(offset, levelCache);
-			}else{
+			}else{ // Cache tree with side-effects.
 				ObjectIntegerKeyedHashSet<IConstructor> levelCache = cache.get(offset);
 				if(levelCache != null){
 					IConstructor cachedResult = levelCache.getEquivalent(result, endOffset);
