@@ -11,6 +11,7 @@
 package org.rascalmpl.library.util;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -18,9 +19,13 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ShellExec {
@@ -35,20 +40,83 @@ public class ShellExec {
 	}
 
 	public IInteger createProcess(IString processCommand) {
-		return createProcessWithArgs(processCommand,vf.list(TypeFactory.getInstance().listType(TypeFactory.getInstance().stringType())));
+		return createProcessInternal(processCommand,null,null,null);
 	}
 
-	public synchronized IInteger createProcessWithArgs(IString processCommand, IList arguments) {
+	public IInteger createProcess(IString processCommand, ISourceLocation workingDir) {
+		return createProcessInternal(processCommand,null,null,workingDir);
+	}
+
+	public IInteger createProcess(IString processCommand, IList arguments) {
+		return createProcessInternal(processCommand,arguments,null,null);
+	}
+
+	public IInteger createProcess(IString processCommand, IList arguments, ISourceLocation workingDir) {
+		return createProcessInternal(processCommand,arguments,null,workingDir);
+	}
+
+	public IInteger createProcess(IString processCommand, IMap envVars) {
+		return createProcessInternal(processCommand,null,envVars,null);
+	}
+
+	public IInteger createProcess(IString processCommand, IMap envVars, ISourceLocation workingDir) {
+		return createProcessInternal(processCommand,null,envVars,workingDir);
+	}
+
+	public IInteger createProcess(IString processCommand, IList arguments, IMap envVars) {
+		return createProcessInternal(processCommand,arguments,envVars,null);
+	}
+
+	public IInteger createProcess(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
+		return createProcessInternal(processCommand,arguments,envVars,workingDir);
+	}
+
+	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
-			String[] args = new String[arguments.length()+1];
-			args[0] = processCommand.getValue();
-			for (int n = 0; n < arguments.length(); ++n) {
-				if (arguments.get(n) instanceof IString) 
-					args[n+1] = ((IString)arguments.get(n)).getValue();
-				else
-					throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, "");
+			// Build the arg array using the command and the command arguments passed in the arguments list
+			String[] args = null;
+			if (arguments != null && arguments.length() > 0) {
+				args = new String[arguments.length()+1];
+				args[0] = processCommand.getValue();
+				for (int n = 0; n < arguments.length(); ++n) {
+					if (arguments.get(n) instanceof IString) 
+						args[n+1] = ((IString)arguments.get(n)).getValue();
+					else
+						throw RuntimeExceptionFactory.illegalArgument(arguments.get(n),null, "");
+				}
+			} else {
+				args = new String[1];
+				args[0] = processCommand.getValue();
 			}
-			Process newProcess = Runtime.getRuntime().exec(args);
+			
+			// Built the environment var map using the envVars map
+			String[] vars = null;
+			if (envVars != null && envVars.size() > 0) { 
+				vars = new String[envVars.size()];
+				int keyCount = 0;
+				for (IValue varKey : envVars) {
+					if (varKey instanceof IString) {
+						IString strKey = (IString) varKey;
+						IValue varVal = envVars.get(varKey);
+						if (varVal instanceof IString) {
+							IString strVal = (IString) varVal;
+							vars[keyCount] = strKey + " = " + strVal;
+						} else {
+							throw RuntimeExceptionFactory.illegalArgument(varVal,null, "");
+						}
+					} else {
+						throw RuntimeExceptionFactory.illegalArgument(varKey,null, "");
+					}
+					keyCount++;
+				}
+			}
+			
+			File cwd = null;
+			if (workingDir != null) {
+				cwd = new File(workingDir.getURI().getPath());
+			}
+			
+			Process newProcess = Runtime.getRuntime().exec(args, vars, cwd);
 			if (processCounter == null) processCounter = vf.integer(0);
 			processCounter = processCounter.add(vf.integer(1));
 			runningProcesses.put(processCounter, newProcess);

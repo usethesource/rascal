@@ -12,9 +12,33 @@ module util::ShellExec
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java PID createProcess(str processCommand);
 
+@doc{Start a new external process in the given working directory.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, loc workingDir);
+
 @doc{Start a new external process with the given arguments.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public java PID createProcessWithArgs(str processCommand, list[str] args);
+public java PID createProcess(str processCommand, list[str] args);
+
+@doc{Start a new external process with the given arguments in the given working directory.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, list[str] args, loc workingDir);
+
+@doc{Start a new external process with the given environment variables.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, map[str,str] envVars);
+
+@doc{Start a new external process with the given environment variables in the given working directory.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, map[str,str] envVars, loc workingDir);
+
+@doc{Start a new external process with the given arguments and environment variables.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, list[str] args, map[str,str] envVars);
+
+@doc{Start a new external process with the given arguments and environment variables in the given working directory.}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createProcess(str processCommand, list[str] args, map[str,str] envVars, loc workingDir);
 
 @doc{Kill a runnning process.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
