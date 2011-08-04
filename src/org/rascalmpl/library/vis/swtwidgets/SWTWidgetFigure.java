@@ -50,17 +50,19 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 	@Override
 	public void layout() {
-		widget.setLocation(FigureApplet.round(getLeft()),
-		         FigureApplet.round(getTop()));
 		widget.setSize(FigureApplet.round(size.getWidth()),
 				FigureApplet.round(size.getHeight()));
 	}
 
 	@Override
 	public void draw(GraphicsContext gc) {
+		widget.setLocation(FigureApplet.round(getLeft() + gc.getTranslateX()),
+		         FigureApplet.round(getTop() + gc.getTranslateY()));
 		// SWT draws this itself! this is only layout
 		widget.setBackground(SWTFontsAndColors.getRgbColor(getFillColorProperty()));
 		widget.setForeground(SWTFontsAndColors.getRgbColor(getFontColorProperty()));
+		widget.setVisible(true);
+		gc.registerSWTElement(this);
 	}
 	
 	@Override
@@ -73,13 +75,6 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		zorder.registerControl(this);
 	}
 	
-	public void suspend(){
-		widget.setVisible(false);
-	}
-	
-	public void activate(){
-		widget.setVisible(true);
-	}
 	
 	public void setZOrder(int depth){
 		zorder = depth;
@@ -91,5 +86,18 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 	public Control getElement(){
 		return widget;
+	}
+	
+	public int getStableOrder(){
+		return sequenceNr;
+	}
+	
+	public void setVisible(boolean visible){
+		if(!visible){
+			widget.setLocation(-10 - widget.getSize().x, -10 - widget.getSize().y);
+		} else {
+			System.out.printf("Making %d visible\n",sequenceNr);
+		}
+		widget.setVisible(visible);
 	}
 }

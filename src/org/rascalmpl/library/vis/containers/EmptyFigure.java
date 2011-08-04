@@ -27,14 +27,6 @@ public class EmptyFigure extends Figure{
 	public void layout() {
 	}
 
-	@Override
-	public void activate() {
-		
-	}
 
-	@Override
-	public void suspend() {
-		
-	}
 
 }

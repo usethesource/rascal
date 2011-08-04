@@ -18,6 +18,11 @@ public final class ForBothDimensions <T>{
 		else return forX;
 	}
 	
+	public T getForY(boolean flip){
+		if(flip) return forX;
+		else return forY;
+	}
+	
 	public T getForX(){
 		return forX;
 	}

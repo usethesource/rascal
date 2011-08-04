@@ -594,16 +594,5 @@ public class LatticeGraph extends Figure implements
 		}
    }
 
-	@Override
-	public void activate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void suspend() {
-		// TODO Auto-generated method stub
-		
-	}
 }
 

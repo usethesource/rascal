@@ -110,5 +110,6 @@ public final class BoundingBox {
 	public boolean isEq(BoundingBox rhs){
 		return rhs!=null && width == rhs.width && height == rhs.height;
 	}
+	
 
 }

@@ -764,11 +764,12 @@ public data Figure =
    
    | _projection(Figure fig, str id, Figure project,FProperties props)   // project from the location of fig to the screen id 
    
-   | _scrollable(Figure fig, FProperties props)
+   | _scrollable(bool hscroll,bool vscroll,Figure fig, FProperties props)
         
    | _timer(int delay,int () callBack, Figure inner,FProperties props)
 
 /* composition */
+   | _withDependantWidthHeight(bool widthMajor,Figure innder, FProperties props)
    | _mouseOver(Figure under, Figure over, FProperties props)
    | _fswitch(int () choice,Figures figs, FProperties props)
    | _overlap(Figure under, Figure over, FProperties props)
@@ -921,8 +922,17 @@ public Figure projection(Figure fig, str id, Figure project,FProperty props ...)
 }
 
 public Figure scrollable(Figure fig, FProperty props...){
-	return _scrollable(fig,props);
+	return _scrollable(true,true,fig,props);
 }
+
+public Figure hscrollable(Figure fig, FProperty props...){
+	return _scrollable(true,false,fig,props);
+}
+
+public Figure vscrollable(Figure fig, FProperty props...){
+	return _scrollable(false,true,fig,props);
+}
+
 
 public Figure place(Figure fig, str at, Figure base, FProperty props ...){
   return _place(fig, at, base, props);
@@ -949,20 +959,14 @@ public Figure vcat(Figures figs, FProperty props ...){
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){
-  return _hvcat(figs, props);
+  return _withDependantWidthHeight(true,_hvcat(figs, props),[]);
 }
 
-public Figure hstack(Figures figs, FProperty props ...){
-  return _hstack(figs, props);
-}
 
 public Figure fswitch(int () choice,Figures figs, FProperty props ...){
   return _fswitch(choice,figs, props);
 }
 
-public Figure vstack(Figures figs, FProperty props ...){
-  return _vstack(figs, props);
-}
 
 public Figure overlay(Figures figs, FProperty props ...){
   return _overlay(figs, props);

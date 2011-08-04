@@ -12,6 +12,8 @@
 
 package org.rascalmpl.library.vis.util;
 
+import com.sun.corba.se.spi.transport.CorbaAcceptor;
+
 public final class Coordinate {
 	
 	private  double x,y;
@@ -96,6 +98,10 @@ public final class Coordinate {
 		else x += val;
 	}
 	
+	public boolean isEq(Coordinate c){
+		return x == c.x && y == c.y;
+	}
+	
 	public void addY(boolean flip, double val){
 		if(flip) x += val;
 		else y += val;
@@ -107,6 +113,11 @@ public final class Coordinate {
 	
 	public void addY( double val){
 		y += val;
+	}
+	
+	public void add(Coordinate c){
+		x += c.x;
+		y += c.y;
 	}
 	
 	public String toString(){

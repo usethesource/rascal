@@ -16,7 +16,6 @@ public class MouseOver extends Overlap{
 	public MouseOver(Figure under, Figure mouseOverFig, PropertyManager properties) {
 		super(under, mouseOverFig, properties);
 		this.mouseOverFig = mouseOverFig;
-		mouseOverFig.suspend();
 	}
 	
 	@Override
@@ -32,14 +31,11 @@ public class MouseOver extends Overlap{
 	}
 	
 	public void setMouseOver(){
-		
 		nonLocalFigure = mouseOverFig;
-		nonLocalFigure.activate();
 		mouseOver = true;
 	}
 	
 	public void unsetMouseOver(){
-		nonLocalFigure.suspend();
 		nonLocalFigure = empty;
 		mouseOver =false;
 	}

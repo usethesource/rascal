@@ -176,16 +176,21 @@ public abstract class Figure implements Comparable<Figure> {
 		}
 	}
 	
+	public BoundingBox getMinViewingSize() {
+		BoundingBox minViewSize = new BoundingBox();
+		minViewSize.set(minSize.getWidth() / getHGrowProperty(), minSize.getHeight() / getVGrowProperty() );
+		return minViewSize;
+	}
+	
 	// distribute actual available size, using size as the available size
 	public abstract void layout();
+	
+	public void setLocationOfChildren() {} 
 	
 	
 	public void setSWTZOrder(ISWTZOrdering zorder){}
 
-	public abstract void activate();
-	
-	public abstract void suspend();
-	
+
 	/**
 	 * Draw element with explicitly left, top corner of its bounding box
 	 * @param gc
@@ -435,14 +440,6 @@ public abstract class Figure implements Comparable<Figure> {
 		//System.out.printf("mouse over %s %f %f %f %f %f %f\n", this, mouseX, getLeft(),mouseY,getTop(),size.getWidth(), size.getHeight());
 		return (mouseX >= getLeft() && mouseX <= getLeft() + size.getWidth())
 				&& (mouseY >= getTop() && mouseY <= getTop() + size.getHeight());
-	}
-
-	/**
-	 * @param key
-	 * @param keyCode
-	 */
-	public boolean keyPressed(int key, int keyCode) {
-		return false;
 	}
 
 

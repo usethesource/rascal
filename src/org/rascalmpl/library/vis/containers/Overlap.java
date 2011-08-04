@@ -22,13 +22,14 @@ public class Overlap extends FigureWithNonLocalFigure{
 	
 	public void layout(){
 		super.layout();
-		nonLocalFigure.globalLocation.set(innerFig.globalLocation);
 		for(boolean flip : BOTH_DIMENSIONS){
 				nonLocalFigure.takeDesiredWidth(flip,innerFig.size.getWidth(flip) * nonLocalFigure.getHShrinkProperty(flip));
-				nonLocalFigure.globalLocation.addX(flip,
-						(innerFig.size.getWidth(flip) - nonLocalFigure.size.getWidth(flip)) * nonLocalFigure.getHAlignProperty(flip));
 		}
 		nonLocalFigure.layout();
+		for(boolean flip : BOTH_DIMENSIONS){
+			nonLocalFigureLoc.setX(flip,
+				(innerFig.size.getWidth(flip) - nonLocalFigure.size.getWidth(flip)) * nonLocalFigure.getHAlignProperty(flip));
+		}
 	}
 	
 	public void setSWTZOrder(ISWTZOrdering zorder){

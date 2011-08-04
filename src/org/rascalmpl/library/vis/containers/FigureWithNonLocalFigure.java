@@ -16,10 +16,12 @@ public class FigureWithNonLocalFigure extends LayoutProxy {
 	// Figure with associated non local figure which is drawed from elsewhere (also overlap ordering should be specified elsewhere)
 	
 	public Figure nonLocalFigure;
+	protected Coordinate nonLocalFigureLoc;
 	
 	public FigureWithNonLocalFigure(Figure inner, Figure nonLocalFigure, PropertyManager properties) {
 		super(inner, properties);
 		this.nonLocalFigure = nonLocalFigure;
+		nonLocalFigureLoc = new Coordinate();
 	}
 
 	public boolean getFiguresinnerFigMouse(Coordinate c,Vector<Figure> result){
@@ -85,5 +87,13 @@ public class FigureWithNonLocalFigure extends LayoutProxy {
 	@Override
 	public void drawPart(Rectangle r,GraphicsContext gc){
 		innerFig.drawPart(r, gc);
+	}
+	
+	@Override
+	public void  setLocationOfChildren(){
+		if(nonLocalFigure != null){
+			nonLocalFigure.globalLocation.set(globalLocation);
+			nonLocalFigure.globalLocation.add(nonLocalFigureLoc);
+		}
 	}
 }

@@ -26,6 +26,7 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 	private Rectangle overlap;
 	private FigureSWTApplet parent;
 	private int zorder;
+	private int sequenceNr;
 	
 	public OverlapCanvas(FigureSWTApplet parent,Composite floor) {
 		super(floor, SWT.NORMAL);
@@ -35,6 +36,8 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 		addMouseMoveListener(this);
 		addMouseListener(parent);
 		addKeyListener(parent);
+		sequenceNr = Figure.sequencer;
+		Figure.sequencer++;
 	}
 	
 	public void setOverlap(Figure fig,Rectangle overlap){
@@ -50,7 +53,9 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 		if(e.gc.isDisposed()) {
 			return;
 		}
-		GraphicsContext gc = new SWTGraphicsContext(e.gc);
+		GraphicsContext gc = new SWTGraphicsContext(e.gc,parent.getVisibleSWTElementsVector());
+		setVisible(true);
+		gc.registerSWTElement(this);
 		gc.translate( -overlap.getX(),-overlap.getY());
 		parent.drawPart(overlap, gc);
 		e.gc.dispose();
@@ -77,6 +82,16 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 	@Override
 	public Control getElement() {
 		return this;
+	}
+
+	@Override
+	public int getStableOrder() {
+		return sequenceNr;
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		this.setVisible(visible);
 	}
 	
 	

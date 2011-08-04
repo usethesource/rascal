@@ -1,5 +1,7 @@
 package org.rascalmpl.library.vis.graphics;
 
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
+
 public interface GraphicsContext {
 	
 	public void line(double arg0, double arg1, double arg2, double arg3);
@@ -24,6 +26,8 @@ public interface GraphicsContext {
 	public void pushMatrix();
 	public void popMatrix();
 	public void rotate(double arg0);
+	public double getTranslateX();
+	public double getTranslateY();
 	public void translate(double arg0, double arg1);
 	public void scale(double arg0, double arg1);
 	
@@ -38,5 +42,6 @@ public interface GraphicsContext {
 	public void endShape(int arg0 );
 
 	public void dispose();
+	public void registerSWTElement(IHasZOrder elem);
 
 }

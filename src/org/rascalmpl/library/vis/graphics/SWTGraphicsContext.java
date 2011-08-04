@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.graphics;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -15,6 +16,7 @@ import org.eclipse.swt.graphics.Transform;
 import static org.rascalmpl.library.vis.FigureApplet.*;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;;
 
 public class SWTGraphicsContext implements GraphicsContext {
 	
@@ -35,18 +37,22 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private Color fontColor;
+	double translateX, translateY;
+	private Vector<IHasZOrder> visibleSWTElements;
 	
 	
 	FontData fontData;
 	int foreGroundCI, backgroundCI, fontCI;
 	
 	
-	public SWTGraphicsContext(GC gc) {
+	public SWTGraphicsContext(GC gc,Vector<IHasZOrder> visibleSWTElements) {
 		this.gc = gc;
 		this.device = gc.getDevice();
 		gc.setAdvanced(true);
 		gc.setAntialias(SWT.ON);
 		gc.setInterpolation(SWT.HIGH);
+		translateX = translateY = 0;
+		this.visibleSWTElements = visibleSWTElements;
 	}
 
 	@SuppressWarnings("serial")
@@ -189,6 +195,8 @@ public class SWTGraphicsContext implements GraphicsContext {
 	}
 
 	public void translate(double x, double y) {
+		translateX+=x;
+		translateY+=y;
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
 		transform.translate((float) x, (float) y);
@@ -425,6 +433,21 @@ public class SWTGraphicsContext implements GraphicsContext {
 	
 	public void dispose(){
 		gc.dispose();
+	}
+
+	@Override
+	public double getTranslateX() {
+		return translateX;
+	}
+
+	@Override
+	public double getTranslateY() {
+		return translateY;
+	}
+
+	@Override
+	public void registerSWTElement(IHasZOrder elem) {
+		visibleSWTElements.add(elem);
 	}
 
 	

@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis.swt.zorder;
 
-import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.Figure;
 import org.rascalmpl.library.vis.containers.Overlap;
 import org.rascalmpl.library.vis.interaction.MouseOver;
@@ -11,5 +10,7 @@ public interface ISWTZOrdering {
 	public void register(Figure fig);
 	public void registerOverlap(Overlap nonLocalFigure);
 	public void registerMouseOver(MouseOver mouseOver);
+	@SuppressWarnings("rawtypes")
 	public void registerControl(SWTWidgetFigure c);
+	
 }

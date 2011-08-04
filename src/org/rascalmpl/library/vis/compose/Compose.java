@@ -45,13 +45,6 @@ public abstract class Compose extends Figure {
 		}
 	}
 
-	@Override
-	public boolean keyPressed(int key, int keyCode) {
-		for (int i = figures.length - 1; i >= 0; i--)
-			if (figures[i].keyPressed(key, keyCode))
-				return true;
-		return super.keyPressed(key, keyCode);
-	}
 	
 		
 	
@@ -167,16 +160,12 @@ public abstract class Compose extends Figure {
 		return false;
 	}
 	
-
-	public void activate(){
-		for(Figure fig : figures){
-			fig.suspend();
-		}
-	}
-	
-	public void suspend(){
-		for(Figure fig : figures){
-			fig.suspend();
+	public void setLocationOfChildren(){
+		for(int i = 0 ; i < figures.length ; i++){
+			figures[i].globalLocation.set(globalLocation);
+			figures[i].globalLocation.add(pos[i]);
+			
+			figures[i].setLocationOfChildren();
 		}
 	}
 }

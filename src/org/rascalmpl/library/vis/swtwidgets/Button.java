@@ -24,6 +24,7 @@ public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 	public Button(IFigureConstructionEnv env, String caption, IValue fun,  PropertyManager properties) {
 		super(env, fun, properties);
 		widget = makeWidget(env.getSWTParent(), env,caption);
+		widget.setVisible(false);
 	}
 	
 	int buttonType(){
