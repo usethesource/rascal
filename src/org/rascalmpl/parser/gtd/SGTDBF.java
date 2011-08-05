@@ -128,7 +128,7 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	/**
-	 * Triggers the gathering of alternatives for the given nonTerminal.
+	 * Triggers the gathering of alternatives for the given non-terminal.
 	 */
 	protected void invokeExpects(AbstractStackNode nonTerminal){
 		String name = nonTerminal.getName();
@@ -290,7 +290,7 @@ public abstract class SGTDBF implements IGTD{
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue;
+			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
 			touched.add(startLocation);
 			
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
@@ -467,7 +467,7 @@ public abstract class SGTDBF implements IGTD{
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
-			if(!hasNestingRestrictions){
+			if(!hasNestingRestrictions){ // Select the optimized path for handling edge sets that don't have nesting restrictions associated with them.
 				handleEdgeList(edgesMap.getValue(i), name, production, resultLink, edgesMap.getKey(i));
 			}else{
 				handleEdgeListWithRestrictions(edgesMap.getValue(i), name, production, resultLink, edgesMap.getKey(i), filteredParents);
@@ -501,12 +501,12 @@ public abstract class SGTDBF implements IGTD{
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue;
+			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
 			touched.add(startLocation);
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
-			if(!hasNestingRestrictions){
+			if(!hasNestingRestrictions){ // Select the optimized path for handling edge sets that don't have nesting restrictions associated with them.
 				handleEdgeList(edgesMap.getValue(i), name, production, resultLink, startLocation);
 			}else{
 				handleEdgeListWithRestrictions(edgesMap.getValue(i), name, production, resultLink, startLocation, filteredParents);
