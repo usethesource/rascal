@@ -641,10 +641,12 @@ public class TraversalEvaluator {
 	private IValue applyOneRule(IValue subject, org.rascalmpl.ast.PatternWithAction rule, TraverseResult tr) {
 		if (rule.isArbitrary()){
 			// will throw an insert exception, or a fail or a return, or it doesn't do anything 
-			eval.matchAndEval(makeResult(subject.getType(), subject, eval), rule.getPattern(), rule.getStatement());
 			
-			// no fail, so match succeeded
-			tr.matched = true;
+			if (eval.matchAndEval(makeResult(subject.getType(), subject, eval), rule.getPattern(), rule.getStatement())) {
+				// no fail, so match succeeded
+				tr.matched = true;
+			}
+			
 			return subject;
 		} 
 		else if (rule.isReplacing()) {
@@ -652,10 +654,11 @@ public class TraversalEvaluator {
 			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
 			
 			// will throw an insert exception, or a fail or a return, or it doesn't do anything 
-			eval.matchEvalAndReplace(makeResult(subject.getType(), subject, eval), rule.getPattern(), conditions, repl.getReplacementExpression());
+			if (eval.matchEvalAndReplace(makeResult(subject.getType(), subject, eval), rule.getPattern(), conditions, repl.getReplacementExpression())) {
+				// no fail, so match succeeded
+				tr.matched = true;
+			}
 			
-			// no fail, so match succeeded
-			tr.matched = true;
 			return subject;
 		} 
 		else {
