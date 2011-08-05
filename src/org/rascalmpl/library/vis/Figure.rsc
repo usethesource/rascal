@@ -774,8 +774,6 @@ public data Figure =
                        
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
-   | _hstack(Figures figs, FProperties props)
-   | _vstack(Figures figs, FProperties props)
                    
    | _overlay(Figures figs, FProperties props)// overlay (stacked) composition
    

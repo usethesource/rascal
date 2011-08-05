@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.util.Dimension;
+import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 public enum Properties {
 	SHAPE_CLOSED(Types.BOOL,false), 	// scheduled for removal

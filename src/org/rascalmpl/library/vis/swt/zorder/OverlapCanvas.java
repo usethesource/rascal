@@ -11,13 +11,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureApplet;
+import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.Coordinate;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.Rectangle;
 
 public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveListener, IHasZOrder{
@@ -43,8 +43,8 @@ public class OverlapCanvas extends Canvas implements PaintListener, MouseMoveLis
 	public void setOverlap(Figure fig,Rectangle overlap){
 		this.overlap = overlap;
 		this.fig = fig;
-		setSize(FigureApplet.round(overlap.getWidth()+1),FigureApplet.round(overlap.getHeight() +1));
-		setLocation(FigureApplet.round(overlap.getX()),FigureApplet.round(overlap.getY()));
+		setSize(FigureMath.round(overlap.getWidth()+1),FigureMath.round(overlap.getHeight() +1));
+		setLocation(FigureMath.round(overlap.getX()),FigureMath.round(overlap.getY()));
 	}
 	
 

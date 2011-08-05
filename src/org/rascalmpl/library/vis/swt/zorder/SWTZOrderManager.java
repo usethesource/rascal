@@ -6,11 +6,11 @@ import java.util.Vector;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.containers.Overlap;
-import org.rascalmpl.library.vis.interaction.MouseOver;
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.combine.Overlap;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import org.rascalmpl.library.vis.figure.interaction.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;
-import org.rascalmpl.library.vis.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.util.Rectangle;
 
 public class SWTZOrderManager implements ISWTZOrdering {

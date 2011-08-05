@@ -13,10 +13,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
-import static org.rascalmpl.library.vis.FigureApplet.*;
-import org.rascalmpl.library.vis.FigureColorUtils;
+
+import static org.rascalmpl.library.vis.util.FigureMath.*;
+
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
-import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;;
+import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
+import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 public class SWTGraphicsContext implements GraphicsContext {
 	
