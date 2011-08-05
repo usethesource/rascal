@@ -43,7 +43,7 @@ public class PropertyManager {
 	
 	PropertyValue[] explicitValues, stdValues;
 	PropertyManager parent;
-
+	IRunTimePropertyChanges runTimeChanges;
 	
 	public static PropertyManager extendProperties(IFigureConstructionEnv fpa, IConstructor c, PropertyManager pm, IList childProps){
 		IList props = (IList) c.get(c.arity()-1);
@@ -69,12 +69,14 @@ public class PropertyManager {
 		parent = inherited;
 		allocateArrays(props);
 		setProperties(fpa,props);
+		this.runTimeChanges = fpa.getRunTimePropertyChanges();
 	}
 	
 	public PropertyManager() {
 		explicitValues = new PropertyValue[0];
 		stdValues = new PropertyValue[0];
 		parent = null;
+		this.runTimeChanges = null;
 	}
 	
 
@@ -202,12 +204,20 @@ public class PropertyManager {
 		return v.getKeyId();
 	}
 	
+	private Object adoptProperty(Properties property, Object val){
+		if(runTimeChanges == null){
+			return val;
+		} else {
+			return runTimeChanges.adoptPropertyVal(property, val);
+		}
+	}
+	
 	public Object getProperty(Properties property){
 		PropertyValue pv = getPropertyValue(property);
 		if(pv == null){
-			return property.stdDefault;
+			return adoptProperty(property,property.stdDefault);
 		} else {
-			return pv.getValue();
+			return adoptProperty(property,pv.getValue());
 		}
 	}
 	
