@@ -923,13 +923,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			Type type = getType().typeOf(eval.getCurrentEnvt());
-			IMatchingResult absPat = this.getPattern().buildMatcher(eval);
+			IMatchingResult absPat = this.getArgument().buildMatcher(eval);
 			return new GuardedPattern(eval, this, type, absPat);
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			Result<IValue> result = this.getPattern().interpret(__eval);
+			Result<IValue> result = this.getArgument().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt());
 
 			if (!(expected instanceof NonTerminalType)) {
