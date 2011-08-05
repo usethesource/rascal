@@ -50,36 +50,44 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	private final static IConstructor PROD_1_1 = VF.constructor(Factory.Production_Default,  SYMBOL_1, VF.list(SYMBOL_char_1), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode NONTERMINAL_E0 = new NonTerminalStackNode(0, 0, "E");
+	private final static AbstractStackNode NONTERMINAL_E1 = new NonTerminalStackNode(1, 0, "E");
+	private final static AbstractStackNode NONTERMINAL_E2 = new NonTerminalStackNode(2, 2, "E");
+	private final static AbstractStackNode NONTERMINAL_E3 = new NonTerminalStackNode(3, 2, "E");
+	private final static AbstractStackNode LITERAL_4 = new LiteralStackNode(4, 1, PROD_plus_plus, "+".toCharArray());
+	private final static AbstractStackNode LITERAL_5 = new LiteralStackNode(5, 1, PROD_star_star, "*".toCharArray());
+	private final static AbstractStackNode LITERAL_6 = new LiteralStackNode(6, 0, PROD_1_1, "1".toCharArray());
+	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
 	static{
-		S_EXPECT_1[0] = new NonTerminalStackNode(0, 0, "E");
+		S_EXPECT_1[0] = NONTERMINAL_E0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[0].setParentProduction(PROD_S_E);
 	}
 	
 	private final static AbstractStackNode[] E_EXPECT_1 = new AbstractStackNode[3];
 	static{
-		E_EXPECT_1[0] = new NonTerminalStackNode(1, 0, "E");
+		E_EXPECT_1[0] = NONTERMINAL_E1;
 		E_EXPECT_1[0].setProduction(E_EXPECT_1);
-		E_EXPECT_1[1] = new LiteralStackNode(4, 1, PROD_plus_plus, "+".toCharArray());
+		E_EXPECT_1[1] = LITERAL_4;
 		E_EXPECT_1[1].setProduction(E_EXPECT_1);
-		E_EXPECT_1[2] = new NonTerminalStackNode(2, 2, "E");
+		E_EXPECT_1[2] = NONTERMINAL_E2;
 		E_EXPECT_1[2].setProduction(E_EXPECT_1);
 		E_EXPECT_1[2].setParentProduction(PROD_E_EplusE);
 	}
 	private final static AbstractStackNode[] E_EXPECT_2 = new AbstractStackNode[3];
 	static{
-		E_EXPECT_2[0] = new NonTerminalStackNode(1, 0, "E");
-		E_EXPECT_2[0].setProduction(E_EXPECT_2);
-		E_EXPECT_2[1] = new LiteralStackNode(5, 1, PROD_star_star, "*".toCharArray());
+		E_EXPECT_2[0] = NONTERMINAL_E1;
+		E_EXPECT_2[0].addProduction(E_EXPECT_2);
+		E_EXPECT_2[1] = LITERAL_5;
 		E_EXPECT_2[1].setProduction(E_EXPECT_2);
-		E_EXPECT_2[2] = new NonTerminalStackNode(3, 2, "E");
+		E_EXPECT_2[2] = NONTERMINAL_E3;
 		E_EXPECT_2[2].setProduction(E_EXPECT_2);
 		E_EXPECT_2[2].setParentProduction(PROD_E_EstarE);
 	}
 	private final static AbstractStackNode[] E_EXPECT_3 = new AbstractStackNode[1];
 	static{
-		E_EXPECT_3[0] = new LiteralStackNode(6, 0, PROD_1_1, "1".toCharArray());
+		E_EXPECT_3[0] = LITERAL_6;
 		E_EXPECT_3[0].setProduction(E_EXPECT_3);
 		E_EXPECT_3[0].setParentProduction(PROD_E_1);
 	}
