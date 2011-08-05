@@ -126,6 +126,18 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		int hash = 0;
+		
+		for(int i = ranges.length - 1; i >= 0; --i){
+			char[] range = ranges[i];
+			hash = hash << 3 + hash >> 5;
+			hash ^= range[0] +  (range[1] << 2);
+		}
+		
+		return hash;
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof CharStackNode)) return false;
 		

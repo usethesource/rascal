@@ -124,6 +124,10 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return production.hashCode();
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof OptionalStackNode)) return false;
 		

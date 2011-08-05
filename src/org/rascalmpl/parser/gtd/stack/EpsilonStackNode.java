@@ -80,6 +80,10 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return 0;
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof EpsilonStackNode)) return false;
 		

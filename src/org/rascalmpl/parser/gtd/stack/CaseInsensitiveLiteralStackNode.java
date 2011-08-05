@@ -152,6 +152,10 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return production.hashCode();
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof CaseInsensitiveLiteralStackNode)) return false;
 		
