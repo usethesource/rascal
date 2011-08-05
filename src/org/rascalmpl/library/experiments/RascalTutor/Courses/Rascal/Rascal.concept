@@ -17,21 +17,23 @@ What you need to know about Rascal is this, in this particular order:
 
 <br><br>
 What are the key distinguishing features of Rascal?
-* Learn about [Patterns] to express query and search in (models of) programs
-* Learn about [Visit] to traverse and transform (models of) meta programs
-* Learn about [SyntaxDefinition] to effectively produce parsers for programming languages and other formats
-* Learn about [IDEConstruction] using Rascal and Eclipse [IMP].
-* Learn about all kinds of API of reusable aspects of meta programming by reading about Rascal's [Libraries].
+* [Patterns] to express query and search in (models of) programs
+* [Visit] to traverse and transform (models of) meta programs
+* [SyntaxDefinition] to effectively produce parsers for programming languages and other formats
+* [ConcreteSyntax] to analyse and transform source code using patterns in the programming language that is manipulated.
+* Rapid [IDEConstruction] using Eclipse [IMP].
+* Reusable aspects of meta programming in the [Libraries].
  
 Examples:
 
 Read about simple [Examples] of Rascal code. The Rascal [Libraries] also contain demos of Rascal. By the way, you will find example code on almost every page in this tutor environment.
 
 Benefits:
-* It should have everything you need for any kind of meta program you want to write.
+* It should have everything you need for any kind of meta program you want to write. See [Motivation]
 
 Pitfalls:
 
+* See [Motivation].
 * It is not an object-oriented programming language. It is an procedural/functional language with immutable data.
 * It allows you to write highly imperative code, but do not forget that it might have a better declarative construct for you to use instead.
 * It is slow sometimes because it needs more optimization.
