@@ -50,7 +50,7 @@ public java &T <: node delAnnotation(&T <: node x, str label);
 @doc{removes all annotations on all nodes in a value}
 @javaClass{org.rascalmpl.library.Node}
 public &T delAnnotationsRec(&T v) {
-  return visit(v) { case node n => delAnnotations(n) };
+  return visit(v) { case m: node n => delAnnotations(m) };
 }
 
 @doc{remove all annotations on a node}
