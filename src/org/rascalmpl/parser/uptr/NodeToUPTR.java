@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+*******************************************************************************/
 package org.rascalmpl.parser.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -15,6 +26,9 @@ import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 
+/**
+ * Converter for parse trees that produces trees in UPTR format.
+ */
 public class NodeToUPTR implements INodeConverter{
 	private final LiteralNodeConverter literalNodeConverter;
 	private final SortContainerNodeConverter sortContainerNodeConverter;
@@ -55,10 +69,16 @@ public class NodeToUPTR implements INodeConverter{
 		}
 	}
 	
+	/**
+	 * Internal helper structure for error tracking.
+	 */
 	protected static class IsInError{
 		public boolean inError;
 	}
 	
+	/**
+	 * Convert the given node.
+	 */
 	protected IConstructor convert(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
@@ -74,6 +94,9 @@ public class NodeToUPTR implements INodeConverter{
 		}
 	}
 	
+	/**
+	 * Convert the given node (which possibly contains errors).
+	 */
 	protected IConstructor convertWithErrors(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
@@ -95,10 +118,17 @@ public class NodeToUPTR implements INodeConverter{
 		}
 	}
 	
+	/**
+	 * Converts the given parse tree to a tree in UPTR format.
+	 */
 	public IConstructor convert(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment, FilteringTracker filteringTracker){
 		return convert(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
 	}
 	
+	/**
+	 * Converts the given parse tree to a tree in UPTR format.
+	 * This method is also able to handle incomplete trees and trees with filtering errors.
+	 */
 	public IConstructor convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment){
 		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
 	}
