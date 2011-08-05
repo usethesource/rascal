@@ -1,0 +1,27 @@
+Name: Disambiguation
+
+Details: Symbols
+
+Categories:
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis: Disambiguation is the definition of filters on the parse trees that [SyntaxDefinition]s define. There are several ways of defining [Disambiguation] in Rascal.
+
+Description:
+
+<warning>This page is to be written</warning>
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

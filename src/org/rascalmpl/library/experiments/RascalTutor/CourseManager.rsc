@@ -378,9 +378,8 @@ public str save(ConceptName cn, str text, bool newConcept){
      //	return saveFeedback("File <file> exists already", "");
      	
      // Does the file for this concept already exist as a subconcept?
-     file = directory[file = directory.file + "/" + fullName + "/" + cname + suffix];
-     if(exists(file))
-     	return saveFeedback("File <file> exists already", "");
+     if(exists(directory + fullName))
+     	return saveFeedback("Concept <fullName> exists already", "");
      
      // Create proper directory if it does not yet exist
      //dir = directory[file = directory.file + "/" + fullName];	
@@ -391,7 +390,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      //}
      
      // We have now the proper file name for the new concept and process it
-     file = directory + "/" + fullName + "/" + cname + suffix;
+     file = directory + fullName + "<cname><suffix>";
 
      println("Write to file <file>");
      writeFile(file, combine(lines));
