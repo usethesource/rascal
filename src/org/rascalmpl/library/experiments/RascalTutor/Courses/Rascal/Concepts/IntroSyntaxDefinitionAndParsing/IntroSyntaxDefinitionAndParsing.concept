@@ -14,63 +14,43 @@ There are two main approaches to this:
 * _Structured information_: Use syntax analysis to extract the complete, nested, structure of the source code 
    in the form of a syntax tree.
 
-
-<warning>The current release of Rascal has switched to a new syntax definition notation -- inspired by SDF --
-that is both simpler and more general and flexible.
-This new syntax notation is not yet described here.
-The following text will be adjusted.
-The examples will, however, be unchanged.
-</warning>
-In Rascal, we reuse the Syntax Definition Formalism (SDF) and its tooling. 
-See [](http://www.meta-environment.org/Meta-Environment/Documentation) for tutorials and manuals for SDF.
-
-SDF modules define grammars and these modules can be imported in a Rascal module. 
-These grammar rules can be applied in writing concrete patterns to match parts of parsed source code. 
-Here is an example of the same pattern we saw in [Concepts/IntroPatternMatching], but now in concrete form:
-
-<listing>
-while <Exp> do <Stats> od
-</listing>
-Importing an SDF module has the following effects:
-
-*  All non-terminals (sorts in SDF jargon) that are used in the imported grammar are implicitly 
-    declared as Rascal types. For each SDF sort S also composite symbols like `S*`, `{S ","}+` also become 
-    available as type. This makes it possible to handle parse trees and parse tree fragments as fully typed 
-    values and assign them to variables, store them in larger datastructures or pass them as arguments 
-    to functions and use them in pattern matching.
-*  For all _start symbols_ of the grammar _parse functions_ are implicitly declared that can parse source files 
-    according to a specific start symbol.
-*  Concrete syntax patterns for that specific grammar can be used.
-*  Concrete syntax constructors can be used that allow the construction of new parse trees.
+Using [SyntaxDefinition]s you can define the syntax of any (programming) language. Then Rascal:
+* will generate parsers
+* will provide pattern matching and pattern construction in [ConcreteSyntax]
 
 Examples:
 
-The following example parses a Java compilation unit from a text file and counts the number of method declarations:
-
 <listing>
-module Count
-import languages::java::syntax::Java;
-import ParseTree;
+module MyLanguage
 
-public int countMethods(loc file){
-  int n = 0;
-  for(/MethodDeclaration md <- parse(#CompilationUnit, file))
-      n += 1;
-  return n;
-}
+layout MyLayout = [\ \t\n]*;
+
+lexical Id = [a-z]+;
+
+start syntax Program = "begin" {Stat ";"}* stats "end";
+
+syntax Stat
+  = assign: Id id "=" Exp exp
+  | if: "if" Exp cond "then" {Stat ";"}* "else" {Stat ";"}* "fi"
+  ;
+
+syntax Exp
+  = ref: Id id
+  | left mul: Exp lhs "*" Exp rhs
+  > left add: Exp lhs "+" Exp rhs
+  ;
 </listing>
-First observe that importing the Java grammar has as effect that non-terminals like `MethodDeclaration` and 
-`CompilationUnit` become available as type in the Rascal program.
 
-The implicitly declared function `parse` takes a reified type (`#CompilationUnit`) and a location 
-as arguments and parses the contents of the location according to the given non-terminal. 
-Next, a match for embedded `MethodDeclaration`s is done in the enumerator of the for statement. 
+Now you may parse and manipulate programs in this language:
+<screen>
+import MyLanguage;
+parse(#start[Program], "begin end");
+</screen>
 
 Benefits:
 
 Pitfalls:
-This example ignores many potential error conditions but does illustrate some of Rascal's syntax and 
-parsing features.
+* The [SyntaxDefinition] feature has recently been designed and implemented and is still going through some growing pains.
 
 Questions:
 
