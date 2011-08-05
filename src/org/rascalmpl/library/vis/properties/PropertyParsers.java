@@ -23,10 +23,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.Figure;
-import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigureFactory;
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 /**
  * Utilities for fetching arguments from property values. Arguments come in three flavours:

@@ -12,7 +12,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.Figure;
+import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{

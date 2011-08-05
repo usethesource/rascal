@@ -8,7 +8,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-import static org.rascalmpl.library.vis.KeySymFactory.*;
+import static org.rascalmpl.library.vis.KeySym.*;
 
 public class KeySymTranslate {
 	static final Type[] empty = {};
