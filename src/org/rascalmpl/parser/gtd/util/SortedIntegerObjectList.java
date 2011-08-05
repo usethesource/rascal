@@ -38,8 +38,8 @@ public class SortedIntegerObjectList<V>{
 		
 		for(int i = size - 1; i >= 0; --i){
 			if(keys[i] < key){
-				System.arraycopy(keys, i + 1, keys, i + 2, size);
-				System.arraycopy(values, i + 1, values, i + 2, size++);
+				System.arraycopy(keys, i + 1, keys, i + 2, size - i - 1);
+				System.arraycopy(values, i + 1, values, i + 2, size++ - i - 1);
 				
 				keys[i + 1] = key;
 				values[i + 1] = value;
