@@ -17,8 +17,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -45,7 +48,16 @@ public class RascalTutor {
 	
 	public void start(final int port) throws Exception {
 		eval.eval(null, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
-		server = new Server(port);
+		server = new Server();
+		
+		SelectChannelConnector connector=new SelectChannelConnector();
+		connector.setPort(port);
+		connector.setMaxIdleTime(30000);
+		connector.setHeaderBufferSize(1000*1000);
+		connector.setRequestBufferSize(1000*1000);
+		connector.setConfidentialPort(8443);
+		server.setConnectors(new Connector[]{connector});
+		
 		server.setHandler(getTutorHandler());
 		server.start();
 	}

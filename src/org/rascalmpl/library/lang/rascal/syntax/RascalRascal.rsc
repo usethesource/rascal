@@ -202,8 +202,8 @@ syntax Expression
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : "it" 
 	| QualifiedName  : QualifiedName qualifiedName 
-	
-	>  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
+	// removed >
+	|  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess : Expression expression "." Name field 
 	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
 	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
