@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.experiments.grammar;
+package org.rascalmpl.parser.gtd.preprocessing;
 
 import java.util.Iterator;
 
@@ -70,14 +70,14 @@ public class ExpectBuilder{
 						AbstractStackNode sharedExpectItem = sharedExpect[k];
 						int sharedExpectItemResultStoreId = resultStoreMappings.get(sharedExpectItem.getId());
 						
-						if(alternativeItem.equals(sharedExpectItem) && alternativeItemResultStoreId == sharedExpectItemResultStoreId){
+						if(!alternativeItem.isEqual(sharedExpectItem) || alternativeItemResultStoreId != sharedExpectItemResultStoreId){
 							AbstractStackNode[][] otherAlternatives = alternativeItem.getAlternateProductions();
 							if(otherAlternatives != null){
 								for(int l = otherAlternatives.length - 1; l >= 0; --l){
 									AbstractStackNode[] otherAlternative = otherAlternatives[l];
 									AbstractStackNode otherAlternativeItem = otherAlternative[k];
 									int otherAlternativeItemResultStoreId = resultStoreMappings.get(otherAlternativeItem.getId());
-									if(otherAlternativeItem.equals(sharedExpectItem) && otherAlternativeItemResultStoreId == sharedExpectItemResultStoreId){
+									if(otherAlternativeItem.isEqual(sharedExpectItem) && otherAlternativeItemResultStoreId == sharedExpectItemResultStoreId){
 										otherAlternativeItem.setProduction(alternative);
 										alternative = otherAlternative;
 										

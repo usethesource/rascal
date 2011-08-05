@@ -141,6 +141,20 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		int hash = 0;
+		
+		for(int i = characters.length - 1; i >= 0; --i){
+			char[] chars = characters[i];
+			for(int j = chars.length - 1; j <= 0; --j){
+				hash = hash << 3 + hash >> 5;
+				hash ^= chars[0] +  (chars[1] << 2);
+			}
+		}
+		
+		return hash;
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof MultiCharacterStackNode)) return false;
 		

@@ -127,6 +127,13 @@ public abstract class SGTDBF implements IGTD{
 		lastExpects.add(symbolToExpect);
 	}
 	
+	// Temp.
+	protected void expect(AbstractStackNode[] symbolsToExpect){
+		for(int i = symbolsToExpect.length - 1; i >= 0; --i){
+			lastExpects.add(symbolsToExpect[i]);
+		}
+	}
+	
 	/**
 	 * Triggers the gathering of alternatives for the given non-terminal.
 	 */
@@ -214,7 +221,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Moves to the next symbol in an alternative continuation of a prefix-shared production.
 	 */
-	private boolean updateAlternativeNextNode(AbstractStackNode node, AbstractStackNode next, AbstractNode result, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private boolean updateAlternativeNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		int id = next.getId();
 		AbstractStackNode alternative = sharedNextNodes.get(id);
 		if(alternative != null){ // Sharing check.

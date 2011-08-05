@@ -18,9 +18,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
@@ -58,38 +60,20 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode LITERAL_5 = new LiteralStackNode(5, 1, PROD_star_star, "*".toCharArray());
 	private final static AbstractStackNode LITERAL_6 = new LiteralStackNode(6, 0, PROD_1_1, "1".toCharArray());
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode[] S_EXPECTS;
 	static{
-		S_EXPECT_1[0] = NONTERMINAL_E0;
-		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_E);
+		ExpectBuilder sExpectBuilder = new ExpectBuilder(new IntegerMap());
+		sExpectBuilder.addAlternative(PROD_S_E, new AbstractStackNode[]{NONTERMINAL_E0});
+		S_EXPECTS = sExpectBuilder.buildExpectArray();
 	}
 	
-	private final static AbstractStackNode[] E_EXPECT_1 = new AbstractStackNode[3];
+	private final static AbstractStackNode[] E_EXPECTS;
 	static{
-		E_EXPECT_1[0] = NONTERMINAL_E1;
-		E_EXPECT_1[0].setProduction(E_EXPECT_1);
-		E_EXPECT_1[1] = LITERAL_4;
-		E_EXPECT_1[1].setProduction(E_EXPECT_1);
-		E_EXPECT_1[2] = NONTERMINAL_E2;
-		E_EXPECT_1[2].setProduction(E_EXPECT_1);
-		E_EXPECT_1[2].setParentProduction(PROD_E_EplusE);
-	}
-	private final static AbstractStackNode[] E_EXPECT_2 = new AbstractStackNode[3];
-	static{
-		E_EXPECT_2[0] = NONTERMINAL_E1;
-		E_EXPECT_2[0].addProduction(E_EXPECT_2);
-		E_EXPECT_2[1] = LITERAL_5;
-		E_EXPECT_2[1].setProduction(E_EXPECT_2);
-		E_EXPECT_2[2] = NONTERMINAL_E3;
-		E_EXPECT_2[2].setProduction(E_EXPECT_2);
-		E_EXPECT_2[2].setParentProduction(PROD_E_EstarE);
-	}
-	private final static AbstractStackNode[] E_EXPECT_3 = new AbstractStackNode[1];
-	static{
-		E_EXPECT_3[0] = LITERAL_6;
-		E_EXPECT_3[0].setProduction(E_EXPECT_3);
-		E_EXPECT_3[0].setParentProduction(PROD_E_1);
+		ExpectBuilder eExpectBuilder = new ExpectBuilder(new IntegerMap());
+		eExpectBuilder.addAlternative(PROD_E_EplusE, new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_4, NONTERMINAL_E2});
+		eExpectBuilder.addAlternative(PROD_E_EstarE, new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_5, NONTERMINAL_E3});
+		eExpectBuilder.addAlternative(PROD_E_1, new AbstractStackNode[]{LITERAL_6});
+		E_EXPECTS = eExpectBuilder.buildExpectArray();
 	}
 	
 	public Ambiguous9(){
@@ -97,14 +81,11 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	}
 	
 	public void S(){
-		expect(S_EXPECT_1[0]);
+		expect(S_EXPECTS);
 	}
 	
 	public void E(){
-		expect(E_EXPECT_1[0]);
-		expect(E_EXPECT_2[0]);
-		
-		expect(E_EXPECT_3[0]);
+		expect(E_EXPECTS);
 	}
 	
 	public IConstructor executeParser(){

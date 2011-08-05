@@ -210,24 +210,51 @@ public abstract class AbstractStackNode{
 	 */
 	public boolean hasEqualFilters(AbstractStackNode otherNode){
 		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
-		OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
-			IEnterFilter enterFilter = enterFilters[i];
-			for(int j = otherEnterFilters.length - 1; j >= 0; --j){
-				if(enterFilter.isEqual(otherEnterFilters[j])) continue OUTER;
+		if(otherEnterFilters != null){
+			if(enterFilters == null) return false;
+			
+			OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
+				IEnterFilter enterFilter = enterFilters[i];
+				for(int j = otherEnterFilters.length - 1; j >= 0; --j){
+					if(enterFilter.isEqual(otherEnterFilters[j])) continue OUTER;
+				}
+				return false;
 			}
+		}else if(enterFilters != null){
 			return false;
 		}
 		
 		ICompletionFilter[] otherCompletionFilters = otherNode.completionFilters;
-		OUTER: for(int i = completionFilters.length - 1; i >= 0; --i){
-			ICompletionFilter completionFilter = completionFilters[i];
-			for(int j = otherCompletionFilters.length - 1; j >= 0; --j){
-				if(completionFilter.isEqual(otherCompletionFilters[j])) continue OUTER;
+		if(otherCompletionFilters != null){
+			if(completionFilters == null) return false;
+			
+			OUTER: for(int i = completionFilters.length - 1; i >= 0; --i){
+				ICompletionFilter completionFilter = completionFilters[i];
+				for(int j = otherCompletionFilters.length - 1; j >= 0; --j){
+					if(completionFilter.isEqual(otherCompletionFilters[j])) continue OUTER;
+				}
+				return false;
 			}
+		}else if(completionFilters != null){
 			return false;
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Children must override the hash code method (it can't be enforce, but I'm putting it in here anyway).
+	 */
+	public abstract int hashCode();
+	
+	/**
+	 * Checks equality.
+	 */
+	public boolean equals(Object o){
+		if(o instanceof AbstractStackNode){
+			return isEqual((AbstractStackNode) o);
+		}
+		return false;
 	}
 	
 	// Creation and sharing.

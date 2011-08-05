@@ -117,6 +117,10 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return production.hashCode();
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof SequenceStackNode)) return false;
 		

@@ -74,8 +74,8 @@ public class ParserTest extends TestCase{
 		executeParser(new Ambiguous5());
 		executeParser(new Ambiguous6());
 		executeParser(new Ambiguous7());
-		//executeParser(new Ambiguous8());
-		//executeParser(new Ambiguous9());
+		executeParser(new Ambiguous8());
+		executeParser(new Ambiguous9());
 	}
 	
 	public void testSplitAndMerge(){
@@ -129,7 +129,7 @@ public class ParserTest extends TestCase{
 	
 	public void testAmbiguousRecursion(){
 		executeParser(new AmbiguousRecursive());
-		//executeParser(new AmbiguousRecursivePrefixShared());
+		executeParser(new AmbiguousRecursivePrefixShared());
 	}
 	
 	public void testCycle(){

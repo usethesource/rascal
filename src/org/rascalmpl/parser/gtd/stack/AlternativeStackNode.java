@@ -119,6 +119,10 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return production.hashCode();
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof AlternativeStackNode)) return false;
 		

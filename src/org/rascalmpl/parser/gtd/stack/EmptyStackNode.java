@@ -110,6 +110,10 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		return sb.toString();
 	}
 	
+	public int hashCode(){
+		return 1;
+	}
+	
 	public boolean isEqual(AbstractStackNode stackNode){
 		if(!(stackNode instanceof EmptyStackNode)) return false;
 		
