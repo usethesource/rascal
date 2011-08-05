@@ -38,7 +38,7 @@ public enum Properties {
 	LABEL(Types.FIGURE,null),
 	
 	MOUSE_CLICK(Types.HANDLER,null,"void ()","h"),
-	ON_MOUSEMOVE(Types.HANDLER,null,"bool ()","h"),
+	ON_MOUSEMOVE(Types.HANDLER,null,"bool ()","bh"),
 	
 	DOI(Types.INT,1000000),           // scheduled for removal
 	FONT_SIZE(Types.INT,12),

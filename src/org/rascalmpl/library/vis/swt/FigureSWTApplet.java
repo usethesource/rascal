@@ -33,6 +33,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -51,6 +52,7 @@ import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.SWTWidgetFigure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
+import org.rascalmpl.library.vis.properties.IRunTimePropertyChanges;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
@@ -66,11 +68,12 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureSWTApplet extends Composite 
 	implements IFigureConstructionEnv, PaintListener, MouseListener,MouseMoveListener, 
-	ControlListener, MouseTrackListener, DisposeListener, KeyListener , SelectionListener{
+	ControlListener, MouseTrackListener, DisposeListener, KeyListener , SelectionListener,
+	MouseWheelListener, IRunTimePropertyChanges{
 
 	public static BoundingBox scrollableMinSize; 
 	public static BoundingBox scrollbarSize; // width of vertical scrollbar, height of horizontal
-	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER ;
+	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.DOUBLE_BUFFERED ;
 	private static boolean debug = false;
 	private BoundingBox size;
 	private Coordinate location;
@@ -88,6 +91,9 @@ public class FigureSWTApplet extends Composite
 	private Vector<MouseOver> mouseOverFigures;
 	private Vector<IHasZOrder> visibleSWTElements;
 	private Vector<IHasZOrder> prevVisibleSWTElements;
+	private int fontSizeOffset;
+	private double lineWidthOffset;
+	private Coordinate zoom;
 
 
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env){
@@ -105,9 +111,12 @@ public class FigureSWTApplet extends Composite
 		figuresUnderMouse = new Vector<Figure>();
 		figuresUnderMousePrev = new Vector<Figure>();
 		location = new Coordinate(0,0);
+		zoom = new Coordinate(1,1);
 		size = new BoundingBox();
 		visibleSWTElements = new Vector<IHasZOrder>();
 		prevVisibleSWTElements = new Vector<IHasZOrder>();
+		lineWidthOffset = 0;
+		fontSizeOffset = 0;
 		
 		if(parent.getParent() instanceof FigureSWTApplet){
 			((FigureSWTApplet)parent.getParent()).registerChild(this);
@@ -126,6 +135,7 @@ public class FigureSWTApplet extends Composite
 		addMouseMoveListener(this);
 		addPaintListener(this);
 		addKeyListener(this);
+		addMouseWheelListener(this);
 	}
 
 	private void draw(GC swtGC) {
@@ -213,7 +223,7 @@ public class FigureSWTApplet extends Composite
 				}
 				i++;
 			} else if(cmp > 0){
-				figuresUnderMouse.get(i).executeMouseMoveHandlers(env, ValueFactory.getInstance().bool(false), Properties.ON_MOUSEMOVE);
+				figuresUnderMousePrev.get(j).executeMouseMoveHandlers(env, ValueFactory.getInstance().bool(false), Properties.ON_MOUSEMOVE);
 				int index = Collections.binarySearch(mouseOverFigures, figuresUnderMousePrev.get(j));
 				if(index >= 0 ){
 					mouseOverFigures.get(index).unsetMouseOver();
@@ -236,22 +246,60 @@ public class FigureSWTApplet extends Composite
 	}
 	
 	
-	private void handleKey(KeyEvent e,boolean down){
+	private boolean handleKey(KeyEvent e,boolean down){
 		env.beginCallbackBatch();
 		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
 		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
 		IBool keyDown = ValueFactory.getInstance().bool(down);
+		boolean captured = false;
 		for(int i = figuresUnderMouse.size()-1 ; i >= 0; i--){
-			if(!figuresUnderMouse.get(i).executeKeyHandlers(env, keySym, keyDown, keyboardModifierMap)){
+			if(figuresUnderMouse.get(i).executeKeyHandlers(env, keySym, keyDown, keyboardModifierMap)){
+				captured = true;
 				break;
 			}
 		}
 		env.endCallbackBatch();
+		return captured;
+	}
+	
+	private void adjustRunTimePropertyOffsets(){
+
+		env.computeFigures();
+		layoutFigures();
+		setScrollBars();
+		redraw();
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		handleKey(e,true);
+		boolean captured = handleKey(e,true);
+		if(!captured){
+			if((e.stateMask & SWT.CONTROL) != 0){
+				if(e.keyCode == '='){
+					fontSizeOffset+=1;
+					adjustRunTimePropertyOffsets();
+				} else if(e.keyCode == '-'){
+					fontSizeOffset-=1;
+					adjustRunTimePropertyOffsets();
+				}
+			} else if((e.stateMask & SWT.SHIFT) != 0){
+				if(e.keyCode == '='){
+					lineWidthOffset+=0.5;
+					adjustRunTimePropertyOffsets();
+				} else if(e.keyCode == '-'){
+					lineWidthOffset-=0.5;
+					adjustRunTimePropertyOffsets();
+				}
+			} else {
+				if(e.keyCode == '='){
+					fontSizeOffset+=1;
+					adjustRunTimePropertyOffsets();
+				} else if(e.keyCode == '-'){
+					fontSizeOffset-=1;
+					adjustRunTimePropertyOffsets();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -274,6 +322,11 @@ public class FigureSWTApplet extends Composite
 		}
 		redraw();
 		
+	}
+	
+	private void setScrollBars(){
+		enableScrollBarsIfNeeded();
+		scaleScrollBars();
 	}
 	
 	private void scaleScrollBars(){
@@ -457,4 +510,27 @@ public class FigureSWTApplet extends Composite
 	public  Vector<IHasZOrder> getVisibleSWTElementsVector(){
 		return visibleSWTElements;
 	}
+
+	@Override
+	public Object adoptPropertyVal(Properties prop, Object val) {
+		switch(prop){
+		case FONT_SIZE : return Math.max(1,((Integer)val) + fontSizeOffset); 
+		case LINE_WIDTH : return Math.max(1,((Double)val) + lineWidthOffset); 
+		default : return val;
+		}
+	}
+
+	@Override
+	public IRunTimePropertyChanges getRunTimePropertyChanges() {
+		return this;
+	}
+
+	@Override
+	public void mouseScrolled(MouseEvent e) {
+		e.data = 0;
+		System.out.printf("Wheel! %s %s %s %s\n", e.button, e.count, e.data, e.stateMask);
+		
+	}
+
+
 }

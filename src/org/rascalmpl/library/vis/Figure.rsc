@@ -62,49 +62,49 @@ public data LineDecoration =
   ;
 
 @doc{Gray color (0-255)}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color gray(int gray);
 
 @doc{Gray color (0-255) with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color gray(int gray, real alpha);
 
 @doc{Gray color as percentage (0.0-1.0)}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color gray(real perc);
 
 @doc{Gray color with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color gray(real perc, real alpha);
 
 @doc{Named color}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color color(str colorName);
 
 @doc{Named color with transparency}
 @reflect{Needs calling context when generating an exception}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color color(str colorName, real alpha);
 
 @doc{Sorted list of all color names}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java list[str] colorNames();
 
 @doc{RGB color}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color rgb(int r, int g, int b);
 
 @doc{RGB color with transparency}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color rgb(int r, int g, int b, real alpha);
 
 @doc{Interpolate two colors (in RGB space)}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color interpolateColor(Color from, Color to, real percentage);
 
 @doc{Create a list of interpolated colors}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
+@javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java list[Color] colorSteps(Color from, Color to, int steps);
 
 @doc{Create a colorscale from a list of numbers}
@@ -495,8 +495,8 @@ data FProperty =
 	| lineWidth            (Like              lr0)
 	| lineWidth            (Convert           mr0)
 	| onClick              (void ()           h0)
-	| onKey                (bool (KeySym, bool down, map[KeyModifier,bool]) kh0)
-	| onMouseMove          (bool ()           h0)
+	| onKey                (bool (KeySym, bool , map[KeyModifier,bool]) kh0)
+	| onMouseMove          (bool ()           bh0)
 	| pos                  (num                r0)
 	| pos                  (computedNum       cr0)
 	| pos                  (Like              lr0)
