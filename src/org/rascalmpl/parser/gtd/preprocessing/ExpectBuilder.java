@@ -52,7 +52,7 @@ public class ExpectBuilder{
 				
 				AbstractStackNode first = alternative[0];
 				AbstractStackNode[] sharedExpect = constructedExpects.get(first);
-				if(sharedExpect == null){
+				if(sharedExpect == null || resultStoreMappings.get(first.getId()) != resultStoreMappings.get(sharedExpect[0].getId())){
 					alternative[alternative.length - 1].setProduction(alternative);
 					alternative[alternative.length - 1].setParentProduction(production);
 					
@@ -77,9 +77,8 @@ public class ExpectBuilder{
 									AbstractStackNode[] otherAlternative = otherAlternatives[l];
 									AbstractStackNode otherAlternativeItem = otherAlternative[k];
 									int otherAlternativeItemResultStoreId = resultStoreMappings.get(otherAlternativeItem.getId());
-									if(otherAlternativeItem.isEqual(sharedExpectItem) && otherAlternativeItemResultStoreId == sharedExpectItemResultStoreId){
-										otherAlternativeItem.setProduction(alternative);
-										alternative = otherAlternative;
+									if(otherAlternativeItem.isEqual(alternativeItem) && alternativeItemResultStoreId == otherAlternativeItemResultStoreId){
+										sharedExpect = otherAlternative;
 										
 										continue CHAIN;
 									}
@@ -89,7 +88,7 @@ public class ExpectBuilder{
 							break;
 						}
 						
-						alternativeItem.setProduction(alternative);
+						alternative[k] = sharedExpect[k]; // Remove 'garbage'.
 					}
 					
 					if(k < alternative.length){
