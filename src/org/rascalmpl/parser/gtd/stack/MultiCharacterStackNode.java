@@ -11,20 +11,19 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public class MultiCharacterStackNode extends AbstractStackNode implements IMatchableStackNode{
-	private final IConstructor production;
+	private final Object production;
 	
 	private final char[][] characters;
 	
 	private final AbstractNode result;
 	
-	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters){
+	public MultiCharacterStackNode(int id, int dot, Object production, char[][] characters){
 		super(id, dot);
 		
 		this.production = production;
@@ -34,7 +33,7 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		result = null;
 	}
 	
-	public MultiCharacterStackNode(int id, int dot, IConstructor production, char[][] characters, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public MultiCharacterStackNode(int id, int dot, Object production, char[][] characters, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;

@@ -118,7 +118,7 @@ public class ErrorTreeBuilder{
 	}
 	
 	private boolean followEdges(AbstractStackNode node, AbstractNode result){
-		IConstructor production = node.getParentProduction();
+		IConstructor production = (IConstructor) node.getParentProduction();
 		
 		boolean wasListChild = ProductionAdapter.isRegular(production);
 		
@@ -188,7 +188,7 @@ public class ErrorTreeBuilder{
 	private IConstructor getParentSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
-		return ProductionAdapter.getType(last.getParentProduction());
+		return ProductionAdapter.getType((IConstructor) last.getParentProduction());
 	}
 	
 	private IConstructor findSymbol(AbstractStackNode node){
@@ -197,7 +197,7 @@ public class ErrorTreeBuilder{
 		
 		int dot = node.getDot();
 		
-		IConstructor prod = last.getParentProduction();
+		IConstructor prod = (IConstructor) last.getParentProduction();
 		if(!ProductionAdapter.isRegular(prod)){
 			IList lhs = ProductionAdapter.getSymbols(prod);
 			return (IConstructor) lhs.get(dot);

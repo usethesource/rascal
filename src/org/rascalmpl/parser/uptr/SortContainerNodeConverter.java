@@ -125,7 +125,7 @@ public class SortContainerNodeConverter{
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 
-		IConstructor rhs = ProductionAdapter.getType(node.getFirstProduction());
+		IConstructor rhs = ProductionAdapter.getType((IConstructor) node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
 		if(depth <= cycleMark.depth){ // Only check for sharing if we are not currently inside a cycle.
@@ -167,9 +167,9 @@ public class SortContainerNodeConverter{
 		
 		// Gather the alternatives.
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
+		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		ArrayList<IConstructor> productions = node.getAdditionalProductions();
+		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);

@@ -11,18 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public class AlternativeStackNode extends AbstractStackNode implements IExpandableStackNode{
-	private final IConstructor production;
+	private final Object production;
 	private final String name;
 	
 	private final AbstractStackNode[] children;
 	
-	public AlternativeStackNode(int id, int dot, IConstructor production, AbstractStackNode[] alternatives){
+	public AlternativeStackNode(int id, int dot, Object production, AbstractStackNode[] alternatives){
 		super(id, dot);
 		
 		this.production = production;
@@ -31,7 +30,7 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	public AlternativeStackNode(int id, int dot, IConstructor production, AbstractStackNode[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public AlternativeStackNode(int id, int dot, Object production, AbstractStackNode[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -128,7 +127,7 @@ public class AlternativeStackNode extends AbstractStackNode implements IExpandab
 		
 		AlternativeStackNode otherNode = (AlternativeStackNode) stackNode;
 
-		if(!production.isEqual(otherNode.production)) return false;
+		if(!production.equals(otherNode.production)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}

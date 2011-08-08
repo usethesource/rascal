@@ -11,18 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-
 /**
  * A literal result node.
  */
 public class LiteralNode extends AbstractNode{
 	public final static int ID = 3;
 	
-	private final IConstructor production;
+	private final Object production;
 	private final char[] content;
 	
-	public LiteralNode(IConstructor production, char[] content){
+	public LiteralNode(Object production, char[] content){
 		super();
 		
 		this.production = production;
@@ -36,7 +34,7 @@ public class LiteralNode extends AbstractNode{
 	/**
 	 * Returns the production associated with this literal.
 	 */
-	public IConstructor getProduction(){
+	public Object getProduction(){
 		return production;
 	}
 	

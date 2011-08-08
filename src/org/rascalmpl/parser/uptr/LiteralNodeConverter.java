@@ -40,7 +40,6 @@ public class LiteralNodeConverter{
 		IConstructor result = cache.get(node);
 		if(result != null) return result;
 		
-		IConstructor production = node.getProduction();
 		char[] content = node.getContent();
 		
 		int numberOfCharacters = content.length;
@@ -50,7 +49,7 @@ public class LiteralNodeConverter{
 			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(content[i])));
 		}
 		
-		result = VF.constructor(Factory.Tree_Appl, production, listWriter.done());
+		result = VF.constructor(Factory.Tree_Appl, (IConstructor) node.getProduction(), listWriter.done());
 		
 		cache.putUnsafe(node, result);
 		

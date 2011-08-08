@@ -13,7 +13,6 @@ package org.rascalmpl.parser.gtd;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 

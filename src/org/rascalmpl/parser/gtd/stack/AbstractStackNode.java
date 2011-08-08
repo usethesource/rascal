@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
@@ -45,7 +44,7 @@ public abstract class AbstractStackNode{
 	private final ICompletionFilter[] completionFilters;
 	
 	// The production (specific to end nodes only)
-	private IConstructor parentProduction;
+	private Object parentProduction;
 	
 	public AbstractStackNode(int id, int dot){
 		super();
@@ -176,7 +175,7 @@ public abstract class AbstractStackNode{
 	 * Associates a production with this node, indicating that this is the last node in the production.
 	 * This production will be used in result construction during reduction.
 	 */
-	public void setParentProduction(IConstructor parentProduction){
+	public void setParentProduction(Object parentProduction){
 		this.parentProduction = parentProduction;
 		isEndNode = true;
 	}
@@ -185,7 +184,7 @@ public abstract class AbstractStackNode{
 	 * Retrieves the production associated with the alternative this node is a part of.
 	 * Only the last node in the alternative will have this production on it.
 	 */
-	public IConstructor getParentProduction(){
+	public Object getParentProduction(){
 		return parentProduction;
 	}
 	
