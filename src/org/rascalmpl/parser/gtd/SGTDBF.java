@@ -275,6 +275,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		int fromIndex = edgesMap.size() - potentialNewEdges;
+		if(fromIndex < 0) return; // TODO Look into the cause of this.
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			int startLocation = edgesMap.getKey(i);
 			
