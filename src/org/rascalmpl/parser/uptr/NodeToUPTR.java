@@ -136,14 +136,25 @@ public class NodeToUPTR implements INodeConverter{
 		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
 	}
 	
+	/**
+	 * Checks if the given production is a list production.
+	 */
 	public boolean isListProduction(Object production){
 		return ProductionAdapter.isRegular((IConstructor) production);
 	}
 	
+	/**
+	 * Returns the type of the production.
+	 */
 	public IConstructor getLHS(Object production){
 		return ProductionAdapter.getType((IConstructor) production);
 	}
 	
+	/**
+	 * Returns the symbol at the given location in the production.
+	 * 
+	 * TODO: Alternatives aren't supported at this time.
+	 */
 	public IConstructor getSymbol(Object production, int dot){
 		IConstructor prod = (IConstructor) production;
 		
