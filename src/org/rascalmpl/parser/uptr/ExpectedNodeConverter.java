@@ -45,7 +45,7 @@ public class ExpectedNodeConverter{
 			childrenListWriter.insert(converter.convertWithErrors(mismatchedChildren[i], stack, depth, cycleMark, positionStore, actionExecutor, environment));
 		}
 		
-		IConstructor result = VF.constructor(Factory.Tree_Expected, node.getSymbol(), childrenListWriter.done());
+		IConstructor result = VF.constructor(Factory.Tree_Expected, (IConstructor) node.getSymbol(), childrenListWriter.done());
 		URI input = node.getInput();
 		// Only annotate position information on non-layout nodes (if possible).
 		if(!(node.isLayout() || input == null)){

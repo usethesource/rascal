@@ -13,7 +13,6 @@ package org.rascalmpl.parser.gtd.result.error;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 
@@ -25,7 +24,7 @@ public class ExpectedNode extends AbstractNode{
 	public final static int ID = 8;
 	
 	private final CharNode[] mismatchedChildren;
-	private final IConstructor symbol;
+	private final Object symbol;
 	
 	private final URI input;
 	private final int offset;
@@ -34,7 +33,7 @@ public class ExpectedNode extends AbstractNode{
 	private final boolean isSeparator;
 	private final boolean isLayout;
 	
-	public ExpectedNode(CharNode[] mismatchedChildren, IConstructor symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ExpectedNode(CharNode[] mismatchedChildren, Object symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.mismatchedChildren = mismatchedChildren;
@@ -64,7 +63,7 @@ public class ExpectedNode extends AbstractNode{
 	/**
 	 * Returns the symbol associated with this possible future.
 	 */
-	public IConstructor getSymbol(){
+	public Object getSymbol(){
 		return symbol;
 	}
 	

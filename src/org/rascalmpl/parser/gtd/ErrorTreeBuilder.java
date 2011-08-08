@@ -13,14 +13,13 @@ package org.rascalmpl.parser.gtd;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
+import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -30,11 +29,11 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ErrorTreeBuilder{
 	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
+	
+	private final INodeConverter converter;
 	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
@@ -46,8 +45,10 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	public ErrorTreeBuilder(SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
+	public ErrorTreeBuilder(INodeConverter converter, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
 		super();
+		
+		this.converter = converter;
 		
 		this.parser = parser;
 		this.startNode = startNode;
@@ -64,7 +65,7 @@ public class ErrorTreeBuilder{
 		next = next.getCleanCopy(location);
 		next.updateNode(node, result);
 		
-		IConstructor nextSymbol = findSymbol(next);
+		Object nextSymbol = findSymbol(next);
 		AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
@@ -76,7 +77,7 @@ public class ErrorTreeBuilder{
 		next = next.getCleanCopy(location);
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		
-		IConstructor nextSymbol = findSymbol(next);
+		Object nextSymbol = findSymbol(next);
 		AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, nextSymbol, inputURI, location, location, next.isSeparator(), next.isLayout());
 		
 		errorNodes.push(next, resultStore);
@@ -118,9 +119,9 @@ public class ErrorTreeBuilder{
 	}
 	
 	private boolean followEdges(AbstractStackNode node, AbstractNode result){
-		IConstructor production = (IConstructor) node.getParentProduction();
+		Object production = node.getParentProduction();
 		
-		boolean wasListChild = ProductionAdapter.isRegular(production);
+		boolean wasListChild = converter.isListProduction(production);
 		
 		//IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
@@ -185,60 +186,26 @@ public class ErrorTreeBuilder{
 		}
 	}
 	
-	private IConstructor getParentSymbol(AbstractStackNode node){
+	private Object getParentSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
-		return ProductionAdapter.getType((IConstructor) last.getParentProduction());
+		return converter.getLHS(last.getParentProduction());
 	}
 	
-	private IConstructor findSymbol(AbstractStackNode node){
+	private Object findSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
 		
 		int dot = node.getDot();
 		
-		IConstructor prod = (IConstructor) last.getParentProduction();
-		if(!ProductionAdapter.isRegular(prod)){
-			IList lhs = ProductionAdapter.getSymbols(prod);
-			return (IConstructor) lhs.get(dot);
-		}
-		
-		// Regular
-		IConstructor rhs = ProductionAdapter.getType(prod);
-		
-		if(SymbolAdapter.isOpt(rhs)){
-			return (IConstructor) rhs.get("symbol");
-		}
-		
-		if(SymbolAdapter.isAnyList(rhs)){
-			IConstructor symbol = (IConstructor) rhs.get("symbol");
-			if(dot == 0){
-				return symbol;
-			}
-			
-			if(SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)){
-				IList separators = (IList) rhs.get("separators");
-				return (IConstructor) separators.get(dot - 1);
-			}
-		}
-		
-		if(SymbolAdapter.isSequence(rhs)){
-			IList symbols = (IList) rhs.get("symbols");
-			return (IConstructor) symbols.get(dot);
-		}
-		
-		if(SymbolAdapter.isAlternative(rhs)){
-			throw new RuntimeException("Retrieving the correct symbol from alternatives is not possible.");
-		}
-		
-		throw new RuntimeException("Unknown type of production: "+prod);
+		return converter.getSymbol(last.getParentProduction(), dot);
 	}
 	
 	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
-			IConstructor symbol = getParentSymbol(unexpandableNode);
+			Object symbol = getParentSymbol(unexpandableNode);
 			AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
@@ -254,7 +221,7 @@ public class ErrorTreeBuilder{
 				children[i] = CharNode.createCharNode(input[location + i]);
 			}
 			
-			IConstructor symbol = findSymbol(unmatchableNode);
+			Object symbol = findSymbol(unmatchableNode);
 			
 			AbstractNode result = new ExpectedNode(children, symbol, inputURI, location, location + length, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
 			
