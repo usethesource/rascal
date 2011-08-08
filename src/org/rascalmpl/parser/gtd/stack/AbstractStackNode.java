@@ -305,8 +305,10 @@ public abstract class AbstractStackNode{
 				alternateProductions = new AbstractStackNode[][]{production};
 			}else{
 				int nrOfAlternateProductions = alternateProductions.length;
-				AbstractStackNode[][] newAlternateProductions = new AbstractStackNode[nrOfAlternateProductions][];
+				AbstractStackNode[][] newAlternateProductions = new AbstractStackNode[nrOfAlternateProductions + 1][];
 				System.arraycopy(alternateProductions, 0, newAlternateProductions, 0, nrOfAlternateProductions);
+				newAlternateProductions[nrOfAlternateProductions] = production;
+				alternateProductions = newAlternateProductions;
 			}
 		}
 	}
