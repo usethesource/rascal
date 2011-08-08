@@ -11,14 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-
 /**
  * All nodes in the resulting tree are a subtype of this class.
  */
 public abstract class AbstractNode{
-	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public AbstractNode(){
 		super();

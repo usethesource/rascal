@@ -11,35 +11,32 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class ListStackNode extends AbstractStackNode implements IExpandableStackNode{
-	private final IConstructor production;
+	private final Object production;
 	private final String name;
 
 	private final AbstractStackNode[] children;
 	private final AbstractStackNode emptyChild;
 	
-	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList){
+	public ListStackNode(int id, int dot, Object production, AbstractStackNode child, boolean isPlusList){
 		super(id, dot);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
+		this.name = String.valueOf(id); // Add the id to make it unique.
 		
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	public ListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public ListStackNode(int id, int dot, Object production, AbstractStackNode child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
+		this.name = String.valueOf(id); // Add the id to make it unique.
 		
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
@@ -133,7 +130,7 @@ public final class ListStackNode extends AbstractStackNode implements IExpandabl
 		
 		ListStackNode otherNode = (ListStackNode) stackNode;
 		
-		if(!production.isEqual(otherNode.production)) return false;
+		if(!production.equals(otherNode.production)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}

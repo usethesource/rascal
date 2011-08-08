@@ -11,36 +11,33 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public final class SeparatedListStackNode extends AbstractStackNode implements IExpandableStackNode{
-	private final IConstructor production;
+	private final Object production;
 	private final String name;
 
 	private final AbstractStackNode[] children;
 	private final AbstractStackNode emptyChild;
 	
-	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, int dot, Object production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
 		super(id, dot);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
+		this.name = String.valueOf(id); // Add the id to make it unique.
 		
 		this.children = generateChildren(child, separators);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
 
-	public SeparatedListStackNode(int id, int dot, IConstructor production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public SeparatedListStackNode(int id, int dot, Object production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
-		this.name = SymbolAdapter.toString(ProductionAdapter.getType(production))+id; // Add the id to make it unique.
+		this.name = String.valueOf(id); // Add the id to make it unique.
 		
 		this.children = generateChildren(child, separators);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
@@ -147,7 +144,7 @@ public final class SeparatedListStackNode extends AbstractStackNode implements I
 		
 		SeparatedListStackNode otherNode = (SeparatedListStackNode) stackNode;
 		
-		if(!production.isEqual(otherNode.production)) return false;
+		if(!production.equals(otherNode.production)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}

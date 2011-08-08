@@ -14,8 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.location.PositionStore;
@@ -41,14 +39,11 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class SGTDBF implements IGTD{
 	private final static int DEFAULT_RESULT_STORE_ID = -1;
 	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
-	
-	protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	private AbstractStackNode startNode;
 	private URI inputURI;
@@ -270,7 +265,7 @@ public abstract class SGTDBF implements IGTD{
 		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixes = node.getPrefixesMap();
 		
-		IConstructor production = next.getParentProduction();
+		Object production = next.getParentProduction();
 		String name = edgesMap.getValue(0).get(0).getName();
 		
 		boolean hasNestingRestrictions = hasNestingRestrictions(name);
@@ -449,7 +444,7 @@ public abstract class SGTDBF implements IGTD{
 		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
-		IConstructor production = node.getParentProduction();
+		Object production = node.getParentProduction();
 		String name = edgesMap.getValue(0).get(0).getName();
 		
 		// Check for nesting restrictions.
@@ -483,7 +478,7 @@ public abstract class SGTDBF implements IGTD{
 		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
-		IConstructor production = node.getParentProduction();
+		Object production = node.getParentProduction();
 		String name = edgesMap.getValue(0).get(0).getName();
 		
 		// Check for nesting restrictions.
@@ -512,7 +507,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Handles reductions.
 	 */
-	private void handleEdgeList(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, int startLocation){
+	private void handleEdgeList(ArrayList<AbstractStackNode> edgeList, String name, Object production, Link resultLink, int startLocation){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 		
 		if(levelResultStoreMap == null){
@@ -546,7 +541,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Handles reductions which may be associated with nesting restrictions.
 	 */
-	private void handleEdgeListWithRestrictions(ArrayList<AbstractStackNode> edgeList, String name, IConstructor production, Link resultLink, int startLocation, IntegerList filteredParents){
+	private void handleEdgeListWithRestrictions(ArrayList<AbstractStackNode> edgeList, String name, Object production, Link resultLink, int startLocation, IntegerList filteredParents){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(startLocation);
 		
 		if(levelResultStoreMap == null){
@@ -1031,9 +1026,9 @@ public abstract class SGTDBF implements IGTD{
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
-		IConstructor resultTree = null;
+		Object resultTree = null;
 		try{
-			resultTree = (IConstructor) converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
+			resultTree = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
 		}finally{
 			actionExecutor.completed(rootEnvironment, (resultTree == null));
 		}

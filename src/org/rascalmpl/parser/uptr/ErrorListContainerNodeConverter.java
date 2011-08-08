@@ -305,7 +305,7 @@ public class ErrorListContainerNodeConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(node.getFirstProduction()), VF.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType((IConstructor) node.getFirstProduction()), VF.integer(depth - index));
 			cycle = actionExecutor.filterListCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
@@ -321,9 +321,9 @@ public class ErrorListContainerNodeConverter{
 		// Gather
 		HashMap<ArrayList<Link>, IConstructor[]> sharedPrefixCache = new HashMap<ArrayList<Link>, IConstructor[]>();
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor, environment);
+		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		ArrayList<IConstructor> productions = node.getAdditionalProductions();
+		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor, environment);

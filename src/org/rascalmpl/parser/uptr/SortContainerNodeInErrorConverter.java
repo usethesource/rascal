@@ -108,7 +108,7 @@ public class SortContainerNodeInErrorConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor rhsSymbol = ProductionAdapter.getType(node.getFirstProduction());
+			IConstructor rhsSymbol = ProductionAdapter.getType((IConstructor) node.getFirstProduction());
 			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, rhsSymbol, VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle == null){
@@ -128,9 +128,9 @@ public class SortContainerNodeInErrorConverter{
 		
 		// Gather
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
-		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		ArrayList<IConstructor> productions = node.getAdditionalProductions();
+		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);

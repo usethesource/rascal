@@ -15,8 +15,12 @@ import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public interface IParserTest{
+	public final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	
 	IConstructor executeParser();
 	
 	IValue getExpectedResult() throws IOException;

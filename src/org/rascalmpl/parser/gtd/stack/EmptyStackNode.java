@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -22,13 +21,13 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * it produces a tree!
  */
 public final class EmptyStackNode extends AbstractStackNode implements IExpandableStackNode{
-	private final IConstructor production;
+	private final Object production;
 	private final String name;
 
 	private final AbstractStackNode emptyChild;
 	private static final AbstractStackNode[] children = new AbstractStackNode[0];
 	
-	public EmptyStackNode(int id, int dot, IConstructor production){
+	public EmptyStackNode(int id, int dot, Object production){
 		super(id, dot);
 		
 		this.production = production;
@@ -37,7 +36,7 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		this.emptyChild = generateEmptyChild();
 	}
 	
-	public EmptyStackNode(int id, int dot, IConstructor production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
+	public EmptyStackNode(int id, int dot, Object production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;

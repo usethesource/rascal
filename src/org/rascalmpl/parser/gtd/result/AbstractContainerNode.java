@@ -13,11 +13,6 @@ package org.rascalmpl.parser.gtd.result;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 
@@ -26,13 +21,6 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * of this class.
  */
 public abstract class AbstractContainerNode extends AbstractNode{
-	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static TypeStore typeStore = new TypeStore();
-	protected final static Type CACHED_RESULT_TYPE = TF.abstractDataType(typeStore, "cached");
-	protected final static Type FILTERED_RESULT_TYPE = TF.constructor(typeStore, CACHED_RESULT_TYPE, "filtered", TF.valueType());
-	protected final static IConstructor FILTERED_RESULT = VF.constructor(FILTERED_RESULT_TYPE, VF.node("EMPTY"));
-	protected final static IList EMPTY_LIST = VF.list();
-	
 	// Location related.
 	protected final URI input;
 	protected final int offset;
@@ -45,9 +33,9 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	
 	// Children.
 	protected Link firstAlternative;
-	protected IConstructor firstProduction;
+	protected Object firstProduction;
 	protected ArrayList<Link> alternatives;
-	protected ArrayList<IConstructor> productions;
+	protected ArrayList<Object> productions;
 	
 	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super();
@@ -68,14 +56,14 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * additional alternatives are added later on, the lists will be
 	 * initialized and used for storage.
 	 */
-	public void addAlternative(IConstructor production, Link children){
+	public void addAlternative(Object production, Link children){
 		if(firstAlternative == null){
 			firstAlternative = children;
 			firstProduction = production;
 		}else{
 			if(alternatives == null){
 				alternatives = new ArrayList<Link>(1);
-				productions = new ArrayList<IConstructor>(1);
+				productions = new ArrayList<Object>(1);
 			}
 			alternatives.add(children);
 			productions.add(production);
@@ -128,7 +116,7 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * Returns the production associated with the first result alternative in
 	 * this container node.
 	 */
-	public IConstructor getFirstProduction(){
+	public Object getFirstProduction(){
 		return firstProduction;
 	}
 	
@@ -146,7 +134,7 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * the accompanied alternatives list. In case this node does not contain
 	 * ambiguous results, 'null' will be returned.
 	 */
-	public ArrayList<IConstructor> getAdditionalProductions(){
+	public ArrayList<?> getAdditionalProductions(){
 		return productions;
 	}
 	

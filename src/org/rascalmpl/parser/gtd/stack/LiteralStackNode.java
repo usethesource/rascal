@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
@@ -19,11 +18,11 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public final class LiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
 	private final char[] literal;
-	private final IConstructor production;
+	private final Object production;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, int dot, IConstructor production, char[] literal){
+	public LiteralStackNode(int id, int dot, Object production, char[] literal){
 		super(id, dot);
 		
 		this.literal = literal;
@@ -32,7 +31,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		result = new LiteralNode(production, literal);
 	}
 	
-	public LiteralStackNode(int id, int dot, IConstructor production, char[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public LiteralStackNode(int id, int dot, Object production, char[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.literal = literal;
@@ -114,7 +113,7 @@ public final class LiteralStackNode extends AbstractStackNode implements IMatcha
 		
 		LiteralStackNode otherNode = (LiteralStackNode) stackNode;
 		
-		if(!production.isEqual(otherNode.production)) return false;
+		if(!production.equals(otherNode.production)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}

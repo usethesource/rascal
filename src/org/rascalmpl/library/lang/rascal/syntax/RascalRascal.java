@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.stack.*;
@@ -17,9 +18,11 @@ import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
+  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
   
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
     try {

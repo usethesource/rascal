@@ -129,6 +129,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.eclipse.imp.pdb.facts.type.TypeFactory;
            'import org.eclipse.imp.pdb.facts.IConstructor;
            'import org.eclipse.imp.pdb.facts.IValue;
+           'import org.eclipse.imp.pdb.facts.IValueFactory;
            'import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
            'import org.eclipse.imp.pdb.facts.io.StandardTextReader;
            'import org.rascalmpl.parser.gtd.stack.*;
@@ -140,9 +141,11 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
+           'import org.rascalmpl.values.ValueFactoryFactory;
            'import org.rascalmpl.values.uptr.Factory;
            '
            'public class <name> extends <super> {
+           '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
            '  <if (isRoot) {>
            '  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
            '    try {

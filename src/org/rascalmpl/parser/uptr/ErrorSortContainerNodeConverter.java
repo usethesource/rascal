@@ -111,7 +111,7 @@ public class ErrorSortContainerNodeConverter{
 		
 		int index = stack.contains(node);
 		if(index != -1){ // Cycle found.
-			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType(node.getFirstProduction()), VF.integer(depth - index));
+			IConstructor cycle = VF.constructor(Factory.Tree_Cycle, ProductionAdapter.getType((IConstructor) node.getFirstProduction()), VF.integer(depth - index));
 			cycle = actionExecutor.filterCycle(cycle, environment);
 			if(cycle != null && sourceLocation != null) cycle = cycle.setAnnotation(Factory.Location, sourceLocation);
 			
@@ -127,9 +127,9 @@ public class ErrorSortContainerNodeConverter{
 		// Gather
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
 		IList unmatchedInput = buildUnmatchedInput(converter, node.getUnmatchedInput(), stack, depth, cycleMark, positionStore, actionExecutor, environment);
-		gatherAlternatives(converter, node.getFirstAlternative(), unmatchedInput, gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
+		gatherAlternatives(converter, node.getFirstAlternative(), unmatchedInput, gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		ArrayList<IConstructor> productions = node.getAdditionalProductions();
+		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, alternatives.get(i), unmatchedInput, gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
