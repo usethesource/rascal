@@ -63,7 +63,6 @@ public abstract class SGTDBF implements IGTD{
 	private final DoubleStack<AbstractStackNode, AbstractContainerNode> stacksWithNonTerminalsToReduce;
 	private DoubleStack<AbstractStackNode, AbstractNode> stacksWithTerminalsToReduce;
 	
-	private final ArrayList<AbstractStackNode> lastExpects;
 	private final HashMap<String, ArrayList<AbstractStackNode>> cachedEdgesForExpect;
 	
 	private final IntegerKeyedHashMap<AbstractStackNode> sharedNextNodes;
@@ -77,7 +76,6 @@ public abstract class SGTDBF implements IGTD{
 	private final HashMap<String, Method> methodCache;
 	
 	private final IntegerObjectList<AbstractStackNode> sharedLastExpects;
-	private boolean hasValidAlternatives;
 	
 	private final IntegerObjectList<IntegerList> propagatedPrefixes;
 	private final IntegerObjectList<IntegerList> propagatedReductions; // Note: we can replace this thing, if we pick a more efficient solution.
@@ -102,7 +100,6 @@ public abstract class SGTDBF implements IGTD{
 		stacksToExpand = new Stack<AbstractStackNode>();
 		stacksWithNonTerminalsToReduce = new DoubleStack<AbstractStackNode, AbstractContainerNode>();
 		
-		lastExpects = new ArrayList<AbstractStackNode>();
 		cachedEdgesForExpect = new HashMap<String, ArrayList<AbstractStackNode>>();
 		
 		sharedNextNodes = new IntegerKeyedHashMap<AbstractStackNode>();
@@ -124,27 +121,9 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	/**
-	 * Queue the given node for handling. This node belongs to the symbol we
-	 * are currenly expanding.
-	 */
-	protected void expect(AbstractStackNode symbolToExpect){
-		lastExpects.add(symbolToExpect);
-	}
-	
-	/**
-	 * Queue the given nodes for handling. These nodes belong to the symbol we
-	 * are currently expanding.
-	 */
-	protected void expect(AbstractStackNode[] symbolsToExpect){
-		for(int i = symbolsToExpect.length - 1; i >= 0; --i){
-			lastExpects.add(symbolsToExpect[i]);
-		}
-	}
-	
-	/**
 	 * Triggers the gathering of alternatives for the given non-terminal.
 	 */
-	protected void invokeExpects(AbstractStackNode nonTerminal){
+	protected AbstractStackNode[] invokeExpects(AbstractStackNode nonTerminal){
 		String name = nonTerminal.getName();
 		Method method = methodCache.get(name);
 		if(method == null){
@@ -162,7 +141,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		try{
-			method.invoke(this);
+			return (AbstractStackNode[]) method.invoke(this);
 		}catch(IllegalAccessException iaex){
 			throw new RuntimeException(iaex);
 		}catch(InvocationTargetException itex){
@@ -769,19 +748,13 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Handles the retrieved alternatives for the given stack.
 	 */
-	private void handleExpects(AbstractStackNode stackBeingWorkedOn){
+	private void handleExpects(AbstractStackNode[] expects, AbstractStackNode stackBeingWorkedOn){
 		sharedLastExpects.dirtyClear();
 		
 		ArrayList<AbstractStackNode> cachedEdges = null;
 		
-		int nrOfExpects = lastExpects.size();
-		if(nrOfExpects == 0){ // Error reporting.
-			unexpandableNodes.push(stackBeingWorkedOn);
-			return;
-		}
-		
-		EXPECTS: for(int i = nrOfExpects - 1; i >= 0; --i){
-			AbstractStackNode first = lastExpects.get(i);
+		EXPECTS: for(int i = expects.length - 1; i >= 0; --i){
+			AbstractStackNode first = expects[i];
 			
 			if(first.isMatchable()){ // Eager matching optimization.
 				int length = first.getLength();
@@ -818,8 +791,6 @@ public abstract class SGTDBF implements IGTD{
 			}
 			
 			sharedLastExpects.add(first.getId(), first);
-			
-			hasValidAlternatives = true;
 		}
 		
 		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
@@ -876,12 +847,12 @@ public abstract class SGTDBF implements IGTD{
 					}
 				}
 			}else{
-				invokeExpects(stack);
-				hasValidAlternatives = false;
-				handleExpects(stack);
-				if(!hasValidAlternatives){
+				AbstractStackNode[] expects = invokeExpects(stack);
+				if(expects == null){
 					unexpandableNodes.push(stack);
+					return;
 				}
+				handleExpects(expects, stack);
 			}
 		}else{ // Expandable
 			boolean expanded = false;
@@ -951,7 +922,6 @@ public abstract class SGTDBF implements IGTD{
 	 */
 	private void expand(){
 		while(!stacksToExpand.isEmpty()){
-			lastExpects.dirtyClear();
 			expandStack(stacksToExpand.pop());
 		}
 	}

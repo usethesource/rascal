@@ -69,12 +69,12 @@ public class Optional1 extends SGTDBF implements IParserTest{
 		super();
 	}
 	
-	public void S(){
-		expect(S_EXPECT_1[0]);
+	public AbstractStackNode[] S(){
+		return new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
-	public void O(){
-		expect(O_EXPECT_1[0]);
+	public AbstractStackNode[] O(){
+		return new AbstractStackNode[]{O_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
