@@ -20,4 +20,19 @@ public interface INodeConverter{
 	 * due to the tree being incomplete because of a parse error.
 	 */
 	Object convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment);
+	
+	/**
+	 * Checks if the given production is a list production.
+	 */
+	boolean isListProduction(Object production);
+	
+	/**
+	 * Returns the left-hand-side of the production.
+	 */
+	Object getLHS(Object production);
+	
+	/**
+	 * Returns the symbol at the given location in the production.
+	 */
+	Object getSymbol(Object production, int dot);
 }
