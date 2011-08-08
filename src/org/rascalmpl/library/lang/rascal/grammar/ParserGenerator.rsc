@@ -136,6 +136,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
            'import org.rascalmpl.parser.gtd.stack.filter.match.*;
            'import org.rascalmpl.parser.gtd.stack.filter.precede.*;
+           'import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
            'import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
            'import org.rascalmpl.parser.gtd.util.IntegerList;
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
@@ -235,16 +236,27 @@ public str generate(str package, str name, str super, int () newItem, bool callS
 		       }
 	         }>
            '	
-           '  private static class <value2id(s)> {<for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
-           '    public final static AbstractStackNode <id> = _init_<id>();
-           '    private static final AbstractStackNode _init_<id>() {
+           '  protected static class <value2id(s)> {
+           '    public final static AbstractStackNode[] EXPECTS;
+           '    static{
+           '      ExpectBuilder builder = new ExpectBuilder(_resultStoreIdMappings);
+           '      init(builder);
+           '      EXPECTS = builder.buildExpectArray();
+           '    }
+           '    <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    protected static final void _init_<id>(ExpectBuilder builder) {
            '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
-           '      tmp[<ii>] = <items[i].new>;
-           '      tmp[<ii>].setProduction(tmp);<}>
-           '      tmp[<size(lhses) - 1>].setParentProduction(<name>.<id>);
-           '      return tmp[0];
+           '      tmp[<ii>] = <items[i].new>;<}>
+           '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
+           '    public static void init(ExpectBuilder builder){
+           '      <if (callSuper) {><super>.<value2id(s)>.init(builder);
+           '      <}>
+           '      <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '        _init_<id>(builder);
+           '      <}>
+           '    }
            '  }<}>
            '	
            '  public <name>() {
@@ -253,7 +265,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '
            '  // Parse methods    
            '  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, callSuper, gr.rules[nont])><}>
+           '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
 }  
 
@@ -357,43 +369,10 @@ private bool isNonterminal(Symbol s) {
   }
 }
 
-public str generateParseMethod(Items items, bool callSuper, Production p) {
-  return "public void <sym2name(p.def)>() {
-         '  <if (callSuper) {>super.<sym2name(p.def)>();<}>
-         '  <generateExpect(items, p)>
+public str generateParseMethod(Items items, Production p) {
+  return "public AbstractStackNode[] <sym2name(p.def)>() {
+         '  return <sym2name(p.def)>.EXPECTS;
          '}";
-}
-
-public str generateExpect(Items items, Production p){
-    // note that this code heavily leans on the fact that production combinators are normalized 
-    // (distribution and factoring laws have been applied to put a production expression in canonical form)
-    
-    switch (p) {
-      case prod(_,_,_) : 
-	       return "// <p>
-	              'expect(<sym2name(p.def)>.<value2id(p)>);";
-      case lookahead(_, classes, Production q) :
-        return "if (<generateClassConditional(classes)>) {
-               '  <generateExpect(items, q)>
-               '}";
-      case choice(_, {l:lookahead(_, _, q)}) :
-        return generateExpect(items, l);
-      case choice(_, {lookahead(_, classes, Production q), set[Production] rest}) :
-        return "if (<generateClassConditional(classes)>) {
-               '  <generateExpect(items, q)>
-               '} else {
-               '  <generateExpect(items, choice(q.def, rest))>
-               '}";
-      case choice(_, set[Production] ps) :
-        return "<for (Production q <- ps){>
-               '<generateExpect(items, q)><}>";
-      case priority(_, list[Production] ps) : 
-        return generateExpect(items, choice(p.def, { q | q <- ps }));
-      case associativity(_,_,set[Production] ps) :
-        return generateExpect(items, choice(p.def, ps)); 
-    }
-    
-    throw "not implemented <p>";
 }
 
 str generateClassConditional(set[Symbol] classes) {

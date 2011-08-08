@@ -49,8 +49,8 @@ public class AmbiguousRecursivePrefixShared extends SGTDBF implements IParserTes
 		super();
 	}
 	
-	public void S(){
-		expect(S_EXPECTS);
+	public AbstractStackNode[] S(){
+		return S_EXPECTS;
 	}
 	
 	public IConstructor executeParser(){

@@ -56,8 +56,8 @@ public class CILiteral extends SGTDBF implements IParserTest{
 		super();
 	}
 	
-	public void S(){
-		expect(S_EXPECT_1[0]);
+	public AbstractStackNode[] S(){
+		return new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
