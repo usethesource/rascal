@@ -235,8 +235,13 @@ public class RationalResult extends ElementResult<IRational> {
 		return makeResult(tf.listType(resultType), w.done(), ctx);	
 	}
 	
-
-	
+	@Override
+	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
+		// note: reversed arguments
+		IRational left = that.getValue().toRational();
+		IRational right = this.getValue();
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
@@ -263,6 +268,12 @@ public class RationalResult extends ElementResult<IRational> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+		return that.equalityBoolean(this);
+	}
+	
+	
+	@Override
+	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
 		return that.equalityBoolean(this);
 	}
 	

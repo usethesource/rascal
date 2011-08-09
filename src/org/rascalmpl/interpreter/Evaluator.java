@@ -1117,18 +1117,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		
 		IConstructor top = (IConstructor) TreeAdapter.getArgs(prefix).get(1);
 		
-		if (TreeAdapter.isAmb(top)) {
-			ISet alts = TreeAdapter.getAlternatives(top);
-			Iterator<IValue> iterator = alts.iterator();
-			IConstructor first = (IConstructor) iterator.next();
-			IConstructor second = (IConstructor) iterator.next();
-			if (first.isEqual(second)) {
-				System.err.println("samesame???");
-				throw new IllegalArgumentException();
-			}
-//			throw new Ambiguous(top);
-		}
-		
 		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
 		
@@ -1165,17 +1153,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		catch (ParseError pe) {
 			if (withErrorTree) {
-				try {
-					IConstructor errorTree = (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), actions);
-					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
-				}
-				catch(NullPointerException npex) {
-					// Ignore, so we rethrow the orginial parse error.
-				}
+				return (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), actions);
 			}
 			
-			throw pe; // Rethrow the exception if building the error tree fails.
+			throw pe;
 		}
+		
 		return result;
 	}
 	

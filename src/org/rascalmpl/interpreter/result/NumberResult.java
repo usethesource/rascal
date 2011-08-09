@@ -129,6 +129,11 @@ public class NumberResult extends ElementResult<INumber> {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> addRational(RationalResult that) {
+		return makeResult(type, getValue().add(that.getValue()), ctx);
+	}
+	
 	@Override 
 	protected <U extends IValue> Result<U> subtractReal(RealResult n) {
 		// note the reverse subtraction.
@@ -149,6 +154,17 @@ public class NumberResult extends ElementResult<INumber> {
 	@Override
 	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
 		return that.equalityBoolean(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+		return that.equalityBoolean(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> nonEqualToRational(
+			RationalResult that) {
+		return that.nonEqualityBoolean(this);
 	}
 
 	@Override
@@ -179,6 +195,13 @@ public class NumberResult extends ElementResult<INumber> {
 		// note reversed args: we need that >= this
 		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that >= this
+		return bool((that.comparisonInts(this) >= 0), ctx);
+	}
+	
 
 	@Override
 	protected <U extends IValue> Result<U> compareReal(RealResult that) {
