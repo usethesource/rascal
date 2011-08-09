@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -1056,11 +1057,11 @@ public abstract class SGTDBF implements IGTD{
 	 * Constructs an error parse result, using the given converter and action
 	 * executor.
 	 */
-	private Object buildError(INodeConverter converter, IActionExecutor actionExecutor){
+	private Object buildError(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor){
 		AbstractContainerNode result;
 		
 		if(parseErrorOccured){
-			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(converter, this, startNode, input, location, inputURI);
+			ErrorTreeBuilder errorTreeBuilder = new ErrorTreeBuilder(errorBuilderHelper, this, startNode, input, location, inputURI);
 			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
 		}else if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
@@ -1082,14 +1083,14 @@ public abstract class SGTDBF implements IGTD{
 	 * Constructed an error parse result, using the given converter and action
 	 * executor.
 	 */
-	public Object buildErrorResult(INodeConverter converter, IActionExecutor actionExecutor){
-		return buildError(converter, actionExecutor);
+	public Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor){
+		return buildError(errorBuilderHelper, converter, actionExecutor);
 	}
 	
 	/**
 	 * Constructed a error parse result using the given converter.
 	 */
-	public Object buildErrorResult(INodeConverter converter){
-		return buildError(converter, new VoidActionExecutor());
+	public Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter){
+		return buildError(errorBuilderHelper, converter, new VoidActionExecutor());
 	}
 }

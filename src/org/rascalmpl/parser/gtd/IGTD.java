@@ -14,6 +14,7 @@ package org.rascalmpl.parser.gtd;
 import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 
 /**
@@ -41,12 +42,12 @@ public interface IGTD{
 	 * parse error occured. The parse will use all available information to
 	 * build a result which is as complete as possible.
 	 */
-	Object buildErrorResult(INodeConverter converter, IActionExecutor actionExecutor);
+	Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor);
 	
 	/**
 	 * Constructs an error result. Error results can only be constructed if a
 	 * parse error occured. The parse will use all available information to
 	 * build a result which is as complete as possible.
 	 */
-	Object buildErrorResult(INodeConverter converter);
+	Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter);
 }
