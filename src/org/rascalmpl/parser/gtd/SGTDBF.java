@@ -40,6 +40,9 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
+/**
+ * This is the core of the parser; it drives the parse process.
+ */
 public abstract class SGTDBF implements IGTD{
 	private final static int DEFAULT_RESULT_STORE_ID = -1;
 	
@@ -1050,9 +1053,10 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	/**
-	 * Constructed a error parse tree using the given converter.
+	 * Constructs an error parse result, using the given converter and action
+	 * executor.
 	 */
-	public Object buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor){
+	private Object buildError(INodeConverter converter, IActionExecutor actionExecutor){
 		AbstractContainerNode result;
 		
 		if(parseErrorOccured){
@@ -1072,5 +1076,20 @@ public abstract class SGTDBF implements IGTD{
 		}finally{
 			actionExecutor.completed(rootEnvironment, true);
 		}
+	}
+	
+	/**
+	 * Constructed an error parse result, using the given converter and action
+	 * executor.
+	 */
+	public Object buildErrorResult(INodeConverter converter, IActionExecutor actionExecutor){
+		return buildError(converter, actionExecutor);
+	}
+	
+	/**
+	 * Constructed a error parse result using the given converter.
+	 */
+	public Object buildErrorResult(INodeConverter converter){
+		return buildError(converter, new VoidActionExecutor());
 	}
 }
