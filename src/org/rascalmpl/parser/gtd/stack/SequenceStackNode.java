@@ -11,11 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class SequenceStackNode extends AbstractStackNode implements IExpandableStackNode{
+public class SequenceStackNode extends AbstractExpandableStackNode{
 	private final Object production;
 	private final String name;
 	
@@ -73,20 +72,8 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 		return name;
 	}
 	
-	public AbstractNode match(char[] input, int location){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new SequenceStackNode(this, startLocation);
-	}
-	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		throw new UnsupportedOperationException();
-	}
-	
-	public int getLength(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode[] getChildren(){
@@ -98,10 +85,6 @@ public class SequenceStackNode extends AbstractStackNode implements IExpandableS
 	}
 	
 	public AbstractStackNode getEmptyChild(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractNode getResult(){
 		throw new UnsupportedOperationException();
 	}
 

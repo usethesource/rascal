@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class EpsilonStackNode extends AbstractStackNode implements IMatchableStackNode{
+public final class EpsilonStackNode extends AbstractMatchableStackNode{
 	private final static EpsilonNode result = new EpsilonNode();
 	
 	public EpsilonStackNode(int id, int dot){
@@ -35,10 +35,6 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 		return true;
 	}
 	
-	public String getName(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractNode match(char[] input, int location){
 		return result;
 	}
@@ -53,18 +49,6 @@ public final class EpsilonStackNode extends AbstractStackNode implements IMatcha
 	
 	public int getLength(){
 		return 0;
-	}
-	
-	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean canBeEmpty(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractStackNode getEmptyChild(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractNode getResult(){

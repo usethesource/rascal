@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class MultiCharacterStackNode extends AbstractStackNode implements IMatchableStackNode{
+public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 	private final Object production;
 	
 	private final char[][] characters;
@@ -67,10 +67,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 		return false;
 	}
 	
-	public String getName(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractNode match(char[] input, int location){
 		int nrOfCharacters = characters.length;
 		char[] resultArray = new char[nrOfCharacters];
@@ -102,18 +98,6 @@ public class MultiCharacterStackNode extends AbstractStackNode implements IMatch
 	
 	public int getLength(){
 		return 1;
-	}
-	
-	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean canBeEmpty(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractStackNode getEmptyChild(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractNode getResult(){

@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
@@ -20,7 +19,7 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * Empty is different from epsilon; it is the () symbol which is one of the 'regular' expressions.
  * it produces a tree!
  */
-public final class EmptyStackNode extends AbstractStackNode implements IExpandableStackNode{
+public final class EmptyStackNode extends AbstractExpandableStackNode{
 	private final Object production;
 	private final String name;
 
@@ -67,20 +66,8 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 		return name;
 	}
 	
-	public AbstractNode match(char[] input, int location){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new EmptyStackNode(this, startLocation);
-	}
-	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		throw new UnsupportedOperationException();
-	}
-	
-	public int getLength(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode[] getChildren(){
@@ -93,10 +80,6 @@ public final class EmptyStackNode extends AbstractStackNode implements IExpandab
 	
 	public AbstractStackNode getEmptyChild(){
 		return emptyChild;
-	}
-	
-	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
 	}
 
 	public String toString(){
