@@ -19,7 +19,7 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
-import org.rascalmpl.parser.gtd.result.out.INodeConverter;
+import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -33,7 +33,7 @@ import org.rascalmpl.parser.gtd.util.Stack;
 public class ErrorTreeBuilder{
 	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
 	
-	private final INodeConverter converter;
+	private final IErrorBuilderHelper errorBuilderHelper;
 	
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
@@ -45,10 +45,10 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	public ErrorTreeBuilder(INodeConverter converter, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
+	public ErrorTreeBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
 		super();
 		
-		this.converter = converter;
+		this.errorBuilderHelper = errorBuilderHelper;
 		
 		this.parser = parser;
 		this.startNode = startNode;
@@ -121,7 +121,7 @@ public class ErrorTreeBuilder{
 	private boolean followEdges(AbstractStackNode node, AbstractNode result){
 		Object production = node.getParentProduction();
 		
-		boolean wasListChild = converter.isListProduction(production);
+		boolean wasListChild = errorBuilderHelper.isListProduction(production);
 		
 		//IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
@@ -189,7 +189,7 @@ public class ErrorTreeBuilder{
 	private Object getParentSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
-		return converter.getLHS(last.getParentProduction());
+		return errorBuilderHelper.getLHS(last.getParentProduction());
 	}
 	
 	private Object findSymbol(AbstractStackNode node){
@@ -198,7 +198,7 @@ public class ErrorTreeBuilder{
 		
 		int dot = node.getDot();
 		
-		return converter.getSymbol(last.getParentProduction(), dot);
+		return errorBuilderHelper.getSymbol(last.getParentProduction(), dot);
 	}
 	
 	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
