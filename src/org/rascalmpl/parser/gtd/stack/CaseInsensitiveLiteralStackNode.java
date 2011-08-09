@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode implements IMatchableStackNode{
+public final class CaseInsensitiveLiteralStackNode extends AbstractMatchableStackNode{
 	private final Object production;
 	
 	private final char[][] ciLiteral;
@@ -84,10 +84,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return false;
 	}
 	
-	public String getName(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractNode match(char[] input, int location){
 		int literalLength = ciLiteral.length;
 		char[] resultLiteral = new char[literalLength];
@@ -106,10 +102,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 		return new LiteralNode(production, resultLiteral);
 	}
 	
-	public boolean isClean(){
-		return true;
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new CaseInsensitiveLiteralStackNode(this, startLocation);
 	}
@@ -120,18 +112,6 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractStackNode imp
 	
 	public int getLength(){
 		return ciLiteral.length;
-	}
-	
-	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean canBeEmpty(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractStackNode getEmptyChild(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractNode getResult(){

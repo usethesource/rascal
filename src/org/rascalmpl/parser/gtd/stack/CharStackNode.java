@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class CharStackNode extends AbstractStackNode implements IMatchableStackNode{
+public final class CharStackNode extends AbstractMatchableStackNode{
 	private final char[][] ranges;
 	
 	private final AbstractNode result;
@@ -57,10 +57,6 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 		return false;
 	}
 	
-	public String getName(){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractNode match(char[] input, int location){
 		char next = input[location];
 		for(int i = ranges.length - 1; i >= 0; --i){
@@ -83,18 +79,6 @@ public final class CharStackNode extends AbstractStackNode implements IMatchable
 	
 	public int getLength(){
 		return 1;
-	}
-	
-	public AbstractStackNode[] getChildren(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean canBeEmpty(){
-		throw new UnsupportedOperationException();
-	}
-	
-	public AbstractStackNode getEmptyChild(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractNode getResult(){

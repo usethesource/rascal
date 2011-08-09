@@ -11,11 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class OptionalStackNode extends AbstractStackNode implements IExpandableStackNode{
+public final class OptionalStackNode extends AbstractExpandableStackNode{
 	private final Object production;
 	private final String name;
 	
@@ -32,7 +31,6 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		this.emptyChild = generateEmptyChild();
 	}
 	
-
 	public OptionalStackNode(int id, int dot, Object production, AbstractStackNode optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
@@ -79,20 +77,8 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 		return name;
 	}
 	
-	public AbstractNode match(char[] input, int location){
-		throw new UnsupportedOperationException();
-	}
-	
 	public AbstractStackNode getCleanCopy(int startLocation){
 		return new OptionalStackNode(this, startLocation);
-	}
-	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		throw new UnsupportedOperationException();
-	}
-	
-	public int getLength(){
-		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode[] getChildren(){
@@ -105,10 +91,6 @@ public final class OptionalStackNode extends AbstractStackNode implements IExpan
 	
 	public AbstractStackNode getEmptyChild(){
 		return emptyChild;
-	}
-	
-	public AbstractNode getResult(){
-		throw new UnsupportedOperationException();
 	}
 
 	public String toString(){
