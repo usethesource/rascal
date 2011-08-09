@@ -1003,7 +1003,7 @@ public abstract class SGTDBF implements IGTD{
 	 */
 	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
-		return buildTree(result, converter, actionExecutor);
+		return buildResult(result, converter, actionExecutor);
 	}
 	
 	/**
@@ -1011,7 +1011,7 @@ public abstract class SGTDBF implements IGTD{
 	 */
 	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
-		return buildTree(result, converter, new VoidActionExecutor());
+		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
 	/**
@@ -1019,24 +1019,24 @@ public abstract class SGTDBF implements IGTD{
 	 */
 	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
 		AbstractNode result = parse(startNode, inputURI, input);
-		return buildTree(result, converter, new VoidActionExecutor());
+		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
 	/**
-	 * Constructed the final parse tree using the given converter.
+	 * Constructed the final parse result using the given converter.
 	 */
-	protected Object buildTree(AbstractNode result, INodeConverter converter, IActionExecutor actionExecutor){
+	protected Object buildResult(AbstractNode result, INodeConverter converter, IActionExecutor actionExecutor){
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
-		Object resultTree = null;
+		Object parseResult = null;
 		try{
-			resultTree = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
+			parseResult = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
 		}finally{
-			actionExecutor.completed(rootEnvironment, (resultTree == null));
+			actionExecutor.completed(rootEnvironment, (parseResult == null));
 		}
-		if(resultTree != null){
-			return resultTree; // Success.
+		if(parseResult != null){
+			return parseResult; // Success.
 		}
 		
 		// Filtering error.
@@ -1049,7 +1049,7 @@ public abstract class SGTDBF implements IGTD{
 		int beginColumn = positionStore.getColumn(offset, beginLine);
 		int endLine = positionStore.findLine(endOffset);
 		int endColumn = positionStore.getColumn(endOffset, endLine);
-		throw new ParseError("All trees were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
+		throw new ParseError("All results were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
 	}
 	
 	/**
@@ -1066,10 +1066,10 @@ public abstract class SGTDBF implements IGTD{
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
 		}else{
-			throw new RuntimeException("Cannot build an error tree as no parse error occurred.");
+			throw new RuntimeException("Cannot build an error result as no parse error occurred.");
 		}
 		
-		// Invoke "the bulldozer" that constructs error trees while it's flattening the forest.
+		// Invoke "the bulldozer" that constructs error results while it's flattening the forest.
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		try{
 			return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
