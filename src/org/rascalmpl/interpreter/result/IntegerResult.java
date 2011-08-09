@@ -20,6 +20,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -116,6 +117,26 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override  
 	protected <U extends IValue> Result<U> addInteger(IntegerResult n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> addRational(RationalResult that) {
+		return that.addInteger(this); // use commutativity
+	} 
+	
+	@Override
+	protected <U extends IValue> Result<U> multiplyRational(RationalResult that) {
+		return that.multiplyInteger(this); // use commutativity
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> divideRational(RationalResult that) {
+		return makeResult(getTypeFactory().rationalType(), that.getValue().divide(getValue()), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> subtractRational(RationalResult that) {
+		return makeResult(getTypeFactory().rationalType(), that.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override 
@@ -258,6 +279,13 @@ public class IntegerResult extends ElementResult<IInteger> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
+		IRational left = that.getValue();
+		IInteger right = this.getValue();
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ctx);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> compareReal(RealResult that) {
 		// note: reversed arguments
 		return widenToReal().compare(that);
@@ -314,6 +342,11 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
 		return that.equals(widenToReal());
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+		return that.equalToInteger(this);
 	}
 	
 	@Override

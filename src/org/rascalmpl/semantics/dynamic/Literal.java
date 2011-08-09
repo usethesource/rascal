@@ -23,6 +23,7 @@ import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.DateTimeLiteral;
 import org.rascalmpl.ast.IntegerLiteral;
 import org.rascalmpl.ast.LocationLiteral;
+import org.rascalmpl.ast.RationalLiteral;
 import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.ast.Statement;
@@ -158,6 +159,32 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public Type typeOf(Environment env) {
 			return TF.realType();
+		}
+	}
+	
+	static public class Rational extends org.rascalmpl.ast.Literal.Rational {
+
+		public Rational(IConstructor __param1, RationalLiteral __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+
+			java.lang.String str = this.getRationalLiteral().toString();
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
+					org.rascalmpl.interpreter.Evaluator.__getTf().rationalType(),
+					__eval.__getVf().rational(str), __eval);
+		}
+
+		@Override
+		public Type typeOf(Environment env) {
+			return TF.rationalType();
 		}
 	}
 

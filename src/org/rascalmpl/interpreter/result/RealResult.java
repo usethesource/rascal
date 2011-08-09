@@ -54,7 +54,27 @@ public class RealResult extends ElementResult<IReal> {
 	public <U extends IValue, V extends IValue> Result<U> makeRange(Result<V> that) {
 		return that.makeRangeFromReal(this);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> divideRational(RationalResult that) {
+		return makeResult(type, getValue().divide(that.getValue(), PRECISION), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> multiplyRational(RationalResult that) {
+		return makeResult(type, getValue().multiply(that.getValue()), ctx);
+	}
 
+	@Override
+	protected <U extends IValue> Result<U> addRational(RationalResult that) {
+		return makeResult(type, getValue().add(that.getValue()), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> subtractRational(RationalResult that) {
+		return makeResult(type, getValue().subtract(that.getValue()), ctx);
+	}
+	
 	@Override
 	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> step) {
 		return to.makeStepRangeFromReal(this, step);
@@ -159,6 +179,11 @@ public class RealResult extends ElementResult<IReal> {
 	}
 
 	@Override
+	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
+		return that.equalityBoolean(this);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
 		return that.nonEqualityBoolean(this);
 	}
@@ -220,6 +245,8 @@ public class RealResult extends ElementResult<IReal> {
 		// note reversed args: we need that >= this
 		return that.widenToReal().greaterThanOrEqual(this);
 	}
+	
+	
 
 	
 	@Override
@@ -234,6 +261,15 @@ public class RealResult extends ElementResult<IReal> {
 	@Override
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return that.widenToReal().compare(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
+		// note reverse arguments
+		INumber left = that.getValue();
+		IReal right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
 	}
 	
 	@Override
