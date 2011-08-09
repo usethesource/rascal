@@ -121,7 +121,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
             switch(s) {
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` : 
                     sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
-                case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` :
+                case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` :
                     sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
                 default: throw "signatureForSignature case not implemented for item <s>";
             }
