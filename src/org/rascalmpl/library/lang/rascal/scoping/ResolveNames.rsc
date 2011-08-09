@@ -605,7 +605,7 @@ public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
             stBuilder = addFunction(n, retType, t@\loc, ps, mkEmptyList(), isPublic(v), stBuilder);
         }
 
-        case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ thrs> ` : {
+        case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
             RType retType = ct.rtype; stBuilder = ct.stBuilder;
             list[RType] throwsTypes = [ ];
@@ -1288,15 +1288,15 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
         }
 
         // Negative
-        case (Expression)`- <Expression e> ` :
+        case (Expression)`- <Expression e>` :
             stBuilder = handleExpression(e, stBuilder);
 
         // TransitiveReflexiveClosure
-        case (Expression)`<Expression e> * ` :
+        case (Expression)`<Expression e> *` :
             stBuilder = handleExpression(e, stBuilder);
 
         // TransitiveClosure
-        case (Expression)`<Expression e> + ` :
+        case (Expression)`<Expression e> +` :
             stBuilder = handleExpression(e, stBuilder);
 
         // GetAnnotation
