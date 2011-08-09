@@ -110,7 +110,11 @@ public class Typeifier {
 				public Type visitInteger(Type type) {
 					return type;
 				}
-				
+
+				public Type visitRational(Type type) {
+					return type;
+				}
+
 				public Type visitNumber(Type type) {
 					return type;
 				}

@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -111,6 +112,10 @@ public class ResultFactory {
 
 		public IntegerResult visitInteger(Type type) {
 			return new IntegerResult(declaredType, (IInteger)value, ctx);
+		}
+		
+		public RationalResult visitRational(Type type) {
+			return new RationalResult(declaredType, (IRational)value, ctx);
 		}
 		
 		public NumberResult visitNumber(Type type) {

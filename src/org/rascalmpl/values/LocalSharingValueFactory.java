@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -36,6 +37,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.fast.RationalValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
@@ -56,6 +58,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 	private final IBool falseValue;
 	private final ValueCache<IInteger> cachedIntegers;
 	private final ValueCache<IReal> cachedReals;
+	private final ValueCache<IRational> cachedRationals;
 	private final ValueCache<IString> cachedStrings;
 	private final ValueCache<ISourceLocation> cachedSourceLocations;
 	private final ValueCache<ITuple> cachedTuples;
@@ -76,6 +79,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 		falseValue = valueFactory.bool(false);
 
 		cachedIntegers = new ValueCache<IInteger>();
+		cachedRationals = new ValueCache<IRational>();
 		cachedReals = new ValueCache<IReal>();
 		cachedStrings = new ValueCache<IString>();
 		cachedSourceLocations = new ValueCache<ISourceLocation>();
@@ -107,6 +111,22 @@ public class LocalSharingValueFactory implements IValueFactory{
 
 	public IInteger integer(String i) throws NumberFormatException{
 		return cachedIntegers.cache(valueFactory.integer(i));
+	}
+
+	public IRational rational(int a, int b) {
+		return cachedRationals.cache(valueFactory.rational(a, b));
+	}
+
+	public IRational rational(long a, long b) {
+		return cachedRationals.cache(valueFactory.rational(a, b));
+	}
+
+	public IRational rational(IInteger a, IInteger b) {
+		return cachedRationals.cache(valueFactory.rational(a, b));
+	}
+
+	public IRational rational(String rat) throws NumberFormatException {
+		return cachedRationals.cache(valueFactory.rational(rat));
 	}
 
 	public IReal real(double d){
