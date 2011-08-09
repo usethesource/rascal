@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
+import java.util.Iterator;
+
 public class ObjectIntegerKeyedHashMap<K, V>{
 	private Entry<K, V>[] entries;
 
@@ -173,10 +175,72 @@ public class ObjectIntegerKeyedHashMap<K, V>{
 		return false;
 	}
 	
+	public int size(){
+		return load;
+	}
+	
 	public void clear(){
 		entries = new Entry[entries.length];
 		
 		load = 0;
+	}
+	
+	public Iterator<V> valueIterator(){
+		return new ValueIterator<K, V>(this);
+	}
+	
+	private static class ValueIterator<K, V> implements Iterator<V>{
+		private final Entry<K, V>[] data;
+		
+		private Entry<K, V> current;
+		private int index;
+		
+		public ValueIterator(ObjectIntegerKeyedHashMap<K, V> hashMap){
+			super();
+			
+			data = hashMap.entries;
+
+			index = data.length - 1;
+			current = new Entry<K, V>(null, -1, null, -1, data[index]);
+			locateNext();
+		}
+		
+		private void locateNext(){
+			Entry<K, V> next = current.next;
+			if(next != null){
+				current = next;
+				return;
+			}
+			
+			for(int i = index - 1; i >= 0 ; i--){
+				Entry<K, V> entry = data[i];
+				if(entry != null){
+					current = entry;
+					index = i;
+					return;
+				}
+			}
+			
+			current = null;
+			index = 0;
+		}
+		
+		public boolean hasNext(){
+			return (current != null);
+		}
+		
+		public V next(){
+			if(!hasNext()) throw new UnsupportedOperationException("There are no more elements in this iterator.");
+			
+			Entry<K, V> entry = current;
+			locateNext();
+			
+			return entry.value;
+		}
+		
+		public void remove(){
+			throw new UnsupportedOperationException("This iterator doesn't support removal.");
+		}
 	}
 	
 	private static class Entry<K, V>{
