@@ -66,10 +66,6 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		return children;
 	}
 	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
 	public String getName(){
 		return name;
 	}
