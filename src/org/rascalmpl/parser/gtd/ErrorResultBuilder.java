@@ -30,7 +30,7 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 
-public class ErrorTreeBuilder{
+public class ErrorResultBuilder{
 	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
 	
 	private final IErrorBuilderHelper errorBuilderHelper;
@@ -45,7 +45,7 @@ public class ErrorTreeBuilder{
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
-	public ErrorTreeBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
+	public ErrorResultBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
 		super();
 		
 		this.errorBuilderHelper = errorBuilderHelper;
