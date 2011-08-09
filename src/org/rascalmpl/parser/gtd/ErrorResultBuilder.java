@@ -30,6 +30,11 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 
+/**
+ * This builder constructs error parse results. It attempts to diliver a tree
+ * that is as complete as possible, using all available information the parser
+ * posesses.
+ */
 public class ErrorResultBuilder{
 	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
 	
@@ -61,6 +66,9 @@ public class ErrorResultBuilder{
 		errorResultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String,AbstractContainerNode>>();
 	}
 	
+	/**
+	 * Construct the possible future for the given node and continuation.
+	 */
 	private AbstractStackNode updateNextNode(AbstractStackNode next, AbstractStackNode node, AbstractNode result){
 		next = next.getCleanCopy(location);
 		next.updateNode(node, result);
@@ -73,6 +81,9 @@ public class ErrorResultBuilder{
 		return next;
 	}
 	
+	/**
+	 * Construct the possible future for the given node and continuation.
+	 */
 	private void updateAlternativeNextNode(AbstractStackNode next, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		next = next.getCleanCopy(location);
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
@@ -83,6 +94,9 @@ public class ErrorResultBuilder{
 		errorNodes.push(next, resultStore);
 	}
 	
+	/**
+	 * Construct all possible futures for the given node.
+	 */
 	private void moveToNext(AbstractStackNode node, AbstractNode result){
 		int nextDot = node.getDot() + 1;
 
@@ -118,6 +132,11 @@ public class ErrorResultBuilder{
 		}
 	}
 	
+	/**
+	 * Handle the reductions for the given node to complete the tree.
+	 * 
+	 * NOTE: nesting restrictions have been disabled for scalability reasons.
+	 */
 	private boolean followEdges(AbstractStackNode node, AbstractNode result){
 		Object production = node.getParentProduction();
 		
@@ -175,6 +194,9 @@ public class ErrorResultBuilder{
 		return wasListChild;
 	}
 	
+	/**
+	 * Continue the tree for the given node.
+	 */
 	private void move(AbstractStackNode node, AbstractNode result){
 		boolean handleNexts = true;
 		if(node.isEndNode()){
@@ -186,12 +208,18 @@ public class ErrorResultBuilder{
 		}
 	}
 	
+	/**
+	 * Find the parent symbol for the given node.
+	 */
 	private Object getParentSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
 		return errorBuilderHelper.getLHS(last.getParentProduction());
 	}
 	
+	/**
+	 * Find the symbol the given stack node is associated with.
+	 */
 	private Object findSymbol(AbstractStackNode node){
 		AbstractStackNode[] production = node.getProduction();
 		AbstractStackNode last = production[production.length - 1];
@@ -201,7 +229,12 @@ public class ErrorResultBuilder{
 		return errorBuilderHelper.getSymbol(last.getParentProduction(), dot);
 	}
 	
+	/**
+	 * Constructs the error parse result using all available information about
+	 * the parse error(s) that occurred.
+	 */
 	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+		// Construct futures for nodes that could not be expanded (if any).
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
 			
@@ -211,6 +244,7 @@ public class ErrorResultBuilder{
 			errorNodes.push(unexpandableNode, resultStore);
 		}
 		
+		// Construct futures for nodes that did not match (if any).
 		while(!unmatchableNodes.isEmpty()){
 			AbstractStackNode unmatchableNode = unmatchableNodes.pop();
 			
@@ -228,6 +262,7 @@ public class ErrorResultBuilder{
 			errorNodes.push(unmatchableNode, result);
 		}
 		
+		// Construct futures for nodes that were filtered (if any).
 		while(!filteredNodes.isEmpty()){
 			AbstractStackNode filteredNode = filteredNodes.peekFirst();
 			AbstractNode resultStore = filteredNodes.popSecond();
@@ -235,6 +270,7 @@ public class ErrorResultBuilder{
 			errorNodes.push(filteredNode, resultStore);
 		}
 		
+		// Build the 'error frontier'.
 		while(!errorNodes.isEmpty()){
 			AbstractStackNode errorStackNode = errorNodes.peekFirst();
 			AbstractNode result = errorNodes.popSecond();
@@ -252,7 +288,7 @@ public class ErrorResultBuilder{
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
 		ErrorSortContainerNode result = (ErrorSortContainerNode) levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
 		
-		// Update the top node with the rest of the string (it will always be a sort node).
+		// Update the top node with the rest of the string (this node will always be a sort node).
 		result.setUnmatchedInput(rest);
 	
 		return result;
