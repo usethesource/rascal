@@ -51,8 +51,10 @@ public class ExpectBuilder{
 				AbstractStackNode[] alternative = alternativesList.getSecond(j);
 				
 				AbstractStackNode first = alternative[0];
+				int firstItemResultStoreId = resultStoreMappings.get(first.getId());
+				
 				AbstractStackNode[] sharedExpect = constructedExpects.get(first);
-				if(sharedExpect == null || resultStoreMappings.get(first.getId()) != resultStoreMappings.get(sharedExpect[0].getId())){
+				if(sharedExpect == null || firstItemResultStoreId != resultStoreMappings.get(sharedExpect[0].getId())){
 					alternative[alternative.length - 1].setProduction(alternative);
 					alternative[alternative.length - 1].setParentProduction(production);
 					
@@ -68,18 +70,15 @@ public class ExpectBuilder{
 						int alternativeItemResultStoreId = resultStoreMappings.get(alternativeItem.getId());
 						
 						AbstractStackNode sharedExpectItem = sharedExpect[k];
-						int sharedExpectItemResultStoreId = resultStoreMappings.get(sharedExpectItem.getId());
 						
-						if(!alternativeItem.isEqual(sharedExpectItem) || alternativeItemResultStoreId != sharedExpectItemResultStoreId){
-							AbstractStackNode[][] otherAlternatives = alternativeItem.getAlternateProductions();
-							if(otherAlternatives != null){
-								for(int l = otherAlternatives.length - 1; l >= 0; --l){
-									AbstractStackNode[] otherAlternative = otherAlternatives[l];
-									AbstractStackNode otherAlternativeItem = otherAlternative[k];
-									int otherAlternativeItemResultStoreId = resultStoreMappings.get(otherAlternativeItem.getId());
-									if(otherAlternativeItem.isEqual(alternativeItem) && alternativeItemResultStoreId == otherAlternativeItemResultStoreId){
-										sharedExpect = otherAlternative;
-										
+						if(!alternativeItem.isEqual(sharedExpectItem) || alternativeItemResultStoreId != resultStoreMappings.get(sharedExpectItem.getId())){
+							AbstractStackNode[][] otherSharedExpects = sharedExpectItem.getAlternateProductions();
+							if(otherSharedExpects != null){
+								for(int l = otherSharedExpects.length - 1; l >= 0; --l){
+									AbstractStackNode[] otherSharedExpect = otherSharedExpects[l];
+									AbstractStackNode otherSharedExpectItem = otherSharedExpect[k];
+									if(otherSharedExpectItem.isEqual(alternativeItem) && alternativeItemResultStoreId == resultStoreMappings.get(otherSharedExpectItem.getId())){
+										sharedExpect = otherSharedExpect;
 										continue CHAIN;
 									}
 								}
