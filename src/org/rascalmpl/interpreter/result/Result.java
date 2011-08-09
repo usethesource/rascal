@@ -347,6 +347,22 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(DIVISION_STRING, this);
 	}
 
+	protected <U extends IValue> Result<U> addRational(RationalResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> subtractRational(RationalResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> multiplyRational(RationalResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> divideRational(RationalResult that) {
+		return that.undefinedError(DIVISION_STRING, this);
+	}
+
 	protected <U extends IValue> Result<U> addString(StringResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
@@ -444,11 +460,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
+	protected <U extends IValue> Result<U> makeRangeFromRational(RationalResult that) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult that, Result<V> step) {
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromReal(RealResult that, Result<V> step) {
+		return that.undefinedError(RANGE_STRING, this);
+	}
+
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromRational(RationalResult that, Result<V> step) {
 		return that.undefinedError(RANGE_STRING, this);
 	}
 
@@ -517,6 +541,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPARE_STRING, this);
 	}
 	
+	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> compareReal(RealResult that) {
 		return that.undefinedError(COMPARE_STRING, this);
 	}
@@ -571,6 +599,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that) {
+		return that.undefinedError(EQUALS_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
@@ -642,6 +674,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
 	
+	protected <U extends IValue> Result<U> nonEqualToRational(RationalResult that) {
+		return that.undefinedError(NON_EQUALS_STRING, this);
+	}
+	
 	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
 		return that.undefinedError(NON_EQUALS_STRING, this);
 	}
@@ -707,6 +743,22 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+		return that.undefinedError(LESS_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
+		return that.undefinedError(GREATER_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
 	
