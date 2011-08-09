@@ -204,15 +204,15 @@ public ConstraintBase gatherExpressionConstraints(STBuilder st, ConstraintBase c
             return gatherNegationExpressionConstraints(st,cb,exp,e);
 
         // Negative
-        case (Expression)`- <Expression e> ` :
+        case (Expression)`- <Expression e>` :
             return gatherNegativeExpressionConstraints(st,cb,exp,e);
 
         // TransitiveReflexiveClosure
-        case (Expression)`<Expression e> * ` :
+        case (Expression)`<Expression e> *` :
             return gatherTransitiveReflexiveClosureExpressionConstraints(st,cb,exp,e);
 
         // TransitiveClosure
-        case (Expression)`<Expression e> + ` :
+        case (Expression)`<Expression e> +` :
             return gatherTransitiveClosureExpressionConstraints(st,cb,exp,e);
 
         // GetAnnotation
