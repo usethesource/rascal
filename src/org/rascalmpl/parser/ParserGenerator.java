@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -41,6 +39,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
+	private static final boolean debug = false;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory) {
 		this.bridge = new JavaBridge(loaders, factory);
@@ -78,16 +77,6 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			StandardTextWriter w = new StandardTextWriter(true);
-			ByteArrayOutputStream s = new ByteArrayOutputStream();
-		    try {
-				w.write(grammar, s);
-				new FileOutputStream("/tmp/grammar.trm").write(s.toByteArray());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		    
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
@@ -114,15 +103,6 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			StandardTextWriter w = new StandardTextWriter(true);
-			ByteArrayOutputStream s = new ByteArrayOutputStream();
-		    try {
-				w.write(grammar, s);
-				new FileOutputStream("/tmp/metaGrammar.trm").write(s.toByteArray());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for Rascal parser:" + name, 10);
 			IString classString = (IString) evaluator.call(monitor, "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
@@ -137,21 +117,23 @@ public class ParserGenerator {
 	}
 
 	private void debugOutput(IString classString, String file) {
-		FileOutputStream s = null;
-		try {
-			s = new FileOutputStream(file);
-			s.write(classString.getValue().getBytes());
-			s.flush();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (s != null) {
-				try {
-					s.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+		if (debug) {
+			FileOutputStream s = null;
+			try {
+				s = new FileOutputStream(file);
+				s.write(classString.getValue().getBytes());
+				s.flush();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (s != null) {
+					try {
+						s.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
