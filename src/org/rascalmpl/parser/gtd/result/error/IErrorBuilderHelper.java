@@ -1,5 +1,9 @@
 package org.rascalmpl.parser.gtd.result.error;
 
+/**
+ * A helper class for error parse result builders. It provides access to
+ * specific information about productions.
+ */
 public interface IErrorBuilderHelper{
 	/**
 	 * Checks if the given production is a list production.
