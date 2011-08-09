@@ -12,7 +12,6 @@
 package org.rascalmpl.parser.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -20,14 +19,14 @@ import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.action.VoidEnvironment;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
 import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 /**
  * Converter for parse trees that produces trees in UPTR format.
@@ -129,8 +128,8 @@ public class NodeToUPTR implements INodeConverter{
 	}
 	
 	/**
-	 * Converts the given parse tree to a tree in UPTR format.
-	 * This method is also able to handle incomplete trees and trees with filtering errors.
+	 * Converts the given parse tree to a tree in UPTR format. This method is
+	 * also able to handle incomplete trees and trees with filtering errors.
 	 */
 	public IConstructor convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment){
 		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
