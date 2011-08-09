@@ -210,7 +210,7 @@ public abstract class SGTDBF implements IGTD{
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
 						// Encountered a stack 'overtake'.
-						propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), edgesMap.size(), edgesMap, prefixesMap);
+						propagateAlternativeEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
 				}else{
@@ -218,7 +218,7 @@ public abstract class SGTDBF implements IGTD{
 					AbstractContainerNode nextResult = levelResultStoreMap.get(alternative.getName(), getResultStoreId(alternative.getId()));
 					if(nextResult != null){
 						// Encountered a stack 'overtake'.
-						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, edgesMap.size(), edgesMap, prefixesMap);
+						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size(), edgesMap, prefixesMap);
 						return true;
 					}
 				}
@@ -275,7 +275,6 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		int fromIndex = edgesMap.size() - potentialNewEdges;
-		if(fromIndex < 0) return; // TODO Look into the cause of this.
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			int startLocation = edgesMap.getKey(i);
 			
