@@ -16,10 +16,37 @@ import java.net.URI;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 
+/**
+ * Parser interface.
+ */
 public interface IGTD{
+	/**
+	 * Parse the input string, using the given non-terminal as start node. If
+	 * the parse process succesfully completes a result will be constructed
+	 * using the supplied node converter. During result construction the action
+	 * executor will be used to execute semantic actions.
+	 */
 	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
 	
+	/**
+	 * Parse the input string, using the given non-terminal as start node. If
+	 * the parse process succesfully completes a result will be constructed
+	 * using the supplied node converter. This parse method does not perform
+	 * semantic actions during result construction.
+	 */
 	Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
 	
-	Object buildErrorTree(INodeConverter converter, IActionExecutor actionExecutor);
+	/**
+	 * Constructs an error result. Error results can only be constructed if a
+	 * parse error occured. The parse will use all available information to
+	 * build a result which is as complete as possible.
+	 */
+	Object buildErrorResult(INodeConverter converter, IActionExecutor actionExecutor);
+	
+	/**
+	 * Constructs an error result. Error results can only be constructed if a
+	 * parse error occured. The parse will use all available information to
+	 * build a result which is as complete as possible.
+	 */
+	Object buildErrorResult(INodeConverter converter);
 }
