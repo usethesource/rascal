@@ -46,7 +46,7 @@ public abstract class AbstractStackNode{
 	// The production (specific to end nodes only)
 	private Object parentProduction;
 	
-	public AbstractStackNode(int id, int dot){
+	protected AbstractStackNode(int id, int dot){
 		super();
 		
 		this.id = id;
@@ -58,7 +58,7 @@ public abstract class AbstractStackNode{
 		this.completionFilters = null;
 	}
 	
-	public AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	protected AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super();
 		
 		this.id = id;
