@@ -70,10 +70,6 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		return empty;
 	}
 	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
 	public String getName(){
 		return name;
 	}

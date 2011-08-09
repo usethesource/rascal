@@ -84,10 +84,6 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 		return empty;
 	}
 	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
 	public String getName(){
 		return name;
 	}

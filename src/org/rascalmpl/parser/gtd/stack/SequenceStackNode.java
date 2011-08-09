@@ -64,10 +64,6 @@ public class SequenceStackNode extends AbstractExpandableStackNode{
 		return new AbstractStackNode[]{prod[0]};
 	}
 	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
 	public String getName(){
 		return name;
 	}

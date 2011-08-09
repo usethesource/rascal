@@ -39,6 +39,10 @@ public abstract class AbstractExpandableStackNode extends AbstractStackNode{
 	 */
 	public abstract AbstractStackNode getEmptyChild();
 	
+	public boolean isEmptyLeafNode(){
+		return false;
+	}
+	
 	public AbstractNode match(char[] input, int location){
 		throw new UnsupportedOperationException();
 	}
