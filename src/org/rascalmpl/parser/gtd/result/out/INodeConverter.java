@@ -21,6 +21,9 @@ public interface INodeConverter{
 	 */
 	Object convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment);
 	
+	// Error tree related stuff.
+	// TODO This doesn't really belong here, find a better place to put it.
+	
 	/**
 	 * Checks if the given production is a list production.
 	 */
