@@ -233,7 +233,7 @@ public class ErrorResultBuilder{
 	 * Constructs the error parse result using all available information about
 	 * the parse error(s) that occurred.
 	 */
-	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+	AbstractContainerNode buildErrorTree(Stack<AbstractStackNode> unexpandableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		// Construct futures for nodes that could not be expanded (if any).
 		while(!unexpandableNodes.isEmpty()){
 			AbstractStackNode unexpandableNode = unexpandableNodes.pop();
@@ -242,24 +242,6 @@ public class ErrorResultBuilder{
 			AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
 			
 			errorNodes.push(unexpandableNode, resultStore);
-		}
-		
-		// Construct futures for nodes that did not match (if any).
-		while(!unmatchableNodes.isEmpty()){
-			AbstractStackNode unmatchableNode = unmatchableNodes.pop();
-			
-			int length = unmatchableNode.getLength();
-			
-			CharNode[] children = new CharNode[length];
-			for(int i = children.length - 1; i >= 0; --i){
-				children[i] = CharNode.createCharNode(input[location + i]);
-			}
-			
-			Object symbol = findSymbol(unmatchableNode);
-			
-			AbstractNode result = new ExpectedNode(children, symbol, inputURI, location, location + length, unmatchableNode.isSeparator(), unmatchableNode.isLayout());
-			
-			errorNodes.push(unmatchableNode, result);
 		}
 		
 		// Construct futures for nodes that were filtered (if any).

@@ -747,7 +747,9 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Handles the retrieved alternatives for the given stack.
 	 */
-	private void handleExpects(AbstractStackNode[] expects, AbstractStackNode stackBeingWorkedOn){
+	private boolean handleExpects(AbstractStackNode[] expects, AbstractStackNode stackBeingWorkedOn){
+		boolean hasValidAlternatives = false;
+		
 		sharedLastExpects.dirtyClear();
 		
 		ArrayList<AbstractStackNode> cachedEdges = null;
@@ -790,9 +792,13 @@ public abstract class SGTDBF implements IGTD{
 			}
 			
 			sharedLastExpects.add(first.getId(), first);
+			
+			hasValidAlternatives = true;
 		}
 		
 		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
+		
+		return hasValidAlternatives;
 	}
 	
 	/**
@@ -851,7 +857,10 @@ public abstract class SGTDBF implements IGTD{
 					unexpandableNodes.push(stack);
 					return;
 				}
-				handleExpects(expects, stack);
+				if(handleExpects(expects, stack)){
+					unexpandableNodes.push(stack);
+					return;
+				}
 			}
 		}else{ // Expandable
 			boolean expanded = false;
@@ -1062,7 +1071,7 @@ public abstract class SGTDBF implements IGTD{
 		
 		if(parseErrorOccured){
 			ErrorResultBuilder errorTreeBuilder = new ErrorResultBuilder(errorBuilderHelper, this, startNode, input, location, inputURI);
-			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, unmatchableNodes, filteredNodes);
+			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, filteredNodes);
 		}else if(filterErrorOccured){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(0);
 			result = levelResultStoreMap.get(startNode.getName(), getResultStoreId(startNode.getId()));
