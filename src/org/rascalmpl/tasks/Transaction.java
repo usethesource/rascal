@@ -40,6 +40,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	IExpirationListener<IValue> {
 	public static final Type TransactionType = new ExternalType() {};
 	private final Transaction parent;
+	private final boolean commitEnabled;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();
 	private final ITaskRegistry<Type,IValue,IValue> registry;
 	private final Set<IFact<IValue>> deps = new HashSet<IFact<IValue>>();
@@ -48,24 +49,32 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	private final PrintWriter stderr;
 	private Map<Type, Collection<IDependencyListener>> listeners = new HashMap<Type, Collection<IDependencyListener>>();
 	public Transaction(PrintWriter stderr) {
-		this(null, null, stderr);
+		this(null, null, stderr, true);
 	}
 
 	public Transaction(INameFormatter format, PrintWriter stderr) {
-		this(null, format, stderr);
+		this(null, format, stderr, true);
 	}
 
 	public Transaction(Transaction parent, PrintWriter stderr) {
-		this(parent, null, stderr);
+		this(parent, null, stderr, true);
+	}
+
+	public Transaction(Transaction parent, PrintWriter stderr, boolean commitEnabled) {
+		this(parent, null, stderr, commitEnabled);
 	}
 	
-	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr) {
+	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr, boolean commitEnabled) {
 		this.parent = (Transaction) parent;
+		this.commitEnabled = commitEnabled;
 		if(parent != null)
 			this.registry = parent.registry;
 		else
 			this.registry = PDBValueTaskRegistry.getRegistry();
-		this.format = format;
+		if(format == null && parent != null)
+			this.format = parent.format;
+		else
+			this.format = format;
 		if(stderr == null)
 			this.stderr = new PrintWriter(System.err);
 		else
@@ -102,7 +111,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 				}
 			}
 			monitor.startJob("Producing fact " + formatKey(key, name));
-			Transaction tr = new Transaction(this, stderr);
+			Transaction tr = new Transaction(this, stderr, true);
 			boolean status = registry.produce(monitor, tr, key, name);
 			monitor.endJob(true);
 			fact = tr.map.get(k);
@@ -152,6 +161,10 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			removed.add(k);
 		}
 	}
+	
+	public synchronized void removeFact(IFact<IValue> fact) {
+		removeFact(((Key)fact.getKey()).type, ((Key)fact.getKey()).name);
+	}
 
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value) {
 		return setFact(key, name, value, null, FactFactory.getInstance());
@@ -160,6 +173,24 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
 			Collection<IFact<IValue>> dependencies) {
 		return setFact(key, name, value, dependencies, FactFactory.getInstance());
+	}
+
+	@Override
+	public synchronized IFact<IValue> setFact(Type key, IValue name, IFact<IValue> fact) {
+		Key k = new Key(key, name);
+		IFact<IValue> oldFact = map.get(k);
+		
+		if(oldFact == null) {
+			map.put(k, fact);
+			removed.remove(k);
+		}
+		else if(oldFact != fact) {
+			oldFact.remove();
+			map.put(k, fact);
+			removed.remove(k);
+		}
+			
+		return fact;
 	}
 
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IValue value,
@@ -205,7 +236,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	}
 
 	public void commit() {
-		if(parent != null) {
+		if(parent != null && commitEnabled) {
 			if(parent.parent == null) {
 				AbstractFact.pruneExpired();
 			}
@@ -237,7 +268,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	}
 
 	public void commit(Collection<IFact<IValue>> deps) {
-		if(parent != null) {
+		if(parent != null && commitEnabled) {
 			for(Key k : removed) {
 				parent.removeFact(k.type, k.name);
 			}
@@ -306,47 +337,10 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		return query(new Key(key, name));
 	}
 
-	class Key {
-		public final Type type;
-		public final IValue name;
-		
-		Key(Type type, IValue name) {
-			this.type = type;
-			this.name = name;
-		}
-		
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Key other = (Key) obj;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.isEqual(other.name))
-				return false;
-			if (type == null) {
-				if (other.type != null)
-					return false;
-			} else if (!type.equals(other.type))
-				return false;
-			return true;
-		}
+	public static Key makeKey(Type key, IValue name) {
+		return new Key(key, name);
 	}
-
+	
 	public ITuple getGraph() {
 		GraphBuilder g = new GraphBuilder(); 
 		for(Key k : map.keySet()) {
@@ -371,3 +365,45 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		removed.add(k);
 	}
 }
+
+class Key {
+	public final Type type;
+	public final IValue name;
+	
+	Key(Type type, IValue name) {
+		this.type = type;
+		this.name = name;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Key other = (Key) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.isEqual(other.name))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		return true;
+	}
+}
+
