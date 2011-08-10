@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.figure.combine.containers;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 /**
  * Spacing that can act as container.

@@ -4,8 +4,6 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.IFigureApplet;
-import org.rascalmpl.library.vis.util.FigureMath;
 
 public class VAxis extends HAxis {
 

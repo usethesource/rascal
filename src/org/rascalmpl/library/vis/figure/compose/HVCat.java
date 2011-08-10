@@ -18,7 +18,6 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.Coordinate;
-import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.library.vis.util.Util;
 

@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;

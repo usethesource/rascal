@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.swt.IFigureApplet;
 
 public class NameResolver {
 	

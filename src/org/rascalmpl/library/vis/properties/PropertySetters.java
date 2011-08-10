@@ -13,7 +13,6 @@
 package org.rascalmpl.library.vis.properties;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 

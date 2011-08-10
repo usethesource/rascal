@@ -56,8 +56,6 @@ import org.rascalmpl.library.vis.figure.keys.IntervalKey;
 import org.rascalmpl.library.vis.figure.keys.NominalKey;
 import org.rascalmpl.library.vis.figure.keys.Projection;
 import org.rascalmpl.library.vis.figure.keys.VAxis;
-import org.rascalmpl.library.vis.figure.tree.Tree;
-import org.rascalmpl.library.vis.figure.tree.TreeMap;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyParsers;

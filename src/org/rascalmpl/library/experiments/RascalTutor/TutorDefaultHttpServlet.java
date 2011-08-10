@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.semantics.dynamic.Comprehension.SetComprehensionWriter;
 
 public class TutorDefaultHttpServlet extends DefaultServlet{
 

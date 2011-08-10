@@ -2,8 +2,6 @@ package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.FigureSWTApplet;

@@ -12,8 +12,6 @@
 
 package org.rascalmpl.library.vis.util;
 
-import com.sun.corba.se.spi.transport.CorbaAcceptor;
-
 public final class Coordinate {
 	
 	private  double x,y;

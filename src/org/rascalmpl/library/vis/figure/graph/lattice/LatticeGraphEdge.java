@@ -13,7 +13,6 @@
 package org.rascalmpl.library.vis.figure.graph.lattice;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;

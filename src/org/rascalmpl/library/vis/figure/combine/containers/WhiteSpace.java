@@ -1,10 +1,8 @@
 package org.rascalmpl.library.vis.figure.combine.containers;
 
-import org.eclipse.swt.SWT;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 public class WhiteSpace extends Container{
