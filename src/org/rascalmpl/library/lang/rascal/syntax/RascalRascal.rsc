@@ -31,7 +31,7 @@ start syntax Module
 	= Default: Header header Body body ;
 
 start syntax PreModule
-    = Default: Header header () !>> HeaderKeyword Word* rest;
+    = Default: Header header () !>> HeaderKeyword Rest? rest;
 
 keyword HeaderKeyword
   = "import"
@@ -43,7 +43,7 @@ keyword HeaderKeyword
   | "extend"
   ;
 
-lexical Word = ![\ \t\n\r]+ !>> ![\ \t\n\r];          
+lexical Rest = ![]+ !>> ![];          
                    
 syntax ModuleParameters
 	= Default: "[" {TypeVar ","}+ parameters "]" ;
