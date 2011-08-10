@@ -12,6 +12,9 @@
 package org.rascalmpl.tasks;
 
 import java.util.Collection;
+
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.tasks.IFact;
 
@@ -28,8 +31,20 @@ public interface ITransaction<K,N,V> {
 
 	V getFact(IRascalMonitor monitor, K key, N name);
 
+	/**
+	 * This method does *not* trigger fact production
+	 * @param key
+	 * @param name
+	 * @return The fact's value, if it exists
+	 */
 	V queryFact(K key, N name);
 	
+	/**
+	 * This method does *not* trigger fact production
+	 * @param key
+	 * @param name
+	 * @return The fact itself, if it exists
+	 */
 	IFact<V> findFact(K key, N name);
 
 	void removeFact(K key, N name);
@@ -43,4 +58,6 @@ public interface ITransaction<K,N,V> {
 	void registerListener(IDependencyListener listener, K key);
 
 	void unregisterListener(IDependencyListener listener, K key);
+
+	IFact<IValue> setFact(K key, V name, IFact<V> fact);
 }
