@@ -79,10 +79,13 @@ public class ListContainerNodeInErrorConverter{
 			}
 		}
 		
-		IConstructor result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-		result = actionExecutor.filterListProduction(result, newEnvironment);
+		IConstructor originalResult = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+		IConstructor result = actionExecutor.filterListProduction(originalResult, newEnvironment);
 		if(result == null){
-			actionExecutor.exitedListProduction(production, true, newEnvironment);
+			actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
+			result = originalResult;
+		}else{
+			actionExecutor.exitedListProduction(production, false, newEnvironment); // Not filtered.
 		}
 		
 		gatheredAlternatives.add(result);

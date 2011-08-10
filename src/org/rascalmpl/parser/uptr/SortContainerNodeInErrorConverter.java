@@ -63,8 +63,6 @@ public class SortContainerNodeInErrorConverter{
 	}
 	
 	private static void buildAlternative(NodeToUPTR converter, ForwardLink<AbstractNode> postFix, ArrayList<IConstructor> gatheredAlternatives, IConstructor production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, ISourceLocation sourceLocation, IActionExecutor actionExecutor, Object environment){
-		IConstructor result = null;
-		
 		Object newEnvironment = actionExecutor.enteringProduction(production, environment);
 		
 		int postFixLength = postFix.length;
@@ -83,8 +81,14 @@ public class SortContainerNodeInErrorConverter{
 			childrenListWriter.append(constructedNode);
 		}
 		
-		result = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
-		result = actionExecutor.filterProduction(result, environment);
+		IConstructor originalResult = VF.constructor(Factory.Tree_Appl, production, childrenListWriter.done());
+		IConstructor result = actionExecutor.filterProduction(originalResult, environment);
+		if(result == null){
+			actionExecutor.exitedProduction(production, true, environment); // Filtered.
+			result = originalResult;
+		}else{
+			actionExecutor.exitedProduction(production, false, environment); // Successful construction.
+		}
 		
 		if(sourceLocation != null) result = result.setAnnotation(Factory.Location, sourceLocation);
 		
