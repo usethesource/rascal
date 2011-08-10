@@ -1,13 +1,6 @@
 package org.rascalmpl.library.lang.rascal.syntax;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.stack.*;
 import org.rascalmpl.parser.gtd.stack.filter.*;
 import org.rascalmpl.parser.gtd.stack.filter.follow.*;

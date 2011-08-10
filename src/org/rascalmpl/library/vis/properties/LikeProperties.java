@@ -12,7 +12,6 @@
 
 package org.rascalmpl.library.vis.properties;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.util.NameResolver;
 

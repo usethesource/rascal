@@ -20,8 +20,6 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.matching.IBooleanResult;
-import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class NamedBackslash extends AbstractAST {

@@ -13,7 +13,6 @@ package org.rascalmpl.library.vis.figure.compose;
 
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
@@ -26,7 +25,6 @@ import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
-
 
 /**
  * 

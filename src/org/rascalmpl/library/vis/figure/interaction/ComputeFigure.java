@@ -17,11 +17,8 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
-import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.swt.IFigureApplet;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 
 public class ComputeFigure extends LayoutProxy {

@@ -1,7 +1,5 @@
 package org.rascalmpl.library.vis.figure.keys;
 
-import java.util.Vector;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -9,14 +7,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.swt.IFigureApplet;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;

@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 /**

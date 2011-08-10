@@ -13,8 +13,9 @@
 package org.rascalmpl.library.vis.figure.graph.layered;
 
 
+import java.util.Vector;
+
 import org.eclipse.imp.pdb.facts.IString;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
@@ -23,8 +24,6 @@ import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Coordinate;
 import org.rascalmpl.library.vis.util.NameResolver;
-
-import java.util.Vector;
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
