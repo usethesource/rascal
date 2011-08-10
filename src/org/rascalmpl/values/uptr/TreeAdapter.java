@@ -42,6 +42,10 @@ public class TreeAdapter {
 		return tree.getConstructorType() == Factory.Tree_Appl;
 	}
 
+	public static boolean isError(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Tree_Error;
+	}
+
 	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
@@ -111,7 +115,7 @@ public class TreeAdapter {
 	}
 
 	public static IList getArgs(IConstructor tree) {
-		if (isAppl(tree)) {
+		if (isAppl(tree) || isError(tree)) {
 			return (IList) tree.get("args");
 		}
 
