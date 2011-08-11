@@ -39,6 +39,10 @@ public int min(int n, int m)
 @javaClass{org.rascalmpl.library.Integer}
 public java real toReal(int n);
 
+@doc{Convert an integer value to a rational value.}
+@javaClass{org.rascalmpl.library.Integer}
+public java real toRational(int n);
+
 @doc{Convert an integer value to a string.}
 @javaClass{org.rascalmpl.library.Integer}
 public java str toString(int n);

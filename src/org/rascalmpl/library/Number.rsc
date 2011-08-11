@@ -56,6 +56,10 @@ public java int toInt(num N);
 @javaClass{org.rascalmpl.library.Number}
 public java real toReal(num N);
 
+//@doc{Convert a number value to a rational value (not supported on reals).}
+//@javaClass{org.rascalmpl.library.Number}
+//public java rat toRational(num N);
+
 @doc{Convert a number value to a string.}
 @javaClass{org.rascalmpl.library.Number}
 public java str toString(num N);

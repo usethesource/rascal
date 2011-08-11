@@ -17,6 +17,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -157,6 +158,11 @@ public class NumberResult extends ElementResult<INumber> {
 	}
 	
 	@Override
+	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
+		return that.nonEqualityBoolean(this);
+	}
+
+	@Override
 	protected <U extends IValue> Result<U> equalToRational(RationalResult that) {
 		return that.equalityBoolean(this);
 	}
@@ -167,11 +173,7 @@ public class NumberResult extends ElementResult<INumber> {
 		return that.nonEqualityBoolean(this);
 	}
 
-	@Override
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that) {
-		return that.nonEqualityBoolean(this);
-	}
-	
+
 	@Override
 	protected <U extends IValue> Result<U> lessThanReal(RealResult that) {
 		// note reversed args: we need that < this
@@ -195,6 +197,24 @@ public class NumberResult extends ElementResult<INumber> {
 		// note reversed args: we need that >= this
 		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
+
+	@Override
+	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+		// note reversed args: we need that < this
+		return bool((that.comparisonInts(this) < 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that <= this
+		return bool((that.comparisonInts(this) <= 0), ctx);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
+		// note reversed args: we need that > this
+		return bool((that.comparisonInts(this) > 0), ctx);
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
@@ -216,7 +236,16 @@ public class NumberResult extends ElementResult<INumber> {
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return that.widenToReal().compare(this);
 	}
-	
+
+	@Override
+	protected <U extends IValue> Result<U> compareRational(RationalResult that) {
+		// note reverse arguments
+		IRational left = that.getValue();
+		INumber right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
+	}
+
 	@Override
 	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
 		// note reverse arguments

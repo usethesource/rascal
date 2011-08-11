@@ -61,6 +61,11 @@ public class Number {
 	  return n.toReal();
 	}
 
+	public IValue toRational(INumber n)
+	//@doc{toReal -- convert a number value to a real value.}
+	{
+	  return n.toRational();
+	}
 	public IValue toString(INumber n)
 	//@doc{toString -- convert a number value to a string.}
 	{
