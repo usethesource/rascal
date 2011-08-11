@@ -41,6 +41,7 @@ import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -76,9 +77,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					}
 				}
 				throw new AppendWithoutLoop(this); // TODO: better error
-			} else {
-				return __eval.__getAccumulators().peek();
 			}
+			return __eval.__getAccumulators().peek();
 		}
 		
 		@Override
@@ -325,6 +325,18 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			throw new Failure();
 
+		}
+
+	}
+
+	static public class Filter extends org.rascalmpl.ast.Statement.Filter {
+
+		public Filter(IConstructor __param1) {
+			super(__param1);
+		}
+		
+		public Result<IValue> interpret(Evaluator __eval) {
+			throw new Filtered();
 		}
 
 	}
@@ -776,11 +788,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					// statement?
 					theCase.getStatement().interpret(__eval);
 					return true;
-				} else {
-					PatternWithAction rule = theCase.getPatternWithAction();
-					return __eval.matchAndEval(subject, rule.getPattern(), rule
-							.getStatement());
 				}
+				
+				PatternWithAction rule = theCase.getPatternWithAction();
+				return __eval.matchAndEval(subject, rule.getPattern(), rule.getStatement());
 			}
 		}
 
