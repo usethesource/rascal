@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -172,7 +173,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 					}
 					
 					return (IConstructor) result.getValue();
-				} catch(Failure f){ // TODO: change to Filter specific failure
+				} catch(Filtered f){
 					return null;
 				}
 			}
@@ -194,8 +195,10 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			}
 			
 			return function.call(types, actuals);
-		} catch(ArgumentsMismatchError e){
+		}catch(ArgumentsMismatchError e){
 			e.printStackTrace();
+			return null;
+		}catch(Failure f){
 			return null;
 		}
 	}
