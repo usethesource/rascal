@@ -592,6 +592,7 @@ keyword RascalKeywords
 	| "real" 
 	| "list" 
 	| "fail" 
+	| "filter" 
 	| "if" 
 	| "tag" 
 	| BasicType
