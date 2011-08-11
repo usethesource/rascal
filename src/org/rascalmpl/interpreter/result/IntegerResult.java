@@ -380,18 +380,18 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override  
 	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
-		return makeResult(type, getValue().add(n.getValue()), ctx);
+		return makeResult(n.getType(), getValue().add(n.getValue()), ctx);
 	}
 	
 	@Override 
 	protected <U extends IValue> Result<U> subtractNumber(NumberResult n) {
 		// note the reverse subtraction.
-		return makeResult(type, n.getValue().subtract(getValue()), ctx);
+		return makeResult(n.getType(), n.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyNumber(NumberResult n) {
-		return makeResult(type, getValue().multiply(n.getValue()), ctx);
+		return makeResult(n.getType(), getValue().multiply(n.getValue()), ctx);
 	}
 
 	@Override
