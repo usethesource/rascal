@@ -438,9 +438,8 @@ syntax QualifiedName
 	= Default: {Name "::"}+ names !>> "::" ;
 
 lexical RationalLiteral
-   = [0][r]
-   | [1-9][0-9]* [r]
-   | [1-9][0-9]* [r] [1-9][0-9]* !>> [0-9 A-Z _ a-z]
+   = [0-9][0-9]* [r]
+   | [1-9][0-9]* [r] [0-9][0-9]* !>> [0-9 A-Z _ a-z]
    ;
 
 lexical DecimalIntegerLiteral
@@ -582,7 +581,8 @@ syntax Bound
 	| Empty: ;
 
 keyword RascalKeywords
-	= "int" 
+	= "int"
+	| "rat" 
 	| "true" 
 	| "bag" 
 	| "num" 
@@ -742,7 +742,8 @@ syntax BasicType
 	| Num: "num" 
 	| ReifiedType: "type" 
 	| Bag: "bag" 
-	| Int: "int" 
+	| Int: "int"
+	| Rational: "rat" 
 	| Relation: "rel" 
 	| ReifiedTypeParameter: "parameter" 
 	| Real: "real" 

@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
+ *
+ *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
@@ -129,6 +130,30 @@ public class RationalResult extends ElementResult<IRational> {
 		// note the reverse division.
 		return makeResult(type, n.getValue().divide(getValue()), ctx);
 	}
+
+	
+	@Override  
+	protected <U extends IValue> Result<U> addInteger(IntegerResult n) {
+		return makeResult(type, getValue().toRational().add(n.getValue()), ctx);
+	}
+	
+	@Override 
+	protected <U extends IValue> Result<U> subtractInteger(IntegerResult n) {
+		// Note the reverse subtraction
+		return makeResult(type, n.getValue().toRational().subtract(getValue()), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult n) {
+		return makeResult(type, getValue().toRational().multiply(n.getValue()), ctx);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> divideInteger(IntegerResult n) {
+		// note the reverse division.
+		return makeResult(type, n.getValue().toRational().divide(getValue()), ctx);
+	}
+
 	
 	@Override  
 	protected <U extends IValue> Result<U> addReal(RealResult n) {
@@ -174,6 +199,11 @@ public class RationalResult extends ElementResult<IRational> {
 	
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromReal(RealResult from) {
+		return makeRangeWithDefaultStep(from);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from) {
 		return makeRangeWithDefaultStep(from);
 	}
 	
@@ -311,6 +341,35 @@ public class RationalResult extends ElementResult<IRational> {
 		return bool((that.comparisonInts(this) >= 0), ctx);
 	}
 
+	
+	
+	
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that) {
+		// note reversed args: we need that < this
+		return bool((that.comparisonInts(this) < 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that) {
+		// note reversed args: we need that <= this
+		return bool((that.comparisonInts(this) <= 0), ctx);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that) {
+		// note reversed args: we need that > this
+		return bool((that.comparisonInts(this) > 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that) {
+		// note reversed args: we need that >= this
+		return bool((that.comparisonInts(this) >= 0), ctx);
+	}
+	
+	
 	@Override
 	protected <U extends IValue> Result<U> equalToReal(RealResult that) {
 		return that.equals(widenToReal());

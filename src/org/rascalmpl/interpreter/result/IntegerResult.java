@@ -373,11 +373,40 @@ public class IntegerResult extends ElementResult<IInteger> {
 		return that.greaterThanOrEqual(widenToReal());
 	}
 
+
 	
+	@Override
+	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+		// note reversed args: we need that < this
+		return that.lessThan(widenToRational());
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that <= this
+		return that.lessThanOrEqual(widenToRational());
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
+		// note reversed args: we need that > this
+		return that.greaterThan(widenToRational());
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that >= this
+		return that.greaterThanOrEqual(widenToRational());
+	}
+
 	<U extends IValue> Result<U> widenToReal() {
 		return makeResult(getTypeFactory().realType(), getValue().toReal(), ctx);
 	}
-	
+
+	<U extends IValue> Result<U> widenToRational() {
+		return makeResult(getTypeFactory().rationalType(), getValue().toRational(), ctx);
+	}
+
 	@Override  
 	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
 		return makeResult(n.getType(), getValue().add(n.getValue()), ctx);

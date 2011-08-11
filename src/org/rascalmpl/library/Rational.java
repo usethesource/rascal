@@ -14,44 +14,44 @@ package org.rascalmpl.library;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class Integer {
+public class Rational {
 	private final IValueFactory values;
-	private final Random random;
 	
-	public Integer(IValueFactory values){
+	public Rational(IValueFactory values){
 		super();
 		
 		this.values = values;
-		random = new Random();
 	}
 
-	public IValue arbInt()
-	//@doc{arbInt -- return an arbitrary integer value}
-	{
-	   return values.integer(random.nextInt());
-	}
-
-	public IValue arbInt(IInteger limit)
-	//@doc{arbInt -- return an arbitrary integer value in the interval [0, limit).}
-	{
-		// TODO allow big ints
-	   return values.integer(random.nextInt(limit.intValue()));
-	}
-
-	public IValue toReal(IInteger n)
-	//@doc{toReal -- convert an integer value to a real value.}
+	public IValue toReal(IRational n)
+	//@doc{toReal -- convert a rational value to a real value.}
 	{
 	  return n.toReal();
 	}
 
-
-	public IValue toRational(IInteger n)
-	//@doc{toReal -- convert an integer value to a real value.}
+	public IValue toInteger(IRational n)
+	//@doc{toReal -- convert a rational value to a integer value.}
 	{
-	  return n.toRational();
+	  return n.toInteger();
+	}
+
+	public IValue numerator(IRational n)
+	{
+		return n.numerator();
+	}
+
+	public IValue denominator(IRational n)
+	{
+	  return n.denominator();
+	}
+
+	public IValue remainder(IRational n)
+	{
+	  return n.remainder();
 	}
 
 	public IValue toString(IInteger n)

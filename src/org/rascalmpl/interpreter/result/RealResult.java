@@ -55,25 +55,6 @@ public class RealResult extends ElementResult<IReal> {
 		return that.makeRangeFromReal(this);
 	}
 	
-	@Override
-	protected <U extends IValue> Result<U> divideRational(RationalResult that) {
-		return makeResult(type, getValue().divide(that.getValue(), PRECISION), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> multiplyRational(RationalResult that) {
-		return makeResult(type, getValue().multiply(that.getValue()), ctx);
-	}
-
-	@Override
-	protected <U extends IValue> Result<U> addRational(RationalResult that) {
-		return makeResult(type, getValue().add(that.getValue()), ctx);
-	}
-	
-	@Override
-	protected <U extends IValue> Result<U> subtractRational(RationalResult that) {
-		return makeResult(type, getValue().subtract(that.getValue()), ctx);
-	}
 	
 	@Override
 	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> step) {
@@ -150,7 +131,30 @@ public class RealResult extends ElementResult<IReal> {
 		// Note reversed args: we need n / this
 		return n.widenToReal().divide(this);
 	}
+
 	
+	@Override
+	protected <U extends IValue> Result<U> addRational(RationalResult n) {
+		return n.widenToReal().add(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> subtractRational(RationalResult n) {
+		// Note reversed args: we need n - this
+		return n.widenToReal().subtract(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> multiplyRational(RationalResult n) {
+		return n.widenToReal().multiply(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> divideRational(RationalResult n) {
+		// Note reversed args: we need n / this
+		return n.widenToReal().divide(this);
+	}
+
 	@Override  
 	protected <U extends IValue> Result<U> addReal(RealResult n) {
 		return makeResult(type, getValue().add(n.getValue()), ctx);
@@ -247,6 +251,29 @@ public class RealResult extends ElementResult<IReal> {
 	}
 	
 	
+
+	protected <U extends IValue> Result<U> lessThanRational(RationalResult that) {
+		// note reversed args: we need that < this
+		return that.widenToReal().lessThan(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that <= this
+		return that.widenToReal().lessThanOrEqual(this);
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> greaterThanRational(RationalResult that) {
+		// note reversed args: we need that > this
+		return that.widenToReal().greaterThan(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualRational(RationalResult that) {
+		// note reversed args: we need that >= this
+		return that.widenToReal().greaterThanOrEqual(this);
+	}
 
 	
 	@Override
