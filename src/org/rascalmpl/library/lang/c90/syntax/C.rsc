@@ -318,30 +318,30 @@ public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(T
       Tree child = children[1];
       if(appl(prod(label("Variable",_),_,_),_) := child){
          if(unparse(child) in typeDefs){
-            fail;
+            filter;
          }
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree MultiplicationExpression(Expression lexp, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
    if(appl(prod(label("Variable",_),_,_),_) := lexp){
       if(unparse(lexp) in typeDefs){
-         fail;
+         filter;
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree NonCommaExpression(Expression expr){
    if(appl(prod(label("CommaExpression",_),_,_),_) := expr){
-      fail;
+      filter;
    }
    
-   return it;
+   return fail;
 }
 
 public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators){
@@ -365,12 +365,12 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
       
       if(hasCustomType(specChildren)){
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree DeclarationWithoutInitDecls(Specifier+ specs){
@@ -381,19 +381,19 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs){
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }
       } // May be ambiguous with Spec* {InitDecl ","}*
       
       if(appl(prod(label("Identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","}+ initDeclarators){
@@ -417,12 +417,12 @@ public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","
        
       if(hasCustomType(specChildren)){
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
@@ -432,20 +432,20 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
       
       if(appl(prod(label("Identifier",_),_,_),_) := theType){
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }
       } // May be ambiguous with Spec* {InitDecl ","}*
    }
    
-   return it;
+   return fail;
 }
 
 public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators){
@@ -456,19 +456,19 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }
       }
       
       if(hasCustomType(specChildren)){
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed.
       }
    }
    
-   return it;
+   return fail;
 }
 
 public Tree StructDeclWithoutDecl(Specifier+ specs){
@@ -478,26 +478,26 @@ public Tree StructDeclWithoutDecl(Specifier+ specs){
       
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed. And may be ambiguous with "Exp * Exp".
       }
       
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }
       } // May be ambiguous with Spec* {StructDecl ","}*
    }
    
-   return it;
+   return fail;
 }
 
 public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* _, Declaration* _, Statement* _){
    if(!(appl(prod(label("FunctionDeclarator",_),_,_),_) := declarator) &&
          !(appl(prod(label("Bracket",_),_,_),_) := declarator)){
-      fail;
+      filter;
    }
    
    list[Tree] specChildren;
@@ -506,30 +506,30 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
       
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }else if(appl(prod(label("StorageClass",_),_,_),storageClass) := spec){
             if(appl(prod(label("TypeDef",_),_,_),_) := storageClass[0]){
-               fail;
+               filter;
             }
          } // Certain storage parameters are not allowed.
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
    
-   return it;
+   return fail;
 }
 
 public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl){
    if(!(appl(prod(label("FunctionDeclarator",_),_,_),_) := decl) &&
          !(appl(prod(label("Bracket",_),_,_),_) := decl)){
-      fail;
+      filter;
    }
    
    list[Tree] specChildren;
@@ -538,24 +538,24 @@ public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl)
       
       if(appl(prod(label("Identifier",_),_,_),_) := theType){   
          if(unparse(theType) notin typeDefs){
-            fail;
+            filter;
          } // Fail if not typedeffed.
       }
       
       for(spec <- specChildren){
          if(appl(prod(label("TypeSpecifier",_),_,_),typeSpecifier) := spec){
             if(identifier:appl(prod(label("Identifier",_),_,_),_) := typeSpecifier[0]){
-               if(identifier != theType) fail;
+               if(identifier != theType) filter;
             }
          }else if(appl(prod(label("StorageClass",_),_,_),storageClass) := spec){
             if(appl(prod(label("TypeDef",_),_,_),_) := storageClass[0]){
-               fail;
+               filter;
             }
          } // Certain storage parameters are not allowed (also fixes ambiguity with declarations).
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
    
-   return it;
+   return fail;
 }
 
 //-------------------------------------------------
