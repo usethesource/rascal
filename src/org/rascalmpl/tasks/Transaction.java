@@ -189,6 +189,8 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			map.put(k, fact);
 			removed.remove(k);
 		}
+
+		notifyListeners(key, fact, Change.CHANGED);
 			
 		return fact;
 	}
@@ -210,11 +212,13 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 
 		if(change)
 			notifyListeners(key, fact, Change.CHANGED);
-		stderr.printf("Set fact %s = %s\n    <- ", formatKey(key, name), abbrev(value.toString(), 40));
+		/*AVOID CONSOLE PRINTING WITHIN SYNCHRONIZED?
+		 * stderr.printf("Set fact %s = %s\n    <- ", formatKey(key, name), abbrev(value.toString(), 40));
 		for(IFact<?> d : fact.getDepends())
 			stderr.print(formatKey(d.getKey()) + " ");
 		stderr.println();
 		stderr.flush();
+		*/
 
 		return fact;
 	}
