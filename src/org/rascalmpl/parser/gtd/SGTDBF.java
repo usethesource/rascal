@@ -342,8 +342,8 @@ public abstract class SGTDBF implements IGTD{
 					}
 				}
 			}else{
-				next = next.getCleanCopy(location);
-				next.updateNode(node, nextResult);
+				nextNextAlternative = nextNext.getCleanCopy(location);
+				nextNextAlternative.updateNode(next, nextResult);
 			}
 			
 			// Handle alternative continuations (related to prefix sharing).
