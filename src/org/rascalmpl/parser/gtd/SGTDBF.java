@@ -29,6 +29,7 @@ import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -320,6 +321,9 @@ public abstract class SGTDBF implements IGTD{
 		if(next.hasNext()){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 			
+			IntegerObjectList<ArrayList<AbstractStackNode>> nextNextEdgesMap = null;
+			ArrayList<Link>[] nextNextPrefixesMap = null;
+			
 			// Proceed with the tail of the production.
 			int nextDot = next.getDot() + 1;
 			AbstractStackNode[] prod = node.getProduction();
@@ -340,14 +344,14 @@ public abstract class SGTDBF implements IGTD{
 						nextNextAlternative.updateNode(next, nextResult);
 					}
 				}
+				
+				nextNextEdgesMap = nextNextAlternative.getEdges();
+				nextNextPrefixesMap = nextNextAlternative.getPrefixesMap();
 			}
 			
 			// Handle alternative continuations (related to prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
-				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
-				ArrayList<Link>[] nextPrefixesMap = next.getPrefixesMap();
-				
 				for(int i = alternateProds.length - 1; i >= 0; --i){
 					prod = alternateProds[i];
 					if(nextDot == prod.length) continue;
@@ -357,16 +361,39 @@ public abstract class SGTDBF implements IGTD{
 					if(nextNextAltAlternative != null){
 						if(nextNextAltAlternative.isMatchable()){
 							if(nextNextAltAlternative.isEmptyLeafNode()){
-								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
+								if(nextNextEdgesMap != null){
+									AbstractNode nextNextAltAlternativeResult = nextNextAltAlternative.getResult();
+									if(nextNextAltAlternativeResult != null){
+										propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternativeResult, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+									}
+								}else{
+									propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges);
+								}
 							}else{
-								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
+								if(nextNextEdgesMap != null){
+									nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+								}else{
+									nextNextAltAlternative.updateNode(next, nextResult);
+									nextNextEdgesMap = nextNextAltAlternative.getEdges();
+									nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
+								}
 							}
 						}else{
 							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
 							if(nextAltResultStore != null){
-								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextEdgesMap, nextPrefixesMap);
+								if(nextNextEdgesMap != null){
+									propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+								}else{
+									propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges);
+								}
 							}else{
-								nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
+								if(nextNextEdgesMap != null){
+									nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+								}else{
+									nextNextAltAlternative.updateNode(next, nextResult);
+									nextNextEdgesMap = nextNextAltAlternative.getEdges();
+									nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
+								}
 							}
 						}
 					}
@@ -910,7 +937,7 @@ public abstract class SGTDBF implements IGTD{
 			
 			if(stack.canBeEmpty()){ // Star list, optional or such.
 				// This epsilon is unique for this position, so we don't need to check for sharing.
-				AbstractStackNode empty = stack.getEmptyChild().getCleanCopy(location);
+				AbstractStackNode empty = stack.getEmptyChild().getCleanCopyWithResult(location, EpsilonStackNode.EPSILON_RESULT);
 				empty.initEdges();
 				empty.addEdge(stack, location);
 				
