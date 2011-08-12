@@ -360,22 +360,41 @@ public abstract class SGTDBF implements IGTD{
 					AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
 					if(nextNextAltAlternative != null){
 						if(nextNextAltAlternative.isMatchable()){
-							if(nextNextAltAlternative.isEmptyLeafNode()){
-								if(nextNextEdgesMap != null){
-									AbstractNode nextNextAltAlternativeResult = nextNextAltAlternative.getResult();
-									if(nextNextAltAlternativeResult != null){
-										propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternativeResult, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+							if(nextNextAltAlternative.isInitialized()){
+								if(nextNextAltAlternative.isEmptyLeafNode()){
+									if(nextNextEdgesMap != null){
+										propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+									}else{
+										propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges);
 									}
 								}else{
-									propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges);
+									if(nextNextEdgesMap != null){
+										nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+									}else{
+										nextNextAltAlternative.updateNode(next, nextResult);
+										nextNextEdgesMap = nextNextAltAlternative.getEdges();
+										nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
+									}
 								}
 							}else{
-								if(nextNextEdgesMap != null){
-									nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-								}else{
-									nextNextAltAlternative.updateNode(next, nextResult);
-									nextNextEdgesMap = nextNextAltAlternative.getEdges();
-									nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
+								if((location + next.getLength()) <= input.length){
+									AbstractNode nextNextAltResult = next.match(input, location);
+									if(nextNextAltResult != null){
+										next = next.getCleanCopyWithResult(location, nextNextAltResult);
+										
+										if(nextNextEdgesMap != null){
+											next.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+										}else{
+											if(!node.isMatchable() || nextNextAltResult.isEmpty()){
+												nextNextAltAlternative.updateNode(next, nextNextAltResult);
+											}else{
+												nextNextAltAlternative.updateNodeAfterNonEmptyMatchable(next, nextNextAltResult);
+											}
+											
+											nextNextEdgesMap = nextNextAltAlternative.getEdges();
+											nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
+										}
+									}
 								}
 							}
 						}else{
