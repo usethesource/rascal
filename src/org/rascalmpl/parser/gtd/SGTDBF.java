@@ -321,15 +321,12 @@ public abstract class SGTDBF implements IGTD{
 		if(next.hasNext()){
 			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 			
-			IntegerObjectList<ArrayList<AbstractStackNode>> nextNextEdgesMap = null;
-			ArrayList<Link>[] nextNextPrefixesMap = null;
-			
 			// Proceed with the tail of the production.
 			int nextDot = next.getDot() + 1;
 			AbstractStackNode[] prod = node.getProduction();
 			AbstractStackNode nextNext = prod[nextDot];
 			AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
-			if(nextNextAlternative != null){
+			if(nextNextAlternative != null){ // Valid continuation.
 				if(nextNextAlternative.isMatchable()){
 					if(nextNextAlternative.isEmptyLeafNode()){
 						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
@@ -344,14 +341,17 @@ public abstract class SGTDBF implements IGTD{
 						nextNextAlternative.updateNode(next, nextResult);
 					}
 				}
-				
-				nextNextEdgesMap = nextNextAlternative.getEdges();
-				nextNextPrefixesMap = nextNextAlternative.getPrefixesMap();
+			}else{
+				next = next.getCleanCopy(location);
+				next.updateNode(node, nextResult);
 			}
 			
 			// Handle alternative continuations (related to prefix sharing).
 			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 			if(alternateProds != null){
+				IntegerObjectList<ArrayList<AbstractStackNode>> nextNextEdgesMap = nextNextAlternative.getEdges();
+				ArrayList<Link>[] nextNextPrefixesMap = nextNextAlternative.getPrefixesMap();
+				
 				for(int i = alternateProds.length - 1; i >= 0; --i){
 					prod = alternateProds[i];
 					if(nextDot == prod.length) continue;
@@ -360,59 +360,17 @@ public abstract class SGTDBF implements IGTD{
 					AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
 					if(nextNextAltAlternative != null){
 						if(nextNextAltAlternative.isMatchable()){
-							if(nextNextAltAlternative.isInitialized()){
-								if(nextNextAltAlternative.isEmptyLeafNode()){
-									if(nextNextEdgesMap != null){
-										propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
-									}else{
-										propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges);
-									}
-								}else{
-									if(nextNextEdgesMap != null){
-										nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-									}else{
-										nextNextAltAlternative.updateNode(next, nextResult);
-										nextNextEdgesMap = nextNextAltAlternative.getEdges();
-										nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
-									}
-								}
+							if(nextNextAltAlternative.isEmptyLeafNode()){
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
 							}else{
-								if((location + next.getLength()) <= input.length){
-									AbstractNode nextNextAltResult = next.match(input, location);
-									if(nextNextAltResult != null){
-										next = next.getCleanCopyWithResult(location, nextNextAltResult);
-										
-										if(nextNextEdgesMap != null){
-											next.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-										}else{
-											if(!node.isMatchable() || nextNextAltResult.isEmpty()){
-												nextNextAltAlternative.updateNode(next, nextNextAltResult);
-											}else{
-												nextNextAltAlternative.updateNodeAfterNonEmptyMatchable(next, nextNextAltResult);
-											}
-											
-											nextNextEdgesMap = nextNextAltAlternative.getEdges();
-											nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
-										}
-									}
-								}
+								nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
 							}
 						}else{
 							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
 							if(nextAltResultStore != null){
-								if(nextNextEdgesMap != null){
-									propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
-								}else{
-									propagateEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges);
-								}
+								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
 							}else{
-								if(nextNextEdgesMap != null){
-									nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-								}else{
-									nextNextAltAlternative.updateNode(next, nextResult);
-									nextNextEdgesMap = nextNextAltAlternative.getEdges();
-									nextNextPrefixesMap = nextNextAltAlternative.getPrefixesMap();
-								}
+								nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
 							}
 						}
 					}
