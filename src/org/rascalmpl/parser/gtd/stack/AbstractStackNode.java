@@ -342,6 +342,13 @@ public abstract class AbstractStackNode{
 	}
 	
 	/**
+	 * Checks whether or not this stack node has been initialized yet.
+	 */
+	public boolean isInitialized(){
+		return (edgesMap != null);
+	}
+	
+	/**
 	 * Adds the given edge to the set of edges for the indicated location.
 	 */
 	public ArrayList<AbstractStackNode> addEdge(AbstractStackNode edge, int startLocation){
