@@ -363,14 +363,14 @@ public RType convertFunctionType(FunctionType ft) {
 public RType convertUserType(UserType ut) {
     switch(ut) {
         case (UserType) `<QualifiedName n>` : return RUserType(convertName(n),[]);
-        case (UserType) `<QualifiedName n> [ <{Type ","}+ ts> ]` : return RUserType(convertName(n),[convertType(ti) | ti <- ts]);
+        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return RUserType(convertName(n),[convertType(ti) | ti <- ts]);
     }
 }
 
 public Name getUserTypeRawName(UserType ut) {
     switch(ut) {
         case (UserType) `<QualifiedName n>` : return getLastName(n);
-        case (UserType) `<QualifiedName n> [ <{Type ","}+ ts> ]` : return getLastName(n);
+        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return getLastName(n);
     }
 }
 
