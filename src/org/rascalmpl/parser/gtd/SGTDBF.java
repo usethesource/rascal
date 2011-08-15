@@ -300,6 +300,10 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
+	/**
+	 * Part of the hidden-right-recursion fix.
+	 * Propagates absent prefixes.
+	 */
 	private void propagatePrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int nrOfAddedEdges){
 		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 		
