@@ -9,6 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.library;
 
@@ -89,4 +90,11 @@ public class Real {
 	public IValue sqrt(IReal x){
 		  return values.real(Math.sqrt(x.doubleValue()));
 		}
+	
+	public IValue log(IReal x) {
+		return values.real(Math.log(x.doubleValue()));
+	}
+	public IValue log10(IReal x) {
+		return values.real(Math.log10(x.doubleValue()));
+	}
 }

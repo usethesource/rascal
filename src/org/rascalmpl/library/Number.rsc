@@ -103,3 +103,13 @@ public real sqrt(num x) {
     return Real::sqrt(toReal(x));
     }
 
+@doc{computes natural log(x)}
+public real log(num x) {
+    return Real::log(toReal(x));
+    }
+
+@doc{computes 10 based log(x)}
+public real log10(num x) {
+    return Real::log10(toReal(x));
+    }
+
