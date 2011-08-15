@@ -69,3 +69,11 @@ public java real tan(real x);
 @doc{Computes sqrt(x)}
 @javaClass{org.rascalmpl.library.Real}
 public java real sqrt(real x);
+
+@doc{Computes the natural log(x)}
+@javaClass{org.rascalmpl.library.Real}
+public java real log(real x);
+
+@doc{Computes the 10 based log(x)}
+@javaClass{org.rascalmpl.library.Real}
+public java real log10(real x);
