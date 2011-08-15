@@ -129,7 +129,34 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 	}
 
-	
+
+	static public class Rational extends org.rascalmpl.ast.BasicType.Rational {
+
+		public Rational(IConstructor __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public Type __evaluate(BasicTypeEvaluator __eval) {
+
+			if (__eval.__getTypeArgument().getArity() == 0) {
+				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
+						.integerType();
+			}
+			throw new NonWellformedTypeError("rat cannot have type arguments.",
+					this);
+
+		}
+
+		@Override
+		public Type typeOf(Environment __eval) {
+
+			return TF.rationalType();
+
+		}
+
+	}
+
 
 	static public class List extends org.rascalmpl.ast.BasicType.List {
 
