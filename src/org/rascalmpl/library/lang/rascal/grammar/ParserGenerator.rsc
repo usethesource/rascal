@@ -104,7 +104,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
     println("generating item allocations");
-    writeFile(|file:///tmp/grammarBeforeNewItems.trm|, gr);
+    //writeFile(|file:///tmp/grammarBeforeNewItems.trm|, gr);
     newItems = generateNewItems(gr, newItem);
     
     println("computing priority and associativity filter");
