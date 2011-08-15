@@ -492,7 +492,7 @@ public abstract class AbstractStackNode{
 					prefixes.add(new Link(prefixesMapToAdd[i], predecessorResult));
 				}
 			}
-		}else{ // A stack merge occured and the production is self cyclic (expandable nodes, such as lists, can have cyclic child alternatives).
+		}else{ // A stack merge occurred and the production is self cyclic (expandable nodes, such as lists, can have cyclic child alternatives).
 			if(prefixesMapToAdd == null){
 				int index = edgesMap.findKey(predecessor.getStartLocation());
 				addPrefix(new Link(null, predecessorResult), index);
