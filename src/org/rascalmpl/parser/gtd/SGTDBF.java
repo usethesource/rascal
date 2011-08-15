@@ -300,6 +300,69 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
+	private void propagatePrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int nrOfAddedEdges){
+		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
+		
+		// Proceed with the tail of the production.
+		int nextDot = next.getDot() + 1;
+		AbstractStackNode[] prod = node.getProduction();
+		AbstractStackNode nextNext = prod[nextDot];
+		AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
+		if(nextNextAlternative != null){ // Valid continuation.
+			if(nextNextAlternative.isMatchable()){
+				if(nextNextAlternative.isEmptyLeafNode()){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}else{
+				AbstractContainerNode nextNextResultStore = levelResultStoreMap.get(nextNextAlternative.getName(), getResultStoreId(nextNextAlternative.getId()));
+				if(nextNextResultStore != null){
+					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextResultStore, nrOfAddedEdges);
+				}else{
+					nextNextAlternative.updateNode(next, nextResult);
+				}
+			}
+		}
+		
+		// Handle alternative continuations (related to prefix sharing).
+		AbstractStackNode[][] alternateProds = node.getAlternateProductions();
+		if(alternateProds != null){
+			if(nextNextAlternative == null){ // If the first continuation has not been initialized yet (it may be a matchable that didn't match), create a dummy version to construct the necessary edges and prefixes.
+				if(!nextNext.isMatchable()) return; // Matchable, abort.
+				nextNextAlternative = nextNext.getCleanCopy(location);
+				nextNextAlternative.updateNode(next, nextResult);
+			}
+			
+			IntegerObjectList<ArrayList<AbstractStackNode>> nextNextEdgesMap = nextNextAlternative.getEdges();
+			ArrayList<Link>[] nextNextPrefixesMap = nextNextAlternative.getPrefixesMap();
+			
+			for(int i = alternateProds.length - 1; i >= 0; --i){
+				prod = alternateProds[i];
+				if(nextDot == prod.length) continue;
+				AbstractStackNode alternativeNext = prod[nextDot];
+				
+				AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
+				if(nextNextAltAlternative != null){
+					if(nextNextAltAlternative.isMatchable()){
+						if(nextNextAltAlternative.isEmptyLeafNode()){
+							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+						}else{
+							nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+						}
+					}else{
+						AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
+						if(nextAltResultStore != null){
+							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
+						}else{
+							nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Part of the hidden-right-recursion fix.
 	 * Inserts missing prefixes and triggers reductions where necessary.
@@ -319,63 +382,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		if(next.hasNext()){
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			
-			// Proceed with the tail of the production.
-			int nextDot = next.getDot() + 1;
-			AbstractStackNode[] prod = node.getProduction();
-			AbstractStackNode nextNext = prod[nextDot];
-			AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
-			if(nextNextAlternative != null){ // Valid continuation.
-				if(nextNextAlternative.isMatchable()){
-					if(nextNextAlternative.isEmptyLeafNode()){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
-					}else{
-						nextNextAlternative.updateNode(next, nextResult);
-					}
-				}else{
-					AbstractContainerNode nextNextResultStore = levelResultStoreMap.get(nextNextAlternative.getName(), getResultStoreId(nextNextAlternative.getId()));
-					if(nextNextResultStore != null){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextResultStore, nrOfAddedEdges);
-					}else{
-						nextNextAlternative.updateNode(next, nextResult);
-					}
-				}
-			}else{
-				nextNextAlternative = nextNext.getCleanCopy(location);
-				nextNextAlternative.updateNode(next, nextResult);
-			}
-			
-			// Handle alternative continuations (related to prefix sharing).
-			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
-			if(alternateProds != null){
-				IntegerObjectList<ArrayList<AbstractStackNode>> nextNextEdgesMap = nextNextAlternative.getEdges();
-				ArrayList<Link>[] nextNextPrefixesMap = nextNextAlternative.getPrefixesMap();
-				
-				for(int i = alternateProds.length - 1; i >= 0; --i){
-					prod = alternateProds[i];
-					if(nextDot == prod.length) continue;
-					AbstractStackNode alternativeNext = prod[nextDot];
-					
-					AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
-					if(nextNextAltAlternative != null){
-						if(nextNextAltAlternative.isMatchable()){
-							if(nextNextAltAlternative.isEmptyLeafNode()){
-								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
-							}else{
-								nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-							}
-						}else{
-							AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
-							if(nextAltResultStore != null){
-								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
-							}else{
-								nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
-							}
-						}
-					}
-				}
-			}
+			propagatePrefixes(node, nodeResult, next, nextResult, nrOfAddedEdges);
 		}
 	}
 	
@@ -386,62 +393,14 @@ public abstract class SGTDBF implements IGTD{
 	private void propagateAlternativeEdgesAndPrefixes(AbstractStackNode node, AbstractNode nodeResult, AbstractStackNode next, AbstractNode nextResult, int potentialNewEdges, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
 		next.updatePrefixSharedNode(edgesMap, prefixesMap);
 		
+		if(potentialNewEdges == 0) return;
+		
 		if(next.isEndNode()){
 			propagateReductions(node, nodeResult, next, nextResult, potentialNewEdges);
 		}
 		
-		if(potentialNewEdges != 0 && next.hasNext()){
-			// Proceed with the tail of the production.
-			int nextDot = next.getDot() + 1;
-			AbstractStackNode[] prod = node.getProduction();
-			AbstractStackNode nextNext = prod[nextDot];
-			AbstractStackNode nextNextAlternative = sharedNextNodes.get(nextNext.getId());
-			if(nextNextAlternative == null) return;
-
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
-			if(nextNextAlternative.isMatchable()){
-				if(nextNextAlternative.isEmptyLeafNode()){
-					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), potentialNewEdges);
-				}else{
-					nextNextAlternative.updateNode(next, nextResult);
-				}
-			}else{
-				AbstractContainerNode nextResultStore = levelResultStoreMap.get(nextNextAlternative.getName(), getResultStoreId(nextNextAlternative.getId()));
-				if(nextResultStore != null){
-					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextResultStore, potentialNewEdges);
-				}else{
-					nextNextAlternative.updateNode(next, nextResult);
-				}
-			}
-			
-			// Handle alternative continuations (related to prefix sharing).
-			AbstractStackNode[][] alternateProds = node.getAlternateProductions();
-			if(alternateProds != null){
-				IntegerObjectList<ArrayList<AbstractStackNode>> nextEdgesMap = next.getEdges();
-				ArrayList<Link>[] nextPrefixesMap = next.getPrefixesMap();
-				
-				for(int i = alternateProds.length - 1; i >= 0; --i){
-					prod = alternateProds[i];
-					if(nextDot == prod.length) continue;
-					AbstractStackNode alternativeNext = prod[nextDot];
-					
-					AbstractStackNode nextNextAltAlternative = sharedNextNodes.get(alternativeNext.getId());
-					if(nextNextAlternative.isMatchable()){
-						if(nextNextAlternative.isEmptyLeafNode()){
-							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextNextAltAlternative.getResult(), potentialNewEdges, nextEdgesMap, nextPrefixesMap);
-						}else{
-							nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
-						}
-					}else{
-						AbstractContainerNode nextAltResultStore = levelResultStoreMap.get(nextNextAltAlternative.getName(), getResultStoreId(nextNextAltAlternative.getId()));
-						if(nextAltResultStore != null){
-							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAltResultStore, potentialNewEdges, nextEdgesMap, nextPrefixesMap);
-						}else{
-							nextNextAltAlternative.updatePrefixSharedNode(nextEdgesMap, nextPrefixesMap);
-						}
-					}
-				}
-			}
+		if(next.hasNext()){
+			propagatePrefixes(node, nodeResult, next, nextResult, potentialNewEdges);
 		}
 	}
 	
