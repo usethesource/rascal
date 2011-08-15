@@ -319,32 +319,6 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isValue() {
-    return false;
-  }
-
-  static public class Value extends BasicType {
-    // Production: sig("Value",[])
-  
-    
-  
-    public Value(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isValue() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeValue(this);
-    }
-  
-    	
-  }
   public boolean isReifiedNonTerminal() {
     return false;
   }
@@ -367,6 +341,32 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeReifiedNonTerminal(this);
+    }
+  
+    	
+  }
+  public boolean isValue() {
+    return false;
+  }
+
+  static public class Value extends BasicType {
+    // Production: sig("Value",[])
+  
+    
+  
+    public Value(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isValue() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeValue(this);
     }
   
     	
@@ -419,6 +419,32 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeReifiedType(this);
+    }
+  
+    	
+  }
+  public boolean isRational() {
+    return false;
+  }
+
+  static public class Rational extends BasicType {
+    // Production: sig("Rational",[])
+  
+    
+  
+    public Rational(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isRational() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitBasicTypeRational(this);
     }
   
     	

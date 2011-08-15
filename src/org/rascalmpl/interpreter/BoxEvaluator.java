@@ -3447,16 +3447,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return L(x.getClass().toString());
 	}
 
-	public IValue visitWordAmbiguity(org.rascalmpl.ast.Word.Ambiguity x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitWordLexical(org.rascalmpl.ast.Word.Lexical x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitProdModifierTag(org.rascalmpl.ast.ProdModifier.Tag x) {
 		// TODO Auto-generated method stub
 		return L(x.getClass().toString());
@@ -3598,6 +3588,24 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	@Override
 	public IValue visitRationalLiteralAmbiguity(Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitBasicTypeRational(org.rascalmpl.ast.BasicType.Rational x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitRestLexical(org.rascalmpl.ast.Rest.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

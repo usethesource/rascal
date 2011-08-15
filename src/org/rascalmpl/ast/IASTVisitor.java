@@ -74,6 +74,54 @@ public interface IASTVisitor<T> {
 
   public T visitDeclarationTag(Declaration.Tag x);
 
+  public T visitBasicTypeMap(BasicType.Map x);
+
+  public T visitBasicTypeRelation(BasicType.Relation x);
+
+  public T visitBasicTypeReal(BasicType.Real x);
+
+  public T visitBasicTypeList(BasicType.List x);
+
+  public T visitBasicTypeReifiedAdt(BasicType.ReifiedAdt x);
+
+  public T visitBasicTypeReifiedReifiedType(BasicType.ReifiedReifiedType x);
+
+  public T visitBasicTypeDateTime(BasicType.DateTime x);
+
+  public T visitBasicTypeVoid(BasicType.Void x);
+
+  public T visitBasicTypeReifiedTypeParameter(BasicType.ReifiedTypeParameter x);
+
+  public T visitBasicTypeReifiedFunction(BasicType.ReifiedFunction x);
+
+  public T visitBasicTypeReifiedNonTerminal(BasicType.ReifiedNonTerminal x);
+
+  public T visitBasicTypeValue(BasicType.Value x);
+
+  public T visitBasicTypeString(BasicType.String x);
+
+  public T visitBasicTypeReifiedType(BasicType.ReifiedType x);
+
+  public T visitBasicTypeRational(BasicType.Rational x);
+
+  public T visitBasicTypeInt(BasicType.Int x);
+
+  public T visitBasicTypeTuple(BasicType.Tuple x);
+
+  public T visitBasicTypeBag(BasicType.Bag x);
+
+  public T visitBasicTypeBool(BasicType.Bool x);
+
+  public T visitBasicTypeNum(BasicType.Num x);
+
+  public T visitBasicTypeLoc(BasicType.Loc x);
+
+  public T visitBasicTypeNode(BasicType.Node x);
+
+  public T visitBasicTypeSet(BasicType.Set x);
+
+  public T visitBasicTypeReifiedConstructor(BasicType.ReifiedConstructor x);
+
   public T visitLiteralRational(Literal.Rational x);
 
   public T visitLiteralLocation(Literal.Location x);
@@ -119,6 +167,8 @@ public interface IASTVisitor<T> {
   public T visitStringTemplateFor(StringTemplate.For x);
 
   public T visitStructuredTypeDefault(StructuredType.Default x);
+
+  public T visitPreModuleDefault(PreModule.Default x);
 
   public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x);
 
@@ -177,52 +227,6 @@ public interface IASTVisitor<T> {
   public T visitKindAlias(Kind.Alias x);
 
   public T visitKindAll(Kind.All x);
-
-  public T visitBasicTypeMap(BasicType.Map x);
-
-  public T visitBasicTypeRelation(BasicType.Relation x);
-
-  public T visitBasicTypeReal(BasicType.Real x);
-
-  public T visitBasicTypeList(BasicType.List x);
-
-  public T visitBasicTypeReifiedAdt(BasicType.ReifiedAdt x);
-
-  public T visitBasicTypeReifiedReifiedType(BasicType.ReifiedReifiedType x);
-
-  public T visitBasicTypeDateTime(BasicType.DateTime x);
-
-  public T visitBasicTypeVoid(BasicType.Void x);
-
-  public T visitBasicTypeReifiedTypeParameter(BasicType.ReifiedTypeParameter x);
-
-  public T visitBasicTypeReifiedFunction(BasicType.ReifiedFunction x);
-
-  public T visitBasicTypeValue(BasicType.Value x);
-
-  public T visitBasicTypeReifiedNonTerminal(BasicType.ReifiedNonTerminal x);
-
-  public T visitBasicTypeString(BasicType.String x);
-
-  public T visitBasicTypeReifiedType(BasicType.ReifiedType x);
-
-  public T visitBasicTypeInt(BasicType.Int x);
-
-  public T visitBasicTypeTuple(BasicType.Tuple x);
-
-  public T visitBasicTypeBag(BasicType.Bag x);
-
-  public T visitBasicTypeBool(BasicType.Bool x);
-
-  public T visitBasicTypeNum(BasicType.Num x);
-
-  public T visitBasicTypeLoc(BasicType.Loc x);
-
-  public T visitBasicTypeNode(BasicType.Node x);
-
-  public T visitBasicTypeSet(BasicType.Set x);
-
-  public T visitBasicTypeReifiedConstructor(BasicType.ReifiedConstructor x);
 
   public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
 
@@ -439,8 +443,6 @@ public interface IASTVisitor<T> {
   public T visitIntegerLiteralHexIntegerLiteral(IntegerLiteral.HexIntegerLiteral x);
 
   public T visitIntegerLiteralDecimalIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x);
-
-  public T visitPreModuleDefault(PreModule.Default x);
 
   public T visitPatternWithActionReplacing(PatternWithAction.Replacing x);
 
@@ -729,6 +731,8 @@ public interface IASTVisitor<T> {
 
   public T visitPrePathCharsLexical(PrePathChars.Lexical x);
 
+  public T visitRestLexical(Rest.Lexical x);
+
   public T visitMidPathCharsLexical(MidPathChars.Lexical x);
 
   public T visitJustTimeLexical(JustTime.Lexical x);
@@ -764,8 +768,6 @@ public interface IASTVisitor<T> {
   public T visitNameLexical(Name.Lexical x);
 
   public T visitTagStringLexical(TagString.Lexical x);
-
-  public T visitWordLexical(Word.Lexical x);
 
   public T visitLAYOUTLexical(LAYOUT.Lexical x);
 
@@ -807,6 +809,7 @@ public interface IASTVisitor<T> {
   public T visitPrePathCharsAmbiguity(PrePathChars.Ambiguity x);
   public T visitStringConstantAmbiguity(StringConstant.Ambiguity x);
   public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x);
+  public T visitRestAmbiguity(Rest.Ambiguity x);
   public T visitReplacementAmbiguity(Replacement.Ambiguity x);
   public T visitMidPathCharsAmbiguity(MidPathChars.Ambiguity x);
   public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);
@@ -829,8 +832,8 @@ public interface IASTVisitor<T> {
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitJustDateAmbiguity(JustDate.Ambiguity x);
   public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
   public T visitFieldAmbiguity(Field.Ambiguity x);
@@ -844,8 +847,8 @@ public interface IASTVisitor<T> {
   public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x);
   public T visitDeclaratorAmbiguity(Declarator.Ambiguity x);
   public T visitCaseAmbiguity(Case.Ambiguity x);
-  public T visitPreModuleAmbiguity(PreModule.Ambiguity x);
   public T visitStatementAmbiguity(Statement.Ambiguity x);
+  public T visitPreModuleAmbiguity(PreModule.Ambiguity x);
   public T visitURLCharsAmbiguity(URLChars.Ambiguity x);
   public T visitTimeZonePartAmbiguity(TimeZonePart.Ambiguity x);
   public T visitProtocolPartAmbiguity(ProtocolPart.Ambiguity x);
@@ -879,7 +882,6 @@ public interface IASTVisitor<T> {
   public T visitCommandAmbiguity(Command.Ambiguity x);
   public T visitVisitAmbiguity(Visit.Ambiguity x);
   public T visitLAYOUTAmbiguity(LAYOUT.Ambiguity x);
-  public T visitWordAmbiguity(Word.Ambiguity x);
   public T visitNonterminalAmbiguity(Nonterminal.Ambiguity x);
   public T visitCommandsAmbiguity(Commands.Ambiguity x);
   public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x);
