@@ -25,6 +25,7 @@ import org.rascalmpl.test.TestFramework;
 
 
 public class NodeTests extends TestFramework {
+	private final static String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
 
 	@Test
 	public void arity() {
@@ -71,27 +72,27 @@ public class NodeTests extends TestFramework {
 	private boolean atermWriteRead(String type, String atermString, String dataDefs, String atermValue){
 		boolean success = false;
 		try{
-			PrintStream outStream = new PrintStream(new File("/tmp/xxx"));
+			PrintStream outStream = new PrintStream(new File(TMP_DIR+"xxx"));
 			outStream.print(atermString);
 			outStream.close();
 			prepare("import Node;");
 			prepareMore("import ATermIO;");
 			if(!dataDefs.equals(""))
 				prepareMore(dataDefs);
-			
-			success = runTestInSameEvaluator("{ " + type + " N := readTextATermFile(#" + type + ", |file:///tmp/xxx|) && N == " + atermValue + ";}");
+			String fileString = TMP_DIR.replace('\\', '/'); // Windows fix. File.toURI doesn't work properly on windows unfortunately.
+			success = runTestInSameEvaluator("{ " + type + " N := readTextATermFile(#" + type + ", |file:///"+fileString+"xxx|) && N == " + atermValue + ";}");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
 			// Clean up.
-			//removeTempFile();
+			removeTempFile();
 		}
 		return success;
 	}
 	
 	public void removeTempFile(){
-		new File("/tmp/xxx").delete();
+		new File(TMP_DIR+"xxx").delete();
 	}
 	
 	@Test
