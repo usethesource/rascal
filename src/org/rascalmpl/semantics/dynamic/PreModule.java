@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.ast.Header;
-import org.rascalmpl.ast.Word;
+import org.rascalmpl.ast.Rest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -29,7 +29,7 @@ public abstract class PreModule extends org.rascalmpl.ast.PreModule {
 
 	static public class Default extends org.rascalmpl.ast.PreModule.Default {
 
-		public Default(IConstructor node, Header header, List<Word> rest) {
+		public Default(IConstructor node, Header header, Rest rest) {
 			super(node, header, rest);
 			// TODO Auto-generated constructor stub
 		}

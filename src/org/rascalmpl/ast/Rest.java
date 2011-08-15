@@ -22,17 +22,17 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
-public abstract class Word extends AbstractAST {
-  public Word(IConstructor node) {
+public abstract class Rest extends AbstractAST {
+  public Rest(IConstructor node) {
     super(node);
   }
 
   
 
-  static public class Ambiguity extends Word {
-    private final java.util.List<org.rascalmpl.ast.Word> alternatives;
+  static public class Ambiguity extends Rest {
+    private final java.util.List<org.rascalmpl.ast.Rest> alternatives;
   
-    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Word> alternatives) {
+    public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Rest> alternatives) {
       super(node);
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
@@ -47,16 +47,16 @@ public abstract class Word extends AbstractAST {
       throw new Ambiguous(this.getTree());
     }
     
-    public java.util.List<org.rascalmpl.ast.Word> getAlternatives() {
+    public java.util.List<org.rascalmpl.ast.Rest> getAlternatives() {
       return alternatives;
     }
     
     public <T> T accept(IASTVisitor<T> v) {
-    	return v.visitWordAmbiguity(this);
+    	return v.visitRestAmbiguity(this);
     }
   }
 
-  static public class Lexical extends Word {
+  static public class Lexical extends Rest {
   private final java.lang.String string;
   public Lexical(IConstructor node, java.lang.String string) {
     super(node);
@@ -69,7 +69,7 @@ public abstract class Word extends AbstractAST {
     return string;
   }
   public <T> T accept(IASTVisitor<T> v) {
-    return v.visitWordLexical(this);
+    return v.visitRestLexical(this);
   }
 }
 

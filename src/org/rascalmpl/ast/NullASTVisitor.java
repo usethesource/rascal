@@ -132,6 +132,102 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitBasicTypeMap(BasicType.Map x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeRelation(BasicType.Relation x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReal(BasicType.Real x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeList(BasicType.List x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedAdt(BasicType.ReifiedAdt x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedReifiedType(BasicType.ReifiedReifiedType x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeDateTime(BasicType.DateTime x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeVoid(BasicType.Void x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedTypeParameter(BasicType.ReifiedTypeParameter x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedFunction(BasicType.ReifiedFunction x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedNonTerminal(BasicType.ReifiedNonTerminal x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeValue(BasicType.Value x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeString(BasicType.String x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedType(BasicType.ReifiedType x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeRational(BasicType.Rational x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeInt(BasicType.Int x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeTuple(BasicType.Tuple x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeBag(BasicType.Bag x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeBool(BasicType.Bool x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeNum(BasicType.Num x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeLoc(BasicType.Loc x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeNode(BasicType.Node x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeSet(BasicType.Set x) { 
+    return null; 
+  }
+
+  public T visitBasicTypeReifiedConstructor(BasicType.ReifiedConstructor x) { 
+    return null; 
+  }
+
   public T visitLiteralRational(Literal.Rational x) { 
     return null; 
   }
@@ -221,6 +317,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitStructuredTypeDefault(StructuredType.Default x) { 
+    return null; 
+  }
+
+  public T visitPreModuleDefault(PreModule.Default x) { 
     return null; 
   }
 
@@ -337,98 +437,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitKindAll(Kind.All x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeMap(BasicType.Map x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeRelation(BasicType.Relation x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReal(BasicType.Real x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeList(BasicType.List x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedAdt(BasicType.ReifiedAdt x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedReifiedType(BasicType.ReifiedReifiedType x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeDateTime(BasicType.DateTime x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeVoid(BasicType.Void x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedTypeParameter(BasicType.ReifiedTypeParameter x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedFunction(BasicType.ReifiedFunction x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeValue(BasicType.Value x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedNonTerminal(BasicType.ReifiedNonTerminal x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeString(BasicType.String x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedType(BasicType.ReifiedType x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeInt(BasicType.Int x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeTuple(BasicType.Tuple x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeBag(BasicType.Bag x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeBool(BasicType.Bool x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeNum(BasicType.Num x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeLoc(BasicType.Loc x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeNode(BasicType.Node x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeSet(BasicType.Set x) { 
-    return null; 
-  }
-
-  public T visitBasicTypeReifiedConstructor(BasicType.ReifiedConstructor x) { 
     return null; 
   }
 
@@ -861,10 +869,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitIntegerLiteralDecimalIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x) { 
-    return null; 
-  }
-
-  public T visitPreModuleDefault(PreModule.Default x) { 
     return null; 
   }
 
@@ -1441,6 +1445,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitRestLexical(Rest.Lexical x) { 
+    return null; 
+  }
+
   public T visitMidPathCharsLexical(MidPathChars.Lexical x) { 
     return null; 
   }
@@ -1510,10 +1518,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitTagStringLexical(TagString.Lexical x) { 
-    return null; 
-  }
-
-  public T visitWordLexical(Word.Lexical x) { 
     return null; 
   }
 
@@ -1618,6 +1622,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitRestAmbiguity(Rest.Ambiguity x) { 
+    return null; 
+  }
+
   public T visitReplacementAmbiguity(Replacement.Ambiguity x) { 
     return null; 
   }
@@ -1706,11 +1714,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
     return null; 
   }
 
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
     return null; 
   }
 
@@ -1766,11 +1774,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitPreModuleAmbiguity(PreModule.Ambiguity x) { 
+  public T visitStatementAmbiguity(Statement.Ambiguity x) { 
     return null; 
   }
 
-  public T visitStatementAmbiguity(Statement.Ambiguity x) { 
+  public T visitPreModuleAmbiguity(PreModule.Ambiguity x) { 
     return null; 
   }
 
@@ -1903,10 +1911,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitLAYOUTAmbiguity(LAYOUT.Ambiguity x) { 
-    return null; 
-  }
-
-  public T visitWordAmbiguity(Word.Ambiguity x) { 
     return null; 
   }
 

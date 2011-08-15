@@ -32,7 +32,7 @@ public abstract class PreModule extends AbstractAST {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Word> getRest() {
+  public Rest getRest() {
     throw new UnsupportedOperationException();
   }
   public boolean hasHeader() {
@@ -78,13 +78,13 @@ public abstract class PreModule extends AbstractAST {
   }
 
   static public class Default extends PreModule {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("java.util.List\<org.rascalmpl.ast.Word\>","rest")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("","rest")])
   
     
     private final org.rascalmpl.ast.Header header;
-    private final java.util.List<org.rascalmpl.ast.Word> rest;
+    private final Rest  rest;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Header header,  java.util.List<org.rascalmpl.ast.Word> rest) {
+    public Default(IConstructor node , org.rascalmpl.ast.Header header, Rest  rest) {
       super(node);
       
       this.header = header;
@@ -112,7 +112,7 @@ public abstract class PreModule extends AbstractAST {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Word> getRest() {
+    public  Rest getRest() {
       return this.rest;
     }
   
