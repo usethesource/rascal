@@ -80,7 +80,7 @@ public class NodeTests extends TestFramework {
 			if(!dataDefs.equals(""))
 				prepareMore(dataDefs);
 			String fileString = TMP_DIR.replace('\\', '/'); // Windows fix. File.toURI doesn't work properly on windows unfortunately.
-			success = runTestInSameEvaluator("{ " + type + " N := readTextATermFile(#" + type + ", |file:///"+fileString+"xxx|) && N == " + atermValue + ";}");
+			success = runTestInSameEvaluator("{ " + type + " N := readTextATermFile(#" + type + ", |file://"+fileString+"xxx|) && N == " + atermValue + ";}");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
