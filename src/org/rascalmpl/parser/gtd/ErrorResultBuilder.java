@@ -252,7 +252,7 @@ public class ErrorResultBuilder{
 			errorNodes.push(filteredNode, resultStore);
 		}
 		
-		if(errorNodes.isEmpty()) return null; // Can't build error tree if we don't know what caused the error.
+		if(errorNodes.isEmpty()) return null; // Can't build an error tree if we don't know what caused the error.
 		
 		// Build the 'error frontier'.
 		while(!errorNodes.isEmpty()){
