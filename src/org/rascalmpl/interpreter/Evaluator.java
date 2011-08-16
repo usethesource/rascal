@@ -446,7 +446,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			if(withErrorTree){
 				try{
 					IConstructor errorTree = (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), exec);
-					if(errorTree != null) return errorTree; // Prevent nullpointer caused by a reject interfering with the error's tree construction.
+					if(errorTree != null) return errorTree; // We were unable to construct an error tree.
 				}catch(NullPointerException npex){
 					// Ignore, so we rethrow the orginial parse error.
 				}
@@ -1153,7 +1153,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		catch (ParseError pe) {
 			if (withErrorTree) {
-				return (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), actions);
+				IConstructor errorTree = (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), actions);
+				if(errorTree != null) return errorTree; // We were unable to construct an error tree.
 			}
 			
 			throw pe;
