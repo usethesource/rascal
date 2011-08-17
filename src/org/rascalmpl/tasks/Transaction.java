@@ -303,7 +303,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		Collection<IDependencyListener> ls = listeners.get(key);
 		if(ls == null)
 			ls = new ArrayList<IDependencyListener>();
-		if(!ls.contains(listener));
+		if(!ls.contains(listener))
 			ls.add(listener);
 		listeners.put(key, ls);
 	}
