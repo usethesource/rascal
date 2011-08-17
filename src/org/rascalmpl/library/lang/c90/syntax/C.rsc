@@ -323,7 +323,7 @@ public Tree SizeOfExpression(Expression exp){ // May be ambiguous with "sizeof(T
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree MultiplicationExpression(Expression lexp, Expression rexp){ // May be ambiguous with "TypeName *Declarator".
@@ -333,7 +333,7 @@ public Tree MultiplicationExpression(Expression lexp, Expression rexp){ // May b
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree NonCommaExpression(Expression expr){
@@ -341,7 +341,7 @@ public Tree NonCommaExpression(Expression expr){
       filter;
    }
    
-   return fail;
+   fail;
 }
 
 public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ initDeclarators){
@@ -370,7 +370,7 @@ public Tree DeclarationWithInitDecls(Specifier+ specs, {InitDeclarator ","}+ ini
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree DeclarationWithoutInitDecls(Specifier+ specs){
@@ -393,7 +393,7 @@ public Tree DeclarationWithoutInitDecls(Specifier+ specs){
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","}+ initDeclarators){
@@ -422,7 +422,7 @@ public Tree GlobalDeclarationWithInitDecls(Specifier* specs, {InitDeclarator ","
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
@@ -445,7 +445,7 @@ public Tree GlobalDeclarationWithoutInitDecls(Specifier+ specs){
       } // May be ambiguous with Spec* {InitDecl ","}*
    }
    
-   return fail;
+   fail;
 }
 
 public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declarators){
@@ -468,7 +468,7 @@ public Tree StructDeclWithDecl(Specifier+ specs, {StructDeclarator ","}+ declara
       }
    }
    
-   return fail;
+   fail;
 }
 
 public Tree StructDeclWithoutDecl(Specifier+ specs){
@@ -491,7 +491,7 @@ public Tree StructDeclWithoutDecl(Specifier+ specs){
       } // May be ambiguous with Spec* {StructDecl ","}*
    }
    
-   return fail;
+   fail;
 }
 
 public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, Declaration* _, Declaration* _, Statement* _){
@@ -523,7 +523,7 @@ public Tree DefaultFunctionDefinition(Specifier* specs, Declarator declarator, D
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
    
-   return fail;
+   fail;
 }
 
 public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl){
@@ -555,7 +555,7 @@ public Tree DefaultFunctionPrototype(Specifier* specs, PrototypeDeclarator decl)
       } // May be ambiguous with the K&R style function parameter definition thing.
    }
    
-   return fail;
+   fail;
 }
 
 //-------------------------------------------------
