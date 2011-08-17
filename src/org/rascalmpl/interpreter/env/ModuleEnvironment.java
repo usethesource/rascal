@@ -130,6 +130,15 @@ public class ModuleEnvironment extends Environment {
 				}
 			}
 		}
+		
+		for(String mod : getImports()){
+			ModuleEnvironment env = heap.getModule(mod);
+			if (env != null) {
+				if (!env.productions.isEmpty()) {
+					return true;
+				}
+			}
+		}
 
 		return false;
 	}
