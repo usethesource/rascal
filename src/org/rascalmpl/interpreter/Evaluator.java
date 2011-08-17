@@ -1103,15 +1103,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new NodeToUPTR());
 
 		if (TreeAdapter.isAmb(prefix)) {
-			ISet alts = TreeAdapter.getAlternatives(prefix);
-			Iterator<IValue> iterator = alts.iterator();
-			IConstructor first = (IConstructor) iterator.next();
-			IConstructor second = (IConstructor) iterator.next();
-			if (first.isEqual(second)) {
-				System.err.println("samesame???");
-				throw new IllegalArgumentException();
-			}
-			
 			throw new Ambiguous(prefix);
 		}
 		
