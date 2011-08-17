@@ -131,7 +131,7 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 		
-		for(String mod : getImports()){
+		for(String mod : getImportsTransitive()){
 			ModuleEnvironment env = heap.getModule(mod);
 			if (env != null) {
 				if (!env.productions.isEmpty()) {
@@ -247,6 +247,30 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public Set<String> getImports() {
 		return importedModules.keySet();
+	}
+	
+	public Set<String> getImportsTransitive() {
+		List<String> todo = new LinkedList<String>();
+		Set<String> done = new HashSet<String>();
+		Set<String> result = new HashSet<String>();
+		todo.add(this.getName());
+		GlobalEnvironment heap = getHeap();
+		
+		while (!todo.isEmpty()) {
+		   String mod = todo.remove(0);	
+		   done.add(mod);
+		   ModuleEnvironment env = heap.getModule(mod);
+		   if (env != null) {
+			  for (String e : env.getImports()) {
+				  result.add(e);
+				  if (!done.contains(e)) {
+					  todo.add(e);
+				  }
+			  }
+		   }
+		}
+		
+		return result;
 	}
 	
 	public void unImport(String moduleName) {
