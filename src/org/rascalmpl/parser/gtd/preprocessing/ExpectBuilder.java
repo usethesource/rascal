@@ -11,7 +11,7 @@ import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 
 /**
  * A preprocessor for building expect matrixes.
- * This preprocessor incorporates prefix-sharing into relate alternatives,
+ * This preprocessor incorporates prefix-sharing into related alternatives,
  * where possible. It also intialized the 'static' versions of the stack nodes.
  */
 public class ExpectBuilder{
