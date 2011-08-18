@@ -276,6 +276,10 @@ public class ModuleEnvironment extends Environment {
 	public void unImport(String moduleName) {
 		importedModules.remove(moduleName);
 	}
+	
+	public void unExtend(String moduleName) {
+		extended.remove(moduleName);
+	}
 
 	public String getName() {
 		return name;

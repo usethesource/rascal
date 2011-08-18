@@ -842,6 +842,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		reloadModules(monitor, names, errorLocation, true);
 	}
 	
+	// TODO Update for extends.
 	private void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation, boolean recurseToExtending) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -879,12 +880,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				monitor.endJob(true);
 			}
 			
-			Set<String> depending = new HashSet<String>();
-			depending.addAll(getImportingModules(names));
+			Set<String> dependingImports = new HashSet<String>();
+			Set<String> dependingExtends = new HashSet<String>();
+			dependingImports.addAll(getImportingModules(names));
+			dependingExtends.addAll(getExtendingModules(names));
 			
 			try {
-				monitor.startJob("Reconnecting importers of affected modules", depending.size());
-				for (String mod : depending) {
+				monitor.startJob("Reconnecting importers of affected modules", dependingImports.size());
+				for (String mod : dependingImports) {
 					ModuleEnvironment env = heap.getModule(mod);
 					Set<String> todo = new HashSet<String>(env.getImports());
 					for (String imp : todo) {
@@ -893,6 +896,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 							ModuleEnvironment imported = heap.getModule(imp);
 							if (imported != null) {
 								env.addImport(imp, imported);
+							}
+						}
+
+					}
+					monitor.event("Reconnected " + mod, 1);
+				}
+				
+				monitor.startJob("Reconnecting extenders of affected modules", dependingExtends.size());
+				for (String mod : dependingExtends) {
+					ModuleEnvironment env = heap.getModule(mod);
+					Set<String> todo = new HashSet<String>(env.getExtends());
+					for (String ext : todo) {
+						if (names.contains(ext)) {
+							env.unExtend(ext);
+							ModuleEnvironment extended = heap.getModule(ext);
+							if (extended != null) {
+								env.addExtend(ext);
 							}
 						}
 
@@ -951,6 +971,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		while (!todo.isEmpty()) {
 			String mod = todo.pop();
 			Set<String> dependingModules = heap.getImportingModules(mod);
+			dependingModules.removeAll(found);
+			found.addAll(dependingModules);
+			todo.addAll(dependingModules);
+		}
+		
+		return found;
+	}
+	
+	private Set<String> getExtendingModules(Set<String> names) {
+		Set<String> found = new HashSet<String>();
+		LinkedList<String> todo = new LinkedList<String>(names);
+		
+		while (!todo.isEmpty()) {
+			String mod = todo.pop();
+			Set<String> dependingModules = heap.getExtendingModules(mod);
 			dependingModules.removeAll(found);
 			found.addAll(dependingModules);
 			todo.addAll(dependingModules);
