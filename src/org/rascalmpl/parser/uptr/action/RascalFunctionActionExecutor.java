@@ -157,8 +157,12 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 				ICallableValue function = (ICallableValue) var;
 				
 				try{
-					// First try without layout and literal args and an actual parameter for each "field"
-					Result<IValue> result = call(function, TreeAdapter.getASTArgs(tree));
+					Result<IValue> result = null;
+					if(TreeAdapter.isContextFree(tree)){
+						// For context free trees, try it without layout and literal arguments first.
+						result = call(function, TreeAdapter.getASTArgs(tree));
+					}
+					
 					if(result == null){
 						result = call(function, TreeAdapter.getArgs(tree));
 					}
