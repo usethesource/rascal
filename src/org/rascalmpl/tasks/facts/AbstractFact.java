@@ -170,6 +170,52 @@ public abstract class AbstractFact<V> implements IFact<V> {
 			o = queue.poll();
 		}
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + ((keyName == null) ? 0 : keyName.hashCode());
+		result = prime * result + status;
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result
+				+ ((valueRef == null) ? 0 : valueRef.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("unchecked")
+		AbstractFact<V> other = (AbstractFact<V>) obj;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (keyName == null) {
+			if (other.keyName != null)
+				return false;
+		} else if (!keyName.equals(other.keyName))
+			return false;
+		if (status != other.status)
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		if (valueRef == null) {
+			if (other.valueRef != null)
+				return false;
+		} else if (!valueRef.equals(other.valueRef))
+			return false;
+		return true;
+	}
 }
 
 
@@ -177,6 +223,7 @@ interface IRef<V> {
 	public AbstractFact<V> getFact();
 	public V get();
 	public void clear();
+	public int hashCode();
 }
 
 class WeakRef<V> extends WeakReference<V> implements IRef<V> {
