@@ -842,7 +842,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		reloadModules(monitor, names, errorLocation, true);
 	}
 	
-	// TODO Update for extends.
+	// TODO Update for extends; extends need to be cleared and reinterpreted.
 	private void reloadModules(IRascalMonitor monitor, Set<String> names, URI errorLocation, boolean recurseToExtending) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -853,7 +853,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				monitor.startJob("Cleaning modules", names.size());
 				for (String mod : names) {
 					if (heap.existsModule(mod)) {
-						System.err.println("NOTE: will reload " + mod + " + all its dependents");
+						//System.err.println("NOTE: will reload " + mod + " + all its dependents");
 						onHeap.add(mod);
 						if (recurseToExtending) {
 							extendingModules.addAll(heap.getExtendingModules(mod));
