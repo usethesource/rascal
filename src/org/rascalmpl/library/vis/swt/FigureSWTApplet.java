@@ -153,7 +153,7 @@ public class FigureSWTApplet extends Composite
 			}
 		}
 		gc.dispose();
-		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing (part) took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
+		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing (part) took %f\n", (System.nanoTime() - startTime) / 1000000.0);
 		makeOffscreenElementsInvisble();
 	}
 	

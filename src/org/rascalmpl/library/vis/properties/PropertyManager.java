@@ -88,9 +88,9 @@ public class PropertyManager {
 			} 
 			else if(pname.equals("std")){
 				pname = ((IConstructor)c.get(0)).getName();
-				nrStdProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
+				nrStdProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();
 			} else {
-				nrExplicitProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();;
+				nrExplicitProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();
 			}
 		}
 		explicitValues = new PropertyValue[nrExplicitProperties];

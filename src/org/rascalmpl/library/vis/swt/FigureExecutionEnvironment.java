@@ -73,8 +73,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 			computeFigures();
 			appletRoot.layoutForce();
 			if(profile){
-				double figTime = ((double)(System.nanoTime() - startTime)) / 1000000.0;
-				double rascalTimeD = ((double)rascalTime) / 1000000.0;
+				double figTime = (System.nanoTime() - startTime) / 1000000.0;
+				double rascalTimeD = rascalTime / 1000000.0;
 				System.out.printf("Compute figures took %f rascal time: %f rascal portion %f\n", figTime, rascalTimeD, rascalTimeD / figTime);
 				rascalTime = 0;
 			}

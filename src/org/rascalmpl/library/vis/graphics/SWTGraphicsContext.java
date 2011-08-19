@@ -67,7 +67,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	
 	enum SHAPE {
 		ELLIPSE, RECTANGLE
-	};
+	}
 
 
 	public void line(double arg0, double arg1, double arg2, double arg3) {

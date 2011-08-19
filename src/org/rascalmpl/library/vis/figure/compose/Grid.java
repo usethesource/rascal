@@ -75,7 +75,7 @@ public class Grid extends Figure {
 		columnBorders = new ForBothDimensions<double[]>(new double[nrColumns], new double[nrRows]) ;
 		columnsSize = new ForBothDimensions<Grid.Size[]>(new Size[nrColumns], new Size[nrRows]);
 		unresizableColumnsWidth = new ForBothDimensions<Double>(0.0,0.0);
-		totalShrinkAllSetColumns =  new ForBothDimensions<Double>(0.0,0.0);;
+		totalShrinkAllSetColumns =  new ForBothDimensions<Double>(0.0,0.0);
 		nrShrinkNoneColumns = new ForBothDimensions<Integer>(0, 0);
 		nrShrinkSomeColumns= new ForBothDimensions<Integer>(0, 0);
 		nrShrinkAllColumns= new ForBothDimensions<Integer>(0, 0);
@@ -382,7 +382,7 @@ public class Grid extends Figure {
 		double sizeOfAutoElement = shrinkOfAutoElement * spaceForColumns;
 		double whitespace = size.getWidth(flip) - spaceForColumns;
 		double left = 0;
-		double gapSize = whitespace / (double)nrHGaps(flip) ;
+		double gapSize = whitespace / nrHGaps(flip) ;
 		if(nrHGaps(flip) == 0.0){
 			gapSize = 0.0;
 		}
