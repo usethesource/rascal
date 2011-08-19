@@ -63,7 +63,6 @@ public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
 	protected Map<String, ModuleEnvironment> importedModules;
 	protected Set<String> extended;
-	protected Map<Type, List<Type>> extensions;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
@@ -78,7 +77,6 @@ public class ModuleEnvironment extends Environment {
 		super(name);
 		this.heap = heap;
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
-		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.productions = new HashSet<IValue>();
 		this.typeStore = new TypeStore();
@@ -90,7 +88,6 @@ public class ModuleEnvironment extends Environment {
 	public void reset() {
 		super.reset();
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
-		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
