@@ -88,8 +88,8 @@ public class SpringGraphNode {
 		
 		if(FigureMath.abs(dlensq) < 1){
 			dlensq = dlensq < 0 ? -0.01f : 0.01f;
-			double r1 = (double) Math.random();
-			double r2 = (double) Math.random();
+			double r1 = Math.random();
+			double r2 = Math.random();
 			
 			vx = vx > 0 ? vx + r1 : vx - r1;
 			vy = vy > 0 ? vy + r2 : vy - r2;

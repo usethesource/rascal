@@ -41,7 +41,7 @@ public class LinSolve {
 		}
 		
 		private boolean isOnEdge(LatticeGraphNode n) {
-		  final double d = (double) Math.hypot(cx, cy);
+		  final double d = Math.hypot(cx, cy);
 		  return Math.abs(cx * n.x + cy * n.y - c) < eps1*d;
 		}
 	}

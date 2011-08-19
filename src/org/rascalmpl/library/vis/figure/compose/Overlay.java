@@ -210,11 +210,11 @@ public class Overlay extends Compose{
 				return;
 			}
 			
-			if(val instanceof IValue && (((IValue)val).getType().isNumberType() || ((IValue)val).getType().isIntegerType() || ((IValue)val).getType().isRealType())){
+			if(((val).getType().isNumberType() || (val).getType().isIntegerType() || (val).getType().isRealType())){
 				
-				double pval = PropertyParsers.parseNum((IValue)val);
+				double pval = PropertyParsers.parseNum(val);
 				if(figures[where].isHLocPropertyConverted(flip)){
-					double ppval = PropertyParsers.parseNum((IValue)figures[where].getHLocPropertyUnconverted(flip));
+					double ppval = PropertyParsers.parseNum(figures[where].getHLocPropertyUnconverted(flip));
 					//System.out.printf("add %f %f\n",ppval,pval);
 					pval+=ppval;
 				}

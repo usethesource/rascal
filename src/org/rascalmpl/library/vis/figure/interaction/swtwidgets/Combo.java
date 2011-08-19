@@ -24,8 +24,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
 
-	;
-
 	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
 		super(env, cb, properties);
 		widget = makeWidget(env.getSWTParent(), env,choices);

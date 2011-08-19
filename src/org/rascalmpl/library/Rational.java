@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
-import java.util.Random;
-
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValue;

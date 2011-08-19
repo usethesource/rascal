@@ -105,7 +105,7 @@ public class NominalKey extends WithInnerFig implements Key{
 	public IValue scaleValue(IValue val) {
 		
 		for(int i = 0 ; i < originals.size()  ; i++){
-			if(originals.get(i).isEqual((IValue)val)){
+			if(originals.get(i).isEqual(val)){
 				return possibilities.get(i);
 			}
 		}

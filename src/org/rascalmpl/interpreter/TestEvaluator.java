@@ -37,7 +37,7 @@ public class TestEvaluator {
 	}
 
 	public void test(String moduleName) {
-		ModuleEnvironment topModule = (ModuleEnvironment) eval.getHeap().getModule(moduleName);
+		ModuleEnvironment topModule = eval.getHeap().getModule(moduleName);
 		
 		if (topModule != null) {
 			runTests(topModule, topModule.getTests());
