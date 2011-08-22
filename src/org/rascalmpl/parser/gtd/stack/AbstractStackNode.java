@@ -435,7 +435,7 @@ public abstract class AbstractStackNode{
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		if(edgesMap == null){ // Clean node, no stack merge occurred.
-			// Initialize the edges map by cloning the one of the predecessor.
+			// Initialize the edges map by cloning the one of the predecessor, as we need to transfer all these edges to this node.
 			edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>(edgesMapToAdd);
 			
 			// Initialize the prefixes map.
