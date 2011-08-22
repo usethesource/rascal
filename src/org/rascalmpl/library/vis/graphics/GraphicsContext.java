@@ -1,7 +1,5 @@
 package org.rascalmpl.library.vis.graphics;
 
-import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
-
 public interface GraphicsContext {
 	
 	public void line(double arg0, double arg1, double arg2, double arg3);
@@ -15,13 +13,13 @@ public interface GraphicsContext {
 	public void stroke(int arg0);
 	public void font(int arg0);
 	public void strokeWeight(double arg0);
-	public void strokeStyle(int style);
+	public void strokeStyle(String style);
 	public void textSize(double arg0);
 	public void setShadow(boolean shadow);
 	public void setShadowColor(int color);
 	public void setShadowLeft(double x);
 	public void setShadowTop(double y);
-	public void setFont(String fontName, double fontSize, FontStyle... styles);
+	public void setFont(String fontName, int fontSize, FontStyle... styles);
 
 	public void pushMatrix();
 	public void popMatrix();
@@ -42,6 +40,5 @@ public interface GraphicsContext {
 	public void endShape(int arg0 );
 
 	public void dispose();
-	public void registerSWTElement(IHasZOrder elem);
 
 }

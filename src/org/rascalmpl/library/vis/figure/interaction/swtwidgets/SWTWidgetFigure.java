@@ -12,88 +12,113 @@
 
 package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
+import static org.rascalmpl.library.vis.properties.Properties.FILL_COLOR;
+import static org.rascalmpl.library.vis.properties.Properties.FONT_COLOR;
+
+import java.util.List;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
-import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
-import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
+import org.rascalmpl.library.vis.util.Mutable;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 
-public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure implements IHasZOrder{
+public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure implements IHasSWTElement{
 
 	public WidgetType widget;
-	int zorder;
 	
 	SWTWidgetFigure(IFigureConstructionEnv env,PropertyManager properties){
 		super(properties);
+		children = childless;
+	}
+	
+	@Override 
+	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
+		swtSeen.set(true);
+		env.addSWTElement(widget);
+	}
+	
+	@Override
+	public void computeMinSize(){
+		Point p = widget.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		minSize.setX(p.x);
+		minSize.setY(p.y);
+		
+	}
+	
+	@Override
+	public void resizeElement(Rectangle view) {
+		
+		
 		
 	}
 
 	@Override
-	public void bbox(){
-		Point p = widget.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		minSize.setWidth(p.x);
-		minSize.setHeight(p.y);
-		setResizable();
-		super.bbox();
-	}
-	
-	@Override
-	public void layout() {
-		widget.setSize(FigureMath.round(size.getWidth()),
-				FigureMath.round(size.getHeight()));
-	}
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
+		visibleSWTElements.add(this);
+		int rx = FigureMath.round(location.getX() + gc.getTranslateX());
+		int ry = FigureMath.round(location.getY() + gc.getTranslateY());
+		if(widget.getLocation().x != rx || widget.getLocation().y != ry){
+			widget.setLocation(rx,ry);
+		 }
+			rx = FigureMath.round(size.getX());
+			ry = FigureMath.round(size.getY());
+			 if(widget.getSize().x != rx  || widget.getSize().y != ry){
+				widget.setSize(rx,
+						ry);
+			}
+				Color b = SWTFontsAndColors.getRgbColor(prop.getColor(FILL_COLOR));
+				if(!widget.getBackground().equals(b)){
+					widget.setBackground(b);
+				}
+				b = SWTFontsAndColors.getRgbColor(prop.getColor(FONT_COLOR));
+				if(!widget.getForeground().equals(b)){
+					widget.setForeground(b);
+				}
+					// TODO : set Font!
+			if(!widget.getVisible()){
+				widget.setVisible(true);
+			}
 
-	@Override
-	public void draw(GraphicsContext gc) {
-		widget.setLocation(FigureMath.round(getLeft() + gc.getTranslateX()),
-		         FigureMath.round(getTop() + gc.getTranslateY()));
-		// SWT draws this itself! this is only layout
-		widget.setBackground(SWTFontsAndColors.getRgbColor(getFillColorProperty()));
-		widget.setForeground(SWTFontsAndColors.getRgbColor(getFontColorProperty()));
-		widget.setVisible(true);
-		gc.registerSWTElement(this);
 	}
 	
 	@Override
-	public void destroy() {
+	public void destroyElement(IFigureConstructionEnv env) { 
 		if(widget!=null)widget.dispose();
 	}
 	
 
-	public void setSWTZOrder(ISWTZOrdering zorder){
-		zorder.registerControl(this);
-	}
-	
-	
-	public void setZOrder(int depth){
-		zorder = depth;
-	}
-	
-	public int getZOrder(){
-		return zorder;
-	}
-	
-	public Control getElement(){
+	@Override
+	public Control getControl() {
 		return widget;
 	}
-	
-	public int getStableOrder(){
-		return sequenceNr;
+
+	public void hideElement(IFigureConstructionEnv env) {
+		setVisible(false);
 	}
 	
+	@Override
 	public void setVisible(boolean visible){
-		if(!visible){
+		if(!visible && widget.getVisible()){
 			widget.setLocation(-10 - widget.getSize().x, -10 - widget.getSize().y);
-		} else {
-			System.out.printf("Making %d visible\n",sequenceNr);
+			//widget.setVisible(false);
+		} else if(visible &&  !widget.getVisible()){
+			widget.setVisible(visible);
 		}
-		widget.setVisible(visible);
+	}
+	
+	@Override
+	public int getStableOrder(){
+		return sequenceNr;
 	}
 }

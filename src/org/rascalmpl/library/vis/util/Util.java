@@ -1,6 +1,9 @@
 package org.rascalmpl.library.vis.util;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 public class Util {
 	
@@ -38,6 +41,23 @@ public class Util {
 		return minIndex;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static <T> T[] flatten(Class<T> t, T[][] m){
+		int size = 0;
+		for(T[] mr : m){
+			size+= mr.length;
+		}
+		T[] result = (T[]) Array.newInstance(t, size);
+		int i = 0;
+		for(T[] mr : m){
+			for(T e: mr) {
+				result[i] = e;
+				i++;
+			}
+		}
+		return result;
+	}
+	
 	public static boolean any(boolean[] vals){
 		for(boolean b : vals) { if(b) return true; }
 		return false;
@@ -69,33 +89,73 @@ public class Util {
 		}
 	}
 	
-	public static class QuadraticRoots{
-		public int nrRoots;
-		public double firstRoot, secondRoot;
-		QuadraticRoots(){
-			nrRoots = 0;
-		}
-		QuadraticRoots(double root){
-			nrRoots = 1;
-			firstRoot = root;
-		}
-		QuadraticRoots(double firstRoot,double secondRoot){
-			nrRoots = 2;
-			this.firstRoot = firstRoot;
-			this.secondRoot = secondRoot;
+	
+	/* Compares elements of lhs and rhs fills in the three argument vectors with elements that are only in the left, in both, or only in the right
+	 * vector. lhs and rhs should be sorted!
+	 * 
+	 * O(n) where n is the max(lhs.size(),rhs.size())
+	 */
+	@SuppressWarnings("unchecked")
+	static public <T> void diffSorted(List<T> lhs, List<T> rhs, List<T> inLeft, List<T> inBoth, List<T> inRight){
+		diffSorted(lhs,rhs,inLeft,inBoth,inRight,NaturalComparator.instance);
+	}
+	
+	static public <T> void diffSorted(List<T> lhs, List<T> rhs, List<T> inLeft, List<T> inBoth, List<T> inRight, Comparator<T> comp){
+		int i, j;
+		i = j = 0;
+		while(i < lhs.size() || j < rhs.size()){
+			int cmp;
+			if(i == lhs.size()){
+				cmp = 1;
+			} else if (j == rhs.size()){
+				cmp = -1;
+			} else {
+				cmp = comp.compare(lhs.get(i),rhs.get(j));
+			}
+			if(cmp < 0){
+				inLeft.add(lhs.get(i));
+				i++;
+			} else if(cmp == 0){
+				inBoth.add(lhs.get(i));
+				i++;
+				j++;
+			} else {
+				inRight.add(rhs.get(j));
+				j++;
+			}
 		}
 	}
 	
-	static public QuadraticRoots getQuadraticRoots(double a, double b, double c){
-		double discriminant = b*b - 4 * a * c;
-		if(discriminant < 0){
-			return new QuadraticRoots();
-		} else if(discriminant == 0){
-			return new QuadraticRoots(-b / (2*a));
-		} else {
-			return new QuadraticRoots(
-					(-b + Math.sqrt(discriminant))/(2*a),
-					(-b - Math.sqrt(discriminant))/(2*a));
-		}	
+	public static String tabs2spaces(int tabWidth, String in){
+		int from = 0;
+		int where;
+		StringBuffer b = new StringBuffer(in.length()*2);
+		while((where = in.indexOf('\t', from)) != -1){
+			if(from <= where){
+				b.append(in.subSequence(from,where-1));
+			}
+			int nrSpaces = tabWidth - (b.length() % tabWidth);
+			for(int i = 0 ; i < nrSpaces ; i++){
+				b.append(' ');
+			}
+			from = where + 1;
+		}
+		if(from > 0){
+			b.append(in.substring(from));
+		}
+		return b.toString();
 	}
+	
+	public static String intercalate(String between,String[] s){
+		StringBuffer b = new StringBuffer();
+		for(int i = 0 ; i < s.length ; i++){
+			b.append(s);
+			if(i != s.length-1){
+				b.append(between);
+			}
+		}
+		return b.toString();
+	}
+	
+	
 }

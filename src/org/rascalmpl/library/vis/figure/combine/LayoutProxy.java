@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.figure.combine;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 public abstract class LayoutProxy extends WithInnerFig {
 
@@ -9,83 +10,29 @@ public abstract class LayoutProxy extends WithInnerFig {
 	
 	public LayoutProxy(Figure inner, PropertyManager properties) {
 		super(inner, properties);
-	}
-	
-	@Override
-	public void bbox(){
-		innerFig.bbox();
-		for(boolean flip : BOTH_DIMENSIONS){
-			setResizableX(flip, innerFig.getResizableX(flip));
+		if(inner!=null){
+			properties.copyLayoutPropertiesFrom(inner.prop);
 		}
+	}
+
+	@Override
+	public void computeMinSize() {
 		minSize.set(innerFig.minSize);
+		resizable.set(innerFig.resizable);
 	}
-	
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		innerFig.size.set(size);
+		innerFig.location.set(0,0);
+	}
 	
 	@Override
-	public void layout(){
-		for(boolean flip : BOTH_DIMENSIONS){
-			innerFig.takeDesiredWidth(flip, size.getWidth(flip));
+	protected void setInnerFig(Figure inner){
+		super.setInnerFig(inner);
+		if(inner!=null){
+			prop.copyLayoutPropertiesFrom(inner.prop);
 		}
-		innerFig.layout();
 	}
 	
-	public boolean isHShrinkPropertySet(){
-		return innerFig.isHShrinkPropertySet();
-	}
-	
-	public boolean isVShrinkPropertySet(){
-		return innerFig.isVShrinkPropertySet();
-	}
-	
-	public boolean isHGrowPropertySet(){
-		return innerFig.isHGrowPropertySet();
-	}
-	
-	public boolean isVGrowPropertySet(){
-		return innerFig.isVGrowPropertySet();
-	}
-	
-
-	public boolean isHLocPropertySet(){
-		return innerFig.isHLocPropertySet();
-	}
-	
-	public boolean isVLocPropertySet(){
-		return innerFig.isVLocPropertySet();
-	}
-
-	public double getHShrinkProperty() {
-		return innerFig.getHShrinkProperty();
-	}
-	
-	public double getVShrinkProperty() {
-		return innerFig.getVShrinkProperty();
-	}
-	
-	public double getHGrowProperty() {
-		return innerFig.getHGrowProperty();
-	}
-	
-	public double getVGrowProperty() {
-		return innerFig.getVGrowProperty();
-	}
-	
-
-	public double getHLocProperty(){
-		return innerFig.getHLocProperty();
-	}
-	
-	public double getVLocProperty(){
-		return innerFig.getVLocProperty();
-	}
-	
-
-	public double getHAlignProperty() {
-		return innerFig.getHAlignProperty();
-	}
-
-	public double getVAlignProperty() {
-		return innerFig.getVAlignProperty();
-	}
-
 }

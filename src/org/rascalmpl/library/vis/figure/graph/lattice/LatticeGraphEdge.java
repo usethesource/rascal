@@ -24,81 +24,81 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
  * 
  * @author paulk
  * 
- */
-public class LatticeGraphEdge extends Figure {
-	private LatticeGraphNode from;
-	private LatticeGraphNode to;
-	private static boolean debug = false;
-
-	public LatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv fpa,
-			PropertyManager properties, IString fromName, IString toName) {
-		super( properties);
-		this.from = G.getRegistered(fromName.getValue());
-		if (getFrom() == null) {
-			throw RuntimeExceptionFactory.figureException(
-					"No node with id property + \"" + fromName.getValue()
-							+ "\"", fromName, fpa.getRascalContext().getCurrentAST(),
-					fpa.getRascalContext().getStackTrace());
-		}
-		to = G.getRegistered(toName.getValue());
-		if (to == null) {
-			throw RuntimeExceptionFactory.figureException(
-					"No node with id property + \"" + toName.getValue() + "\"",
-					toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-		}
-
-		if (debug)
-			System.err.println("edge: " + fromName.getValue() + " -> "
-					+ toName.getValue());
-	}
-
-	LatticeGraphNode getFrom() {
-		return from;
-	}
-
-	LatticeGraphNode getTo() {
-		return to;
-	}
-
-	@Override
-	public void draw(GraphicsContext gc) {
-		applyProperties(gc);
-		if (debug)
-			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
-					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
-					+ "," + to.y + ")");
-		if (getCurvedProperty()) {
-			double mx = (getLeft() + getFrom().figX() + getLeft() + getTo().figX()) / 2 + 20, my = (getTop()
-					+ getFrom().figY() + getTop() + getTo().figY()) / 2;
-			gc.noFill();
-			gc.beginShape();
-			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
-			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
-			gc.curveVertex(mx, my);
-			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
-			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
-			gc.endShape();
-		} else
-			gc.line(getLeft() + getFrom().figX(), getTop() + getFrom().figY(), getLeft()
-					+ getTo().figX(), getTop() + getTo().figY());
-	}
-
-	public void setColor(String s) {
-		//IInteger cl = FigureColorUtils.colorNames.get(s);
-		//if (cl != null)
-			//new ConstantColorProperty( cl.intValue());
-	}
-
-	@Override
-	public void bbox() {
-		setNonResizable();
-		super.bbox();
-	}
-
-	@Override
-	public void layout() {
-		size.set(minSize);
-	}
-
-
-}
+// */
+//public class LatticeGraphEdge extends Figure {
+//	private LatticeGraphNode from;
+//	private LatticeGraphNode to;
+//	private static boolean debug = false;
+//
+//	public LatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv fpa,
+//			PropertyManager properties, IString fromName, IString toName) {
+//		super( properties);
+//		this.from = G.getRegistered(fromName.getValue());
+//		if (getFrom() == null) {
+//			throw RuntimeExceptionFactory.figureException(
+//					"No node with id property + \"" + fromName.getValue()
+//							+ "\"", fromName, fpa.getRascalContext().getCurrentAST(),
+//					fpa.getRascalContext().getStackTrace());
+//		}
+//		to = G.getRegistered(toName.getValue());
+//		if (to == null) {
+//			throw RuntimeExceptionFactory.figureException(
+//					"No node with id property + \"" + toName.getValue() + "\"",
+//					toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
+//		}
+//
+//		if (debug)
+//			System.err.println("edge: " + fromName.getValue() + " -> "
+//					+ toName.getValue());
+//	}
+//
+//	LatticeGraphNode getFrom() {
+//		return from;
+//	}
+//
+//	LatticeGraphNode getTo() {
+//		return to;
+//	}
+//
+//	@Override
+//	public void draw(GraphicsContext gc) {
+//		applyProperties(gc);
+//		if (debug)
+//			System.err.println("edge: (" + getFrom().name + ": " + getFrom().x
+//					+ "," + getFrom().y + ") -> (" + to.name + ": " + to.x
+//					+ "," + to.y + ")");
+//		if (getCurvedProperty()) {
+//			double mx = (getLeft() + getFrom().figX() + getLeft() + getTo().figX()) / 2 + 20, my = (getTop()
+//					+ getFrom().figY() + getTop() + getTo().figY()) / 2;
+//			gc.noFill();
+//			gc.beginShape();
+//			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
+//			gc.curveVertex(getLeft() + getFrom().figX(), getTop() + getFrom().figY());
+//			gc.curveVertex(mx, my);
+//			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
+//			gc.curveVertex(getLeft() + getTo().figX(), getTop() + getTo().figY());
+//			gc.endShape();
+//		} else
+//			gc.line(getLeft() + getFrom().figX(), getTop() + getFrom().figY(), getLeft()
+//					+ getTo().figX(), getTop() + getTo().figY());
+//	}
+//
+//	public void setColor(String s) {
+//		//IInteger cl = FigureColorUtils.colorNames.get(s);
+//		//if (cl != null)
+//			//new ConstantColorProperty( cl.intValue());
+//	}
+//
+//	@Override
+//	public void bbox() {
+//		setNonResizable();
+//		super.bbox();
+//	}
+//
+//	@Override
+//	public void layout() {
+//		size.set(minSize);
+//	}
+//
+//
+//}

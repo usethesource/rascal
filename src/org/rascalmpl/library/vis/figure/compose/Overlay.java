@@ -12,20 +12,23 @@
 package org.rascalmpl.library.vis.figure.compose;
 
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.Properties;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.PropertyParsers;
-import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
-import org.rascalmpl.library.vis.util.FigureMath;
-import org.rascalmpl.library.vis.util.ForBothDimensions;
-import org.rascalmpl.library.vis.util.Key;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.Rectangle;
-import org.rascalmpl.values.ValueFactoryFactory;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.POS;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
+import java.util.List;
+
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.Mutable;
+import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 /**
  * 
  * Overlay elements by stacking them
@@ -35,89 +38,60 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class Overlay extends Compose{
 	
-	private static boolean debug = false;
-	int where; 
-	
 	public Overlay(Figure[] figures, PropertyManager properties) {
 		super(figures, properties);
 	}
 	
 	@Override
-	public void bbox(){
-		minSize.clear();
-		ForBothDimensions<Double> minLocs = new ForBothDimensions<Double>(Double.MAX_VALUE);
-		for(Figure fig : figures){
-			for(boolean flip: BOTH_DIMENSIONS){
-				if(!fig.isHLocPropertyConverted(flip)){
-					minLocs.setForX(flip, Math.min(minLocs.getForX(flip),fig.getHLocProperty(flip)));
-				} 
+	public void initialisePhaseChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, Mutable<Boolean> swtSeen) {
+		for(int i = 0; i < children.length ; i++){
+			System.out.printf("Swtseen is %s for child %d\n", swtSeen.get(), i);
+			if(swtSeen.get()){
+				env.addAboveSWTElement(children[i]);
 			}
+			children[i].initializePhase(env, resolver,mparent, swtSeen);
 		}
-		for(int i = 0 ; i < figures.length ; i++){
-			Figure fig = figures[i];
-			fig.bbox();
-			
-			for(boolean flip: BOTH_DIMENSIONS){
-				double h = fig.minSize.getWidth(flip) / fig.getHShrinkProperty(flip);
-				if(!fig.isHLocPropertyConverted(flip)){
-					h+=fig.getHLocProperty(flip) - minLocs.getForX(flip);
-				}
-				minSize.setWidth(flip,Math.max(minSize.getWidth(flip),h));
-			}
-		}
-		setResizable();
 	}
-
-	public void layout(){
-		ForBothDimensions<Double> minLocs = new ForBothDimensions<Double>(Double.MAX_VALUE);
-		for(Figure fig : figures){
-			for(boolean flip : BOTH_DIMENSIONS){
-				minLocs.setForX(flip, Math.min(minLocs.getForX(flip),fig.getHLocProperty(flip)));
-			}	
-		}
-		for(int i = 0 ; i < figures.length ; i++){
-			for(boolean flip : BOTH_DIMENSIONS){
-				double desWidth = size.getWidth(flip) * figures[i].getHShrinkProperty(flip);
-				figures[i].takeDesiredWidth(flip, desWidth);
-				if(!flip){
-					if(figures[i].isHLocPropertySet()){
-						pos[i].setX(figures[i].getHLocProperty() - minLocs.getForX() - (figures[i].getHAlignProperty()* figures[i].size.getWidth()));
-						if(figures[i].isHLocPropertyConverted()){
-							figures[i].properties.getKey(Properties.HLOC).registerOffset(globalLocation.getX() + pos[i].getX());
-						}
-					} else {
-						pos[i].setX((figures[i].getHAlignProperty()* (size.getWidth() - figures[i].size.getWidth())));
-					}
-					
+	
+	@Override
+	public void computeMinSize() {
+		for(Figure fig : children){
+			for(Dimension d : HOR_VER){
+				if(fig.prop.is2DPropertySet(d, POS)){
+					minSize.setMax(d,
+							(fig.prop.get2DReal(d, POS) + (1.0 - fig.prop.get2DReal(d, ALIGN)) * fig.prop.get2DReal(d, SHRINK)) * fig.minSize.get(d));
+					minSize.setMax(d, fig.minSize.get(d) );
 				} else {
-					if(figures[i].isVLocPropertySet()){
-						pos[i].setY(size.getHeight() - (figures[i].getVLocProperty() - minLocs.getForY()) - (figures[i].getVAlignProperty()* figures[i].size.getHeight()));
-						if(figures[i].isVLocPropertyConverted()){
-							figures[i].properties.getKey(Properties.VLOC).registerOffset(globalLocation.getY() + pos[i].getY());
-						}
-					} else {
-						pos[i].setY((figures[i].getVAlignProperty()* (size.getHeight() - figures[i].size.getHeight())));
-					}
+					minSize.setMax(d, fig.minSize.get(d) / fig.prop.get2DReal(d, SHRINK));
 				}
-				
-				figures[i].globalLocation.setX(flip, globalLocation.getY() + pos[i].getX(flip));
 			}
-			figures[i].layout();
+		}
+	}
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		for(Figure fig : children){
+			for(Dimension d : HOR_VER){
+				fig.size.set(d,size.get(d)*fig.prop.get2DReal(d, SHRINK));
+				if(fig.prop.is2DPropertySet(d, POS)){
+					fig.location.set(d,size.get(d) * (fig.prop.get2DReal(d, POS) - fig.prop.get2DReal(d,ALIGN) * fig.prop.get2DReal(d, SHRINK)));
+				} else {
+					fig.location.set(d,(size.get(d) - fig.size.get(d)) * fig.prop.get2DReal(d, ALIGN));
+				}
+			}
 		}
 	}
 	
 	@Override
-	public void draw(GraphicsContext gc){
-		drawShape(gc);
-		super.draw(gc);
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){}
+	
+
+	public String toString(){
+		return "Overlay: " + super.toString();
 	}
 	
-	@Override
-	public void drawPart(Rectangle r,GraphicsContext gc){
-		drawShape(gc);
-		super.drawPart(r, gc);
-	}
-
+	/*
 	private void drawShape(GraphicsContext gc) {
 		applyProperties(gc);
         boolean closed = getClosedProperty();
@@ -156,99 +130,6 @@ public class Overlay extends Compose{
 				gc.endShape();
 		}
 	}
-		
-	public void registerValues(NameResolver resolver){
-			
-			properties.registerMeasures(resolver);
-			ForBothDimensions<Key> actualKeys = new ForBothDimensions<Key>(null);
-			if(figures.length > 0){
-				for(boolean flip : BOTH_DIMENSIONS){
-					String actualKeyId = figures[0].getKeyIdForHLoc(flip);
-					if(actualKeyId != null){
-						actualKeys.setForX(flip, (Key)resolver.resolve(actualKeyId));
-						resolver.register(actualKeyId,new LocalOffsetKey(flip, actualKeys.getForX(flip)));
-					}
-				}
-				for(where = 0 ; where < figures.length ; where++){
-					figures[where].registerValues(resolver);
-				}
-				for(boolean flip : BOTH_DIMENSIONS){
-					if(actualKeys.getForX(flip)!=null){
-						resolver.register(actualKeys.getForX(flip).getId(),(Figure)actualKeys.getForX(flip));
-					}
-				}
-			}
-			
-			
-	}
-	
-	public void setSWTZOrder(ISWTZOrdering zorder){
-		
-		for(Figure fig : figures){
-			zorder.pushOverlap();
-			zorder.register(fig);
-			fig.setSWTZOrder(zorder);
-		}
-		for(Figure fig : figures){ zorder.popOverlap(); }
-	}
-	
-	public class LocalOffsetKey extends Figure implements Key{
-		// TODO: this is no figure...
-		Key actualKey;
-		boolean flip;
-		
-		public LocalOffsetKey(boolean flip,Key actualKey) {
-			this.flip= flip;
-			this.actualKey = actualKey;
-		}
-		
-		public void registerValue(Properties prop,IValue val) {
-			
-			
-			if(prop == Properties.HLOC || prop == Properties.VLOC) {
-				actualKey.registerValue(prop,val);
-				return;
-			}
-			
-			if(((val).getType().isNumberType() || (val).getType().isIntegerType() || (val).getType().isRealType())){
-				
-				double pval = PropertyParsers.parseNum(val);
-				if(figures[where].isHLocPropertyConverted(flip)){
-					double ppval = PropertyParsers.parseNum(figures[where].getHLocPropertyUnconverted(flip));
-					//System.out.printf("add %f %f\n",ppval,pval);
-					pval+=ppval;
-				}
-				actualKey.registerValue(prop,ValueFactoryFactory.getValueFactory().real(pval));
-			}
-		}
+	*/
 
-		public void registerOffset(double offset) {
-			//System.out.printf("Registering offset %f\n",offset);
-			actualKey.registerOffset(offset);
-			
-		}
-
-		public IValue scaleValue(IValue val) {
-			return actualKey.scaleValue(val);
-		}
-
-		public String getId() {
-			return actualKey.getId();
-		}
-
-
-		@Override
-		public void draw(GraphicsContext gc) {
-			
-		}
-
-		@Override
-		public void layout() {
-		}
-
-		
-	}
-
-
-	
 }

@@ -11,9 +11,14 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
+import java.util.List;
+import java.util.Vector;
+
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
  * Spacing that can act as container.
@@ -23,22 +28,22 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
  */
 public class Space extends Container {
 
+	public static Space empty = new Space(null, new PropertyManager());
+	
 	public Space(Figure inside, PropertyManager properties) {
 		super(inside, properties);
 	}
-
+	
 	@Override
-	void drawContainer(GraphicsContext gc) {
-		return;
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		System.out.printf("Drawing %s\n", this);
 	}
+
 	
 	@Override
 	String containerName(){
 		return "space";
 	}
+
 	
-	@Override
-	public boolean isVisible(){
-		return false;
-	}
 }

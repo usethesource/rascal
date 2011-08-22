@@ -13,18 +13,23 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.properties;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.result.VoidResult;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -39,7 +44,8 @@ public class PropertyManager {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
-	PropertyValue[] explicitValues, stdValues;
+	HashMap<Properties, PropertyValue> explicitValues, stdValues;
+	
 	PropertyManager parent;
 	IRunTimePropertyChanges runTimeChanges;
 	
@@ -63,143 +69,101 @@ public class PropertyManager {
 		return result;
 	}
 	
-	public PropertyManager(IFigureConstructionEnv fpa, PropertyManager inherited, IList props) {
+	public PropertyManager(IFigureConstructionEnv env, PropertyManager inherited, IList props) {
+		explicitValues = new HashMap<Properties, PropertyValue>();
+		stdValues =  new HashMap<Properties, PropertyValue>();
 		parent = inherited;
-		allocateArrays(props);
-		setProperties(fpa,props);
-		this.runTimeChanges = fpa.getRunTimePropertyChanges();
+		setProperties(env,props);
+		this.runTimeChanges = env.getRunTimePropertyChanges();
 	}
 	
-	public PropertyManager() {
-		explicitValues = new PropertyValue[0];
-		stdValues = new PropertyValue[0];
+	public PropertyManager(IFigureConstructionEnv env) {
+		explicitValues = new HashMap<Properties, PropertyValue>(0);
+		stdValues =  new HashMap<Properties, PropertyValue>(0);
 		parent = null;
-		this.runTimeChanges = null;
+		if(env!=null){
+			this.runTimeChanges = env.getRunTimePropertyChanges();
+		}
 	}
 	
 
-	private void allocateArrays(IList props) {
-		int nrExplicitProperties = 0;
-		int nrStdProperties = 0;
-		for(IValue v : props){
-			IConstructor c = (IConstructor) v;
-			String pname = c.getName();
-			if(pname.startsWith("_child")){
-			} 
-			else if(pname.equals("std")){
-				pname = ((IConstructor)c.get(0)).getName();
-				nrStdProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();
-			} else {
-				nrExplicitProperties+=Properties.propertySetters.get(pname).nrOfPropertiesProduced();
-			}
-		}
-		explicitValues = new PropertyValue[nrExplicitProperties];
-		stdValues = new PropertyValue[nrStdProperties];
+
+	public PropertyManager() {
+		this(null);
 	}
 	
-	private void setProperties(IFigureConstructionEnv fpa, IList props) {
-		int stdPropsIndex = 0;
-		int explicitPropsIndex = 0;
+	@SuppressWarnings("unchecked")
+	private void setProperties(IFigureConstructionEnv env, IList props) {
 		for (IValue v : props) {
-			
+			HashMap<Properties,PropertyValue> addIn;
 			IConstructor c = (IConstructor) v;
 			String pname = c.getName();
 			if(pname.startsWith("_child")){
 				continue;
 			}
 			if(pname.equals("std")){
-				// convert stdSize to size
 				c = (IConstructor)c.get(0);
 				pname = c.getName();
-				stdPropsIndex = Properties.propertySetters.get(pname).execute(stdValues, stdPropsIndex, c, fpa, this);
+				addIn = stdValues;
 			} else {
-				explicitPropsIndex = Properties.propertySetters.get(pname).execute(explicitValues, explicitPropsIndex, c, fpa, this);
+				addIn = explicitValues;
+			}
+			Properties prop = Properties.propertyLookup.get(pname);
+			if(prop == null){
+				System.out.printf("Cannot find %s !\n", pname);
+			}
+			PropertyValue val = prop.producePropertyValue(c.get(0), this, env);
+			if(addIn.containsKey(prop)){
+				System.out.printf("Combining!\n");
+				addIn.put(prop, new CombinedProperty(addIn.get(prop),val,prop.combine));
+			} else {
+				addIn.put(prop, val);
 			}
 		}
-		Arrays.sort(explicitValues);
-		Arrays.sort(stdValues);
 	}
 	
-
-	public void computeProperties(ICallbackEnv env){
-		for(PropertyValue v : explicitValues){
-			if(v.property.type != Types.HANDLER)
-				v.compute(env);
-		}
-		for(PropertyValue v : stdValues){
-			if(v.property.type != Types.HANDLER)
-				v.compute(env);
+	public void copyLayoutPropertiesFrom(PropertyManager other){
+		copyLayoutProperties(other.explicitValues, explicitValues);
+		copyLayoutProperties(other.stdValues, stdValues);
+	}
+	
+	private void copyLayoutProperties(HashMap<Properties, PropertyValue> from, HashMap<Properties, PropertyValue> to){
+		for(Properties p : from.keySet()){
+			if(p.determinesLayout){
+				to.put(p, from.get(p));
+			}
 		}
 	}
 	
 	public void registerMeasures(NameResolver resolver){
-		for(PropertyValue v : explicitValues){
+		for(PropertyValue v : explicitValues.values()){
 				v.registerMeasures(resolver);
 		}
-		for(PropertyValue v : stdValues){
+		for(PropertyValue v : stdValues.values()){
 				v.registerMeasures(resolver);
 		}
 	}
 	
-	public void getLikes(NameResolver resolver){
-		for(PropertyValue v : explicitValues){
-				v.getLikes(resolver);
-		}
-		for(PropertyValue v : stdValues){
-				v.getLikes(resolver);
-		}
-	}
-	
-	public boolean isPropertySet(Properties property){
-		return safeBinarySearch(explicitValues, property) >= 0;
-	}
-	
-	int safeBinarySearch(PropertyValue[] values, Properties property){
-		if(values.length == 0) return -1;
-		else return Arrays.binarySearch(values, property);
+	public boolean isSet(Properties property){
+		return explicitValues.containsKey(property);
 	}
 	
 	public PropertyValue getPropertyValue(Properties property){
-		int i = safeBinarySearch(explicitValues, property);
-		if(i>=0){
-			return explicitValues[i];
+		if(explicitValues.containsKey(property)){
+			return explicitValues.get(property);
+		} else {
+			return getStdPropertyValue(property);
 		}
-		return getStdPropertyValue(property);
 	}
 
 	PropertyValue getStdPropertyValue(Properties property) {
-		int i;
-		i = safeBinarySearch(stdValues, property);
-		if(i>=0){
-			return stdValues[i];
-		} 
-		if(parent != null){
+		if(stdValues.containsKey(property)){
+			return stdValues.get(property);
+		} else if (parent != null){
 			return parent.getStdPropertyValue(property);
-		} 
-		return null;
-	}
-	
-	public boolean isConverted(Properties property){
-		PropertyValue v = getPropertyValue(property);
-		if(v == null) return false;
-		return v.isConverted();
-	}
-	
-	public IValue getUnconverted(Properties property){
-		PropertyValue v = getPropertyValue(property);
-		return v.getUnconverted();
-	}
-	
-	public Key getKey(Properties property){
-		PropertyValue v = getPropertyValue(property);
-		if(v == null) return null;
-		return v.getKey();
-	}
-	
-	public String getKeyId(Properties property){
-		PropertyValue v = getPropertyValue(property);
-		if(v == null) return null;
-		return v.getKeyId();
+		} else {
+			return null;
+		}
 	}
 	
 	private Object adoptProperty(Properties property, Object val){
@@ -226,100 +190,84 @@ public class PropertyManager {
 	}
 	
 	public boolean anyExplicitPropertiesSet() {
-		return explicitValues.length > 0;
+		return explicitValues.size() > 0;
 	}
 
-	public boolean isBooleanPropertySet(Properties property){
-		checkCorrectType(property, Types.BOOL);
-		return isPropertySet(property);
-	}
 
-	public boolean getBooleanProperty(Properties property) {
+	public boolean getBool(Properties property) {
 		checkCorrectType(property, Types.BOOL);
 		return (Boolean)getProperty(property);
 	}
 	
-	public boolean isIntegerPropertySet(Properties property){
-		checkCorrectType(property, Types.INT);
-		return isPropertySet(property);
-	}
-	public int getIntegerProperty(Properties property) {
+	public int getInt(Properties property) {
 		checkCorrectType(property, Types.INT);
 		return (Integer)getProperty(property);
 	}
 	
-	public boolean isRealPropertySet(Properties property){
-		checkCorrectType(property, Types.REAL);
-		return isPropertySet(property);
-
-	}
-	public double getRealProperty(Properties property) {
+	public double getReal(Properties property) {
 		checkCorrectType(property, Types.REAL);
 		return (Double)getProperty(property);
 	}
 
-	public boolean isStringPropertySet(Properties property){
-		checkCorrectType(property, Types.STR);
-		return isPropertySet(property);
-	}
-	public String getStringProperty(Properties property) {
+	public String getStr(Properties property) {
 		checkCorrectType(property, Types.STR);
 		return (String)getProperty(property);
 	}
 	
-	public boolean isColorPropertySet(Properties property){
-		checkCorrectType(property, Types.COLOR);
-		return isPropertySet(property);
-	}
-	public int getColorProperty(Properties property) {
+	public int getColor(Properties property) {
 		checkCorrectType(property, Types.COLOR);
 		return (Integer)getProperty(property);
 	}
 	
-	public boolean isFigurePropertySet(Properties property){
-		checkCorrectType(property, Types.FIGURE);
-		return isPropertySet(property);
-	}
-	public Figure getFigureProperty(Properties property) {
+	public Figure getFig(Properties property) {
 		checkCorrectType(property, Types.FIGURE);
 		return (Figure)getProperty(property);
 	}
 	
-	
-	
 	public boolean handlerCanBeExecuted(Properties property){
-		return isHandlerPropertySet(property) || isStandardHandlerPropertySet(property) || isStandardDefaultHandlerPropertySet(property);
+		return isSet(property) || isStandardHandlerSet(property) || isStandardDefaultHandlerSet(property);
 	}
 	
-	public boolean isHandlerPropertySet(Properties property){
+	public boolean isStandardHandlerSet(Properties property){
 		checkCorrectType(property, Types.HANDLER);
-		return isPropertySet(property);
-	}
-	public boolean isStandardHandlerPropertySet(Properties property){
-		checkCorrectType(property, Types.HANDLER);
-		 return Arrays.binarySearch(stdValues, property) >= 0;
+		return stdValues.containsKey(property);
 	}
 	
-	public boolean isStandardDefaultHandlerPropertySet(Properties property){
+	public boolean isStandardDefaultHandlerSet(Properties property){
 		return false; // std default handler are not supported
 	}
 	
-	public void executeHandlerProperty(ICallbackEnv env,Properties property) {
-		checkCorrectType(property, Types.HANDLER);
-		getPropertyValue(property).compute(env);
-	}
-	
-
-	public void executeVoidHandlerProperty(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
-		getPropertyValue(property).executeVoid(env,types, args);
-	}
-	
-	public IValue executeHandlerPropertyWithSingleArgument(ICallbackEnv env,Properties property,Type type,IValue arg ){
-		return getPropertyValue(property).executeWithSingleArg(env,type, arg);
-	}
-	
-	public IValue executeHandlerProperty(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
+	public IValue executeHandler(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
 		return getPropertyValue(property).execute(env,types, args);
+	}
+	
+	public Object get2DProperty(Dimension d,TwoDProperties prop){
+		switch(d){
+		case X: return getProperty(prop.hor);
+		case Y: return getProperty(prop.ver);
+		}
+		return null;
+	}
+	
+	public boolean is2DPropertySet(Dimension d,TwoDProperties prop){
+		switch(d){
+		case X: return isSet(prop.hor);
+		case Y: return isSet(prop.ver);
+		}
+		return false;
+	}
+	
+	
+	public double get2DReal(Dimension d, TwoDProperties prop){
+		checkCorrectType(prop.hor, Types.REAL);
+		checkCorrectType(prop.ver, Types.REAL);
+		return (Double)get2DProperty(d, prop);
+	}
+	
+	public boolean get2DBool(Dimension d, TwoDProperties prop){
+		checkCorrectType(prop.hor, Types.BOOL);
+		checkCorrectType(prop.ver, Types.BOOL);
+		return (Boolean)get2DProperty(d, prop);
 	}
 	
 }

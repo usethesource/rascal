@@ -1,0 +1,47 @@
+package org.rascalmpl.library.vis.figure.compose;
+
+import java.util.List;
+
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+
+public abstract class WidthDependsOnHeight extends Compose{
+
+	Dimension major, minor;
+	
+	protected WidthDependsOnHeight(Dimension major, Figure[] figures, PropertyManager properties) {
+		super(figures, properties);
+		this.major = major;
+		minor = major.other();
+	}
+	
+	@Override
+	public boolean widthDependsOnHeight(){
+		return true;
+	}
+	
+	public Dimension getMajorDimension(){
+		return major;
+	}
+
+	@Override
+	public void computeMinSize() {
+		double minWidth = 0;
+		for(Figure fig : children){
+			minWidth = Math.max(minWidth,fig.minSize.get(major) );
+			System.out.printf("setting minwidth %s\n", minWidth);
+		}
+		minSize.set(major, minWidth);
+	}
+
+
+
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		gc.rect(location.getX()-3, location.getY()-3, size.getX()+3, size.getY()+3);
+	}
+	
+	
+}

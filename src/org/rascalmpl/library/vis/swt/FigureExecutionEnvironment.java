@@ -1,5 +1,8 @@
 package org.rascalmpl.library.vis.swt;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -12,11 +15,11 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{
 
-	private Figure figureRoot;
 	private FigureSWTApplet appletRoot;
 	private IEvaluatorContext ctx;
 	private boolean callbackBatch;
@@ -25,6 +28,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	private Composite swtRoot;
 	private long rascalTime = 0;
 	public static boolean profile = false;
+	private NameResolver resolver;
+	private int computeClock; 
+
+	
 	
 	public FigureExecutionEnvironment(Composite parent, IConstructor cfig,IEvaluatorContext ctx) {
 		this.ctx = ctx;
@@ -33,7 +40,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		computing = false;
 		this.swtRoot = parent;
 		appletRoot = new FigureSWTApplet(parent, cfig, this);
-		figureRoot = appletRoot.getFigure();
+		computeClock = 0;
+		resolver = new NameResolver(getRascalContext());
 		computeFigures();
 	}
 	
@@ -43,24 +51,19 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	public void computeFigures(){
 		computing = true;
-		NameResolver resolver = new NameResolver(ctx);
-		figureRoot.init();
-		figureRoot.computeFiguresAndProperties(this);
-		figureRoot.registerNames(resolver);
-		figureRoot.registerValues(resolver);
-		figureRoot.getLikes(resolver);
-		figureRoot.finalize();
-		figureRoot.bbox();
+		appletRoot.triggerRecompute();
 		computing = false;
 	}
 	
 	public void beginCallbackBatch(){
+		computeClock++;
 		callbackBatch = true;
 		batchEmpty = true;
 	}
 	
 	public void endCallbackBatch(){
 		endCallbackBatch(false);
+		
 	}
 	
 	// dontRecompute param is currently neseccary because of non-memoization of nullary closures
@@ -71,7 +74,6 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		callbackBatch = false;
 		if(!batchEmpty && !dontRecompute){
 			computeFigures();
-			appletRoot.layoutForce();
 			if(profile){
 				double figTime = (System.nanoTime() - startTime) / 1000000.0;
 				double rascalTimeD = rascalTime / 1000000.0;
@@ -79,18 +81,15 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 				rascalTime = 0;
 			}
 		}
+
 		if(dontRecompute && !batchEmpty){
 			swtRoot.getDisplay().asyncExec(new Runnable() {
-				
 				@Override
 				public void run() {
 					computeFigures();
-					appletRoot.layoutForce();
 				}
 			});
 		}
-		
-		
 	}
 
 	public IEvaluatorContext getRascalContext() {
@@ -103,6 +102,12 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 			throw RuntimeExceptionFactory.illegalArgument(fun,
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+	}
+	
+	public IConstructor executeRascalFigureCallBack(IValue callback,
+			Type[] argTypes, IValue[] argVals) {
+		IConstructor c = (IConstructor)executeRascalCallBack(callback, argTypes, argVals).getValue();
+		return (IConstructor)ctx.getEvaluator().call(getRascalContext(), "normalize", c);
 	}
 
 	public Result<IValue> executeRascalCallBack(IValue callback,
@@ -119,13 +124,15 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		if(!computing){
 			if(callbackBatch){
 				batchEmpty = false;
-			} else {
-				computeFigures();
-				appletRoot.layoutForce();
-			}
+			} 
 		}
 		if(profile) rascalTime += System.nanoTime() - startTime;
 		return result;
+	}
+	
+	@Override
+	public void fakeRascalCallBack() {
+		batchEmpty = false;
 	}
 
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {
@@ -147,7 +154,24 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void dispose(){
-		figureRoot.destroy();
 		appletRoot.dispose();
 	}
+	
+
+	
+	public NameResolver getNameResolver(){
+		return resolver;
+	}
+	
+	public int getComputeClock(){
+		return computeClock;
+	}
+
+	@Override
+	public void signalRecompute() {
+		computeClock++;
+		computeFigures();
+	}
+
+
 }

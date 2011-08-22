@@ -17,7 +17,6 @@ import org.eclipse.swt.graphics.Transform;
 import static org.rascalmpl.library.vis.util.FigureMath.*;
 
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
-import org.rascalmpl.library.vis.swt.zorder.IHasZOrder;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 public class SWTGraphicsContext implements GraphicsContext {
@@ -40,21 +39,19 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private Color backgroundColor;
 	private Color fontColor;
 	double translateX, translateY;
-	private Vector<IHasZOrder> visibleSWTElements;
 	
 	
 	FontData fontData;
 	int foreGroundCI, backgroundCI, fontCI;
 	
 	
-	public SWTGraphicsContext(GC gc,Vector<IHasZOrder> visibleSWTElements) {
+	public SWTGraphicsContext(GC gc) {
 		this.gc = gc;
 		this.device = gc.getDevice();
 		gc.setAdvanced(true);
 		gc.setAntialias(SWT.ON);
 		gc.setInterpolation(SWT.HIGH);
 		translateX = translateY = 0;
-		this.visibleSWTElements = visibleSWTElements;
 	}
 
 	@SuppressWarnings("serial")
@@ -159,8 +156,16 @@ public class SWTGraphicsContext implements GraphicsContext {
 		gc.setLineWidth(d);
 	}
 
-	public void strokeStyle(int style) {
-		gc.setLineStyle(style);
+	 int getSWTLineStyle(String s) {
+         if (s.equals("dash")) return SWT.LINE_DASH;
+         if (s.equals("dot")) return SWT.LINE_DOT;
+         if (s.equals("dashdot")) return SWT.LINE_DASHDOT;
+         if (s.equals("dashdotdot")) return SWT.LINE_DASHDOTDOT;
+         return SWT.LINE_SOLID;
+     }
+	
+	public void strokeStyle(String style) {
+		gc.setLineStyle(getSWTLineStyle(style));
 	}
 
 	public void textSize(double arg0) {
@@ -423,7 +428,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 
 	
 	
-	public void setFont(String fontName, double fontSize, FontStyle... styles) {
+	public void setFont(String fontName, int fontSize, FontStyle... styles) {
 		
 		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
 		if(fd.equals(this.fontData)) return;
@@ -445,11 +450,6 @@ public class SWTGraphicsContext implements GraphicsContext {
 	@Override
 	public double getTranslateY() {
 		return translateY;
-	}
-
-	@Override
-	public void registerSWTElement(IHasZOrder elem) {
-		visibleSWTElements.add(elem);
 	}
 
 	

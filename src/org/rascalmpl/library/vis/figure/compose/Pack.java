@@ -17,9 +17,11 @@ import java.util.Comparator;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.BoundingBox;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
-
+import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
+import static org.rascalmpl.library.vis.properties.Properties.*;
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
  * 
@@ -30,17 +32,16 @@ import org.rascalmpl.library.vis.util.FigureColorUtils;
  */
 
 //TODO: fix me for resizing!
-public class Pack extends Compose {
+public class Pack extends WidthDependsOnHeight {
 	
+	public Pack(Dimension major, Figure[] figures, PropertyManager properties) {
+		super(major, figures, properties);
+	}
+
 	Node root;
 	boolean fits = true;
-	static protected boolean debug =false;
+	static protected boolean debug =true;
 	boolean initialized = false;
-
-	public Pack(Figure[] figures, PropertyManager properties) {
-		super( figures, properties);
-	}
-	
 	/*
 	 * Compare two Figures according to their surface and aspect ratio
 	 * 
@@ -52,12 +53,12 @@ public class Pack extends Compose {
 		public int compare(Figure o1, Figure o2) {
 			BoundingBox lhs = o1.minSize;
 			BoundingBox rhs = o2.minSize;
-			double r = (lhs.getHeight() > lhs.getWidth()) ? lhs.getHeight() / lhs.getWidth() : lhs.getWidth() / lhs.getHeight();
-			double or = (rhs.getHeight() > rhs.getWidth()) ? rhs.getHeight() / rhs.getWidth() : rhs.getWidth() / rhs.getHeight();
+			double r = (lhs.getY() > lhs.getX()) ? lhs.getY() / lhs.getX() : lhs.getX() / lhs.getY();
+			double or = (rhs.getY() > rhs.getX()) ? rhs.getY() / rhs.getX() : rhs.getX() / rhs.getY();
 					  
 			if (r < 2.0 && or < 2.0) { 
-				double s = lhs.getWidth() * lhs.getHeight(); 
-				double os = rhs.getWidth() * rhs.getHeight();
+				double s = lhs.getX() * lhs.getY(); 
+				double os = rhs.getX() * rhs.getY();
 				return s < os ? 1 : (s == os ? 0 : -1); 
 			} 
 			return r < or ? 1 : (r == or ? 0 : -1); 
@@ -65,14 +66,14 @@ public class Pack extends Compose {
 		
 	}
 	
+	
+
 	@Override
-	public void layout(){
-		Node.hgap = getHGapProperty();
-		Node.vgap = getVGapProperty();
-		for(Figure v : figures){
-			v.takeDesiredWidth(v.minSize.getWidth());
-			v.takeDesiredHeight(v.minSize.getHeight());
-			v.layout();
+	public void resizeElement(Rectangle view) {
+		Node.hgap = prop.getReal(HGAP);
+		Node.vgap = prop.getReal(HGAP);
+		for(Figure v : children){
+			v.size.set(v.minSize);
 		}
 		/* double surface = 0;
 		double maxw = 0;
@@ -80,10 +81,10 @@ public class Pack extends Compose {
 		double ratio = 1;
 		for(Figure fig : figures){
 			//fig.bbox();
-			maxw = Math.max(maxw, fig.minSize.getWidth());
-			maxh = Math.max(maxh, fig.minSize.getHeight());
-			surface += fig.minSize.getWidth() * fig.minSize.getHeight();
-			ratio = (ratio +fig.minSize.getHeight()/fig.minSize.getWidth())/2;
+			maxw = Math.max(maxw, fig.minSize.getX());
+			maxh = Math.max(maxh, fig.minSize.getY());
+			surface += fig.minSize.getX() * fig.minSize.getY();
+			ratio = (ratio +fig.minSize.getY()/fig.minSize.getX())/2;
 		} */
 //		double opt = FigureApplet.sqrt(surface);
 //		minSize.setWidth(opt);
@@ -92,61 +93,32 @@ public class Pack extends Compose {
 		//width = opt/maxw < 1.2 ? 1.2f * maxw : 1.2f*opt;
 	//	height = opt/maxh < 1.2 ? 1.2f * maxh : 1.2f*opt;
 		
-		//if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getWidth(), minSize.getHeight());
-		Arrays.sort(figures, new CompareAspectSize());
+		//if(debug)System.err.printf("pack: ratio=%f, maxw=%f, maxh=%f, opt=%f, width=%f, height=%f\n", ratio, maxw, maxh, opt, minSize.getX(), minSize.getY());
+		Arrays.sort(children, new CompareAspectSize());
 		if(debug){
 			System.err.println("SORTED ELEMENTS!:");
-			for(Figure v : figures){
-				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getWidth(), v.minSize.getHeight());
+			for(Figure v : children){
+				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getX(), v.minSize.getY());
 			}
 		}
 		
-		fits = true;
-		//while(!fits){
-			//fits = true;
-			//size.setWidth(size.getWidth() * 1.2f);
-			//size.setHeight(size.getHeight() * 1.2f);
+		fits = false;
+		while(!fits){
+			fits = true;
+			size.set(minor,size.get(minor) * 2.0);
 	
-			root = new Node(0, 0, size.getWidth(), size.getHeight());
+			root = new Node(0, 0, size.getX(), size.getY());
 			
-			for(Figure fig : figures){
+			for(Figure fig : children){
 				Node nd = root.insert(fig);
 				if(nd == null){
-					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
+					System.err.printf("**** PACK: NOT ENOUGH ROOM ***** %s\n",size);
 					fits = false;
 					break;
 				}
 				nd.figure = fig;
+				nd.figure.location.set(nd.left,nd.right);
 			}
-		//}
-	}
-	
-	@Override
-	public void bbox(){
-		setResizable();
-		super.bbox();
-	}
-	
-
-	@Override
-	public
-	void draw(GraphicsContext gc) {
-		//if(debug)System.err.printf("pack.draw: %f, %f\n", left, top);
-		
-
-		if(fits){
-			//if(debug)System.err.printf("pack.draw: left=%f, top=%f\n", left, top);
-			root.draw(getLeft(), getTop(),gc);
-		} else {
-			String message = "Pack: cannot fit!";
-			System.err.printf("Pack: cannot fit\n");
-			applyProperties(gc);
-			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
-			gc.rect(getLeft(), getTop(), size.getWidth(), size.getHeight());
-			gc.text(message,
-					getLeft() + size.getWidth()/2.0 - getTextWidth(message)/2.0,
-					getTop() + size.getHeight()/2.0 - getTextAscent());
-			
 		}
 	}
 	
@@ -178,8 +150,7 @@ class Node {
 	}
 	
 	public Node insert(Figure fig){
-		String id = fig.getIdProperty();
-		//if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getWidth(), fig.minSize.getHeight());
+		//if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getX(), fig.minSize.getY());
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
 			//if(Pack.debug)System.err.printf("insert:%s in left child\n", id);
@@ -207,8 +178,8 @@ class Node {
 		if(width <= 0.01f || height <= 0.01f)
 			return null;
 		
-		double dw = width - fig.minSize.getWidth();
-        double dh = height - fig.minSize.getHeight();
+		double dw = width - fig.minSize.getX();
+        double dh = height - fig.minSize.getY();
         
      //  if(Pack.debug)System.err.printf("%s: dw=%f, dh=%f\n", id, dw, dh);
 		
@@ -225,25 +196,17 @@ class Node {
 
         if(dw > dh) {
         	//if(Pack.debug)System.err.printf("%s: case dw > dh\n", id);
-        	lnode = new Node(left,                 top, left + fig.minSize.getWidth() + hgap, bottom);
-        	rnode = new Node(left + fig.minSize.getWidth() + hgap, top, right,                bottom);
+        	lnode = new Node(left,                 top, left + fig.minSize.getX() + hgap, bottom);
+        	rnode = new Node(left + fig.minSize.getX() + hgap, top, right,                bottom);
         } else {
         	//if(Pack.debug)System.err.printf("%s: case dw <= dh\n", id);
-           	lnode = new Node(left, top,                  right, top + fig.minSize.getHeight() + vgap);
-        	rnode = new Node(left, top + fig.minSize.getHeight() + vgap, right, bottom);
+           	lnode = new Node(left, top,                  right, top + fig.minSize.getY() + vgap);
+        	rnode = new Node(left, top + fig.minSize.getY() + vgap, right, bottom);
         }
         
         // insert the figure in left most child
         
         return lnode.insert(fig);
-	}
-	
-	void draw(double left, double top, GraphicsContext gc){
-		if(lnode != null) lnode.draw(left, top,gc);
-		if(rnode != null) rnode.draw(left, top,gc);
-		if(figure != null){
-			figure.draw(gc);
-		}
 	}
 }
 
