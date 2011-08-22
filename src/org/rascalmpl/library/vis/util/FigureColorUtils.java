@@ -193,6 +193,11 @@ public class FigureColorUtils {
 		}
 
 	};
+	
+	
+	public static int WHITE = colorNames.get("white").intValue();
+	public static int BLACK = colorNames.get("black").intValue();
+	public static int LIGHTGRAY = colorNames.get("lightgray").intValue();
 
 	static IInteger rgb(int r, int g, int b) {
 		return vf.integer(figureColor(r, g, b));
@@ -239,7 +244,7 @@ public class FigureColorUtils {
 				| ((int) (g1) << 8) | ((int) (b1)));
 	}
 
-	public int myLerpColor(int c1, int c2, float amt) {
+	public static int myLerpColor(int c1, int c2, float amt) {
 		float a1 = ((c1 >> 24) & 0xff);
 		float r1 = (c1 >> 16) & 0xff;
 		float g1 = (c1 >> 8) & 0xff;

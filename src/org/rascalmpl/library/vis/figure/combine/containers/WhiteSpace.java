@@ -1,8 +1,11 @@
 package org.rascalmpl.library.vis.figure.combine.containers;
 
+import java.util.List;
+
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 public class WhiteSpace extends Container{
@@ -12,16 +15,15 @@ public class WhiteSpace extends Container{
 	}
 
 	@Override
-	void drawContainer(GraphicsContext gc) {
-		gc.fill(FigureColorUtils.colorNames.get("white").intValue());
-		gc.stroke(FigureColorUtils.colorNames.get("white").intValue());
-		gc.rect(getLeft(), getTop() , size.getWidth(), size.getHeight());
-		
+	String containerName() {
+		return "Whitespace";
 	}
 
 	@Override
-	String containerName() {
-		return "Whitespace";
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
+		gc.fill(FigureColorUtils.WHITE);
+		gc.stroke(FigureColorUtils.WHITE);
+		gc.rect(location.getX(), location.getY() , size.getX(), size.getY());
 	}
 
 }

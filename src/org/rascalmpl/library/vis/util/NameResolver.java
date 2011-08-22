@@ -2,6 +2,7 @@ package org.rascalmpl.library.vis.util;
 
 import java.util.HashMap;
 
+import static org.rascalmpl.library.vis.properties.Properties.*;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
@@ -24,8 +25,9 @@ public class NameResolver {
 	}
 	
 	public void register(Figure fig){
-		if(!fig.getIdProperty().equals("")){
-			localFigures.put(fig.getIdProperty(), fig);
+		String id = fig.prop.getStr(ID);
+		if(id != null && !id.equals("")){
+			localFigures.put(id, fig);
 		}
 	}
 	
@@ -80,6 +82,11 @@ public class NameResolver {
 		} else {
 			return parent.root();
 		}
+	}
+
+	public Figure resolveKey(String value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

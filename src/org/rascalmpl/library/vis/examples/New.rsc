@@ -104,7 +104,7 @@ public void mondriaan(){
 	 				  vcat([box(),box(fillColor("yellow"))])
 					 ])
 	 		]
-		],stdLineWidth(6)));
+		],std(lineWidth(6.0)),aspectRatio(1.0)));
 } 
 
 

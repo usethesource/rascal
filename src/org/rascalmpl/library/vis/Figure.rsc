@@ -227,34 +227,6 @@ public java list[str] fontNames();
 }
 
 
- public FProperty stdProjectLeft(){
-   return stdProjectHalign(0.0);
- }
- 
- public FProperty stdProjectHcenter(){
-   return stdProjectHalign(0.5);
- }
- 
- public FProperty stdProjectRight(){
-   return stdProjectHalign(1.0);
- }
- 
- public FProperty stdProjectTop(){
-   return stdProjectValign(0.0);
- }
- 
- public FProperty stdProjectVcenter(){
-   return stdProjectValign(0.5);
- }
- 
- public FProperty stdProjectBottom(){
-   return stdProjectValign(1.0);
- }
- 
- public FProperty stdProjectCenter(){
-   return stdProjectValign(0.5, 0.5);
-}
-
 data Like = like(str id);
 public data Measure = measure(num quantity,str axisId);
 
@@ -268,421 +240,293 @@ public alias FProperties = list[FProperty];
  alias computedColor = Color();
  alias computedFigure = Figure();
 
- 
+data PropertyValue[&T] = constant(&T val)
+						| computed(&T () cval)
+						| measure(Measure m);
 
 data Convert = convert(value v, value id);
 
 data FProperty =
-	  mouseOver(Figure fig)
-	 | std(FProperty property)
-	 | timer                (int delay, int () cb)
-	 | project              (Figure f0, str p0)
-	 | _child               (FProperties props)
-	| align                (num                r0)
-	| align                (computedNum       cr0)
-	| align                (Like              lr0)
-	| align                (Convert           mr0)
-	| align                (num                r2, num                r1)
-	| align                (num                r3, computedNum       cr1)
-	| align                (num                r4, Like              lr1)
-	| align                (num                r5, Convert           mr1)
-	| align                (computedNum       cr3, num                r6)
-	| align                (computedNum       cr4, computedNum       cr2)
-	| align                (computedNum       cr5, Like              lr2)
-	| align                (computedNum       cr6, Convert           mr2)
-	| align                (Like              lr4, num                r7)
-	| align                (Like              lr5, computedNum       cr7)
-	| align                (Like              lr6, Like              lr3)
-	| align                (Like              lr7, Convert           mr3)
-	| align                (Convert           mr5, num                r8)
-	| align                (Convert           mr6, computedNum       cr8)
-	| align                (Convert           mr7, Like              lr8)
-	| align                (Convert           mr8, Convert           mr4)
-	| connect              (num                r0)
-	| connect              (computedNum       cr0)
-	| connect              (Like              lr0)
-	| connect              (Convert           mr0)
-	| connect              (num                r2, num                r1)
-	| connect              (num                r3, computedNum       cr1)
-	| connect              (num                r4, Like              lr1)
-	| connect              (num                r5, Convert           mr1)
-	| connect              (computedNum       cr3, num                r6)
-	| connect              (computedNum       cr4, computedNum       cr2)
-	| connect              (computedNum       cr5, Like              lr2)
-	| connect              (computedNum       cr6, Convert           mr2)
-	| connect              (Like              lr4, num                r7)
-	| connect              (Like              lr5, computedNum       cr7)
-	| connect              (Like              lr6, Like              lr3)
-	| connect              (Like              lr7, Convert           mr3)
-	| connect              (Convert           mr5, num                r8)
-	| connect              (Convert           mr6, computedNum       cr8)
-	| connect              (Convert           mr7, Like              lr8)
-	| connect              (Convert           mr8, Convert           mr4)
-	| direction            (str                s0)
-	| direction            (computedStr       cs0)
-	| direction            (Like              ls0)
-	| direction            (Convert           ms0)
-	| doi                  (int                i0)
-	| doi                  (computedInt       ci0)
-	| doi                  (Like              li0)
-	| doi                  (Convert           mi0)
-	| fillColor            (Color              c0)
-	| fillColor            (str               sc0)
-	| fillColor            (computedColor     cc0)
-	| fillColor            (Like              lc0)
-	| fillColor            (Convert           mc0)
-	| font                 (str                s0)
-	| font                 (computedStr       cs0)
-	| font                 (Like              ls0)
-	| font                 (Convert           ms0)
-	| fontColor            (Color              c0)
-	| fontColor            (str               sc0)
-	| fontColor            (computedColor     cc0)
-	| fontColor            (Like              lc0)
-	| fontColor            (Convert           mc0)
-	| fontSize             (int                i0)
-	| fontSize             (computedInt       ci0)
-	| fontSize             (Like              li0)
-	| fontSize             (Convert           mi0)
-	| fromAngle            (num                r0)
-	| fromAngle            (computedNum       cr0)
-	| fromAngle            (Like              lr0)
-	| fromAngle            (Convert           mr0)
-	| fromArrow            (Figure             f0)
-	| fromArrow            (computedFigure    cf0)
-	| fromArrow            (Like              lf0)
-	| fromArrow            (Convert           mf0)
-	| gap                  (num                r0)
-	| gap                  (computedNum       cr0)
-	| gap                  (Like              lr0)
-	| gap                  (Convert           mr0)
-	| gap                  (num                r2, num                r1)
-	| gap                  (num                r3, computedNum       cr1)
-	| gap                  (num                r4, Like              lr1)
-	| gap                  (num                r5, Convert           mr1)
-	| gap                  (computedNum       cr3, num                r6)
-	| gap                  (computedNum       cr4, computedNum       cr2)
-	| gap                  (computedNum       cr5, Like              lr2)
-	| gap                  (computedNum       cr6, Convert           mr2)
-	| gap                  (Like              lr4, num                r7)
-	| gap                  (Like              lr5, computedNum       cr7)
-	| gap                  (Like              lr6, Like              lr3)
-	| gap                  (Like              lr7, Convert           mr3)
-	| gap                  (Convert           mr5, num                r8)
-	| gap                  (Convert           mr6, computedNum       cr8)
-	| gap                  (Convert           mr7, Like              lr8)
-	| gap                  (Convert           mr8, Convert           mr4)
-	| grow                 (num                r0)
-	| grow                 (computedNum       cr0)
-	| grow                 (Like              lr0)
-	| grow                 (Convert           mr0)
-	| grow                 (num                r2, num                r1)
-	| grow                 (num                r3, computedNum       cr1)
-	| grow                 (num                r4, Like              lr1)
-	| grow                 (num                r5, Convert           mr1)
-	| grow                 (computedNum       cr3, num                r6)
-	| grow                 (computedNum       cr4, computedNum       cr2)
-	| grow                 (computedNum       cr5, Like              lr2)
-	| grow                 (computedNum       cr6, Convert           mr2)
-	| grow                 (Like              lr4, num                r7)
-	| grow                 (Like              lr5, computedNum       cr7)
-	| grow                 (Like              lr6, Like              lr3)
-	| grow                 (Like              lr7, Convert           mr3)
-	| grow                 (Convert           mr5, num                r8)
-	| grow                 (Convert           mr6, computedNum       cr8)
-	| grow                 (Convert           mr7, Like              lr8)
-	| grow                 (Convert           mr8, Convert           mr4)
-	| guideColor           (Color              c0)
-	| guideColor           (str               sc0)
-	| guideColor           (computedColor     cc0)
-	| guideColor           (Like              lc0)
-	| guideColor           (Convert           mc0)
-	| halign               (num                r0)
-	| halign               (computedNum       cr0)
-	| halign               (Like              lr0)
-	| halign               (Convert           mr0)
-	| hcapGaps             (bool               b0)
-	| hcapGaps             (computedBool      cb0)
-	| hcapGaps             (Like              lb0)
-	| hcapGaps             (Convert           mb0)
-	| hcapGaps             (bool               b2, bool               b1)
-	| hcapGaps             (bool               b3, computedBool      cb1)
-	| hcapGaps             (bool               b4, Like              lb1)
-	| hcapGaps             (bool               b5, Convert           mb1)
-	| hcapGaps             (computedBool      cb3, bool               b6)
-	| hcapGaps             (computedBool      cb4, computedBool      cb2)
-	| hcapGaps             (computedBool      cb5, Like              lb2)
-	| hcapGaps             (computedBool      cb6, Convert           mb2)
-	| hcapGaps             (Like              lb4, bool               b7)
-	| hcapGaps             (Like              lb5, computedBool      cb7)
-	| hcapGaps             (Like              lb6, Like              lb3)
-	| hcapGaps             (Like              lb7, Convert           mb3)
-	| hcapGaps             (Convert           mb5, bool               b8)
-	| hcapGaps             (Convert           mb6, computedBool      cb8)
-	| hcapGaps             (Convert           mb7, Like              lb8)
-	| hcapGaps             (Convert           mb8, Convert           mb4)
-	| hconnect             (num                r0)
-	| hconnect             (computedNum       cr0)
-	| hconnect             (Like              lr0)
-	| hconnect             (Convert           mr0)
-	| height               (num                r0)
-	| height               (computedNum       cr0)
-	| height               (Like              lr0)
-	| height               (Convert           mr0)
-	| hendGap              (bool               b0)
-	| hendGap              (computedBool      cb0)
-	| hendGap              (Like              lb0)
-	| hendGap              (Convert           mb0)
-	| hgap                 (num                r0)
-	| hgap                 (computedNum       cr0)
-	| hgap                 (Like              lr0)
-	| hgap                 (Convert           mr0)
-	| hgrow                (num                r0)
-	| hgrow                (computedNum       cr0)
-	| hgrow                (Like              lr0)
-	| hgrow                (Convert           mr0)
-	| hint                 (str                s0)
-	| hint                 (computedStr       cs0)
-	| hint                 (Like              ls0)
-	| hint                 (Convert           ms0)
-	| hpos                 (num                r0)
-	| hpos                 (computedNum       cr0)
-	| hpos                 (Like              lr0)
-	| hpos                 (Convert           mr0)
-	| hresizable           (bool               b0)
-	| hresizable           (computedBool      cb0)
-	| hresizable           (Like              lb0)
-	| hresizable           (Convert           mb0)
-	| hshrink              (num                r0)
-	| hshrink              (computedNum       cr0)
-	| hshrink              (Like              lr0)
-	| hshrink              (Convert           mr0)
-	| hstartGap            (bool               b0)
-	| hstartGap            (computedBool      cb0)
-	| hstartGap            (Like              lb0)
-	| hstartGap            (Convert           mb0)
-	| id                   (str                s0)
-	| id                   (computedStr       cs0)
-	| id                   (Like              ls0)
-	| id                   (Convert           ms0)
-	| innerAlign           (num                r0)
-	| innerAlign           (computedNum       cr0)
-	| innerAlign           (Like              lr0)
-	| innerAlign           (Convert           mr0)
-	| innerRadius          (num                r0)
-	| innerRadius          (computedNum       cr0)
-	| innerRadius          (Like              lr0)
-	| innerRadius          (Convert           mr0)
-	| label                (Figure             f0)
-	| label                (computedFigure    cf0)
-	| label                (Like              lf0)
-	| label                (Convert           mf0)
-	| layer                (str                s0)
-	| layer                (computedStr       cs0)
-	| layer                (Like              ls0)
-	| layer                (Convert           ms0)
-	| lineColor            (Color              c0)
-	| lineColor            (str               sc0)
-	| lineColor            (computedColor     cc0)
-	| lineColor            (Like              lc0)
-	| lineColor            (Convert           mc0)
-	| lineStyle            (str                s0)
-	| lineStyle            (computedStr       cs0)
-	| lineStyle            (Like              ls0)
-	| lineStyle            (Convert           ms0)
-	| lineWidth            (num                r0)
-	| lineWidth            (computedNum       cr0)
-	| lineWidth            (Like              lr0)
-	| lineWidth            (Convert           mr0)
-	| onClick              (void ()           h0)
-	| onKey                (bool (KeySym, bool , map[KeyModifier,bool]) kh0)
-	| onMouseMove          (bool ()           bh0)
-	| pos                  (num                r0)
-	| pos                  (computedNum       cr0)
-	| pos                  (Like              lr0)
-	| pos                  (Convert           mr0)
-	| pos                  (num                r2, num                r1)
-	| pos                  (num                r3, computedNum       cr1)
-	| pos                  (num                r4, Like              lr1)
-	| pos                  (num                r5, Convert           mr1)
-	| pos                  (computedNum       cr3, num                r6)
-	| pos                  (computedNum       cr4, computedNum       cr2)
-	| pos                  (computedNum       cr5, Like              lr2)
-	| pos                  (computedNum       cr6, Convert           mr2)
-	| pos                  (Like              lr4, num                r7)
-	| pos                  (Like              lr5, computedNum       cr7)
-	| pos                  (Like              lr6, Like              lr3)
-	| pos                  (Like              lr7, Convert           mr3)
-	| pos                  (Convert           mr5, num                r8)
-	| pos                  (Convert           mr6, computedNum       cr8)
-	| pos                  (Convert           mr7, Like              lr8)
-	| pos                  (Convert           mr8, Convert           mr4)
-	| resizable            (bool               b0)
-	| resizable            (computedBool      cb0)
-	| resizable            (Like              lb0)
-	| resizable            (Convert           mb0)
-	| resizable            (bool               b2, bool               b1)
-	| resizable            (bool               b3, computedBool      cb1)
-	| resizable            (bool               b4, Like              lb1)
-	| resizable            (bool               b5, Convert           mb1)
-	| resizable            (computedBool      cb3, bool               b6)
-	| resizable            (computedBool      cb4, computedBool      cb2)
-	| resizable            (computedBool      cb5, Like              lb2)
-	| resizable            (computedBool      cb6, Convert           mb2)
-	| resizable            (Like              lb4, bool               b7)
-	| resizable            (Like              lb5, computedBool      cb7)
-	| resizable            (Like              lb6, Like              lb3)
-	| resizable            (Like              lb7, Convert           mb3)
-	| resizable            (Convert           mb5, bool               b8)
-	| resizable            (Convert           mb6, computedBool      cb8)
-	| resizable            (Convert           mb7, Like              lb8)
-	| resizable            (Convert           mb8, Convert           mb4)
-	| shadow               (bool               b0)
-	| shadow               (computedBool      cb0)
-	| shadow               (Like              lb0)
-	| shadow               (Convert           mb0)
-	| shadowColor          (Color              c0)
-	| shadowColor          (str               sc0)
-	| shadowColor          (computedColor     cc0)
-	| shadowColor          (Like              lc0)
-	| shadowColor          (Convert           mc0)
-	| shadowLeft           (num                r0)
-	| shadowLeft           (computedNum       cr0)
-	| shadowLeft           (Like              lr0)
-	| shadowLeft           (Convert           mr0)
-	| shadowTop            (num                r0)
-	| shadowTop            (computedNum       cr0)
-	| shadowTop            (Like              lr0)
-	| shadowTop            (Convert           mr0)
-	| shapeClosed          (bool               b0)
-	| shapeClosed          (computedBool      cb0)
-	| shapeClosed          (Like              lb0)
-	| shapeClosed          (Convert           mb0)
-	| shapeConnected       (bool               b0)
-	| shapeConnected       (computedBool      cb0)
-	| shapeConnected       (Like              lb0)
-	| shapeConnected       (Convert           mb0)
-	| shapeCurved          (bool               b0)
-	| shapeCurved          (computedBool      cb0)
-	| shapeCurved          (Like              lb0)
-	| shapeCurved          (Convert           mb0)
-	| shrink               (num                r0)
-	| shrink               (computedNum       cr0)
-	| shrink               (Like              lr0)
-	| shrink               (Convert           mr0)
-	| shrink               (num                r2, num                r1)
-	| shrink               (num                r3, computedNum       cr1)
-	| shrink               (num                r4, Like              lr1)
-	| shrink               (num                r5, Convert           mr1)
-	| shrink               (computedNum       cr3, num                r6)
-	| shrink               (computedNum       cr4, computedNum       cr2)
-	| shrink               (computedNum       cr5, Like              lr2)
-	| shrink               (computedNum       cr6, Convert           mr2)
-	| shrink               (Like              lr4, num                r7)
-	| shrink               (Like              lr5, computedNum       cr7)
-	| shrink               (Like              lr6, Like              lr3)
-	| shrink               (Like              lr7, Convert           mr3)
-	| shrink               (Convert           mr5, num                r8)
-	| shrink               (Convert           mr6, computedNum       cr8)
-	| shrink               (Convert           mr7, Like              lr8)
-	| shrink               (Convert           mr8, Convert           mr4)
-	| size                 (num                r0)
-	| size                 (computedNum       cr0)
-	| size                 (Like              lr0)
-	| size                 (Convert           mr0)
-	| size                 (num                r2, num                r1)
-	| size                 (num                r3, computedNum       cr1)
-	| size                 (num                r4, Like              lr1)
-	| size                 (num                r5, Convert           mr1)
-	| size                 (computedNum       cr3, num                r6)
-	| size                 (computedNum       cr4, computedNum       cr2)
-	| size                 (computedNum       cr5, Like              lr2)
-	| size                 (computedNum       cr6, Convert           mr2)
-	| size                 (Like              lr4, num                r7)
-	| size                 (Like              lr5, computedNum       cr7)
-	| size                 (Like              lr6, Like              lr3)
-	| size                 (Like              lr7, Convert           mr3)
-	| size                 (Convert           mr5, num                r8)
-	| size                 (Convert           mr6, computedNum       cr8)
-	| size                 (Convert           mr7, Like              lr8)
-	| size                 (Convert           mr8, Convert           mr4)
-	| text                 (str                s0)
-	| text                 (computedStr       cs0)
-	| text                 (Like              ls0)
-	| text                 (Convert           ms0)
-	| textAngle            (num                r0)
-	| textAngle            (computedNum       cr0)
-	| textAngle            (Like              lr0)
-	| textAngle            (Convert           mr0)
-	| toAngle              (num                r0)
-	| toAngle              (computedNum       cr0)
-	| toAngle              (Like              lr0)
-	| toAngle              (Convert           mr0)
-	| toArrow              (Figure             f0)
-	| toArrow              (computedFigure    cf0)
-	| toArrow              (Like              lf0)
-	| toArrow              (Convert           mf0)
-	| valign               (num                r0)
-	| valign               (computedNum       cr0)
-	| valign               (Like              lr0)
-	| valign               (Convert           mr0)
-	| vcapGaps             (bool               b0)
-	| vcapGaps             (computedBool      cb0)
-	| vcapGaps             (Like              lb0)
-	| vcapGaps             (Convert           mb0)
-	| vcapGaps             (bool               b2, bool               b1)
-	| vcapGaps             (bool               b3, computedBool      cb1)
-	| vcapGaps             (bool               b4, Like              lb1)
-	| vcapGaps             (bool               b5, Convert           mb1)
-	| vcapGaps             (computedBool      cb3, bool               b6)
-	| vcapGaps             (computedBool      cb4, computedBool      cb2)
-	| vcapGaps             (computedBool      cb5, Like              lb2)
-	| vcapGaps             (computedBool      cb6, Convert           mb2)
-	| vcapGaps             (Like              lb4, bool               b7)
-	| vcapGaps             (Like              lb5, computedBool      cb7)
-	| vcapGaps             (Like              lb6, Like              lb3)
-	| vcapGaps             (Like              lb7, Convert           mb3)
-	| vcapGaps             (Convert           mb5, bool               b8)
-	| vcapGaps             (Convert           mb6, computedBool      cb8)
-	| vcapGaps             (Convert           mb7, Like              lb8)
-	| vcapGaps             (Convert           mb8, Convert           mb4)
-	| vconnect             (num                r0)
-	| vconnect             (computedNum       cr0)
-	| vconnect             (Like              lr0)
-	| vconnect             (Convert           mr0)
-	| vendGap              (bool               b0)
-	| vendGap              (computedBool      cb0)
-	| vendGap              (Like              lb0)
-	| vendGap              (Convert           mb0)
-	| vgap                 (num                r0)
-	| vgap                 (computedNum       cr0)
-	| vgap                 (Like              lr0)
-	| vgap                 (Convert           mr0)
-	| vgrow                (num                r0)
-	| vgrow                (computedNum       cr0)
-	| vgrow                (Like              lr0)
-	| vgrow                (Convert           mr0)
-	| vpos                 (num                r0)
-	| vpos                 (computedNum       cr0)
-	| vpos                 (Like              lr0)
-	| vpos                 (Convert           mr0)
-	| vresizable           (bool               b0)
-	| vresizable           (computedBool      cb0)
-	| vresizable           (Like              lb0)
-	| vresizable           (Convert           mb0)
-	| vshrink              (num                r0)
-	| vshrink              (computedNum       cr0)
-	| vshrink              (Like              lr0)
-	| vshrink              (Convert           mr0)
-	| vstartGap            (bool               b0)
-	| vstartGap            (computedBool      cb0)
-	| vstartGap            (Like              lb0)
-	| vstartGap            (Convert           mb0)
-	| width                (num                r0)
-	| width                (computedNum       cr0)
-	| width                (Like              lr0)
-	| width                (Convert           mr0)
-;   
+	mouseOver(Figure fig)
+	|std(FProperty property)
+	|timer                (int delay, int () cbb)
+	|project              (Figure f0, str p0)
+	|_child               (FProperties props)
+	|unpack(FProperties props)
+	// begin generated code
+	|shapeClosed(bool     b  )
+	|shapeClosed(bool()   cb )
+	|shapeClosed(Measure  mv )
+	|shapeConnected(bool     b  )
+	|shapeConnected(bool()   cb )
+	|shapeConnected(Measure  mv )
+	|shapeCurved(bool     b  )
+	|shapeCurved(bool()   cb )
+	|shapeCurved(Measure  mv )
+	|hstartGap  (bool     b  )
+	|hstartGap  (bool()   cb )
+	|hstartGap  (Measure  mv )
+	|hendGap    (bool     b  )
+	|hendGap    (bool()   cb )
+	|hendGap    (Measure  mv )
+	|vstartGap  (bool     b  )
+	|vstartGap  (bool()   cb )
+	|vstartGap  (Measure  mv )
+	|vendGap    (bool     b  )
+	|vendGap    (bool()   cb )
+	|vendGap    (Measure  mv )
+	|hresizable (bool     b  )
+	|hresizable (bool()   cb )
+	|hresizable (Measure  mv )
+	|vresizable (bool     b  )
+	|vresizable (bool()   cb )
+	|vresizable (Measure  mv )
+	|hzoomable  (bool     b  )
+	|hzoomable  (bool()   cb )
+	|hzoomable  (Measure  mv )
+	|vzoomable  (bool     b  )
+	|vzoomable  (bool()   cb )
+	|vzoomable  (Measure  mv )
+	|allAngles  (bool     b  )
+	|allAngles  (bool()   cb )
+	|allAngles  (Measure  mv )
+	|shadow     (bool     b  )
+	|shadow     (bool()   cb )
+	|shadow     (Measure  mv )
+	|fillColor  (Color    c  )
+	|fillColor  (Color()  cc )
+	|fillColor  (Measure  mv )
+	|fillColor  (str      ds )
+	|fontColor  (Color    c  )
+	|fontColor  (Color()  cc )
+	|fontColor  (Measure  mv )
+	|fontColor  (str      ds )
+	|lineColor  (Color    c  )
+	|lineColor  (Color()  cc )
+	|lineColor  (Measure  mv )
+	|lineColor  (str      ds )
+	|guideColor (Color    c  )
+	|guideColor (Color()  cc )
+	|guideColor (Measure  mv )
+	|guideColor (str      ds )
+	|shadowColor(Color    c  )
+	|shadowColor(Color()  cc )
+	|shadowColor(Measure  mv )
+	|shadowColor(str      ds )
+	|aspectRatio(real     r  )
+	|aspectRatio(real()   cr )
+	|aspectRatio(Measure  mv )
+	|ialign     (real     r  )
+	|ialign     (real()   cr )
+	|ialign     (Measure  mv )
+	|width      (real     r  )
+	|width      (real()   cr )
+	|width      (Measure  mv )
+	|height     (real     r  )
+	|height     (real()   cr )
+	|height     (Measure  mv )
+	|hgap       (real     r  )
+	|hgap       (real()   cr )
+	|hgap       (Measure  mv )
+	|vgap       (real     r  )
+	|vgap       (real()   cr )
+	|vgap       (Measure  mv )
+	|hshadowPos (real     r  )
+	|hshadowPos (real()   cr )
+	|hshadowPos (Measure  mv )
+	|vshadowPos (real     r  )
+	|vshadowPos (real()   cr )
+	|vshadowPos (Measure  mv )
+	|hshrink    (real     r  )
+	|hshrink    (real()   cr )
+	|hshrink    (Measure  mv )
+	|vshrink    (real     r  )
+	|vshrink    (real()   cr )
+	|vshrink    (Measure  mv )
+	|halign     (real     r  )
+	|halign     (real()   cr )
+	|halign     (Measure  mv )
+	|valign     (real     r  )
+	|valign     (real()   cr )
+	|valign     (Measure  mv )
+	|hpos       (real     r  )
+	|hpos       (real()   cr )
+	|hpos       (Measure  mv )
+	|vpos       (real     r  )
+	|vpos       (real()   cr )
+	|vpos       (Measure  mv )
+	|hgrow      (real     r  )
+	|hgrow      (real()   cr )
+	|hgrow      (Measure  mv )
+	|vgrow      (real     r  )
+	|vgrow      (real()   cr )
+	|vgrow      (Measure  mv )
+	|lineWidth  (real     r  )
+	|lineWidth  (real()   cr )
+	|lineWidth  (Measure  mv )
+	|toArrow    (Figure   f  )
+	|toArrow    (Figure() cf )
+	|toArrow    (Measure  mv )
+	|fromArrow  (Figure   f  )
+	|fromArrow  (Figure() cf )
+	|fromArrow  (Measure  mv )
+	|label      (Figure   f  )
+	|label      (Figure() cf )
+	|label      (Measure  mv )
+	|fontSize   (int      i  )
+	|fontSize   (int()    ci )
+	|fontSize   (Measure  mv )
+	|lineStyle  (str      s  )
+	|lineStyle  (str()    cs )
+	|lineStyle  (Measure  mv )
+	|hint       (str      s  )
+	|hint       (str()    cs )
+	|hint       (Measure  mv )
+	|id         (str      s  )
+	|id         (str()    cs )
+	|id         (Measure  mv )
+	|font       (str      s  )
+	|font       (str()    cs )
+	|font       (Measure  mv )
+	|onClick    (bool ()  h0 )
+	|onMouseMove(void (bool) h1 )
+	|onKey      (bool (KeySym, bool, map[KeyModifier,bool]) h2 )
+;
+
+public FProperty resizable  (bool     b  ){ return unpack([hresizable (b  ),vresizable (b  )]); }
+public FProperty resizable  (bool()   cb ){ return unpack([hresizable (cb ),vresizable (cb )]); }
+public FProperty resizable  (Measure  mv ){ return unpack([hresizable (mv ),vresizable (mv )]); }
+public FProperty zoomable   (bool     b  ){ return unpack([hzoomable  (b  ),vzoomable  (b  )]); }
+public FProperty zoomable   (bool()   cb ){ return unpack([hzoomable  (cb ),vzoomable  (cb )]); }
+public FProperty zoomable   (Measure  mv ){ return unpack([hzoomable  (mv ),vzoomable  (mv )]); }
+public FProperty startGap   (bool     b  ){ return unpack([hstartGap  (b  ),vstartGap  (b  )]); }
+public FProperty startGap   (bool()   cb ){ return unpack([hstartGap  (cb ),vstartGap  (cb )]); }
+public FProperty startGap   (Measure  mv ){ return unpack([hstartGap  (mv ),vstartGap  (mv )]); }
+public FProperty endGap     (bool     b  ){ return unpack([hendGap    (b  ),vendGap    (b  )]); }
+public FProperty endGap     (bool()   cb ){ return unpack([hendGap    (cb ),vendGap    (cb )]); }
+public FProperty endGap     (Measure  mv ){ return unpack([hendGap    (mv ),vendGap    (mv )]); }
+public FProperty pos        (real     r  ){ return unpack([hpos       (r  ),vpos       (r  )]); }
+public FProperty pos        (real()   cr ){ return unpack([hpos       (cr ),vpos       (cr )]); }
+public FProperty pos        (Measure  mv ){ return unpack([hpos       (mv ),vpos       (mv )]); }
+public FProperty size       (real     r  ){ return unpack([width      (r  ),height     (r  )]); }
+public FProperty size       (real()   cr ){ return unpack([width      (cr ),height     (cr )]); }
+public FProperty size       (Measure  mv ){ return unpack([width      (mv ),height     (mv )]); }
+public FProperty gap        (real     r  ){ return unpack([hgap       (r  ),vgap       (r  )]); }
+public FProperty gap        (real()   cr ){ return unpack([hgap       (cr ),vgap       (cr )]); }
+public FProperty gap        (Measure  mv ){ return unpack([hgap       (mv ),vgap       (mv )]); }
+public FProperty shadowPos  (real     r  ){ return unpack([hshadowPos (r  ),vshadowPos (r  )]); }
+public FProperty shadowPos  (real()   cr ){ return unpack([hshadowPos (cr ),vshadowPos (cr )]); }
+public FProperty shadowPos  (Measure  mv ){ return unpack([hshadowPos (mv ),vshadowPos (mv )]); }
+public FProperty shrink     (real     r  ){ return unpack([hshrink    (r  ),vshrink    (r  )]); }
+public FProperty shrink     (real()   cr ){ return unpack([hshrink    (cr ),vshrink    (cr )]); }
+public FProperty shrink     (Measure  mv ){ return unpack([hshrink    (mv ),vshrink    (mv )]); }
+public FProperty align      (real     r  ){ return unpack([halign     (r  ),valign     (r  )]); }
+public FProperty align      (real()   cr ){ return unpack([halign     (cr ),valign     (cr )]); }
+public FProperty align      (Measure  mv ){ return unpack([halign     (mv ),valign     (mv )]); }
+public FProperty grow       (real     r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
+public FProperty grow       (real()   cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
+public FProperty grow       (Measure  mv ){ return unpack([hgrow      (mv ),vgrow      (mv )]); }
+public FProperty resizable  (bool     b00  ,bool     b200 ){ return unpack([hresizable (b00  ),vresizable (b200 )]); }
+public FProperty resizable  (bool     b01  ,bool()   cb201){ return unpack([hresizable (b01  ),vresizable (cb201)]); }
+public FProperty resizable  (bool     b02  ,Measure  mv202){ return unpack([hresizable (b02  ),vresizable (mv202)]); }
+public FProperty resizable  (bool()   cb10 ,bool     b210 ){ return unpack([hresizable (cb10 ),vresizable (b210 )]); }
+public FProperty resizable  (bool()   cb11 ,bool()   cb211){ return unpack([hresizable (cb11 ),vresizable (cb211)]); }
+public FProperty resizable  (bool()   cb12 ,Measure  mv212){ return unpack([hresizable (cb12 ),vresizable (mv212)]); }
+public FProperty resizable  (Measure  mv20 ,bool     b220 ){ return unpack([hresizable (mv20 ),vresizable (b220 )]); }
+public FProperty resizable  (Measure  mv21 ,bool()   cb221){ return unpack([hresizable (mv21 ),vresizable (cb221)]); }
+public FProperty resizable  (Measure  mv22 ,Measure  mv222){ return unpack([hresizable (mv22 ),vresizable (mv222)]); }
+public FProperty zoomable   (bool     b00  ,bool     b200 ){ return unpack([hzoomable  (b00  ),vzoomable  (b200 )]); }
+public FProperty zoomable   (bool     b01  ,bool()   cb201){ return unpack([hzoomable  (b01  ),vzoomable  (cb201)]); }
+public FProperty zoomable   (bool     b02  ,Measure  mv202){ return unpack([hzoomable  (b02  ),vzoomable  (mv202)]); }
+public FProperty zoomable   (bool()   cb10 ,bool     b210 ){ return unpack([hzoomable  (cb10 ),vzoomable  (b210 )]); }
+public FProperty zoomable   (bool()   cb11 ,bool()   cb211){ return unpack([hzoomable  (cb11 ),vzoomable  (cb211)]); }
+public FProperty zoomable   (bool()   cb12 ,Measure  mv212){ return unpack([hzoomable  (cb12 ),vzoomable  (mv212)]); }
+public FProperty zoomable   (Measure  mv20 ,bool     b220 ){ return unpack([hzoomable  (mv20 ),vzoomable  (b220 )]); }
+public FProperty zoomable   (Measure  mv21 ,bool()   cb221){ return unpack([hzoomable  (mv21 ),vzoomable  (cb221)]); }
+public FProperty zoomable   (Measure  mv22 ,Measure  mv222){ return unpack([hzoomable  (mv22 ),vzoomable  (mv222)]); }
+public FProperty startGap   (bool     b00  ,bool     b200 ){ return unpack([hstartGap  (b00  ),vstartGap  (b200 )]); }
+public FProperty startGap   (bool     b01  ,bool()   cb201){ return unpack([hstartGap  (b01  ),vstartGap  (cb201)]); }
+public FProperty startGap   (bool     b02  ,Measure  mv202){ return unpack([hstartGap  (b02  ),vstartGap  (mv202)]); }
+public FProperty startGap   (bool()   cb10 ,bool     b210 ){ return unpack([hstartGap  (cb10 ),vstartGap  (b210 )]); }
+public FProperty startGap   (bool()   cb11 ,bool()   cb211){ return unpack([hstartGap  (cb11 ),vstartGap  (cb211)]); }
+public FProperty startGap   (bool()   cb12 ,Measure  mv212){ return unpack([hstartGap  (cb12 ),vstartGap  (mv212)]); }
+public FProperty startGap   (Measure  mv20 ,bool     b220 ){ return unpack([hstartGap  (mv20 ),vstartGap  (b220 )]); }
+public FProperty startGap   (Measure  mv21 ,bool()   cb221){ return unpack([hstartGap  (mv21 ),vstartGap  (cb221)]); }
+public FProperty startGap   (Measure  mv22 ,Measure  mv222){ return unpack([hstartGap  (mv22 ),vstartGap  (mv222)]); }
+public FProperty endGap     (bool     b00  ,bool     b200 ){ return unpack([hendGap    (b00  ),vendGap    (b200 )]); }
+public FProperty endGap     (bool     b01  ,bool()   cb201){ return unpack([hendGap    (b01  ),vendGap    (cb201)]); }
+public FProperty endGap     (bool     b02  ,Measure  mv202){ return unpack([hendGap    (b02  ),vendGap    (mv202)]); }
+public FProperty endGap     (bool()   cb10 ,bool     b210 ){ return unpack([hendGap    (cb10 ),vendGap    (b210 )]); }
+public FProperty endGap     (bool()   cb11 ,bool()   cb211){ return unpack([hendGap    (cb11 ),vendGap    (cb211)]); }
+public FProperty endGap     (bool()   cb12 ,Measure  mv212){ return unpack([hendGap    (cb12 ),vendGap    (mv212)]); }
+public FProperty endGap     (Measure  mv20 ,bool     b220 ){ return unpack([hendGap    (mv20 ),vendGap    (b220 )]); }
+public FProperty endGap     (Measure  mv21 ,bool()   cb221){ return unpack([hendGap    (mv21 ),vendGap    (cb221)]); }
+public FProperty endGap     (Measure  mv22 ,Measure  mv222){ return unpack([hendGap    (mv22 ),vendGap    (mv222)]); }
+public FProperty pos        (real     r00  ,real     r200 ){ return unpack([hpos       (r00  ),vpos       (r200 )]); }
+public FProperty pos        (real     r01  ,real()   cr201){ return unpack([hpos       (r01  ),vpos       (cr201)]); }
+public FProperty pos        (real     r02  ,Measure  mv202){ return unpack([hpos       (r02  ),vpos       (mv202)]); }
+public FProperty pos        (real()   cr10 ,real     r210 ){ return unpack([hpos       (cr10 ),vpos       (r210 )]); }
+public FProperty pos        (real()   cr11 ,real()   cr211){ return unpack([hpos       (cr11 ),vpos       (cr211)]); }
+public FProperty pos        (real()   cr12 ,Measure  mv212){ return unpack([hpos       (cr12 ),vpos       (mv212)]); }
+public FProperty pos        (Measure  mv20 ,real     r220 ){ return unpack([hpos       (mv20 ),vpos       (r220 )]); }
+public FProperty pos        (Measure  mv21 ,real()   cr221){ return unpack([hpos       (mv21 ),vpos       (cr221)]); }
+public FProperty pos        (Measure  mv22 ,Measure  mv222){ return unpack([hpos       (mv22 ),vpos       (mv222)]); }
+public FProperty size       (real     r00  ,real     r200 ){ return unpack([width      (r00  ),height     (r200 )]); }
+public FProperty size       (real     r01  ,real()   cr201){ return unpack([width      (r01  ),height     (cr201)]); }
+public FProperty size       (real     r02  ,Measure  mv202){ return unpack([width      (r02  ),height     (mv202)]); }
+public FProperty size       (real()   cr10 ,real     r210 ){ return unpack([width      (cr10 ),height     (r210 )]); }
+public FProperty size       (real()   cr11 ,real()   cr211){ return unpack([width      (cr11 ),height     (cr211)]); }
+public FProperty size       (real()   cr12 ,Measure  mv212){ return unpack([width      (cr12 ),height     (mv212)]); }
+public FProperty size       (Measure  mv20 ,real     r220 ){ return unpack([width      (mv20 ),height     (r220 )]); }
+public FProperty size       (Measure  mv21 ,real()   cr221){ return unpack([width      (mv21 ),height     (cr221)]); }
+public FProperty size       (Measure  mv22 ,Measure  mv222){ return unpack([width      (mv22 ),height     (mv222)]); }
+public FProperty gap        (real     r00  ,real     r200 ){ return unpack([hgap       (r00  ),vgap       (r200 )]); }
+public FProperty gap        (real     r01  ,real()   cr201){ return unpack([hgap       (r01  ),vgap       (cr201)]); }
+public FProperty gap        (real     r02  ,Measure  mv202){ return unpack([hgap       (r02  ),vgap       (mv202)]); }
+public FProperty gap        (real()   cr10 ,real     r210 ){ return unpack([hgap       (cr10 ),vgap       (r210 )]); }
+public FProperty gap        (real()   cr11 ,real()   cr211){ return unpack([hgap       (cr11 ),vgap       (cr211)]); }
+public FProperty gap        (real()   cr12 ,Measure  mv212){ return unpack([hgap       (cr12 ),vgap       (mv212)]); }
+public FProperty gap        (Measure  mv20 ,real     r220 ){ return unpack([hgap       (mv20 ),vgap       (r220 )]); }
+public FProperty gap        (Measure  mv21 ,real()   cr221){ return unpack([hgap       (mv21 ),vgap       (cr221)]); }
+public FProperty gap        (Measure  mv22 ,Measure  mv222){ return unpack([hgap       (mv22 ),vgap       (mv222)]); }
+public FProperty shadowPos  (real     r00  ,real     r200 ){ return unpack([hshadowPos (r00  ),vshadowPos (r200 )]); }
+public FProperty shadowPos  (real     r01  ,real()   cr201){ return unpack([hshadowPos (r01  ),vshadowPos (cr201)]); }
+public FProperty shadowPos  (real     r02  ,Measure  mv202){ return unpack([hshadowPos (r02  ),vshadowPos (mv202)]); }
+public FProperty shadowPos  (real()   cr10 ,real     r210 ){ return unpack([hshadowPos (cr10 ),vshadowPos (r210 )]); }
+public FProperty shadowPos  (real()   cr11 ,real()   cr211){ return unpack([hshadowPos (cr11 ),vshadowPos (cr211)]); }
+public FProperty shadowPos  (real()   cr12 ,Measure  mv212){ return unpack([hshadowPos (cr12 ),vshadowPos (mv212)]); }
+public FProperty shadowPos  (Measure  mv20 ,real     r220 ){ return unpack([hshadowPos (mv20 ),vshadowPos (r220 )]); }
+public FProperty shadowPos  (Measure  mv21 ,real()   cr221){ return unpack([hshadowPos (mv21 ),vshadowPos (cr221)]); }
+public FProperty shadowPos  (Measure  mv22 ,Measure  mv222){ return unpack([hshadowPos (mv22 ),vshadowPos (mv222)]); }
+public FProperty shrink     (real     r00  ,real     r200 ){ return unpack([hshrink    (r00  ),vshrink    (r200 )]); }
+public FProperty shrink     (real     r01  ,real()   cr201){ return unpack([hshrink    (r01  ),vshrink    (cr201)]); }
+public FProperty shrink     (real     r02  ,Measure  mv202){ return unpack([hshrink    (r02  ),vshrink    (mv202)]); }
+public FProperty shrink     (real()   cr10 ,real     r210 ){ return unpack([hshrink    (cr10 ),vshrink    (r210 )]); }
+public FProperty shrink     (real()   cr11 ,real()   cr211){ return unpack([hshrink    (cr11 ),vshrink    (cr211)]); }
+public FProperty shrink     (real()   cr12 ,Measure  mv212){ return unpack([hshrink    (cr12 ),vshrink    (mv212)]); }
+public FProperty shrink     (Measure  mv20 ,real     r220 ){ return unpack([hshrink    (mv20 ),vshrink    (r220 )]); }
+public FProperty shrink     (Measure  mv21 ,real()   cr221){ return unpack([hshrink    (mv21 ),vshrink    (cr221)]); }
+public FProperty shrink     (Measure  mv22 ,Measure  mv222){ return unpack([hshrink    (mv22 ),vshrink    (mv222)]); }
+public FProperty align      (real     r00  ,real     r200 ){ return unpack([halign     (r00  ),valign     (r200 )]); }
+public FProperty align      (real     r01  ,real()   cr201){ return unpack([halign     (r01  ),valign     (cr201)]); }
+public FProperty align      (real     r02  ,Measure  mv202){ return unpack([halign     (r02  ),valign     (mv202)]); }
+public FProperty align      (real()   cr10 ,real     r210 ){ return unpack([halign     (cr10 ),valign     (r210 )]); }
+public FProperty align      (real()   cr11 ,real()   cr211){ return unpack([halign     (cr11 ),valign     (cr211)]); }
+public FProperty align      (real()   cr12 ,Measure  mv212){ return unpack([halign     (cr12 ),valign     (mv212)]); }
+public FProperty align      (Measure  mv20 ,real     r220 ){ return unpack([halign     (mv20 ),valign     (r220 )]); }
+public FProperty align      (Measure  mv21 ,real()   cr221){ return unpack([halign     (mv21 ),valign     (cr221)]); }
+public FProperty align      (Measure  mv22 ,Measure  mv222){ return unpack([halign     (mv22 ),valign     (mv222)]); }
+public FProperty grow       (real     r00  ,real     r200 ){ return unpack([hgrow      (r00  ),vgrow      (r200 )]); }
+public FProperty grow       (real     r01  ,real()   cr201){ return unpack([hgrow      (r01  ),vgrow      (cr201)]); }
+public FProperty grow       (real     r02  ,Measure  mv202){ return unpack([hgrow      (r02  ),vgrow      (mv202)]); }
+public FProperty grow       (real()   cr10 ,real     r210 ){ return unpack([hgrow      (cr10 ),vgrow      (r210 )]); }
+public FProperty grow       (real()   cr11 ,real()   cr211){ return unpack([hgrow      (cr11 ),vgrow      (cr211)]); }
+public FProperty grow       (real()   cr12 ,Measure  mv212){ return unpack([hgrow      (cr12 ),vgrow      (mv212)]); }
+public FProperty grow       (Measure  mv20 ,real     r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
+public FProperty grow       (Measure  mv21 ,real()   cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
+public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
+
+// end generated code
 
 public FProperty child(FProperty props ...){
 	throw "child is currently out of order (broken)";
@@ -692,6 +536,7 @@ public FProperty child(FProperty props ...){
 public FProperty grandChild(FProperty props ...){
 	return _child([_child(props)]);
 }
+
 
 
 data Edge =			 							// edge between between two elements in complex shapes like tree or graph
@@ -732,7 +577,7 @@ public data Figure =
    
    
 /* primitives/containers */
-
+   | _widthDepsHeight(Figure inner, FProperties props)
    | _box(FProperties props)			          // rectangular box
    | _box(Figure inner, FProperties props)       // rectangular box with inner element
    
@@ -771,7 +616,7 @@ public data Figure =
    | _mouseOver(Figure under, Figure over, FProperties props)
    | _fswitch(int () choice,Figures figs, FProperties props)
    | _overlap(Figure under, Figure over, FProperties props)
-                       
+   | _mouseOver(Figure under,Figure over,FProperties props)          
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
                    
@@ -942,7 +787,6 @@ public Figure overlap(Figure under,Figure over, FProperty props ...){
   return _overlap(under,over,props);
 }
 
-
 public Figure hcat(Figures figs, FProperty props ...){
   return _grid([[figs]],props);
 }
@@ -955,7 +799,7 @@ public Figure vcat(Figures figs, FProperty props ...){
 }
 
 public Figure hvcat(Figures figs, FProperty props ...){
-  return _withDependantWidthHeight(true,_hvcat(figs, props),[]);
+  return _widthDepsHeight(_hvcat(figs, props),[]);
 }
 
 
@@ -974,7 +818,7 @@ public Figure grid(list[list[Figure]] figs, FProperty props ...){
 }
 
 public Figure pack(Figures figs, FProperty props ...){
-  return _pack(figs, props);
+  return _widthDepsHeight(_pack(figs, props),[]);
 }
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
@@ -1062,6 +906,16 @@ public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
 }  
 
 public Figure normalize(Figure f){
+	f = outermost visit(f){
+		case Figure f : {
+			if([x*,unpack(y),z*] := f.props){
+				f.props = [x,y,z];
+				insert f;
+			} else {
+				fail;
+			}
+		}
+	} 
 	f = visit(f){
 		case Figure f : {
 			if([_*,project(y,z),_*] := f.props){
@@ -1140,7 +994,7 @@ public Figure hPalleteKey (str name, str key,FProperty props...){
 }
 
 public Figure title(str name, Figure inner,FProperty props...){
-	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))],props);
+	return vcat([box(text(name,fontSize(17))), box(inner,grow(1.1))],props);
 }
 
 public Color rrgba(real r, real g, real b, real a){
@@ -1156,7 +1010,7 @@ public Color randomColorAlpha(){
 }
 
 public Figure point(FProperty props...){
-	return space([resizable(false), size(0)] + props);
+	return space([resizable(false), size(0.0)] + props);
 }
 
 
@@ -1262,6 +1116,6 @@ public  Figure shapeParallelogram(Figure fig, FProperty props...) {
 }
 
 public Figure ifFig(bool () cond, Figure onTrue, FProperty props...){
-	return fswitch(int () { return cond() ? 1 : 0;}, [ space(), onTrue], props);
+	return fswitch(int () { bool b = cond(); println("if switch <b>"); return b ? 1 : 0;}, [ space(), onTrue], props);
 }
 

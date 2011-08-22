@@ -12,7 +12,75 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine;
 
-// TODO: fix me! also take care global coordinates
+import java.util.Vector;
+
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.properties.Properties;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
+
+
+/*
+public class Rotate extends WithInnerFig{
+	// TODO: fix me
+	PropertyValue<Double> angle;
+
+	public Rotate(PropertyValue<Double> angle,Figure inner, PropertyManager properties) {
+		super(inner, properties);
+		this.angle = angle;
+	}
+	
+	@Override
+	public void computeFiguresAndProperties(Vector<FigureWithVisiblity> visibleChildren, ICallbackEnv env) {
+		angle.compute(env);
+		super.computeFiguresAndProperties(visibleChildren, env);
+	}
+
+	@Override
+	public void computeMinSize(Vector<FigureWithVisiblity> visibleChildren) {
+		for(boolean flip : BOTH_DIMENSIONS){
+			minSize.setWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip));
+		}
+		if(getBooleanProperty(Properties.ALLOW_ROTATE_FULL)){
+			double w = minSize.getWidth();
+			double h = minSize.getHeight();
+			double diagonal = Math.sqrt(w*w + h*h);
+			minSize.set(diagonal,diagonal);
+		} else {
+			TransformMatrix t = new TransformMatrix();
+			t.rotate(angle.getValue());
+			t.transformBoundingBox(minSize);
+		}
+	}
+	
+	public void setTransform(TransformMatrix transform, double back) {
+		transform.translate(size.getWidth()/2.0, size.getHeight()/2.0);
+		transform.rotate(angle.getValue());
+	}
+	
+	public void unsetTransform(TransformMatrix transform) {
+		transform.translate(size.getWidth()/2.0, size.getHeight()/2.0);
+		transform.rotate(-angle.getValue());
+		transform.translate(-size.getWidth()/2.0, -size.getHeight()/2.0);
+	}
+	
+	@Override
+	public void resize(Vector<FigureWithVisiblity> visibleChildren,
+			ResizeMode resizeMode, TransformMatrix transform) {
+		if(getBooleanProperty(Properties.ALLOW_ROTATE_FULL)){
+			
+		} else {
+			double c = Math.abs(Math.cos(angle.getValue()));
+			double s = Math.abs(Math.sin(angle.getValue()));
+			innerFig.size.setWidth(size.getWidth() * c * c / getGrowFactor(false));
+			innerFig.size.setHeight(size.getHeight() * s * s / getGrowFactor(false));
+		}
+	}
+	
+}
+*/
 /*
 public class Rotate extends WithInnerFig {
 	private double angle;

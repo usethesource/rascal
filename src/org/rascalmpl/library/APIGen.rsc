@@ -98,7 +98,7 @@ public str type2FactoryCall(type[value] t){
 		case set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";	
 		case list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
 		case map(ti,ti2) : return "tf.mapType(<type2FactoryCall(ti)>,<type2FactoryCall(ti2)>)";
-		case "reified"(type[value] t): return "rtf.reifiedType(<type2FactoryCall(t)>)";
+		case "reified"(type[value] t2): return "rtf.reifiedType(<type2FactoryCall(t2)>)";
 		case tuple(list[type[value]] tis) : 
 			return "tf.tupleType(<typeList2FactoryVarArgs(tis)>)";
 		case tuple(list[tuple[type[value] \type, str label]] tis):
@@ -107,8 +107,8 @@ public str type2FactoryCall(type[value] t){
 			 return "tf.relType(<typeAndLabelsList2FactoryVarArgs(tis)>)";
 		case rel(list[type[value]] tis) : 
 			return "tf.relType(<typeList2FactoryVarArgs(tis)>)";
-		case "parameter"(name,t) : 
-			return "tf.parameterType(\"<name>\",<type2FactoryCall(t)>)";
+		case "parameter"(name,t2) : 
+			return "tf.parameterType(\"<name>\",<type2FactoryCall(t2)>)";
 		case fun(returnType, args): 
 			return "rtf.functionType(<type2FactoryCall(returnType)>,
 					tf.tupleType(<typeList2FactoryVarArgsFirstPos(args)>)";

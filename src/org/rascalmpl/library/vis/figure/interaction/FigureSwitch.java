@@ -1,63 +1,55 @@
 package org.rascalmpl.library.vis.figure.interaction;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.compose.Compose;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.Mutable;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 
-public class FigureSwitch extends Compose{
+public class FigureSwitch extends LayoutProxy{
 
-	IValue callback;
-	int choice ;
+	Figure[] choices;
+	PropertyValue<Integer> choice;
 	
-	public FigureSwitch(IValue callback, Figure[] figures, PropertyManager properties) {
-		super(figures, properties);
-		this.callback = callback;
-		choice = 0;
+	public FigureSwitch(PropertyValue<Integer> choice, Figure[] choices, PropertyManager properties) {
+		super(null, properties);
+		this.choices = choices;
+		this.choice = choice;
 	}
-	
 
-	public void computeFiguresAndProperties(ICallbackEnv env) {
-		super.computeFiguresAndProperties(env);
-		int newChoice = ((IInteger)(env.executeRascalCallBackWithoutArguments(callback).getValue())).intValue();
-		if(newChoice >= figures.length || newChoice < 0){
-			newChoice = 0;
+	@Override
+	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
+		setInnerFig(choices[choice.getValue()]);
+		for(int i = 0 ; i < choices.length ; i++){
+			if(i != choice.getValue()){
+				choices[i].hide(env);
+			}
 		}
-		if(newChoice != choice){
-			choice = newChoice;
-		}
-		
 	}
-	
-	public void bbox(){
-		for(Figure fig : figures){
-			fig.bbox();
-			for(boolean flip : BOTH_DIMENSIONS){
-				minSize.setWidth(flip, Math.max(minSize.getWidth(flip),fig.minSize.getWidth(flip)/ fig.getHShrinkProperty(flip)));
-				setResizableX(flip, getResizableX(flip) || fig.getResizableX(flip));
+
+	@Override
+	public void computeMinSize() {
+		resizable.set(false,false);
+		for(Figure fig : choices){
+			minSize.setMax(fig.minSize);
+			for(Dimension d : HOR_VER){
+				resizable.set(d,resizable.get(d) || innerFig.resizable.get(d));
 			}
 		}
 	}
 	
-	public void layout(){
-		figures[choice].globalLocation.set(globalLocation);
-		for(boolean flip : BOTH_DIMENSIONS){
-				figures[choice].takeDesiredWidth(flip, size.getWidth(flip) * figures[choice].getHShrinkProperty(flip));
-				figures[choice].globalLocation.addX(flip, (size.getWidth(flip) - figures[choice].size.getWidth(flip)) * figures[choice].getHAlignProperty(flip));
+	@Override	
+	public void destroyElement(IFigureConstructionEnv env) {
+		for(int i = 0 ; i < choices.length ; i++){
+			if(i != choice.getValue()){
+				choices[i].destroy(env);
+			}
 		}
-		figures[choice].layout();
-		
 	}
 
-	public void draw(GraphicsContext gc){
-		figures[choice].draw(gc);
-	}
-	
-	public boolean isVisible(){
-		return figures[choice].isVisible();
-	}
-	
+
 }

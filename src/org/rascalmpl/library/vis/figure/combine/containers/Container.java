@@ -12,22 +12,29 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
+import static org.rascalmpl.library.vis.properties.Properties.*;
+import static org.rascalmpl.library.vis.util.vector.Dimension.*;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.*;
+import java.util.Vector;
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.Figure.ResizeMode;
 import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.Rectangle;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.Mutable;
+import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
+import org.rascalmpl.library.vis.properties.Properties.*;
 
 
 /**
  * A container represents a visual element that can contain another (nested) visual element called the "inside" element.
  * Typical examples are Boxes and Ellipses that may contain another element.
  * 
- * A container has the following behaviour:
- * - It has a bounding box of its own unless interaction due to a moueOver overrules it.
- * - It draws itself (using drawContainer).
- * - It draws the inside element provided that it fits in the container.
- * - It always draws the inside element on mouseOver.
  * 
  * @author paulk
  * 
@@ -35,77 +42,38 @@ import org.rascalmpl.library.vis.util.Rectangle;
 
 public abstract class Container extends WithInnerFig {
 
+	@SuppressWarnings("unused")
 	final private static boolean debug = false;
 
 	public Container(Figure inner, PropertyManager properties) {
 		super(inner,properties);
-		
 	}
 	
-	public void bbox(){
-		if(innerFig!=null){
-			innerFig.bbox();
-		}
-		minSize.clear();
-		for(boolean flip : BOTH_DIMENSIONS){
-			computeMinWidth(flip);
-		}
-		setResizable();
-		super.bbox();
-		
-	}
-	
-	public void computeMinWidth(boolean flip){
-		
+	@Override
+	public void computeMinSize() {
 		if(innerFig!=null){ 
-			minSize.setWidth(flip, innerFig.minSize.getWidth(flip) * getGrowFactor(flip) + getLineWidthProperty());
+			for(Dimension d : HOR_VER){
+				minSize.set(d, innerFig.minSize.get(d) * getGrowFactor(d) + prop.getReal(LINE_WIDTH));
+				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){
+					resizable.set(d,false);
+				}
+			}
+			
 		}
 	}
 	
-	double getGrowFactor(boolean flip){
-		return Math.max(getHGrowProperty(flip), 1.0 / innerFig.getHShrinkProperty(flip));
-	}
-	
-	
-	public void layout(){
+	@Override
+	public void resizeElement(Rectangle view) {
 		if(innerFig == null) return;
-		double lw = getLineWidthProperty();
-		innerFigLocation.clear();
-		for(boolean flip : BOTH_DIMENSIONS){
-				double sizeWithouthBorders = size.getWidth(flip) - lw ;
-				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(flip);
-				innerFig.takeDesiredWidth(flip, innerDesiredWidth);
-		}
-		innerFig.layout();
-		for(boolean flip : BOTH_DIMENSIONS){
-			innerFigLocation.setX(flip, (size.getWidth(flip) - innerFig.size.getWidth(flip)) * innerFig.getHAlignProperty(flip));
+		double lw = prop.getReal(LINE_WIDTH);
+		for(Dimension d : HOR_VER){
+				double sizeWithouthBorders = size.get(d) - lw ;
+				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(d);
+				innerFig.size.set(d, innerDesiredWidth);
+				innerFig.location.set(d, (size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
 		}
 	}
 
-	@Override
-	public
-	void draw(GraphicsContext gc) {
-		applyProperties(gc);
-		drawContainer(gc);
-		super.draw(gc);
-	}
-	
-	@Override
-	public void drawPart(Rectangle r,GraphicsContext gc){
-		
-		applyProperties(gc);
-		drawContainer(gc);
-		super.drawPart(r,gc);
-	}
-	
-	
-	/**
-	 * drawContainer: draws the graphics associated with the container (if any). 
-	 * It is overridden by subclasses.
-	 */
-	
-	abstract void drawContainer(GraphicsContext gc);
-	
 	/**
 	 * @return the actual container name, e.g. box, ellipse, ...
 	 */
@@ -115,12 +83,7 @@ public abstract class Container extends WithInnerFig {
 	
 	@Override
 	public String  toString(){
-		return new StringBuffer(containerName()).append("(").
-		append(getLeft()).append(",").
-		append(getTop()).append(",").
-		append(minSize.getWidth()).append(",").
-		append(minSize.getHeight()).append(",").append(size.getWidth()).append(",").
-		append(size.getHeight()).append(")").toString();
+		return String.format("Container %s %s", location,size);
 	}
 	
 

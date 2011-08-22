@@ -1,36 +1,44 @@
 package org.rascalmpl.library.vis.figure.compose;
 
+import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.END_GAP;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.START_GAP;
+import static org.rascalmpl.library.vis.util.Util.flatten;
+import static org.rascalmpl.library.vis.util.Util.makeRectangular;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
+
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.combine.containers.EmptyFigure;
+import org.rascalmpl.library.vis.figure.combine.containers.Space;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.swt.zorder.ISWTZOrdering;
-import org.rascalmpl.library.vis.util.Coordinate;
-import org.rascalmpl.library.vis.util.ForBothDimensions;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.Rectangle;
-import org.rascalmpl.library.vis.util.Util;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TwoDimensional;
 
 
-public class Grid extends Figure {
+/* TODO: This is horibly horibly horibly overcomplicated! */
+
+public class Grid extends Compose {
 	
 	public static final String OVERCONSTRAINED_MESSAGE = "Grid Overconstrained!";
 	
 	Figure[][] figureMatrix ;
-	Coordinate[][] pos;
 	int nrColumns, nrRows;
-	ForBothDimensions<double[]> columnBorders;
-	ForBothDimensions<Size[]> columnsSize;
-	ForBothDimensions<Double> totalShrinkAllSetColumns;
-	ForBothDimensions<double[]> someShrinksSetShrinks;
-	ForBothDimensions<Integer> nrShrinkNoneColumns;
-	ForBothDimensions<Integer> nrShrinkSomeColumns;
-	ForBothDimensions<Integer> nrShrinkAllColumns;
-	ForBothDimensions<Double> unresizableColumnsWidth;
+	TwoDimensional<double[]> columnBorders;
+	TwoDimensional<Size[]> columnsSize;
+	TwoDimensional<Double> totalShrinkAllSetColumns;
+	TwoDimensional<double[]> someShrinksSetShrinks;
+	TwoDimensional<Integer> nrShrinkNoneColumns;
+	TwoDimensional<Integer> nrShrinkSomeColumns;
+	TwoDimensional<Integer> nrShrinkAllColumns;
+	TwoDimensional<Double> unresizableColumnsWidth;
 	boolean overConstrained;
 
 	
@@ -59,67 +67,55 @@ public class Grid extends Figure {
 	}
 	
 	public Grid(Figure[][] figureMatrix,PropertyManager properties) {
-		super(properties);
+		super(flatten(Figure.class,figureMatrix),properties);
 		this.figureMatrix = figureMatrix;
-		Util.makeRectangular(figureMatrix,EmptyFigure.instance);
+		makeRectangular(figureMatrix,Space.empty);
 		
 		nrRows = figureMatrix.length;
 		nrColumns = figureMatrix[0].length;
-		pos= new Coordinate[nrRows][nrColumns];
-		for(int i = 0 ; i < nrRows ; i++) { 
-			for(int j = 0 ; j < nrColumns ; j++) {
-				pos[i][j] = new Coordinate();
-			}
-		}
 		overConstrained = false;
-		columnBorders = new ForBothDimensions<double[]>(new double[nrColumns], new double[nrRows]) ;
-		columnsSize = new ForBothDimensions<Grid.Size[]>(new Size[nrColumns], new Size[nrRows]);
-		unresizableColumnsWidth = new ForBothDimensions<Double>(0.0,0.0);
-		totalShrinkAllSetColumns =  new ForBothDimensions<Double>(0.0,0.0);
-		nrShrinkNoneColumns = new ForBothDimensions<Integer>(0, 0);
-		nrShrinkSomeColumns= new ForBothDimensions<Integer>(0, 0);
-		nrShrinkAllColumns= new ForBothDimensions<Integer>(0, 0);
-		someShrinksSetShrinks = new ForBothDimensions<double[]>(null,null);
+		columnBorders = new TwoDimensional<double[]>(new double[nrColumns], new double[nrRows]) ;
+		columnsSize = new TwoDimensional<Grid.Size[]>(new Size[nrColumns], new Size[nrRows]);
+		unresizableColumnsWidth = new TwoDimensional<Double>(0.0,0.0);
+		totalShrinkAllSetColumns =  new TwoDimensional<Double>(0.0,0.0);;
+		nrShrinkNoneColumns = new TwoDimensional<Integer>(0, 0);
+		nrShrinkSomeColumns= new TwoDimensional<Integer>(0, 0);
+		nrShrinkAllColumns= new TwoDimensional<Integer>(0, 0);
+		someShrinksSetShrinks = new TwoDimensional<double[]>(null,null);
 	}
 	
-	public void bbox(){
+	public void computeMinSize(){
 		overConstrained = false;
-		for(Figure[] row : figureMatrix){
-			for(Figure elem : row){
-				elem.bbox();
-			}
-		}
-		for(boolean flip : BOTH_DIMENSIONS){
-			computeMinWidth(flip);
+		for(Dimension d : HOR_VER){
+			computeMinWidth(d);
 		}
 		if(overConstrained){
 			minSize.set(getTextWidth(OVERCONSTRAINED_MESSAGE),getTextAscent() + getTextDescent());
 		}
-		setResizable();
 	}
 	
 
-	public void computeMinWidth(boolean flip){
-		this.columnsSize.setForX(flip,getSizeInfoOfColumns(flip));
-		setColumnTypeCounts(flip);
-		this.unresizableColumnsWidth.setForX(flip, totalMinWidthOfUnresizableColumns(flip));
-		this.totalShrinkAllSetColumns.setForX(flip,totalShrinkAllSetColumns(flip));
-		double minWidth = minWidthByUnShrinking(flip);
-		minWidth = Math.max(minWidth,unresizableColumnsWidth.getForX(flip)/ (1.0 - totalShrinkAllSetColumns.getForX(flip)));
-		double maxMinWidthOfAutoElem = maxMinWidthOfAutoElement(flip);
-		double shrinkLeftOver = 1.0 - totalShrinkAllSetColumns.getForX(flip);
-		minWidth = getAutoElementsShrinkMinWidth(shrinkLeftOver,flip,minWidth,maxMinWidthOfAutoElem);
+	public void computeMinWidth(Dimension d){
+		setSizeInfoOfColumns(d);
+		setColumnTypeCounts(d);
+		this.unresizableColumnsWidth.set(d, totalMinWidthOfUnresizableColumns(d));
+		this.totalShrinkAllSetColumns.set(d,totalShrinkAllSetColumns(d));
+		double minWidth = minWidthByUnShrinking(d);
+		minWidth = Math.max(minWidth,unresizableColumnsWidth.get(d)/ (1.0 - totalShrinkAllSetColumns.get(d)));
+		double maxMinWidthOfAutoElem = maxMinWidthOfAutoElement(d);
+		double shrinkLeftOver = 1.0 - totalShrinkAllSetColumns.get(d);
+		minWidth = getAutoElementsShrinkMinWidth(shrinkLeftOver,d,minWidth,maxMinWidthOfAutoElem);
 		if(minWidth == -1){
 			overConstrained = true;
 			
 		}
-		minWidth*= getHGrowProperty(flip);
-		this.minSize.setWidth(flip, minWidth);
+		minWidth*= prop.get2DReal(d, GROW);
+		this.minSize.set(d, minWidth);
 	}
 	
-	private double totalMinWidthOfUnresizableColumns(boolean flip){
+	private double totalMinWidthOfUnresizableColumns(Dimension d){
 		double result = 0;
-		Size[] columnSize = this.columnsSize.getForX(flip);
+		Size[] columnSize = this.columnsSize.get(d);
 		for(Size s : columnSize){
 			if(s.sizeInfo == SizeInfo.UNRESIZABLE){
 				result += s.minSize;
@@ -128,33 +124,33 @@ public class Grid extends Figure {
 		return result;
 	}
 	
-	private double minWidthByUnShrinking(boolean flip){
+	private double minWidthByUnShrinking(Dimension d){
 		double minWidth = 0;
 		for(Figure[] row : figureMatrix){
 			for(Figure elem : row){
-				if(elem.isHShrinkPropertySet(flip) && elem.getResizableX(flip)){
-					minWidth = Math.max(minWidth,elem.minSize.getWidth(flip) / elem.getHShrinkProperty(flip));
+				if(elem.prop.is2DPropertySet(d, SHRINK) && elem.resizable.get(d)){
+					minWidth = Math.max(minWidth,elem.minSize.get(d) / elem.prop.get2DReal(d, SHRINK));
 				}
 			}
 		}
 		return minWidth;
 	}
 	
-	private double maxMinWidthOfAutoElement(boolean flip){
+	private double maxMinWidthOfAutoElement(Dimension d){
 		double maxMinWidth = 0;
 		for(Figure[] row : figureMatrix){
 			for(Figure elem : row){
-				if(!elem.isHShrinkPropertySet(flip) && elem.getResizableX(flip)){
-					maxMinWidth = Math.max(maxMinWidth,elem.minSize.getWidth(flip));
+				if(!elem.prop.is2DPropertySet(d, SHRINK) && elem.resizable.get(d)){
+					maxMinWidth = Math.max(maxMinWidth,elem.minSize.get(d));
 				}
 			}
 		}
 		return maxMinWidth;
 	}
 	
-	private double totalShrinkAllSetColumns(boolean flip){
+	private double totalShrinkAllSetColumns(Dimension d){
 		double result = 0;
-		Size[] columnSize = this.columnsSize.getForX(flip);
+		Size[] columnSize = this.columnsSize.get(d);
 		for(Size s : columnSize){
 			if(s.sizeInfo == SizeInfo.ALL_SHRINK_SET){
 				result += s.maxShrink;
@@ -163,25 +159,30 @@ public class Grid extends Figure {
 		return result;
 	}
 	
-	private double[] getSomeShrinkSetSorted(boolean flip) {
-		double[] someShrinkSetShrinks = new double[nrShrinkSomeColumns.getForX(flip)];
+	private void setSomeShrinkSetSorted(Dimension d) {
+		double[] result;
+		if(someShrinksSetShrinks.get(d) == null || someShrinksSetShrinks.get(d).length != nrShrinkSomeColumns.get(d)){
+			result = new double[nrShrinkSomeColumns.get(d)];
+			someShrinksSetShrinks.set(d,result);
+		} else {
+			result = someShrinksSetShrinks.get(d);
+		}
 		int i = 0;
-		for(Size s : columnsSize.getForX(flip)){
+		for(Size s : columnsSize.get(d)){
 			if(s.sizeInfo == SizeInfo.SOME_SHRINK_SET){
-				someShrinkSetShrinks[i] = s.maxShrink;
+				result[i] = s.maxShrink;
 				i++;
 			}
 		}
-		Arrays.sort(someShrinkSetShrinks);
-		return someShrinkSetShrinks;
+		Arrays.sort(result);
 	}
 	
 	
-	private void setColumnTypeCounts(boolean flip){
+	private void setColumnTypeCounts(Dimension d){
 		int nrAllSet = 0;
 		int nrSomeSet = 0;
 		int nrNoneSet = 0;
-		Size[] columnSize = this.columnsSize.getForX(flip);
+		Size[] columnSize = this.columnsSize.get(d);
 		for(Size s : columnSize){
 			switch(s.sizeInfo){
 			case ALL_SHRINK_SET : nrAllSet++; break;
@@ -189,37 +190,36 @@ public class Grid extends Figure {
 			case NONE_SHRINK_SET: nrNoneSet++; break;
 			}
 		}
-		this.nrShrinkAllColumns.setForX(flip, nrAllSet);
-		this.nrShrinkSomeColumns.setForX(flip, nrSomeSet);
-		this.nrShrinkNoneColumns.setForX(flip,nrNoneSet);
+		this.nrShrinkAllColumns.set(d, nrAllSet);
+		this.nrShrinkSomeColumns.set(d, nrSomeSet);
+		this.nrShrinkNoneColumns.set(d,nrNoneSet);
 	}
 	
-	private Size[] getSizeInfoOfColumns(boolean flip){
-		Size[] result = new Size[getNrColumns(flip)];
-		for(int column = 0 ; column < getNrColumns(flip); column++){
-			result[column] = getSizeInfoOfColumn(flip, column);
+	private void setSizeInfoOfColumns(Dimension d){
+		Size[] result = columnsSize.get(d);
+		for(int column = 0 ; column < getNrColumns(d); column++){
+			result[column] = getSizeInfoOfColumn(d, column);
 		}
-		return result;
 	}
 	
-	private Size getSizeInfoOfColumn(boolean flip, int column){
+	private Size getSizeInfoOfColumn(Dimension d, int column){
 		double minSize = 0;
 		double maxShrink = 0;
 		double minSizeOfGrid = 0;
 		boolean resizable = false;
 		boolean autoSize = true;
 		boolean allShrinkSet = true;
-		for(int row = 0 ; row < getNrRows(flip); row++){
-			Figure fig = getFigureFromMatrix(flip, row, column);
-			resizable= resizable || fig.getResizableX(flip);
-			if(fig.getResizableX(flip) && fig.isHShrinkPropertySet(flip)){
+		for(int row = 0 ; row < getNrRows(d); row++){
+			Figure fig = getFigureFromMatrix(d, row, column);
+			resizable= resizable || fig.resizable.get(d);
+			if(fig.resizable.get(d) && fig.prop.is2DPropertySet(d, SHRINK)){
 				autoSize = false;
-				maxShrink = Math.max(maxShrink, fig.getHShrinkProperty(flip));
-				minSizeOfGrid = Math.max(minSizeOfGrid, fig.minSize.getWidth(flip) / fig.getHShrinkProperty(flip));
+				maxShrink = Math.max(maxShrink, fig.prop.get2DReal(d, SHRINK));
+				minSizeOfGrid = Math.max(minSizeOfGrid, fig.minSize.get(d) / fig.prop.get2DReal(d, SHRINK));
 			} else {
 				allShrinkSet = false;
 			}
-			minSize= Math.max(minSize,fig.minSize.getWidth(flip));
+			minSize= Math.max(minSize,fig.minSize.get(d));
 		}
 		SizeInfo sizeInfo;
 		if(!resizable){
@@ -234,7 +234,7 @@ public class Grid extends Figure {
 		return new Size(sizeInfo,minSize,maxShrink,minSizeOfGrid);
 	}
 	
-	private double getAutoElementsShrinkMinWidth(double shrinkLeftOver,boolean flip,double minWidthEstimate,double maxMinWidthOfAutoElem){
+	private double getAutoElementsShrinkMinWidth(double shrinkLeftOver,Dimension d,double minWidthEstimate,double maxMinWidthOfAutoElem){
 		if(shrinkLeftOver < 0) return -1;
 		// this is where the meat of the layout is, which is fairly complicated, but very fast
 		// this required some thinking, get ready : 
@@ -246,24 +246,24 @@ public class Grid extends Figure {
 		// i.e. shrinkLeftOver = sum(S) + (nrColumnsSomeOrNoneShrinkSet - size(S) )*f 
 		//		where S = {someShrinksSetShrinks[j] | someShrinksSetShrinks[j] > f, j in [0..nrSomeShrinkSetColumns-1]}
 		// to do this we first sort the columns with some shrinkset in descending max shrink order
-		double[] someShrinksSetShrinks = getSomeShrinkSetSorted(flip);
-		this.someShrinksSetShrinks.setForX(flip, someShrinksSetShrinks);
+		 setSomeShrinkSetSorted(d);
+		 double[] someShrinksSetShrinks = this.someShrinksSetShrinks.get(d);
 		// (the array is actually sorted in ascending order because 
 		// java does not offer an fast,easy way to sort doubles in descending order
 		// therefore we simply index from the back)
 		// to estimate let us assume that S == {}
 		// now we begin with the highest estimate f = shrinkLeftOver / nrColumnsSomeOrNoneShrinkSet
-		int nrColumnsSomeOrNoneShrinkSet = nrShrinkSomeColumns.getForX(flip) + nrShrinkNoneColumns.getForX(flip);
+		int nrColumnsSomeOrNoneShrinkSet = nrShrinkSomeColumns.get(d) + nrShrinkNoneColumns.get(d);
 		double fEstimate = shrinkLeftOver / nrColumnsSomeOrNoneShrinkSet;
 		// some corner cases:
 		
-		if(nrShrinkSomeColumns.getForX(flip) == 0){
-			double totalMinWidth = (maxMinWidthOfAutoElem * (nrColumnsSomeOrNoneShrinkSet) + unresizableColumnsWidth.getForX(flip)) /shrinkLeftOver;
+		if(nrShrinkSomeColumns.get(d) == 0){
+			double totalMinWidth = (maxMinWidthOfAutoElem * (nrColumnsSomeOrNoneShrinkSet) + unresizableColumnsWidth.get(d)) /shrinkLeftOver;
 			minWidthEstimate = Math.max(minWidthEstimate, totalMinWidth);
 			return minWidthEstimate = Math.max(minWidthEstimate, totalMinWidth);
 		}
 		if(nrColumnsSomeOrNoneShrinkSet == 0) {
-			if(unresizableColumnsWidth.getForX(flip) != 0|| shrinkLeftOver < 0.0){
+			if(unresizableColumnsWidth.get(d) != 0|| shrinkLeftOver < 0.0){
 				return -1; // Overspecified!
 			} else {
 				return minWidthEstimate; // there is nothing to do here
@@ -300,10 +300,10 @@ public class Grid extends Figure {
 				// combining these two gives 
 				// totalMinWidth =  maxMinSizeAutoElement / ((shrinkLeftOver - ( unresizableColumns/totalMinWidth)) / (nrColumnsSomeOrNoneShrinkSet - (i-1)))
 				// rewriting gives totalMinWidth = (maxMinSizeAutoElement * (nrColumnsSomeOrNoneShrinkSet - (i-1)) + unresizableColumns) /shrinkLeftOver
-				double totalMinWidth = (maxMinWidthOfAutoElem * (nrColumnsSomeOrNoneShrinkSet - (i-1)) + unresizableColumnsWidth.getForX(flip)) /shrinkLeftOver;
+				double totalMinWidth = (maxMinWidthOfAutoElem * (nrColumnsSomeOrNoneShrinkSet - (i-1)) + unresizableColumnsWidth.get(d)) /shrinkLeftOver;
 				minWidthEstimate = Math.max(minWidthEstimate, totalMinWidth);
 				// however f = (shrinkLeftOver - unresizableColumns/totalMinWidth) /  (nrColumnsSomeOrNoneShrinkSet - (i-1))
-				double mayBeF =  (shrinkLeftOver - unresizableColumnsWidth.getForX(flip)/totalMinWidth) /  (nrColumnsSomeOrNoneShrinkSet - (i-1));
+				double mayBeF =  (shrinkLeftOver - unresizableColumnsWidth.get(d)/totalMinWidth) /  (nrColumnsSomeOrNoneShrinkSet - (i-1));
 				// so changing the totalMinWidth might cause our estimation of f to drop below someShrinksSetShrinks[i]
 				if(mayBeF >= someShrinksSetShrinks[j]){
 					// if this doesn't happen, we are done!
@@ -335,26 +335,15 @@ public class Grid extends Figure {
 		return Math.max(minWidthEstimate,  maxMinWidthOfAutoElem / fEstimate); // return actual minwidth
 	}
 	
-	public void layout(){
-		//System.out.printf("Grid layout %s\n",size);
-		for(boolean flip: BOTH_DIMENSIONS){
-			layoutX(flip);
-		}
-		for(Figure[] row : figureMatrix){
-			for(Figure elem : row){
-				elem.layout();
-			}
-		}
-	}
 	
-	private double getActualShrinkOfAutoElements(double shrinkLeftOver,boolean flip){
+	private double getActualShrinkOfAutoElements(double shrinkLeftOver,Dimension d){
 		// TODO: this is pretty much the same as above, merge
 		double currentSumSPrime = 0;
 		int i = 1;
-		double[] someShrinksSetShrinks = this.someShrinksSetShrinks.getForX(flip);
-		int nrColumnsSomeOrNoneShrinkSet = nrShrinkSomeColumns.getForX(flip) + nrShrinkNoneColumns.getForX(flip);
+		double[] someShrinksSetShrinks = this.someShrinksSetShrinks.get(d);
+		int nrColumnsSomeOrNoneShrinkSet = nrShrinkSomeColumns.get(d) + nrShrinkNoneColumns.get(d);
 
-		if(nrShrinkSomeColumns.getForX(flip) == 0){
+		if(nrShrinkSomeColumns.get(d) == 0){
 			return shrinkLeftOver /  nrColumnsSomeOrNoneShrinkSet;
 		}
 		if(nrColumnsSomeOrNoneShrinkSet == 0) {
@@ -372,26 +361,26 @@ public class Grid extends Figure {
 		return fEstimate;
 	}
 	
-	public void layoutX(boolean flip) {
+	public void layoutX(Dimension d) {
 		if(overConstrained) return;
 		
-		double spaceForColumns = size.getWidth(flip) / getHGrowProperty(flip);
-		double spaceLeftOver = spaceForColumns - unresizableColumnsWidth.getForX(flip);
-		double shrinkLeftOver = (spaceLeftOver / spaceForColumns) - totalShrinkAllSetColumns.getForX(flip);
-		double shrinkOfAutoElement = getActualShrinkOfAutoElements(shrinkLeftOver,flip);
+		double spaceForColumns = size.get(d) / prop.get2DReal(d, GROW);
+		double spaceLeftOver = spaceForColumns - unresizableColumnsWidth.get(d);
+		double shrinkLeftOver = (spaceLeftOver / spaceForColumns) - totalShrinkAllSetColumns.get(d);
+		double shrinkOfAutoElement = getActualShrinkOfAutoElements(shrinkLeftOver,d);
 		double sizeOfAutoElement = shrinkOfAutoElement * spaceForColumns;
-		double whitespace = size.getWidth(flip) - spaceForColumns;
+		double whitespace = size.get(d) - spaceForColumns;
 		double left = 0;
-		double gapSize = whitespace / nrHGaps(flip) ;
-		if(nrHGaps(flip) == 0.0){
+		double gapSize = whitespace / (double)nrHGaps(d) ;
+		if(nrHGaps(d) == 0.0){
 			gapSize = 0.0;
 		}
-		if(getHStartGapProperty(flip)){
+		if(prop.get2DBool(d, START_GAP)){
 			left+=gapSize*0.5;
 		}
-		for(int column = 0 ; column < getNrColumns(flip) ; column++){
-			columnBorders.getForX(flip)[column]=left;
-			Size s = columnsSize.getForX(flip)[column];
+		for(int column = 0 ; column < getNrColumns(d) ; column++){
+			columnBorders.get(d)[column]=left;
+			Size s = columnsSize.get(d)[column];
 			double colWidth = 0;
 			switch(s.sizeInfo){
 				case ALL_SHRINK_SET : colWidth = s.maxShrink * spaceForColumns; break;
@@ -400,110 +389,90 @@ public class Grid extends Figure {
 				case UNRESIZABLE: colWidth = s.minSize; break;
 			}
 			
-			for(int row = 0 ; row < getNrRows(flip); row++){
-				Figure elem = getFigureFromMatrix(flip,row,column);
-				if(elem.isHShrinkPropertySet(flip)){
-					elem.takeDesiredWidth(flip, elem.getHShrinkProperty(flip)*spaceForColumns);
+			for(int row = 0 ; row < getNrRows(d); row++){
+				Figure elem = getFigureFromMatrix(d,row,column);
+				if(elem.prop.is2DPropertySet(d, SHRINK)){
+					elem.size.set(d, elem.prop.get2DReal(d, SHRINK)*spaceForColumns);
 				} else {
-					elem.takeDesiredWidth(flip,sizeOfAutoElement);
+					elem.size.set(d,sizeOfAutoElement);
 				}
-				double margin =Math.max(0.0,(colWidth- elem.size.getWidth(flip))  * elem.getHAlignProperty(flip)) ;
-				setXPos(flip, row, column, left + margin);
+				double margin =Math.max(0.0,(colWidth- elem.size.get(d))  * elem.prop.get2DReal(d, ALIGN)) ;
+				setXPos(d, row, column, left + margin);
 			}
 			left+=gapSize + colWidth;
 		}
-		size.setWidth(flip, left - gapSize);
+		size.set(d, left - gapSize);
 	}
 
-	double nrHGaps(boolean flip) {
-		double nrGaps = getNrColumns(flip)-1 ;
-		if(getHStartGapProperty(flip)){
+	double nrHGaps(Dimension d) {
+		double nrGaps = getNrColumns(d)-1 ;
+		if(prop.get2DBool(d, START_GAP)){
 			nrGaps+=0.5;
 		} 
-		if(getHEndGapProperty(flip)){
+		if(prop.get2DBool(d, END_GAP)){
 			nrGaps+=0.5;
 		}
 		return nrGaps;
 	}
 	
-	int getNrColumns(boolean flip){
-		if(flip) return nrRows;
+	int getNrColumns(Dimension d){
+		if(d == Y) return nrRows;
 		else return nrColumns;
 	}
 	
-	int getNrRows(boolean flip){
-		if(flip) return nrColumns;
+	int getNrRows(Dimension d){
+		if(d == Y) return nrColumns;
 		else return nrRows;
 	}
 	
 
 
-	private Figure getFigureFromMatrix(boolean flip, int row, int collumn){
-		if(flip) return figureMatrix[collumn][row];
+	private Figure getFigureFromMatrix(Dimension d, int row, int collumn){
+		if(d == Y) return figureMatrix[collumn][row];
 		else return figureMatrix[row][collumn];
 	}
 
 
 	
 	
-	private void setXPos(boolean flip, int row, int collumn,double val){
-		int r,c;
-		if(flip){
-			r = collumn;
-			c = row;
-		} else {
-			r = row;
-			c = collumn;
+	private void setXPos(Dimension d, int row, int collumn,double val){
+		getFigureFromMatrix(d, row, collumn).location.set(d,val);
+	}
+	
+	
+	@Override
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		if(overConstrained) {
+			gc.text(OVERCONSTRAINED_MESSAGE, location.getX() + 0.5 * size.getX() - getTextWidth(OVERCONSTRAINED_MESSAGE),
+					location.getY() + 0.5 * size.getY()  - getTextAscent());
+			return;
 		}
-		pos[r][c].setX(flip, val);
+	}
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		for(Dimension d: HOR_VER){
+			layoutX(d);
+		}
+		
 	}
 	
 
-	public void setLocationOfChildren(){
-		for(int row = 0 ; row < figureMatrix.length ; row++){
-			for(int column = 0 ; column < figureMatrix[0].length ; column++){
-				figureMatrix[row][column].globalLocation.set(globalLocation);
-				figureMatrix[row][column].globalLocation.add(pos[row][column]);
-				figureMatrix[row][column].setLocationOfChildren();
-			}
-		}
-	}
-
-	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
-		if(!mouseInside(c.getX(), c.getY())) return false;
-		int row = Util.binaryIntervalSearch(columnBorders.getForY(), c.getY() - getTop());
-		int column = Util.binaryIntervalSearch(columnBorders.getForX(), c.getX() - getLeft());
-		//System.out.printf("row %d  col %d",row, column);
+	/*
+	public void getFiguresUnderMouseSmart(Coordinate c, Vector<Figure> result){
+		int row = binaryIntervalSearch(columnBorders.getY(), c.getY() - location.getY());
+		int column = binaryIntervalSearch(columnBorders.getX(), c.getX() - location.getX());
 		if(row >= 0 && column >= 0){
 			figureMatrix[row][column].getFiguresUnderMouse(c, result);
 		}
-		result.add(this);
-		return true;
 	}
+	*/
 	
+	/*
 	@Override
-	public
-	void draw(GraphicsContext gc){
-		if(overConstrained) {
-			gc.text(OVERCONSTRAINED_MESSAGE, globalLocation.getX() + 0.5 * size.getWidth() - getTextWidth(OVERCONSTRAINED_MESSAGE),
-					globalLocation.getY() + 0.5 * size.getHeight()  - getTextAscent());
-			return;
-		}
-			
-		for(int row = 0 ; row < nrRows ; row++){
-			for(int collumn = 0 ; collumn < nrColumns ; collumn++){
-				figureMatrix[row][collumn].draw(gc);
-			}
-		}
-	}
-	
-	@Override
-	public void drawPart(Rectangle rect,GraphicsContext gc){
-		if(overConstrained) {
-			gc.text(OVERCONSTRAINED_MESSAGE, globalLocation.getX() + 0.5 * size.getWidth() - getTextWidth(OVERCONSTRAINED_MESSAGE),
-					globalLocation.getY() + 0.5 * size.getHeight() - getTextAscent());
-			return;
-		}
+	public void drawVisibleChildrenSmart(
+			Vector<IHasSWTElement> visibleSWTElements, GraphicsContext gc,
+			Rectangle rect){
 		int startRow = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForY(), rect.getY() - getTop()));
 		int endRow = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForY(), rect.getYDown() - getTop()));
 		int startColumn = Math.max(0,Util.binaryIntervalSearch(columnBorders.getForX(), rect.getX() - getLeft()));
@@ -515,98 +484,15 @@ public class Grid extends Figure {
 					|| 	(row == endRow && columnBorders.getForY()[endRow] > rect.getYDown())
 					|| 	(collumn == startColumn && columnBorders.getForX()[startColumn] < rect.getX())
 					|| 	(collumn == endColumn && columnBorders.getForX()[endColumn] > rect.getXRight())){
-					figureMatrix[row][collumn].drawPart(rect,gc);
+					figureMatrix[row][collumn].draw(visibleSWTElements,gc,rect);
 				} else {
-					figureMatrix[row][collumn].draw(gc);
+					figureMatrix[row][collumn].draw(visibleSWTElements,gc,null);
 				}
 			}
 		}
 	}
+	*/
+
 	
 
-	public void init(){
-		super.init();
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.init();
-			}
-		}
-	}
-	
-	public void computeFiguresAndProperties(ICallbackEnv env) {
-		super.computeFiguresAndProperties(env);
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.computeFiguresAndProperties(env);
-			}
-		}
-	}
-	
-	public void registerNames(NameResolver resolver){
-		super.registerNames(resolver);
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.registerNames(resolver);
-			}
-		}
-	}
-	
-
-	public void registerValues(NameResolver resolver){
-		super.registerValues(resolver);
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.registerValues(resolver);
-			}
-		}
-	}
-	
-
-	public void getLikes(NameResolver resolver){
-		super.getLikes(resolver);
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.getLikes(resolver);
-			}
-		}
-	}
-	
-	public void finalize(){
-		super.finalize();
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.finalize();
-			}
-		}
-	}
-	
-	public void destroy(){
-		super.destroy();
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.destroy();
-			}
-		}
-	}
-	
-	public void setSWTZOrder(ISWTZOrdering zorder){
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				fig.setSWTZOrder(zorder);
-			}
-		}
-	}
-	
-
-	public boolean isVisible(){
-		for(Figure[] row : figureMatrix){
-			for(Figure fig : row){
-				if(fig.isVisible()){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 }

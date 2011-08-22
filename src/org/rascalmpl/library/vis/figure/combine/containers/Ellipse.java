@@ -12,11 +12,19 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
+import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+
+import java.util.List;
+
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.FigureMath;
-
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Coordinate;
+import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 
 /**
@@ -29,23 +37,54 @@ import org.rascalmpl.library.vis.util.FigureMath;
 public class Ellipse extends Container {
 	
 	final static boolean debug = false;
+	final static double SHRINK_EXTRA = Math.sqrt(0.5);
 
 	public Ellipse(Figure inner, PropertyManager properties) {
 		super(inner, properties);
 	}
 	
 	@Override
-	void drawContainer(GraphicsContext gc){
-		if (debug) System.err.println("drawContainer:"+this.getClass()+" "+getLeft()+" "+getTop()+" "+size.getWidth()+" "+size.getHeight());
-		double lw = getLineWidthProperty();
-		gc.ellipse(getLeft() , getTop(), size.getWidth()-lw, size.getHeight()-lw);
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		System.out.printf("Drawing %s\n",this);
+		double lw = prop.getReal(LINE_WIDTH);
+		gc.ellipse(location.getX() , location.getY(), size.getX()-lw, size.getY()-lw);
+	}
+	
+	@Override
+	public void computeMinSize() {
+		super.computeMinSize();
+		if(innerFig == null) return;
+		for(Dimension d : HOR_VER){
+			minSize.set(d, minSize.get(d)/SHRINK_EXTRA);
+		}
+	}
+	
+	@Override
+	public void resizeElement(Rectangle view) {
+		super.resizeElement(view);
+		if(innerFig == null) return;
+		for(Dimension d : HOR_VER){
+			innerFig.location.add(d,innerFig.size.get(d)*(1.0-SHRINK_EXTRA) * innerFig.prop.get2DReal(d, ALIGN));
+			innerFig.size.set(d, innerFig.size.get(d)*SHRINK_EXTRA);
+		}
 	}
 	
 	@Override
 	String containerName(){
-		return "ellipse";
+		return "ellipse" + super.toString();
 	}
 	
+	@Override
+	public boolean mouseInside(Coordinate c){
+		double w2 = size.getX()/2;
+		double h2 = size.getY()/2;
+		double X = location.getX() + w2;
+		double Y = location.getY() + h2;
+		double ex =  (c.getX() - X) / w2;
+		double ey = 	(c.getY() - Y) / h2;
+		return  ex * ex + ey * ey <= 1;
+	}
+	// TODO: fixme
 	/**
 	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
 	 * At the intersection with the border of the current figure, place an arrow that is appropriately rotated.
@@ -57,6 +96,7 @@ public class Ellipse extends Container {
 	 * @param fromY		Y of center of figure from which connection is to be drawn
 	 * @param toArrow	the figure to be used as arrow
 	 */
+	/*
 	@Override
 	public void connectArrowFrom(double left, double top, double X, double Y, double fromX, double fromY,
 			Figure toArrow,GraphicsContext gc){
@@ -87,18 +127,5 @@ public class Ellipse extends Container {
         	gc.popMatrix();
         }
 	}
-	
-	@Override
-	public boolean mouseInside(double mousex, double mousey){
-		double w2 = size.getWidth()/2;
-		double h2 = size.getHeight()/2;
-		double X = getLeft() + w2;
-		double Y = getTop() + h2;
-		double ex =  (mousex - X) / w2;
-		double ey = 	(mousey - Y) / h2;
-		boolean b =  ex * ex + ey * ey <= 1;
-		//System.err.println("ellipse.mouseInside: " + b);
-		return b;
-	}
-
+	*/
 }

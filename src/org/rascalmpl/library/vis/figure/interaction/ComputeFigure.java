@@ -20,34 +20,30 @@ import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.Mutable;
 
 public class ComputeFigure extends LayoutProxy {
 	
 	final private IValue callback;
-	private IFigureConstructionEnv env;
 	private IConstructor prevValue; // TODO: remove this when nullary closures are memoed
 	
 	private IList childProps;
 
 	public ComputeFigure(IFigureConstructionEnv env, PropertyManager properties,  IValue fun, IList childProps) {
 		super(null,properties);
-		this.env = env;
 		this.childProps = childProps;
 		env.getCallBackEnv().checkIfIsCallBack(fun);
 		this.callback = fun;
 	}
-	
-	public void computeFiguresAndProperties(ICallbackEnv env){
-		super.computeFiguresAndProperties(env);
-		IConstructor figureCons = (IConstructor) env.executeRascalCallBackWithoutArguments(callback).getValue();
+
+	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
+		IConstructor figureCons =
+			(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);
 		if(prevValue == null || !figureCons.isEqual(prevValue)){
 			if(innerFig != null){
-				innerFig.destroy();
+				innerFig.destroy(env);
 			}
-			innerFig = FigureFactory.make(this.env, figureCons, properties, childProps);
-			innerFig.init();
-			innerFig.computeFiguresAndProperties(env);
-			properties = innerFig.properties;
+			setInnerFig( FigureFactory.make(env, figureCons, prop, childProps));
 			prevValue = figureCons;
 		}
 	}

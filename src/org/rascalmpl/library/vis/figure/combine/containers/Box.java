@@ -11,9 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
+import java.util.List;
+
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 
 /**
  * Rectangular box that can act as container
@@ -28,12 +31,12 @@ public class Box extends Container {
 	}
 
 	@Override
-	void drawContainer(GraphicsContext gc){
-		gc.rect(getLeft(), getTop() , size.getWidth(), size.getHeight());
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		gc.rect(location.getX(), location.getY() , size.getX(), size.getY());
 	}
 	
 	@Override
 	String containerName(){
-		return "box";
+		return "box" + super.toString();
 	}
 }

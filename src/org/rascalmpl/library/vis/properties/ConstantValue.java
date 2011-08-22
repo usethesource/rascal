@@ -6,30 +6,23 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl (CWI)
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl - CWI
 *******************************************************************************/
 
-package org.rascalmpl.library.vis.util;
+package org.rascalmpl.library.vis.properties;
 
-public enum Dimension { 
-	X, Y; 
+public class ConstantValue<PropType> extends PropertyValue<PropType>{
+	PropType value;
 	
-	public static Dimension flip(Dimension d){
-		switch(d){
-		case X: return Y;
-		case Y: return X;
-		default: return X;
-		}
+	public ConstantValue(PropType value){
+		this.value = value;
 	}
 	
-	
-	public static Dimension flip(boolean f,Dimension d){
-		if(f){
-			return flip(d);
-		} else {
-			return d;
-		}
+	public PropType getValue(){
+		return value;
 	}
+
 }
+	
 

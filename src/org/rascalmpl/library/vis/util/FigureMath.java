@@ -131,4 +131,34 @@ public class FigureMath {
 		return b % 2 == 0;
 	}
 	
+
+	public static class QuadraticRoots{
+		public int nrRoots;
+		public double firstRoot, secondRoot;
+		QuadraticRoots(){
+			nrRoots = 0;
+		}
+		QuadraticRoots(double root){
+			nrRoots = 1;
+			firstRoot = root;
+		}
+		QuadraticRoots(double firstRoot,double secondRoot){
+			nrRoots = 2;
+			this.firstRoot = firstRoot;
+			this.secondRoot = secondRoot;
+		}
+	}
+	
+	static public QuadraticRoots getQuadraticRoots(double a, double b, double c){
+		double discriminant = b*b - 4 * a * c;
+		if(discriminant < 0){
+			return new QuadraticRoots();
+		} else if(discriminant == 0){
+			return new QuadraticRoots(-b / (2*a));
+		} else {
+			return new QuadraticRoots(
+					(-b + Math.sqrt(discriminant))/(2*a),
+					(-b - Math.sqrt(discriminant))/(2*a));
+		}	
+	}
 }

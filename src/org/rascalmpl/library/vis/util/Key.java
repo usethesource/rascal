@@ -3,13 +3,13 @@ package org.rascalmpl.library.vis.util;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.properties.Properties;
 
-public interface Key {
+public interface Key<T> {
 	
-	void registerValue(Properties prop,IValue val);
+	void registerValue(IValue val);
 	
 	void registerOffset(double offset);
 	
-	IValue scaleValue(IValue val);
+	T scaleValue(IValue val);
 	
 	String getId();
 	

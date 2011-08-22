@@ -1,273 +1,169 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl - CWI
+*******************************************************************************/
+
 package org.rascalmpl.library.vis.properties;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Vector;
+import static org.rascalmpl.library.vis.util.FigureColorUtils.BLACK;
+import static org.rascalmpl.library.vis.util.FigureColorUtils.LIGHTGRAY;
+import static org.rascalmpl.library.vis.util.FigureColorUtils.WHITE;
+import static org.rascalmpl.library.vis.util.FigureColorUtils.dropShadowColor;
 
-import org.rascalmpl.library.vis.util.Dimension;
-import org.rascalmpl.library.vis.util.FigureColorUtils;
+import java.util.HashMap;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.RascalFunction;
+import org.rascalmpl.library.vis.properties.CombinedProperty.Combine;
+import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.*;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
+import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.ConvertStr;
+import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.DoNotConvert;
+
+	  	  
 
 public enum Properties {
-	SHAPE_CLOSED(Types.BOOL,false), 	// scheduled for removal
-	SHAPE_CONNECTED(Types.BOOL,false),// scheduled for removal
-	SHAPE_CURVED(Types.BOOL,false),	// scheduled for removal
-	HSTART_GAP(Types.BOOL,false),
-	HEND_GAP(Types.BOOL,false),
-	VSTART_GAP(Types.BOOL,false),
-	VEND_GAP(Types.BOOL,false),
-	HRESIZABLE(Types.BOOL,true),
-	VRESIZABLE(Types.BOOL,true),
-	SHADOW(Types.BOOL,false),
 	
-	FILL_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("white").intValue()),  
-	FONT_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),    
-	LINE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("black").intValue()),
-	GUIDE_COLOR(Types.COLOR,FigureColorUtils.colorNames.get("lightgray").intValue()),
-	SHADOW_COLOR(Types.COLOR,FigureColorUtils.dropShadowColor()),
+// 	Name				Type			rascalName			stdDefault			determines layout?	combination
+	SHAPE_CLOSED		(Types.BOOL,	"shapeClosed",		false,				false	),	// scheduled for removal
+	SHAPE_CONNECTED		(Types.BOOL,	"shapeConnected",	false,				false	),	// scheduled for removal
+	SHAPE_CURVED		(Types.BOOL,	"shapeCurved",		false,				false	),	// scheduled for removal
+	HSTART_GAP			(Types.BOOL,	"hstartGap",		false,				true	),
+	HEND_GAP			(Types.BOOL,	"hendGap",			false,				true	),
+	VSTART_GAP			(Types.BOOL,	"vstartGap",		false,				true	),
+	VEND_GAP			(Types.BOOL,	"vendGap",			false,				true	),
+	HRESIZABLE			(Types.BOOL,	"hresizable",		true,				true	),
+	VRESIZABLE			(Types.BOOL,	"vresizable",		true,				true	),
+	HZOOMABLE			(Types.BOOL,    "hzoomable",		true,				true	),
+	VZOOMABLE			(Types.BOOL,	"vzoomable",		true,				true	),
+	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				true	),
+	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
+	SPREAD				(Types.BOOL,    "spread",			true,				true	),
 	
-	HEIGHT(Types.REAL,0.0,Dimension.X),
-	HGAP(Types.REAL,0.0,Dimension.X), // scheduled for removal
-	VGAP(Types.REAL,0.0,Dimension.Y), 	// scheduled for removal
-	WIDTH(Types.REAL,0.0,Dimension.Y),
-	HLOC(Types.REAL,0.0,Dimension.X),
-	VLOC(Types.REAL,0.0,Dimension.Y),
-	SHADOWLEFT(Types.REAL,10.0,Dimension.X),
-	SHADOWTOP(Types.REAL,10.0,Dimension.Y),
-	TO_ARROW(Types.FIGURE,null),
-	FROM_ARROW(Types.FIGURE,null),
-	LABEL(Types.FIGURE,null),
+	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
+	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   
+	LINE_COLOR			(Types.COLOR,	"lineColor",		BLACK,				false	),  
+	GUIDE_COLOR			(Types.COLOR,	"guideColor",		LIGHTGRAY,			false	),  
+	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	false	),  
 	
-	MOUSE_CLICK(Types.HANDLER,null,"void ()","h"),
-	ON_MOUSEMOVE(Types.HANDLER,null,"bool ()","bh"),
+	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				true	),
+	INNER_ALIGN			(Types.REAL,	"ialign",			0.5,				true	),
+	WIDTH				(Types.REAL,	"width",			0.0,				true	),
+	HEIGHT				(Types.REAL,	"height",			0.0,				true	),
+	HGAP				(Types.REAL,	"hgap",				0.0,				true	),	// scheduled for removal
+	VGAP				(Types.REAL,	"vgap",				0.0,				true	),	// scheduled for removal
+	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				false	),
+	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				false	),
+	HSHRINK				(Types.REAL,	"hshrink",			1.0,				true,	 MUL),
+	VSHRINK				(Types.REAL, 	"vshrink",			1.0,				true,	 MUL),
+	HALIGN				(Types.REAL,	"halign",			0.5,				true	),
+	VALIGN				(Types.REAL,	"valign",			0.5,				true	),
+	HPOS				(Types.REAL,	"hpos",				0.0,				true	),
+	VPOS				(Types.REAL,	"vpos",				0.0,				true	),
+	HGROW				(Types.REAL, 	"hgrow",			1.0,				true,	 MUL),
+	VGROW				(Types.REAL, 	"vgrow",			1.0,				true,	 MUL),
+	LINE_WIDTH			(Types.REAL,	"lineWidth",		1.0,				true	),
 	
-	DOI(Types.INT,1000000),           // scheduled for removal
-	FONT_SIZE(Types.INT,12),
+	TO_ARROW			(Types.FIGURE,	"toArrow",			null,				true	),
+	FROM_ARROW			(Types.FIGURE,	"fromArrow",		null,				true	),
+	LABEL				(Types.FIGURE,	"label",			null,				true	),
 	
-	HGROW(Types.REAL, 1.0, Dimension.X),
-	HSHRINK(Types.REAL, 1.0, Dimension.X),
-	HALIGN(Types.REAL,0.5,Dimension.X),
-	INNER_ALIGN(Types.REAL,0.5),
-	HCONNECT(Types.REAL,0.5,Dimension.X),
-	VCONNECT(Types.REAL, 0.5, Dimension.Y),
-	INNERRADIUS(Types.REAL,0.0), // scheduled for removal
-	LINE_WIDTH(Types.REAL,1.0),
-	LINE_STYLE(Types.STR,"solid"),
-	TEXT_ANGLE(Types.REAL,0.0), 	// scheduled for removal
-	FROM_ANGLE(Types.REAL,0.0),// scheduled for removal
-	TO_ANGLE(Types.REAL,0.0),			// scheduled for removal
-	VALIGN(Types.REAL,0.5,Dimension.Y),	
-	VGROW(Types.REAL, 1.0, Dimension.X),
-	VSHRINK(Types.REAL, 1.0, Dimension.X),
+	FONT_SIZE			(Types.INT,		"fontSize",			12,					true	),
+
+	LINE_STYLE			(Types.STR,		"lineStyle",		"solid",			false	),
+	HINT				(Types.STR,		"hint",				"",					false	),	// scheduled for removal
+	ID					(Types.STR,		"id",				"",					false	), 		
+	FONT				(Types.STR,		"font",				"Helvetica",		true	),
 	
-	DIRECTION(Types.STR,"TD"),	// scheduled for removal
-	LAYER(Types.STR,""),		// scheduled for removal
-	HINT(Types.STR,""),			// scheduled for removal
-	ID(Types.STR,""), 		
-	FONT(Types.STR,"Helvetica"),
-	TEXT(Types.STR,""),
+	MOUSE_CLICK			(Types.HANDLER,	"onClick",			null,		"bool ()"		),
+	ON_MOUSEMOVE		(Types.HANDLER,	"onMouseMove",		null,		"void (bool)"		),
+	ON_KEY				(Types.HANDLER,	"onKey",			null,		"bool (KeySym, bool, map[KeyModifier,bool])");
 	
-	ON_KEY(Types.HANDLER,null,"bool (KeySym, bool down, map[KeyModifier,bool])","kh");
-	
-	
-	public Object stdDefault;
+
+	public String name;
 	public Types type;
-	public Dimension dimension;
+	public Object stdDefault;
 	public String callBackType;
-	public String shortCallBackType;
+	public Combine combine;
+	public boolean determinesLayout;
 	
-	
-	Properties(Types type,Object stdDefault){
-		this(type,stdDefault,null,null);
+
+	Properties(Types type,String name,Object stdDefault,boolean determinesLayout){
+		this(type,name,stdDefault,null,type.defaultCombine,determinesLayout);
 	}
 	
-	Properties(Types type, Object stdDefault, String callBackType,String shortCallBackType){
-		this(type,stdDefault,null,callBackType,shortCallBackType);
-	}
-	
-	Properties(Types type,Object stdDefault, Dimension dimension){
-		this(type,stdDefault,dimension,null,null);
-	}
-	
-	Properties(Types type,Object stdDefault, Dimension dimension,String callBackType,String shortCallBackType){
-		this.type = type;
-		this.stdDefault = stdDefault;
-		this.dimension =dimension;
-		this.callBackType = callBackType;
-		this.shortCallBackType = shortCallBackType;
-	}
-	
-	@SuppressWarnings({ "rawtypes", "serial" })
-	public static final HashMap<String, PropertySetters.PropertySetter> propertySetters = new HashMap<String, PropertySetters.PropertySetter>() {{
-		put("shapeClosed", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CLOSED));
-		put("shapeConnected", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CONNECTED));
-		put("shapeCurved", new PropertySetters.SingleBooleanPropertySetter(SHAPE_CURVED));
-		put("hstartGap", new PropertySetters.SingleBooleanPropertySetter(HSTART_GAP));
-		put("hendGap", new PropertySetters.SingleBooleanPropertySetter(HEND_GAP));
-		put("vstartGap", new PropertySetters.SingleBooleanPropertySetter(VSTART_GAP));
-		put("vendGap", new PropertySetters.SingleBooleanPropertySetter(VEND_GAP));
-		put("hresizable", new PropertySetters.SingleBooleanPropertySetter(HRESIZABLE));
-		put("vresizable", new PropertySetters.SingleBooleanPropertySetter(VRESIZABLE));
-		put("shadow", new PropertySetters.SingleBooleanPropertySetter(SHADOW));
-		// aliasses
-		put("hcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(HSTART_GAP, HEND_GAP));
-		put("vcapGaps", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(VSTART_GAP, VEND_GAP));
-		put("resizable", new PropertySetters.DualOrRepeatSingleBooleanPropertySetter(HRESIZABLE, VRESIZABLE));
-		
-		put("fillColor", new PropertySetters.SingleColorPropertySetter(FILL_COLOR));
-		put("fontColor", new PropertySetters.SingleColorPropertySetter(FONT_COLOR));
-		put("lineColor", new PropertySetters.SingleColorPropertySetter(LINE_COLOR));
-		put("lineStyle", new PropertySetters.SingleStrPropertySetter(LINE_STYLE));
-		put("guideColor",new PropertySetters.SingleColorPropertySetter(GUIDE_COLOR));	
-		put("shadowColor",new PropertySetters.SingleColorPropertySetter(SHADOW_COLOR));
-		
-		put("height", new PropertySetters.SingleIntOrRealPropertySetter(HEIGHT));
-		put("hgap", new PropertySetters.SingleIntOrRealPropertySetter(HGAP));
-		put("vgap", new PropertySetters.SingleIntOrRealPropertySetter(VGAP));
-		put("width", new PropertySetters.SingleIntOrRealPropertySetter(WIDTH));
-		put("hpos", new PropertySetters.SingleIntOrRealPropertySetter(HLOC));
-		put("vpos", new PropertySetters.SingleIntOrRealPropertySetter(VLOC));
-		put("shadowLeft", new PropertySetters.SingleIntOrRealPropertySetter(SHADOWLEFT));
-		put("shadowTop", new PropertySetters.SingleIntOrRealPropertySetter(SHADOWTOP));
-		
-		// below: aliasses
-		put("pos", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HLOC, VLOC));
-		put("gap", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGAP, VGAP));
-		put("size", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(WIDTH, HEIGHT));
-		
-		put("toArrow", new PropertySetters.SingleFigurePropertySetter(TO_ARROW));
-		put("fromArrow", new PropertySetters.SingleFigurePropertySetter(FROM_ARROW));
-		put("label", new PropertySetters.SingleFigurePropertySetter(LABEL));
-		
-		put("onClick", new PropertySetters.SingleHandlerPropertySetter(MOUSE_CLICK));
-		put("onMouseMove",  new PropertySetters.SingleHandlerPropertySetter(ON_MOUSEMOVE));
-		
-		put("doi", new PropertySetters.SingleIntPropertySetter(DOI));
-		put("fontSize", new PropertySetters.SingleIntPropertySetter(FONT_SIZE));
-		
-		put("halign", new PropertySetters.SingleIntOrRealPropertySetter(HALIGN));
-		put("innerAlign", new PropertySetters.SingleIntOrRealPropertySetter(HALIGN));
-		put("hgrow", new PropertySetters.SingleIntOrRealPropertySetter(HGROW));
-		put("hshrink", new PropertySetters.SingleIntOrRealPropertySetter(HSHRINK));
-		put("innerRadius", new PropertySetters.SingleIntOrRealPropertySetter(INNERRADIUS));
-		put("lineWidth", new PropertySetters.SingleIntOrRealPropertySetter(LINE_WIDTH));
-		put("textAngle", new PropertySetters.SingleIntOrRealPropertySetter(TEXT_ANGLE));
-		put("fromAngle", new PropertySetters.SingleIntOrRealPropertySetter(FROM_ANGLE));
-		put("toAngle", new PropertySetters.SingleIntOrRealPropertySetter(TO_ANGLE));
-		put("valign", new PropertySetters.SingleRealPropertySetter(VALIGN));
-		put("vgrow", new PropertySetters.SingleIntOrRealPropertySetter(VGROW));
-		put("vshrink", new PropertySetters.SingleIntOrRealPropertySetter(VSHRINK));
-		put("hconnect", new PropertySetters.SingleIntOrRealPropertySetter(HCONNECT));
-		put("vconnect", new PropertySetters.SingleIntOrRealPropertySetter(VCONNECT));
-		// below: aliases
-		put("align", new PropertySetters.DualOrRepeatSingleRealPropertySetter(HALIGN, VALIGN));
-		put("grow", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HGROW, VGROW));
-		put("shrink", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HSHRINK, VSHRINK));
-		put("connect", new PropertySetters.DualOrRepeatSingleIntOrRealPropertySetter(HCONNECT, VCONNECT));
-		
-		put("direction", new PropertySetters.SingleStrPropertySetter(DIRECTION));
-		put("layer", new PropertySetters.SingleStrPropertySetter(LAYER));
-		put("hint", new PropertySetters.SingleStrPropertySetter(HINT));
-		put("id", new PropertySetters.SingleStrPropertySetter(ID));
-		put("font", new PropertySetters.SingleStrPropertySetter(FONT));
-		put("text", new PropertySetters.SingleStrPropertySetter(TEXT));
-		
-		put("onKey", new PropertySetters.SingleHandlerPropertySetter(ON_KEY));
-	}};
-	
-	
-	// Below:code to generate rascal code for properties
-	static enum Notations{
-		CONSTANT,
-		CONSTANT_SUGAR,
-		COMPUTED,
-		LIKE,
-		MEASURE;
-	}
-	
-	static String capitalize(String s){
-		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-	}
-	
-	static String argumentTypeInNotation(Types type,Notations n, Properties prop){
-		if(prop.callBackType != null) return prop.callBackType;
-		switch(n){
-		case CONSTANT:  return type.rascalName;
-		case CONSTANT_SUGAR:  return type.syntaxSugar;
-		case COMPUTED: return "computed" + capitalize(type.rascalName);
-		case LIKE: return "Like";
-		case MEASURE: return String.format("Convert", type.rascalName);
-		}
-		throw new Error("Unkown notation");
-	}
-	
-	static String argumentInNotation(Types type,Notations n, Properties prop){
-		if(prop.shortCallBackType != null) return prop.shortCallBackType;
-		switch(n){
-		case CONSTANT:  return String.format("%2s", type.shortName);
-		case CONSTANT_SUGAR:  return String.format("s%s", type.shortName);
-		case COMPUTED: return String.format("c%s", type.shortName);
-		case LIKE: return String.format("l%s", type.shortName);
-		case MEASURE: return String.format("m%s", type.shortName);
-		}
-		throw new Error("Unkown notation");
+	Properties(Types type,String name,Object stdDefault,boolean determinesLayout, Combine combine){
+		this(type,name,stdDefault,null,combine,determinesLayout);
 	}
 	
 
-	
-	static Vector<String> genArgumentCode(HashMap<String, Integer> nameOccurances, Types type, int nrTimes, Properties prop){
-		Vector<String> result = new Vector<String>();
-		if(nrTimes == 0 ){
-			result.add("");
-			return result;
-		}
-		for(Notations n : Notations.values()){
-			if(type == Types.HANDLER && n != Notations.CONSTANT) continue;
-			if(n == Notations.CONSTANT_SUGAR && type.syntaxSugar == null) continue;
-			
-			String typeName= argumentTypeInNotation(type, n,prop);
-			String argName = argumentInNotation(type, n,prop);
-			Vector<String> deeper = genArgumentCode(nameOccurances,type,nrTimes-1,prop);
-			for(String rest : deeper){
-				int occur = 0;
-				if(nameOccurances.containsKey(argName)){
-					occur = nameOccurances.get(argName);
-				} 
-				String argNameN = argName+String.format("%d",occur);
-				nameOccurances.put(argName, occur+1);
-				String myArg = String.format("%-17s %s",typeName,argNameN);
-				if(!rest.equals("")){
-					myArg = myArg + ", " + rest;
-				}
-				result.add(myArg);
-			}
-		}
-		return result;
+	Properties(Types type,String name,Object stdDefault, String callBackType){
+		this(type,name,stdDefault,callBackType,type.defaultCombine,false);
 	}
 	
-	static final boolean[] stds = {false,true};
-	
-	static String genPropertyCode(String propertyName,@SuppressWarnings("rawtypes") PropertySetters.PropertySetter setter){
-		Types type = setter.getProperty(0).type;
-		HashMap<String, Integer> nameOccurances = new HashMap<String, Integer>();
-		String result = "";
-		for(int nrTimes = setter.minNrOfArguments(); nrTimes <= setter.maxNrOfArguments(); nrTimes++){
-			Vector<String> argStrings = genArgumentCode(nameOccurances, type, nrTimes,setter.getProperty(0));
-			for(String s : argStrings){
-				String propertyDesc ;
-					propertyDesc = propertyName;
-				result= result + String.format("\t| %-20s (%s)\n",propertyDesc,s);
-			}
-		}
-		return result;
+	Properties(Types type,String name,Object stdDefault, String callBackType, Combine combine,boolean determinesLayout){
+		this.name = name;
+		this.type = type;
+		this.stdDefault = stdDefault;
+		this.callBackType = callBackType;
+		this.combine = combine;
+		this.determinesLayout = determinesLayout;
 	}
 	
-	// generates rascal code for properties!
-	public static void main(String[] argv){
-		String[] propertyNames = propertySetters.keySet().toArray(new String[0]);
-		Arrays.sort(propertyNames);
-			for(String propertyName : propertyNames){
-				System.out.print(genPropertyCode(propertyName,propertySetters.get(propertyName)));
+
+	@SuppressWarnings("unchecked")
+	public <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
+			PropertyManager pm, IFigureConstructionEnv env) {
+		if(type == Types.HANDLER){
+			return (PropertyValue<PropValue>) new HandlerValue(arg);
+		}
+		return producePropertyValue(arg, pm, env,type.getConverter());
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(Types type,IValue arg,
+			PropertyManager pm, IFigureConstructionEnv env){
+		return produceMaybeComputedValue(arg, pm, env, type.getConverter());
+	}
+	
+	private static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(IValue arg,
+			PropertyManager pm, IFigureConstructionEnv env,Convert<PropValue> convert){
+
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+			return new ComputedValue<PropValue>(arg, env, pm, convert);
+		}
+		return new ConstantValue<PropValue>( convert.convert(arg, pm, env));
+	}
+	
+	private static <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
+			PropertyManager pm, IFigureConstructionEnv env, Convert<PropValue> convert) {
+		if(arg.getType().isAbstractDataType()){
+			IConstructor cs = (IConstructor) arg;
+			if(cs.getName().equals("convert")){
+				return new MeasureValue<PropValue>(
+						producePropertyValue(cs.get(0),pm,env, ConvertStr.instance), 
+						producePropertyValue(cs.get(1),pm,env, DoNotConvert.instance));
 			}
-		
+		} 
+		return produceMaybeComputedValue(arg,pm,env,convert);
+	}
+	
+	static final HashMap<String, Properties> propertyLookup = new HashMap<String, Properties>();
+	
+	static {
+		for(Properties property : values()){
+			propertyLookup.put(property.name, property);
+		}
 	}
 }
