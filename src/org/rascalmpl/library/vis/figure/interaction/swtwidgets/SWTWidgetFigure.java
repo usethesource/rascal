@@ -53,7 +53,6 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		Point p = widget.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		minSize.setX(p.x);
 		minSize.setY(p.y);
-		
 	}
 	
 	@Override

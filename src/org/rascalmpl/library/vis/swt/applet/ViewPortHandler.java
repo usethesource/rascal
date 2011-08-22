@@ -132,7 +132,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	
 	private void updateScrollBars(){
 		for(Dimension d : HOR_VER){
-			if(!scrollBarsVisible.get(d)) { continue; }
 			ScrollBar bar = scrollBars.get(d);
 			double diff = figure.size.get(d) - viewPortSize.get(d);
 			viewPortLocation.setMinMax(d, 0, diff);
@@ -147,21 +146,22 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 	
 	private void resizeWidthDependsOnHeight(){
+		
 		setViewPortSize();
+		if(viewPortSize.getX() == 0 || viewPortSize.getY() == 0 ) return;
+		System.out.printf("Resizing depending on width %s\n",viewPortSize);
 		distributeSizeWidthDependsOnHeight();
 		Dimension major =  figure.getMajorDimension();
 		Dimension minor = major.other();
 		if(figure.size.get(minor) > viewPortSize.get(minor) && !scrollBars.get(minor).isVisible()){
 			scrollBars.get(minor).setVisible(true);
 			scrollBarsVisible.set(minor,true);
-		} else if( figure.size.get(minor) <= viewPortSize.get(minor) && scrollBars.get(minor).isVisible()){
+		} else if( figure.size.get(minor) <= viewPortSize.get(minor) && scrollBarsVisible.get(minor)){
+			scrollBarsVisible.set(minor,false);
 			scrollBars.get(minor).setVisible(false);
-			scrollBarsVisible.set(minor,true);
 		}
 		scrollBarsVisible.set(major,false);
-		if(scrollBars.get(major).isVisible()){
-			scrollBars.get(major).setVisible(false);
-		}
+		scrollBars.get(major).setVisible(false);
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 	}
@@ -201,6 +201,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 	@Override
 	public void controlResized(ControlEvent e) {
+		System.err.printf("Resizing %s\n",this);
 		resize();
 	}
 

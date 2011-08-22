@@ -143,6 +143,7 @@ public class FigureSWTApplet extends Composite
 	}
 	
 	public void registerChild(FigureSWTApplet child){
+		System.out.printf("registering child %s\n", child);
 		children.add(child);
 	}
 
@@ -175,7 +176,7 @@ public class FigureSWTApplet extends Composite
 	}
 	
 	public String toString(){
-		return "FigureSWTApplet" + ((WhiteSpace)figure).innerFig.toString();
+		return "FigureSWTApplet" + figure.toString();
 	}
 
 	
@@ -208,7 +209,6 @@ public class FigureSWTApplet extends Composite
 
 	@Override
 	public void unregisterOverlap(Overlap o) {
-		System.out.printf("removing overlap %s\n", o);
 		overlapFigures.remove(o);
 	}
 
