@@ -138,10 +138,13 @@ public abstract class Figure implements Comparable<Figure> {
 		initialisePhaseChildren(env, resolver, mparent, swtSeen);
 		
 		//if(needsRecompute) {
+		System.out.printf("one : %s minSize %s\n", this, minSize);
 			computeMinSize();
+			System.out.printf("one : %s minSize %s\n", this, minSize);
 			adjustMinSize();
 		//}
 		finalize(true);
+		System.out.printf("two : %s minSize %s\n",  this, minSize);
 	}
 
 	public void initialisePhaseChildren(IFigureConstructionEnv env,

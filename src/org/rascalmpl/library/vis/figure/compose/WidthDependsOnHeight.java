@@ -12,6 +12,8 @@ public abstract class WidthDependsOnHeight extends Compose{
 
 	Dimension major, minor;
 	
+	public static final double MINOR_MINSIZE = 30;
+	
 	protected WidthDependsOnHeight(Dimension major, Figure[] figures, PropertyManager properties) {
 		super(figures, properties);
 		this.major = major;
@@ -35,6 +37,7 @@ public abstract class WidthDependsOnHeight extends Compose{
 			System.out.printf("setting minwidth %s\n", minWidth);
 		}
 		minSize.set(major, minWidth);
+		minSize.set(minor, MINOR_MINSIZE);
 	}
 
 
