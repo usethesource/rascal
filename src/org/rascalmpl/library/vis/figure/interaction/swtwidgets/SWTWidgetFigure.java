@@ -29,7 +29,6 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
-import org.rascalmpl.library.vis.util.Mutable;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 
@@ -43,8 +42,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	}
 	
 	@Override 
-	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
-		swtSeen.set(true);
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
 		env.addSWTElement(widget);
 	}
 	
@@ -53,6 +51,11 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		Point p = widget.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		minSize.setX(p.x);
 		minSize.setY(p.y);
+	}
+	
+	@Override
+	public boolean containsSWTElement() {
+		return true;
 	}
 	
 	@Override

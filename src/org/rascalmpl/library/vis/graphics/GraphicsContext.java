@@ -1,5 +1,8 @@
 package org.rascalmpl.library.vis.graphics;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
+
 public interface GraphicsContext {
 	
 	public void line(double arg0, double arg1, double arg2, double arg3);
@@ -40,5 +43,8 @@ public interface GraphicsContext {
 	public void endShape(int arg0 );
 
 	public void dispose();
+	
+
+	public void setGC(GC gc);
 
 }

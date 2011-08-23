@@ -12,7 +12,6 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
@@ -31,8 +30,8 @@ public class Overlap extends LayoutProxy{
 	
 	
 	@Override
-	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
-		super.init(env, mparent, swtSeen);
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
+		super.initElem(env, mparent, swtSeen);
 		env.registerOverlap(this);
 	}
 	

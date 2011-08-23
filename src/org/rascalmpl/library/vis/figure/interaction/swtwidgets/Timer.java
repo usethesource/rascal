@@ -39,11 +39,11 @@ public class Timer extends LayoutProxy {
 		public void run() {
 			if(cancel || c.isDisposed()) return;
 			long beginTime = System.currentTimeMillis();
-			System.out.printf("Executing timer!\n");
 			IInteger result = (IInteger)cbenv.executeRascalCallBackWithoutArguments(callback).getValue();
-			cbenv.signalRecompute();
+			System.out.printf("Handling timer took %d\n",cbenv.getAndResetRascalTime() / 1000000);
 			long elapsed = System.currentTimeMillis() - beginTime;
-			int newDelay = Math.max(0,result.intValue() - (int)elapsed);
+			cbenv.signalRecompute();
+			int newDelay = Math.max(1,result.intValue() - (int)elapsed);
 			if(newDelay != 0){
 				Display.getCurrent().timerExec(newDelay, this);
 			}

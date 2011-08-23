@@ -30,6 +30,8 @@ import org.rascalmpl.library.vis.figure.compose.HVCat;
 import org.rascalmpl.library.vis.figure.compose.Overlay;
 import org.rascalmpl.library.vis.figure.compose.Pack;
 import org.rascalmpl.library.vis.figure.compose.WidthDependsOnHeightWrapper;
+import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraph;
+import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.figure.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.figure.interaction.FigureSwitch;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
@@ -374,16 +376,16 @@ public class FigureFactory {
 		throw RuntimeExceptionFactory.illegalArgument(c, env.getRascalContext().getCurrentAST(),  env.getRascalContext().getStackTrace());
 	}
 	
-	/*
 	
-	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureConstructionEnv env, IConstructor c,
-			PropertyManager properties) {
-		IString from = (IString)c.get(0);
-		IString to = (IString)c.get(1);
-		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
-		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new SpringGraphEdge(G, env, properties, from, to, toArrow, fromArrow);
-	}
+//	
+//	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureConstructionEnv env, IConstructor c,
+//			PropertyManager properties) {
+//		IString from = (IString)c.get(0);
+//		IString to = (IString)c.get(1);
+//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+//		return new SpringGraphEdge(G, env, properties, from, to, toArrow, fromArrow);
+//	}
 	
 	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureConstructionEnv env, IConstructor c,
 			PropertyManager properties) {
@@ -393,22 +395,22 @@ public class FigureFactory {
 //		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
 		return new LayeredGraphEdge(G, env, properties, from, to);
 	}
-
-	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureConstructionEnv env, IConstructor c,
-			PropertyManager properties) {
-		IString from = (IString)c.get(0);
-		IString to = (IString)c.get(1);
-//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
-//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-		return new LeveledGraphEdge(G, env, properties, from, to);
-	}
-	
-	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv env, IConstructor c,
-			PropertyManager properties) {
-		IString from = (IString)c.get(0);
-		IString to = (IString)c.get(1);
-		return new LatticeGraphEdge(G, env, properties, from, to);
-	}
-	*/
+//
+//	public static LeveledGraphEdge makeLeveledGraphEdge(LeveledGraph G, IFigureConstructionEnv env, IConstructor c,
+//			PropertyManager properties) {
+//		IString from = (IString)c.get(0);
+//		IString to = (IString)c.get(1);
+////		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
+////		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
+//		return new LeveledGraphEdge(G, env, properties, from, to);
+//	}
+//	
+//	public static LatticeGraphEdge makeLatticeGraphEdge(LatticeGraph G, IFigureConstructionEnv env, IConstructor c,
+//			PropertyManager properties) {
+//		IString from = (IString)c.get(0);
+//		IString to = (IString)c.get(1);
+//		return new LatticeGraphEdge(G, env, properties, from, to);
+//	}
+//	*/
 
 }

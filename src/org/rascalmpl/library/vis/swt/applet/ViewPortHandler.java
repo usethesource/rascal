@@ -40,6 +40,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	private BoundingBox viewPortSize; // the size of the viewport (with the scrollbars, if enabled)
 	private BoundingBox parentSize; // the size of the viewport (without the scrollbars)
 	private Coordinate viewPortLocation;
+	Coordinate zoom ;
 	private TwoDimensional<Boolean> scrollBarsVisible;
 	private TwoDimensional<ScrollBar> scrollBars;
 	private ScrollBar horBar, verBar;
@@ -49,6 +50,9 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	private Image backbuffer;
 	private SWTElementsVisibilityManager swtVisiblityMangager;
 	private SWTZOrderManager zorderManager;
+	private SWTGraphicsContext gc;
+	private TransformMatrix topLevel;
+	private Rectangle viewPortRectangle;
 	
 	public ViewPortHandler(FigureSWTApplet parent, List<Overlap> overlapFigures){
 		this.parent = parent;
@@ -56,6 +60,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		this.overlapFigures = overlapFigures;
 		parentSize = new BoundingBox();
 		viewPortLocation = new Coordinate(0,0);
+		zoom = new Coordinate(1,1);
 		viewPortSize = new BoundingBox();
 		horBar = parent.getHorizontalBar();
 		verBar = parent.getVerticalBar();
@@ -65,6 +70,9 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		scrollableMinSize = new BoundingBox(MIN_SIZE + verBar.getSize().x, MIN_SIZE+ horBar.getSize().y);
 		swtVisiblityMangager = new SWTElementsVisibilityManager();
 		zorderManager = new SWTZOrderManager(parent,overlapFigures);
+		gc = new SWTGraphicsContext();
+		topLevel = new TransformMatrix();
+		viewPortRectangle = new Rectangle(viewPortLocation, viewPortSize);
 	}
 	
 	private void resetToMinSize(){
@@ -76,24 +84,24 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			}
 		}
 		Rectangle part = getViewPortRectangle();
-		figure.resize(part,new TransformMatrix());
+		figure.resize(part,topLevel);
 	}
 	
 	private void distributeExtraSize(){
 		figure.size.set(viewPortSize);
 		Rectangle part = getViewPortRectangle();
-		figure.resize(part,new TransformMatrix());
+		figure.resize(part,topLevel);
 	}
 	
 	private void  distributeSizeWidthDependsOnHeight(){
 		figure.size.set(viewPortSize);
 		Rectangle part = getViewPortRectangle();
-		figure.resize(part,new TransformMatrix());
+		figure.resize(part,topLevel);
 	}
 
 	private Rectangle getViewPortRectangle() {
-		Rectangle part = new Rectangle(viewPortLocation, viewPortSize);
-		return part;
+		viewPortRectangle.update();
+		return viewPortRectangle;
 	}
 	
 	private void setViewPortSize(){
@@ -201,7 +209,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 	@Override
 	public void controlResized(ControlEvent e) {
-		System.err.printf("Resizing %s\n",this);
 		resize();
 	}
 
@@ -230,17 +237,16 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			return;
 		}
 		long startTime = System.nanoTime();
-		GraphicsContext gc;
 		setBackBuffer();
 		try{
-			gc = new SWTGraphicsContext(new GC(backbuffer));
+			gc.setGC(new GC(backbuffer));
 		} catch(IllegalArgumentException e){
 			makeNewBackBuffer();
-			gc = new SWTGraphicsContext(new GC(backbuffer));
+			gc.setGC(new GC(backbuffer));
 		}
 		Rectangle part = getViewPortRectangle();
 		gc.translate(-viewPortLocation.getX(), -viewPortLocation.getY());
-		Coordinate zoom = new Coordinate(1,1);
+
 		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
 
 		for(Overlap f : overlapFigures){
@@ -253,7 +259,14 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		
 		swtVisiblityMangager.makeOffscreenElementsInvisble();
 		zorderManager.draw(part);
-		if(FigureExecutionEnvironment.profile) System.out.printf("Drawing (part) took %f\n", ((double)(System.nanoTime() - startTime)) / 1000000.0);
+		
+		if(FigureExecutionEnvironment.profile) {
+			long rascalTime = parent.getCallBackEnv().getAndResetRascalTime();
+			rascalTime/=1000000;
+			long drawTime = System.nanoTime() - startTime;
+			drawTime/=1000000;
+			System.out.printf("Drawing (part) took %d rascalTime %d %f\n", drawTime,rascalTime,(double)rascalTime / (double) drawTime);
+		}
 	}
 	
 

@@ -101,7 +101,7 @@ public class FigureSWTApplet extends Composite
 		for(FigureSWTApplet child : children){
 			child.triggerRecompute();
 		}
-		figure.initializePhase(this, env.getNameResolver(), null, new Mutable<Boolean>(false));
+		figure.init(this, env.getNameResolver(), null, false);
 		viewPortHandler.notifyFigureChanged();  
 	}
 
@@ -198,7 +198,6 @@ public class FigureSWTApplet extends Composite
 
 	public void mouseMove(MouseEvent e) {
 		inputHandler.mouseMove(e);
-	
 	}
 
 	@Override

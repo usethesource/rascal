@@ -96,6 +96,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			System.out.printf("%s \n",fig);
 		}
 		*/
+		/*
 		if(!noLongerUnderMouse.isEmpty()){
 			System.out.printf("No longer under mouse:\n");
 			for(Figure fig : noLongerUnderMouse){
@@ -108,6 +109,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 				System.out.printf("%s \n",fig);
 			}
 		}
+		*/
 		
 		env.beginCallbackBatch();
 		for(Figure fig : noLongerUnderMouse){
@@ -134,7 +136,6 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
 		boolean captured = false;
 		for(Figure fig : figuresUnderMouse){
-			System.out.printf("Executing keydown on %s\n", fig);
 			if(fig.executeKeyHandlers(env, keySym, down, keyboardModifierMap)){
 				captured = true;
 				break;
@@ -147,7 +148,6 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		System.out.printf("Key pressed!\n");
 		boolean captured = handleKey(e,pdbTrue);
 		if(!captured){
 			parent.handleNonCapturedKeyPress(e);
@@ -156,7 +156,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		handleKey(e,pdbFalse);
+		//handleKey(e,pdbFalse);
 	}
 
 	@Override

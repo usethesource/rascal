@@ -7,7 +7,6 @@ import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 
 public class FigureSwitch extends LayoutProxy{
@@ -22,7 +21,7 @@ public class FigureSwitch extends LayoutProxy{
 	}
 
 	@Override
-	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
 		setInnerFig(choices[choice.getValue()]);
 		for(int i = 0 ; i < choices.length ; i++){
 			if(i != choice.getValue()){

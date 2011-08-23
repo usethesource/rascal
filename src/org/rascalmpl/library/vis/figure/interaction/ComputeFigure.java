@@ -20,7 +20,6 @@ import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
 
 public class ComputeFigure extends LayoutProxy {
 	
@@ -36,7 +35,7 @@ public class ComputeFigure extends LayoutProxy {
 		this.callback = fun;
 	}
 
-	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
 		IConstructor figureCons =
 			(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);
 		if(prevValue == null || !figureCons.isEqual(prevValue)){
