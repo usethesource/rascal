@@ -51,7 +51,7 @@ public enum Types {
 			return ConvertInt.instance;
 		}
 	},
-	REAL("real","r", FIRST){
+	REAL("num","r", FIRST){
 		public Convert getConverter(){
 			return ConvertReal.instance;
 		}

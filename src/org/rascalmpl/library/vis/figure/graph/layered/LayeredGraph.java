@@ -12,11 +12,18 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.graph.layered;
 
+import static org.rascalmpl.library.vis.properties.Properties.DIR;
+import static org.rascalmpl.library.vis.properties.Properties.HEIGHT;
+import static org.rascalmpl.library.vis.properties.Properties.HGAP;
+import static org.rascalmpl.library.vis.properties.Properties.ID;
+import static org.rascalmpl.library.vis.properties.Properties.LAYER;
+import static org.rascalmpl.library.vis.properties.Properties.VGAP;
+import static org.rascalmpl.library.vis.properties.Properties.WIDTH;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -28,15 +35,11 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
-import static org.rascalmpl.library.vis.properties.Properties.*;
 /**
 
  * Layered Graph layout. Given a list of nodes and edges a graph layout is computed with given size.
@@ -1449,17 +1452,25 @@ public class LayeredGraph extends Figure {
 		translateToOrigin();
 		//switchWidthAndHeight();
 		rotateToDirection();
-		
+		minSize.set(400, 400);
 	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		for(LayeredGraphNode g : nodes){
+			if(g.figure != null){
+				g.figure.location.set(g.x - g.figure.minSize.getX()/2, g.y - g.figure.minSize.getY()/2);
+			}
+		}
 	}
 	
 
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		
-		
+		gc.translate(location.getX(), location.getY());
+		for(LayeredGraphEdge e : edges){
+			e.drawElement(gc, visibleSWTElements);
+		}
+		gc.translate(-location.getX(), -location.getY());
 	}
 	
 }

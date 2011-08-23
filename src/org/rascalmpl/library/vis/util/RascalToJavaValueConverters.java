@@ -45,7 +45,7 @@ public class RascalToJavaValueConverters {
 	public static class ConvertReal implements Convert<Double>{
 		public static ConvertReal instance = new ConvertReal();
 		public Double convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
-			return ((IReal) val).doubleValue();
+			return (val instanceof IInteger) ? ((IInteger) val).intValue() : ((IReal) val).doubleValue();
 		}
 	}
 	

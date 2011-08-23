@@ -167,36 +167,7 @@ public java list[str] fontNames();
  public FProperty center(){
    return align(0.5, 0.5);
 }
-
-
- public FProperty stdLeft(){
-   return stdHalign(0.0);
- }
  
- public FProperty stdHcenter(){
-   return stdHalign(0.5);
- }
- 
- public FProperty stdRight(){
-   return stdHalign(1.0);
- }
- 
- public FProperty stdTop(){
-   return stdValign(0.0);
- }
- 
- public FProperty stdVcenter(){
-   return stdValign(0.5);
- }
- 
- public FProperty stdBottom(){
-   return stdValign(1.0);
- }
- 
- public FProperty stdCenter(){
-   return stdAlign(0.5, 0.5);
-}
-
 
  public FProperty projectLeft(){
    return projectHalign(0.0);
@@ -254,7 +225,7 @@ data FProperty =
 	|_child               (FProperties props)
 	|unpack(FProperties props)
 	// begin generated code
-	|shapeClosed(bool     b  )
+		|shapeClosed(bool     b  )
 	|shapeClosed(bool()   cb )
 	|shapeClosed(Measure  mv )
 	|shapeConnected(bool     b  )
@@ -293,6 +264,9 @@ data FProperty =
 	|shadow     (bool     b  )
 	|shadow     (bool()   cb )
 	|shadow     (Measure  mv )
+	|spread     (bool     b  )
+	|spread     (bool()   cb )
+	|spread     (Measure  mv )
 	|fillColor  (Color    c  )
 	|fillColor  (Color()  cc )
 	|fillColor  (Measure  mv )
@@ -313,56 +287,56 @@ data FProperty =
 	|shadowColor(Color()  cc )
 	|shadowColor(Measure  mv )
 	|shadowColor(str      ds )
-	|aspectRatio(real     r  )
-	|aspectRatio(real()   cr )
+	|aspectRatio(num      r  )
+	|aspectRatio(num()    cr )
 	|aspectRatio(Measure  mv )
-	|ialign     (real     r  )
-	|ialign     (real()   cr )
+	|ialign     (num      r  )
+	|ialign     (num()    cr )
 	|ialign     (Measure  mv )
-	|width      (real     r  )
-	|width      (real()   cr )
+	|width      (num      r  )
+	|width      (num()    cr )
 	|width      (Measure  mv )
-	|height     (real     r  )
-	|height     (real()   cr )
+	|height     (num      r  )
+	|height     (num()    cr )
 	|height     (Measure  mv )
-	|hgap       (real     r  )
-	|hgap       (real()   cr )
+	|hgap       (num      r  )
+	|hgap       (num()    cr )
 	|hgap       (Measure  mv )
-	|vgap       (real     r  )
-	|vgap       (real()   cr )
+	|vgap       (num      r  )
+	|vgap       (num()    cr )
 	|vgap       (Measure  mv )
-	|hshadowPos (real     r  )
-	|hshadowPos (real()   cr )
+	|hshadowPos (num      r  )
+	|hshadowPos (num()    cr )
 	|hshadowPos (Measure  mv )
-	|vshadowPos (real     r  )
-	|vshadowPos (real()   cr )
+	|vshadowPos (num      r  )
+	|vshadowPos (num()    cr )
 	|vshadowPos (Measure  mv )
-	|hshrink    (real     r  )
-	|hshrink    (real()   cr )
+	|hshrink    (num      r  )
+	|hshrink    (num()    cr )
 	|hshrink    (Measure  mv )
-	|vshrink    (real     r  )
-	|vshrink    (real()   cr )
+	|vshrink    (num      r  )
+	|vshrink    (num()    cr )
 	|vshrink    (Measure  mv )
-	|halign     (real     r  )
-	|halign     (real()   cr )
+	|halign     (num      r  )
+	|halign     (num()    cr )
 	|halign     (Measure  mv )
-	|valign     (real     r  )
-	|valign     (real()   cr )
+	|valign     (num      r  )
+	|valign     (num()    cr )
 	|valign     (Measure  mv )
-	|hpos       (real     r  )
-	|hpos       (real()   cr )
+	|hpos       (num      r  )
+	|hpos       (num()    cr )
 	|hpos       (Measure  mv )
-	|vpos       (real     r  )
-	|vpos       (real()   cr )
+	|vpos       (num      r  )
+	|vpos       (num()    cr )
 	|vpos       (Measure  mv )
-	|hgrow      (real     r  )
-	|hgrow      (real()   cr )
+	|hgrow      (num      r  )
+	|hgrow      (num()    cr )
 	|hgrow      (Measure  mv )
-	|vgrow      (real     r  )
-	|vgrow      (real()   cr )
+	|vgrow      (num      r  )
+	|vgrow      (num()    cr )
 	|vgrow      (Measure  mv )
-	|lineWidth  (real     r  )
-	|lineWidth  (real()   cr )
+	|lineWidth  (num      r  )
+	|lineWidth  (num()    cr )
 	|lineWidth  (Measure  mv )
 	|toArrow    (Figure   f  )
 	|toArrow    (Figure() cf )
@@ -385,9 +359,15 @@ data FProperty =
 	|id         (str      s  )
 	|id         (str()    cs )
 	|id         (Measure  mv )
+	|layer      (str      s  )
+	|layer      (str()    cs )
+	|layer      (Measure  mv )
 	|font       (str      s  )
 	|font       (str()    cs )
 	|font       (Measure  mv )
+	|dir        (str      s  )
+	|dir        (str()    cs )
+	|dir        (Measure  mv )
 	|onClick    (bool ()  h0 )
 	|onMouseMove(void (bool) h1 )
 	|onKey      (bool (KeySym, bool, map[KeyModifier,bool]) h2 )
@@ -405,26 +385,26 @@ public FProperty startGap   (Measure  mv ){ return unpack([hstartGap  (mv ),vsta
 public FProperty endGap     (bool     b  ){ return unpack([hendGap    (b  ),vendGap    (b  )]); }
 public FProperty endGap     (bool()   cb ){ return unpack([hendGap    (cb ),vendGap    (cb )]); }
 public FProperty endGap     (Measure  mv ){ return unpack([hendGap    (mv ),vendGap    (mv )]); }
-public FProperty pos        (real     r  ){ return unpack([hpos       (r  ),vpos       (r  )]); }
-public FProperty pos        (real()   cr ){ return unpack([hpos       (cr ),vpos       (cr )]); }
+public FProperty pos        (num      r  ){ return unpack([hpos       (r  ),vpos       (r  )]); }
+public FProperty pos        (num()    cr ){ return unpack([hpos       (cr ),vpos       (cr )]); }
 public FProperty pos        (Measure  mv ){ return unpack([hpos       (mv ),vpos       (mv )]); }
-public FProperty size       (real     r  ){ return unpack([width      (r  ),height     (r  )]); }
-public FProperty size       (real()   cr ){ return unpack([width      (cr ),height     (cr )]); }
+public FProperty size       (num      r  ){ return unpack([width      (r  ),height     (r  )]); }
+public FProperty size       (num()    cr ){ return unpack([width      (cr ),height     (cr )]); }
 public FProperty size       (Measure  mv ){ return unpack([width      (mv ),height     (mv )]); }
-public FProperty gap        (real     r  ){ return unpack([hgap       (r  ),vgap       (r  )]); }
-public FProperty gap        (real()   cr ){ return unpack([hgap       (cr ),vgap       (cr )]); }
+public FProperty gap        (num      r  ){ return unpack([hgap       (r  ),vgap       (r  )]); }
+public FProperty gap        (num()    cr ){ return unpack([hgap       (cr ),vgap       (cr )]); }
 public FProperty gap        (Measure  mv ){ return unpack([hgap       (mv ),vgap       (mv )]); }
-public FProperty shadowPos  (real     r  ){ return unpack([hshadowPos (r  ),vshadowPos (r  )]); }
-public FProperty shadowPos  (real()   cr ){ return unpack([hshadowPos (cr ),vshadowPos (cr )]); }
+public FProperty shadowPos  (num      r  ){ return unpack([hshadowPos (r  ),vshadowPos (r  )]); }
+public FProperty shadowPos  (num()    cr ){ return unpack([hshadowPos (cr ),vshadowPos (cr )]); }
 public FProperty shadowPos  (Measure  mv ){ return unpack([hshadowPos (mv ),vshadowPos (mv )]); }
-public FProperty shrink     (real     r  ){ return unpack([hshrink    (r  ),vshrink    (r  )]); }
-public FProperty shrink     (real()   cr ){ return unpack([hshrink    (cr ),vshrink    (cr )]); }
+public FProperty shrink     (num      r  ){ return unpack([hshrink    (r  ),vshrink    (r  )]); }
+public FProperty shrink     (num()    cr ){ return unpack([hshrink    (cr ),vshrink    (cr )]); }
 public FProperty shrink     (Measure  mv ){ return unpack([hshrink    (mv ),vshrink    (mv )]); }
-public FProperty align      (real     r  ){ return unpack([halign     (r  ),valign     (r  )]); }
-public FProperty align      (real()   cr ){ return unpack([halign     (cr ),valign     (cr )]); }
+public FProperty align      (num      r  ){ return unpack([halign     (r  ),valign     (r  )]); }
+public FProperty align      (num()    cr ){ return unpack([halign     (cr ),valign     (cr )]); }
 public FProperty align      (Measure  mv ){ return unpack([halign     (mv ),valign     (mv )]); }
-public FProperty grow       (real     r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
-public FProperty grow       (real()   cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
+public FProperty grow       (num      r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
+public FProperty grow       (num()    cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
 public FProperty grow       (Measure  mv ){ return unpack([hgrow      (mv ),vgrow      (mv )]); }
 public FProperty resizable  (bool     b00  ,bool     b200 ){ return unpack([hresizable (b00  ),vresizable (b200 )]); }
 public FProperty resizable  (bool     b01  ,bool()   cb201){ return unpack([hresizable (b01  ),vresizable (cb201)]); }
@@ -462,68 +442,68 @@ public FProperty endGap     (bool()   cb12 ,Measure  mv212){ return unpack([hend
 public FProperty endGap     (Measure  mv20 ,bool     b220 ){ return unpack([hendGap    (mv20 ),vendGap    (b220 )]); }
 public FProperty endGap     (Measure  mv21 ,bool()   cb221){ return unpack([hendGap    (mv21 ),vendGap    (cb221)]); }
 public FProperty endGap     (Measure  mv22 ,Measure  mv222){ return unpack([hendGap    (mv22 ),vendGap    (mv222)]); }
-public FProperty pos        (real     r00  ,real     r200 ){ return unpack([hpos       (r00  ),vpos       (r200 )]); }
-public FProperty pos        (real     r01  ,real()   cr201){ return unpack([hpos       (r01  ),vpos       (cr201)]); }
-public FProperty pos        (real     r02  ,Measure  mv202){ return unpack([hpos       (r02  ),vpos       (mv202)]); }
-public FProperty pos        (real()   cr10 ,real     r210 ){ return unpack([hpos       (cr10 ),vpos       (r210 )]); }
-public FProperty pos        (real()   cr11 ,real()   cr211){ return unpack([hpos       (cr11 ),vpos       (cr211)]); }
-public FProperty pos        (real()   cr12 ,Measure  mv212){ return unpack([hpos       (cr12 ),vpos       (mv212)]); }
-public FProperty pos        (Measure  mv20 ,real     r220 ){ return unpack([hpos       (mv20 ),vpos       (r220 )]); }
-public FProperty pos        (Measure  mv21 ,real()   cr221){ return unpack([hpos       (mv21 ),vpos       (cr221)]); }
+public FProperty pos        (num      r00  ,num      r200 ){ return unpack([hpos       (r00  ),vpos       (r200 )]); }
+public FProperty pos        (num      r01  ,num()    cr201){ return unpack([hpos       (r01  ),vpos       (cr201)]); }
+public FProperty pos        (num      r02  ,Measure  mv202){ return unpack([hpos       (r02  ),vpos       (mv202)]); }
+public FProperty pos        (num()    cr10 ,num      r210 ){ return unpack([hpos       (cr10 ),vpos       (r210 )]); }
+public FProperty pos        (num()    cr11 ,num()    cr211){ return unpack([hpos       (cr11 ),vpos       (cr211)]); }
+public FProperty pos        (num()    cr12 ,Measure  mv212){ return unpack([hpos       (cr12 ),vpos       (mv212)]); }
+public FProperty pos        (Measure  mv20 ,num      r220 ){ return unpack([hpos       (mv20 ),vpos       (r220 )]); }
+public FProperty pos        (Measure  mv21 ,num()    cr221){ return unpack([hpos       (mv21 ),vpos       (cr221)]); }
 public FProperty pos        (Measure  mv22 ,Measure  mv222){ return unpack([hpos       (mv22 ),vpos       (mv222)]); }
-public FProperty size       (real     r00  ,real     r200 ){ return unpack([width      (r00  ),height     (r200 )]); }
-public FProperty size       (real     r01  ,real()   cr201){ return unpack([width      (r01  ),height     (cr201)]); }
-public FProperty size       (real     r02  ,Measure  mv202){ return unpack([width      (r02  ),height     (mv202)]); }
-public FProperty size       (real()   cr10 ,real     r210 ){ return unpack([width      (cr10 ),height     (r210 )]); }
-public FProperty size       (real()   cr11 ,real()   cr211){ return unpack([width      (cr11 ),height     (cr211)]); }
-public FProperty size       (real()   cr12 ,Measure  mv212){ return unpack([width      (cr12 ),height     (mv212)]); }
-public FProperty size       (Measure  mv20 ,real     r220 ){ return unpack([width      (mv20 ),height     (r220 )]); }
-public FProperty size       (Measure  mv21 ,real()   cr221){ return unpack([width      (mv21 ),height     (cr221)]); }
+public FProperty size       (num      r00  ,num      r200 ){ return unpack([width      (r00  ),height     (r200 )]); }
+public FProperty size       (num      r01  ,num()    cr201){ return unpack([width      (r01  ),height     (cr201)]); }
+public FProperty size       (num      r02  ,Measure  mv202){ return unpack([width      (r02  ),height     (mv202)]); }
+public FProperty size       (num()    cr10 ,num      r210 ){ return unpack([width      (cr10 ),height     (r210 )]); }
+public FProperty size       (num()    cr11 ,num()    cr211){ return unpack([width      (cr11 ),height     (cr211)]); }
+public FProperty size       (num()    cr12 ,Measure  mv212){ return unpack([width      (cr12 ),height     (mv212)]); }
+public FProperty size       (Measure  mv20 ,num      r220 ){ return unpack([width      (mv20 ),height     (r220 )]); }
+public FProperty size       (Measure  mv21 ,num()    cr221){ return unpack([width      (mv21 ),height     (cr221)]); }
 public FProperty size       (Measure  mv22 ,Measure  mv222){ return unpack([width      (mv22 ),height     (mv222)]); }
-public FProperty gap        (real     r00  ,real     r200 ){ return unpack([hgap       (r00  ),vgap       (r200 )]); }
-public FProperty gap        (real     r01  ,real()   cr201){ return unpack([hgap       (r01  ),vgap       (cr201)]); }
-public FProperty gap        (real     r02  ,Measure  mv202){ return unpack([hgap       (r02  ),vgap       (mv202)]); }
-public FProperty gap        (real()   cr10 ,real     r210 ){ return unpack([hgap       (cr10 ),vgap       (r210 )]); }
-public FProperty gap        (real()   cr11 ,real()   cr211){ return unpack([hgap       (cr11 ),vgap       (cr211)]); }
-public FProperty gap        (real()   cr12 ,Measure  mv212){ return unpack([hgap       (cr12 ),vgap       (mv212)]); }
-public FProperty gap        (Measure  mv20 ,real     r220 ){ return unpack([hgap       (mv20 ),vgap       (r220 )]); }
-public FProperty gap        (Measure  mv21 ,real()   cr221){ return unpack([hgap       (mv21 ),vgap       (cr221)]); }
+public FProperty gap        (num      r00  ,num      r200 ){ return unpack([hgap       (r00  ),vgap       (r200 )]); }
+public FProperty gap        (num      r01  ,num()    cr201){ return unpack([hgap       (r01  ),vgap       (cr201)]); }
+public FProperty gap        (num      r02  ,Measure  mv202){ return unpack([hgap       (r02  ),vgap       (mv202)]); }
+public FProperty gap        (num()    cr10 ,num      r210 ){ return unpack([hgap       (cr10 ),vgap       (r210 )]); }
+public FProperty gap        (num()    cr11 ,num()    cr211){ return unpack([hgap       (cr11 ),vgap       (cr211)]); }
+public FProperty gap        (num()    cr12 ,Measure  mv212){ return unpack([hgap       (cr12 ),vgap       (mv212)]); }
+public FProperty gap        (Measure  mv20 ,num      r220 ){ return unpack([hgap       (mv20 ),vgap       (r220 )]); }
+public FProperty gap        (Measure  mv21 ,num()    cr221){ return unpack([hgap       (mv21 ),vgap       (cr221)]); }
 public FProperty gap        (Measure  mv22 ,Measure  mv222){ return unpack([hgap       (mv22 ),vgap       (mv222)]); }
-public FProperty shadowPos  (real     r00  ,real     r200 ){ return unpack([hshadowPos (r00  ),vshadowPos (r200 )]); }
-public FProperty shadowPos  (real     r01  ,real()   cr201){ return unpack([hshadowPos (r01  ),vshadowPos (cr201)]); }
-public FProperty shadowPos  (real     r02  ,Measure  mv202){ return unpack([hshadowPos (r02  ),vshadowPos (mv202)]); }
-public FProperty shadowPos  (real()   cr10 ,real     r210 ){ return unpack([hshadowPos (cr10 ),vshadowPos (r210 )]); }
-public FProperty shadowPos  (real()   cr11 ,real()   cr211){ return unpack([hshadowPos (cr11 ),vshadowPos (cr211)]); }
-public FProperty shadowPos  (real()   cr12 ,Measure  mv212){ return unpack([hshadowPos (cr12 ),vshadowPos (mv212)]); }
-public FProperty shadowPos  (Measure  mv20 ,real     r220 ){ return unpack([hshadowPos (mv20 ),vshadowPos (r220 )]); }
-public FProperty shadowPos  (Measure  mv21 ,real()   cr221){ return unpack([hshadowPos (mv21 ),vshadowPos (cr221)]); }
+public FProperty shadowPos  (num      r00  ,num      r200 ){ return unpack([hshadowPos (r00  ),vshadowPos (r200 )]); }
+public FProperty shadowPos  (num      r01  ,num()    cr201){ return unpack([hshadowPos (r01  ),vshadowPos (cr201)]); }
+public FProperty shadowPos  (num      r02  ,Measure  mv202){ return unpack([hshadowPos (r02  ),vshadowPos (mv202)]); }
+public FProperty shadowPos  (num()    cr10 ,num      r210 ){ return unpack([hshadowPos (cr10 ),vshadowPos (r210 )]); }
+public FProperty shadowPos  (num()    cr11 ,num()    cr211){ return unpack([hshadowPos (cr11 ),vshadowPos (cr211)]); }
+public FProperty shadowPos  (num()    cr12 ,Measure  mv212){ return unpack([hshadowPos (cr12 ),vshadowPos (mv212)]); }
+public FProperty shadowPos  (Measure  mv20 ,num      r220 ){ return unpack([hshadowPos (mv20 ),vshadowPos (r220 )]); }
+public FProperty shadowPos  (Measure  mv21 ,num()    cr221){ return unpack([hshadowPos (mv21 ),vshadowPos (cr221)]); }
 public FProperty shadowPos  (Measure  mv22 ,Measure  mv222){ return unpack([hshadowPos (mv22 ),vshadowPos (mv222)]); }
-public FProperty shrink     (real     r00  ,real     r200 ){ return unpack([hshrink    (r00  ),vshrink    (r200 )]); }
-public FProperty shrink     (real     r01  ,real()   cr201){ return unpack([hshrink    (r01  ),vshrink    (cr201)]); }
-public FProperty shrink     (real     r02  ,Measure  mv202){ return unpack([hshrink    (r02  ),vshrink    (mv202)]); }
-public FProperty shrink     (real()   cr10 ,real     r210 ){ return unpack([hshrink    (cr10 ),vshrink    (r210 )]); }
-public FProperty shrink     (real()   cr11 ,real()   cr211){ return unpack([hshrink    (cr11 ),vshrink    (cr211)]); }
-public FProperty shrink     (real()   cr12 ,Measure  mv212){ return unpack([hshrink    (cr12 ),vshrink    (mv212)]); }
-public FProperty shrink     (Measure  mv20 ,real     r220 ){ return unpack([hshrink    (mv20 ),vshrink    (r220 )]); }
-public FProperty shrink     (Measure  mv21 ,real()   cr221){ return unpack([hshrink    (mv21 ),vshrink    (cr221)]); }
+public FProperty shrink     (num      r00  ,num      r200 ){ return unpack([hshrink    (r00  ),vshrink    (r200 )]); }
+public FProperty shrink     (num      r01  ,num()    cr201){ return unpack([hshrink    (r01  ),vshrink    (cr201)]); }
+public FProperty shrink     (num      r02  ,Measure  mv202){ return unpack([hshrink    (r02  ),vshrink    (mv202)]); }
+public FProperty shrink     (num()    cr10 ,num      r210 ){ return unpack([hshrink    (cr10 ),vshrink    (r210 )]); }
+public FProperty shrink     (num()    cr11 ,num()    cr211){ return unpack([hshrink    (cr11 ),vshrink    (cr211)]); }
+public FProperty shrink     (num()    cr12 ,Measure  mv212){ return unpack([hshrink    (cr12 ),vshrink    (mv212)]); }
+public FProperty shrink     (Measure  mv20 ,num      r220 ){ return unpack([hshrink    (mv20 ),vshrink    (r220 )]); }
+public FProperty shrink     (Measure  mv21 ,num()    cr221){ return unpack([hshrink    (mv21 ),vshrink    (cr221)]); }
 public FProperty shrink     (Measure  mv22 ,Measure  mv222){ return unpack([hshrink    (mv22 ),vshrink    (mv222)]); }
-public FProperty align      (real     r00  ,real     r200 ){ return unpack([halign     (r00  ),valign     (r200 )]); }
-public FProperty align      (real     r01  ,real()   cr201){ return unpack([halign     (r01  ),valign     (cr201)]); }
-public FProperty align      (real     r02  ,Measure  mv202){ return unpack([halign     (r02  ),valign     (mv202)]); }
-public FProperty align      (real()   cr10 ,real     r210 ){ return unpack([halign     (cr10 ),valign     (r210 )]); }
-public FProperty align      (real()   cr11 ,real()   cr211){ return unpack([halign     (cr11 ),valign     (cr211)]); }
-public FProperty align      (real()   cr12 ,Measure  mv212){ return unpack([halign     (cr12 ),valign     (mv212)]); }
-public FProperty align      (Measure  mv20 ,real     r220 ){ return unpack([halign     (mv20 ),valign     (r220 )]); }
-public FProperty align      (Measure  mv21 ,real()   cr221){ return unpack([halign     (mv21 ),valign     (cr221)]); }
+public FProperty align      (num      r00  ,num      r200 ){ return unpack([halign     (r00  ),valign     (r200 )]); }
+public FProperty align      (num      r01  ,num()    cr201){ return unpack([halign     (r01  ),valign     (cr201)]); }
+public FProperty align      (num      r02  ,Measure  mv202){ return unpack([halign     (r02  ),valign     (mv202)]); }
+public FProperty align      (num()    cr10 ,num      r210 ){ return unpack([halign     (cr10 ),valign     (r210 )]); }
+public FProperty align      (num()    cr11 ,num()    cr211){ return unpack([halign     (cr11 ),valign     (cr211)]); }
+public FProperty align      (num()    cr12 ,Measure  mv212){ return unpack([halign     (cr12 ),valign     (mv212)]); }
+public FProperty align      (Measure  mv20 ,num      r220 ){ return unpack([halign     (mv20 ),valign     (r220 )]); }
+public FProperty align      (Measure  mv21 ,num()    cr221){ return unpack([halign     (mv21 ),valign     (cr221)]); }
 public FProperty align      (Measure  mv22 ,Measure  mv222){ return unpack([halign     (mv22 ),valign     (mv222)]); }
-public FProperty grow       (real     r00  ,real     r200 ){ return unpack([hgrow      (r00  ),vgrow      (r200 )]); }
-public FProperty grow       (real     r01  ,real()   cr201){ return unpack([hgrow      (r01  ),vgrow      (cr201)]); }
-public FProperty grow       (real     r02  ,Measure  mv202){ return unpack([hgrow      (r02  ),vgrow      (mv202)]); }
-public FProperty grow       (real()   cr10 ,real     r210 ){ return unpack([hgrow      (cr10 ),vgrow      (r210 )]); }
-public FProperty grow       (real()   cr11 ,real()   cr211){ return unpack([hgrow      (cr11 ),vgrow      (cr211)]); }
-public FProperty grow       (real()   cr12 ,Measure  mv212){ return unpack([hgrow      (cr12 ),vgrow      (mv212)]); }
-public FProperty grow       (Measure  mv20 ,real     r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
-public FProperty grow       (Measure  mv21 ,real()   cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
+public FProperty grow       (num      r00  ,num      r200 ){ return unpack([hgrow      (r00  ),vgrow      (r200 )]); }
+public FProperty grow       (num      r01  ,num()    cr201){ return unpack([hgrow      (r01  ),vgrow      (cr201)]); }
+public FProperty grow       (num      r02  ,Measure  mv202){ return unpack([hgrow      (r02  ),vgrow      (mv202)]); }
+public FProperty grow       (num()    cr10 ,num      r210 ){ return unpack([hgrow      (cr10 ),vgrow      (r210 )]); }
+public FProperty grow       (num()    cr11 ,num()    cr211){ return unpack([hgrow      (cr11 ),vgrow      (cr211)]); }
+public FProperty grow       (num()    cr12 ,Measure  mv212){ return unpack([hgrow      (cr12 ),vgrow      (mv212)]); }
+public FProperty grow       (Measure  mv20 ,num      r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
+public FProperty grow       (Measure  mv21 ,num()    cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
 public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
 
 // end generated code
@@ -822,11 +802,11 @@ public Figure pack(Figures figs, FProperty props ...){
 }
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
-  return _graph(nodes, edges, [stdResizable(false)] + props);
+  return _graph(nodes, edges, [std(resizable(false))] + props);
 }
 
 public Figure tree(Figures nodes, Edges edges, FProperty props...){
-  return _tree(nodes, edges, [stdResizable(false)] + props);
+  return _tree(nodes, edges, [std(resizable(false))] + props);
 }
 
 public Figure treemap(Figures nodes, Edges edges, FProperty props...){
@@ -910,6 +890,9 @@ public Figure normalize(Figure f){
 		case Figure f : {
 			if([x*,unpack(y),z*] := f.props){
 				f.props = [x,y,z];
+				insert f;
+			} else if([x*,std(unpack(y)),z*] := f.props){
+				f.props = [x,z] + [std(p) | p <- y];
 				insert f;
 			} else {
 				fail;
@@ -1030,7 +1013,7 @@ alias KeyHandler = void (KeySym,map[KeyModifier,bool]);
 
 public Figure triangle(int side,FProperty props...){
   return overlay([point(left(),bottom()),point(top()), point(right(),bottom())], 
-  	[shapeConnected(true), shapeClosed(true),  size(side,sqrt(3.0/4.0) * toReal(side)),
+  	[shapeConnected(true), shapeClosed(true),  size(toReal(side),sqrt(3.0/4.0) * toReal(side)),
   	resizable(false)] + props);
 }
 
@@ -1038,53 +1021,53 @@ public Figure headNormal(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,1.>, <0.5, 0.>, <1., 1.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props), stdSize(10));
+		  [ shapeConnected(true), shapeClosed(true)]+props), std(size(10)));
 }
 
 public Figure headInv(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,0.>, <0.5, 1.>, <1., 0.>];
    return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props),  stdSize(10));
+		  [ shapeConnected(true), shapeClosed(true)]+props),  std(size(10)));
 		
 }
 
 public  Figure headDot(FProperty props...) {
-	return space(ellipse(props),  stdSize(10));
+	return space(ellipse(props),  std(size(10)));
 }
 
 public  Figure headBox(FProperty props...) {
-	return space(box(props),  stdSize(10));
+	return space(box(props),  std(size(10)));
 }
 
 public Figure headDiamond(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props),  stdWidth(10), stdHeight(15));
+		  [ shapeConnected(true), shapeClosed(true)]+props),  std(width(10)), std(height(15)));
 }
 
 public  Figure headBox(FProperty props...) {
-	return space(ellipse(props),  stdSize(10));
+	return space(ellipse(props),  std(size(10)));
 }
 
 public  Figure shapeEllipse(FProperty props...) {
-	return space(ellipse(props), props+stdWidth(40)+stdHeight(30));
+	return space(ellipse(props), props+std(width(40))+std(height(30)));
 }
 
 public  Figure shapeDoubleEllipse(FProperty props...) {
-	return space(ellipse(ellipse(props+stdShrink(0.8)), props),  props+stdWidth(40)+stdHeight(30));
+	return space(ellipse(ellipse(props+std(shrink(0.8))), props),  props+std(width(40))+std(height(30)));
 }
 
 public  Figure shapeBox(FProperty props...) {
-	return space(box(props),props+stdWidth(40)+stdHeight(30));
+	return space(box(props),props+std(width(40))+std(height(30)));
 }
 
 public Figure shapeDiamond(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  props+stdWidth(60)+stdHeight(40));
+		  props+shapeConnected(true)+shapeClosed(true)),  props+std(width(60))+std(height(40)));
 }
 
 public Figure shapeParallelogram(FProperty props...) {
@@ -1092,7 +1075,7 @@ public Figure shapeParallelogram(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<delta, 0.>, <1., 0.>, <1.-delta, 1.>, <0., 1.>];
 		  return space(overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  props+stdWidth(80)+stdHeight(50));
+		  props+shapeConnected(true)+shapeClosed(true)),  props+std(width(80))+std(height(50)));
 }
 
 public  Figure shapeEllipse(Figure fig, FProperty props...) {

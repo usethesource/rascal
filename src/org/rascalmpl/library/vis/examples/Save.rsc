@@ -10,7 +10,7 @@ module vis::examples::Save
 
 import vis::Figure;
 import vis::Render;
-/*
+
 
 public void a(){
 
@@ -18,7 +18,7 @@ public void a(){
 	B = ellipse(size(100), lineColor("black"), lineWidth(1), fillColor("yellow"));
 	renderSave(hcat([A, B, A], gap(10)), |cwd:///tmp.png|);
 }
-
+/*
 public void out1(){
   renderSave(box(size(100), lineColor("black"), lineWidth(1), fillColor("violet")),
                  |cwd:///tmp.png|
@@ -48,7 +48,7 @@ public void tree3(){
           edge("A", "C")
     	];
     	  
-    renderSave(tree(nodes, edges, gap(10), size(20), lineWidth(1)), |cwd://tmp.png| );
+    //renderSave(tree(nodes, edges, gap(10), size(20), lineWidth(1)), |cwd:///tmp.png| );
 }
 
 // Tree
@@ -93,4 +93,5 @@ public void K(int n){
                |cwd:///tmp.png|
     );
 }
+
 */

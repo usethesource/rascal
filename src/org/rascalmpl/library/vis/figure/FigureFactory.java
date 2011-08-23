@@ -42,6 +42,7 @@ import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Combo;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.TextField;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Timer;
+import org.rascalmpl.library.vis.figure.tree.Tree;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
@@ -241,15 +242,13 @@ public class FigureFactory {
 			children = makeList(env,c.get(1),properties,childPropsNext);
 			return new FigureSwitch(choice, children, properties);
 		case GRAPH:
-			/*
-			if(properties.getStringProperty(Properties.HINT).contains("lattice"))
-				return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			if(properties.getStringProperty(Properties.HINT).contains("layered"))
+			//if(properties.getStringProperty(Properties.HINT).contains("lattice"))
+			//	return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+			if(properties.getStr(Properties.HINT).contains("layered"))
 				return new LayeredGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			if(properties.getStringProperty(Properties.HINT).contains("leveled"))
-				return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			*/
+			//if(properties.getStringProperty(Properties.HINT).contains("leveled"))
+			//	return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			throw new Error("Graph temporarily out of order");
 			
 
@@ -359,8 +358,7 @@ public class FigureFactory {
 			return new Timer(env,delay , c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
 			
 		case TREE: 			
-			// return new Tree(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
-			throw new Error("Tree temporarily out of order..");
+			return new Tree(env,properties, (IList) c.get(0), (IList)c.get(1));
 
 		case TREEMAP: 			
 			//return new TreeMap(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
