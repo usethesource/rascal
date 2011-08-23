@@ -20,7 +20,8 @@ import IO;
 
 public void render(Figure fig){
 	render("Rascal figure",fig);
-	}
+
+}
 
 public void render(str name,Figure fig){
 	renderActual(name,normalize(fig));

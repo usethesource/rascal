@@ -104,7 +104,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public PropertyManager prop;
 	public BoundingBox minSize;
 	public BoundingBox size;
-	public Coordinate location; // the location of the center(!) of this figure the global coordinate systenm
+	public Coordinate location; // the location of the left, top corner of this figure the global coordinate systenm
 	public TwoDimensional<Boolean> resizable;
 
 	public Figure(PropertyManager properties) {
@@ -224,6 +224,8 @@ public abstract class Figure implements Comparable<Figure> {
 //			zoom.set(minZoom,minZoom);
 //		}
 //		gc.translate(offset.getX(), offset.getY());
+		
+		System.err.printf("Figure: %s, %s\n", size, location);
 		beforeDraw(zoom);
 		applyProperties(gc);
 		drawElement(gc, visibleSWTElements);

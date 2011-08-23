@@ -269,5 +269,12 @@ public class PropertyManager {
 		checkCorrectType(prop.ver, Types.BOOL);
 		return (Boolean)get2DProperty(d, prop);
 	}
+
+	public void stealProperty(Properties p, PropertyManager prop) {
+		if(prop.explicitValues.containsKey(p)){
+			explicitValues.put(p, prop.explicitValues.get(p));
+			prop.explicitValues.remove(p);
+		}
+	}
 	
 }

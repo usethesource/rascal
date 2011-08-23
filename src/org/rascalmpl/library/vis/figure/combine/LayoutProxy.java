@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.figure.combine;
 
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
@@ -12,6 +13,7 @@ public abstract class LayoutProxy extends WithInnerFig {
 		super(inner, properties);
 		if(inner!=null){
 			properties.copyLayoutPropertiesFrom(inner.prop);
+			properties.stealProperty(Properties.ID, inner.prop);
 		}
 	}
 
