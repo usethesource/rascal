@@ -1116,6 +1116,11 @@ public  Figure shapeParallelogram(Figure fig, FProperty props...) {
 }
 
 public Figure ifFig(bool () cond, Figure onTrue, FProperty props...){
-	return fswitch(int () { bool b = cond(); println("if switch <b>"); return b ? 1 : 0;}, [ space(), onTrue], props);
+	return fswitch(int () { bool b = cond(); return b ? 1 : 0;}, [ space(), onTrue], props);
+}
+
+
+public Figure boolFig(bool () cond, Figure onTrue, Figure onFalse, FProperty props...){
+	return fswitch(int () { bool b = cond(); return b ? 1 : 0;}, [ onFalse, onTrue], props);
 }
 

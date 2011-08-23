@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis.swt;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.figure.Figure;

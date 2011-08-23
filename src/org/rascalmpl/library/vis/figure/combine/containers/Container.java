@@ -53,7 +53,6 @@ public abstract class Container extends WithInnerFig {
 	public void computeMinSize() {
 		if(innerFig!=null){ 
 			for(Dimension d : HOR_VER){
-				System.out.printf("Setting minsize %s %s %s %s\n", this, innerFig, innerFig.minSize , getGrowFactor(d));
 				minSize.set(d, innerFig.minSize.get(d) * getGrowFactor(d) + prop.getReal(LINE_WIDTH));
 				
 				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){

@@ -43,15 +43,15 @@ public class Overlay extends Compose{
 	}
 	
 	@Override
-	public void initialisePhaseChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, Mutable<Boolean> swtSeen) {
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen) {
 		for(int i = 0; i < children.length ; i++){
-			System.out.printf("Swtseen is %s for child %d\n", swtSeen.get(), i);
-			if(swtSeen.get()){
+			if(swtSeen){
 				env.addAboveSWTElement(children[i]);
 			}
-			children[i].initializePhase(env, resolver,mparent, swtSeen);
+			swtSeen = swtSeen || children[i].init(env, resolver,mparent, swtSeen);
 		}
+		return swtSeen;
 	}
 	
 	@Override

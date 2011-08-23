@@ -82,8 +82,10 @@ public enum Properties {
 
 	LINE_STYLE			(Types.STR,		"lineStyle",		"solid",			false	),
 	HINT				(Types.STR,		"hint",				"",					false	),	// scheduled for removal
-	ID					(Types.STR,		"id",				"",					false	), 		
+	ID					(Types.STR,		"id",				"",					false	),
+	LAYER				(Types.STR,		"layer",			"",					false	),
 	FONT				(Types.STR,		"font",				"Helvetica",		true	),
+	DIR					(Types.STR,		"dir",				"",					false	),
 	
 	MOUSE_CLICK			(Types.HANDLER,	"onClick",			null,		"bool ()"		),
 	ON_MOUSEMOVE		(Types.HANDLER,	"onMouseMove",		null,		"void (bool)"		),

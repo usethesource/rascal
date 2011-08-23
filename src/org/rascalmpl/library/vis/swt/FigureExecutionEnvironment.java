@@ -1,8 +1,5 @@
 package org.rascalmpl.library.vis.swt;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -14,7 +11,6 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.NameResolver;
 
@@ -27,7 +23,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	private boolean computing;
 	private Composite swtRoot;
 	private long rascalTime = 0;
-	public static boolean profile = false;
+	private long startTime = 0;
+	public static boolean profile = true;
 	private NameResolver resolver;
 	private int computeClock; 
 
@@ -51,12 +48,18 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	public void computeFigures(){
 		computing = true;
+		long startTime = System.currentTimeMillis();
 		appletRoot.triggerRecompute();
+		long elapsedTime = System.currentTimeMillis() - startTime;
+		System.out.printf("Recomputing took %d rascalTime %d %f \n",  elapsedTime, rascalTime / 1000000, (double)(rascalTime / 1000000.0) / (double) elapsedTime );
+		rascalTime = 0;
 		computing = false;
 	}
 	
 	public void beginCallbackBatch(){
 		computeClock++;
+		startTime = System.nanoTime();
+		rascalTime = 0;
 		callbackBatch = true;
 		batchEmpty = true;
 	}
@@ -70,16 +73,15 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	// holding the mouse over a computed figure, with associated mouseOver handler will 
 	// otherwise result in infinite loop
 	public void endCallbackBatch(boolean dontRecompute){
-		long startTime = System.nanoTime();
 		callbackBatch = false;
+		if(profile && !batchEmpty){
+			double figTime = (System.nanoTime() - startTime) / 1000000.0;
+			System.out.printf("Callback batch took %f rascalTime %d %f \n",  figTime, rascalTime / 1000000, (double)(rascalTime / 1000000.0) / (double) figTime );
+			rascalTime = 0;
+		}
 		if(!batchEmpty && !dontRecompute){
 			computeFigures();
-			if(profile){
-				double figTime = (System.nanoTime() - startTime) / 1000000.0;
-				double rascalTimeD = rascalTime / 1000000.0;
-				System.out.printf("Compute figures took %f rascal time: %f rascal portion %f\n", figTime, rascalTimeD, rascalTimeD / figTime);
-				rascalTime = 0;
-			}
+			
 		}
 
 		if(dontRecompute && !batchEmpty){
@@ -121,12 +123,13 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 			System.err.printf("Callback error: " + e.getMessage() + ""
 					+ e.getTrace());
 		}
+		if(profile) rascalTime += System.nanoTime() - startTime;
 		if(!computing){
 			if(callbackBatch){
 				batchEmpty = false;
-			} 
-		}
-		if(profile) rascalTime += System.nanoTime() - startTime;
+			}
+		} 
+
 		return result;
 	}
 	
@@ -171,6 +174,13 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	public void signalRecompute() {
 		computeClock++;
 		computeFigures();
+	}
+
+	@Override
+	public long getAndResetRascalTime() {
+		long ret = rascalTime;
+		rascalTime = 0;
+		return ret;
 	}
 
 

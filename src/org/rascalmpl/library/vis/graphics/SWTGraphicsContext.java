@@ -34,6 +34,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private boolean fill = false, stroke = true;
 	private boolean debug;
 	private Font currentFont;
+	private FontData currentFontData;
 	private Device device;
 	private Color foregroundColor;
 	private Color backgroundColor;
@@ -44,8 +45,12 @@ public class SWTGraphicsContext implements GraphicsContext {
 	FontData fontData;
 	int foreGroundCI, backgroundCI, fontCI;
 	
+
 	
-	public SWTGraphicsContext(GC gc) {
+	public SWTGraphicsContext() {
+	}
+	
+	public void setGC(GC gc){
 		this.gc = gc;
 		this.device = gc.getDevice();
 		gc.setAdvanced(true);
@@ -429,8 +434,12 @@ public class SWTGraphicsContext implements GraphicsContext {
 	
 	
 	public void setFont(String fontName, int fontSize, FontStyle... styles) {
-		
-		FontData fd = new FontData(fontName, (int) fontSize, FontStyle.toStyleMask(styles));
+		int styleMask = FontStyle.toStyleMask(styles);
+		if(currentFontData != null && currentFontData.name.equals(fontName) && currentFontData.height == (int)fontSize && currentFontData.style == styleMask){
+			return;
+		}
+		FontData fd = new FontData(fontName, (int) fontSize, styleMask );
+		currentFontData = fd;
 		if(fd.equals(this.fontData)) return;
 		this.fontData = fd;
 		disposeIfNessary(currentFont);

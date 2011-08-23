@@ -15,25 +15,39 @@ package org.rascalmpl.library.vis.figure;
 
 
 
-import static org.rascalmpl.library.vis.properties.Properties.*;
+import static org.rascalmpl.library.vis.properties.Properties.ASPECT_RATIO;
+import static org.rascalmpl.library.vis.properties.Properties.FILL_COLOR;
+import static org.rascalmpl.library.vis.properties.Properties.FONT;
+import static org.rascalmpl.library.vis.properties.Properties.FONT_COLOR;
+import static org.rascalmpl.library.vis.properties.Properties.FONT_SIZE;
+import static org.rascalmpl.library.vis.properties.Properties.HALIGN;
+import static org.rascalmpl.library.vis.properties.Properties.HGROW;
+import static org.rascalmpl.library.vis.properties.Properties.HRESIZABLE;
+import static org.rascalmpl.library.vis.properties.Properties.HSHADOWPOS;
+import static org.rascalmpl.library.vis.properties.Properties.LINE_COLOR;
+import static org.rascalmpl.library.vis.properties.Properties.LINE_STYLE;
+import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
+import static org.rascalmpl.library.vis.properties.Properties.MOUSE_CLICK;
+import static org.rascalmpl.library.vis.properties.Properties.ON_KEY;
+import static org.rascalmpl.library.vis.properties.Properties.ON_MOUSEMOVE;
+import static org.rascalmpl.library.vis.properties.Properties.SHADOW;
+import static org.rascalmpl.library.vis.properties.Properties.SHADOW_COLOR;
+import static org.rascalmpl.library.vis.properties.Properties.VALIGN;
+import static org.rascalmpl.library.vis.properties.Properties.VGROW;
+import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
+import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ZOOMABLE;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 import static org.rascalmpl.library.vis.util.vector.Dimension.X;
 import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.library.vis.figure.combine.Overlap;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
@@ -43,7 +57,7 @@ import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.Mutable;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
@@ -126,35 +140,36 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param swtSeen TODO
 	 * @param overlaps  the current set of overlaps (figure not abiding to strict inclusive layout), add overlapping figures here
 	 * @param zparent   the parent in the zorder tree, this is a partial view of the figure tree describing only the swt elements and hence their z order
+	 * @return TODO
 	 */
-	public final void initializePhase(IFigureConstructionEnv env,NameResolver resolver, MouseOver mparent, Mutable<Boolean> swtSeen){
-		//if(status == RecomputeStatus.CANNOT_CHANGE) return;
+	public final boolean init(IFigureConstructionEnv env,NameResolver resolver, MouseOver mparent, boolean swtSeen){
 		prop.registerMeasures(resolver);
+		
 		resolver.register(this);
 		resizable.set(prop.getBool(HRESIZABLE), prop.getBool(VRESIZABLE));
-		init(env, mparent, swtSeen);
-
-		//boolean needsRecompute = false;
-		initialisePhaseChildren(env, resolver, mparent, swtSeen);
-		
-		//if(needsRecompute) {
-		System.out.printf("one : %s minSize %s\n", this, minSize);
-			computeMinSize();
-			System.out.printf("one : %s minSize %s\n", this, minSize);
-			adjustMinSize();
-		//}
+		initElem(env, mparent, swtSeen);
+		swtSeen = initChildren(env, resolver, mparent, swtSeen);
+		swtSeen = swtSeen || containsSWTElement();
+		computeMinSize();
+		adjustMinSize();
 		finalize(true);
-		System.out.printf("two : %s minSize %s\n",  this, minSize);
+		return swtSeen;
 	}
 
-	public void initialisePhaseChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, Mutable<Boolean> swtSeen) {
+	public boolean containsSWTElement() {
+		return false;
+	}
+
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen) {
+		boolean swtSeenResult = false;
 		for(int i = 0; i < children.length ; i++){
-			children[i].initializePhase(env, resolver,mparent, new Mutable<Boolean>(swtSeen.get()));
+			swtSeenResult = swtSeenResult || children[i].init(env, resolver,mparent, swtSeen);
 		}
+		return swtSeenResult;
 	}
 
-	public void init(IFigureConstructionEnv env, MouseOver mparent, Mutable<Boolean> swtSeen){}
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){}
 	
 	public abstract void computeMinSize() ;
 	
@@ -173,17 +188,17 @@ public abstract class Figure implements Comparable<Figure> {
 	 * (*) : client code
 	 */
 	public final void resize(Rectangle view,TransformMatrix transform){
-	
-		//applyTransformation(transform);
 		adjustSizeAndLocation();
 		resizeElement(view);
+		resizeChildren(view, transform);
+		onResizeUp();
+	}
+
+	public void resizeChildren(Rectangle view, TransformMatrix transform) {
 		for(Figure child : children){
 			child.location.add(location);
 			child.resize(view,transform);
-			
 		}
-		onResizeUp();
-		//reverseTransformation(transform);
 	}
 	
 	public abstract void resizeElement(Rectangle view) ;
@@ -194,33 +209,37 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public final void draw(Coordinate zoom, GraphicsContext gc,Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		// TODO: iets met rotate en transformaties
-		Coordinate offset = new Coordinate();
-		double oldZoomX, oldZoomY;
-		oldZoomX = zoom.getX();
-		oldZoomY = zoom.getY();
-		for(Dimension d : HOR_VER){
-			if(!prop.get2DBool(d, ZOOMABLE)){
-				offset.set(d, size.get(d) * (zoom.get(d) - 1.0) * prop.get2DReal(d, ALIGN) );
-				zoom.set(d, 1.0);
-			}
-		}
-		if(zoom.getX() != zoom.getY() && prop.isSet(ASPECT_RATIO)){
-			double minZoom = Math.min(zoom.getX(),zoom.getY());
-			zoom.set(minZoom,minZoom);
-		}
-		gc.translate(offset.getX(), offset.getY());
+//		Coordinate offset = new Coordinate();
+//		double oldZoomX, oldZoomY;
+//		oldZoomX = zoom.getX();
+//		oldZoomY = zoom.getY();
+//		for(Dimension d : HOR_VER){
+//			if(!prop.get2DBool(d, ZOOMABLE)){
+//				offset.set(d, size.get(d) * (zoom.get(d) - 1.0) * prop.get2DReal(d, ALIGN) );
+//				zoom.set(d, 1.0);
+//			}
+//		}
+//		if(zoom.getX() != zoom.getY() && prop.isSet(ASPECT_RATIO)){
+//			double minZoom = Math.min(zoom.getX(),zoom.getY());
+//			zoom.set(minZoom,minZoom);
+//		}
+//		gc.translate(offset.getX(), offset.getY());
 		beforeDraw(zoom);
 		applyProperties(gc);
 		drawElement(gc, visibleSWTElements);
+		drawChildren(zoom, gc, part, visibleSWTElements);
+		// gc.translate(-offset.getX(), -offset.getY());
+		//zoom.set(oldZoomX, oldZoomY);
+	}
+
+	private void drawChildren(Coordinate zoom, GraphicsContext gc,
+			Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		for(Figure f : children){
 			if(f.overlapsWith(part)){
 				Rectangle npart = f.isContainedIn(part) ? null : part;
 				f.draw(zoom, gc, npart, visibleSWTElements);
 			}
-
 		}
-		gc.translate(-offset.getX(), -offset.getY());
-		zoom.set(oldZoomX, oldZoomY);
 	}
 	
 
@@ -419,139 +438,76 @@ public abstract class Figure implements Comparable<Figure> {
 				prop.getInt(FONT_SIZE));
 	}
 	
-//	
-//	/**
-//	 * Draw an arrow from an external position (fromX, fromY) directed to the
-//	 * center (X,Y) of the current figure. The arrow is placed at At the
-//	 * intersection with the border of the current figure and it is
-//	 * appropriately rotated.
-//	 * 
-//	 * @param left
-//	 *            X of left corner
-//	 * @param top
-//	 *            Y of left corner
-//	 * @param X
-//	 *            X of center of current figure
-//	 * @param Y
-//	 *            Y of center of current figure
-//	 * @param fromX
-//	 *            X of center of figure from which connection is to be drawn
-//	 * @param fromY
-//	 *            Y of center of figure from which connection is to be drawn
-//	 * @param toArrow
-//	 *            the figure to be used as arrow
-//	 */
-//	public void connectArrowFrom(double left, double top, double X, double Y,
-//			double fromX, double fromY, Figure toArrow, GraphicsContext gc) {
-//		if (fromX == X)
-//			fromX += 0.00001;
-//		double s = (fromY - Y) / (fromX - X);
-//
-//		double theta = Math.atan(s);
-//		if (theta < 0) {
-//			if (fromX < X)
-//				theta += FigureMath.PI;
-//		} else {
-//			if (fromX < X)
-//				theta += FigureMath.PI;
-//		}
-//		double IX;
-//		double IY;
-//
-//		double h2 = minSize.getY() / 2;
-//		double w2 = minSize.getX() / 2;
-//
-//		if ((-h2 <= s * w2) && (s * w2 <= h2)) {
-//			if (fromX > X) { // right
-//				IX = X + w2;
-//				IY = Y + s * w2;
-//			} else { // left
-//				IX = X - w2;
-//				IY = Y - s * w2;
-//			}
-//		} else {
-//			if (fromY > Y) { // bottom
-//				IX = X + h2 / s;
-//				IY = Y + h2;
-//			} else { // top
-//				IX = X - h2 / s;
-//				IY = Y - h2;
-//			}
-//		}
-//		/*
-//		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
-//		 */
-//		if (toArrow != null) {
-//			gc.pushMatrix();
-//			gc.translate(left + IX, top + IY);
-//			gc.rotate(FigureMath.radians(-90) + theta);
-//			// toArrow.draw(gc); TODO: fixme!!!
-//			gc.popMatrix();
-//		}
-//	}
-//
-//	/**
-//	 * Compute Y value for given X and line through (X1,Y1) and given slope
-//	 * 
-//	 * @param slope
-//	 * @param X1
-//	 * @param Y1
-//	 * @param X
-//	 * @return Y value
-//	 */
-//	private double yLine(double slope, double X1, double Y1, double X) {
-//		return slope * (X - X1) + Y1;
-//	}
-//
-//	/**
-//	 * Compute X value for given Y and line through (X1,Y1) and given slope
-//	 * 
-//	 * @param slope
-//	 * @param X1
-//	 * @param Y1
-//	 * @param Y
-//	 * @return X value
-//	 */
-//	private double xLine(double slope, double X1, double Y1, double Y) {
-//		return X1 + (Y - Y1) / slope;
-//	}
-//
-//	/**
-//	 * Intersects line (fromX,fromY) to (toX,toY) with this figure when placed
-//	 * at (X,Y)?
-//	 * 
-//	 * @param X
-//	 * @param Y
-//	 * @param fromX
-//	 * @param fromY
-//	 * @param toX
-//	 * @param toY
-//	 * @return true when line and figure intersect
-//	 */
-//	public boolean intersects(double X, double Y, double fromX, double fromY,
-//			double toX, double toY) {
-//		double s = (fromY - toY) / (fromX - toX);
-//		double h2 = minSize.getY() / 2;
-//		double w2 = minSize.getX() / 2;
-//
-//		double ly = yLine(s, fromX, fromY, X - w2);
-//		if (ly > Y - h2 && ly < Y + h2)
-//			return true;
-//
-//		double ry = yLine(s, fromX, fromY, X + w2);
-//		if (ry > Y - h2 && ry < Y + h2)
-//			return true;
-//
-//		double tx = xLine(s, fromX, fromY, Y - h2);
-//		if (tx > X - w2 && tx < X + w2)
-//			return true;
-//
-//		double bx = xLine(s, fromX, fromY, Y + h2);
-//		if (bx > X - w2 && tx < X + w2)
-//			return true;
-//		return false;
-//	}
+	
+	/**
+	 * Draw an arrow from an external position (fromX, fromY) directed to the
+	 * center (X,Y) of the current figure. The arrow is placed at At the
+	 * intersection with the border of the current figure and it is
+	 * appropriately rotated.
+	 * 
+	 * @param left
+	 *            X of left corner
+	 * @param top
+	 *            Y of left corner
+	 * @param X
+	 *            X of center of current figure
+	 * @param Y
+	 *            Y of center of current figure
+	 * @param fromX
+	 *            X of center of figure from which connection is to be drawn
+	 * @param fromY
+	 *            Y of center of figure from which connection is to be drawn
+	 * @param toArrow
+	 *            the figure to be used as arrow
+	 */
+	public void connectArrowFrom(double left, double top, double X, double Y,
+			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+		if (fromX == X)
+			fromX += 0.00001;
+		double s = (fromY - Y) / (fromX - X);
 
+		double theta = Math.atan(s);
+		if (theta < 0) {
+			if (fromX < X)
+				theta += Math.PI;
+		} else {
+			if (fromX < X)
+				theta += Math.PI;
+		}
+		double IX;
+		double IY;
+
+		double h2 = minSize.getY() / 2;
+		double w2 = minSize.getX() / 2;
+
+		if ((-h2 <= s * w2) && (s * w2 <= h2)) {
+			if (fromX > X) { // right
+				IX = X + w2;
+				IY = Y + s * w2;
+			} else { // left
+				IX = X - w2;
+				IY = Y - s * w2;
+			}
+		} else {
+			if (fromY > Y) { // bottom
+				IX = X + h2 / s;
+				IY = Y + h2;
+			} else { // top
+				IX = X - h2 / s;
+				IY = Y - h2;
+			}
+		}
+		/*
+		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
+		 */
+		if (toArrow != null) {
+			gc.pushMatrix();
+			gc.translate(left + IX, top + IY);
+			gc.rotate(FigureMath.radians(-90) + theta);
+			//toArrow.drawElemen(gc,visibleSWTElements); TODO: fixme!!!
+			gc.popMatrix();
+		}
+	}
 	
 	
 }

@@ -12,6 +12,7 @@ public interface ICallbackEnv {
 	public void fakeRascalCallBack();
 	public int getComputeClock();
 	public void signalRecompute();
+	public long getAndResetRascalTime(); // profiling
 	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals) ;
 	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) ;
 	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback, Type type, IValue arg) ;

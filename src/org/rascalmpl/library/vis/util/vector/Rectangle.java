@@ -20,6 +20,11 @@ public final class Rectangle{
 		rightDown = new Coordinate(location.getX() + size.getX(), location.getY() + size.getY());
 	}
 	
+	public void update(){
+		rightDown.setX(location.getX() + size.getX());
+		rightDown.setY(location.getY() + size.getY());
+	}
+	
 	public boolean contains(Rectangle rhs){
 		return 	location.getX() <= rhs.location.getX() 
 				&& rightDown.getX() >= rhs.rightDown.getX() 
