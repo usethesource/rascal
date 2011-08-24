@@ -33,6 +33,7 @@ public class Timer extends LayoutProxy {
 	long elapsedAtHide;
 	boolean hidden;
 	IConstructor timerAction;
+	boolean firstDraw = true;
 	
 	public Timer(IFigureConstructionEnv env, IValue timerInit, IValue callback, Figure inner, PropertyManager properties){
 		super(inner,properties);
@@ -54,15 +55,16 @@ public class Timer extends LayoutProxy {
 	}
 
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
-		
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+		if(!visible) return;
 		IValue timerInfo = getTimerInfo();
 		//if(debug)System.out.printf("timerInit %s\n", timerInfo);
 		timerAction = (IConstructor) cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, timerInfo).getValue();
-		hidden = false;
+		
 		//if(debug)System.out.printf("Result %s\n",timerAction);
 		
 		exectureTimerAcion(timerAction);
+		hidden = false;
 
 	}
 	
@@ -117,14 +119,12 @@ public class Timer extends LayoutProxy {
 			cancel = false;
 			stopped = false;
 			beginTime = System.currentTimeMillis();
-			this.delay = delay;
 			if(delay <= 0){
-				run();
-			} else {
-				//if(debug)System.out.printf("Executing timer delay %s\n",delay);
-				Display.getCurrent().timerExec(delay, this);
+				delay = 1;
 			}
-			
+			this.delay = delay;
+				//if(debug)System.out.printf("Executing timer delay %s\n",delay);
+			Display.getCurrent().timerExec(delay, this);			
 		}
 		
 		public void run() {

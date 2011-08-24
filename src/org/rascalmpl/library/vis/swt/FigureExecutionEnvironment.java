@@ -129,7 +129,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		if(!computing){
 			if(callbackBatch){
 				batchEmpty = false;
-			}
+			} 
 		} 
 
 		return result;

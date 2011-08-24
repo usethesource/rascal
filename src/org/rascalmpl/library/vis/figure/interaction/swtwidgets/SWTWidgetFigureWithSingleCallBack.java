@@ -29,6 +29,11 @@ public abstract class SWTWidgetFigureWithSingleCallBack<WidgetType extends Contr
 		this.callback = callback;
 	}
 
+	void doCallback(){
+		executeCallback();
+		cbenv.signalRecompute();
+	}
+	
 	abstract void executeCallback();
 	
 }

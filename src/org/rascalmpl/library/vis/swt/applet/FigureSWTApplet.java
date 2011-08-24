@@ -101,7 +101,7 @@ public class FigureSWTApplet extends Composite
 		for(FigureSWTApplet child : children){
 			child.triggerRecompute();
 		}
-		figure.init(this, env.getNameResolver(), null, false);
+		figure.init(this, env.getNameResolver(), null, false, true);
 		viewPortHandler.notifyFigureChanged();  
 	}
 

@@ -41,7 +41,7 @@ public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (widget.getSelectionCount()!=1) return;
-				executeCallback();
+				doCallback();
 			}
 		});
 		return list;

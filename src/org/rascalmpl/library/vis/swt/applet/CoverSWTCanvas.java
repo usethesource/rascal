@@ -42,7 +42,7 @@ public class CoverSWTCanvas extends Canvas implements PaintListener, MouseMoveLi
 
 	@Override
 	public void paintControl(PaintEvent e) {
-		System.out.printf("Redrawing me %s\n",this);
+		//System.out.printf("Redrawing me %s\n",this);
 		//e.gc.drawOval(0, 0, getSize().x, getSize().y);
 		Image img = parent.getFigureImage();
 		e.gc.drawImage(img,FigureMath.round(-part.location.getX()),FigureMath.round(-part.location.getY()));

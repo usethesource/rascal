@@ -29,8 +29,9 @@ public abstract class SWTWidgetFigureWithValidationAndCallBack<WidgetType extend
 	}
 	
 	public void doCallback(){
-		if(validated){
+		if(validated || validate == null){
 			executeCallback();
+			cbenv.signalRecompute();
 		}
 	}
 	

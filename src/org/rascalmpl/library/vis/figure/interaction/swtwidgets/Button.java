@@ -36,7 +36,7 @@ public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 		result.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				executeCallback();
+				doCallback();
 			}
 		});
 		result.setText(caption);

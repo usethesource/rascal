@@ -39,7 +39,7 @@ public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 		 }
 		combo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				executeCallback();
+				doCallback();
 			}
 		});
 		return combo;

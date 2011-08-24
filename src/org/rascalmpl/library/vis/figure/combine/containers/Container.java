@@ -49,30 +49,8 @@ public abstract class Container extends WithInnerFig {
 		super(inner,properties);
 	}
 	
-	@Override
-	public void computeMinSize() {
-		if(innerFig!=null){ 
-			for(Dimension d : HOR_VER){
-				minSize.set(d, innerFig.minSize.get(d) * getGrowFactor(d) + prop.getReal(LINE_WIDTH));
-				
-				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){
-					resizable.set(d,false);
-				}
-			}
-		}
-	}
+
 	
-	@Override
-	public void resizeElement(Rectangle view) {
-		if(innerFig == null) return;
-		double lw = prop.getReal(LINE_WIDTH);
-		for(Dimension d : HOR_VER){
-				double sizeWithouthBorders = size.get(d) - lw ;
-				double innerDesiredWidth =  sizeWithouthBorders / getGrowFactor(d);
-				innerFig.size.set(d, innerDesiredWidth);
-				innerFig.location.set(d, (size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
-		}
-	}
 
 	/**
 	 * @return the actual container name, e.g. box, ellipse, ...

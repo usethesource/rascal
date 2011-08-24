@@ -17,11 +17,13 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
+import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
-public class ComputeFigure extends LayoutProxy {
+public class ComputeFigure extends WithInnerFig {
 	
 	final private IValue callback;
 	private IConstructor prevValue; // TODO: remove this when nullary closures are memoed
@@ -35,7 +37,7 @@ public class ComputeFigure extends LayoutProxy {
 		this.callback = fun;
 	}
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
 		IConstructor figureCons =
 			(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);
 		if(prevValue == null || !figureCons.isEqual(prevValue)){

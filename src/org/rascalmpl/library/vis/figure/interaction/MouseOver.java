@@ -55,8 +55,8 @@ public class MouseOver extends Overlap {
 	}
 
 	@Override
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
-		super.initElem(env, mparent, swtSeen);
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+		super.initElem(env, mparent, swtSeen, visible);
 		this.parent = mparent;
 		if(parent!=null){
 			parent.registerChild(this);
@@ -73,9 +73,9 @@ public class MouseOver extends Overlap {
 	
 	@Override
 	public boolean initChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, boolean swtSeen) {
-		swtSeen = innerFig.init(env, resolver, mparent, swtSeen);
-		over.init(env, resolver, this, swtSeen);
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
+		swtSeen = innerFig.init(env, resolver, mparent, swtSeen, visible);
+		over.init(env, resolver, this, swtSeen, visible);
 		return swtSeen;
 	}
 	

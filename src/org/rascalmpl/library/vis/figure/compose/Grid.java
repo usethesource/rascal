@@ -35,6 +35,7 @@ public class Grid extends Compose {
 	TwoDimensional<Size[]> columnsSize;
 	TwoDimensional<Double> totalShrinkAllSetColumns;
 	TwoDimensional<double[]> someShrinksSetShrinks;
+	TwoDimensional<Integer> nrUnresizableColumns;
 	TwoDimensional<Integer> nrShrinkNoneColumns;
 	TwoDimensional<Integer> nrShrinkSomeColumns;
 	TwoDimensional<Integer> nrShrinkAllColumns;
@@ -77,7 +78,8 @@ public class Grid extends Compose {
 		columnBorders = new TwoDimensional<double[]>(new double[nrColumns], new double[nrRows]) ;
 		columnsSize = new TwoDimensional<Grid.Size[]>(new Size[nrColumns], new Size[nrRows]);
 		unresizableColumnsWidth = new TwoDimensional<Double>(0.0,0.0);
-		totalShrinkAllSetColumns =  new TwoDimensional<Double>(0.0,0.0);;
+		totalShrinkAllSetColumns =  new TwoDimensional<Double>(0.0,0.0);
+		nrUnresizableColumns = new TwoDimensional<Integer>(0, 0);
 		nrShrinkNoneColumns = new TwoDimensional<Integer>(0, 0);
 		nrShrinkSomeColumns= new TwoDimensional<Integer>(0, 0);
 		nrShrinkAllColumns= new TwoDimensional<Integer>(0, 0);
@@ -106,8 +108,7 @@ public class Grid extends Compose {
 		double shrinkLeftOver = 1.0 - totalShrinkAllSetColumns.get(d);
 		minWidth = getAutoElementsShrinkMinWidth(shrinkLeftOver,d,minWidth,maxMinWidthOfAutoElem);
 		if(minWidth == -1){
-			overConstrained = true;
-			
+			overConstrained = true;	
 		}
 		minWidth*= prop.get2DReal(d, GROW);
 		this.minSize.set(d, minWidth);
@@ -182,17 +183,20 @@ public class Grid extends Compose {
 		int nrAllSet = 0;
 		int nrSomeSet = 0;
 		int nrNoneSet = 0;
+		int nrUnresizable = 0;
 		Size[] columnSize = this.columnsSize.get(d);
 		for(Size s : columnSize){
 			switch(s.sizeInfo){
 			case ALL_SHRINK_SET : nrAllSet++; break;
 			case SOME_SHRINK_SET : nrSomeSet++; break;
 			case NONE_SHRINK_SET: nrNoneSet++; break;
+			case UNRESIZABLE: nrUnresizable++; break;
 			}
 		}
 		this.nrShrinkAllColumns.set(d, nrAllSet);
 		this.nrShrinkSomeColumns.set(d, nrSomeSet);
 		this.nrShrinkNoneColumns.set(d,nrNoneSet);
+		this.nrUnresizableColumns.set(d,nrUnresizable);
 	}
 	
 	private void setSizeInfoOfColumns(Dimension d){
@@ -370,6 +374,10 @@ public class Grid extends Compose {
 		double shrinkOfAutoElement = getActualShrinkOfAutoElements(shrinkLeftOver,d);
 		double sizeOfAutoElement = shrinkOfAutoElement * spaceForColumns;
 		double whitespace = size.get(d) - spaceForColumns;
+		double extraSpaceForUnresizableCols = 0;
+		if(nrUnresizableColumns.get(d) == getNrColumns(d)){
+			extraSpaceForUnresizableCols = spaceLeftOver / getNrColumns(d);
+		}
 		double left = 0;
 		double gapSize = whitespace / (double)nrHGaps(d) ;
 		if(nrHGaps(d) == 0.0){
@@ -386,7 +394,7 @@ public class Grid extends Compose {
 				case ALL_SHRINK_SET : colWidth = s.maxShrink * spaceForColumns; break;
 				case SOME_SHRINK_SET: colWidth = Math.max(sizeOfAutoElement,s.maxShrink * spaceForColumns); break;
 				case NONE_SHRINK_SET: colWidth =sizeOfAutoElement ; break;
-				case UNRESIZABLE: colWidth = s.minSize; break;
+				case UNRESIZABLE: colWidth = s.minSize + extraSpaceForUnresizableCols; break;
 			}
 			
 			for(int row = 0 ; row < getNrRows(d); row++){

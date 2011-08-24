@@ -13,9 +13,7 @@
 package org.rascalmpl.library.vis.properties;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
 
@@ -49,6 +47,5 @@ public  class ComputedValue<PropType> extends PropertyValue<PropType> {
 		}
 		return value;
 	}	
-	
 }
 	

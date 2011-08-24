@@ -138,17 +138,18 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param env		the callback environment for computing stuff when initializing
 	 * @param resolver  the name resolver
 	 * @param swtSeen TODO
+	 * @param visible TODO
 	 * @param overlaps  the current set of overlaps (figure not abiding to strict inclusive layout), add overlapping figures here
 	 * @param zparent   the parent in the zorder tree, this is a partial view of the figure tree describing only the swt elements and hence their z order
 	 * @return TODO
 	 */
-	public final boolean init(IFigureConstructionEnv env,NameResolver resolver, MouseOver mparent, boolean swtSeen){
+	public final boolean init(IFigureConstructionEnv env,NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible){
 		prop.registerMeasures(resolver);
 		
 		resolver.register(this);
 		resizable.set(prop.getBool(HRESIZABLE), prop.getBool(VRESIZABLE));
-		initElem(env, mparent, swtSeen);
-		swtSeen = initChildren(env, resolver, mparent, swtSeen);
+		initElem(env, mparent, swtSeen, visible);
+		swtSeen = initChildren(env, resolver, mparent, swtSeen, visible);
 		swtSeen = swtSeen || containsSWTElement();
 		computeMinSize();
 		adjustMinSize();
@@ -161,15 +162,15 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public boolean initChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, boolean swtSeen) {
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
 		boolean swtSeenResult = false;
 		for(int i = 0; i < children.length ; i++){
-			swtSeenResult = swtSeenResult || children[i].init(env, resolver,mparent, swtSeen);
+			swtSeenResult = swtSeenResult || children[i].init(env, resolver,mparent, swtSeen, visible);
 		}
 		return swtSeenResult;
 	}
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){}
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){}
 	
 	public abstract void computeMinSize() ;
 	
