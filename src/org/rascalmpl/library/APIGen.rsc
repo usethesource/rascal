@@ -30,7 +30,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'import org.eclipse.imp.pdb.facts.type.TypeStore;
 			'import org.eclipse.imp.pdb.facts.*;
 			'
-			'class <apiName> {
+			'public class <apiName> {
 			'	public static TypeStore typestore = new TypeStore(
 			'		org.rascalmpl.values.errors.Factory.getStore(), 
 			'		org.rascalmpl.values.locations.Factory.getStore());
