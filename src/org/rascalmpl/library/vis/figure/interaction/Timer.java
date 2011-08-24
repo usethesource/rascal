@@ -14,8 +14,6 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.rascalmpl.interpreter.result.IntegerResult;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -26,7 +24,7 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 public class Timer extends LayoutProxy {
 
 	private static final ValueFactory vf = ValueFactory.getInstance();
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 	ExecuteTimer t;
 	ICallbackEnv cbenv;
 	IValue timerInit;
@@ -57,12 +55,15 @@ public class Timer extends LayoutProxy {
 
 
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
-		if(debug)System.out.printf("timerInit %s\n", timerInit);
-
-		timerAction = (IConstructor) cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, getTimerInfo()).getValue();
-		if(debug)System.out.printf("Result %s\n",timerAction);
-		exectureTimerAcion(timerAction);
+		
+		IValue timerInfo = getTimerInfo();
+		//if(debug)System.out.printf("timerInit %s\n", timerInfo);
+		timerAction = (IConstructor) cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, timerInfo).getValue();
 		hidden = false;
+		//if(debug)System.out.printf("Result %s\n",timerAction);
+		
+		exectureTimerAcion(timerAction);
+
 	}
 	
 	private void exectureTimerAcion(IConstructor timerAction){
@@ -82,10 +83,12 @@ public class Timer extends LayoutProxy {
 				t.stopped = true;
 			}
 		} else if(type == TimerAction_restart){
-			if(t !=null){
+			if(t != null){
 				t.cancel = true;
 			}
+			
 			t = new ExecuteTimer(TimerAction_restart_delay(timerAction));
+			//System.out.printf("Restarting time %d %s\n", TimerAction_restart_delay(timerAction),t);
 		} else {
 			System.err.printf("Unknown timerAction type %s %s!\n ", type, timerAction);
 		}
@@ -98,7 +101,7 @@ public class Timer extends LayoutProxy {
 			if(t.stopped){
 				return vf.constructor(TimerInfo_stopped, vf.integer(System.currentTimeMillis() - t.stopTime));
 			} else {
-				return vf.constructor(TimerInfo_running, vf.integer(System.currentTimeMillis() - t.beginTime));
+				return vf.constructor(TimerInfo_running, vf.integer(t.delay - (System.currentTimeMillis() - t.beginTime)));
 			}
 		}
 	}
@@ -118,15 +121,20 @@ public class Timer extends LayoutProxy {
 			if(delay <= 0){
 				run();
 			} else {
-				if(debug)System.out.printf("Executing timer delay %s\n",delay);
+				//if(debug)System.out.printf("Executing timer delay %s\n",delay);
 				Display.getCurrent().timerExec(delay, this);
 			}
 			
 		}
 		
 		public void run() {
-			if(debug)System.out.printf("Timer callbakc!");
-			if(cancel || c.isDisposed()) return;
+			//if(debug)System.out.printf("Timer callbakc!");
+			if(cancel || c.isDisposed()) {
+				//System.out.printf("Cancelled! %d %s \n",delay, this);
+				return;
+			}
+			//System.out.printf("Executing! %d %s \n",delay, this);
+			
 			cbenv.executeRascalCallBackWithoutArguments(callback);
 			stopped =true;
 			stopTime = System.currentTimeMillis();
