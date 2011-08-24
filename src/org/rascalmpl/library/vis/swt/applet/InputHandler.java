@@ -98,20 +98,20 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			System.out.printf("%s \n",fig);
 		}
 		*/
-		/*
+		
 		if(!noLongerUnderMouse.isEmpty()){
 			System.out.printf("No longer under mouse:\n");
 			for(Figure fig : noLongerUnderMouse){
-				System.out.printf("%s \n",fig);
+				System.out.printf("%s %d \n",fig,fig.sequenceNr);
 			}
 		}
 		if(!newUnderMouse.isEmpty()){
 			System.out.printf("New under mouse:\n");
 			for(Figure fig : newUnderMouse){
-				System.out.printf("%s \n",fig);
+				System.out.printf("%s %d\n",fig,fig.sequenceNr);
 			}
 		}
-		*/
+		
 		
 		env.beginCallbackBatch();
 		for(Figure fig : noLongerUnderMouse){

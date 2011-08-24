@@ -36,7 +36,6 @@ public class Space extends Container {
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		System.out.printf("Drawing %s\n", this);
 	}
 
 	

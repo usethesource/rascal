@@ -65,8 +65,8 @@ public class Overlap extends LayoutProxy{
 			if(over.size.get(d) > view.getSize().get(d)){
 				over.size.set(d,view.getSize().get(d));
 			}
-			if(minSize.get(d) > size.get(d)){
-				size.set(d,minSize.get(d));
+			if(over.minSize.get(d) > over.size.get(d)){
+				over.size.set(d,over.minSize.get(d));
 			}
 			over.location.set(d, 
 					(over.prop.get2DReal(d, ALIGN)  * (innerFig.size.get(d) - over.size.get(d))) + 
