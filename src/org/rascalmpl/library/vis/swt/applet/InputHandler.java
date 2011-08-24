@@ -75,6 +75,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void handleMouseOvers(){
 		List<Figure> swp = figuresUnderMouseSortedPrev;
 		figuresUnderMouseSortedPrev = figuresUnderMouseSorted;
@@ -85,6 +86,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		newUnderMouse.clear();
 		noLongerUnderMouse.clear();
 		// compute the added and removed elements in a fast way
+		Util.diffSorted(figuresUnderMouseSortedPrev, figuresUnderMouse, noLongerUnderMouse, BogusList.instance, newUnderMouse);
 		/*System.out.printf("Now under mouse:\n");
 		 for(Figure fig : figuresUnderMouseSorted){
 			System.out.printf("%s \n",fig);

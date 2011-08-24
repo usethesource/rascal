@@ -24,7 +24,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	private Composite swtRoot;
 	private long rascalTime = 0;
 	private long startTime = 0;
-	public static boolean profile = true;
+	public static boolean profile = false;
 	private NameResolver resolver;
 	private int computeClock; 
 
@@ -50,8 +50,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		computing = true;
 		long startTime = System.currentTimeMillis();
 		appletRoot.triggerRecompute();
-		long elapsedTime = System.currentTimeMillis() - startTime;
-		System.out.printf("Recomputing took %d rascalTime %d %f \n",  elapsedTime, rascalTime / 1000000, (double)(rascalTime / 1000000.0) / (double) elapsedTime );
+		if(profile){
+			long elapsedTime = System.currentTimeMillis() - startTime;
+			System.out.printf("Recomputing took %d rascalTime %d %f \n",  elapsedTime, rascalTime / 1000000, (double)(rascalTime / 1000000.0) / (double) elapsedTime );
+		}
 		rascalTime = 0;
 		computing = false;
 	}

@@ -211,16 +211,19 @@ public alias FProperties = list[FProperty];
  alias computedColor = Color();
  alias computedFigure = Figure();
 
-data PropertyValue[&T] = constant(&T val)
-						| computed(&T () cval)
-						| measure(Measure m);
+data TimerInfo  = stopped(int timeSinceLast) 
+				| running(int timeElapsed);
+				
+data TimerAction = restart(int delay)
+				 | stop()
+				 | noChange();
 
 data Convert = convert(value v, value id);
 
 data FProperty =
 	mouseOver(Figure fig)
 	|std(FProperty property)
-	|timer                (int delay, int () cbb)
+	|timer                (TimerAction (TimerInfo) ti, int () cbb)
 	|project              (Figure f0, str p0)
 	|_child               (FProperties props)
 	|unpack(FProperties props)
@@ -589,7 +592,7 @@ public data Figure =
    
    | _scrollable(bool hscroll,bool vscroll,Figure fig, FProperties props)
         
-   | _timer(int delay,int () callBack, Figure inner,FProperties props)
+   | _timer(TimerAction (TimerInfo) timerInit,int () callBack, Figure inner,FProperties props)
 
 /* composition */
    | _withDependantWidthHeight(bool widthMajor,Figure innder, FProperties props)

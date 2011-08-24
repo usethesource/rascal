@@ -35,13 +35,13 @@ import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.figure.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.figure.interaction.FigureSwitch;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import org.rascalmpl.library.vis.figure.interaction.Timer;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Button;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Checkbox;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Choice;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Combo;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.TextField;
-import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Timer;
 import org.rascalmpl.library.vis.figure.tree.Tree;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -354,8 +354,7 @@ public class FigureFactory {
 			if(c.arity() > 3) validate = c.get(2);
 			return new TextField(env,  ((IString) c.get(0)).getValue(), c.get(1), validate, properties);
 		case TIMER:
-			int delay = RascalToJavaValueConverters.ConvertInt.instance.convert(c.get(0), properties, env);
-			return new Timer(env,delay , c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
+			return new Timer(env, c.get(0), c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
 			
 		case TREE: 			
 			return new Tree(env,properties, (IList) c.get(0), (IList)c.get(1));

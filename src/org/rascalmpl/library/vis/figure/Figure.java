@@ -225,7 +225,6 @@ public abstract class Figure implements Comparable<Figure> {
 //		}
 //		gc.translate(offset.getX(), offset.getY());
 		
-		System.err.printf("Figure: %s, %s\n", size, location);
 		beforeDraw(zoom);
 		applyProperties(gc);
 		drawElement(gc, visibleSWTElements);
