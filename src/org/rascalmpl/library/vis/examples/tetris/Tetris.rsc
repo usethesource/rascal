@@ -26,16 +26,6 @@ loc highScoresFile = |file:///tmp/atzeTetrisHighScores|;
 int nrHighScores = 6;
 int minSpinTime = 250;
 
-data TetrisVisState = 
-	tetrisVisState(
-		TetrisState logicState,
-		int lastTime,
-		bool dropped,
-		bool highScoreEntered,
-		bool paused,
-		list[HighScore] highScores,
-		int expectedTimerDuration
-	);
 	
 str pauseText = "\<Paused!\>
 				
@@ -71,7 +61,7 @@ HighScores readHighScores(){
 
 
 int timeTillDrop(TetrisState state){
-	return  max(20, 1500 - state.level * 120);
+	return  max(minSpinTime, 1500 - state.level * 120);
 } 
 
 void writeHighScores(HighScores highScores){
@@ -79,11 +69,10 @@ void writeHighScores(HighScores highScores){
 }
 
 
-Color getColor(int defaultColor,CellState s){
+Color getColor(CellState s){
 	switch(s){
 		case empty() : return color("black");
 		case predicted(i) : return predictedColors[i];
-		case full() : return tetrisColors[defaultColor];
 		case full(i) : return tetrisColors[i];
 	}
 }
@@ -100,135 +89,44 @@ Maybe[Action] keyToAction(KeySym key){
 	return nothing();
 }
 
-Figure board(Board b,int color,FProperty props...){
-	return grid([[[box(fillColor(getColor(color,cell))) | cell <- row]] | row <- b],props);
+Figure tetrominoFigure(Tetromino t){
+	c = tetrisColors[t.color];
+	return grid([
+				[[box(fillColor((empty() := e )? color("black") : c)) | e <- row]]
+				| row <- t.board] 
+				,shrink(toReal(nrColumns(t.board)) / 3.0, toReal(nrRows(t.board))/4.0));
 }
 
-Figure next(list[Tetromino] next,FProperty props...){
-	return box(vcat([text("Next: ",fontColor("white"))] +
-		[board(n.board,n.color,hshrink(nrColumns(n.board)*(1.0/3.0)),vshrink((1.0/16.0) * nrRows(n.board))) |
-		 n <- take(4,next)],vgrow(1.1),hshrink(0.6)),[fillColor("black")] + props);
-}
-
-
-Figure stored(TetrisState state,FProperty props...){
-	switch(state.stored){
-		case nothing() : {
-			return box(text("\<nothing\>",fontColor("white")),[fillColor("black")] + props);
-		}
-		case just(t):{
-			return box(
-				board(t.board,t.color,hshrink(nrColumns(t.board)*(1.0/3.0)),vshrink((1.0/4.0) * nrRows(t.board))),
-			[fillColor("black")] + props);
-		}
-	}
-}
-
-Figure spinCounter(TetrisState state,FProperty props...){
-	return box(
-			vcat([text("Spin left:",fontColor("white"))] +
-		[box(fillColor(i > state.spinCounter ? "red" : "black")) | i <- [1 .. state.maxSpinCounter]]
-		),[fillColor("black")] + props);
-}
-
-bool newHighScore(TetrisVisState state){
-	return size(state.highScores) < nrHighScores || state.logicState.score >= state.highScores[nrHighScores-1][1];
+bool newHighScore(HighScores highscores,int score){
+	return score >= highscores[nrHighScores-6][1];
 }
 
 
-Figure highScoresFig(TetrisVisState state, void (str) callback,FProperty props...){
-	if(state.logicState.gameOver && !state.highScoreEntered && newHighScore(state)){
-		return vcat([text("Enter your \n name for\n HIGHSCORE"),textfield("Winner!",callback)],vgrow(1.1));
-	} else {
-		return box(grid([ [text("<name>"),text("<highScore>")] | <name,highScore> <- take(nrHighScores,state.highScores)],vgrow(1.05)), 
-		[fillColor("black"),stdFontColor("white")] + props);
-	}
-}
-
-Figure sideBarLeft(TetrisVisState state,  void (str) callback,FProperty props...){
-	return vcat([
-		stored(state.logicState,vshrink(1.0/5.0),hshrink(3.0/5.0)),
-		text("Score <state.logicState.score>"),
-		text("Level: <state.logicState.level>"),
-		spinCounter(state.logicState,vshrink(0.4)),
-		text("High scores:"),
-		highScoresFig(state,callback)]);
-}
-
-Figure mainScreen(TetrisVisState state,  FProperty props...){
-	if(state.logicState.gameOver){
-		newHigh = newHighScore(state) ? "\n NEW HIGHSCORE!" :"";
-		gameOverMsg = box(
-			text("GAME OVER!\n score <state.logicState.score>" + newHigh + "\n press F1 to restart!", fontColor("white"),fontSize(20))
-			,[fillColor("black"),grow(1.3),resizable(false)] + props);
-		return overlay([board(state.logicState.boardWithCurrentTetromino,0),gameOverMsg],props);
-	} else {
-		return board(state.logicState.boardWithCurrentTetromino,0,props);
-	}
-}
-
-
-
-
-Figure game(TetrisVisState state, void (str) callback, FProperty props...){
-	if(state.paused && !state.logicState.gameOver){
-		return box(text(pauseText
-				,fontColor("white")),fillColor("black"));
-	} else {		 
-		return hcat([	sideBarLeft(state,callback,hshrink(0.25)),
-						mainScreen(state,hshrink(0.5)),
-						next(state.logicState.next,hshrink(0.25))],
-				[hgrow(1.1)]+props);
-	}
-}
-
-TetrisVisState initialVisState() {
-	TetrisState logicState = initialState();
-	return tetrisVisState(
-		logicState,
-		0,
-		false,
-		false,
-		true,
-		readHighScores(),
-		timeTillDrop(logicState)
-	);
-}
+public list[Figure] allTetrominoFigures = [tetrominoFigure(t) | t <- allTetrominos];
 
 public Figure tetris(){
-	TetrisVisState state = initialVisState();
+	state = initialState();
+	paused = true;
+	justPerfomedAction = true;
+	dropped = false;
+	highScores = readHighScores();
+	highscoreEntered = false;
 	
-	void enterHighScore(str name){
-		if(state.highScoreEntered) return;
-		state.highScores+=[<name,state.logicState.score>];
-		state.highScores = sort(state.highScores,bool (HighScore l,HighScore r) { return l[1] >= r[1]; });
-		writeHighScores(state.highScores);
-		state.highScoreEntered = true;
-	}
 	
-	void keyDown(KeySym key, map[KeyModifier,bool] modifierMap){
-		currentAction = keyToAction(key);
-		switch(currentAction){
-			case nothing() : ;
-			case just(action) : state.logicState = nextState(state.logicState, action);
-		 }
-		 if(keyF1() := key) {
-		 	restart();
-		 	return;
-		 }
-		 if(just(advanceGravity()) := currentAction){
-		 	state.dropped = true;
-		 } else {
-		 	state.dropped = false;
-		 }
-		 if(just(drop()) := currentAction || state.logicState.spinCounter == state.logicState.maxSpinCounter){
-		 	state.expectedTimerDuration = 0;
-		 }
+	void enterHighscore(str name){
+		println(name);
+		if(highscoreEntered) return;
+		highScores+=[<name,state.score>];
+		highScores = sort(highScores,bool (HighScore l,HighScore r) { return l[1] >= r[1]; });
+		writeHighScores(highScores);
+		highscoreEntered = true;
 	}
 	
 	void restart(){
-		state = initialVisState();
-		state.paused = false;
+		state = initialState();
+		justPerfomedAction = false;
+		dropped = false;
+		highscoreEntered = false;
 	}
 	
 	int handleDropTimer(){
@@ -237,40 +135,110 @@ public Figure tetris(){
 		return 0;
 	}
 	
-	Figure timers(Figure inner) { 
-		if(state.logicState.gameOver || state.paused) return point();
-		prevTime = state.lastTime;
-		state.lastTime = getMilliTime();
-		duration = state.lastTime - prevTime;
-		int newDuration;
-		if(state.dropped){
-			newDuration = timeTillDrop(state.logicState);
-			if(duration > state.expectedTimerDuration){
-				newDuration-=duration - state.expectedTimerDuration;
+	bool keyDown(KeySym key, bool down, map[KeyModifier,bool] modifierMap){
+		if(!down || paused) return true;
+		currentAction = keyToAction(key);
+		switch(currentAction){
+			case nothing() : ;
+			case just(action) : {
+				state = nextState(state, action);
+				if(state.spinCounter < state.maxSpinCounter){
+					justPerfomedAction = true;
+				} 
 			}
+		 }
+		 if(keyF1() := key) {
+		 	restart();
+		 }
+		 if(just(drop()) := currentAction){
+		 	dropped = true;
+		 } 
+		 return true;
+	}
+	
+	void setPause(bool mouseOn){
+		paused = !mouseOn;
+	}
+	
+	void handleTimer(){
+		 state = nextState(state, advanceGravity());
+	}
+
+	TimerAction initTimer(TimerInfo info){
+		if(state.gameOver){ 
+			return stop(); 
+		}
+		if(dropped){
+			dropped = false;
+			justPerfomedAction = false;
+			return restart(minSpinTime);
+		} else if(justPerfomedAction){
+			justPerfomedAction = false;
+			switch(info) {
+				case stopped(timeElapsed) : return restart(max(minSpinTime,timeTillDrop(state) - timeElapsed));
+				case running(timeLeft) : {
+					if(timeLeft > minSpinTime){
+						return noChange();
+					} else {
+						return restart(minSpinTime);
+					}
+				}
+			}
+		} else if(stopped(timeElapsed) := info){
+			return restart(timeTillDrop(state)- timeElapsed);
 		} else {
-			newDuration = max(minSpinTime,state.expectedTimerDuration - duration);
+			return noChange();
 		}
-		if(newDuration < 0){
-			newDuration = 1;
-		}
-		state.expectedTimerDuration = newDuration; 
-		return _timer(state.expectedTimerDuration,handleDropTimer,inner,[]);
-	}		
-	
-	
-	void pause(){
-		state.paused = true;
 	}
 	
-	void resume(){
-		state.paused =false;
-	}
-	
-	readHighScores();
-	state.lastTime = getMilliTime();
-	return title("Tetris!", computeFigure( Figure () { return hcat([timers(point()),game(state,enterHighScore)]);}),
-		onKeyDown(keyDown),onMouseOver(resume),onMouseOff(pause),hshrink(0.6));
+	return
+		box(vcat([text("Rascal Tetris!",fontSize(20),top()),
+			overlay([
+				boolFig(bool () { return paused && !state.gameOver; },
+					text(pauseText),
+					hcat([
+						vcat([
+							vcat([text("stored:",bottom()),
+								box(
+									boolFig(bool () { return nothing() := state.stored; },
+										text("Nothing"),
+										fswitch(int () { return state.stored.val.color; },allTetrominoFigures)
+									)
+								,aspectRatio(3.0/4.0),grow(1.3),fillColor("black"))
+							]),
+							text(str () { return "Level: <state.level>";}),
+							
+							box(vcat([box(fillColor(Color () { return (state.spinCounter < i) ? color("red") : color("black");})) | i <- [0..state.maxSpinCounter-1]],vgrow(1.005)),fillColor("black"),hshrink(0.5)),
+							text("High scores:"),
+							box(vcat([
+								hcat([text(str () { return highScores[i][0]; },left()), text(str () { return "<highScores[i][1]>"; },right())]) 
+							| i <- [0..nrHighScores]],vgrow(1.03)),fillColor("black"),grow(1.1))
+						],hshrink(0.25),vgrow(1.05)),
+						grid([
+							[[box(fillColor(Color () { return getColor(state.boardWithCurrentTetromino[row][col]); } )) | col <- [0..nrColumns(state.board)-1]]]
+							| row <- [0..nrRows(state.board)-1]],
+							aspectRatio(0.5), timer(initTimer,handleTimer )),
+						vcat([text("next",bottom())] + 
+							[ box(fswitch(int () { return state.next[i].color; },allTetrominoFigures),aspectRatio(3.0/4.0),grow(1.1),fillColor("black")) | i <- [0..3]]
+						,vgrow(1.2),hshrink(0.15))
+					])
+				),
+				ifFig(bool () { return state.gameOver; },
+					 box(
+					 	vcat([
+					 		text("GAME OVER!",fontSize(25)),
+					 		ifFig(bool () { return !highscoreEntered && newHighScore(highScores,state.score); },
+					 			 vcat([text("Enter your name for HIGHSCORE!"),
+					 			 	textfield("player",enterHighscore,fillColor("white"),fontColor("black"),vresizable(false))
+					 			 ],vgrow(1.03))),
+					 		text("press F1 to restart")
+					 	],vgrow(1.2),vshrink(0.5))
+					,fillColor(color("darkblue",0.6)),lineColor(color("darkblue",0.6)))
+				)
+				])
+			],vgrow(1.01))
+		, onMouseMove(setPause),onKey(keyDown),std(fontColor("white")),std(fillColor("darkblue")),aspectRatio(18.0/20.0),grow(1.03));
+
 }
 	 
 	 
