@@ -13,7 +13,7 @@ import List;
 import Number;
 import IO;
 
-data Maybe[&A] = nothing() | just(&A vl);
+data Maybe[&A] = nothing() | just(&A val);
 data RotationDirection = clockwise() | counterClockwise();
 
 public int defaultSpinMax = 25; // my take on the infinte spin controversy (see wikipedia tetris): finite spin :)
@@ -117,7 +117,13 @@ TetrominoShape tTetrominoShape = tetrominoShape([ [full(),full(),full()], [empty
 list[TetrominoShape] allTetrominosShapes =
 	 [iTetrominoShape,jTetrominoShape,lTetrominoShape,oTetrominoShape,sTetrominoShape,tTetrominoShape,zTetrominoShape];
 	 
-list[Tetromino] allTetrominos = [ tetromino(allTetrominosShapes[i].board,allTetrominosShapes[i].rotationPoint,i) | i <- [0 .. size(allTetrominosShapes)-1]];
+public list[Tetromino] allTetrominos = [ tetromino(allTetrominosShapes[i].board,allTetrominosShapes[i].rotationPoint,i) | i <- [0 .. size(allTetrominosShapes)-1]];
+
+public int getTetrominoIndex(Tetromino t){
+	for(i <- size(allTetrominos), allTetrominos[i] == t){
+		return i;
+	}
+}
 
 int defaultRows = 20;
 int defaultColumns = 10;
@@ -133,38 +139,6 @@ public Board toFixedSize(Tetromino t){
 		}
 	}
 }
-void prettyPrintBoard(Board b){
-	for(row <- b){
-		print("|");
-		for(column <- row){
-			if(empty() := column){
-				print(" ");
-			} else {
-				print("*");
-			}
-		}
-		println("|");
-	}
-}
-
-public void prettyPrint(TetrisState s){
-	println("Tetris score: <s.score> level: <s.level> alreadySwapped: <s.alreadySwapped>");
-	if(s.gameOver){
-		println("GAME OVER!!!!");
-	} 
-		println("CurrentTetromino location: <s.currentTetromino.location> rotation point: <s.currentTetromino.tetromino.rotationPoint>");
-		switch(s.stored){
-			case nothing() : println("Nothing stored");
-			case just(t) : {
-				println("stored:");
-				prettyPrintBoard(toFixedSize(t));
-			}
-		}
-		prettyPrintBoard(toFixedSize(s.currentTetromino.tetromino));
-		prettyPrintBoard(s.boardWithCurrentTetromino);
-	
-}
-
 
 public TetrisState initialState(int rows, int columns) {
 	board = emptyBoard(rows,columns);
@@ -197,11 +171,9 @@ public Board rotateBoard(Board b,RotationDirection rotdir){
 	nrRowsFrom = nrRows(b);
 	nrColumnsFrom = nrColumns(b);
 	Board result = [[[empty() | column <- [0  ..  nrRowsFrom-1]]] | row <- [0  ..  nrColumnsFrom-1] ];
-	for(fromRow <- [0 .. nrRowsFrom-1]){
-		for(fromColumn <- [0 .. nrColumnsFrom-1]){
+	for(fromRow <- [0 .. nrRowsFrom-1], fromColumn <- [0 .. nrColumnsFrom-1]){
 			<toRow,toColumn> = rotatePoint(nrRowsFrom,nrColumnsFrom, <fromRow,fromColumn>,rotdir,false);
 			result = setLocation(result,<toRow,toColumn>,b[fromRow][fromColumn]);
-		}
 	}
 	return result;
 }
@@ -228,13 +200,11 @@ Coordinate cellLocationOfPlacedTetromino(PlacedTetromino t,Coordinate cell){
 }
 
 bool canPlaceTetromino(PlacedTetromino t, Board b){
-	for(row <- [0 .. nrRows(t.tetromino.board)-1]){
-		for(column <- [0 .. nrColumns(t.tetromino.board)-1]){
-			cellLocation = cellLocationOfPlacedTetromino(t,<row,column>);
-			if(!onBoard(b,cellLocation) || 
-				(full(c) := getLocation(b,cellLocation) && full() := t.tetromino.board[row][column])){
-				return false;
-			}
+	for(row <- [0 .. nrRows(t.tetromino.board)-1], column <- [0 .. nrColumns(t.tetromino.board)-1]){
+		cellLocation = cellLocationOfPlacedTetromino(t,<row,column>);
+		if(!onBoard(b,cellLocation) || 
+			(full(c) := getLocation(b,cellLocation) && full() := t.tetromino.board[row][column])){
+			return false;
 		}
 	}
 	return true;
@@ -265,15 +235,11 @@ bool tetrominoSupported(PlacedTetromino t,Board b){
 	return !canPlaceTetromino(down(t),b);
 }
 
-
-
 Board addTetrominoToBoard(PlacedTetromino t, Board b,CellState (int) toCell){
-	for(row <- [0 .. nrRows(t.tetromino.board)-1]){
-		for(column <- [0 .. nrColumns(t.tetromino.board)-1]){
-			cellLocation = cellLocationOfPlacedTetromino(t,<row,column>);
-			if(full() := t.tetromino.board[row][column] &&  onBoard(b,cellLocation))
-				b = setLocation(b,cellLocation,toCell(t.tetromino.color));
-		}
+	for(row <- [0 .. nrRows(t.tetromino.board)-1], column <- [0 .. nrColumns(t.tetromino.board)-1]){
+		cellLocation = cellLocationOfPlacedTetromino(t,<row,column>);
+		if(full() := t.tetromino.board[row][column] &&  onBoard(b,cellLocation))
+			b = setLocation(b,cellLocation,toCell(t.tetromino.color));
 	}
 	return b;
 }	
@@ -450,6 +416,5 @@ public TetrisState nextState(TetrisState s,Action action){
 	}
 	s = addPredictionToBoard(s);
 	s.boardWithCurrentTetromino = addTetrominoToBoard(s.currentTetromino,s.boardWithCurrentTetromino);
-	
 	return s;
 }

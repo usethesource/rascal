@@ -98,7 +98,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			System.out.printf("%s \n",fig);
 		}
 		*/
-		
+		/*
 		if(!noLongerUnderMouse.isEmpty()){
 			System.out.printf("No longer under mouse:\n");
 			for(Figure fig : noLongerUnderMouse){
@@ -110,7 +110,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			for(Figure fig : newUnderMouse){
 				System.out.printf("%s %d\n",fig,fig.sequenceNr);
 			}
-		}
+		}*/
 		
 		
 		env.beginCallbackBatch();
