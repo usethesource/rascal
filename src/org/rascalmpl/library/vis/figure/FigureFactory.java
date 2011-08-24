@@ -351,7 +351,7 @@ public class FigureFactory {
 						
 		case TEXTFIELD:
 			validate = null;
-			if(c.arity() > 3) validate = c.get(2);
+			if(c.arity() >= 3) validate = c.get(2);
 			return new TextField(env,  ((IString) c.get(0)).getValue(), c.get(1), validate, properties);
 		case TIMER:
 			return new Timer(env, c.get(0), c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );

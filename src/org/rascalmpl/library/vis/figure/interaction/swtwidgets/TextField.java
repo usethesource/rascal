@@ -44,6 +44,7 @@ public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 		falseColor = SWTFontsAndColors.getRgbColor(FigureColorUtils.colorNames.get("red").intValue());
 		widget = makeWidget(env.getSWTParent(), env,text);
 		widget.setVisible(false);
+		widget.setText(text);
 	}
 
 	@Override
@@ -66,7 +67,7 @@ public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 				doCallback();
 			}
 		});
-		textfield.setText(text);
+
 		return textfield;
 	}
 

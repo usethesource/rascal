@@ -8,7 +8,7 @@
 @contributor{Atze van der Ploeg - ploeg@cwi.nl - CWI}
 module vis::examples::tetris::Tetris
 
-import vis::examples::tetris::TetrisState;
+import TetrisState;
 import vis::Figure;
 import vis::Render;
 import vis::KeySym;
@@ -98,7 +98,11 @@ Figure tetrominoFigure(Tetromino t){
 }
 
 bool newHighScore(HighScores highscores,int score){
-	return score >= highscores[nrHighScores-6][1];
+	println(highscores);
+	println(score);
+	println(highscores[nrHighScores-1][1]);
+	println(score >= highscores[nrHighScores-1][1]);
+	return score >= highscores[nrHighScores-1][1];
 }
 
 
@@ -116,7 +120,7 @@ public Figure tetris(){
 	void enterHighscore(str name){
 		println(name);
 		if(highscoreEntered) return;
-		highScores+=[<name,state.score>];
+		highScores=[<name,state.score>] + highScores;
 		highScores = sort(highScores,bool (HighScore l,HighScore r) { return l[1] >= r[1]; });
 		writeHighScores(highScores);
 		highscoreEntered = true;
@@ -195,7 +199,7 @@ public Figure tetris(){
 		box(vcat([text("Rascal Tetris!",fontSize(20),top()),
 			overlay([
 				boolFig(bool () { return paused && !state.gameOver; },
-					text(pauseText),
+					box(text(pauseText),fillColor("black"),grow(1.2)),
 					hcat([
 						vcat([
 							vcat([text("stored:",bottom()),
@@ -207,7 +211,7 @@ public Figure tetris(){
 								,aspectRatio(3.0/4.0),grow(1.3),fillColor("black"))
 							]),
 							text(str () { return "Level: <state.level>";}),
-							
+							text(str () { return "Score: <state.score>";}),
 							box(vcat([box(fillColor(Color () { return (state.spinCounter < i) ? color("red") : color("black");})) | i <- [0..state.maxSpinCounter-1]],vgrow(1.005)),fillColor("black"),hshrink(0.5)),
 							text("High scores:"),
 							box(vcat([
@@ -229,7 +233,7 @@ public Figure tetris(){
 					 		text("GAME OVER!",fontSize(25)),
 					 		ifFig(bool () { return !highscoreEntered && newHighScore(highScores,state.score); },
 					 			 vcat([text("Enter your name for HIGHSCORE!"),
-					 			 	textfield("player",enterHighscore,fillColor("white"),fontColor("black"),vresizable(false))
+					 			 	textfield("",enterHighscore, bool (str s) { return s == ""; }, fillColor("white"),fontColor("black"),vresizable(false))
 					 			 ],vgrow(1.03))),
 					 		text("press F1 to restart")
 					 	],vgrow(1.2),vshrink(0.5))
