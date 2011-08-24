@@ -43,7 +43,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'	<}>
 			'	<for(t <- allTypes) { > <declareGetters(t)> <}>
 			'	private static final class InstanceHolder {
-			'		public final static KeySymFactory factory = new KeySymFactory();
+			'		public final static <apiName> factory = new <apiName>();
 			'	}
 			'	  
 			'	public static <apiName> getInstance() {
