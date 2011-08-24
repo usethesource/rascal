@@ -980,7 +980,7 @@ public Figure hPalleteKey (str name, str key,FProperty props...){
 }
 
 public Figure title(str name, Figure inner,FProperty props...){
-	return vcat([box(text(name,fontSize(17))), box(inner,grow(1.1))],props);
+	return vcat([text(name,fontSize(17)), box(inner,grow(1.1))],props);
 }
 
 public Color rrgba(real r, real g, real b, real a){

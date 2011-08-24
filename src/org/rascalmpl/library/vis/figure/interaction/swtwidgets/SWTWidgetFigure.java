@@ -42,7 +42,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	}
 	
 	@Override 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
 		env.addSWTElement(widget);
 	}
 	

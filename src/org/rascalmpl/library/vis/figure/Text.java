@@ -68,6 +68,7 @@ public class Text extends Figure {
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		//System.out.printf("Drawing %s\n",this);
 		double y = location.getY();
 		for(int i = 0 ; i < lines.length ; i++){
 			gc.text(lines[i], location.getX() + indents[i],y);

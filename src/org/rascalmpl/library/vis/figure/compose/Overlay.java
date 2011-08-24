@@ -44,12 +44,12 @@ public class Overlay extends Compose{
 	
 	@Override
 	public boolean initChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, boolean swtSeen) {
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
 		for(int i = 0; i < children.length ; i++){
 			if(swtSeen){
 				env.addAboveSWTElement(children[i]);
 			}
-			swtSeen = swtSeen || children[i].init(env, resolver,mparent, swtSeen);
+			swtSeen = swtSeen || children[i].init(env, resolver,mparent, swtSeen, visible);
 		}
 		return swtSeen;
 	}

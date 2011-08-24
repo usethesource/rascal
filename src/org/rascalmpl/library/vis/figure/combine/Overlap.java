@@ -30,8 +30,8 @@ public class Overlap extends LayoutProxy{
 	
 	
 	@Override
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen){
-		super.initElem(env, mparent, swtSeen);
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+		super.initElem(env, mparent, swtSeen, visible);
 		env.registerOverlap(this);
 	}
 	
