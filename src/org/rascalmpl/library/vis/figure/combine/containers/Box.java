@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 
@@ -32,7 +33,8 @@ public class Box extends Container {
 
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.rect(location.getX(), location.getY() , size.getX(), size.getY());
+		double lw = 0.5 * prop.getReal(Properties.LINE_WIDTH);
+		gc.rect(location.getX() -lw , location.getY() -lw , size.getX() +lw , size.getY() + lw);
 	}
 	
 	@Override

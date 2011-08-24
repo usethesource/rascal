@@ -79,6 +79,7 @@ public class MouseOver extends Overlap {
 		return swtSeen;
 	}
 	
+	
 	public boolean computeMouseOver(IFigureConstructionEnv env){
 		if(lastComputeClock == env.getCallBackEnv().getComputeClock()){
 			System.out.printf("Compute clock the same!\n");
