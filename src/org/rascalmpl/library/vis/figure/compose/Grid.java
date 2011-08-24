@@ -393,6 +393,8 @@ public class Grid extends Compose {
 				Figure elem = getFigureFromMatrix(d,row,column);
 				if(elem.prop.is2DPropertySet(d, SHRINK)){
 					elem.size.set(d, elem.prop.get2DReal(d, SHRINK)*spaceForColumns);
+				} else if(!elem.resizable.get(d)){
+					elem.size.set(d,elem.minSize.get(d));
 				} else {
 					elem.size.set(d,sizeOfAutoElement);
 				}
