@@ -133,6 +133,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	
 
 	private boolean handleKey(KeyEvent e,IBool down){
+	
 		env.beginCallbackBatch();
 		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
 		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());

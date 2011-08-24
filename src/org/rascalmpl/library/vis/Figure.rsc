@@ -212,7 +212,7 @@ public alias FProperties = list[FProperty];
  alias computedFigure = Figure();
 
 data TimerInfo  = stopped(int timeSinceLast) 
-				| running(int timeElapsed);
+				| running(int timeLeft);
 				
 data TimerAction = restart(int delay)
 				 | stop()
