@@ -114,7 +114,7 @@ TetrominoShape sTetrominoShape = mirrorTetrominoShape(zTetrominoShape);
 TetrominoShape oTetrominoShape = tetrominoShape([ [full(),full()], [full(),full()]],<1.0,1.0>);
 TetrominoShape tTetrominoShape = tetrominoShape([ [full(),full(),full()], [empty(),full(),empty()]],<0.5,1.5>);
 
-list[TetrominoShape] allTetrominosShapes =
+public list[TetrominoShape] allTetrominosShapes =
 	 [iTetrominoShape,jTetrominoShape,lTetrominoShape,oTetrominoShape,sTetrominoShape,tTetrominoShape,zTetrominoShape];
 	 
 public list[Tetromino] allTetrominos = [ tetromino(allTetrominosShapes[i].board,allTetrominosShapes[i].rotationPoint,i) | i <- [0 .. size(allTetrominosShapes)-1]];
