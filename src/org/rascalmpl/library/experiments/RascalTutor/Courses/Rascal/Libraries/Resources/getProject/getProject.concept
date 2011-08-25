@@ -19,8 +19,8 @@ Retrieves the hierarchical representation of a single named project.
 Examples:
 
 <screen>
-import Resources;
-getproject(|project:///rascal|);
+import util::Resources;
+getProject(|project://rascal|);
 </screen>
 
 Benefits:
