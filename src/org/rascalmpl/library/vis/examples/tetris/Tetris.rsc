@@ -8,7 +8,7 @@
 @contributor{Atze van der Ploeg - ploeg@cwi.nl - CWI}
 module vis::examples::tetris::Tetris
 
-import TetrisState;
+import vis::examples::tetris::TetrisState;
 import vis::Figure;
 import vis::Render;
 import vis::KeySym;
