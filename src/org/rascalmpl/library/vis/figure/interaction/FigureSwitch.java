@@ -3,14 +3,12 @@ package org.rascalmpl.library.vis.figure.interaction;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Dimension;
-import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 public class FigureSwitch extends WithInnerFig{
 

@@ -37,7 +37,8 @@ import static org.rascalmpl.library.vis.properties.Properties.VGROW;
 import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
 import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.ZOOMABLE;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.RESIZABLE;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.SIZE;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 import static org.rascalmpl.library.vis.util.vector.Dimension.X;
 import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
@@ -165,7 +166,8 @@ public abstract class Figure implements Comparable<Figure> {
 			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
 		boolean swtSeenResult = false;
 		for(int i = 0; i < children.length ; i++){
-			swtSeenResult = swtSeenResult || children[i].init(env, resolver,mparent, swtSeen, visible);
+			boolean here =  children[i].init(env, resolver,mparent, swtSeen, visible);
+			swtSeenResult = swtSeenResult || here;
 		}
 		return swtSeenResult;
 	}
@@ -306,6 +308,11 @@ public abstract class Figure implements Comparable<Figure> {
 			double ar = prop.getReal(ASPECT_RATIO);
 			minSize.setMax(X, minSize.getY() * ar);
 			minSize.setMax(Y, minSize.getX() / ar);
+		}
+		for(Dimension d : HOR_VER){
+			if(!prop.get2DBool(d, RESIZABLE)){
+				minSize.setMax(d,prop.get2DReal(d, SIZE));
+			}
 		}
 	}
 

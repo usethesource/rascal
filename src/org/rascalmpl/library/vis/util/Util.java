@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -89,6 +90,38 @@ public class Util {
 		}
 	}
 	
+	static public <T> ArrayList<T> merge(List<T> lhs,List<T> rhs){
+		return merge(NaturalComparator.instance,lhs,rhs);
+	}
+	
+	static public <T> ArrayList<T> merge(Comparator<T> comp,List<T> lhs,List<T> rhs){
+		 ArrayList<T> result = new ArrayList<T>(lhs.size() + rhs.size());
+		int i, j;
+		i = j = 0;
+		while(i < lhs.size() || j < rhs.size()){
+			int cmp;
+			if(i == lhs.size()){
+				cmp = 1;
+			} else if (j == rhs.size()){
+				cmp = -1;
+			} else {
+				cmp = comp.compare(lhs.get(i),rhs.get(j));
+			}
+			if(cmp < 0){
+				result.add(lhs.get(i));
+				i++;
+			} else if(cmp == 0){
+				result.add(lhs.get(i));
+				result.add(rhs.get(j));
+				i++;
+				j++;
+			} else {
+				result.add(rhs.get(j));
+				j++;
+			}
+		}
+		return result;
+	}
 	
 	/* Compares elements of lhs and rhs fills in the three argument vectors with elements that are only in the left, in both, or only in the right
 	 * vector. lhs and rhs should be sorted!

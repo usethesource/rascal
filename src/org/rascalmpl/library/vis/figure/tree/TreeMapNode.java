@@ -12,17 +12,6 @@
 
 package org.rascalmpl.library.vis.figure.tree;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
-import org.eclipse.imp.pdb.facts.IList;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 
 /**
  * A TreeMapNode is created for each "node" constructor that occurs in the TreeMap.

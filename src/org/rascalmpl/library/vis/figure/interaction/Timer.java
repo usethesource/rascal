@@ -24,6 +24,7 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 public class Timer extends LayoutProxy {
 
 	private static final ValueFactory vf = ValueFactory.getInstance();
+	@SuppressWarnings("unused")
 	private static final boolean debug = true;
 	ExecuteTimer t;
 	ICallbackEnv cbenv;

@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.util.vector;
 
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
+import static org.rascalmpl.library.vis.util.vector.Dimension.X;
+import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
 
 public abstract class TwoDimensionalDouble extends ReadOnlyTwoDimensionalDouble{
 	

@@ -228,7 +228,7 @@ data FProperty =
 	|_child               (FProperties props)
 	|unpack(FProperties props)
 	// begin generated code
-		|shapeClosed(bool     b  )
+	|shapeClosed(bool     b  )
 	|shapeClosed(bool()   cb )
 	|shapeClosed(Measure  mv )
 	|shapeConnected(bool     b  )
@@ -270,6 +270,9 @@ data FProperty =
 	|spread     (bool     b  )
 	|spread     (bool()   cb )
 	|spread     (Measure  mv )
+	|manhattan  (bool     b  )
+	|manhattan  (bool()   cb )
+	|manhattan  (Measure  mv )
 	|fillColor  (Color    c  )
 	|fillColor  (Color()  cc )
 	|fillColor  (Measure  mv )
@@ -616,6 +619,7 @@ public data Figure =
    
                 							    // composition of nodes and edges as tree
    | _tree(Figures nodes, Edges edges, FProperties props)
+   | _newTree(Figures figs,FProperties props)
    
    | _treemap(Figures nodes, Edges edges, FProperties props)
    
@@ -625,19 +629,17 @@ public data Figure =
    
 /* transformation */
 
-   | _rotate(num angle, Figure fig, FProperties props)			    // Rotate element around its anchor point
-   | _scale(num perc, Figure fig, FProperties props)	   		    // Scale element (same for h and v)
-   | _scale(num xperc, num yperc, Figure fig, FProperties props)	// Scale element (different for h and v)
 
 /* interaction */
 
-   | _computeFigure(Figure () computeFig, FProperties props)
+   | _computeFigure(bool() recomp,Figure () computeFig, FProperties props)
    | _button(str label, void () vcallback, FProperties props)
    | _textfield(str text, void (str) scallback, FProperties props)
    | _textfield(str text, void (str) scallback, bool (str) validate, FProperties props)
    | _combo(list[str] choices, void (str) scallback, FProperties props)
    | _choice(list[str] choices, void(str s) ccallback, FProperties props)
    | _checkbox(str text, bool checked, void(bool) vbcallback, FProperties props)
+   | _scale(int() low,int() high, int() selection,void (int) ssdfcallback,FProperties props)
    ;
 
 public Figure text(str s, FProperty props ...){
@@ -774,6 +776,10 @@ public Figure hcat(Figures figs, FProperty props ...){
   return _grid([[figs]],props);
 }
 
+public Figure newTree(Figure root, Figures children, FProperty props...){
+	return _newTree([root] + children,[std(resizable(false))] + props);
+}
+
 public Figure vcat(Figures figs, FProperty props ...){
   newList = for(f <- figs){
   	append [f];
@@ -820,13 +826,6 @@ public Figure rotate(num angle, Figure fig, FProperty props...){
   return _rotate(angle, fig, props);
 }
 
-public Figure scale(num perc, Figure fig, FProperty props...){
-  return _scale(perc, fig, props);
-}
-
-public Figure scale(num xperc, num yperc, Figure fig, FProperty props...){
-  return _scale(xperc, yperc, fig, props);
-}
 
 public Figure boolControl(str name, Figure figOn, Figure figOff, FProperty props...){
   return _boolControl(name, figOn, figOff, props);
@@ -857,7 +856,11 @@ public Figure colorControl(str name, str initial, FProperty props...){
 }
 
 public Figure computeFigure(Figure () computeFig, FProperty props...){
- 	return _computeFigure(computeFig, props);
+ 	return _computeFigure(bool() { return true; },computeFig, props);
+}
+
+public Figure computeFigure(bool () recomp,Figure () computeFig, FProperty props...){
+ 	return _computeFigure(recomp,computeFig, props);
 }
   
 public Figure button(str label, void () callback, FProperty props...){
@@ -886,6 +889,10 @@ public Figure checkbox(str text, bool checked, void(bool) vcallback, FProperty p
   
 public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
    return _checkbox(text, false, vcallback, props);
+}  
+
+public Figure scale(int() low, int() high, int() selection, void(int) vcallback, FProperty props...){
+   return _scale(low,high, selection,vcallback, props);
 }  
 
 public Figure normalize(Figure f){

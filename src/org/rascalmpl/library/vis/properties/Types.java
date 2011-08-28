@@ -12,8 +12,11 @@
 
 package org.rascalmpl.library.vis.properties;
 
+import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.FIRST;
+import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.INTERPOLATECOLOR;
+import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.OR;
+
 import org.rascalmpl.library.vis.properties.CombinedProperty.Combine;
-import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.*;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.ConvertBool;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.ConvertColor;

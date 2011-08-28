@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.figure.tree;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -24,12 +23,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -114,15 +110,16 @@ public class Tree extends Figure {
 	@Override
 	public
 	void computeMinSize() {
-		System.err.printf("Tree.computeMinSize()\n");
+		
 		raster.clear();
 		root.shapeTree(0, 0, raster);
-		minSize.setX(root.minSize.getX());
-		minSize.setY(root.minSize.getY());
+		minSize.set(root.minSize);
 		resizable.set(false, false);
+		System.err.printf("Tree.computeMinSize %s ()\n",minSize);
 	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		
 	}
 }

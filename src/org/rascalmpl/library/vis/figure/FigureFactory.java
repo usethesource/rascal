@@ -40,15 +40,16 @@ import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Button;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Checkbox;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Choice;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Combo;
+import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scale;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.TextField;
+import org.rascalmpl.library.vis.figure.tree.NewTree;
 import org.rascalmpl.library.vis.figure.tree.Tree;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.properties.Types;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.RascalToJavaValueConverters;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -87,6 +88,7 @@ public class FigureFactory {
 		HVCAT,
 		NOMINALKEY,
 		MOUSEOVER,
+		NEWTREE,
 		INTERVALKEY,
 		OUTLINE,// scheduled for removal
 		OVERLAY, 
@@ -96,6 +98,7 @@ public class FigureFactory {
 		PROJECTION,
 		ROTATE,
 		SCROLLABLE,
+		SCALE,
 		SPACE,// scheduled for removal
 		TEXT, 
 		TEXTFIELD,
@@ -131,6 +134,7 @@ public class FigureFactory {
     	put("_hvcat",		Primitives.HVCAT);
     	put("_mouseOver",	Primitives.MOUSEOVER);
     	put("_nominalKey",  Primitives.NOMINALKEY);
+    	put("_newTree",     Primitives.NEWTREE);
     	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
@@ -140,6 +144,7 @@ public class FigureFactory {
     	put("_projection",	Primitives.PROJECTION);
     	put("_rotate",      Primitives.ROTATE);
     	put("_scrollable",  Primitives.SCROLLABLE);
+    	put("_scale",       Primitives.SCALE);
     	put("_space",		Primitives.SPACE);
     	put("_text",		Primitives.TEXT);		
     	put("_textfield",	Primitives.TEXTFIELD);
@@ -231,7 +236,8 @@ public class FigureFactory {
 			return new Combo(env, makeStringList((IList)c.get(0)), c.get(1),  properties);					
 			
 		case COMPUTEFIGURE:
-			return new ComputeFigure(env, properties,  c.get(0), childPropsNext);
+			PropertyValue<Boolean> recomp = Properties.produceMaybeComputedValue(Types.BOOL,c.get(0),properties,env);
+			return new ComputeFigure(env, properties,  recomp, c.get(1), childPropsNext);
 			
 	
 		case ELLIPSE:
@@ -244,12 +250,12 @@ public class FigureFactory {
 		case GRAPH:
 			//if(properties.getStringProperty(Properties.HINT).contains("lattice"))
 			//	return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			if(properties.getStr(Properties.HINT).contains("layered"))
+			//if(properties.getStr(Properties.HINT).contains("layered"))
 				return new LayeredGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//if(properties.getStringProperty(Properties.HINT).contains("leveled"))
 			//	return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			throw new Error("Graph temporarily out of order");
+			//throw new Error("Graph temporarily out of order");
 			
 
 		/*
@@ -284,6 +290,10 @@ public class FigureFactory {
 			children = makeList(env,c.get(0),properties,childPropsNext);
 			return new HVCat(Dimension.X, children, properties);
 			
+		case NEWTREE:
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new NewTree(Dimension.Y, children, properties);
+			
 		case GRID:
 			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
 			return new Grid( elems, properties);
@@ -302,6 +312,12 @@ public class FigureFactory {
 			 Figure under = makeChild(0,env,c,properties,childPropsNext);
 			 Figure over =  makeChild(1,env,c,properties,childPropsNext);
 			 return new Overlap(under, over, properties);
+			 
+		case SCALE:
+			PropertyValue<Integer> low = Properties.produceMaybeComputedValue(Types.INT,c.get(0),properties,env);
+			PropertyValue<Integer> high = Properties.produceMaybeComputedValue(Types.INT,c.get(1),properties,env);
+			PropertyValue<Integer> selection = Properties.produceMaybeComputedValue(Types.INT,c.get(2),properties,env);
+			return new Scale(env, Dimension.X, low,high, selection, c.get(3), properties);
 		case MOUSEOVER:
 			 under = makeChild(0,env,c,properties,childPropsNext);
 			 over =  makeChild(1,env,c,properties,childPropsNext);

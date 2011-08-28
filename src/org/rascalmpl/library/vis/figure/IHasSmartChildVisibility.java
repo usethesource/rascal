@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis.figure;
 
 import java.util.List;
-import java.util.Vector;
 
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;

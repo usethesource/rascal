@@ -12,23 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
-import static org.rascalmpl.library.vis.properties.Properties.*;
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.*;
-import java.util.Vector;
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.Figure.ResizeMode;
 import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
-import org.rascalmpl.library.vis.figure.interaction.MouseOver;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Dimension;
-import org.rascalmpl.library.vis.util.vector.Rectangle;
-import org.rascalmpl.library.vis.util.vector.TransformMatrix;
-import org.rascalmpl.library.vis.properties.Properties.*;
 
 
 /**

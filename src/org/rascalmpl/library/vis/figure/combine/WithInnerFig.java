@@ -1,7 +1,6 @@
 package org.rascalmpl.library.vis.figure.combine;
 
 
-import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;

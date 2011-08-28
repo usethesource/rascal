@@ -298,6 +298,7 @@ public class LayeredGraph extends Figure {
 		minSize.setY(maxy - miny);
 	}
 	
+	@SuppressWarnings("unused")
 	private void switchWidthAndHeight(){
 		String dir = prop.getStr(DIR);
 		if(dir.length() == 0 || dir.equals("TB") || dir.equals("BT"))

@@ -45,6 +45,16 @@ public class FigureMath {
 		return Math.abs(dlensq);
 	}
 
+	public static int signum(double a){
+		if(a==0){
+			return 0;
+		} else if (a < 0){
+			return -1;
+		} else {
+			return 1;
+		}
+	}
+	
 	public static double dist(double x, double y, double x2, double y2) {
 		return Math.hypot(x-x2, y-y2);
 	}

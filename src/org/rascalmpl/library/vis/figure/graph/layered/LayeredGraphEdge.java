@@ -13,21 +13,22 @@
 package org.rascalmpl.library.vis.figure.graph.layered;
 
 
+import static org.rascalmpl.library.vis.properties.Properties.FROM_ARROW;
+import static org.rascalmpl.library.vis.properties.Properties.HGAP;
+import static org.rascalmpl.library.vis.properties.Properties.LABEL;
+import static org.rascalmpl.library.vis.properties.Properties.TO_ARROW;
+import static org.rascalmpl.library.vis.properties.Properties.VGAP;
+
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
-
-import static org.rascalmpl.library.vis.properties.Properties.*;
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
@@ -264,6 +265,7 @@ public class LayeredGraphEdge extends Figure {
 				LayeredGraphNode node = getTo();
 				double h = node.figure.minSize.getY();
 				double w = node.figure.minSize.getX();
+				@SuppressWarnings("unused")
 				double hgap = prop.getReal(HGAP);
 				double vgap = prop.getReal(VGAP);
 				

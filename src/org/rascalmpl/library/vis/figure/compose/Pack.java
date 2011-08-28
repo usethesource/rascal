@@ -11,17 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.compose;
 
+import static org.rascalmpl.library.vis.properties.Properties.HGAP;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.FigureColorUtils;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
-import static org.rascalmpl.library.vis.properties.Properties.*;
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
  * 

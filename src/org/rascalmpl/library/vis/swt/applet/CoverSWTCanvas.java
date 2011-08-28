@@ -18,6 +18,7 @@ public class CoverSWTCanvas extends Canvas implements PaintListener, MouseMoveLi
 	
 	CoverSWTCanvas(FigureSWTApplet parent, Figure part) {
 		super(parent,SWT.NORMAL);
+		System.out.printf("Creating swt canvas\n");
 		this.parent = parent;
 		this.part = part;
 		addMouseListener(parent.getInputHandler());

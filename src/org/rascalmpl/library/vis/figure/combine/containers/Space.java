@@ -12,13 +12,11 @@
 package org.rascalmpl.library.vis.figure.combine.containers;
 
 import java.util.List;
-import java.util.Vector;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
  * Spacing that can act as container.

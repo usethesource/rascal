@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis.swt.applet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import org.rascalmpl.library.vis.util.BogusList;
 import org.rascalmpl.library.vis.util.Util;

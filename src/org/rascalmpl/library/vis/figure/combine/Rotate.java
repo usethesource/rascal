@@ -12,14 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine;
 
-import java.util.Vector;
-
-import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.properties.Properties;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.properties.PropertyValue;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 
 
 /*
