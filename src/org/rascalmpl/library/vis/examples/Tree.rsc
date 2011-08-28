@@ -12,7 +12,7 @@ import vis::Figure;
 import vis::Render;
 
 // Tree: 1 node
-/*
+
 public void tree1(){
 
    nodes =
@@ -440,4 +440,4 @@ public void tree10f(){
     render(vcat([T1(), T2()], child(top()), gap(20), child(right())));
 }
 
-*/
+

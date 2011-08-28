@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.figure.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -24,8 +23,6 @@ import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
@@ -213,6 +210,7 @@ public class TreeNode extends Figure {
 	public void resizeElement(Rectangle view) {
 		
 		rootFigure.location.setX(rootPosition);
+		rootFigure.location.setY(0);
 		
 		double bottomRootFig = rootFigure.minSize.getY();
 		double vgap          = prop.getReal(Properties.VGAP);

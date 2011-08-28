@@ -11,24 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.tree;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Vector;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.FigureFactory;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Tree map layout. Given a tree consisting of a list of nodes and edges, place them in a space conserving layout.

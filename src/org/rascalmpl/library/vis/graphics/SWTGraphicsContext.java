@@ -1,8 +1,12 @@
 package org.rascalmpl.library.vis.graphics;
 
+import static org.rascalmpl.library.vis.util.FigureMath.CLOSE;
+import static org.rascalmpl.library.vis.util.FigureMath.OPEN;
+import static org.rascalmpl.library.vis.util.FigureMath.degrees;
+import static org.rascalmpl.library.vis.util.FigureMath.round;
+
 import java.util.ArrayList;
 import java.util.Stack;
-import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -13,9 +17,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.graphics.Transform;
-
-import static org.rascalmpl.library.vis.util.FigureMath.*;
-
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 

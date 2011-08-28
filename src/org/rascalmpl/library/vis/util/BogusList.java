@@ -121,6 +121,7 @@ public class BogusList<T> implements List<T>{
 		return null;
 	}
 
+	@SuppressWarnings("hiding")
 	@Override
 	public <T> T[] toArray(T[] arg0) {
 		return null;

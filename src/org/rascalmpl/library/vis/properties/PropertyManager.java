@@ -14,17 +14,12 @@
 package org.rascalmpl.library.vis.properties;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.interpreter.result.VoidResult;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;

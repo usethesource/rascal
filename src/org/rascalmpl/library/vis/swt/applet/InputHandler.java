@@ -3,9 +3,6 @@ package org.rascalmpl.library.vis.swt.applet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -30,7 +27,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class InputHandler implements MouseListener,MouseMoveListener, MouseTrackListener, KeyListener, IFigureChangedListener{
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static final BogusList<Figure> bogusFigureList = (BogusList<Figure>)BogusList.instance;
 	private static final IBool pdbTrue = ValueFactory.getInstance().bool(true);
 	private static final IBool pdbFalse = ValueFactory.getInstance().bool(false);
@@ -69,6 +66,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	private void setFiguresUnderMouse(){
 
 		figuresUnderMouse.clear();
+		
 		figure.getFiguresUnderMouse(mouseLocation, figuresUnderMouse);
 		for(Overlap f : overlapFigures){
 			f.over.getFiguresUnderMouse(mouseLocation, figuresUnderMouse);
@@ -77,6 +75,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	
 	@SuppressWarnings("unchecked")
 	private void handleMouseOvers(){
+		//new Exception().printStackTrace();
 		List<Figure> swp = figuresUnderMouseSortedPrev;
 		figuresUnderMouseSortedPrev = figuresUnderMouseSorted;
 		figuresUnderMouseSorted = swp;
@@ -87,12 +86,13 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		noLongerUnderMouse.clear();
 		// compute the added and removed elements in a fast way
 		Util.diffSorted(figuresUnderMouseSortedPrev, figuresUnderMouse, noLongerUnderMouse, BogusList.instance, newUnderMouse);
-		/*System.out.printf("Now under mouse:\n");
+		/*
+		System.out.printf("Now under mouse:\n");
 		 for(Figure fig : figuresUnderMouseSorted){
 			System.out.printf("%s \n",fig);
 		}
-		 */
-		 /*
+		 
+		 
 		System.out.printf("Prev under mouse:\n");
 		for(Figure fig : figuresUnderMouseSortedPrev){
 			System.out.printf("%s \n",fig);
@@ -110,8 +110,8 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			for(Figure fig : newUnderMouse){
 				System.out.printf("%s %d\n",fig,fig.sequenceNr);
 			}
-		}*/
-		
+		}
+		*/
 		
 		env.beginCallbackBatch();
 		for(Figure fig : noLongerUnderMouse){
@@ -127,6 +127,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	}
 	
 	private void handleMouseMove(){
+		//System.out.printf("Checking for mouseover for transloc %s\n", mouseLocation);
 		setFiguresUnderMouse();
 		handleMouseOvers();
 	}
@@ -196,6 +197,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void mouseExit(MouseEvent e) {
+		System.out.printf("Mouse exit %d %d | %d %d\n",e.x,e.y,parent.getSize().x,parent.getSize().y);
 		mouseLocation.set(-100,-100); // not on figure!
 		handleMouseMove();
 	}

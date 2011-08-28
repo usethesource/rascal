@@ -1,6 +1,5 @@
 package org.rascalmpl.library.vis.graphics;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 
 public interface GraphicsContext {

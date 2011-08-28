@@ -13,15 +13,10 @@
 package org.rascalmpl.library.vis.swt.applet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -40,7 +35,6 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
 
 public class FigureSWTApplet extends Composite 

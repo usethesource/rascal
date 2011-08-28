@@ -11,7 +11,6 @@ import org.rascalmpl.library.vis.figure.combine.containers.Space;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.util.Mutable;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 
@@ -42,7 +41,7 @@ public class MouseOver extends Overlap {
 		}
 		
 		public String toString(){
-			return String.format("Mouse Over %d",sequenceNr);
+			return String.format("Mouse Over %s %d",innerFig,sequenceNr);
 		}
 	}
 	

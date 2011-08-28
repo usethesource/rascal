@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis.swt.applet;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.figure.Figure;

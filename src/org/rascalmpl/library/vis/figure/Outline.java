@@ -11,13 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.PropertyManager;
-import org.rascalmpl.library.vis.util.FigureColorUtils;
 
 /**
  * Outline element: a rectangle with colored horizontal lines

@@ -13,13 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.graph.lattice;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-
-import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.swt.ICallbackEnv;
-import org.rascalmpl.library.vis.util.NameResolver;
 
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.

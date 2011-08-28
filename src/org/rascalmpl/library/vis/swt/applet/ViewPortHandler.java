@@ -1,8 +1,8 @@
 package org.rascalmpl.library.vis.swt.applet;
 
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -17,18 +17,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
-import org.rascalmpl.library.vis.figure.interaction.swtwidgets.SWTWidgetFigure;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.graphics.SWTGraphicsContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
-import org.rascalmpl.library.vis.util.vector.TransformMatrix;
-
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.library.vis.util.vector.TwoDimensional;
 
 public class ViewPortHandler implements SelectionListener, ControlListener, PaintListener, IFigureChangedListener{
@@ -292,8 +288,9 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 	@Override
 	public void notifyFigureChanged() {
-		zorderManager.notifyFigureChanged();
 		resize();
+		zorderManager.notifyFigureChanged();
+		
 		parent.requestRedraw();
 	}
 

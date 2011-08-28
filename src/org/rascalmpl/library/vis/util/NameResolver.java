@@ -1,8 +1,9 @@
 package org.rascalmpl.library.vis.util;
 
+import static org.rascalmpl.library.vis.properties.Properties.ID;
+
 import java.util.HashMap;
 
-import static org.rascalmpl.library.vis.properties.Properties.*;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;

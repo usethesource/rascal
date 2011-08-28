@@ -44,6 +44,8 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	@Override 
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
 		env.addSWTElement(widget);
+		widget.setBackground(SWTFontsAndColors.getRgbColor(prop.getColor(FILL_COLOR)));
+		widget.setForeground(SWTFontsAndColors.getRgbColor(prop.getColor(FONT_COLOR)));
 	}
 	
 	@Override
@@ -51,6 +53,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		Point p = widget.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		minSize.setX(p.x);
 		minSize.setY(p.y);
+		
 	}
 	
 	@Override

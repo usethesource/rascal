@@ -12,6 +12,7 @@
 
 package org.rascalmpl.library.vis.properties;
 
+import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.MUL;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.BLACK;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.LIGHTGRAY;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.WHITE;
@@ -24,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.CombinedProperty.Combine;
-import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.*;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.ConvertStr;
@@ -49,6 +49,7 @@ public enum Properties {
 	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				true	),
 	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
 	SPREAD				(Types.BOOL,    "spread",			true,				true	),
+	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   

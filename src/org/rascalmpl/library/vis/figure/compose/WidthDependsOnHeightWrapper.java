@@ -5,8 +5,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
-import org.rascalmpl.library.vis.swt.applet.ViewPortHandler;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Dimension;

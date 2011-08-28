@@ -25,6 +25,7 @@ import org.rascalmpl.library.vis.util.Util;
  */
 public abstract class Compose extends Figure {
 
+	@SuppressWarnings("unused")
 	final private static boolean debug = false;
 
 	protected Compose(Figure[] figures,PropertyManager properties) {
