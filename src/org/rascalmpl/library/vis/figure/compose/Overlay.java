@@ -57,6 +57,7 @@ public class Overlay extends Compose{
 	
 	@Override
 	public void computeMinSize() {
+		minSize.set(0,0);
 		for(Figure fig : children){
 			for(Dimension d : HOR_VER){
 				if(fig.prop.is2DPropertySet(d, POS)){

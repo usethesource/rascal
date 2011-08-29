@@ -153,11 +153,12 @@ public Figure tetris(){
 		 }
 		 if(keyF1() := key) {
 		 	restart();
+		 	return true;
 		 }
 		 if(just(drop()) := currentAction){
 		 	dropped = true;
 		 } 
-		 return true;
+		 return !(nothing() := currentAction);
 	}
 	
 	void setPause(bool mouseOn){
