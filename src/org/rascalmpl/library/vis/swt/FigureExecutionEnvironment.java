@@ -1,8 +1,11 @@
 package org.rascalmpl.library.vis.swt;
 
+import java.io.OutputStream;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -40,6 +43,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		computeClock = 0;
 		resolver = new NameResolver(getRascalContext());
 		computeFigures();
+		appletRoot.setLocation(0, 0);
+		appletRoot.pack();
 	}
 	
 	public boolean isBatchEmpty(){
@@ -69,6 +74,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	public void endCallbackBatch(){
 		endCallbackBatch(false);
 		
+	}
+	
+	public void setSize(int x,int y){
+		appletRoot.setSize(x + appletRoot.getBorderWidth() + 1, y + appletRoot.getBorderWidth() + 1);
 	}
 	
 	// dontRecompute param is currently neseccary because of non-memoization of nullary closures
@@ -185,5 +194,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		return ret;
 	}
 
+	public void writeScreenshot(OutputStream s){
+		appletRoot.writeScreenshot(s);
+	}
 
 }
