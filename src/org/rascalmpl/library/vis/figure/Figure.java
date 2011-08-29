@@ -154,7 +154,6 @@ public abstract class Figure implements Comparable<Figure> {
 		swtSeen = swtSeen || containsSWTElement();
 		computeMinSize();
 		adjustMinSize();
-		System.out.printf("Min viewing size %s %s\n", minSize, this);
 		finalize(true);
 		return swtSeen;
 	}

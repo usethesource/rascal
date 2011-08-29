@@ -119,6 +119,9 @@ public class FigureSWTApplet extends Composite
 	
 	public void handleNonCapturedKeyPress(KeyEvent e){
 		runTimePropertyAdjuster.handleKeyPress(e);
+		if(e.keyCode == SWT.PRINT_SCREEN){
+			viewPortHandler.makeScreenShot();
+		}
 	}
 	
 	public FigureExecutionEnvironment getExectutionEnv(){ 

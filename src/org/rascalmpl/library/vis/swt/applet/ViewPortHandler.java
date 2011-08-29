@@ -4,6 +4,7 @@ import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -12,8 +13,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
@@ -298,8 +302,26 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 
 	public void beforeInitialise() {
-		zorderManager.clearSWTOrder();
-		
+		zorderManager.clearSWTOrder();	
+	}
+	
+	public void makeScreenShot(){
+		Image screenShot = new Image(parent.getDisplay(), parent.getSize().x, parent.getSize().y);
+		GC gc = new GC(parent);
+		gc.copyArea(screenShot, 0, 0);
+		gc.dispose();
+		FileDialog f = new FileDialog(parent.getShell(), SWT.SAVE);
+		f.setText("Select where to save your screenshot.");
+		String result = f.open();
+		if(result == null){
+			return;
+		}
+		if(!result.endsWith(".png")){
+			result+=".png";
+		}
+		ImageLoader il = new ImageLoader();
+		il.data = new ImageData[] {screenShot.getImageData()};
+		il.save(result, SWT.IMAGE_PNG);
 	}
 
 	
