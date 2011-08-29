@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.swt.applet;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -122,6 +123,10 @@ public class FigureSWTApplet extends Composite
 		if(e.keyCode == SWT.PRINT_SCREEN){
 			viewPortHandler.makeScreenShot();
 		}
+	}
+	
+	public void writeScreenshot(OutputStream to){
+		viewPortHandler.writeScreenShot(to);
 	}
 	
 	public FigureExecutionEnvironment getExectutionEnv(){ 

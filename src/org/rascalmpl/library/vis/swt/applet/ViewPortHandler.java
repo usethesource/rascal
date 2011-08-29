@@ -2,6 +2,10 @@ package org.rascalmpl.library.vis.swt.applet;
 
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -64,6 +68,8 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		viewPortSize = new BoundingBox();
 		horBar = parent.getHorizontalBar();
 		verBar = parent.getVerticalBar();
+		horBar.setVisible(false);
+		verBar.setVisible(false);
 		scrollBarsVisible = new TwoDimensional<Boolean>(false, false);
 		scrollBars = new TwoDimensional<ScrollBar>(horBar, verBar);
 		scrollbarSize = new BoundingBox(verBar.getSize().x, horBar.getSize().y);
@@ -305,23 +311,34 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		zorderManager.clearSWTOrder();	
 	}
 	
-	public void makeScreenShot(){
-		Image screenShot = new Image(parent.getDisplay(), parent.getSize().x, parent.getSize().y);
+	public void writeScreenShot(OutputStream to){
+		Image screenShot = new Image(parent.getDisplay(), (int)viewPortSize.getX() - 1,(int)viewPortSize.getY()-1);
 		GC gc = new GC(parent);
-		gc.copyArea(screenShot, 0, 0);
+		gc.copyArea(screenShot, 0,0);
 		gc.dispose();
-		FileDialog f = new FileDialog(parent.getShell(), SWT.SAVE);
-		f.setText("Select where to save your screenshot.");
-		String result = f.open();
-		if(result == null){
-			return;
-		}
-		if(!result.endsWith(".png")){
-			result+=".png";
-		}
 		ImageLoader il = new ImageLoader();
 		il.data = new ImageData[] {screenShot.getImageData()};
-		il.save(result, SWT.IMAGE_PNG);
+		il.save(to, SWT.IMAGE_PNG);
+	}
+	
+	public void makeScreenShot(){
+		FileDialog f = new FileDialog(parent.getShell(), SWT.SAVE);
+		f.setText("Select where to save your screenshot.");
+		String filepath = f.open();
+		if(filepath == null){
+			return;
+		}
+
+		
+		if(!filepath.endsWith(".png")){
+			filepath+=".png";
+		}
+		try{
+			OutputStream to = new FileOutputStream(filepath);
+			writeScreenShot(to);
+		} catch(FileNotFoundException e){
+			System.err.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
+		}
 	}
 
 	
