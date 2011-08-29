@@ -15,6 +15,7 @@ import static org.rascalmpl.library.vis.properties.Properties.SPREAD;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.TwoDProperties;
 import org.rascalmpl.library.vis.util.vector.Dimension;
@@ -60,10 +61,12 @@ public class HVCat extends WidthDependsOnHeight{
 			int endOfRow = i ;
 			double gap = prop.get2DReal(major, TwoDProperties.GAP);
 			int nrOfGaps = endOfRow - startOfRow -1; 
+			double x = 0;
 			if(prop.getBool(SPREAD)){
 				gap = majorSizeLeftExcludingGaps / (double)nrOfGaps;
+			} else {
+				x = (majorSizeLeftExcludingGaps - (nrOfGaps * gap)) * prop.getReal(Properties.INNER_ALIGN);
 			}
-			double x = 0;
 			for(int j = startOfRow ; j < endOfRow ; j++){
 				Figure child = children[j];
 				child.size.set(child.minSize);

@@ -48,22 +48,21 @@ public enum Properties {
 	VZOOMABLE			(Types.BOOL,	"vzoomable",		true,				true	),
 	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				true	),
 	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
-	SPREAD				(Types.BOOL,    "spread",			true,				true	),
+	SPREAD				(Types.BOOL,    "spread",			true,				false	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
 	MAJOR_X				(Types.BOOL,    "majorDimX",		false,				false	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   
 	LINE_COLOR			(Types.COLOR,	"lineColor",		BLACK,				false	),  
-	GUIDE_COLOR			(Types.COLOR,	"guideColor",		LIGHTGRAY,			false	),  
 	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	false	),  
 	
 	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				true	),
-	INNER_ALIGN			(Types.REAL,	"ialign",			0.5,				true	),
-	WIDTH				(Types.REAL,	"width",			0.0,				true	),
-	HEIGHT				(Types.REAL,	"height",			0.0,				true	),
-	HGAP				(Types.REAL,	"hgap",				0.0,				true	),	// scheduled for removal
-	VGAP				(Types.REAL,	"vgap",				0.0,				true	),	// scheduled for removal
+	INNER_ALIGN			(Types.REAL,	"ialign",			0.5,				false	),
+	HSIZE				(Types.REAL,	"hsize",			0.0,				true	),
+	VSIZE				(Types.REAL,	"vsize",			0.0,				true	),
+	HGAP				(Types.REAL,	"hgap",				0.0,				false	),	// scheduled for removal
+	VGAP				(Types.REAL,	"vgap",				0.0,				false	),	// scheduled for removal
 	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				false	),
 	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				false	),
 	HCONNECT			(Types.REAL,	"hConncect",		0.5,				true	),
