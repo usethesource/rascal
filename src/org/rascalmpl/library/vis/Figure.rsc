@@ -273,6 +273,9 @@ data FProperty =
 	|manhattan  (bool     b  )
 	|manhattan  (bool()   cb )
 	|manhattan  (Measure  mv )
+	|majorDimX  (bool     b  )
+	|majorDimX  (bool()   cb )
+	|majorDimX  (Measure  mv )
 	|fillColor  (Color    c  )
 	|fillColor  (Color()  cc )
 	|fillColor  (Measure  mv )
@@ -511,7 +514,6 @@ public FProperty grow       (num()    cr12 ,Measure  mv212){ return unpack([hgro
 public FProperty grow       (Measure  mv20 ,num      r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
 public FProperty grow       (Measure  mv21 ,num()    cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
 public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
-
 // end generated code
 
 public FProperty child(FProperty props ...){

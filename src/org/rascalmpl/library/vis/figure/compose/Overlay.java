@@ -16,6 +16,7 @@ import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.POS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+import static org.rascalmpl.library.vis.properties.Properties.*;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
@@ -37,8 +39,8 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  */
 public class Overlay extends Compose{
 	
-	public Overlay(Figure[] figures, PropertyManager properties) {
-		super(figures, properties);
+	public Overlay(Figure[] children, PropertyManager properties) {
+		super(children, properties);
 	}
 	
 	@Override
@@ -83,19 +85,10 @@ public class Overlay extends Compose{
 	}
 	
 	@Override
-	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){}
-	
-
-	public String toString(){
-		return "Overlay: " + super.toString();
-	}
-	
-	/*
-	private void drawShape(GraphicsContext gc) {
-		applyProperties(gc);
-        boolean closed = getClosedProperty();
-        boolean curved = getCurvedProperty();
-        boolean connected = getConnectedProperty() || closed || curved;
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+	  boolean closed = prop.getBool(SHAPE_CLOSED);
+        boolean curved = prop.getBool(SHAPE_CURVED);
+        boolean connected =  prop.getBool(SHAPE_CONNECTED) || closed || curved;
         // TODO: this curved stuff is unclear to me...
         if(connected){
             gc.beginShape();
@@ -104,31 +97,37 @@ public class Overlay extends Compose{
         	gc.noFill();
         }
         
-        if(closed && connected && figures.length >= 0){
-        	gc.vertex(getLeft() + pos[0].getX() + figures[0].getHConnectProperty() * figures[0].size.getWidth(),
-    				getTop() + pos[0].getY()  + figures[0].getVConnectProperty() * figures[0].size.getHeight()  );
+        if(closed && connected && children.length >= 0){
+        	gc.vertex(location.getX() + children[0].location.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
+    				location.getY() + children[0].location.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY()  );
         }
         if(connected){
-	        for(int i = 0 ; i < figures.length ; i++){
+	        for(int i = 0 ; i < children.length ; i++){
 	        	if(curved ){
-	        		gc.curveVertex(getLeft() + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
-	        				getTop() + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
+	        		gc.curveVertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT)  * children[i].size.getY()  );
 	        	} else {
-	        		gc.vertex(getLeft() + pos[i].getX() + figures[i].getHConnectProperty() * figures[i].size.getWidth(),
-	        				getTop() + pos[i].getY()  + figures[i].getVConnectProperty() * figures[i].size.getHeight()  );
+	        		gc.vertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
 	        }
         }
         
         if(connected){
 			if(closed){
-				gc.vertex(getLeft()  + pos[figures.length-1].getX() + figures[figures.length-1].getHConnectProperty() * figures[figures.length-1].size.getWidth(),
-						getTop() + pos[figures.length-1].getY()  + figures[figures.length-1].getVConnectProperty() * figures[figures.length-1].size.getHeight()  );
+				int i = children.length-1;
+        		gc.vertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 				gc.endShape(FigureMath.CLOSE);
 			} else 
 				gc.endShape();
 		}
 	}
-	*/
+		
+	
+
+	public String toString(){
+		return "Overlay: " + super.toString();
+	}
 
 }

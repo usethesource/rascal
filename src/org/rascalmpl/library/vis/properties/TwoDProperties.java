@@ -12,28 +12,8 @@
 
 package org.rascalmpl.library.vis.properties;
 
-import static org.rascalmpl.library.vis.properties.Properties.HALIGN;
-import static org.rascalmpl.library.vis.properties.Properties.HEIGHT;
-import static org.rascalmpl.library.vis.properties.Properties.HEND_GAP;
-import static org.rascalmpl.library.vis.properties.Properties.HGAP;
-import static org.rascalmpl.library.vis.properties.Properties.HGROW;
-import static org.rascalmpl.library.vis.properties.Properties.HPOS;
-import static org.rascalmpl.library.vis.properties.Properties.HRESIZABLE;
-import static org.rascalmpl.library.vis.properties.Properties.HSHADOWPOS;
-import static org.rascalmpl.library.vis.properties.Properties.HSHRINK;
-import static org.rascalmpl.library.vis.properties.Properties.HSTART_GAP;
-import static org.rascalmpl.library.vis.properties.Properties.HZOOMABLE;
-import static org.rascalmpl.library.vis.properties.Properties.VALIGN;
-import static org.rascalmpl.library.vis.properties.Properties.VEND_GAP;
-import static org.rascalmpl.library.vis.properties.Properties.VGAP;
-import static org.rascalmpl.library.vis.properties.Properties.VGROW;
-import static org.rascalmpl.library.vis.properties.Properties.VPOS;
-import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
-import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
-import static org.rascalmpl.library.vis.properties.Properties.VSHRINK;
-import static org.rascalmpl.library.vis.properties.Properties.VSTART_GAP;
-import static org.rascalmpl.library.vis.properties.Properties.VZOOMABLE;
-import static org.rascalmpl.library.vis.properties.Properties.WIDTH;
+import static org.rascalmpl.library.vis.properties.Properties.*;
+
 
 public enum TwoDProperties {
 	
@@ -48,7 +28,8 @@ public enum TwoDProperties {
 	SHADOWPOS	("shadowPos",	HSHADOWPOS,	VSHADOWPOS	),
 	SHRINK		("shrink",		HSHRINK,	VSHRINK		),
 	ALIGN		("align",		HALIGN,		VALIGN		),
-	GROW		("grow",		HGROW,		VGROW		);
+	GROW		("grow",		HGROW,		VGROW		),
+	CONNECT		("connect",		HCONNECT,	VCONNECT	);
 	
 	String commonName;
 	Properties hor;

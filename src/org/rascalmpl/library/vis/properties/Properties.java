@@ -50,6 +50,7 @@ public enum Properties {
 	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
 	SPREAD				(Types.BOOL,    "spread",			true,				true	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
+	MAJOR_X				(Types.BOOL,    "majorDimX",		false,				false	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   
@@ -65,6 +66,8 @@ public enum Properties {
 	VGAP				(Types.REAL,	"vgap",				0.0,				true	),	// scheduled for removal
 	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				false	),
 	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				false	),
+	HCONNECT			(Types.REAL,	"hConncect",		0.5,				true	),
+	VCONNECT			(Types.REAL,	"vConncect",		0.5,				true	),
 	HSHRINK				(Types.REAL,	"hshrink",			1.0,				true,	 MUL),
 	VSHRINK				(Types.REAL, 	"vshrink",			1.0,				true,	 MUL),
 	HALIGN				(Types.REAL,	"halign",			0.5,				true	),
