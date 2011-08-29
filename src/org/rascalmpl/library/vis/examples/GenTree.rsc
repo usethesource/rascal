@@ -43,26 +43,28 @@ public void testTree(){
 	int maxKids = 4;
 	int leafChance = 20;
 	bool man = false;
+	bool majorX = false;
 	render(
 		hcat([
 			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
 					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
-					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })))
+					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),std(majorDimX(bool () { return majorX; })))
 				),
 			grid([
 				[text(str () { return "hgap: <hg>";}),scale(int() { return 0; } ,int () { return 200; } , int () { return hg; },void (int s) { hg = s; })],
 				[text(str () { return "vgap: <vg>";}),scale(int() { return 0; } ,int () { return 200; } , int () { return vg; },void (int s) { vg = s; })],
 				[text(str () { return "minwidth: <minx>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return minx; },void (int s) { minx = s; maxx = max(minx,maxx); })],
 				[text(str () { return "maxwidth: <maxx>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return maxx; },void (int s) { maxx = s;maxx = max(minx,maxx); })],
-				[text(str () { return "minheight: <miny>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return miny; },void (int s) { miny = s; maxy = max(miny,maxy);})],
-				[text(str () { return "maxheihgt: <maxy>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return maxy; },void (int s) { maxy = s; maxy = max(miny,maxy);})],
+				[text(str () { return "minheigth: <miny>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return miny; },void (int s) { miny = s; maxy = max(miny,maxy);})],
+				[text(str () { return "maxheigth: <maxy>";}),scale(int() { return 0; } ,int () { return 400; } , int () { return maxy; },void (int s) { maxy = s; maxy = max(miny,maxy);})],
 				[text(str () { return "minDepth: <minDepth>";}),scale(int() { return 0; } ,int () { return 10; } , int () { return minDepth; },void (int s) { minDepth = s; maxDepth = max(maxDepth,minDepth); })],
 				[text(str () { return "maxDepth: <maxDepth>";}),scale(int() { return 0; } ,int () { return 10; } , int () { return maxDepth; },void (int s) { maxDepth = s; maxDepth = max(maxDepth,minDepth); })],
 				[text(str () { return "minKids: <minKids>";}),scale(int() { return 1; } ,int () { return 10; } , int () { return minKids; },void (int s) { minKids = s; maxKids = max(minKids,maxKids);})],
 				[text(str () { return "maxKids: <maxKids>";}),scale(int() { return minKids; } ,int () { return 10; } , int () { return maxKids; },void (int s) { maxKids = s; maxKids = max(minKids,maxKids);})],
 				[text(str () { return "leafChance: <leafChance>";}),scale(int() { return 0; } ,int () { return 100; } , int () { return leafChance; },void (int s) { leafChance = s; })],
-				[text("Manhattan:"), checkbox("b",false,void (bool b){ man = b; })],
+				[space(), checkbox("Manhattan",false,void (bool b){ man = b; })],
+				[space(), checkbox("horizontal",false,void (bool b){ majorX = b; })],
 				[space(),button("Generate!",void() {recompute = true;})]
 				
 			],hshrink(0.15))
