@@ -12,7 +12,7 @@ public abstract class LayoutProxy extends WithInnerFig {
 	public LayoutProxy(Figure inner, PropertyManager properties) {
 		super(inner, properties);
 		if(inner!=null){
-			properties.copyLayoutPropertiesFrom(inner.prop);
+			properties.stealLayoutPropertiesFrom(inner.prop);
 			properties.stealProperty(Properties.ID, inner.prop);
 		}
 	}
@@ -33,7 +33,7 @@ public abstract class LayoutProxy extends WithInnerFig {
 	protected void setInnerFig(Figure inner){
 		super.setInnerFig(inner);
 		if(inner!=null){
-			prop.copyLayoutPropertiesFrom(inner.prop);
+			prop.stealLayoutPropertiesFrom(inner.prop);
 		}
 	}
 	

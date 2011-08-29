@@ -23,7 +23,7 @@ public enum TwoDProperties {
 	END_GAP		("endGap",		HEND_GAP,	VEND_GAP	),	
 	
 	POS			("pos",			HPOS,		VPOS		),
-	SIZE		("size",		WIDTH,		HEIGHT		),
+	SIZE		("size",		HSIZE,		VSIZE		),
 	GAP			("gap",			HGAP,		VGAP		),
 	SHADOWPOS	("shadowPos",	HSHADOWPOS,	VSHADOWPOS	),
 	SHRINK		("shrink",		HSHRINK,	VSHRINK		),

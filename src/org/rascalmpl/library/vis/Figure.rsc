@@ -288,10 +288,6 @@ data FProperty =
 	|lineColor  (Color()  cc )
 	|lineColor  (Measure  mv )
 	|lineColor  (str      ds )
-	|guideColor (Color    c  )
-	|guideColor (Color()  cc )
-	|guideColor (Measure  mv )
-	|guideColor (str      ds )
 	|shadowColor(Color    c  )
 	|shadowColor(Color()  cc )
 	|shadowColor(Measure  mv )
@@ -302,12 +298,12 @@ data FProperty =
 	|ialign     (num      r  )
 	|ialign     (num()    cr )
 	|ialign     (Measure  mv )
-	|width      (num      r  )
-	|width      (num()    cr )
-	|width      (Measure  mv )
-	|height     (num      r  )
-	|height     (num()    cr )
-	|height     (Measure  mv )
+	|hsize      (num      r  )
+	|hsize      (num()    cr )
+	|hsize      (Measure  mv )
+	|vsize      (num      r  )
+	|vsize      (num()    cr )
+	|vsize      (Measure  mv )
 	|hgap       (num      r  )
 	|hgap       (num()    cr )
 	|hgap       (Measure  mv )
@@ -320,6 +316,12 @@ data FProperty =
 	|vshadowPos (num      r  )
 	|vshadowPos (num()    cr )
 	|vshadowPos (Measure  mv )
+	|hConncect  (num      r  )
+	|hConncect  (num()    cr )
+	|hConncect  (Measure  mv )
+	|vConncect  (num      r  )
+	|vConncect  (num()    cr )
+	|vConncect  (Measure  mv )
 	|hshrink    (num      r  )
 	|hshrink    (num()    cr )
 	|hshrink    (Measure  mv )
@@ -397,9 +399,9 @@ public FProperty endGap     (Measure  mv ){ return unpack([hendGap    (mv ),vend
 public FProperty pos        (num      r  ){ return unpack([hpos       (r  ),vpos       (r  )]); }
 public FProperty pos        (num()    cr ){ return unpack([hpos       (cr ),vpos       (cr )]); }
 public FProperty pos        (Measure  mv ){ return unpack([hpos       (mv ),vpos       (mv )]); }
-public FProperty size       (num      r  ){ return unpack([width      (r  ),height     (r  )]); }
-public FProperty size       (num()    cr ){ return unpack([width      (cr ),height     (cr )]); }
-public FProperty size       (Measure  mv ){ return unpack([width      (mv ),height     (mv )]); }
+public FProperty size       (num      r  ){ return unpack([hsize      (r  ),vsize      (r  )]); }
+public FProperty size       (num()    cr ){ return unpack([hsize      (cr ),vsize      (cr )]); }
+public FProperty size       (Measure  mv ){ return unpack([hsize      (mv ),vsize      (mv )]); }
 public FProperty gap        (num      r  ){ return unpack([hgap       (r  ),vgap       (r  )]); }
 public FProperty gap        (num()    cr ){ return unpack([hgap       (cr ),vgap       (cr )]); }
 public FProperty gap        (Measure  mv ){ return unpack([hgap       (mv ),vgap       (mv )]); }
@@ -415,6 +417,9 @@ public FProperty align      (Measure  mv ){ return unpack([halign     (mv ),vali
 public FProperty grow       (num      r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
 public FProperty grow       (num()    cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
 public FProperty grow       (Measure  mv ){ return unpack([hgrow      (mv ),vgrow      (mv )]); }
+public FProperty connect    (num      r  ){ return unpack([hConncect  (r  ),vConncect  (r  )]); }
+public FProperty connect    (num()    cr ){ return unpack([hConncect  (cr ),vConncect  (cr )]); }
+public FProperty connect    (Measure  mv ){ return unpack([hConncect  (mv ),vConncect  (mv )]); }
 public FProperty resizable  (bool     b00  ,bool     b200 ){ return unpack([hresizable (b00  ),vresizable (b200 )]); }
 public FProperty resizable  (bool     b01  ,bool()   cb201){ return unpack([hresizable (b01  ),vresizable (cb201)]); }
 public FProperty resizable  (bool     b02  ,Measure  mv202){ return unpack([hresizable (b02  ),vresizable (mv202)]); }
@@ -460,15 +465,15 @@ public FProperty pos        (num()    cr12 ,Measure  mv212){ return unpack([hpos
 public FProperty pos        (Measure  mv20 ,num      r220 ){ return unpack([hpos       (mv20 ),vpos       (r220 )]); }
 public FProperty pos        (Measure  mv21 ,num()    cr221){ return unpack([hpos       (mv21 ),vpos       (cr221)]); }
 public FProperty pos        (Measure  mv22 ,Measure  mv222){ return unpack([hpos       (mv22 ),vpos       (mv222)]); }
-public FProperty size       (num      r00  ,num      r200 ){ return unpack([width      (r00  ),height     (r200 )]); }
-public FProperty size       (num      r01  ,num()    cr201){ return unpack([width      (r01  ),height     (cr201)]); }
-public FProperty size       (num      r02  ,Measure  mv202){ return unpack([width      (r02  ),height     (mv202)]); }
-public FProperty size       (num()    cr10 ,num      r210 ){ return unpack([width      (cr10 ),height     (r210 )]); }
-public FProperty size       (num()    cr11 ,num()    cr211){ return unpack([width      (cr11 ),height     (cr211)]); }
-public FProperty size       (num()    cr12 ,Measure  mv212){ return unpack([width      (cr12 ),height     (mv212)]); }
-public FProperty size       (Measure  mv20 ,num      r220 ){ return unpack([width      (mv20 ),height     (r220 )]); }
-public FProperty size       (Measure  mv21 ,num()    cr221){ return unpack([width      (mv21 ),height     (cr221)]); }
-public FProperty size       (Measure  mv22 ,Measure  mv222){ return unpack([width      (mv22 ),height     (mv222)]); }
+public FProperty size       (num      r00  ,num      r200 ){ return unpack([hsize      (r00  ),vsize      (r200 )]); }
+public FProperty size       (num      r01  ,num()    cr201){ return unpack([hsize      (r01  ),vsize      (cr201)]); }
+public FProperty size       (num      r02  ,Measure  mv202){ return unpack([hsize      (r02  ),vsize      (mv202)]); }
+public FProperty size       (num()    cr10 ,num      r210 ){ return unpack([hsize      (cr10 ),vsize      (r210 )]); }
+public FProperty size       (num()    cr11 ,num()    cr211){ return unpack([hsize      (cr11 ),vsize      (cr211)]); }
+public FProperty size       (num()    cr12 ,Measure  mv212){ return unpack([hsize      (cr12 ),vsize      (mv212)]); }
+public FProperty size       (Measure  mv20 ,num      r220 ){ return unpack([hsize      (mv20 ),vsize      (r220 )]); }
+public FProperty size       (Measure  mv21 ,num()    cr221){ return unpack([hsize      (mv21 ),vsize      (cr221)]); }
+public FProperty size       (Measure  mv22 ,Measure  mv222){ return unpack([hsize      (mv22 ),vsize      (mv222)]); }
 public FProperty gap        (num      r00  ,num      r200 ){ return unpack([hgap       (r00  ),vgap       (r200 )]); }
 public FProperty gap        (num      r01  ,num()    cr201){ return unpack([hgap       (r01  ),vgap       (cr201)]); }
 public FProperty gap        (num      r02  ,Measure  mv202){ return unpack([hgap       (r02  ),vgap       (mv202)]); }
@@ -514,7 +519,24 @@ public FProperty grow       (num()    cr12 ,Measure  mv212){ return unpack([hgro
 public FProperty grow       (Measure  mv20 ,num      r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
 public FProperty grow       (Measure  mv21 ,num()    cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
 public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
+public FProperty connect    (num      r00  ,num      r200 ){ return unpack([hConncect  (r00  ),vConncect  (r200 )]); }
+public FProperty connect    (num      r01  ,num()    cr201){ return unpack([hConncect  (r01  ),vConncect  (cr201)]); }
+public FProperty connect    (num      r02  ,Measure  mv202){ return unpack([hConncect  (r02  ),vConncect  (mv202)]); }
+public FProperty connect    (num()    cr10 ,num      r210 ){ return unpack([hConncect  (cr10 ),vConncect  (r210 )]); }
+public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hConncect  (cr11 ),vConncect  (cr211)]); }
+public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hConncect  (cr12 ),vConncect  (mv212)]); }
+public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hConncect  (mv20 ),vConncect  (r220 )]); }
+public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hConncect  (mv21 ),vConncect  (cr221)]); }
+public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hConncect  (mv22 ),vConncect  (mv222)]); }
 // end generated code
+
+public FProperty width(num w){
+	return hsize(w);
+}
+
+public FProperty height(num h){
+	return vsize(h);
+}
 
 public FProperty child(FProperty props ...){
 	throw "child is currently out of order (broken)";

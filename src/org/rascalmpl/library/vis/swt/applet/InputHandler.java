@@ -133,29 +133,29 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	}
 	
 
-	private boolean handleKey(KeyEvent e,IBool down){
-	
+	private void handleKey(KeyEvent e,IBool down){
+		boolean captured = false;
 		env.beginCallbackBatch();
 		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
 		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
-		boolean captured = false;
 		for(Figure fig : figuresUnderMouse){
 			if(fig.executeKeyHandlers(env, keySym, down, keyboardModifierMap)){
 				captured = true;
 				break;
 			}
 		}
+		if(!captured){
+			parent.handleNonCapturedKeyPress(e);
+		}
 		env.endCallbackBatch();
-		return captured;
+		
 	}
 	
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		boolean captured = handleKey(e,pdbTrue);
-		if(!captured){
-			parent.handleNonCapturedKeyPress(e);
-		}
+		handleKey(e, ValueFactory.getInstance().bool(true));
+		
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void mouseExit(MouseEvent e) {
-		System.out.printf("Mouse exit %d %d | %d %d\n",e.x,e.y,parent.getSize().x,parent.getSize().y);
+		//System.out.printf("Mouse exit %d %d | %d %d\n",e.x,e.y,parent.getSize().x,parent.getSize().y);
 		mouseLocation.set(-100,-100); // not on figure!
 		handleMouseMove();
 	}

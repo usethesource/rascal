@@ -61,7 +61,7 @@ public class FigureSWTApplet extends Composite
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env,boolean hscroll,boolean vscroll) {
 		super(parent, SWT_FLAGS);
 		this.env = env;
-		
+		runTimePropertyAdjuster = new RunTimePropertyAdjuster(this);
 		children = new ArrayList<FigureSWTApplet>();
 		overlapFigures = new LinkedList<Overlap>();
 	
@@ -72,7 +72,7 @@ public class FigureSWTApplet extends Composite
 		this.figure = fig;
 		inputHandler = new InputHandler(this, overlapFigures);
 		viewPortHandler = new ViewPortHandler(this,overlapFigures);
-		runTimePropertyAdjuster = new RunTimePropertyAdjuster(this);
+
 		addPaintListener(viewPortHandler);
 		addControlListener(viewPortHandler);
 		getHorizontalBar().addSelectionListener(viewPortHandler);

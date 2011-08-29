@@ -20,13 +20,14 @@ public class RunTimePropertyAdjuster implements IRunTimePropertyChanges, IFigure
 	@Override
 	public Object adoptPropertyVal(Properties prop, Object val) {
 		switch(prop){
-		case FONT_SIZE : return Math.max(1,((Integer)val) + fontSizeOffset); 
+		case FONT_SIZE : 	System.out.printf("JADA! %d\n",(Integer)val + fontSizeOffset); return Math.max(1,((Integer)val) + fontSizeOffset); 
 		case LINE_WIDTH : return Math.max(1,((Double)val) + lineWidthOffset); 
 		default : return val;
 		}
 	}
 	
 	public boolean handleKeyPress(KeyEvent e){
+		
 		if((e.stateMask & SWT.CONTROL) != 0){
 			if(e.keyCode == '='){
 				fontSizeOffset+=1;

@@ -13,12 +13,12 @@
 package org.rascalmpl.library.vis.figure.graph.layered;
 
 import static org.rascalmpl.library.vis.properties.Properties.DIR;
-import static org.rascalmpl.library.vis.properties.Properties.HEIGHT;
+import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 import static org.rascalmpl.library.vis.properties.Properties.HGAP;
 import static org.rascalmpl.library.vis.properties.Properties.ID;
 import static org.rascalmpl.library.vis.properties.Properties.LAYER;
 import static org.rascalmpl.library.vis.properties.Properties.VGAP;
-import static org.rascalmpl.library.vis.properties.Properties.WIDTH;
+import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1431,10 +1431,10 @@ public class LayeredGraph extends Figure {
 
 	@Override
 	public void computeMinSize() {
-		minSize.setX(prop.getReal(WIDTH));
+		minSize.setX(prop.getReal(HSIZE));
 		MAXWIDTH = minSize.getX();
 		//MAXWIDTH = width = 1000;
-		minSize.setY(prop.getReal(HEIGHT));
+		minSize.setY(prop.getReal(VSIZE));
 		hgap = prop.getReal(HGAP);
 		vgap = prop.getReal(VGAP);
 		

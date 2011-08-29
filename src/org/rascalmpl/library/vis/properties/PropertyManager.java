@@ -117,15 +117,16 @@ public class PropertyManager {
 		}
 	}
 	
-	public void copyLayoutPropertiesFrom(PropertyManager other){
-		copyLayoutProperties(other.explicitValues, explicitValues);
-		copyLayoutProperties(other.stdValues, stdValues);
+	public void stealLayoutPropertiesFrom(PropertyManager other){
+		stealLayoutProperties(other.explicitValues, explicitValues);
+		stealLayoutProperties(other.stdValues, stdValues);
 	}
 	
-	private void copyLayoutProperties(HashMap<Properties, PropertyValue> from, HashMap<Properties, PropertyValue> to){
-		for(Properties p : from.keySet()){
-			if(p.determinesLayout){
+	private void stealLayoutProperties(HashMap<Properties, PropertyValue> from, HashMap<Properties, PropertyValue> to){
+		for(Properties p : Properties.values()){
+			if(p.determinesLayout && from.containsKey(p)){
 				to.put(p, from.get(p));
+				from.remove(p);
 			}
 		}
 	}
@@ -163,6 +164,7 @@ public class PropertyManager {
 	
 	private Object adoptProperty(Properties property, Object val){
 		if(runTimeChanges == null){
+			System.out.printf("NO runtime prop changes\n");
 			return val;
 		} else {
 			return runTimeChanges.adoptPropertyVal(property, val);
