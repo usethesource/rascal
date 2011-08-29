@@ -30,6 +30,7 @@ public class FigureSwitch extends WithInnerFig{
 
 	@Override
 	public void computeMinSize() {
+		minSize.set(0,0);
 		resizable.set(false,false);
 		for(Figure fig : choices){
 			setInnerFig(fig);

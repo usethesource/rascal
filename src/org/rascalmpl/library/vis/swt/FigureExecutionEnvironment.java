@@ -47,7 +47,6 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void computeFigures(){
-		System.out.printf("Computing figures!!\n");
 		computing = true;
 		long startTime = System.currentTimeMillis();
 		appletRoot.triggerRecompute();

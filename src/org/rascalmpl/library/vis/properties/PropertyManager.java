@@ -164,7 +164,6 @@ public class PropertyManager {
 	
 	private Object adoptProperty(Properties property, Object val){
 		if(runTimeChanges == null){
-			System.out.printf("NO runtime prop changes\n");
 			return val;
 		} else {
 			return runTimeChanges.adoptPropertyVal(property, val);

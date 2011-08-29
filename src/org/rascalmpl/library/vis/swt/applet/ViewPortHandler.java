@@ -153,7 +153,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		
 		setViewPortSize();
 		if(viewPortSize.getX() == 0 || viewPortSize.getY() == 0 ) return;
-		System.out.printf("Resizing depending on width %s\n",viewPortSize);
 		distributeSizeWidthDependsOnHeight();
 		Dimension major =  figure.getMajorDimension();
 		Dimension minor = major.other();
