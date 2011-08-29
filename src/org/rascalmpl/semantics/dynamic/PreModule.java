@@ -14,8 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Rest;

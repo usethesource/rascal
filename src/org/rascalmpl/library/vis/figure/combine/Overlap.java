@@ -47,7 +47,7 @@ public class Overlap extends LayoutProxy{
 			if(over.prop.is2DPropertySet(d, SHRINK)){
 				double sizeLeft = Math.max(0,location.get(d)  - view.getLocation().get(d));
 				double sizeRight = 
-					Math.max(0,view.getSize().get(d) - ((location.get(d) - view.getLocation().get(d)) + size.get(d)));;
+					Math.max(0,view.getSize().get(d) - ((location.get(d) - view.getLocation().get(d)) + size.get(d)));
 				
 				double align = over.prop.get2DReal(d, ALIGN);
 				double sizeMiddle = size.get(d) * (0.5 - Math.abs(align - 0.5 ));
