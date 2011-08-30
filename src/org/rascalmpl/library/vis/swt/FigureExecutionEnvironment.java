@@ -7,8 +7,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
@@ -128,7 +130,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	public IConstructor executeRascalFigureCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
 		IConstructor c = (IConstructor)executeRascalCallBack(callback, argTypes, argVals).getValue();
-		return (IConstructor)ctx.getEvaluator().call(getRascalContext(), "normalize", c);
+		Evaluator evaluator = ctx.getEvaluator();
+		return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);
 	}
 
 	public Result<IValue> executeRascalCallBack(IValue callback,

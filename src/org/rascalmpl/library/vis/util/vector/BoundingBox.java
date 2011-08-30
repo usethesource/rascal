@@ -19,6 +19,12 @@ public final class BoundingBox extends TwoDimensionalDouble{
 		super(x,y);
 	}
 	
+	public BoundingBox(Dimension major,double majorS, double minorS){
+		set(major,majorS);
+		set(major.other(),minorS);
+	}
+	
+	
 	public BoundingBox(){
 		super();
 	}

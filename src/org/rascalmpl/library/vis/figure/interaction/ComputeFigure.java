@@ -20,6 +20,7 @@ import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 public class ComputeFigure extends WithInnerFig {
 	
@@ -37,7 +38,7 @@ public class ComputeFigure extends WithInnerFig {
 		prevValue = null;
 	}
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		
 		if(prevValue == null || recompute.getValue()){
 			IConstructor figureCons =

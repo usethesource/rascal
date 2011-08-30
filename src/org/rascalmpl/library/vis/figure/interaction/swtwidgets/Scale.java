@@ -11,6 +11,7 @@ import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -46,11 +47,11 @@ public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 	}
 	
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		widget.setMinimum(low.getValue());
 		widget.setSelection(selected.getValue());
 		widget.setMaximum(high.getValue());
-		super.initElem(env, mparent, swtSeen, visible);
+		super.initElem(env, mparent, swtSeen, visible, resolver);
 	}
 	
 

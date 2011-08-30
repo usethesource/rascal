@@ -404,6 +404,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
+	/**
+	 * Call a Rascal function with a number of arguments
+	 * 
+	 * @return either null if its a void function, or the return value of the
+	 *         function.
+	 */
+	public IValue call(IRascalMonitor monitor, String module, String name, IValue... args) {
+		IRascalMonitor old = setMonitor(monitor);
+		Environment oldEnv = getCurrentEnvt();
+		
+		try {
+			ModuleEnvironment modEnv = getHeap().getModule(module);
+			setCurrentEnvt(modEnv);
+			return call(name, args);
+		}
+		finally {
+			setMonitor(old);
+			setCurrentEnvt(oldEnv);
+		}
+	}
+	
 	private IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);

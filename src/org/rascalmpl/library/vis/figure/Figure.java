@@ -149,7 +149,7 @@ public abstract class Figure implements Comparable<Figure> {
 		
 		resolver.register(this);
 		resizable.set(prop.getBool(HRESIZABLE), prop.getBool(VRESIZABLE));
-		initElem(env, mparent, swtSeen, visible);
+		initElem(env, mparent, swtSeen, visible, resolver);
 		swtSeen = initChildren(env, resolver, mparent, swtSeen, visible);
 		swtSeen = swtSeen || containsSWTElement();
 		computeMinSize();
@@ -172,7 +172,7 @@ public abstract class Figure implements Comparable<Figure> {
 		return swtSeenResult;
 	}
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){}
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){}
 	
 	public abstract void computeMinSize() ;
 	

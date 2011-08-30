@@ -19,6 +19,7 @@ import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.NameResolver;
 
 
 public class Timer extends LayoutProxy {
@@ -56,7 +57,7 @@ public class Timer extends LayoutProxy {
 	}
 
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible){
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		if(!visible) return;
 		IValue timerInfo = getTimerInfo();
 		//if(debug)System.out.printf("timerInit %s\n", timerInfo);
