@@ -47,7 +47,6 @@ public class Screen extends WithInnerFig{
 	}
 	
 	public void registerProjection(Projection p){
-		System.out.printf("Registering projections %s\n",p.projection);
 		projections.add(p);
 	}
 	
@@ -106,7 +105,7 @@ public class Screen extends WithInnerFig{
 				pFrom.location.get(minor) - location.get(minor);
 			pr.size.set(minor, pFrom.size.get(minor) * pr.prop.get2DReal(minor, SHRINK));
 			pr.size.set(major,majorSpaceForProjection * pr.prop.get2DReal(major, SHRINK ));
-			pr.location.set(major, 0);
+			pr.size.setMax(pr.minSize);
 			pr.location.set(minor,projectFromMinor + (pFrom.size.get(minor) - pr.size.get(minor)) * pr.prop.get2DReal(minor, ALIGN));
 			pr.location.set(major,majorProjectionOffset + (majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(minor, ALIGN));
 			pr.resize(view, transform);
