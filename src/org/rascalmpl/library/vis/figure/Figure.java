@@ -310,9 +310,7 @@ public abstract class Figure implements Comparable<Figure> {
 			minSize.setMax(Y, minSize.getX() / ar);
 		}
 		for(Dimension d : HOR_VER){
-			if(!prop.get2DBool(d, RESIZABLE)){
-				minSize.setMax(d,prop.get2DReal(d, SIZE));
-			}
+			minSize.setMax(d,prop.get2DReal(d, SIZE));
 		}
 	}
 

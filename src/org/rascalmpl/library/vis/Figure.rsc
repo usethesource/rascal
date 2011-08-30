@@ -599,24 +599,17 @@ public data Figure =
    
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element   
-   | _leftScreen(Figure inner, FProperties props) // a screen on which things can be projected   
-   | _rightScreen(Figure inner, FProperties props) // a screen on which things can be projected   
-   | _topScreen(Figure inner, FProperties props) // a screen on which things can be projected   
-   | _bottomScreen(Figure inner, FProperties props) // a screen on which things can be projected   
+   | _hscreen(Figure inner, FProperties props) // a screen on which things can be projected   
+   | _vscreen(Figure inner, FProperties props) // a screen on which things can be projected   
 
    
    | _leftAxis(str name,Figure inner, FProperties props)
    | _rightAxis(str name,Figure inner, FProperties props) 
    | _topAxis(str name,Figure inner, FProperties props)
    | _bottomAxis(str name,Figure inner, FProperties props)
-
-   
-   
-   | _vscreen(FProperties props)                  // a screen on which things can be projected      
-   | _vscreen(Figure inner, FProperties props)
    
    | _projection(Figure fig, str id, Figure project,FProperties props)   // project from the location of fig to the screen id 
-   
+   | _projection(Figure fig, str() cid, Figure project,FProperties props)   // project from the location of fig to the screen id 
    | _scrollable(bool hscroll,bool vscroll,Figure fig, FProperties props)
         
    | _timer(TimerAction (TimerInfo) timerInit,int () callBack, Figure inner,FProperties props)
@@ -718,22 +711,13 @@ public Figure vaxis(Figure fig, FProperty props ...){
   return _vaxis(fig, props);
 }
 
-public Figure leftScreen(str i,Figure fig, FProperty props ...){
-  return _leftScreen(fig,[id(i)] + props);
+public Figure hscreen(Figure fig, FProperty props ...){
+  return _hscreen(fig, props);
 }
 
-public Figure rightScreen(str i,Figure fig, FProperty props ...){
-  return _rightScreen(fig, [id(i)] + props);
+public Figure vscreen(Figure fig, FProperty props ...){
+  return _bottomScreen(fig, props);
 }
-
-public Figure topScreen(str i,Figure fig, FProperty props ...){
-  return _topScreen(fig, [id(i)] +props);
-}
-
-public Figure bottomScreen(str i,Figure fig, FProperty props ...){
-  return _bottomScreen(fig, [id(i)] +props);
-}
-
 
 public Figure leftAxis(str name,str i,Figure fig, FProperty props ...){
   return _leftAxis(name,fig, [id(i)] + props);
@@ -768,6 +752,10 @@ public Figure bottomAxis(str i,Figure fig, FProperty props ...){
 }
 
 public Figure projection(Figure fig, str id, Figure project,FProperty props ...){
+  return _projection(fig,id,project,props);
+}
+
+public Figure projection(Figure fig, str() id, Figure project,FProperty props ...){
   return _projection(fig,id,project,props);
 }
 
