@@ -5,8 +5,10 @@ import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.properties.TwoDProperties;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 
 public class Projection extends LayoutProxy{
 	Figure projectFrom;
@@ -21,17 +23,29 @@ public class Projection extends LayoutProxy{
 	}
 	
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
-		Figure fig = resolver.resolve(projectOnId.getValue());
-		if(fig instanceof HScreen){
-			HScreen hs = (HScreen)fig;
-			hs.registerProjection(this);
+	@Override
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
+		boolean a =  projectFrom.init(env, resolver,mparent, swtSeen, visible);
+		boolean b =  projection.init(env, resolver,mparent, swtSeen, visible);
+		return a || b;
+	}
+	
+	public void computeMinSize() {
+		super.computeMinSize();
+		for(Dimension d: Dimension.HOR_VER){
+			minSize.setMax(d,projection.minSize.get(d) / projection.prop.get2DReal(d, TwoDProperties.SHRINK));
 		}
 	}
 	
-	
-	
-	
+	@Override
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
+		Figure fig = resolver.resolve(projectOnId.getValue());
+		if(fig instanceof Screen){
+			Screen hs = (Screen)fig;
+			hs.registerProjection(this);
+		}
+	}
 }
 
 //

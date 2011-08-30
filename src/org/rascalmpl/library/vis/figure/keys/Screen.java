@@ -1,33 +1,32 @@
 package org.rascalmpl.library.vis.figure.keys;
 
+import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+
 import java.util.ArrayList;
 
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
+import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Dimension;
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.*;
-
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 
-public class HScreen extends LayoutProxy{
+public class Screen extends WithInnerFig{
 
 	ArrayList<Projection> projections;
 	Dimension major,minor;
 	BoundingBox minExtraSizeForProjections;
 	
-	public HScreen(Dimension major,Figure inner, PropertyManager properties) {
+	public Screen(Figure inner, PropertyManager properties) {
 		super(inner, properties);
 		projections = new ArrayList<Projection>();
-		this.major = major;
-		minor = major.other();
 		minExtraSizeForProjections = new BoundingBox();
 	}
 	
@@ -48,33 +47,27 @@ public class HScreen extends LayoutProxy{
 	}
 	
 	public void registerProjection(Projection p){
+		System.out.printf("Registering projections %s\n",p.projection);
 		projections.add(p);
 	}
 	
 	@Override
 	public boolean initChildren(IFigureConstructionEnv env,
 			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
-		boolean swtSeenResult = false;
-		boolean here =  innerFig.init(env, resolver,mparent, swtSeen, visible);
-		swtSeenResult = swtSeenResult || here;
-		for(Projection p : projections){
-			here =  p.init(env, resolver,mparent, swtSeen, visible);
-			swtSeenResult = swtSeenResult || here;
-		}
-		setChildren();
-		return swtSeenResult;
+		return innerFig.init(env, resolver,mparent, swtSeen, visible);
 	}
 
 	public void setChildren() {
 		children = new Figure[projections.size() + 1];
 		children[0] = innerFig;
 		for(int i = 0 ; i < projections.size(); i++){
-			children[i+1] = projections.get(i);
+			children[i+1] = projections.get(i).projection;
 		}
 	}
 	
 	@Override
 	public void computeMinSize(){
+		setChildren();
 		BoundingBox spaceForProjections = new BoundingBox();
 		minSize.set(innerFig.minSize);
 		for(Dimension d : HOR_VER){
@@ -103,20 +96,19 @@ public class HScreen extends LayoutProxy{
 			innerFig.location.add(location);
 
 		}
-		System.out.printf("Innerfig size %s %s location %s %s\n", innerFig.size, size,innerFig.location, location);
 		innerFig.resize(view,transform);
 		double majorSpaceForProjection = size.get(major) - innerFig.size.get(major);
+		double majorProjectionOffset = innerFig.size.get(major) * (1.0 - innerFig.prop.get2DReal(major, ALIGN));
 		for(Projection p : projections){
 			Figure pFrom = p.projectFrom;
 			Figure pr = p.projection;
 			double projectFromMinor = 
-				pFrom.location.get(minor) + pFrom.size.get(minor)
-				- location.get(minor);
+				pFrom.location.get(minor) - location.get(minor);
 			pr.size.set(minor, pFrom.size.get(minor) * pr.prop.get2DReal(minor, SHRINK));
 			pr.size.set(major,majorSpaceForProjection * pr.prop.get2DReal(major, SHRINK ));
+			pr.location.set(major, 0);
 			pr.location.set(minor,projectFromMinor + (pFrom.size.get(minor) - pr.size.get(minor)) * pr.prop.get2DReal(minor, ALIGN));
-			pr.location.set(major,(majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(minor, ALIGN));
-			pr.location.add(location);
+			pr.location.set(major,majorProjectionOffset + (majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(minor, ALIGN));
 			pr.resize(view, transform);
 		}
 	}

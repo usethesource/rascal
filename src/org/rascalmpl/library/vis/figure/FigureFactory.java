@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-import org.rascalmpl.library.vis.figure.keys.HScreen;
+import org.rascalmpl.library.vis.figure.keys.Screen;
 import org.rascalmpl.library.vis.figure.keys.Projection;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
@@ -84,9 +84,7 @@ public class FigureFactory {
 		RIGHTAXIS,
 		TOPAXIS,
 		BOTTOMAXIS,
-		HSCREEN,
-		BOTTOMSCREEN,
-		TOPSCREEN,
+		SCREEN,
 		HVCAT,
 		NOMINALKEY,
 		MOUSEOVER,
@@ -129,9 +127,7 @@ public class FigureFactory {
     	put("_topAxis",     Primitives.TOPAXIS);   
     	put("_bottomAxis",  Primitives.BOTTOMAXIS);
     	put("_fswitch"   ,  Primitives.FIGURESWITCH);
-    	put("_hscreen", 	Primitives.HSCREEN);
-    	put("_topScreen",   Primitives.TOPSCREEN);
-    	put("_bottomScreen",Primitives.BOTTOMSCREEN);
+    	put("_screen", 	Primitives.SCREEN);
     	put("_hvcat",		Primitives.HVCAT);
     	put("_mouseOver",	Primitives.MOUSEOVER);
     	put("_nominalKey",  Primitives.NOMINALKEY);
@@ -258,8 +254,8 @@ public class FigureFactory {
 			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//throw new Error("Graph temporarily out of order");
 			
-		case HSCREEN:
-			return new HScreen(Dimension.X,makeChild(env,c,properties,childPropsNext),properties );
+		case SCREEN:
+			return new Screen(makeChild(env,c,properties,childPropsNext),properties );
 			 
 		/*
 		case LEFTAXIS:
@@ -334,7 +330,7 @@ public class FigureFactory {
 			//return new Place(env, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
 
 		case PROJECTION:
-			PropertyValue<String> projectOn = Properties.produceMaybeComputedValue(Types.STR,c.get(2),properties,env);
+			PropertyValue<String> projectOn = Properties.produceMaybeComputedValue(Types.STR,c.get(1),properties,env);
 			Figure projectFrom = makeChild(0,env,c,properties,childPropsNext);
 			Figure projection = makeChild(2,env,c,properties,childPropsNext);
 			return new Projection(projectFrom,projectOn,projection,properties);
