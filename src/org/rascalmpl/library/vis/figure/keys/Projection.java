@@ -1,4 +1,39 @@
-//package org.rascalmpl.library.vis.figure.keys;
+package org.rascalmpl.library.vis.figure.keys;
+
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.properties.PropertyValue;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.NameResolver;
+
+public class Projection extends LayoutProxy{
+	Figure projectFrom;
+	Figure projection;
+	PropertyValue<String> projectOnId;
+	
+	public Projection(Figure projectFrom, PropertyValue<String> projectOnId,Figure projection,  PropertyManager properties) {
+		super(projectFrom, properties);
+		this.projectFrom = projectFrom;
+		this.projection = projection;
+		this.projectOnId = projectOnId;
+	}
+	
+
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
+		Figure fig = resolver.resolve(projectOnId.getValue());
+		if(fig instanceof HScreen){
+			HScreen hs = (HScreen)fig;
+			hs.registerProjection(this);
+		}
+	}
+	
+	
+	
+	
+}
+
 //
 //import org.rascalmpl.interpreter.IEvaluatorContext;
 //import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;

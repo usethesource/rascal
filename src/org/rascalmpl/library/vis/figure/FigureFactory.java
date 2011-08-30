@@ -20,6 +20,9 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+
+import org.rascalmpl.library.vis.figure.keys.HScreen;
+import org.rascalmpl.library.vis.figure.keys.Projection;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.combine.Overlap;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
@@ -81,8 +84,7 @@ public class FigureFactory {
 		RIGHTAXIS,
 		TOPAXIS,
 		BOTTOMAXIS,
-		LEFTSCREEN,
-		RIGHTSCREEN,
+		HSCREEN,
 		BOTTOMSCREEN,
 		TOPSCREEN,
 		HVCAT,
@@ -127,8 +129,7 @@ public class FigureFactory {
     	put("_topAxis",     Primitives.TOPAXIS);   
     	put("_bottomAxis",  Primitives.BOTTOMAXIS);
     	put("_fswitch"   ,  Primitives.FIGURESWITCH);
-    	put("_leftScreen",  Primitives.LEFTSCREEN);
-    	put("_rightScreen", Primitives.RIGHTSCREEN);
+    	put("_hscreen", 	Primitives.HSCREEN);
     	put("_topScreen",   Primitives.TOPSCREEN);
     	put("_bottomScreen",Primitives.BOTTOMSCREEN);
     	put("_hvcat",		Primitives.HVCAT);
@@ -257,7 +258,9 @@ public class FigureFactory {
 			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//throw new Error("Graph temporarily out of order");
 			
-
+		case HSCREEN:
+			return new HScreen(Dimension.X,makeChild(env,c,properties,childPropsNext),properties );
+			 
 		/*
 		case LEFTAXIS:
 			return new VAxis(((IString) c.get(0)).getValue(),false, makeChild(1,env,c,properties,childPropsNext), properties );
@@ -331,19 +334,10 @@ public class FigureFactory {
 			//return new Place(env, properties, (IConstructor) c.get(0), (IString) c.get(1), (IConstructor) c.get(2), ctx);
 
 		case PROJECTION:
-			String name;
-			int projectionIndex;
-			if(c.arity() == 4) {
-				name = ((IString) c.get(1)).getValue();
-				projectionIndex = 2;
-			}
-			else  {
-				name = "";
-				projectionIndex = 1;
-			}
-			Figure projecton = makeChild(projectionIndex,env,c,properties,childPropsNext);
-			Figure projection = makeChild(0,env,c,properties,childPropsNext);
-			//return new Projection(env,name,projecton,projection,properties);
+			PropertyValue<String> projectOn = Properties.produceMaybeComputedValue(Types.STR,c.get(2),properties,env);
+			Figure projectFrom = makeChild(0,env,c,properties,childPropsNext);
+			Figure projection = makeChild(2,env,c,properties,childPropsNext);
+			return new Projection(projectFrom,projectOn,projection,properties);
 		case ROTATE:
 			//TODO
 			child =  makeChild(1,env,c,properties,childPropsNext);

@@ -65,8 +65,8 @@ public enum Properties {
 	VGAP				(Types.REAL,	"vgap",				0.0,				false	),	// scheduled for removal
 	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				false	),
 	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				false	),
-	HCONNECT			(Types.REAL,	"hConncect",		0.5,				true	),
-	VCONNECT			(Types.REAL,	"vConncect",		0.5,				true	),
+	HCONNECT			(Types.REAL,	"hConnect",			0.5,				true	),
+	VCONNECT			(Types.REAL,	"vConnect",			0.5,				true	),
 	HSHRINK				(Types.REAL,	"hshrink",			1.0,				true,	 MUL),
 	VSHRINK				(Types.REAL, 	"vshrink",			1.0,				true,	 MUL),
 	HALIGN				(Types.REAL,	"halign",			0.5,				true	),
