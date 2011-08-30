@@ -15,7 +15,9 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.BoundingBox;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{
 
@@ -77,7 +79,13 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	}
 	
 	public void setSize(int x,int y){
-		appletRoot.setSize(x + appletRoot.getBorderWidth() + 1, y + appletRoot.getBorderWidth() + 1);
+		appletRoot.setSize(x + appletRoot.getBorderWidth() , y + appletRoot.getBorderWidth() );
+	}
+	
+	public BoundingBox getMinViewingSize(){
+		BoundingBox box = appletRoot.getFigure().minSize;
+		Rectangle r = appletRoot.computeTrim(0, 0, FigureMath.round(box.getX()), FigureMath.round(box.getY()));
+		return new BoundingBox(r.width, r.height);
 	}
 	
 	// dontRecompute param is currently neseccary because of non-memoization of nullary closures
