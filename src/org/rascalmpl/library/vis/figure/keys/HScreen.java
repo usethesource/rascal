@@ -87,18 +87,23 @@ public class HScreen extends LayoutProxy{
 			}
 		}
 		for(Dimension d: HOR_VER){
-			double left = innerFig.size.get(d) * prop.get2DReal(d, ALIGN) - spaceForProjections.get(d);
-			double right = innerFig.size.get(d) * prop.get2DReal(d, ALIGN) + spaceForProjections.get(d);
+			double left = innerFig.minSize.get(d) * prop.get2DReal(d, ALIGN) - spaceForProjections.get(d);
+			double right = innerFig.minSize.get(d) * prop.get2DReal(d, ALIGN) + spaceForProjections.get(d);
+			double oldMinSize = minSize.get(d);
 			minSize.setMax(d,right - left);
+			minExtraSizeForProjections.set(d,minSize.get(d) - oldMinSize);
 		}
 	}
 	
 	@Override
 	public void resizeChildren(Rectangle view, TransformMatrix transform) {
 		for(Dimension d: HOR_VER){
-			innerFig.size.set(d,size.get(d) * innerFig.prop.get2DReal(d, SHRINK));
+			innerFig.size.set(d,(size.get(d) - minExtraSizeForProjections.get(d)) * innerFig.prop.get2DReal(d, SHRINK));
 			innerFig.location.set(d,(size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
+			innerFig.location.add(location);
+
 		}
+		System.out.printf("Innerfig size %s %s location %s %s\n", innerFig.size, size,innerFig.location, location);
 		innerFig.resize(view,transform);
 		double majorSpaceForProjection = size.get(major) - innerFig.size.get(major);
 		for(Projection p : projections){
@@ -111,6 +116,7 @@ public class HScreen extends LayoutProxy{
 			pr.size.set(major,majorSpaceForProjection * pr.prop.get2DReal(major, SHRINK ));
 			pr.location.set(minor,projectFromMinor + (pFrom.size.get(minor) - pr.size.get(minor)) * pr.prop.get2DReal(minor, ALIGN));
 			pr.location.set(major,(majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(minor, ALIGN));
+			pr.location.add(location);
 			pr.resize(view, transform);
 		}
 	}
