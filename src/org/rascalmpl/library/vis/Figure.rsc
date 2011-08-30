@@ -167,35 +167,6 @@ public java list[str] fontNames();
  public FProperty center(){
    return align(0.5, 0.5);
 }
- 
-
- public FProperty projectLeft(){
-   return projectHalign(0.0);
- }
- 
- public FProperty projectHcenter(){
-   return projectHalign(0.5);
- }
- 
- public FProperty projectRight(){
-   return projectHalign(1.0);
- }
- 
- public FProperty projectTop(){
-   return projectValign(0.0);
- }
- 
- public FProperty projectVcenter(){
-   return projectValign(0.5);
- }
- 
- public FProperty projectBottom(){
-   return projectValign(1.0);
- }
- 
- public FProperty projectCenter(){
-   return projectValign(0.5, 0.5);
-}
 
 
 data Like = like(str id);
@@ -273,9 +244,9 @@ data FProperty =
 	|manhattan  (bool     b  )
 	|manhattan  (bool()   cb )
 	|manhattan  (Measure  mv )
-	|majorDimX  (bool     b  )
-	|majorDimX  (bool()   cb )
-	|majorDimX  (Measure  mv )
+	|majorX     (bool     b  )
+	|majorX     (bool()   cb )
+	|majorX     (Measure  mv )
 	|fillColor  (Color    c  )
 	|fillColor  (Color()  cc )
 	|fillColor  (Measure  mv )
@@ -316,12 +287,12 @@ data FProperty =
 	|vshadowPos (num      r  )
 	|vshadowPos (num()    cr )
 	|vshadowPos (Measure  mv )
-	|hConncect  (num      r  )
-	|hConncect  (num()    cr )
-	|hConncect  (Measure  mv )
-	|vConncect  (num      r  )
-	|vConncect  (num()    cr )
-	|vConncect  (Measure  mv )
+	|hConnect   (num      r  )
+	|hConnect   (num()    cr )
+	|hConnect   (Measure  mv )
+	|vConnect   (num      r  )
+	|vConnect   (num()    cr )
+	|vConnect   (Measure  mv )
 	|hshrink    (num      r  )
 	|hshrink    (num()    cr )
 	|hshrink    (Measure  mv )
@@ -417,9 +388,9 @@ public FProperty align      (Measure  mv ){ return unpack([halign     (mv ),vali
 public FProperty grow       (num      r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
 public FProperty grow       (num()    cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
 public FProperty grow       (Measure  mv ){ return unpack([hgrow      (mv ),vgrow      (mv )]); }
-public FProperty connect    (num      r  ){ return unpack([hConncect  (r  ),vConncect  (r  )]); }
-public FProperty connect    (num()    cr ){ return unpack([hConncect  (cr ),vConncect  (cr )]); }
-public FProperty connect    (Measure  mv ){ return unpack([hConncect  (mv ),vConncect  (mv )]); }
+public FProperty connect    (num      r  ){ return unpack([hConnect   (r  ),vConnect   (r  )]); }
+public FProperty connect    (num()    cr ){ return unpack([hConnect   (cr ),vConnect   (cr )]); }
+public FProperty connect    (Measure  mv ){ return unpack([hConnect   (mv ),vConnect   (mv )]); }
 public FProperty resizable  (bool     b00  ,bool     b200 ){ return unpack([hresizable (b00  ),vresizable (b200 )]); }
 public FProperty resizable  (bool     b01  ,bool()   cb201){ return unpack([hresizable (b01  ),vresizable (cb201)]); }
 public FProperty resizable  (bool     b02  ,Measure  mv202){ return unpack([hresizable (b02  ),vresizable (mv202)]); }
@@ -519,15 +490,15 @@ public FProperty grow       (num()    cr12 ,Measure  mv212){ return unpack([hgro
 public FProperty grow       (Measure  mv20 ,num      r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
 public FProperty grow       (Measure  mv21 ,num()    cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
 public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
-public FProperty connect    (num      r00  ,num      r200 ){ return unpack([hConncect  (r00  ),vConncect  (r200 )]); }
-public FProperty connect    (num      r01  ,num()    cr201){ return unpack([hConncect  (r01  ),vConncect  (cr201)]); }
-public FProperty connect    (num      r02  ,Measure  mv202){ return unpack([hConncect  (r02  ),vConncect  (mv202)]); }
-public FProperty connect    (num()    cr10 ,num      r210 ){ return unpack([hConncect  (cr10 ),vConncect  (r210 )]); }
-public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hConncect  (cr11 ),vConncect  (cr211)]); }
-public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hConncect  (cr12 ),vConncect  (mv212)]); }
-public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hConncect  (mv20 ),vConncect  (r220 )]); }
-public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hConncect  (mv21 ),vConncect  (cr221)]); }
-public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hConncect  (mv22 ),vConncect  (mv222)]); }
+public FProperty connect    (num      r00  ,num      r200 ){ return unpack([hConnect   (r00  ),vConnect   (r200 )]); }
+public FProperty connect    (num      r01  ,num()    cr201){ return unpack([hConnect   (r01  ),vConnect   (cr201)]); }
+public FProperty connect    (num      r02  ,Measure  mv202){ return unpack([hConnect   (r02  ),vConnect   (mv202)]); }
+public FProperty connect    (num()    cr10 ,num      r210 ){ return unpack([hConnect   (cr10 ),vConnect   (r210 )]); }
+public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hConnect   (cr11 ),vConnect   (cr211)]); }
+public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hConnect   (cr12 ),vConnect   (mv212)]); }
+public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hConnect   (mv20 ),vConnect   (r220 )]); }
+public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hConnect   (mv21 ),vConnect   (cr221)]); }
+public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hConnect   (mv22 ),vConnect   (mv222)]); }
 // end generated code
 
 public FProperty width(num w){
@@ -599,8 +570,7 @@ public data Figure =
    
    | _space(FProperties props)			      	// invisible box (used for spacing)
    | _space(Figure inner, FProperties props)     // invisible box with visible inner element   
-   | _hscreen(Figure inner, FProperties props) // a screen on which things can be projected   
-   | _vscreen(Figure inner, FProperties props) // a screen on which things can be projected   
+   | _screen(Figure inner, FProperties props) // a screen on which things can be projected   
 
    
    | _leftAxis(str name,Figure inner, FProperties props)
@@ -712,11 +682,11 @@ public Figure vaxis(Figure fig, FProperty props ...){
 }
 
 public Figure hscreen(Figure fig, FProperty props ...){
-  return _hscreen(fig, props);
+  return _screen(fig, props + [majorX(true)]);
 }
 
 public Figure vscreen(Figure fig, FProperty props ...){
-  return _bottomScreen(fig, props);
+  return _screen(fig, props + [majorX(false)]);
 }
 
 public Figure leftAxis(str name,str i,Figure fig, FProperty props ...){

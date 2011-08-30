@@ -50,7 +50,7 @@ public enum Properties {
 	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
 	SPREAD				(Types.BOOL,    "spread",			true,				false	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
-	MAJOR_X				(Types.BOOL,    "majorDimX",		false,				false	),
+	MAJOR_X				(Types.BOOL,    "majorX",			false,				false	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   
