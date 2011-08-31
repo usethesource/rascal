@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -293,8 +294,7 @@ public class FigureFactory {
 			
 						
 		case OUTLINE:
-			throw new Error("Outline out of order");
-			//return new Outline( properties, (IList)c.get(0), (IInteger) c.get(1));
+			return new Outline( properties, (IList)c.get(0), ((IInteger) c.get(1)).intValue());
 		
 	
 		case OVERLAY: 

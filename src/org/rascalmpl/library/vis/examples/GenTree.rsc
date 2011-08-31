@@ -49,7 +49,7 @@ public void testTree(){
 			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
 					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
-					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })))
+					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),std(majorx(bool () { return majorX; })))
 				),
 			grid([
 				[text(str () { return "hgap: <hg>";}),scale(int() { return 0; } ,int () { return 200; } , int () { return hg; },void (int s) { hg = s; })],
