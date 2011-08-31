@@ -61,7 +61,7 @@ public class MouseOver extends Overlap {
 			parent.registerChild(this);
 		}
 		computeMouseOver(env);
-		System.out.printf("Computing mover %s!\n",showMouseOver);
+		//System.out.printf("Computing mover %s!\n",showMouseOver);
 		if(showMouseOver){
 			setOverlap(over);
 		} else {

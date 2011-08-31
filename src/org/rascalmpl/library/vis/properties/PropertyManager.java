@@ -126,7 +126,6 @@ public class PropertyManager {
 		for(Properties p : Properties.values()){
 			if(p.determinesLayout && from.containsKey(p)){
 				to.put(p, from.get(p));
-				from.remove(p);
 			}
 		}
 	}

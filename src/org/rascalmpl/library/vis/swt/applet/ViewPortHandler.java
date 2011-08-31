@@ -179,6 +179,20 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		parent.notifyLayoutChanged();
 	}
 	
+	private void keepOverlapsInsideScreen(){
+		for(Overlap f : overlapFigures){
+			for(Dimension d : HOR_VER){
+				if(f.over.location.get(d) < 0){
+					f.over.location.set(d,0);
+				}
+				double figureS = Math.max(viewPortSize.get(d), figure.minSize.get(d));
+				if(f.over.location.get(d) + f.size.get(d) > figureS){
+					f.over.location.set(d, figureS-f.size.get(d));
+				}
+			}
+		}
+	}
+	
 	private void resize(){
 		if(figure.widthDependsOnHeight()){
 			resizeWidthDependsOnHeight();
@@ -200,6 +214,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		} else {
 			resetToMinSize();
 		}
+		keepOverlapsInsideScreen();
 		updateScrollBars();
 		
 		parent.notifyLayoutChanged();

@@ -102,7 +102,6 @@ public class Pack extends WidthDependsOnHeight {
 				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getX(), v.minSize.getY());
 			}
 		}
-		size.set(minSize);
 		fits = false;
 		while(!fits){
 			fits = true;

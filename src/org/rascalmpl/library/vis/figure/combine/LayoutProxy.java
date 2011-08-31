@@ -13,13 +13,16 @@ public abstract class LayoutProxy extends WithInnerFig {
 		super(inner, properties);
 		if(inner!=null){
 			properties.stealLayoutPropertiesFrom(inner.prop);
+			
 			properties.stealProperty(Properties.ID, inner.prop);
 		}
 	}
 
 	@Override
 	public void computeMinSize() {
+		
 		minSize.set(innerFig.minSize);
+
 	}
 
 	@Override
