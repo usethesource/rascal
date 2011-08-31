@@ -72,7 +72,7 @@ public class ParserGenerator {
 	 * @return
 	 */
 	public Class<IGTD> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
-		monitor.startJob("Generating parser", 100, 90);
+		monitor.startJob("Generating parser:" + name, 100, 90);
 		
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
