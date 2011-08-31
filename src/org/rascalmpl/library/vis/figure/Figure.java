@@ -236,7 +236,7 @@ public abstract class Figure implements Comparable<Figure> {
 		//zoom.set(oldZoomX, oldZoomY);
 	}
 
-	private void drawChildren(Coordinate zoom, GraphicsContext gc,
+	public void drawChildren(Coordinate zoom, GraphicsContext gc,
 			Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		for(Figure f : children){
 			if(f.overlapsWith(part)){

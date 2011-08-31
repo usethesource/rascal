@@ -234,7 +234,7 @@ public Figure tetris(){
 					 		text("GAME OVER!",fontSize(25)),
 					 		ifFig(bool () { return !highscoreEntered && newHighScore(highScores,state.score); },
 					 			 vcat([text("Enter your name for HIGHSCORE!"),
-					 			 	textfield("",enterHighscore, bool (str s) { return s == ""; }, fillColor("white"),fontColor("black"),vresizable(false))
+					 			 	textfield("",enterHighscore, bool (str s) { return s != ""; }, fillColor("white"),fontColor("black"),vresizable(false))
 					 			 ],vgrow(1.03))),
 					 		text("press F1 to restart")
 					 	],vgrow(1.2),vshrink(0.5))

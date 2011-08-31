@@ -22,7 +22,6 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.List> {
-	private IValue callback;
 	
 
 	public Choice(IFigureConstructionEnv env, String[] choices, IValue fun, PropertyManager properties) {

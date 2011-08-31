@@ -179,20 +179,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		parent.notifyLayoutChanged();
 	}
 	
-	private void keepOverlapsInsideScreen(){
-		for(Overlap f : overlapFigures){
-			for(Dimension d : HOR_VER){
-				//System.out.printf("Overlap location %s\n",f.over.location);
-				if(f.over.location.get(d) < 0){
-					f.over.location.set(d,0);
-				}
-				double figureS = Math.max(viewPortSize.get(d), figure.minSize.get(d));
-				if(f.over.location.get(d) + f.over.size.get(d) > figureS){
-					f.over.location.set(d, figureS-f.over.size.get(d));
-				}
-			}
-		}
-	}
 	
 	private void resize(){
 		if(figure.widthDependsOnHeight()){
@@ -215,9 +201,8 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		} else {
 			resetToMinSize();
 		}
-		keepOverlapsInsideScreen();
+	
 		updateScrollBars();
-		
 		parent.notifyLayoutChanged();
 	}
 	
@@ -270,11 +255,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
 
-		for(Overlap f : overlapFigures){
-			if(f.over.overlapsWith(part)){
-				f.over.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
-			}
-		}
+		drawOverlaps(part);
 		gc.dispose();
 		swtGC.drawImage(backbuffer, 0, 0);
 		
@@ -287,6 +268,31 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			long drawTime = System.nanoTime() - startTime;
 			drawTime/=1000000;
 			System.out.printf("Drawing (part) took %d rascalTime %d %f\n", drawTime,rascalTime,(double)rascalTime / (double) drawTime);
+		}
+	}
+
+	public void drawOverlaps(Rectangle part) {
+		Coordinate offset = new Coordinate();
+		for(Overlap f : overlapFigures){
+			offset.set(0,0);
+			for(Dimension d : HOR_VER){
+				double figureS = Math.max(viewPortSize.get(d), figure.minSize.get(d));
+				
+				if(f.over.location.get(d) < 0){
+					offset.set(d,-f.over.location.get(d));
+				}
+				if(f.over.location.get(d) + f.over.size.get(d) >= figureS){
+					offset.set(d,(figureS - f.over.size.get(d)) - f.over.location.get(d) );
+				}
+			}
+			Coordinate newRectLoc = new Coordinate(part.getLocation());
+			newRectLoc.sub(offset);
+			Rectangle partOffset = new Rectangle(newRectLoc,part.getSize());
+			if(f.over.overlapsWith(partOffset)){
+				gc.translate(offset.getX(), offset.getY());
+				f.over.draw(zoom, gc, partOffset,swtVisiblityMangager.getVisibleSWTElementsVector());
+				gc.translate(-offset.getX(), -offset.getY());
+			}
 		}
 	}
 	

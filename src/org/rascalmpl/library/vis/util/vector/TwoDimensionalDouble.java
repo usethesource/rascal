@@ -66,6 +66,11 @@ public abstract class TwoDimensionalDouble extends ReadOnlyTwoDimensionalDouble{
 		setX(rhs.getX() + getX());
 		setY(rhs.getY() + getY());
 	}
+	
+	public void sub(ReadOnlyTwoDimensionalDouble rhs){
+		setX(getX() - rhs.getX());
+		setY(getY() - rhs.getY());
+	}
 
 	
 	public void setMax(ReadOnlyTwoDimensionalDouble rhs){

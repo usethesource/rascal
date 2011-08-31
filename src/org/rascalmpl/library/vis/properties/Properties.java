@@ -48,7 +48,7 @@ public enum Properties {
 	VZOOMABLE			(Types.BOOL,	"vzoomable",		true,				true	),
 	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				true	),
 	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
-	SPREAD				(Types.BOOL,    "spread",			true,				false	),
+	SPREAD				(Types.BOOL,    "spread",			false,				false	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
 	MAJOR_X				(Types.BOOL,    "majorx",			false,				false	),
 	
@@ -58,7 +58,7 @@ public enum Properties {
 	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	false	),  
 	
 	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				true	),
-	INNER_ALIGN			(Types.REAL,	"ialign",			0.5,				false	),
+	INNER_ALIGN			(Types.REAL,	"ialign",			0.0,				false	),
 	HSIZE				(Types.REAL,	"hsize",			0.0,				true	),
 	VSIZE				(Types.REAL,	"vsize",			0.0,				true	),
 	HGAP				(Types.REAL,	"hgap",				0.0,				false	),	// scheduled for removal

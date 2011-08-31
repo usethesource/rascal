@@ -10,8 +10,10 @@ import java.util.Vector;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
@@ -51,7 +53,7 @@ public class Overlap extends LayoutProxy{
 					Math.max(0,view.getSize().get(d) - ((location.get(d) - view.getLocation().get(d)) + size.get(d)));
 				
 				double align = over.prop.get2DReal(d, ALIGN);
-				double sizeMiddle = size.get(d) * (0.5 - Math.abs(align - 0.5 ));
+				double sizeMiddle = size.get(d) * 2*(0.5 - Math.abs(align - 0.5 ));
 				if(align > 0.5){
 					sizeLeft*= 1.0 - (align - 0.5)*2.0;
 				}
@@ -63,21 +65,20 @@ public class Overlap extends LayoutProxy{
 			} else {
 				over.size.set(d,innerFig.size.get(d) * over.prop.get2DReal(d, GROW));
 			}
-			if(over.size.get(d) > view.getSize().get(d)){
-				over.size.set(d,view.getSize().get(d));
-			}
-			if(over.minSize.get(d) > over.size.get(d)){
-				over.size.set(d,over.minSize.get(d));
+			
+			if(over.size.get(d) < over.minSize.get(d)){
+				over.size.set(d, over.minSize.get(d));
 			}
 			over.location.set(d, 
 					(over.prop.get2DReal(d, ALIGN)  * (innerFig.size.get(d) - over.size.get(d))) + 
-					(over.prop.get2DReal(d,ALIGN) -0.5)*2.0 * over.size.get(d));	
-			if(over.location.get(d) + location.get(d) < view.getLocation().get(d)){
-				//over.location.set(d,view.getLocation().get(d));
+					(over.prop.get2DReal(d,ALIGN) -0.5)*2.0 * over.size.get(d));
+			if(over.location.get(d) < view.getLocation().get(d)){
+				over.location.set(d,view.getLocation().get(d) );
 			}
-			if(location.get(d) + over.location.get(d) + over.size.get(d) > view.getRightDown().get(d)){
-				//over.location.set(d,view.getRightDown().get(d) - over.size.get(d));
+			if(over.location.get(d) + over.size.get(d) > view.getRightDown().get(d)){
+				over.location.set(d,view.getRightDown().get(d) - over.size.get(d));
 			}
+			
 		}
 	}
 	
@@ -86,10 +87,10 @@ public class Overlap extends LayoutProxy{
 		env.unregisterOverlap(this);
 	}
 
-	public Vector<Figure> getVisibleChildren(Rectangle r) {
-		Vector<Figure> visChildren = new Vector<Figure>();
-		visChildren.add(innerFig); // overlap is drawed from elsewhere
-		return visChildren;
+	@Override
+	public void drawChildren(Coordinate zoom, GraphicsContext gc,
+			Rectangle part, List<IHasSWTElement> visibleSWTElements) {
+		innerFig.draw(zoom, gc, part, visibleSWTElements);
 	}
 	
 	public void getFiguresUnderMouse(Coordinate c,List<Figure> result){
