@@ -112,7 +112,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	
 	private void setViewPortSize(){
 		org.eclipse.swt.graphics.Rectangle s = parent.getClientArea();
-		viewPortSize.set(s.width,s.height);
+		viewPortSize.set(s.width-1,s.height-1);
 	}
 	
 	private void setScrollBarsVisiblity(){
@@ -276,7 +276,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	
 
 	private void setBackBuffer(){
-		if(backbuffer == null || backbuffer.isDisposed() || backbuffer.getBounds().width != viewPortSize.getX() || backbuffer.getBounds().height != viewPortSize.getY()){
+		if(backbuffer == null || backbuffer.isDisposed() || backbuffer.getBounds().width != viewPortSize.getX() +1 || backbuffer.getBounds().height != viewPortSize.getY()+1){
 			makeNewBackBuffer();
 		}
 	}
@@ -285,7 +285,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		if(backbuffer!=null){
 			backbuffer.dispose();
 		}
-		backbuffer = new Image(parent.getDisplay(), FigureMath.ceil(viewPortSize.getX()), FigureMath.ceil(viewPortSize.getY()));
+		backbuffer = new Image(parent.getDisplay(), FigureMath.ceil(viewPortSize.getX())+1, FigureMath.ceil(viewPortSize.getY())+1);
 	}
 
 	public void dispose() {
@@ -312,7 +312,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 	
 	public void writeScreenShot(OutputStream to){
-		Image screenShot = new Image(parent.getDisplay(), (int)viewPortSize.getX() - 1,(int)viewPortSize.getY()-1);
+		Image screenShot = new Image(parent.getDisplay(), (int)viewPortSize.getX()+1 ,(int)viewPortSize.getY()+1);
 		GC gc = new GC(parent);
 		gc.copyArea(screenShot, 0,0);
 		gc.dispose();
