@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::ParseTree
+module ParseTree
 
 // Visualization of ParseTrees
 
@@ -21,64 +21,42 @@ import String;
 import ValueIO;
 import Set;
 
-private int idGen = 0;
-
-private list[Figure] nodes = [];
-private list[Edge] edges = [];
-
-private str newId(){
-  idGen += 1;
-  return "<idGen>";
+public void renderParsetree(Tree t){
+	render(space(visParsetree(t),std(gap(4,15)),std(resizable(false))));
 }
 
-private void reset(){
-  idGen = 0;
-  nodes = [];
-  edges = [];
-}
-
-public Figure parsetree(Tree p){
-  reset();
-  root = viewTree1(p);
-  return tree(nodes, edges, gap(4));
-}
-
-private FProperty popup(str s){
-	return mouseOver(box(text(s), gap(3,1), lineWidth(0), fillColor("yellow")));
-}
-
-private str viewTree1(Tree t){
-  //println("viewTree1:"); rawPrintln(t);
+public Figure visParsetree(Tree t){
   switch(t){
   
-   case appl(Production prod, list[Tree] args) : {
+   case b:appl(Production prod, list[Tree] args) : {
+   		if(\lex(_) := prod.def){
+   			return box(text(unparse(b)),size(5));
+   		}
+   		if(prod.def has string){
+   			return box(text(prod.def.string),size(5));
+   		}
+   		if(\layouts(_) := prod.def){
+   			return box(size(5),fillColor("grey"),popup(unparse(b)));
+   		}
 	     FProperty p = popup(topProd2rascal(prod));
-	     root = newId();
-	     viewTrees(root, args);
-	     nodes += ellipse(vis::Figure::id(root), size(4), p);
-	     return root;
+	     return tree(ellipse(size(5),p),[visParsetree(c) | c <- args]);
      }
      
      case amb(set[Tree] alternatives):{
          FProperty p = popup("Ambiguous: <size(alternatives)>");
-         root = newId();
          viewTrees(root, toList(alternatives));
-         nodes += ellipse(vis::Figure::id(root), size(10), fillColor("red"), p);
-	     return root; 
+         return tree(ellipse(size(10), fillColor("red"), p),[visParsetree(c) | c <- args]);
       }
      
     case char(int c) : {
-        root = newId();
-        nodes += box(text(escape(stringChar(c))), vis::Figure::id(root), gap(1), fontColor("blue"));
-        return root;
-    }
-    
-    case str s: {
-      root = newId();
-      nodes += box([id(root), gap(1), fontColor("blue")], text(s));
+        return  box(text(escape(stringChar(c)), fontColor("blue")));
     }
   }
   throw "viewTree1: missing case for: <t>";
+}
+
+private FProperty popup(str s){
+	return mouseOver(box(text(s), grow(1.2), resizable(false),fillColor("yellow")));
 }
 
 private bool allChars(list[Tree] trees){
@@ -90,16 +68,22 @@ private str getChars(list[Tree] trees){
   return stringChars(chars);
 }
 
-private void viewTrees(str root, list[Tree] trees){
-  if(allChars(trees)){
-    this = newId();
-    chars = getChars(trees);
-    nodes += box(text(chars), vis::Figure::id(this), gap(1), fontColor("blue"));
-    edges += edge(root, this);
-  } else {
-    for(a <- trees)
-	  edges += edge(root, viewTree1(a));
-  }
+public FProperty popup(str s){
+return mouseOver(box(text(s), grow(1.2), resizable(false), fillColor("yellow")));
+}
+
+public void tree2(){
+   render(tree(ellipse(size(60), fillColor("green"), popup("Ellipse A")),
+       [ ellipse(size(90), fillColor("red"), popup("Ellipse B")),
+         ellipse(size(120), fillColor("blue"), popup("Ellipse C")),
+         ellipse(size(150), fillColor("purple"), popup("Ellipse D")),
+         ellipse(size(180), fillColor("lightblue"), popup("Ellipse E")),
+         box(size(60), fillColor("orange"), popup("Box F")),
+         box(size(60), fillColor("brown"), popup("Box G")),
+         box(size(60), fillColor("black"), popup("Box H")),
+         box(size(60), fillColor("grey"), popup("Box I")),
+         ellipse(size(60), fillColor("white"), popup("Ellipse J"))
+       ],  gap(30),  lineWidth(2), fillColor("black"), std(shadow(true)))); 
 }
 
 
