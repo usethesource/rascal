@@ -135,6 +135,7 @@ public class Tree extends Compose {
 	public void resizeElement(Rectangle view) {
 		root.location.set(minor,rootMinor );
 		root.location.set(major,0);
+		root.size.set(root.minSize);
 		for(int i = 1 ; i < children.length ; i++){
 			children[i].location.set(major,childrenMajor);
 			children[i].location.set(minor,childrenMinor[i-1]);

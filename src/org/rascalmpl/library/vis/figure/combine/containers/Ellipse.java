@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.combine.containers;
 
-import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
@@ -65,6 +64,7 @@ public class Ellipse extends Container {
 			innerFig.location.add(d,innerFig.size.get(d)*(1.0-SHRINK_EXTRA) * innerFig.prop.get2DReal(d, ALIGN));
 			innerFig.size.set(d, innerFig.size.get(d)*SHRINK_EXTRA);
 		}
+		
 	}
 	
 	@Override
@@ -126,4 +126,9 @@ public class Ellipse extends Container {
         }
 	}
 	*/
+	
+	@Override
+	public String  toString(){
+		return String.format("Ellipse %s %s", location,size);
+	}
 }
