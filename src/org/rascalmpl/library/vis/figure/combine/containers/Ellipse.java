@@ -45,8 +45,7 @@ public class Ellipse extends Container {
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		double lw = 0.5 * prop.getReal(LINE_WIDTH);
-		gc.ellipse(location.getX() -lw , location.getY() -lw , size.getX() +lw , size.getY() + lw);
+		gc.ellipse(location.getX() , location.getY() , size.getX() , size.getY() );
 	}
 	
 	@Override
