@@ -737,7 +737,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IConstructor tree;
 		
-		if (!command.contains("`")) {
+		if (noBacktickOutsideStringConstant(command)) {
 			IActionExecutor actionExecutor = new BootRascalActionExecutor();
 			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
 		} else {
@@ -752,6 +752,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		return eval(stat);
+	}
+
+	private boolean noBacktickOutsideStringConstant(String command) {
+		boolean instring = false;
+		byte[] b = command.getBytes();
+		
+		for (int i = 0; i < b.length; i++) {
+			if (b[i] == '\"') {
+				instring = !instring;
+			}
+			else if (!instring && b[i] == '`') {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	public IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
