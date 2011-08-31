@@ -20,7 +20,6 @@ public abstract class LayoutProxy extends WithInnerFig {
 	@Override
 	public void computeMinSize() {
 		minSize.set(innerFig.minSize);
-		resizable.set(innerFig.resizable);
 	}
 
 	@Override
