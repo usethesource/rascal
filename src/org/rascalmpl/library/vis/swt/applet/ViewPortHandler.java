@@ -182,12 +182,13 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	private void keepOverlapsInsideScreen(){
 		for(Overlap f : overlapFigures){
 			for(Dimension d : HOR_VER){
+				//System.out.printf("Overlap location %s\n",f.over.location);
 				if(f.over.location.get(d) < 0){
 					f.over.location.set(d,0);
 				}
 				double figureS = Math.max(viewPortSize.get(d), figure.minSize.get(d));
-				if(f.over.location.get(d) + f.size.get(d) > figureS){
-					f.over.location.set(d, figureS-f.size.get(d));
+				if(f.over.location.get(d) + f.over.size.get(d) > figureS){
+					f.over.location.set(d, figureS-f.over.size.get(d));
 				}
 			}
 		}
