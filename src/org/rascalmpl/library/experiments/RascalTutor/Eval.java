@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.result.Result;
 
 @SuppressWarnings("serial")
@@ -30,7 +31,7 @@ public class Eval extends TutorHttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		System.err.println("EvalExpr, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		
-		String expr = escapeForRascal(getStringParameter(request,"expr"));
+		String expr = getStringParameter(request,"expr");
 		PrintWriter out = response.getWriter();
 
 		try {

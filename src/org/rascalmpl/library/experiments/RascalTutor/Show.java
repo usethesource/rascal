@@ -14,7 +14,6 @@ package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
 public class Show extends TutorHttpServlet {
@@ -31,12 +30,13 @@ public class Show extends TutorHttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		
 		System.err.println("ShowConcept, doGet: " + request.getRequestURI());
-		String concept = escapeForRascal(getStringParameter(request, "concept"));
+		String concept = getStringParameter(request, "concept");
 		PrintWriter out = response.getWriter();
 		
 		try {
-			Result<IValue> result = evaluator.eval(null, "showConcept(\"" + concept + "\")", URI.create("stdin:///"));
-			out.println(((IString) result.getValue()).getValue());
+			IValueFactory vf = evaluator.getValueFactory();
+			IValue result = evaluator.call("showConcept", vf.string(concept));
+			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));

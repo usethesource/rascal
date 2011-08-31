@@ -14,7 +14,6 @@ package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
 public class Edit extends TutorHttpServlet {
@@ -39,8 +38,9 @@ public class Edit extends TutorHttpServlet {
 		PrintWriter out = response.getWriter();
 		
 		try {
-			Result<IValue> result = evaluator.eval(null, "edit(\"" + concept + "\"," + newConcept + "," + check + ")", URI.create("stdin:///"));
-			String resp = ((IString) result.getValue()).getValue();
+			IValueFactory vf = evaluator.getValueFactory();
+			IValue result = evaluator.call("edit", vf.string(concept), vf.bool(newConcept), vf.bool(check));
+			String resp = ((IString) result).getValue();
 			out.println(resp);
 		}
 		catch (Throwable e) {

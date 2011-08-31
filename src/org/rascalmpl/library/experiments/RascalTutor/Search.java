@@ -14,7 +14,6 @@ package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
 public class Search extends TutorHttpServlet {
@@ -30,13 +29,14 @@ public class Search extends TutorHttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		System.err.println("Search, doGet: " + request.getRequestURI() + request.getQueryString());
-		String concept = escapeForRascal(getStringParameter(request, "concept"));
-		String term = escapeForRascal(getStringParameter(request,"term"));
+		String concept = getStringParameter(request, "concept");
+		String term = getStringParameter(request,"term");
 		
 		PrintWriter out = response.getWriter();
 		try {
-			Result<IValue> result = evaluator.eval(null, "search(\"" + concept + "\",\"" + term + "\")", URI.create("stdin:///"));
-			out.println(((IString) result.getValue()).getValue());
+			IValueFactory vf = evaluator.getValueFactory();
+			IValue result = evaluator.call("search", vf.string(concept), vf.string(term));
+			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));
