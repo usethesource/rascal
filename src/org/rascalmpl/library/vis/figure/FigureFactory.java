@@ -46,7 +46,6 @@ import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Combo;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scale;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.TextField;
-import org.rascalmpl.library.vis.figure.tree.NewTree;
 import org.rascalmpl.library.vis.figure.tree.Tree;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
@@ -88,7 +87,6 @@ public class FigureFactory {
 		HVCAT,
 		NOMINALKEY,
 		MOUSEOVER,
-		NEWTREE,
 		INTERVALKEY,
 		OUTLINE,// scheduled for removal
 		OVERLAY, 
@@ -131,7 +129,7 @@ public class FigureFactory {
     	put("_hvcat",		Primitives.HVCAT);
     	put("_mouseOver",	Primitives.MOUSEOVER);
     	put("_nominalKey",  Primitives.NOMINALKEY);
-    	put("_newTree",     Primitives.NEWTREE);
+    	put("_tree",     Primitives.TREE);
     	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
@@ -289,10 +287,6 @@ public class FigureFactory {
 			children = makeList(env,c.get(0),properties,childPropsNext);
 			return new HVCat(Dimension.X, children, properties);
 			
-		case NEWTREE:
-			children = makeList(env,c.get(0),properties,childPropsNext);
-			return new NewTree(Dimension.Y, children, properties);
-			
 		case GRID:
 			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
 			return new Grid( elems, properties);
@@ -363,8 +357,9 @@ public class FigureFactory {
 			return new Timer(env, c.get(0), c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
 			
 		case TREE: 			
-			return new Tree(env,properties, (IList) c.get(0), (IList)c.get(1));
-
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new Tree(Dimension.Y, children, properties);
+			
 		case TREEMAP: 			
 			//return new TreeMap(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
 			throw new Error("Treemap temporarily out of order..");
