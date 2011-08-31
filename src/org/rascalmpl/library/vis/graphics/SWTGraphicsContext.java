@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis.graphics;
 import static org.rascalmpl.library.vis.util.FigureMath.CLOSE;
 import static org.rascalmpl.library.vis.util.FigureMath.OPEN;
 import static org.rascalmpl.library.vis.util.FigureMath.degrees;
-import static org.rascalmpl.library.vis.util.FigureMath.round;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -80,10 +79,11 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void rect(double x, double y, double width, double height) {
 		int alpha0 = gc.getAlpha();
 		int xi, yi, wi,hi;
-		xi = round(x);
-		yi = round(y);
-		wi = round(width);
-		hi = round(height);
+		xi = (int)(x);
+		yi = (int)(y);
+		wi = (int)(x + width) - (int)x;
+		hi = (int)(y + height) - (int)y;
+
 		if (fill) {
 			gc.setAlpha(alphaFill);
 			if (shadow) {
@@ -101,20 +101,24 @@ public class SWTGraphicsContext implements GraphicsContext {
 
 	}
 
-	public void ellipse(double x1, double y1, double width, double height) {
-		int arg0 = round(x1), arg1 = round(y1), arg2 = round(width), arg3 = round(height);
+	public void ellipse(double x, double y, double width, double height) {
+		int xi, yi, wi,hi;
+		xi = (int)(x);
+		yi = (int)(y);
+		wi = (int)(x + width) - (int)x;
+		hi = (int)(y + height) - (int)y;
 		int alpha0 = gc.getAlpha();
 		if (fill) {
 			gc.setAlpha(alphaFill);
 			if (shadow) {
-				drawShadowFigure(SHAPE.ELLIPSE, arg0, arg1, arg2, arg3);
+				drawShadowFigure(SHAPE.ELLIPSE, xi, yi, wi, hi);
 			}
-			gc.fillOval(arg0, arg1, arg2, arg3);
+			gc.fillOval(xi, yi, wi, hi);
 			gc.setAlpha(alpha0);
 		}
 		if (stroke) {
 			gc.setAlpha(alphaStroke);
-			gc.drawOval(arg0, arg1, arg2, arg3);
+			gc.drawOval(xi, yi, wi, hi);
 			gc.setAlpha(alpha0);
 		}
 	}

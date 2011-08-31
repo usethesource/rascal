@@ -21,11 +21,11 @@ public Color arbColor(){
 
 public Figure genTree(int leafChance,int minDepth,int maxDepth, int minKids, int maxKids, real minX, real minY,real maxX, real maxY){
 	Figure root = box(fillColor(arbColor()),size(minX + round(arbReal() * (maxX-minX)), minY + round(arbReal() * (maxY -minY))),resizable(false));
-	if(maxDepth == 0 || minDepth <= 0 && toInt(arbReal() * 100.0) <= leafChance){ return newTree(root,[]); }
+	if(maxDepth == 0 || minDepth <= 0 && toInt(arbReal() * 100.0) <= leafChance){ return tree(root,[]); }
 	int nr = arbInt(maxKids-minKids) + minKids;
 	
 	
-	return newTree(root,
+	return tree(root,
 		[ genTree(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | i <- [0..nr]]);	
 }
 
@@ -49,7 +49,7 @@ public void testTree(){
 			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
 					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
-					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),std(majorDimX(bool () { return majorX; })))
+					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })))
 				),
 			grid([
 				[text(str () { return "hgap: <hg>";}),scale(int() { return 0; } ,int () { return 200; } , int () { return hg; },void (int s) { hg = s; })],

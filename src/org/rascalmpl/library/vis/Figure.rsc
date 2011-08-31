@@ -30,12 +30,9 @@ import ToString;
  * Wishlist:
  * - textures
  * - boxes with round corners
- * - drop shadows
  * - dashed/dotted lines
- * - ngons
  * - bitmap import and display
  * - new layouts (circular) treemap, icecle
- * - interaction
  */
  
  /*
@@ -605,8 +602,8 @@ public data Figure =
    | _graph(Figures nodes, Edges edges, FProperties props)
    
                 							    // composition of nodes and edges as tree
-   | _tree(Figures nodes, Edges edges, FProperties props)
-   | _newTree(Figures figs,FProperties props)
+   | _tree(Figures figs,FProperties props)
+
    
    | _treemap(Figures nodes, Edges edges, FProperties props)
    
@@ -758,8 +755,8 @@ public Figure hcat(Figures figs, FProperty props ...){
   return _grid([[figs]],props);
 }
 
-public Figure newTree(Figure root, Figures children, FProperty props...){
-	return _newTree([root] + children,[std(resizable(false))] + props);
+public Figure tree(Figure root, Figures children, FProperty props...){
+	return _tree([root] + children,[std(resizable(false))] + props);
 }
 
 public Figure vcat(Figures figs, FProperty props ...){
@@ -794,10 +791,6 @@ public Figure pack(Figures figs, FProperty props ...){
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
   return _graph(nodes, edges, [std(resizable(false))] + props);
-}
-
-public Figure tree(Figures nodes, Edges edges, FProperty props...){
-  return _tree(nodes, edges, [std(resizable(false))] + props);
 }
 
 public Figure treemap(Figures nodes, Edges edges, FProperty props...){
