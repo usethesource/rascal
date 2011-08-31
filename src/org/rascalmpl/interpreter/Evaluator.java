@@ -425,7 +425,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
-	private IValue call(String name, IValue... args) {
+	public IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
 
@@ -754,6 +754,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return eval(stat);
 	}
 
+	/*
+	 * This is dangereous, since inside embedded concrete fragments there may be unbalanced
+	 * double quotes as well as unbalanced backticks. For now it is a workaround that prevents
+	 * generation of parsers when some backtick is inside a string constant.
+	 */
 	private boolean noBacktickOutsideStringConstant(String command) {
 		boolean instring = false;
 		byte[] b = command.getBytes();

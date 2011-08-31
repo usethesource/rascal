@@ -14,7 +14,6 @@ package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
 public class Start extends TutorHttpServlet {
@@ -31,7 +30,7 @@ public class Start extends TutorHttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		
 		System.err.println("Start, doGet: " + request.getRequestURI());
-		String name = escapeForRascal(getStringParameter(request, "name"));
+		String name = getStringParameter(request, "name");
 		PrintWriter out = response.getWriter();
 		
 		String serverName = request.getServerName() + ":" + request.getLocalPort();
@@ -39,8 +38,9 @@ public class Start extends TutorHttpServlet {
 		System.err.println("Start, localName = " + request.getServerName() + ", port = " + request.getLocalPort());
 		
 		try {
-			Result<IValue> result = evaluator.eval(null, "startCourse(\"" + serverName  + "\", \"" + name + "\")", URI.create("stdin:///"));
-			out.println(((IString) result.getValue()).getValue());
+			IValueFactory vf = evaluator.getValueFactory();
+			IValue result = evaluator.call("startCourse",vf.string(serverName), vf.string(name));
+			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));

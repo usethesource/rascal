@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.result.Result;
 
 @SuppressWarnings("serial")
@@ -34,7 +35,7 @@ public class Save extends TutorHttpServlet {
 		System.err.println("Save, doGet: " + request.getRequestURI());
 		
 		String concept = getStringParameter(request, "concept");
-		String newContent = escapeForRascal(getStringParameter(request, "newcontent"));
+		String newContent = getStringParameter(request, "newcontent");
 		boolean newConcept = getStringParameter(request, "new").equals("true");
 		String resp;
 
@@ -43,8 +44,9 @@ public class Save extends TutorHttpServlet {
 		PrintWriter out = response.getWriter();
 
 		try {
-			Result<IValue> result = evaluator.eval(null, "save(\"" + concept + "\",\"" + newContent + "\"," + newConcept + ")", URI.create("stdin:///"));
-		    resp = ((IString) result.getValue()).getValue();
+			IValueFactory vf = evaluator.getValueFactory();
+			IValue result = evaluator.call("save", vf.string(concept), vf.string(newContent), vf.bool(newConcept));
+		    resp = ((IString) result).getValue();
 		    
 		    if (resp.startsWith("<!DOCTYPE")) {
 				out.println("<responses><response id=\"replacement\">" + escapeForHtml(resp) + "</response></responses>");
