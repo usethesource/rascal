@@ -343,6 +343,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Figure o) {
+		System.out.printf("Comparing %d %d\n",sequenceNr, o.sequenceNr);
 		return sequenceNr - o.sequenceNr;
 	}
 

@@ -85,30 +85,32 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		newUnderMouse.clear();
 		noLongerUnderMouse.clear();
 		// compute the added and removed elements in a fast way
-		Util.diffSorted(figuresUnderMouseSortedPrev, figuresUnderMouse, noLongerUnderMouse, BogusList.instance, newUnderMouse);
+		Util.diffSorted(figuresUnderMouseSortedPrev, figuresUnderMouseSorted, noLongerUnderMouse, BogusList.instance, newUnderMouse);
 		/*
-		System.out.printf("Now under mouse:\n");
-		 for(Figure fig : figuresUnderMouseSorted){
-			System.out.printf("%s \n",fig);
+		if(!noLongerUnderMouse.isEmpty() || !newUnderMouse.isEmpty()){
+			System.out.printf("Now under mouse:\n");
+			 for(Figure fig : figuresUnderMouseSorted){
+				System.out.printf("%s \n",fig);
+			}
+			 
+			 
+			System.out.printf("Prev under mouse:\n");
+			for(Figure fig : figuresUnderMouseSortedPrev){
+				System.out.printf("%s \n",fig);
+			}
 		}
-		 
-		 
-		System.out.printf("Prev under mouse:\n");
-		for(Figure fig : figuresUnderMouseSortedPrev){
-			System.out.printf("%s \n",fig);
-		}
-		*/
-		/*
+		
+		
 		if(!noLongerUnderMouse.isEmpty()){
 			System.out.printf("No longer under mouse:\n");
 			for(Figure fig : noLongerUnderMouse){
-				System.out.printf("%s %d \n",fig,fig.sequenceNr);
+				System.out.printf("%s %s %s \n",fig,fig.location, fig.size);
 			}
 		}
 		if(!newUnderMouse.isEmpty()){
 			System.out.printf("New under mouse:\n");
 			for(Figure fig : newUnderMouse){
-				System.out.printf("%s %d\n",fig,fig.sequenceNr);
+				System.out.printf("%s %s %s\n",fig,fig.location, fig.size);
 			}
 		}
 		*/
