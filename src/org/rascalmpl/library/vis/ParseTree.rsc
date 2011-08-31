@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module ParseTree
+module vis::ParseTree
 
 // Visualization of ParseTrees
 
