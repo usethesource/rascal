@@ -36,8 +36,14 @@ public class RascalToJavaValueConverters {
 		public static ConvertColor instance = new ConvertColor();
 		public Integer convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			if(val instanceof IString){
-				val = FigureColorUtils.colorNames.get(((IString)val).getValue());
-			}
+				String name = ((IString)val).getValue().toLowerCase();
+				if(FigureColorUtils.colorNames.containsKey(name)){
+					val =  FigureColorUtils.colorNames.get(name);
+				} else {
+					throw new Error("No such color "+ name + "!");
+				}
+
+			} 
 			return ((IInteger) val).intValue();
 		}
 	}
