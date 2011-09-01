@@ -132,7 +132,7 @@ public class Pack extends WidthDependsOnHeight {
 				if(nd == null){
 					System.err.println("**** PACK: NOT ENOUGH ROOM *****");
 					fits = false;
-					size.setY(size.getY() * 2.0);
+					size.setY(size.getY() * 1.2);
 					counter++;
 					break;
 				}

@@ -77,25 +77,20 @@ public class Text extends Figure {
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		//System.out.printf("Drawing %s\n",this);
-		double y = location.getY();
-		double to = Math.min(minSizeUnrotated.getX(),minSizeUnrotated.getY()) /2.0;
-		double tx =  minSize.getX()/2.0;
-		double ty =  minSize.getY()/2.0;;
-		double angle = FigureMath.radians(prop.getReal(TEXT_ANGLE));
-		double bx = location.getX(); //+( minSize.getX() - minSizeUnrotated.getX())/2.0;
-		double by = location.getY();// +(minSize.getY() -minSizeUnrotated.getY() )/2.0;
-
+		double y = -minSizeUnrotated.getY()/2.0;
+		double tx =  location.getX() + minSize.getX()/2.0;
+		double ty =  location.getY() + minSize.getY()/2.0;;
+		double lux = -minSizeUnrotated.getX()/2.0;
+		double luy = -minSizeUnrotated.getY()/2.0;
 		gc.translate( tx,  ty);
 		gc.rotate(prop.getReal(TEXT_ANGLE));
-		gc.translate(-minSizeUnrotated.getX()/2.0,-minSizeUnrotated.getY()/2.0);
 		
 		for(int i = 0 ; i < lines.length ; i++){
 			
-			gc.text(lines[i], location.getX() + indents[i],y);
+			gc.text(lines[i], lux + indents[i],y);
 			y+= getTextHeight();
 			
 		}
-		gc.translate(minSizeUnrotated.getX()/2.0,minSizeUnrotated.getY()/2.0);
 		gc.rotate(-prop.getReal(TEXT_ANGLE));
 		gc.translate( - tx, - ty);
 		
