@@ -85,7 +85,7 @@ public class Text extends Figure {
 		double bx = location.getX(); //+( minSize.getX() - minSizeUnrotated.getX())/2.0;
 		double by = location.getY();// +(minSize.getY() -minSizeUnrotated.getY() )/2.0;
 
-		gc.translate(bx + tx, by + ty);
+		gc.translate( tx,  ty);
 		gc.rotate(prop.getReal(TEXT_ANGLE));
 		gc.translate(-minSizeUnrotated.getX()/2.0,-minSizeUnrotated.getY()/2.0);
 		
@@ -97,7 +97,7 @@ public class Text extends Figure {
 		}
 		gc.translate(minSizeUnrotated.getX()/2.0,minSizeUnrotated.getY()/2.0);
 		gc.rotate(-prop.getReal(TEXT_ANGLE));
-		gc.translate(-bx - tx, -by - ty);
+		gc.translate( - tx, - ty);
 		
 	}
 	

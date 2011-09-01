@@ -11,16 +11,19 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.compose;
 
-import static org.rascalmpl.library.vis.properties.Properties.HGAP;
-
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.FigureColorUtils;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
-import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+
 /**
  * Pack a list of elements as dense as possible in a space of given size. 
  * 
@@ -31,16 +34,17 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  */
 
 //TODO: fix me for resizing!
-public class Pack extends WidthDependsOnHeight {
+public class Pack extends Compose {
 	
-	public Pack(Dimension major, Figure[] figures, PropertyManager properties) {
-		super(major, figures, properties);
-	}
-
 	Node root;
 	boolean fits = true;
-	static protected boolean debug =true;
+	static protected boolean debug =false;
 	boolean initialized = false;
+
+	public Pack( Figure[] figures, PropertyManager properties) {
+		super(figures, properties);
+	}
+	
 	/*
 	 * Compare two Figures according to their surface and aspect ratio
 	 * 
@@ -49,6 +53,7 @@ public class Pack extends WidthDependsOnHeight {
 	
 	public class CompareAspectSize implements Comparator<Figure>{
 
+		@Override
 		public int compare(Figure o1, Figure o2) {
 			BoundingBox lhs = o1.minSize;
 			BoundingBox rhs = o2.minSize;
@@ -64,15 +69,31 @@ public class Pack extends WidthDependsOnHeight {
 		}
 		
 	}
-	
+
+
+
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		
+		if(!fits){
+			String message = "Pack: cannot fit!";
+			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
+			gc.rect(location.getX(), location.getY(), size.getX(), size.getY());
+			gc.text(message, location.getX() + size.getX()/2.0 - getTextWidth(message)/2.0, location.getY() + size.getY()/2.0 );
+		}
+	}
+
+	@Override
+	public void computeMinSize() {
+		minSize.set(20,20);
+		
+	}
+
 	@Override
 	public void resizeElement(Rectangle view) {
-		System.out.printf("Trying to fit in %s %s\n",size,minSize);
-		if(size.get(major) < 0)return;
-		Node.hgap = prop.getReal(HGAP);
-		Node.vgap = prop.getReal(HGAP);
-		for(Figure v : children){
-			v.size.set(v.minSize);
+		Node.hgap = prop.getReal(Properties.HGAP);
+		Node.vgap = prop.getReal(Properties.VGAP);
+		for(Figure fig : children){
+			fig.size.set(fig.minSize);
 		}
 		/* double surface = 0;
 		double maxw = 0;
@@ -100,25 +121,30 @@ public class Pack extends WidthDependsOnHeight {
 				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getX(), v.minSize.getY());
 			}
 		}
-		fits = false;
-		while(!fits){
-			fits = true;
+		
+		fits = true;
+		//while(!fits){
+			//fits = true;
+			//size.setWidth(size.getX() * 1.2f);
+			//size.setHeight(size.getY() * 1.2f);
 	
 			root = new Node(0, 0, size.getX(), size.getY());
 			
 			for(Figure fig : children){
 				Node nd = root.insert(fig);
 				if(nd == null){
-					System.err.printf("**** PACK: NOT ENOUGH ROOM ***** %s (minSize=%s)\n",size, minSize);
+					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
 					fits = false;
-					size.set(minor,size.get(minor) * 2.0);
 					break;
 				}
 				nd.figure = fig;
-				nd.figure.location.set(nd.left,nd.right);
+				fig.location.setX(nd.left);
+				fig.location.setY(nd.right);
 			}
-		}
+		//}
+		//initialized = true;
 	}
+	
 }
 
 class Node {
@@ -147,6 +173,7 @@ class Node {
 	}
 	
 	public Node insert(Figure fig){
+		String id = fig.prop.getStr(Properties.ID);
 		//if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getX(), fig.minSize.getY());
 		if(!leaf()){
 			// Not a leaf, try to insert in left child
@@ -205,5 +232,6 @@ class Node {
         
         return lnode.insert(fig);
 	}
+	
 }
 
