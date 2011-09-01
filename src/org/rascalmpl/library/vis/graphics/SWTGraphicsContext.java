@@ -56,8 +56,17 @@ public class SWTGraphicsContext implements GraphicsContext {
 		gc.setAdvanced(true);
 		gc.setAntialias(SWT.ON);
 		gc.setInterpolation(SWT.HIGH);
+		disposeIfNessary(currentFont);
+		currentFontData = null;
+		currentFont = null;
 		translateX = translateY = 0;
 	}
+	
+	public GC getGC(){
+		return gc;
+	}
+	
+	
 
 	@SuppressWarnings("serial")
 	class Route extends ArrayList<TypedPoint> {
@@ -207,7 +216,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void rotate(double angle) {
 		Transform transform = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.rotate((float) degrees(angle));
+		transform.rotate((float)angle);
 		gc.setTransform(transform);
 	}
 
@@ -445,7 +454,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		}
 		FontData fd = new FontData(fontName, (int) fontSize, styleMask );
 		currentFontData = fd;
-		if(fd.equals(this.fontData)) return;
+		//if(fd.equals(this.fontData)) return;
 		this.fontData = fd;
 		disposeIfNessary(currentFont);
 		currentFont = new Font(device, fd);

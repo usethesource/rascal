@@ -250,15 +250,19 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			makeNewBackBuffer();
 			gc.setGC(new GC(backbuffer));
 		}
+		gc.getGC().setBackground(parent.getDisplay().getSystemColor( SWT.COLOR_WHITE));
+		gc.getGC().fillRectangle(0, 0, FigureMath.ceil(viewPortSize.getX())+1, FigureMath.ceil(viewPortSize.getY())+1);
 		Rectangle part = getViewPortRectangle();
 		gc.translate(-viewPortLocation.getX(), -viewPortLocation.getY());
-
+		
 		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
-
+		gc.translate(viewPortLocation.getX(), viewPortLocation.getY());
+		
 		drawOverlaps(part);
+		
 		gc.dispose();
 		swtGC.drawImage(backbuffer, 0, 0);
-		
+	
 		swtVisiblityMangager.makeOffscreenElementsInvisble();
 		zorderManager.draw(part);
 		
@@ -272,26 +276,25 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 
 	public void drawOverlaps(Rectangle part) {
-		Coordinate offset = new Coordinate();
+		
 		for(Overlap f : overlapFigures){
-			offset.set(0,0);
-			for(Dimension d : HOR_VER){
-				double figureS = Math.max(viewPortSize.get(d), figure.minSize.get(d));
+			if(f.innerFig.overlapsWith(part)){
+				for(Dimension d : HOR_VER){
+//					if(f.over.location.get(d) < part.getLocation().get(d)){
+//						Coordinate c = new Coordinate(part.getLocation());
+//						c.set(d, f.over.location.get(d));
+//						part = new Rectangle(c,part.getSize());
+//					}
+					if(f.over.location.get(d) + f.over.size.get(d) > part.getLocation().get(d) + part.getSize().get(d)){
+						Coordinate c = new Coordinate(part.getLocation());
+						c.set(d,f.over.location.get(d) + f.over.size.get(d) - part.getSize().get(d) );
+						part = new Rectangle(c,part.getSize());
+					}	
+				}
 				
-				if(f.over.location.get(d) < 0){
-					offset.set(d,-f.over.location.get(d));
-				}
-				if(f.over.location.get(d) + f.over.size.get(d) >= figureS){
-					offset.set(d,(figureS - f.over.size.get(d)) - f.over.location.get(d) );
-				}
-			}
-			Coordinate newRectLoc = new Coordinate(part.getLocation());
-			newRectLoc.sub(offset);
-			Rectangle partOffset = new Rectangle(newRectLoc,part.getSize());
-			if(f.over.overlapsWith(partOffset)){
-				gc.translate(offset.getX(), offset.getY());
-				f.over.draw(zoom, gc, partOffset,swtVisiblityMangager.getVisibleSWTElementsVector());
-				gc.translate(-offset.getX(), -offset.getY());
+				gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
+				f.over.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
+				gc.translate(part.getLocation().getX(), part.getLocation().getY());
 			}
 		}
 	}

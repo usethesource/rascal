@@ -40,6 +40,7 @@ public class HVCat extends WidthDependsOnHeight{
 	
 	@Override
 	public void resizeElement(Rectangle view) {
+		System.out.printf("Cannot out fit! %s %s\n",size,minSize);
 		if(size.get(major) < minSize.get(major)) {
 			System.err.printf("Cannot ever fit! %s %s\n",size,minSize);
 			return;

@@ -11,14 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure;
 
-import static org.rascalmpl.library.vis.properties.Properties.INNER_ALIGN;
-
+import static org.rascalmpl.library.vis.properties.Properties.*;
+import static org.rascalmpl.library.vis.util.vector.Dimension.*;
 import java.util.List;
 
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.FigureMath;
+import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
@@ -33,12 +36,14 @@ public class Text extends Figure {
 	private String [] lines;
 	private double[] indents;
 	private PropertyValue<String> txt;
+	private BoundingBox minSizeUnrotated;
 
 
 	public Text(PropertyManager properties,PropertyValue<String> txt) {
 		super( properties);
 		this.txt = txt;
 		children = childless;
+		minSizeUnrotated = new BoundingBox();
 	}
 
 	@Override
@@ -57,6 +62,12 @@ public class Text extends Figure {
 		}
 		double height = lines.length * getTextHeight();
 		minSize.set(width,height);
+			double angle = FigureMath.radians(prop.getReal(TEXT_ANGLE));
+			minSizeUnrotated.set(minSize);
+			double r1 = Math.abs(Math.cos(angle));
+			double r2 = Math.abs(Math.sin(angle));
+			minSize.setX(minSizeUnrotated.getX() * r1 + minSizeUnrotated.getY() * r2);
+			minSize.setY(minSizeUnrotated.getY() * r1 + minSizeUnrotated.getX() * r2);
 		resizable.set(false,false);
 	}
 
@@ -67,10 +78,27 @@ public class Text extends Figure {
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		//System.out.printf("Drawing %s\n",this);
 		double y = location.getY();
+		double to = Math.min(minSizeUnrotated.getX(),minSizeUnrotated.getY()) /2.0;
+		double tx =  minSize.getX()/2.0;
+		double ty =  minSize.getY()/2.0;;
+		double angle = FigureMath.radians(prop.getReal(TEXT_ANGLE));
+		double bx = location.getX(); //+( minSize.getX() - minSizeUnrotated.getX())/2.0;
+		double by = location.getY();// +(minSize.getY() -minSizeUnrotated.getY() )/2.0;
+
+		gc.translate(bx + tx, by + ty);
+		gc.rotate(prop.getReal(TEXT_ANGLE));
+		gc.translate(-minSizeUnrotated.getX()/2.0,-minSizeUnrotated.getY()/2.0);
+		
 		for(int i = 0 ; i < lines.length ; i++){
+			
 			gc.text(lines[i], location.getX() + indents[i],y);
 			y+= getTextHeight();
+			
 		}
+		gc.translate(minSizeUnrotated.getX()/2.0,minSizeUnrotated.getY()/2.0);
+		gc.rotate(-prop.getReal(TEXT_ANGLE));
+		gc.translate(-bx - tx, -by - ty);
+		
 	}
 	
 	@Override

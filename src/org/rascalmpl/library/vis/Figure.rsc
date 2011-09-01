@@ -127,6 +127,12 @@ public str palette(int n){
     return "black";
 }
 
+
+public Color arbColor(){
+	return rgb(toInt(arbReal() * 255.0),toInt(arbReal() * 255.0),toInt(arbReal() * 255.0));
+}
+
+
 /*
 @doc{Create a list of font names}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
@@ -317,6 +323,9 @@ data FProperty =
 	|lineWidth  (num      r  )
 	|lineWidth  (num()    cr )
 	|lineWidth  (Measure  mv )
+	|textAngle  (num      r  )
+	|textAngle  (num()    cr )
+	|textAngle  (Measure  mv )
 	|toArrow    (Figure   f  )
 	|toArrow    (Figure() cf )
 	|toArrow    (Measure  mv )
@@ -679,11 +688,11 @@ public Figure vaxis(Figure fig, FProperty props ...){
 }
 
 public Figure hscreen(Figure fig, FProperty props ...){
-  return _screen(fig, props + [majorX(true)]);
+  return _screen(fig, props + [majorx(true)]);
 }
 
 public Figure vscreen(Figure fig, FProperty props ...){
-  return _screen(fig, props + [majorX(false)]);
+  return _screen(fig, props + [majorx(false)]);
 }
 
 public Figure leftAxis(str name,str i,Figure fig, FProperty props ...){
@@ -866,7 +875,7 @@ public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
    return _checkbox(text, false, vcallback, props);
 }  
 
-public Figure scale(int() low, int() high, int() selection, void(int) vcallback, FProperty props...){
+public Figure scaleSlider(int() low, int() high, int() selection, void(int) vcallback, FProperty props...){
    return _scale(low,high, selection,vcallback, props);
 }  
 

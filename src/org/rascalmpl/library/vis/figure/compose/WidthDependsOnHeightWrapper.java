@@ -23,10 +23,10 @@ public class WidthDependsOnHeightWrapper extends Scrollable{
 	public void computeMinSize(){
 		//super.computeMinSize();
 		BoundingBox iminSize = widget.getFigure().minSize;
-		org.eclipse.swt.graphics.Rectangle r = widget.computeTrim(0, 0, FigureMath.round(iminSize.getX()), FigureMath.round(iminSize.getY()));
-		minSize.set(r.width,r.height);
+		org.eclipse.swt.graphics.Rectangle r = widget.computeTrim(0, 0, FigureMath.ceil(iminSize.getX()), FigureMath.ceil(iminSize.getY()));
+		minSize.set(r.width +1 ,r.height +1);
 		Dimension minor = major.other();
-		minSize.set(minor, iminSize.get(minor) );
+		minSize.set(minor, Math.ceil(iminSize.get(minor))  );
 	}
 	
 	@Override

@@ -47,7 +47,7 @@ public class Overlap extends LayoutProxy{
 	public void resizeElement(Rectangle view) {
 		super.resizeElement(view);
 		for(Dimension d : HOR_VER){
-			if(over.prop.is2DPropertySet(d, SHRINK)){
+			/* if(over.prop.is2DPropertySet(d, SHRINK)){
 				double sizeLeft = Math.max(0,location.get(d)  - view.getLocation().get(d));
 				double sizeRight = 
 					Math.max(0,view.getSize().get(d) - ((location.get(d) - view.getLocation().get(d)) + size.get(d)));
@@ -62,9 +62,9 @@ public class Overlap extends LayoutProxy{
 				}
 				over.size.set(d,over.prop.get2DReal(d, SHRINK) * (sizeLeft + sizeMiddle + sizeRight));
 				
-			} else {
-				over.size.set(d,innerFig.size.get(d) * over.prop.get2DReal(d, GROW));
-			}
+			} else { */
+				over.size.set(d,innerFig.size.get(d) * over.prop.get2DReal(d, SHRINK));
+//			}
 			
 			if(over.size.get(d) < over.minSize.get(d)){
 				over.size.set(d, over.minSize.get(d));
@@ -72,12 +72,6 @@ public class Overlap extends LayoutProxy{
 			over.location.set(d, 
 					(over.prop.get2DReal(d, ALIGN)  * (innerFig.size.get(d) - over.size.get(d))) + 
 					(over.prop.get2DReal(d,ALIGN) -0.5)*2.0 * over.size.get(d));
-			if(over.location.get(d) < view.getLocation().get(d)){
-				over.location.set(d,view.getLocation().get(d) );
-			}
-			if(over.location.get(d) + over.size.get(d) > view.getRightDown().get(d)){
-				over.location.set(d,view.getRightDown().get(d) - over.size.get(d));
-			}
 			
 		}
 	}

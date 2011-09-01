@@ -67,8 +67,8 @@ public class Pack extends WidthDependsOnHeight {
 	
 	@Override
 	public void resizeElement(Rectangle view) {
-		System.out.printf("Trying to fit in %s",size);
-		//if(true)return;
+		System.out.printf("Trying to fit in %s %s\n",size,minSize);
+		if(size.get(major) < 0)return;
 		Node.hgap = prop.getReal(HGAP);
 		Node.vgap = prop.getReal(HGAP);
 		for(Figure v : children){
