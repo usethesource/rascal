@@ -12,17 +12,14 @@ public abstract class LayoutProxy extends WithInnerFig {
 	public LayoutProxy(Figure inner, PropertyManager properties) {
 		super(inner, properties);
 		if(inner!=null){
-			properties.stealLayoutPropertiesFrom(inner.prop);
-			
-			properties.stealProperty(Properties.ID, inner.prop);
+			properties.stealExternalPropertiesFrom(inner.prop);
 		}
 	}
 
 	@Override
 	public void computeMinSize() {
-		
 		minSize.set(innerFig.minSize);
-
+		resizable.set(innerFig.resizable);
 	}
 
 	@Override
@@ -35,7 +32,7 @@ public abstract class LayoutProxy extends WithInnerFig {
 	protected void setInnerFig(Figure inner){
 		super.setInnerFig(inner);
 		if(inner!=null){
-			prop.stealLayoutPropertiesFrom(inner.prop);
+			prop.stealExternalPropertiesFrom(inner.prop);
 		}
 	}
 	

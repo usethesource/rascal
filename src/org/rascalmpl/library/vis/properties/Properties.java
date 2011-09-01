@@ -17,6 +17,7 @@ import static org.rascalmpl.library.vis.util.FigureColorUtils.BLACK;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.LIGHTGRAY;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.WHITE;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.dropShadowColor;
+import static org.rascalmpl.library.vis.properties.PropertySemantics.*;
 
 import java.util.HashMap;
 
@@ -34,62 +35,62 @@ import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.DoNotConvert;
 
 public enum Properties {
 	
-// 	Name				Type			rascalName			stdDefault			determines layout?	combination
-	SHAPE_CLOSED		(Types.BOOL,	"shapeClosed",		false,				false	),	// scheduled for removal
-	SHAPE_CONNECTED		(Types.BOOL,	"shapeConnected",	false,				false	),	// scheduled for removal
-	SHAPE_CURVED		(Types.BOOL,	"shapeCurved",		false,				false	),	// scheduled for removal
-	HSTART_GAP			(Types.BOOL,	"hstartGap",		false,				true	),
-	HEND_GAP			(Types.BOOL,	"hendGap",			false,				true	),
-	VSTART_GAP			(Types.BOOL,	"vstartGap",		false,				true	),
-	VEND_GAP			(Types.BOOL,	"vendGap",			false,				true	),
-	HRESIZABLE			(Types.BOOL,	"hresizable",		true,				true	),
-	VRESIZABLE			(Types.BOOL,	"vresizable",		true,				true	),
-	HZOOMABLE			(Types.BOOL,    "hzoomable",		true,				true	),
-	VZOOMABLE			(Types.BOOL,	"vzoomable",		true,				true	),
-	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				true	),
-	SHADOW				(Types.BOOL,	"shadow",			false,				false	),
-	SPREAD				(Types.BOOL,    "spread",			false,				false	),
-	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				false	),
-	MAJOR_X				(Types.BOOL,    "majorx",			false,				false	),
+// 	Name				Type			rascalName			stdDefault			semantics	combination
+	SHAPE_CLOSED		(Types.BOOL,	"shapeClosed",		false,				INTERNAL	),	// scheduled for removal
+	SHAPE_CONNECTED		(Types.BOOL,	"shapeConnected",	false,				INTERNAL	),	// scheduled for removal
+	SHAPE_CURVED		(Types.BOOL,	"shapeCurved",		false,				INTERNAL	),	// scheduled for removal
+	HSTART_GAP			(Types.BOOL,	"hstartGap",		false,				INTERNAL	),
+	HEND_GAP			(Types.BOOL,	"hendGap",			false,				INTERNAL	),
+	VSTART_GAP			(Types.BOOL,	"vstartGap",		false,				INTERNAL	),
+	VEND_GAP			(Types.BOOL,	"vendGap",			false,				INTERNAL	),
+	HRESIZABLE			(Types.BOOL,	"hresizable",		true,				BOTH		),
+	VRESIZABLE			(Types.BOOL,	"vresizable",		true,				BOTH		),
+	HZOOMABLE			(Types.BOOL,    "hzoomable",		true,				BOTH		),
+	VZOOMABLE			(Types.BOOL,	"vzoomable",		true,				BOTH		),
+	ALLOW_ROTATE_FULL	(Types.BOOL,	"allAngles",		true,				INTERNAL	),
+	SHADOW				(Types.BOOL,	"shadow",			false,				INTERNAL	),
+	SPREAD				(Types.BOOL,    "spread",			false,				INTERNAL	),
+	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				INTERNAL	),
+	MAJOR_X				(Types.BOOL,    "majorx",			false,				INTERNAL	),
 	
-	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				false	),  
-	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				false	),   
-	LINE_COLOR			(Types.COLOR,	"lineColor",		BLACK,				false	),  
-	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	false	),  
+	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				INTERNAL	),  
+	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				INTERNAL	),   
+	LINE_COLOR			(Types.COLOR,	"lineColor",		BLACK,				INTERNAL	),  
+	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	INTERNAL	),  
 	
-	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				true	),
-	INNER_ALIGN			(Types.REAL,	"ialign",			0.0,				false	),
-	HSIZE				(Types.REAL,	"hsize",			0.0,				true	),
-	VSIZE				(Types.REAL,	"vsize",			0.0,				true	),
-	HGAP				(Types.REAL,	"hgap",				0.0,				false	),	// scheduled for removal
-	VGAP				(Types.REAL,	"vgap",				0.0,				false	),	// scheduled for removal
-	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				false	),
-	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				false	),
-	HCONNECT			(Types.REAL,	"hConnect",			0.5,				true	),
-	VCONNECT			(Types.REAL,	"vConnect",			0.5,				true	),
-	HSHRINK				(Types.REAL,	"hshrink",			1.0,				true,	 MUL),
-	VSHRINK				(Types.REAL, 	"vshrink",			1.0,				true,	 MUL),
-	HALIGN				(Types.REAL,	"halign",			0.5,				true	),
-	VALIGN				(Types.REAL,	"valign",			0.5,				true	),
-	HPOS				(Types.REAL,	"hpos",				0.0,				true	),
-	VPOS				(Types.REAL,	"vpos",				0.0,				true	),
-	HGROW				(Types.REAL, 	"hgrow",			1.0,				true,	 MUL),
-	VGROW				(Types.REAL, 	"vgrow",			1.0,				true,	 MUL),
-	LINE_WIDTH			(Types.REAL,	"lineWidth",		1.0,				true	),
-	TEXT_ANGLE			(Types.REAL,	"textAngle",		0.0,				false	),
+	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				INTERNAL	),
+	INNER_ALIGN			(Types.REAL,	"ialign",			0.0,				INTERNAL	),
+	HSIZE				(Types.REAL,	"hsize",			0.0,				BOTH		),
+	VSIZE				(Types.REAL,	"vsize",			0.0,				BOTH		),
+	HGAP				(Types.REAL,	"hgap",				0.0,				INTERNAL	),	
+	VGAP				(Types.REAL,	"vgap",				0.0,				INTERNAL	),	
+	HSHADOWPOS			(Types.REAL,	"hshadowPos",		10.0,				INTERNAL	),
+	VSHADOWPOS			(Types.REAL,	"vshadowPos",		10.0,				INTERNAL	),
+	HCONNECT			(Types.REAL,	"hConnect",			0.5,				EXTERNAL	),
+	VCONNECT			(Types.REAL,	"vConnect",			0.5,				EXTERNAL	),
+	HSHRINK				(Types.REAL,	"hshrink",			1.0,				EXTERNAL,	 MUL),
+	VSHRINK				(Types.REAL, 	"vshrink",			1.0,				EXTERNAL,	 MUL),
+	HALIGN				(Types.REAL,	"halign",			0.5,				EXTERNAL	),
+	VALIGN				(Types.REAL,	"valign",			0.5,				EXTERNAL	),
+	HPOS				(Types.REAL,	"hpos",				0.0,				EXTERNAL	),
+	VPOS				(Types.REAL,	"vpos",				0.0,				EXTERNAL	),
+	HGROW				(Types.REAL, 	"hgrow",			1.0,				INTERNAL,	 MUL),
+	VGROW				(Types.REAL, 	"vgrow",			1.0,				INTERNAL,	 MUL),
+	LINE_WIDTH			(Types.REAL,	"lineWidth",		1.0,				INTERNAL	),
+	TEXT_ANGLE			(Types.REAL,	"textAngle",		0.0,				INTERNAL	),
 	
-	TO_ARROW			(Types.FIGURE,	"toArrow",			null,				true	),
-	FROM_ARROW			(Types.FIGURE,	"fromArrow",		null,				true	),
-	LABEL				(Types.FIGURE,	"label",			null,				true	),
+	TO_ARROW			(Types.FIGURE,	"toArrow",			null,				INTERNAL	),
+	FROM_ARROW			(Types.FIGURE,	"fromArrow",		null,				INTERNAL	),
+	LABEL				(Types.FIGURE,	"label",			null,				INTERNAL	),
 	
-	FONT_SIZE			(Types.INT,		"fontSize",			12,					true	),
+	FONT_SIZE			(Types.INT,		"fontSize",			12,					INTERNAL	),
 
-	LINE_STYLE			(Types.STR,		"lineStyle",		"solid",			false	),
-	HINT				(Types.STR,		"hint",				"",					false	),	// scheduled for removal
-	ID					(Types.STR,		"id",				"",					false	),
-	LAYER				(Types.STR,		"layer",			"",					false	),
-	FONT				(Types.STR,		"font",				"Helvetica",		true	),
-	DIR					(Types.STR,		"dir",				"",					false	),
+	LINE_STYLE			(Types.STR,		"lineStyle",		"solid",			INTERNAL	),
+	HINT				(Types.STR,		"hint",				"",					INTERNAL	),	
+	ID					(Types.STR,		"id",				"",					EXTERNAL	),
+	LAYER				(Types.STR,		"layer",			"",					INTERNAL	),
+	FONT				(Types.STR,		"font",				"Helvetica",		INTERNAL	),
+	DIR					(Types.STR,		"dir",				"",					INTERNAL	),
 	
 	MOUSE_CLICK			(Types.HANDLER,	"onClick",			null,		"bool ()"		),
 	ON_MOUSEMOVE		(Types.HANDLER,	"onMouseMove",		null,		"void (bool)"		),
@@ -101,29 +102,29 @@ public enum Properties {
 	public Object stdDefault;
 	public String callBackType;
 	public Combine combine;
-	public boolean determinesLayout;
+	public PropertySemantics semantics;
 	
 
-	Properties(Types type,String name,Object stdDefault,boolean determinesLayout){
-		this(type,name,stdDefault,null,type.defaultCombine,determinesLayout);
+	Properties(Types type,String name,Object stdDefault,PropertySemantics semantics){
+		this(type,name,stdDefault,null,type.defaultCombine,semantics);
 	}
 	
-	Properties(Types type,String name,Object stdDefault,boolean determinesLayout, Combine combine){
-		this(type,name,stdDefault,null,combine,determinesLayout);
+	Properties(Types type,String name,Object stdDefault,PropertySemantics semantics, Combine combine){
+		this(type,name,stdDefault,null,combine,semantics);
 	}
 	
 
 	Properties(Types type,String name,Object stdDefault, String callBackType){
-		this(type,name,stdDefault,callBackType,type.defaultCombine,false);
+		this(type,name,stdDefault,callBackType,type.defaultCombine,PropertySemantics.INTERNAL);
 	}
 	
-	Properties(Types type,String name,Object stdDefault, String callBackType, Combine combine,boolean determinesLayout){
+	Properties(Types type,String name,Object stdDefault, String callBackType, Combine combine,PropertySemantics semantics){
 		this.name = name;
 		this.type = type;
 		this.stdDefault = stdDefault;
 		this.callBackType = callBackType;
 		this.combine = combine;
-		this.determinesLayout = determinesLayout;
+		this.semantics = semantics;
 	}
 	
 
@@ -173,3 +174,4 @@ public enum Properties {
 		}
 	}
 }
+
