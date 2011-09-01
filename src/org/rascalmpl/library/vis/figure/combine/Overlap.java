@@ -64,7 +64,7 @@ public class Overlap extends LayoutProxy{
 				
 			} else { */
 				over.size.set(d,innerFig.size.get(d) * over.prop.get2DReal(d, SHRINK));
-				System.out.printf("Over %s %f\n", over, over.prop.get2DReal(d, SHRINK));
+//				System.out.printf("Over %s %f\n", over, over.prop.get2DReal(d, SHRINK));
 //			}
 			
 			if(over.size.get(d) < over.minSize.get(d)){
@@ -75,7 +75,7 @@ public class Overlap extends LayoutProxy{
 					(over.prop.get2DReal(d,ALIGN) -0.5)*2.0 * over.size.get(d));
 			
 		}
-		System.out.printf("OVer %s %s \n",over.size,innerFig.size);
+//		System.out.printf("OVer %s %s \n",over.size,innerFig.size);
 	}
 	
 	@Override	

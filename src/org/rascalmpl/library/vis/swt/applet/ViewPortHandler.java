@@ -111,6 +111,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 	
 	private void setViewPortSize(){
+		if(parent.isDisposed()) return;
 		org.eclipse.swt.graphics.Rectangle s = parent.getClientArea();
 		viewPortSize.set(s.width-1,s.height-1);
 	}
@@ -145,6 +146,9 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 	
 	private void updateScrollBars(){
+		if(scrollBars.get(Dimension.X).isDisposed() || scrollBars.get(Dimension.Y).isDisposed()){
+			return;
+		}
 		for(Dimension d : HOR_VER){
 			ScrollBar bar = scrollBars.get(d);
 			double diff = figure.size.get(d) - viewPortSize.get(d);
@@ -166,15 +170,14 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		distributeSizeWidthDependsOnHeight();
 		Dimension major =  figure.getMajorDimension();
 		Dimension minor = major.other();
-		if(figure.size.get(minor) > viewPortSize.get(minor) && !scrollBars.get(minor).isVisible()){
+		if(!scrollBars.get(minor).isDisposed() && figure.size.get(minor) > viewPortSize.get(minor) && !scrollBars.get(minor).isVisible()){
 			scrollBars.get(minor).setVisible(true);
 			scrollBarsVisible.set(minor,true);
-		} else if( figure.size.get(minor) <= viewPortSize.get(minor) && scrollBarsVisible.get(minor)){
+		} else if(!scrollBars.get(minor).isDisposed() && figure.size.get(minor) <= viewPortSize.get(minor) && scrollBarsVisible.get(minor)){
 			scrollBarsVisible.set(minor,false);
 			scrollBars.get(minor).setVisible(false);
 		}
 		scrollBarsVisible.set(major,false);
-		scrollBars.get(major).setVisible(false);
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 	}
@@ -251,7 +254,10 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			gc.setGC(new GC(backbuffer));
 		}
 		
+		gc.getGC().setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		
 		Rectangle part = getViewPortRectangle();
+		gc.getGC().fillRectangle(0, 0, FigureMath.ceil(part.getSize().getX()), FigureMath.ceil(part.getSize().getY()));
 		gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
 
 		

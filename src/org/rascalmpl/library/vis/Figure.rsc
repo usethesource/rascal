@@ -852,7 +852,7 @@ public Figure button(str label, void () callback, FProperty props...){
 }
  
 public Figure textfield(str text, void (str) callback, FProperty props...){
- 	return _textfield(text, callback, props);
+ 	return _textfield(text, callback, bool (str s) {return true; },props);
 }
  
 public Figure textfield(str text,  void (str) callback, bool (str) validate, FProperty props...){
