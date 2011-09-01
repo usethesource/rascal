@@ -239,10 +239,10 @@ public abstract class Figure implements Comparable<Figure> {
 	public void drawChildren(Coordinate zoom, GraphicsContext gc,
 			Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		for(Figure f : children){
-			if(f.overlapsWith(part)){
+			//if(f.overlapsWith(part)){
 				Rectangle npart = f.isContainedIn(part) ? null : part;
 				f.draw(zoom, gc, npart, visibleSWTElements);
-			}
+			//}
 		}
 	}
 	

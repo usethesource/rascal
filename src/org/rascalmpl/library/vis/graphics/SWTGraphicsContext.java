@@ -344,7 +344,6 @@ public class SWTGraphicsContext implements GraphicsContext {
 			drawCurved(r, p, arg0 == CLOSE);
 		}
 		int alpha0 = gc.getAlpha();
-		System.out.printf("Drawing path\n");
 		if (fill /* arg0 == CLOSE */) {
 			gc.setAlpha(alphaFill);
 			gc.fillPath(p);

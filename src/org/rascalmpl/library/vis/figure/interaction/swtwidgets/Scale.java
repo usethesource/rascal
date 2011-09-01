@@ -49,7 +49,7 @@ public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		widget.setMinimum(low.getValue());
-		widget.setSelection(selected.getValue());
+		//widget.setSelection(selected.getValue());
 		widget.setMaximum(high.getValue());
 		super.initElem(env, mparent, swtSeen, visible, resolver);
 	}
