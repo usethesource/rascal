@@ -76,6 +76,7 @@ public enum Properties {
 	HGROW				(Types.REAL, 	"hgrow",			1.0,				true,	 MUL),
 	VGROW				(Types.REAL, 	"vgrow",			1.0,				true,	 MUL),
 	LINE_WIDTH			(Types.REAL,	"lineWidth",		1.0,				true	),
+	TEXT_ANGLE			(Types.REAL,	"textAngle",		0.0,				false	),
 	
 	TO_ARROW			(Types.FIGURE,	"toArrow",			null,				true	),
 	FROM_ARROW			(Types.FIGURE,	"fromArrow",		null,				true	),

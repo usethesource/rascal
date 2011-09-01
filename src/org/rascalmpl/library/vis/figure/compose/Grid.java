@@ -111,6 +111,9 @@ public class Grid extends Compose {
 			overConstrained = true;	
 		}
 		minWidth*= prop.get2DReal(d, GROW);
+		if(nrUnresizableColumns.get(d) == 1 && getNrColumns(d) == 1){
+			resizable.set(d,false);
+		}
 		this.minSize.set(d, minWidth);
 	}
 	

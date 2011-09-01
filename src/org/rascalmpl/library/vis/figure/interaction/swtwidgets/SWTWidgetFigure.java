@@ -77,8 +77,8 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 		if(widget.getLocation().x != rx || widget.getLocation().y != ry){
 			widget.setLocation(rx,ry);
 		 }
-			rx = FigureMath.round(size.getX());
-			ry = FigureMath.round(size.getY());
+			rx = FigureMath.ceil(size.getX());
+			ry = FigureMath.ceil(size.getY());
 			 if(widget.getSize().x != rx  || widget.getSize().y != ry){
 				widget.setSize(rx,
 						ry);
