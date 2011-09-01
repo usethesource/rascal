@@ -1,13 +1,13 @@
 package org.rascalmpl.library.vis.figure.compose;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.swt.graphics.Rectangle;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 public class WidthDependsOnHeightWrapper extends Scrollable{
 
@@ -23,7 +23,7 @@ public class WidthDependsOnHeightWrapper extends Scrollable{
 	public void computeMinSize(){
 		//super.computeMinSize();
 		BoundingBox iminSize = widget.getFigure().minSize;
-		Rectangle r = widget.computeTrim(0, 0, FigureMath.round(iminSize.getX()), FigureMath.round(iminSize.getY()));
+		org.eclipse.swt.graphics.Rectangle r = widget.computeTrim(0, 0, FigureMath.round(iminSize.getX()), FigureMath.round(iminSize.getY()));
 		minSize.set(r.width,r.height);
 		Dimension minor = major.other();
 		minSize.set(minor, iminSize.get(minor) );
@@ -32,6 +32,11 @@ public class WidthDependsOnHeightWrapper extends Scrollable{
 	@Override
 	public boolean widthDependsOnHeight(){
 		return true;
+	}
+	
+	@Override
+	public void resizeElement(Rectangle view) {
+		widget.getFigure().size.set(size);
 	}
 
 }
