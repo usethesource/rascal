@@ -201,11 +201,11 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		} else {
 			resetToMinSize();
 		}
-	
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 	}
-	
+
+
 	public void translateFromViewPortToFigure(Coordinate mouseLocation) {
 		mouseLocation.add(viewPortLocation);
 	}
@@ -279,19 +279,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		
 		for(Overlap f : overlapFigures){
 			if(f.innerFig.overlapsWith(part)){
-				for(Dimension d : HOR_VER){
-//					if(f.over.location.get(d) < part.getLocation().get(d)){
-//						Coordinate c = new Coordinate(part.getLocation());
-//						c.set(d, f.over.location.get(d));
-//						part = new Rectangle(c,part.getSize());
-//					}
-					if(f.over.location.get(d) + f.over.size.get(d) > part.getLocation().get(d) + part.getSize().get(d)){
-						Coordinate c = new Coordinate(part.getLocation());
-						c.set(d,f.over.location.get(d) + f.over.size.get(d) - part.getSize().get(d) );
-						part = new Rectangle(c,part.getSize());
-					}	
-				}
-				
 				gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
 				f.over.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
 				gc.translate(part.getLocation().getX(), part.getLocation().getY());

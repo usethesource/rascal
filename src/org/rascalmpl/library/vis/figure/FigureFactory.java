@@ -317,7 +317,7 @@ public class FigureFactory {
 			 return new MouseOver(under, over, properties);
 		case PACK:  
 			children = makeList(env,c.get(0),properties,childPropsNext);
-			return new Pack(Dimension.X, children, properties);
+			return new Pack(children, properties);
 			
 		case PLACE:
 			throw new Error("Place out of order..");

@@ -41,6 +41,7 @@ public class Overlay extends Compose{
 	
 	public Overlay(Figure[] children, PropertyManager properties) {
 		super(children, properties);
+
 	}
 	
 	@Override
@@ -99,17 +100,17 @@ public class Overlay extends Compose{
         }
         
         if(closed && connected && children.length >= 0){
-        	gc.vertex(location.getX() + children[0].location.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
-    				location.getY() + children[0].location.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY()  );
+        	gc.vertex( children[0].location.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
+    				children[0].location.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY()  );
         }
         if(connected){
 	        for(int i = 0 ; i < children.length ; i++){
 	        	if(curved ){
-	        		gc.curveVertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-	        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT)  * children[i].size.getY()  );
+	        		gc.curveVertex( children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				 children[i].location.getY()  + children[i].prop.getReal(VCONNECT)  * children[i].size.getY()  );
 	        	} else {
-	        		gc.vertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-	        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
+	        		gc.vertex(children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				 children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
 	        }
         }
@@ -117,8 +118,8 @@ public class Overlay extends Compose{
         if(connected){
 			if(closed){
 				int i = children.length-1;
-        		gc.vertex(location.getX() + children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-        				location.getY() + children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
+        		gc.vertex(children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+        				children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 				gc.endShape(FigureMath.CLOSE);
 			} else 
 				gc.endShape();
