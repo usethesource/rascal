@@ -46,6 +46,7 @@ public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 	@Override
 	void executeCallback() {
 		cbenv.executeRascalCallBackWithoutArguments(callback);
+
 	}
 
 

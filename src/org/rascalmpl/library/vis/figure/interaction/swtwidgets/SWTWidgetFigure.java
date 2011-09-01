@@ -115,10 +115,10 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	
 	@Override
 	public void setVisible(boolean visible){
-		if(!visible && widget.getVisible()){
+		if(!widget.isDisposed() && !visible && widget.getVisible() ){
 			widget.setLocation(-10 - widget.getSize().x, -10 - widget.getSize().y);
 			//widget.setVisible(false);
-		} else if(visible &&  !widget.getVisible()){
+		} else if(!widget.isDisposed() && visible &&  !widget.getVisible() ){
 			widget.setVisible(visible);
 		}
 	}

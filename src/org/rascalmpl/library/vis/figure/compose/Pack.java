@@ -41,9 +41,11 @@ public class Pack extends WidthDependsOnHeight {
 	boolean fits = true;
 	static protected boolean debug =false;
 	boolean initialized = false;
+	BoundingBox oldSize;
 
 	public Pack( Figure[] figures, PropertyManager properties) {
 		super(Dimension.X, figures, properties);
+		oldSize = new BoundingBox();
 	}
 	
 	/*
@@ -86,7 +88,12 @@ public class Pack extends WidthDependsOnHeight {
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		
 		if(size.getX() < minSize.getX()) return;
+		if(oldSize.isEq(size)){
+			return;
+		}
+		oldSize.set(size);
 		Node.hgap = prop.getReal(Properties.HGAP);
 		Node.vgap = prop.getReal(Properties.VGAP);
 		for(Figure fig : children){
@@ -130,7 +137,7 @@ public class Pack extends WidthDependsOnHeight {
 			for(Figure fig : children){
 				Node nd = root.insert(fig);
 				if(nd == null){
-					System.err.println("**** PACK: NOT ENOUGH ROOM *****");
+					System.err.printf("**** PACK: NOT ENOUGH ROOM ***** %s %s\n",size,minSize);
 					fits = false;
 					size.setY(size.getY() * 1.2);
 					counter++;

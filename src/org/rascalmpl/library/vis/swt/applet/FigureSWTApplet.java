@@ -82,6 +82,7 @@ public class FigureSWTApplet extends Composite
 		addMouseMoveListener(inputHandler);
 		addMouseTrackListener(inputHandler);
 		addKeyListener(inputHandler);
+		triggerRecompute();
 	}
 	
 	public boolean isUpToDate(){
@@ -114,7 +115,9 @@ public class FigureSWTApplet extends Composite
 		if(busy){
 			redrawRequested = true;
 		} else {
-			redraw();
+			if(!isDisposed()){
+				redraw();
+			}
 		}
 	}
 	

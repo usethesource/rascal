@@ -83,7 +83,7 @@ public class Outline extends Figure {
 
 				gc.stroke(color);
 				double vpos = location.getY() + (lino * size.getY()) /maxLine ;
-				gc.line(location.getX() + + lw, vpos, location.getX() + size.getY() - lw, vpos);
+				gc.line(location.getX() + + lw, vpos, location.getX() + size.getX() - lw, vpos);
 			}
 	}
 

@@ -16,13 +16,14 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.figure.FigureFactory;
+import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
-public class ComputeFigure extends WithInnerFig {
+public class ComputeFigure extends LayoutProxy {
 	
 	final private IValue callback;
 	private IConstructor prevValue; // TODO: remove this when nullary closures are memoed
@@ -48,6 +49,7 @@ public class ComputeFigure extends WithInnerFig {
 					innerFig.destroy(env);
 				}
 				setInnerFig( FigureFactory.make(env, figureCons, prop, childProps));
+				prop.stealExternalPropertiesFrom(innerFig.prop);
 				prevValue = figureCons;
 			}
 		}

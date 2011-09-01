@@ -43,12 +43,16 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		callbackBatch = false;
 		computing = false;
 		this.swtRoot = parent;
-		appletRoot = new FigureSWTApplet(parent, cfig, this);
 		computeClock = 0;
 		resolver = new NameResolver(getRascalContext());
-		computeFigures();
+		appletRoot = new FigureSWTApplet(parent, cfig, this);
+
+
 		appletRoot.setLocation(0, 0);
 		appletRoot.pack();
+		computing = true;
+		appletRoot.triggerRecompute();
+		computing = false;
 	}
 	
 	public boolean isBatchEmpty(){
