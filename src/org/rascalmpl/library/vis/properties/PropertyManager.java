@@ -127,10 +127,11 @@ public class PropertyManager {
 			if(from.containsKey(p)){
 				if(p.semantics == PropertySemantics.EXTERNAL)  {
 					to.put(p, from.get(p));
-				}
-				if(p.semantics == PropertySemantics.EXTERNAL){
-					to.put(p, from.get(p));
 					from.remove(p);
+				}
+				if(p.semantics == PropertySemantics.BOTH){
+					to.put(p, from.get(p));
+					
 				}
 			}	
 		}

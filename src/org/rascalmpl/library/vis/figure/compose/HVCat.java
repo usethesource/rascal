@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.compose;
 
-import static org.rascalmpl.library.vis.properties.Properties.SPREAD;
+import static org.rascalmpl.library.vis.properties.Properties.JUSTIFY;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 
 import org.rascalmpl.library.vis.figure.Figure;
@@ -40,7 +40,6 @@ public class HVCat extends WidthDependsOnHeight{
 	
 	@Override
 	public void resizeElement(Rectangle view) {
-		System.out.printf("Cannot out fit! %s %s\n",size,minSize);
 		if(size.get(major) < minSize.get(major)) {
 			System.err.printf("Cannot ever fit! %s %s\n",size,minSize);
 			return;
@@ -63,7 +62,7 @@ public class HVCat extends WidthDependsOnHeight{
 			double gap = prop.get2DReal(major, TwoDProperties.GAP);
 			int nrOfGaps = endOfRow - startOfRow -1; 
 			double x = 0;
-			if(prop.getBool(SPREAD)){
+			if(prop.getBool(JUSTIFY)){
 				gap = majorSizeLeftExcludingGaps / (double)nrOfGaps;
 			} else {
 				x = (majorSizeLeftExcludingGaps - (nrOfGaps * gap)) * prop.getReal(Properties.INNER_ALIGN);

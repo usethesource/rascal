@@ -250,8 +250,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			makeNewBackBuffer();
 			gc.setGC(new GC(backbuffer));
 		}
-		gc.getGC().setBackground(parent.getDisplay().getSystemColor( SWT.COLOR_WHITE));
-		gc.getGC().fillRectangle(0, 0, FigureMath.ceil(viewPortSize.getX())+1, FigureMath.ceil(viewPortSize.getY())+1);
+		
 		Rectangle part = getViewPortRectangle();
 		gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
 
@@ -287,6 +286,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 
 	private void drawOverlap(Rectangle part, Overlap f) {
+
 		Coordinate left = new Coordinate(part.getLocation());
 		Figure over = f.over;
 		Rectangle realPart = new Rectangle(left,part.getSize());

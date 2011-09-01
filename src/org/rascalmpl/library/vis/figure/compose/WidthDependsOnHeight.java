@@ -34,7 +34,6 @@ public abstract class WidthDependsOnHeight extends Compose{
 		double minWidth = 0;
 		for(Figure fig : children){
 			minWidth = Math.max(minWidth,fig.minSize.get(major) );
-			System.out.printf("setting minwidth %s\n", minWidth);
 		}
 		minSize.set(major, Math.ceil(minWidth) + 1);
 		minSize.set(minor, MINOR_MINSIZE);

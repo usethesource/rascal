@@ -197,7 +197,7 @@ data Convert = convert(value v, value id);
 data FProperty =
 	mouseOver(Figure fig)
 	|std(FProperty property)
-	|timer                (TimerAction (TimerInfo) ti, int () cbb)
+	|timer                (TimerAction (TimerInfo) ti, void () cbb)
 	|project              (Figure f0, str p0)
 	|_child               (FProperties props)
 	|unpack(FProperties props)
@@ -290,12 +290,12 @@ data FProperty =
 	|vshadowPos (num      r  )
 	|vshadowPos (num()    cr )
 	|vshadowPos (Measure  mv )
-	|hConnect   (num      r  )
-	|hConnect   (num()    cr )
-	|hConnect   (Measure  mv )
-	|vConnect   (num      r  )
-	|vConnect   (num()    cr )
-	|vConnect   (Measure  mv )
+	|hconnect   (num      r  )
+	|hconnect   (num()    cr )
+	|hconnect   (Measure  mv )
+	|vconnect   (num      r  )
+	|vconnect   (num()    cr )
+	|vconnect   (Measure  mv )
 	|hshrink    (num      r  )
 	|hshrink    (num()    cr )
 	|hshrink    (Measure  mv )
@@ -394,9 +394,9 @@ public FProperty align      (Measure  mv ){ return unpack([halign     (mv ),vali
 public FProperty grow       (num      r  ){ return unpack([hgrow      (r  ),vgrow      (r  )]); }
 public FProperty grow       (num()    cr ){ return unpack([hgrow      (cr ),vgrow      (cr )]); }
 public FProperty grow       (Measure  mv ){ return unpack([hgrow      (mv ),vgrow      (mv )]); }
-public FProperty connect    (num      r  ){ return unpack([hConnect   (r  ),vConnect   (r  )]); }
-public FProperty connect    (num()    cr ){ return unpack([hConnect   (cr ),vConnect   (cr )]); }
-public FProperty connect    (Measure  mv ){ return unpack([hConnect   (mv ),vConnect   (mv )]); }
+public FProperty connect    (num      r  ){ return unpack([hconnect   (r  ),vconnect   (r  )]); }
+public FProperty connect    (num()    cr ){ return unpack([hconnect   (cr ),vconnect   (cr )]); }
+public FProperty connect    (Measure  mv ){ return unpack([hconnect   (mv ),vconnect   (mv )]); }
 public FProperty resizable  (bool     b00  ,bool     b200 ){ return unpack([hresizable (b00  ),vresizable (b200 )]); }
 public FProperty resizable  (bool     b01  ,bool()   cb201){ return unpack([hresizable (b01  ),vresizable (cb201)]); }
 public FProperty resizable  (bool     b02  ,Measure  mv202){ return unpack([hresizable (b02  ),vresizable (mv202)]); }
@@ -496,15 +496,15 @@ public FProperty grow       (num()    cr12 ,Measure  mv212){ return unpack([hgro
 public FProperty grow       (Measure  mv20 ,num      r220 ){ return unpack([hgrow      (mv20 ),vgrow      (r220 )]); }
 public FProperty grow       (Measure  mv21 ,num()    cr221){ return unpack([hgrow      (mv21 ),vgrow      (cr221)]); }
 public FProperty grow       (Measure  mv22 ,Measure  mv222){ return unpack([hgrow      (mv22 ),vgrow      (mv222)]); }
-public FProperty connect    (num      r00  ,num      r200 ){ return unpack([hConnect   (r00  ),vConnect   (r200 )]); }
-public FProperty connect    (num      r01  ,num()    cr201){ return unpack([hConnect   (r01  ),vConnect   (cr201)]); }
-public FProperty connect    (num      r02  ,Measure  mv202){ return unpack([hConnect   (r02  ),vConnect   (mv202)]); }
-public FProperty connect    (num()    cr10 ,num      r210 ){ return unpack([hConnect   (cr10 ),vConnect   (r210 )]); }
-public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hConnect   (cr11 ),vConnect   (cr211)]); }
-public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hConnect   (cr12 ),vConnect   (mv212)]); }
-public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hConnect   (mv20 ),vConnect   (r220 )]); }
-public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hConnect   (mv21 ),vConnect   (cr221)]); }
-public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hConnect   (mv22 ),vConnect   (mv222)]); }
+public FProperty connect    (num      r00  ,num      r200 ){ return unpack([hconnect   (r00  ),vconnect   (r200 )]); }
+public FProperty connect    (num      r01  ,num()    cr201){ return unpack([hconnect   (r01  ),vconnect   (cr201)]); }
+public FProperty connect    (num      r02  ,Measure  mv202){ return unpack([hconnect   (r02  ),vconnect   (mv202)]); }
+public FProperty connect    (num()    cr10 ,num      r210 ){ return unpack([hconnect   (cr10 ),vconnect   (r210 )]); }
+public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hconnect   (cr11 ),vconnect   (cr211)]); }
+public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hconnect   (cr12 ),vconnect   (mv212)]); }
+public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hconnect   (mv20 ),vconnect   (r220 )]); }
+public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hconnect   (mv21 ),vconnect   (cr221)]); }
+public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hconnect   (mv22 ),vconnect   (mv222)]); }
 // end generated code
 
 public FProperty width(num w){
@@ -873,6 +873,10 @@ public Figure checkbox(str text, bool checked, void(bool) vcallback, FProperty p
   
 public Figure checkbox(str text, void(bool) vcallback, FProperty props...){
    return _checkbox(text, false, vcallback, props);
+}  
+
+public Figure scaleSlider(int low, int high, void(int) vcallback, FProperty props...){
+   return _scale(int() { return low; },int () { return high;},vcallback, props);
 }  
 
 public Figure scaleSlider(int() low, int() high, int() selection, void(int) vcallback, FProperty props...){

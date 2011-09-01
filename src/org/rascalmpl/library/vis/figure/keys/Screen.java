@@ -107,7 +107,7 @@ public class Screen extends WithInnerFig{
 			pr.size.set(major,majorSpaceForProjection * pr.prop.get2DReal(major, SHRINK ));
 			pr.size.setMax(pr.minSize);
 			pr.location.set(minor,projectFromMinor + (pFrom.size.get(minor) - pr.size.get(minor)) * pr.prop.get2DReal(minor, ALIGN));
-			pr.location.set(major,majorProjectionOffset + (majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(minor, ALIGN));
+			pr.location.set(major,majorProjectionOffset + (majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(major, ALIGN));
 			pr.resize(view, transform);
 		}
 	}
