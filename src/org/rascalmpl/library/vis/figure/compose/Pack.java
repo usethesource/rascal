@@ -22,6 +22,7 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
@@ -34,7 +35,7 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  */
 
 //TODO: fix me for resizing!
-public class Pack extends Compose {
+public class Pack extends WidthDependsOnHeight {
 	
 	Node root;
 	boolean fits = true;
@@ -42,7 +43,7 @@ public class Pack extends Compose {
 	boolean initialized = false;
 
 	public Pack( Figure[] figures, PropertyManager properties) {
-		super(figures, properties);
+		super(Dimension.X, figures, properties);
 	}
 	
 	/*
@@ -82,14 +83,10 @@ public class Pack extends Compose {
 		}
 	}
 
-	@Override
-	public void computeMinSize() {
-		minSize.set(20,20);
-		
-	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		if(size.getX() < minSize.getX()) return;
 		Node.hgap = prop.getReal(Properties.HGAP);
 		Node.vgap = prop.getReal(Properties.VGAP);
 		for(Figure fig : children){
@@ -121,10 +118,10 @@ public class Pack extends Compose {
 				System.err.printf("\t%s, width=%f, height=%f\n", v, v.minSize.getX(), v.minSize.getY());
 			}
 		}
-		
-		fits = true;
-		//while(!fits){
-			//fits = true;
+		int counter = 0;
+		fits = false;
+		while(!fits && counter < 300){
+			fits = true;
 			//size.setWidth(size.getX() * 1.2f);
 			//size.setHeight(size.getY() * 1.2f);
 	
@@ -133,15 +130,18 @@ public class Pack extends Compose {
 			for(Figure fig : children){
 				Node nd = root.insert(fig);
 				if(nd == null){
-					//System.err.println("**** PACK: NOT ENOUGH ROOM *****");
+					System.err.println("**** PACK: NOT ENOUGH ROOM *****");
 					fits = false;
+					size.setY(size.getY() * 2.0);
+					counter++;
 					break;
 				}
 				nd.figure = fig;
 				fig.location.setX(nd.left);
-				fig.location.setY(nd.right);
+				fig.location.setY(nd.top);
+				//System.out.printf("Fig locatation %s\n",fig.location);
 			}
-		//}
+		}
 		//initialized = true;
 	}
 	

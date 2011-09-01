@@ -795,7 +795,7 @@ public Figure grid(list[list[Figure]] figs, FProperty props ...){
 }
 
 public Figure pack(Figures figs, FProperty props ...){
-  return _pack(figs, props);
+  return _widthDepsHeight(_pack(figs, props),[]);
 }
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
