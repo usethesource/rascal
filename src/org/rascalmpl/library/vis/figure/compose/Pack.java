@@ -65,8 +65,6 @@ public class Pack extends WidthDependsOnHeight {
 		
 	}
 	
-	
-
 	@Override
 	public void resizeElement(Rectangle view) {
 		System.out.printf("Trying to fit in %s",size);
@@ -105,25 +103,22 @@ public class Pack extends WidthDependsOnHeight {
 		fits = false;
 		while(!fits){
 			fits = true;
-			
-			
 	
 			root = new Node(0, 0, size.getX(), size.getY());
 			
 			for(Figure fig : children){
 				Node nd = root.insert(fig);
 				if(nd == null){
-					System.err.printf("**** PACK: NOT ENOUGH ROOM ***** %s\n",size);
+					System.err.printf("**** PACK: NOT ENOUGH ROOM ***** %s (minSize=%s)\n",size, minSize);
 					fits = false;
+					size.set(minor,size.get(minor) * 2.0);
 					break;
 				}
 				nd.figure = fig;
 				nd.figure.location.set(nd.left,nd.right);
 			}
-			size.set(minor,size.get(minor) * 2.0);
 		}
 	}
-	
 }
 
 class Node {
