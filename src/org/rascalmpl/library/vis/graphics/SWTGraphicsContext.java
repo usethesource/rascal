@@ -215,8 +215,10 @@ public class SWTGraphicsContext implements GraphicsContext {
 
 	public void rotate(double angle) {
 		Transform transform = new Transform(gc.getDevice());
+		Transform transform2 = new Transform(gc.getDevice());
 		gc.getTransform(transform);
 		transform.rotate((float)angle);
+		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
 
@@ -224,15 +226,19 @@ public class SWTGraphicsContext implements GraphicsContext {
 		translateX+=x;
 		translateY+=y;
 		Transform transform = new Transform(gc.getDevice());
-		gc.getTransform(transform);
+		Transform transform2 = new Transform(gc.getDevice());
+		gc.getTransform(transform2);
 		transform.translate((float) x, (float) y);
+		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
 
 	public void scale(double scaleX, double scaleY) {
 		Transform transform = new Transform(gc.getDevice());
+		Transform transform2 = new Transform(gc.getDevice());
 		gc.getTransform(transform);
 		transform.scale((float) scaleX, (float) scaleY);
+		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
 
