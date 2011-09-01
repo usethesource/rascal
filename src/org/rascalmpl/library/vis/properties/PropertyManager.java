@@ -117,16 +117,22 @@ public class PropertyManager {
 		}
 	}
 	
-	public void stealLayoutPropertiesFrom(PropertyManager other){
-		stealLayoutProperties(other.explicitValues, explicitValues);
-		stealLayoutProperties(other.stdValues, stdValues);
+	public void stealExternalPropertiesFrom(PropertyManager other){
+		stealExternalProperties(other.explicitValues, explicitValues);
+		stealExternalProperties(other.stdValues, stdValues);
 	}
 	
-	private void stealLayoutProperties(HashMap<Properties, PropertyValue> from, HashMap<Properties, PropertyValue> to){
+	private void stealExternalProperties(HashMap<Properties, PropertyValue> from, HashMap<Properties, PropertyValue> to){
 		for(Properties p : Properties.values()){
-			if(p.determinesLayout && from.containsKey(p)){
-				to.put(p, from.get(p));
-			}
+			if(from.containsKey(p)){
+				if(p.semantics == PropertySemantics.EXTERNAL)  {
+					to.put(p, from.get(p));
+				}
+				if(p.semantics == PropertySemantics.EXTERNAL){
+					to.put(p, from.get(p));
+					from.remove(p);
+				}
+			}	
 		}
 	}
 	

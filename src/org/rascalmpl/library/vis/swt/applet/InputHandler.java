@@ -168,6 +168,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	@Override
 	public void mouseMove(MouseEvent e) {
 		mouseLocation.set(e.x,e.y);
+
 		parent.translateFromViewPortToFigure(mouseLocation);
 		handleMouseMove();
 		

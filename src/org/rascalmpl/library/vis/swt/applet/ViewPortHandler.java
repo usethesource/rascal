@@ -253,10 +253,11 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		gc.getGC().setBackground(parent.getDisplay().getSystemColor( SWT.COLOR_WHITE));
 		gc.getGC().fillRectangle(0, 0, FigureMath.ceil(viewPortSize.getX())+1, FigureMath.ceil(viewPortSize.getY())+1);
 		Rectangle part = getViewPortRectangle();
-		gc.translate(-viewPortLocation.getX(), -viewPortLocation.getY());
+		gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
+
 		
 		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
-		gc.translate(viewPortLocation.getX(), viewPortLocation.getY());
+		gc.translate(part.getLocation().getX(), part.getLocation().getY());
 		
 		drawOverlaps(part);
 		
@@ -276,14 +277,32 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 
 	public void drawOverlaps(Rectangle part) {
-		
 		for(Overlap f : overlapFigures){
 			if(f.innerFig.overlapsWith(part)){
-				gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
-				f.over.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
-				gc.translate(part.getLocation().getX(), part.getLocation().getY());
+				drawOverlap(part,  f);
 			}
 		}
+	}
+	
+
+
+	private void drawOverlap(Rectangle part, Overlap f) {
+		Coordinate left = new Coordinate(part.getLocation());
+		Figure over = f.over;
+		Rectangle realPart = new Rectangle(left,part.getSize());
+		for(Dimension d : HOR_VER){
+			if(over.location.get(d) < part.getLocation().get(d)){
+				left.set(d,over.location.get(d));
+			}
+			double overRight = over.location.get(d) + over.size.get(d);
+			if(over.location.get(d) + over.size.get(d) > part.getRightDown().get(d)){
+				left.set(d,part.getLocation().get(d) + (overRight - part.getRightDown().get(d)));
+			}
+		}
+		realPart.update();
+		gc.translate(-realPart.getLocation().getX(), -realPart.getLocation().getY());
+		over.draw(zoom, gc, realPart,swtVisiblityMangager.getVisibleSWTElementsVector());
+		gc.translate(realPart.getLocation().getX(), realPart.getLocation().getY());
 	}
 	
 
