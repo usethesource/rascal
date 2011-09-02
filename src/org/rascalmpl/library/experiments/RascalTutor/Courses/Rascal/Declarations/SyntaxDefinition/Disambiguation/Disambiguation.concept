@@ -1,6 +1,6 @@
 Name: Disambiguation
 
-Details: Symbols
+Details: Symbols Priority Associativity FollowAndPreceedeRestrictions Reserve
 
 Categories:
 
@@ -12,9 +12,18 @@ Function:
 
 Synopsis: Disambiguation is the definition of filters on the parse trees that [SyntaxDefinition]s define. There are several ways of defining [Disambiguation] in Rascal.
 
-Description:
+Description: There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from [SyntaxDefinitions].
 
-<warning>This page is to be written</warning>
+The first way is to add disambiguation declarations to the [SyntaxDefinition]. You can choose from:
+   * [Priority] declarations, which can be used to define the relative priority in expression languages
+   * [Associativity] declarations, which can be used to define relative associativity between operators of expression languages
+   * [Follow] declarations, which can be used to implement longest match using lookahead
+   * [Preceed] declarations, which can be used to implement first match using look behind
+   * [Reserve] declarations, which allow you to finite sets of strings from a [SyntaxDefinition] to implement keyword reservation
+
+The second way is to add [Actions] that will be triggered just after parsing and allow you to trim a parse forest using any information necessary.
+
+The third way is use the [Visit] statement on a parse tree and implement your own filter post-parsing time, or any other kind of program that processes [ParseTrees].
 
 Examples:
 
@@ -24,4 +33,3 @@ Pitfalls:
 
 Questions:
 
-       

@@ -88,7 +88,7 @@ Benefits:
 * embedding of concrete syntax fragments in Rascal programs
 
 Pitfalls:
-* grammars may be ambiguous
-* static grammar checker is not finished
+* grammars may be ambiguous, so read about [Disambiguation], [AmbiguityDetection] and [AmbiguityDiagnosis]
+* static grammar checker is not implemented yet.
 
 Questions:

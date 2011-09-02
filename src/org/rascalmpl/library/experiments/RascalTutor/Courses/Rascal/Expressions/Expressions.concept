@@ -8,7 +8,7 @@ Synopsis:
 
 Description:
 
-The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
+The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure. <warning>This illustration seems to be wrong, and confusing</warning>
 ![Structure of Expressions](exp-parts.png|500px|right)
 
 * An elementary _literal value_, e.g. constants of the types [Boolean], [Integer], [Real], 
