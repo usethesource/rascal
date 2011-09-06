@@ -33,7 +33,6 @@ private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real
 
 public RascalType parseType(str txt){
    txt = replaceAll(txt, "[ \\n]", "");
-   println("parseType: \'<txt>\'");
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int(minInt, maxInt);
@@ -99,12 +98,10 @@ public RascalType parseType(str txt){
 }
 
 public list[RascalType] parseTypeList(str txt){
-println("parseTypeList: \'<txt>\'");
   str prefix = "";
   return
     for(/<et:[^,]+>($|,)/ := txt){
       try {
-         println("entering try: prefix = <prefix>");
          if(prefix != "")
          	prefix += ",";
          pt = parseType(prefix + et);
@@ -112,7 +109,6 @@ println("parseTypeList: \'<txt>\'");
          prefix = "";
       } catch str s: {
         prefix += et;
-        println("parseTypeList, catch: prefix = \'<prefix>\'");
       }
     }
 }
@@ -485,7 +481,7 @@ public set[str] uses(str txt){
   set[str] u = {};
   visit(txt){
      case /^\<@?<name:[A-Z]>\>/: {
-        println("name = <name>");
+        //println("name = <name>");
         u += name;
       }
   };

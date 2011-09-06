@@ -84,22 +84,23 @@ public class RascalTutor {
 	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
+		
 		context.addServlet(TutorDefaultHttpServlet.class, "/");
 		context.addServlet(Show.class, "/show");
 		context.addServlet(Validate.class, "/validate");
 		context.addServlet(Eval.class, "/eval");
-		context.addServlet(Search.class, "/search");
-		context.addServlet(Category.class, "/category");
 		context.addServlet(Edit.class, "/edit");
 		context.addServlet(Save.class, "/save");
-		context.addServlet(Start.class, "/start");
+		context.addServlet(Compile.class, "/compile");
 
 		System.err.println("BASE = " + BASE);
 		
 		URI baseURI = getResolverRegistry().getResourceURI(URI.create(BASE));
 		
 		System.err.println("resourceBase = " + baseURI);
-		context.setResourceBase(baseURI.toASCIIString()); 
+		String resourceBase = baseURI.toASCIIString();
+		context.setResourceBase(resourceBase); 
+		context.setAttribute("ResourceBase", resourceBase);
      
 		String welcome[] = { BASE + "Courses/index.html"};
 		context.setWelcomeFiles(welcome);

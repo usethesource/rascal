@@ -46,11 +46,13 @@ th { background-color: silver; }
     text-shadow: silver 2px 2px 2px;
 }
 
-#Name { 
+#Name  { 
     padding: 5px 0px;
     margin-top: 2em;
     position: relative;
 }
+
+#Warnings { padding: 0.5em 0em;5color: red; }
 #Details { padding: 0.5em 0em; }
 #Synopsis{ padding: 0.5em 0em; }
 #Syntax{ padding: 0.5em 0em; }
@@ -83,7 +85,7 @@ th { background-color: silver; }
 /* Search box */
 
 #searchBox {
-    top:  1.8em;
+    top:  0.5em;
     right: 0;
     float: right;
     margin-top: 6px;
@@ -120,19 +122,8 @@ th { background-color: silver; }
 	background-color: Pink;
 }
 
-#categoryMenu {
-    top:  0.1em;
-    right: 1em;
-    float: right;
-    margin-top: 0.2em;
-    margin-right: 2em;
-    position: absolute;
-    
-    font-size: 60%;
-}
-
 #navigationMenu {
-    top: 1.8em;
+    top: 0.5em;
     right: 15em;
     float right;
     margin-right: 20px;

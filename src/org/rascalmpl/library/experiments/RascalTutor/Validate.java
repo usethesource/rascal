@@ -29,7 +29,7 @@ public class Validate extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.err.println("Validate, doGet: " + request);
+		if(debug)System.err.println("Validate, doGet: " + request);
 
 		String pmap = getParametersAsMap(request);
 		//response.setContentType("text/plain; UTF-8");
@@ -40,7 +40,7 @@ public class Validate extends TutorHttpServlet {
 		PrintWriter out = response.getWriter();
 		Result<IValue> result = evaluator.eval(null, "validateAnswer(" + pmap + ")", URI.create("stdin:///"));
 
-		System.err.println("Validate gets back: " + ((IString)result.getValue()).getValue());
+		if(debug) System.err.println("Validate gets back: " + ((IString)result.getValue()).getValue());
 		out.println(((IString)result.getValue()).getValue());
 		out.close();
 	}

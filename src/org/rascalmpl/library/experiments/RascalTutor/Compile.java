@@ -24,22 +24,18 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
-public class Start extends TutorHttpServlet {
+public class Compile extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		
-		System.err.println("Start, doGet: " + request.getRequestURI());
+		if(debug) System.err.println("Compile, doGet: " + request.getRequestURI());
 		String name = getStringParameter(request, "name");
 		PrintWriter out = response.getWriter();
 		
-		String serverName = request.getServerName() + ":" + request.getLocalPort();
-		
-		System.err.println("Start, localName = " + request.getServerName() + ", port = " + request.getLocalPort());
-		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("startCourse",vf.string(serverName), vf.string(name));
+			IValue result = evaluator.call("compile", vf.string(name));
 			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
@@ -49,6 +45,5 @@ public class Start extends TutorHttpServlet {
 		finally {
 			out.close();
 		}
-		//System.err.println("ShowConcept, " + ((IString) result.getValue()).getValue());
 	}
 }

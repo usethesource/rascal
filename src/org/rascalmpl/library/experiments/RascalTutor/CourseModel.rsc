@@ -15,11 +15,8 @@ import IO;
 import String;
 import Exception;
 
-public loc courseRoot = |std:///experiments/RascalTutor/Courses/|;
-public loc courseRootSVN = |std:///experiments/RascalTutor/Courses/.svn|;
-
-//public loc courseRoot = |file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/|;
-//public loc courseRootSVN =|file:///Users/paulklint/software/source/roll/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses.svn/|;
+public loc courseDir    = |std:///experiments/RascalTutor/Courses/|;
+public loc courseDirSVN = |std:///experiments/RascalTutor/Courses/.svn|;
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -27,6 +24,8 @@ alias ConceptName = str;
 
 // A QuestionName is similar to a ConceptName, but extended with a suffix, e.g., "Rascal/Datastructure/Set.1"
 alias QuestionName = str;
+
+alias Questions = list[Question];
 
 // A Course captures all the information for the run-time execution of a course by the Tutor.
 
@@ -39,27 +38,18 @@ data Course =
 			rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
 			list[str]  baseConcepts,                  // List of baseConcepts (e.g. names that occur on path of
 			                                          // of some ConceptName)
-			map[str,ConceptName] related,             // Mapping abbreviated concept names to full ConceptNames
-            set[str] categories                       // Categories used in all concepts
+			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
      );
 
 data Concept = 
-	 concept(ConceptName name,                     	// Name of the concept
+	 concept(ConceptName fullName,                  // Full name of the concept
 			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
-			set[str] categories,                    // Categories it belongs to
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
-			str synopsis,                         	// Text of the various sections
-			str syntaxSynopsis,
-			str typesSynopsis,
-			str functionSynopsis,
-			set[str] searchTerms,
-			str description,
-			str examples,
-			str benefits,
-			str pitfalls,
-			list[Question] questions              	// List of Questions 
+			set[str] searchTerms,    				// Set of search terms
+			Questions questions,                	// List of Questions 
+			str body                                // Main generated html for concept
 	);
         		
 data Question = choiceQuestion(QuestionName name, str descr, list[Choice] choices)
@@ -118,12 +108,14 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             
 // Common utilities
 
-public str suffix = ".concept";
+public str conceptExtension = "concept";
+public str htmlExtension = "html";
+public str questExtension = "quest";
 
-public str getFullConceptName(loc l, str coursePath){
-   if (/^.*<coursePath><name:.*$>/ := l.parent)  
+public str getFullConceptName(loc l){
+   if (/^.*Courses\/<name:.*$>/ := l.parent)  
      return name;
-   throw "Concept not rooted in course path? <l> not in <coursePath>?";
+   throw "Concept not rooted in course path? <l> not in <courseDir.path>?";
 }
 
 // Get the basename from a ConceptName, eg 
@@ -133,7 +125,25 @@ public str basename(ConceptName cn){
   return (/^.*\/<base:[A-Za-z0-9\-\_]+>$/ := cn) ? base : cn;
 }
 
+// Get the parentname from a ConceptName, eg 
+// - basename("A/B/C") => "A/B"
+
+public str parentname(ConceptName cn){
+  return (/<parent:^.*>\/<base:[A-Za-z0-9\-\_]+>$/ := cn) ? parent : cn;
+}
+
 //test basename("A/B/C") == "C";
+
+// Get the root name from a ConeptName, e.g.
+// - rootname("A/B/C") => "A"
+
+public str rootname(ConceptName cn){
+  return (/<root:[A-Za-z0-9\-\_]+>.*$/ := cn) ? root : cn;
+}
+
+public list[str] getPathNames(str path){
+  return [ name | /<name:[A-Za-z]+>(\/|$)/ := path ];
+}
 
 // Get all the names in a ConceptName
 
@@ -161,10 +171,21 @@ public str compose(list[str] names){
   return compose(names, 0, size(names)-1);
 }
 
+public loc catenate(loc basedir, str entry){
+   baseuri = basedir.uri;
+   if(!endsWith(baseuri, "/"))
+   	baseuri += "/";
+   return basedir[uri=baseuri + entry];
+}
+
+public loc conceptFile(str cn){
+  return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
+}
+
 public bool writingAllowed(){
     //svn = courseRoot[file = courseRoot.file + ".svn"];
-    bool writingAllowed = exists(courseRootSVN);
+    bool writingAllowed = exists(courseDirSVN);
     
-    println("writingAllowed: svn = <courseRootSVN>, wa = <writingAllowed>");
+    println("writingAllowed: svn = <courseDirSVN>, wa = <writingAllowed>");
     return writingAllowed;
 }

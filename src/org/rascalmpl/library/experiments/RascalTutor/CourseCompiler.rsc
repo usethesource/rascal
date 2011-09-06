@@ -18,19 +18,20 @@ import Map;
 import Graph;
 import IO;
 import ValueIO;
+import DateTime;
 import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
+import Scripting;
 
-// TODO: hack to prevent deployed tutor from compiling all the time
 private bool deployedMode = !writingAllowed();
+
+bool editingAllowed = true;
 
 public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>
        '
        'Details:
-       '
-       'Categories:
        '
        'Syntax:
        '
@@ -56,10 +57,14 @@ return "Name: <cn>
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
+// Categories is deprecated but still here to guarantee correct parsing of concepts
+
 public set[str] sectionKeywords = {"Name", "Details", "Categories", "Syntax", "Types", "Function", "Synopsis", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"};
 
 private str conceptPath = "";
+private str rootConcept = "";
+private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/images/rascal-tutor-small.png\"\>";
 
 private str markup1(list[str] lines){
   return markup(lines, conceptPath);
@@ -114,72 +119,47 @@ public str combine(list[str] lines){
   return "<for(str s <- lines){><s>\n<}>";
 }
 
-str compiledExtension = "concept.pre";
-
-public Concept parseConcept(loc file, str coursePath){
-   binFile = file[extension = compiledExtension];
-   //println("binFile=<binFile>; <exists(binFile)>; <lastModified(binFile)>; <lastModified(file)>");
-   if(exists(binFile) && (deployedMode || (lastModified(binFile) > lastModified(file)))){
-     //println(" reading concept from file ...");
-     try {
-        C = readTextValueFile(#Concept, binFile);
-        return C;
-     } catch: println("Reading <binFile> failed, regenerating it");
-   }
-   return parseConcept(file, readFileLines(file), coursePath);
-}
-
-public Concept parseConcept(loc file, list[str] script, str coursePath){
-   return parseConcept(file, getSections(script), coursePath);
-}
-
-public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePath){
-
-   println("parseConcept: file=<file>, coursePath=<coursePath>");
+public Concept parseConcept(loc file){
+   script = readFileLines(file);
+   sections = getSections(script);
    
    if(!(sections["Name"]?))
       throw ConceptError("<file>: Missing section \"Name\"");
       
    name = sections["Name"][0];
-   fullName = getFullConceptName(file, coursePath);
+   fullName = getFullConceptName(file);
+   println("Compiling <fullName>");
    try {
 	         
 	   if(name != basename(fullName))
 	      throw ConceptError("Got concept name \"<name>\", but \"<basename(fullName)>\" is required");
 	      
-	   conceptPath = "Courses/" + fullName;
-//     conceptPath = fullName;
+       conceptPath = fullName;
 	   
 	   optDetails      	= getNames(sections["Details"] ? []);
-	   optCategories   	= toSet(getNames(sections["Categories"] ? []));
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
 	   typesSection 	= sections["Types"] ? [];
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
-	   searchTs  	= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
-       syntaxSynopsis   = markup1(syntaxSection);
-       typesSynopsis    = markup1(typesSection);
-       functionSynopsis = markup1(functionSection);
-	   synopsis 		= markup1(synopsisSection);
-	   description		= markup1(sections["Description"]);
-	   examples 		= markup1(sections["Examples"]);
-	   benefits 		= markup1(sections["Benefits"]);
-	   pitfalls 		= markup1(sections["Pitfalls"]);
+	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
+	   
+	   html_body        = section("Syntax", markup1(syntaxSection)) +
+                          section("Types", markup1(typesSection)) +
+                          section("Function", markup1(functionSection)) +
+  	                      section("Synopsis", markup1(synopsisSection)) +
+  	                      section("Description", markup1(sections["Description"])) +
+  	                      section("Examples", markup1(sections["Examples"])) +
+  	                      section("Benefits", markup1(sections["Benefits"])) +
+  	                      section("Pitfalls", markup1(sections["Pitfalls"])) +
+  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(fullName,quest)> <}>"); 
 	   
 	   related = getAndClearRelated();
 	   warnings = getAndClearWarnings();
 	   
-	   Concept C = concept(name, file, warnings, optDetails, optCategories, related, synopsis,
-	                       syntaxSynopsis, typesSynopsis, functionSynopsis, 
-	                       searchTs, description, examples, benefits, pitfalls, questions);
-	   binFile = file[extension = compiledExtension];
-	   println("parseConcept: binFile = <binFile>, uri = <binFile.uri>");
-	   try {
-	     writeTextValueFile(binFile, C);
-	   }
-	   catch e: println("can not save file <binFile>"); // do nothing
+	   Concept C = concept(fullName, file, warnings, optDetails, related, searchTs, questions, html_body);
+	   
 	   return C;
 	} catch NoSuchKey(e):
 	    throw ConceptError("<fullName>: Missing section \"<e>\"");
@@ -189,7 +169,116 @@ public Concept parseConcept(loc file, map[str,list[str]] sections, str coursePat
 	    throw ConceptError("<fullName>: uncaught exception <e>");
 }
 
-// Extract categories
+public str showConcept(Concept C){
+  cn = C.fullName;
+  childs = children(C);
+  questions = C.questions;
+  warnings = "";
+  if(size(C.warnings) > 0){
+     warnings = "\<ul\>\n";
+     for(w <- C.warnings)
+         warnings += li(w);
+     warnings += "\</ul\>";
+     warnings = section("Warnings", warnings);
+  }
+  return html(
+  	head(title(cn) + prelude(rootname(cn))),
+  	body(
+  	  "\<a id=\"tutorAction\" href=\"Courses/index.html\"\><logo>\</a\>" +
+  	  warnings +
+  	  section("Name", showConceptPath(cn)) + searchBox(cn) +
+  	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
+  	  C.body +
+  	  editMenu(cn)
+  	)
+  );
+}
+
+// Update de details section for the parent node pn of cn
+// (needed when a new child has been edit via edit/new):
+// - Recompute the details for parent pn
+// - Use them to replace the details section in pn.html
+
+public void updateParentDetails(ConceptName cn){
+  pn = parentname(cn);
+  println("updateParentDetails: cn = <cn>, pn = <pn>");
+  if(rootname(pn) == pn)  // No update needed at root
+     return;
+  file = conceptFile(pn);
+  println("updateParentDetails: file = <file>");
+  pconcept = parseConcept(file);
+  generate(pconcept);      
+}
+
+// Generate prelude of web page
+
+public str prelude(str courseName){ 
+  return "\<script type=\"text/javascript\" src=\"/jquery-1.4.2.min.js\"\>\</script\>
+         '\<script type=\"text/javascript\" src=\"/prelude.js\"\>\</script\>
+         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>
+         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n";
+}
+
+public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptName,Concept] concepts){  
+  return 
+  "/* Generated code for course <courseName>, generated <now()> */
+  '
+  'var baseConcepts = <mkJsArray(baseConcepts, "new Array()")>;
+  '
+  'var conceptNames = <mkJsArray(sort(toList(domain(concepts))), "new Array()")>;
+  '
+  'var searchTerms = {};
+  '
+  '<for( name <- concepts ){>
+  'searchTerms[\"<name>\"] = <mkJsArray(toList(concepts[name].searchTerms), "null")>;
+  '<}>";
+}
+
+public str mkJsArray(list[str] elms, str nullCase){
+  int n = size(elms) - 1;
+  return (n > 0) ? "new Array(<for(int i <- [0 .. n]){><(i==0)?"":",">\"<escapeForJavascript(elms[i])>\"<}>)"
+                 : nullCase;
+}
+
+public str section(str name, str txt){
+  return (/^\s*$/s := txt) ? "" : div(name, sectionHead(name) +  " " + txt);
+}
+
+public str searchBox(ConceptName cn){
+  return "
+         '\<div id=\"searchBox\"\>
+         '  \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
+         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
+         '    \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
+         '    \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
+         '    \<div id=\"popups\"\>\</div\>
+         '  \</form\>
+         '\</div\>
+         ";
+}
+
+public str editMenu(ConceptName cn){
+  warnings = "Courses/<rootname(cn)>/warnings.html";
+ 
+  return "\n\<div id=\"editMenu\"\>" +
+         "\<a id=\"tutorAction\" href=\"Courses/index.html\"\><logo>\</a\>" +
+          (editingAllowed ?
+              "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
+               [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New\</b\>\</a\>] |
+               [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>\"\>\<b\>Compile Course\</b\>\</a\>] |
+               [\<a id=\"warnAction\" href=\"<warnings>\"\>\<b\>Warnings\</b\>\</a\>]"
+              : "")
+          +
+            "\</div\>\n";
+}
+
+public list[ConceptName] children(Concept c){
+  dir = catenate(courseDir, c.fullName);
+  entries = [ entry | entry <- listEntries(dir), /^[A-Z]/ := entry, isDirectory(catenate(dir, entry))];
+  return [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
+}
+
+// Extract list of names from a section (e.g. Details section)
 
 public list[str] getNames(list[str] lines){
    return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
@@ -454,77 +543,134 @@ public rel[str,str] getBaseRefinements(list[str] names){
 }
 
 public Course recompileCourse(Course course){
-  return validatedCourse(course.root, course.title, course.directory, course.concepts);
+   return validatedCourse(course.root, course.title, course.directory, course.concepts);
 }
    
-public Course compileCourse(ConceptName rootConcept, str title, loc courseDir){
-    map[ConceptName,Concept] conceptMap = ();
+public map[ConceptName, Concept] concepts = ();
+public Graph[ConceptName] refinements = {};
+//public list[str] baseConcepts = [];
+
+public Course compileCourse(ConceptName theRootConcept, str courseTitle, loc courseDir){
+   concepts = ();
     
-    coursePath = courseRoot.path;
-    courseFiles = crawl(catenate(courseDir, rootConcept), suffix);
-//    println(courseFiles);
-    for(file <- courseFiles){
-       cpt = parseConcept(file, coursePath);
-       fullName = getFullConceptName(file, coursePath);
-       if(conceptMap[fullName]?)
+   rootConcept = theRootConcept;
+   coursePath = courseDir.path;
+   courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
+
+   for(file <- courseFiles){
+       cpt = parseConcept(file);
+       fullName = getFullConceptName(file);
+       if(concepts[fullName]?)
        	  println("Double declaration for <fullName>");
-       conceptMap[fullName] = cpt;       	 
-    }
-    return validatedCourse(rootConcept, title, courseDir, conceptMap);
+       concepts[fullName] = cpt;       	 
+   }
+   C = validatedCourse(rootConcept, courseTitle, courseDir, concepts);
+   baseConcepts = C.baseConcepts;
+    
+   // Generate files for each concept
+   for(name <- concepts){
+      generate(concepts[name]);
+   }
+    
+   // Generate global course data in JS file
+   jsFile = catenate(courseDir, rootConcept + "/course.js");
+  
+   try {
+	   writeFile(jsFile, jsCoursePrelude(rootConcept, baseConcepts, concepts));
+   }
+   catch e: println("can not save file <jsFile>"); // do nothing
+   
+   warnings = C.warnings;
+   continue = "\<p\>\<a href=\"/show?concept=<C.root>\"\>Continue with course <C.root>\</a\>\<p\>";
+   
+   warn_html = "";
+   if(size(warnings) == 0){
+     warn_html = html(head(title("No warnings in course <C.title>") + prelude(C.root)),
+                      body(h1("No warnings in course <C.title>") + continue));
+   } else {
+     warn_html = html(head(title("Warnings in course <C.title>") + prelude(C.root)),
+                      body(continue +
+                           h1("<size(warnings)> warning(s) found in course <C.title>:") +
+                           ul("<for(w <- warnings){><li(w)><}>") +
+                           continue
+                     ));
+   }
+   
+   warnFile = catenate(C.directory, C.root + "/warnings.html");
+   
+   try {
+      writeFile(warnFile, warn_html);
+   }
+   catch e: println("can not save file <warnFile>"); // do nothing
+    
+   return C;
+}
+
+public void generate(Concept c){
+     html_code = showConcept(c);
+     html_file = c.file[extension = htmlExtension];
+	 try {
+	     writeFile(html_file, html_code);
+	 }
+	 catch e: println("can not save file <html_file>"); // do nothing
+	 
+	 if(size(c.questions) > 0){
+	    qs = c.questions;
+	    quest_file = c.file[extension = questExtension];
+	    try {
+	       writeTextValueFile(quest_file, c.questions);
+	    }
+	    catch e: println("can not save file <quest_file>"); // do nothing
+	 }
 }
 
 public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir, map[ConceptName,Concept] conceptMap){
     // Global sanity checks on concept dependencies
-    Graph[ConceptName] fullRefinements = {};
+    //Graph[ConceptName] fullRefinements = {};
+    refinements = {};
     Graph[ConceptName] baseRefinements = {};
-    set[str] categories = {};
     
     for(cn <- conceptMap){
-       // println("cn = <cn>");
        baseRefinements += getBaseRefinements(basenames(cn));
-       fullRefinements += getFullRefinements(basenames(cn));
-       categories += conceptMap[cn].categories;
+       refinements += getFullRefinements(basenames(cn));
     }
     
     generalizations = invert(baseRefinements);
-    //println("baseRefinements = <baseRefinements>");
-    //println("fullRefinements = <fullRefinements>");
-    
     allBaseConcepts = carrier(baseRefinements);
-    allFullConcepts = carrier(fullRefinements);
-    
-    //println("allBaseConcepts=<allBaseConcepts>");
-    // println("allFullConcepts=<allFullConcepts>");
+    allFullConcepts = carrier(refinements);
     
     undefinedFullConcepts =  allFullConcepts - domain(conceptMap);
     
     warnings = [];
     if(!isEmpty(undefinedFullConcepts))
-    	warnings += "Undefined concepts: <undefinedFullConcepts>";
+    	warnings += ["Undefined concepts: <undefinedFullConcepts>"];
     roots = top(baseRefinements);
     if(size(roots) != 1)
-        warnings += "Root is not unique: <roots>";
+        warnings += ["Root is not unique: <roots>"];
     if(roots != {rootConcept})
-        warnings += "Roots <roots> unequal to course name \"<rootConcept>\"";
+        warnings += ["Roots <roots> unequal to course name \"<rootConcept>\""];
     
     map[str, ConceptName] fullRelated = ();
     set[str] searchTs = {};
     for(cname <- conceptMap){
        C = conceptMap[cname];
+       cwarnings = C.warnings;
        searchTs += C.searchTerms;
        for(r <- C.related){
          //println("related.r = <r>");
          rbasenames = basenames(r);
-         if(!(toSet(rbasenames) <= allBaseConcepts))
-         	warnings += "<showConceptPath(cname)>: unknown concept \"<r>\"";
-         else {
+         if(!(toSet(rbasenames) <= allBaseConcepts)){
+            cwarnings += ["<showConceptPath(cname)>: unknown concept \"<r>\""];
+         } else {
             parents = generalizations[rbasenames[0]];
-            if(size(parents) > 1)
-               warnings += "<showConceptPath(cname)>: ambiguous concept \"<rbasenames[0]>\", add one of the parents <parents>";
+            if(size(parents) > 1){
+                cwarnings += ["<showConceptPath(cname)>: ambiguous concept \"<rbasenames[0]>\", add one of its parents <parents> to disambiguate"];
+            }
             if(size(rbasenames) >= 2){
                for(int i <- [0 .. size(rbasenames)-2]){
-                   if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements)
-                      warnings += "<showConceptPath(cname)>: unknown concept \"<rbasenames[i]>/<rbasenames[i+1]>\"";
+                   if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements){
+                      cwarnings += ["<showConceptPath(cname)>: unknown concept \"<rbasenames[i]>/<rbasenames[i+1]>\""];
+                   }
                } // for
             } // if
             fullPath = shortestPathPair(baseRefinements, rootConcept, last(rbasenames));
@@ -532,17 +678,17 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
             fullRelated[r] = compose(fullPath);
          } // else
        } // for(r <-
-    } // for(cname
-    
-    for(cname <- conceptMap){
-       C = conceptMap[cname];
+       
        for(d <- C.details){
-         if((cname + "/" + d) notin fullRefinements[cname])
-            warnings += "<showConceptPath(cname)>: non-existent detail \"<d>\"";
+           if((cname + "/" + d) notin refinements[cname]){
+              cwarnings += ["<showConceptPath(cname)>: non-existent detail \"<d>\""];
+           }
        }
-       for(w <- C.warnings)
-         warnings += "<showConceptPath(cname)>: <w>";
-    }
+       C.warnings = cwarnings;
+       concepts[cname] = concept(C.fullName, C.file, cwarnings, C.details, C.related, C.searchTerms, C.questions, C.body);
+       for(w <- cwarnings)
+         warnings += ["<showConceptPath(cname)>: <w>"];                     
+    } // for(cname
     
     // Map same search term with/without capitalization to the one with capitalization
     searchTerms1 = {};
@@ -554,41 +700,202 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
           searchTerms1 += {trm};
    }               
     
-   // println("fullRelated = <fullRelated>");
-   // println("searchTerms1= <searchTerms1>");
-   // println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTs))>");
-   // println("Warnings:\n<for(w <- warnings){><w>\n<}>");
-    return course(title, courseDir, rootConcept, warnings, conceptMap, fullRefinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated, categories);
+   println("fullRelated = <fullRelated>");
+   println("searchTerms1= <searchTerms1>");
+   println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTs))>");
+   println("Warnings:\n<for(w <- warnings){><w>\n<}>");
+   return course(title, courseDir, rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated /*, categories*/);
 }
 
-public loc catenate(loc basedir, str entry){
-   baseuri = basedir.uri;
-   if(!endsWith(baseuri, "/"))
-   	baseuri += "/";
-   return basedir[uri=baseuri + entry];
-}
+
+
+set[str] exclude = {"Chart", "Render", "graph", "tree", "overlay", "pack", "rotate", "scale", 
+                    "shape", "text", "vertex", "wedge", "vcat", "fillColor", "font", "fontColor", "fontNames", "fontSize"};
 
 public list[loc] crawl(loc dir, str suffix){
 //  println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
+  dotSuffix = "." + suffix;
   for( str entry <- listEntries(dir) ){
-    loc sub = catenate(dir, entry);
-    if(endsWith(entry, suffix)) { 
-      	res += [sub]; 
-    }
-    if(isDirectory(sub)) {
-      	res += crawl(sub, suffix);
+    if(entry notin exclude){                       // TODO: TEMP
+       loc sub = catenate(dir, entry);
+       if(endsWith(entry, dotSuffix)) { 
+      	  res += [sub]; 
+       }
+       if(isDirectory(sub)) {
+      	  res += crawl(sub, suffix);
+      }
     }
   };
   return res;
 }
 
-// --- Fo testing purposes:
+// --------------------------------- Question Presentation ---------------------------
 
-public Concept tst(){
-   return parseConcept(|cwd:///src/org/rascalmpl/library/experiments/RascalTutor/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.concept|, "/org/rascalmpl/library/experiments/RascalTutor/Courses/");
+// Present a Question
+
+private str answerFormBegin(ConceptName cpid, QuestionName qid, str formClass){
+	return "
+\<form method=\"GET\" action=\"validate\" class=\"<formClass>\"\>
+\<input type=\"hidden\" name=\"concept\" value=\"<cpid>\"\>
+\<input type=\"hidden\" name=\"exercise\" value=\"<qid>\"\>\n";
 }
 
-public void cc(){
-   c = compileCourse("Rascal", "Rascal Tutorial", courseRoot);
+private str answerFormEnd(str submitText, str submitClass){
+  return "
+\<input type=\"submit\" value=\"<submitText>\" class=\"<submitClass>\"\>
+\</form\>";
+}
+
+private str anotherQuestionForm(ConceptName cpid, QuestionName qid){
+	return answerFormBegin(cpid, qid, "anotherForm") + 
+	"\<input type=\"hidden\" name=\"another\" value=\"yes\"\>\n" +
+	answerFormEnd("I want another question", "anotherSubmit");
+}
+
+private str cheatForm(ConceptName cpid, QuestionName qid, str expr){
+    return "";
+	return answerFormBegin(cpid, qid, "cheatForm") + 
+	       "\<input type=\"hidden\" name=\"expr\" value=\"<expr>\"\>\n" +
+           "\<input type=\"hidden\" name=\"cheat\" value=\"yes\"\>\n" +
+           answerFormEnd("I am cheating today", "cheatSubmit");
+}
+
+public str status(str id, str txt){
+	return "\n\<span id=\"<id>\" class=\"answerStatus\"\>\n<txt>\n\</span\>\n";
+}
+
+public str good(){
+  return "\<img height=\"25\" width=\"25\" src=\"images/good.png\"/\>";
+}
+
+public str bad(){
+   return "\<img height=\"25\" width=\"25\" src=\"images/bad.png\"/\>";
+}
+
+public str status(QuestionName qid){
+  return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
+}
+
+public str showQuestion(ConceptName cpid, Question q){
+//println("showQuestion: <cpid>, <q>");
+  qid = q.name;
+  qdescr = "";
+  qexpr  = "";
+  qform = "";
+  
+  switch(q){
+    case choiceQuestion(qid, descr, choices): {
+      qdescr = descr;
+      idx = [0 .. size(choices)-1];
+      qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" name=\"answer\" value=\"<i>\"\><choices[i].description>\n<}>";
+    }
+    case textQuestion(qid,descr,replies): {
+      qdescr = descr;
+      qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
+    }
+    case tvQuestion(qid, qkind, qdetails): {
+      qdescr = qdetails.descr;
+      setup  = qdetails.setup;
+      lstBefore = qdetails.lstBefore;
+      lstAfter = qdetails.lstAfter;
+      cndBefore = qdetails.cndBefore;
+      cndAfter = qdetails.cndAfter;
+      holeInLst = qdetails.holeInLst;
+      holeInCnd = qdetails.holeInCnd;
+      vars   = qdetails.vars;
+      auxVars = qdetails.auxVars;
+      rtype = qdetails.rtype;
+	  hint = qdetails.hint;
+
+      VarEnv env = ();
+      generatedVars = [];
+      for(<name, tp> <- vars){
+        tp1 = generateType(tp, env);
+        env[name] = <tp1, generateValue(tp1, env)>;
+        generatedVars += name;
+	  }
+
+	  for(<name, exp> <- auxVars){
+         exp1 = subst(exp, env);
+         //println("exp1 = <exp1>");
+         try {
+           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
+         } catch: throw "Error in computing <name>, <exp>";
+      }
+      //println("env = <env>");
+      
+      lstBefore = escapeForHtml(subst(lstBefore, env));
+      lstAfter = escapeForHtml(subst(lstAfter, env));
+      cndBefore = escapeForHtml(subst(cndBefore, env));
+      cndAfter = escapeForHtml(subst(cndAfter, env));
+      
+      qform = "<for(param <- generatedVars){>\<input type=\"hidden\" name=\"<param>\" value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
+      
+      qtextarea = "\<textarea rows=\"1\" cols=\"30\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
+      
+      if(lstBefore != "" || lstAfter != ""){  // A listing is present in the question
+         if(holeInLst)
+            qform +=  "Fill in " + "\<pre class=\"prequestion\"\>" + lstBefore + qtextarea + lstAfter + "\</pre\>";
+         else
+            qform += "Given " + "\<pre class=\"prequestion\"\>" + lstBefore + "\</pre\>";
+      }
+      	        
+      if(qkind == valueOfExpr()){ // A Value question
+      	    //if(lstBefore != "")
+      	    //    if (holeInLst) qform += "and make the following true:";
+      	        
+         if(holeInCnd)
+      	    qform += "\<pre class=\"prequestion\"\>" + cndBefore + qtextarea + cndAfter +  "\</pre\>";
+         else if(cndBefore + cndAfter != "")
+            if(holeInLst)
+               qform += " and make the following true:" + "\<pre class=\"prequestion\"\>" + cndBefore + "\</pre\>";
+            else
+      	       qform += ((lstBefore != "") ? "Make the following true:" : "") + "\<pre class=\"prequestion\"\>" + cndBefore + " == " + qtextarea + "\</pre\>"; 
+      } else {                     // A Type question
+      	if(holeInCnd)
+      	   qform +=  "The type of " + tt(cndBefore) + qtextarea + tt(cndAfter) + " is " + tt(toString(generateType(rtype, env)));
+         else if(holeInLst)
+           qform += "and make the type of " + tt(cndBefore) + " equal to " + tt(toString(generateType(rtype, env)));  
+         else
+           qform += "The type of " + tt(cndBefore) + " is " + qtextarea; 
+           
+         qform += br();
+       }
+    }
+    default:
+      throw "Unimplemented question type: <q>";
+  }
+  answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
+
+  return div(qid, "question",
+                  b(basename("Question " + qid + ". ")) + status(qid + "good", good()) + status(qid + "bad", bad()) +
+                  "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
+                  qdescr +  answerForm + 
+                  anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) + br());
+}
+
+public QuestionName lastQuestion = "";
+
+// trim layout from a string
+public str trim (str txt){
+    return txt;
+	return
+	  visit(txt){
+	    case /[\ \t\n\r]/ => ""
+	  };
+}
+
+public Question getQuestion(ConceptName cid, QuestionName qid){
+
+  try {
+  	quest_file = catenate(courseDir, cid + "/" + basename(cid))[extension = questExtension];
+  	questions = readTextValueFile(#Questions, quest_file);
+  
+ 	 for(q <- questions)
+  		if(q.name == qid)
+  			return q;
+  } catch e: throw "Question file for <cid> not found";
+  
+  throw "Question <qid> not found";
 }
