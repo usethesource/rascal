@@ -131,10 +131,13 @@ public class Graph{
 		Type listType = types.listType(start.getType());
 		IListWriter w = listType.writer(values);
 		
-		w.insert(u);
-		while(!pred.get(u).isEqual(start)){
-			u = pred.get(u);
+		if(!start.isEqual(u)){
 			w.insert(u);
+			while(!pred.get(u).isEqual(start)){
+				u = pred.get(u);
+				w.insert(u);
+			}
+			// TODO Check if a path was found at all; it could be that we just hit the root of the graph.
 		}
 		w.insert(start);
 		return w.done();
