@@ -25,12 +25,15 @@ import org.rascalmpl.interpreter.Evaluator;
 @SuppressWarnings("serial")
 public class TutorHttpServlet extends HttpServlet {
 	protected Evaluator evaluator;
+	protected String resourceBase;
+	protected static boolean debug = true;
 	
 	@Override
 	public void init() throws ServletException {
 		// TODO Auto-generated method stub
 		super.init();
 		evaluator = (Evaluator) getServletContext().getAttribute("RascalEvaluator");
+		resourceBase = (String) getServletContext().getAttribute("ResourceBase");
 	}
 	
 	/** Read a parameter with the specified name, convert it
@@ -63,14 +66,14 @@ public class TutorHttpServlet extends HttpServlet {
 	    String paramString = request.getParameter(paramName);
 	    if(paramString == null)
 	       throw new ServletException(paramName + " is missing or empty, page was probably damaged");
-	    System.err.println("StringParameter " + paramName + " = " + paramString);
+	    if(debug) System.err.println("StringParameter " + paramName + " = " + paramString);
 	    return paramString;
 	  }
 	  
 	  public static String getOptionalStringParameter(HttpServletRequest request,
               String paramName) {
 		  String paramString = request.getParameter(paramName);
-		  System.err.println("StringParameter " + paramName + " = " + paramString);
+		  if(debug) System.err.println("StringParameter " + paramName + " = " + paramString);
 		  return (paramString == null) ? "" : paramString;
 	}
 	  
@@ -93,7 +96,7 @@ public class TutorHttpServlet extends HttpServlet {
 			  append("\"").append(pvalue).append("\"");
 		  }
 		  pmap.append(")");
-		  System.err.println("pmap = " + pmap);
+		  if(debug) System.err.println("pmap = " + pmap);
 		  return pmap.toString();
 	  }
 	  

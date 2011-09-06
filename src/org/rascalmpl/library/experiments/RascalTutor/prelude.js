@@ -3,11 +3,13 @@ $(document).ready(function(){
 });
 
 function attachHandlers(){
+  
   $('#searchField').keyup(searchSuggest);
+  $('#searchForm').submit(handleSearch);
+  
   $('.answerForm').submit(handleAnswer);
   $('.cheatForm').submit(handleCheat);
   $('.anotherForm').submit(handleAnother);
-  $('.categoryButton').click(categoryClick);
 
   $('.answerStatus').hide();
   $('.answerFeedback').hide();
@@ -19,6 +21,44 @@ function attachHandlers(){
 function reload(data){
   $('body').html(data);
   attachHandlers();
+}
+
+// ------------ Show a concept ------------------------------------------
+
+function show(fromConcept, toConcept){
+  for(var i = 0; i < conceptNames.length; i++){
+     if(toConcept == conceptNames[i]){
+      var url = 'show?concept=' + toConcept;    
+      $(location).attr('href',url);
+      return;
+     }
+  }
+  back = '<a href="show?concept=' + fromConcept + '">' +
+         '<img width="30" height="30" src="images/back.png"></a>';
+  
+  var options = new Array();
+  for(var i = 0; i < conceptNames.length; i++){
+     if(endsWith(conceptNames[i], '/' + toConcept))
+       options.push(conceptNames[i]);
+  }
+  if(options.length == 0){
+     $('title').html('Unknown concept "' + toConcept + '"');
+     $('body').html(back + '<h1>Concept "' + toConcept + '" does not exist, please add it or correct link!</h1>' + back);
+     return;
+  }
+   if(options.length == 1){
+     var url = 'show?concept=' + options[0];    
+     $(location).attr('href',url);
+    return;
+  }
+   $('title').html('Ambiguous concept "' + toConcept + '"');
+   html_code = '<h1>Concept "' + toConcept + '" is ambiguous, select one of (or disambiguate in source):</h1>\n<ul>';
+      for(var i = 0; i < options.length; i++){
+        html_code += '<li>' + makeConceptURL(options[i]) + '</li>\n';
+      }
+      html_code += '\n</ul>';
+
+   $('body').html(back + html_code + back);
 }
 
 // ------------ Handler for suggestions for searchBox -------------------
@@ -49,30 +89,89 @@ function searchSuggest() {
 	}
 }
 
+function handleSearch(evt){
+   evt.preventDefault();
+   
+   var term = $('input#searchField').val();
+   var lcterm = term.toLowerCase();
+   var concept = $('input[name=concept]').val();
+   
+   //alert('term = "' + term + '"; concept = ' + concept + '; ' + conceptNames);
+   
+   var results = new Array();
+   for(var i=0; i<conceptNames.length; i++){
+      var conceptName = conceptNames[i];
+      if(match(conceptName, lcterm)){
+        results.push(conceptName);
+      }
+   }
+   //alert("leave handleSearch: " + results);
+   showSearchResults(concept, results, term);
+   return false;
+}
+
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+function startsWith(str, prefix){
+    return str.substring(0, prefix.length) == prefix;
+}
+
+function match(conceptName, term){
+   conceptName = conceptName.toLowerCase();
+   
+   if(startsWith(conceptName, term) ||
+      endsWith(conceptName, "/" + term) ||
+      conceptName.indexOf("/" + term + "/") !== -1){
+      return true;
+    }
+   
+   terms = searchTerms[conceptName]
+   if(terms){
+     for(var i = 0; i < terms.length; i++){
+       if(term == terms[i]){
+          return true;
+       }
+     }
+   }
+   //alert('match: ' + conceptName + ' and ' + term + ' ===> false');
+   return false;
+}
+
+function showSearchResults(concept, results, term){
+   back = '<a href="show?concept=' + concept + '">' +
+          '<img width="30" height="30" src="images/back.png"></a>';
+   if(results.length == 0)
+      html_code = '<h1>No results found for "' + term + '"</h1>';
+   else if(results.length == 1){
+      //html_code = '<h1>Search result</h1><p>' + makeConceptURL(results[0]) + '</p>';
+      var url = 'show?concept=' + results[0];    
+     $(location).attr('href',url);
+     return;
+   } else {
+      html_code = '<h1>Search results for "' + term + '"</h1>\n<ul>';
+      for(var i = 0; i < results.length; i++){
+        html_code += '<li>' + makeConceptURL(results[i]) + '</li>\n';
+      }
+      html_code += '\n</ul>';
+   }
+   $('title').html('Search results for "' + term + '"');
+   $('body').html(back + html_code + back);
+}
+
+
+function makeConceptURL(conceptName){
+   return '<a href="show?concept=' + conceptName + '">' + conceptName + '</a>';
+}
+
+
 // ------------ Handler for making a choice from the suggestions for the searchBox 
 
 function makeChoice() {
-   	$('#searchField').val($(this).text());
+   	$('input#searchField').val($(this).text());
 	$('#popups').html("");
     $('#searchForm').submit();
-}
-
-// ------------ Handler for category selection
-
-function categoryClick(){
-  var formData="";
-  
-  $(".categoryButton").each(function(){
-    var button = $(this);
-    formData += (button.attr("name") + "=" + button.is(":checked") + "&");
-   });
-   
-  var cn = $('#categoryForm input[name=concept]').attr("value");
-  formData += "concept=" + cn;
-  $.get("category", formData,
-    function processCategorySelectionResult(data, textStatus){
-     reload(data);
-   });
 }
 
 // ------------ Handler for answers to exercises

@@ -13,15 +13,13 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.net.URI;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
 public class Show extends TutorHttpServlet {
@@ -29,22 +27,28 @@ public class Show extends TutorHttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		
-		System.err.println("ShowConcept, doGet: " + request.getRequestURI());
+		if(debug) System.err.println("ShowConcept, doGet: " + request.getRequestURI());
+		if(debug) System.err.println("ShowConcept, resourceBase: " + resourceBase);
 		String concept = getStringParameter(request, "concept");
-		PrintWriter out = response.getWriter();
+		int i = concept.lastIndexOf("/");
+		String baseName = i > 0 ? concept.substring(i) : concept;
+		if(!baseName.endsWith(".html"))
+			baseName += ".html";
+		String fileName = resourceBase + "/" + "Courses/" + concept + "/" + baseName;
+		if(debug) System.err.println("ShowConcept, fileName: " + fileName);
+		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fileName));
+		ServletOutputStream out = response.getOutputStream();
 		
 		try {
-			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("showConcept", vf.string(concept));
-			out.println(((IString) result).getValue());
+			byte buf[] = new byte[10000];
+			while(in.available() > 0){
+				int n = in.read(buf);
+				out.write(buf, 0, n);
+			}
 		}
-		catch (Throwable e) {
-			out.println(escapeForHtml(e.getMessage()));
-			e.printStackTrace(out);
-		}
+
 		finally {
 			out.close();
 		}
-		//System.err.println("ShowConcept, " + ((IString) result.getValue()).getValue());
 	}
 }

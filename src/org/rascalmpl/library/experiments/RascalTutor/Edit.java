@@ -28,10 +28,9 @@ public class Edit extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.err.println("Edit, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
+		if(debug)System.err.println("Edit, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		String concept = getStringParameter(request, "concept");
 		boolean newConcept = getStringParameter(request, "new").equals("true");
-		boolean check = getStringParameter(request, "check").equals("true");
 		
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -39,7 +38,7 @@ public class Edit extends TutorHttpServlet {
 		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("edit", vf.string(concept), vf.bool(newConcept), vf.bool(check));
+			IValue result = evaluator.call("edit", vf.string(concept), vf.bool(newConcept));
 			String resp = ((IString) result).getValue();
 			out.println(resp);
 		}

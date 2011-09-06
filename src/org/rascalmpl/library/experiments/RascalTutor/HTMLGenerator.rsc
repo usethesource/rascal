@@ -46,6 +46,7 @@ private void addWarning(str txt){
 }
 
 // Path of current concept, used to get file URLs right.
+
 private str conceptPath = "";
 
 // markup
@@ -300,7 +301,7 @@ private str markupRestLine(str line){
     
     case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"Courses/<conceptPath>/<file>\"\>"
     
    };
 }
@@ -317,7 +318,8 @@ private str markupSubs(str txt){
 // HTML to show a concept
 
 private str show(str cn){
-  return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
+  return "\<a href=\"javascript:show(\'<conceptPath>\',\'<cn>\')\"\><cn>\</a\>";
+  //return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
 }
 
 // HTML for an external link
@@ -339,7 +341,7 @@ private str getImgOpts(str txt, str alt){
     case /^\s*\|\s*border/: {opts += "border=\"1px\" "; insert ""; }
     case /^\s*\|\s*space\s*<N:[0-9]+>\s*px/: {opts += "hspace=\"<N>px\" vspace=\"<N>px\" "; insert ""; }
   }
-  println("getImgOpts(<txt>) returns <opts>");
+  //println("getImgOpts(<txt>) returns <opts>");
   return opts + " title=\"<alt>\"";
 }
 
@@ -371,13 +373,13 @@ private str markupFigure(list[str] lines, str file){
   if(/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
   
-	  // lines[n-1] = "renderSave(<arg>, <courseRoot + "/" + conceptPath + "/" + file>);";
+	  // lines[n-1] = "renderSave(<arg>, <courseDir + "/" + conceptPath + "/" + file>);";
 	  
-	  //path = courseRoot[path = "///" + courseRoot.path + "../<conceptPath>/<file>"];
+	  //path = courseDir[path = "///" + courseDir.path + "../<conceptPath>/<file>"];
 	  
-	  path = courseRoot[path = courseRoot.path + "../<conceptPath>/<file>"];
+	  path = courseDir[path = courseDir.path + "../<conceptPath>/<file>"];
 	  
-	  println("path = <path>");
+	  //println("path = <path>");
 	  lines[n-1] = "renderSave(<arg>, <path>);";
 	  
 	  for(line <- lines)
@@ -469,8 +471,8 @@ private set[str] searchTermsCode(str line){
   visit(line){
     case /^\s+/: insert "";
     case /^\$[^\$]*\$/: insert "";
-    case /^<kw:\w+>/: {terms += kw; println("kw = <kw>"); insert ""; }
-    case /^<op:[^a-zA-Z\$\ \t]+>/: { terms += op; println("op = <op>"); insert ""; }
+    case /^<kw:\w+>/: {terms += kw; /* println("kw = <kw>"); */ insert ""; }
+    case /^<op:[^a-zA-Z\$\ \t]+>/: { terms += op; /* println("op = <op>");*/ insert ""; }
   }
   return terms;
 }

@@ -1,35 +1,45 @@
 <html>
 <head><title>JQUERY Experiments</title>
+
 <link type="text/css" rel="stylesheet" href="prelude.css" />
+
 <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="jquery.jstree.js"></script>
+</head>
+<body>
+
+<div id="selector">
+<ul><li><a>Test</a>
+        <ul><li>Test/AAA</a>
+        </ul>
+        <ul><li><a>Test/Cat1</a>
+                <ul><li><a>Test/Cat1/Cat11</a></li>
+                    <li><a>Test/Cat1/Cat12</a></li>
+                    <li><a>Test/Cat1/Cat13</a></li>
+                </ul>
+            </li>
+            <li><a>Iteration 2</a>
+                <ul><li><a>Story D</a></li>
+                </ul>
+            </li>
+       </ul>
+   </li>
+</ul>
+</div>
+
+
 <script type="text/javascript">
-$(document).ready(function(){
-   $('.qtext').hide();
-   $('#Questions h2').toggle(
-     function(){
-       $(this).next('.qtext').fadeIn(200);
-       $(this).addClass('close');
-     },
-     function() {
-       $(this).next('.qtext').fadeOut(200);
-       $(this).removeClass('close');
-     }
-   
-   ); // end of toggle()
 
-
-});
+$("#selector").bind("select_node.jstree", function(event, data) {
+    $("#replace").html(($(data.args[0]).text()));
+}).jstree();
 
 
 </script>
-</head>
-<body>
-<div id="Questions">
-Questions
-
-<h2>Q1</h2> <div class="qtext">Body van Q1</div>
-<h2>Q2</h2> <div class="qtext">Body van Q2</div>
-
+Replace text:
+<div id="replace">
+... none ...
 </div>
+
 </body>
 </html>
