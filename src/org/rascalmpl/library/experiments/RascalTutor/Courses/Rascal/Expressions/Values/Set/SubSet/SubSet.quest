@@ -1,0 +1,1 @@
+[tvQuestion("1",typeOfExpr(),details(" ",[],"","","\<A:set[arb[0,int,str,real]]\> \<= \<B:same[A]\>","",false,false,[<"A",set(arb(0,[int(-20,20),str(),real(-20,20)]))>,<"B",same("A")>],[],void(),""))]

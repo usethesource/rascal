@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+
+            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+            <html xmlns="http://www.w3.org/1999/xhtml">
+
+             
+<head>
+<title>Rascal/Libraries/Vis/Figure/Properties/fontNames</title>
+<script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/prelude.js"></script>
+<script type="text/javascript" src="/Courses/Rascal/course.js"></script>
+<link type="text/css" rel="stylesheet" href="prelude.css"/>
+
+</head>
+<body>
+<a id="tutorAction" href="Courses/index.html"><img id="leftIcon" height="40" width="40" src="images/rascal-tutor-small.png"></a>
+<div id="Warnings">
+<span class="sectionHead">Warnings</span> <ul>
+<li><warning>Static Error: prompt:///:1,59: Undeclared variable, function or constructor: fontNamesStatic Error: prompt:///:1,16: Undeclared variable, function or constructor: samples</warning></li>
+</ul>
+</div>
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/show?concept=Rascal">Rascal</a>/<a href="/show?concept=Rascal/Libraries">Libraries</a>/<a href="/show?concept=Rascal/Libraries/Vis">Vis</a>/<a href="/show?concept=Rascal/Libraries/Vis/Figure">Figure</a>/<a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties">Properties</a>/<a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties/fontNames">fontNames</a>
+</div>
+
+<div id="navigationMenu">
+         <a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties/fontColor"><img id="leftIcon" height="40" width="40" src="images/left_arrow.png"></a>
+         <a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties"><img id="upIcon" height="40" width="40" src="images/up_arrow.png"></a>
+         <a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties/fontNames"><img id="downIcon" height="40" width="40" src="images/down_arrow.png"></a>
+         <a href="/show?concept=Rascal/Libraries/Vis/Figure/Properties/fontSize"><img id="rightIcon" height="40" width="40" src="images/right_arrow.png"></a>
+         </div>
+
+<div id="searchBox">
+  <form method="GET" id="searchForm" action="/search"> 
+    <img id="searchIcon" height="20" width="20" src="images/magnify.png">
+    <input type="hidden" name="concept" value="Rascal/Libraries/Vis/Figure/Properties/fontNames">
+    <input type="text" id="searchField" name="term" autocomplete="off"><br />
+    <div id="popups"></div>
+  </form>
+</div>
+         
+<div id="Function">
+<span class="sectionHead">Function</span>  <code>list[str] fontNames()</code>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Gives a list of names of available fonts.
+
+</div>
+
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import vis::Figure;
+ok
+<b>rascal></b>fontNames();
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: font&raquo;
+Names
+</pre> The available fonts (on the machine on which this page was generated) are
+ <warning>Static Error: prompt:///:1,59: Undeclared variable, function or constructor: fontNamesStatic Error: prompt:///:1,16: Undeclared variable, function or constructor: samples</warning><pre class="listing">samples =  [ text(f, font(f), fontSize(12), left()) | f &lt;- fontNames()];
+render(grid(samples, size(700), gap(350, 20), left(), bottom()));
+</pre> <img class="TutorImg"  title="font names" alt="font names" src="Courses/Rascal/Libraries/Vis/Figure/Properties/fontNames/f1.png">
+
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  The available fonts are system and installation dependent.
+
+</div>
+
+<div id="editMenu"><a id="tutorAction" href="Courses/index.html"><img id="leftIcon" height="40" width="40" src="images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/fontNames&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/fontNames&new=true"><b>New</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
+               [<a id="warnAction" href="Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+
+</body>
+</html>

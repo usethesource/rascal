@@ -1,0 +1,1 @@
+[tvQuestion("1",typeOfExpr(),details(" ",[],"","","\<A:int\> % \<B:int\>","",false,false,[<"A",int(-20,20)>,<"B",int(-20,20)>],[],void(),"")),tvQuestion("2",valueOfExpr(),details(" ",[],"","","\<A:int\> % \<B:int\>","",false,false,[<"A",int(-20,20)>,<"B",int(-20,20)>],[],void(),""))]
