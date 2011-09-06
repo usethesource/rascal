@@ -1,1 +1,1 @@
-concept("isOnBuildPath",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/isOnBuildPath/isOnBuildPath.concept|,[],[],{"Library","Eclipse"},{},"","",""," \<code\>bool isOnBuildPath(loc file)\</code\>\n",{}," Check if a Resource is on its project\'\\s build path.\n","","","",[])
+concept("isOnBuildPath",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/isOnBuildPath/isOnBuildPath.concept|,[],[],{},"","",""," \<code\>bool isOnBuildPath(loc file)\</code\>\n",{}," Check if a Resource is on its project\'\\s build path.\n","","","",[])

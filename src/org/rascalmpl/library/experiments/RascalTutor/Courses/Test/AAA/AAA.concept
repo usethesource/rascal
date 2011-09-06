@@ -11,12 +11,23 @@ Types: xxx
 Description:xxx  < xx  [WRONGLINK]
 
 Examples:
+abc def ghi jkl
+xxx yyy zzz
+ppp qqq rrr
+sss ttt uuu
+111 222 333 444 555 666
+See also [BBB].
+Or [Cat1].
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
+
+QType: {1, <?> }
+type: set[int]
+hint: one or more integer values separated by commas
 
 
 

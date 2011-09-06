@@ -1,1 +1,1 @@
-concept("subTitle",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/subTitle/subTitle.concept|,[],[],{"Library"},{},"","",""," \<code\>ChartProperty subTitle(str txt)\</code\>\n",{}," Use \<code\>txt\</code\> as subtitle of the chart.\n","","","",[])
+concept("subTitle",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/subTitle/subTitle.concept|,[],[],{},"","",""," \<code\>ChartProperty subTitle(str txt)\</code\>\n",{}," Use \<code\>txt\</code\> as subtitle of the chart.\n","","","",[])

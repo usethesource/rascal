@@ -1,1 +1,1 @@
-concept("Chart",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/Chart.concept|,[],[],{"Library"},{}," \<code\>import vis::Chart;\</code\>\n","","","",{}," Library of chart drawing functions.\n","","","",[])
+concept("Chart",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/Chart.concept|,[],[],{}," \<code\>import vis::Chart;\</code\>\n","","","",{}," Library of chart drawing functions.\n","","","",[])

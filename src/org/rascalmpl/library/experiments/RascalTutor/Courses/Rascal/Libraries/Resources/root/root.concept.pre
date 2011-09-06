@@ -1,1 +1,1 @@
-concept("root",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Resources/root/root.concept|,[],[],{"Library","Eclipse"},{},"","",""," \<code\>Resource root()\</code\>\n",{}," Retrieve a full hierarchical representation of all resources in the Eclipse workspace.\n","","","",[])
+concept("root",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Resources/root/root.concept|,[],[],{},"","",""," \<code\>Resource root()\</code\>\n",{}," Retrieve a full hierarchical representation of all resources in the Eclipse workspace.\n","","","",[])

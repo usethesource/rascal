@@ -42,7 +42,7 @@ The Figure library provides two data types:
 
 * `Figure` describes an actual visual element such as (also see [Figures]):
   ** _Atomic Figures_: [text], [outline].
-  ** _Containers_: [box], [ellipse], [wedge], [space].
+  ** _Containers_: [box], [ellipse], [space].
   ** _Compositions_: [hcat], [vcat], [hvcat], [pack], [grid], [tree], [treemap], [graph].
   ** _Transformations_: [scale], [rotate].
 

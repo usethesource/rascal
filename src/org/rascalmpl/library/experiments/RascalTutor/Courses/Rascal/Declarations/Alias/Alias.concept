@@ -32,7 +32,7 @@ alias Graph[&T] = rel[&T, &T];
 </screen>
 In other words the standard graph datatype can be parameterized with any element type.
 
-See [TypeParameters] of other examples parameterized alias declarations..
+See [TypeParameters] for other examples parameterized alias declarations..
 
 Benefits:
 

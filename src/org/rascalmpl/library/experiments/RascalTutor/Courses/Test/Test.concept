@@ -14,7 +14,12 @@ Types: `map[lub($T_1$, $T_2$), $T_3$]`
 
 
 Description:
+
+PPPPPP
+XXXXXX
 YYYYYYYYYYYYYYYYYY
+ZZZZZZZZ
+RRRRRRR
 
 Text in Figure:
 <figure t1.png>
@@ -29,9 +34,9 @@ gives: ![t1](t1.png)
 |-----:|---------|
 |  1   |  22222  |
 
-The Figure
+The Figure xxx
 <figure box1.png>
-A = box(size(100), lineColor("black"), lineWidth(2), fillColor("violet"));
+A = box(size(100), lineColor("black"), lineWidth(2), fillColor("blue"));
 B = ellipse(size(100), lineColor("black"), lineWidth(1), fillColor("yellow"));
 render(hcat( [A, B, A], gap(10)));
 </figure>
@@ -48,7 +53,7 @@ Examples:
 
 Benefits:
 
-Pittfalls:
+Pitfalls:
 
 Questions:
 
