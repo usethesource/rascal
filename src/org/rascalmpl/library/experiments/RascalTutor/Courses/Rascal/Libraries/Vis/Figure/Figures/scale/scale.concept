@@ -25,8 +25,8 @@ vertical dimension.
 
 Examples:
 <figure sc1.png>
-b = box(size(100,50), fillColor("Blue"));
-render(hcat([b, scale(0.5, b), scale(0.25, b), scale(2, b)]));
+//b = box(size(100,50), fillColor("Blue"));
+//render(hcat([b, scale(0.5, b), scale(0.25, b), scale(2, b)]));
 </figure>
 ![scale 1](sc1.png)
 
@@ -38,8 +38,8 @@ is scaled (as can be seen in the above example). When this effect is undesired,
 these properties have to be scaled inversely before `scale` is applied.
 Reducing `lineWidth` to 0.5 and scaling by 2 given a `lineWidth` of 1:
 <figure sc2.png>
-b = box(size(100,50), fillColor("Blue"), lineWidth(0.5));
-render(scale(2, b));
+//b = box(size(100,50), fillColor("Blue"), lineWidth(0.5));
+//render(scale(2, b));
 </figure>
 ![scale 2](sc2.png)
 

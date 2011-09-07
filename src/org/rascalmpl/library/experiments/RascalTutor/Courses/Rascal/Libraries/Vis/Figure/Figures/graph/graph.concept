@@ -25,52 +25,52 @@ The following constraints apply:
 
 Examples:
 <figure g1.png>
-nodes = [
-  box(text("A"), id("A"), size(20), fillColor("LightGreen")),
-  box(text("B"), id("B"),  size(30), fillColor("LightCoral")),
-  ellipse(text("C"), id("C"),  size(20), fillColor("LightBlue")),
-  ellipse(text("D"), id("D"), size(20, 40), fillColor("Fuchsia"))
-];
-edges = [ 
-  edge("A", "B"),
-  edge("A", "C"),
-  edge("B", "C"),
-  edge("C", "D"),
-  edge("D", "A")
-];    
-render(graph(nodes, edges, size(200));
+//nodes = [
+//  box(text("A"), id("A"), size(20), fillColor("LightGreen")),
+//  box(text("B"), id("B"),  size(30), fillColor("LightCoral")),
+//  ellipse(text("C"), id("C"),  size(20), fillColor("LightBlue")),
+ // ellipse(text("D"), id("D"), size(20, 40), fillColor("Fuchsia"))
+//];
+//edges = [ 
+//  edge("A", "B"),
+//  edge("A", "C"),
+//  edge("B", "C"),
+//  edge("C", "D"),
+//  edge("D", "A")
+//];    
+//render(graph(nodes, edges, size(200));
 </figure>
 
 ![graph 1](g1.png)
 
 A fully connected graph of n nodes:
 <figure g2.png>
-public Figure K(int n){
-    nodes = [box(text("<i>"), id("<i>"), size(20), fillColor("LightBlue")) | int i <- [1 .. n] ];
-    edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
-    return graph(nodes, edges, size(300));
-}
-render(K(20));
+//public Figure K(int n){
+//    nodes = [box(text("<i>"), id("<i>"), size(20), fillColor("LightBlue")) | int i <- [1 .. n] ];
+//    edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
+//    return graph(nodes, edges, size(300));
+//}
+//render(K(20));
 </figure>
 ![graph 2](g2.png)
 
 A tree drawn using graph layout:
 <figure g3.png>
-nodes = [ 
-  box(text("A"), id("A"), size(20), fillColor("green")),
-  box(text("B"), id("B"), size(20), fillColor("red")),
-  box(text("C"), id("C"), size(20), fillColor("blue")),
-  box(text("D"), id("D"), size(20), fillColor("purple")),
-  box(text("E"), id("E"), size(20), fillColor("lightblue")),
-  box(text("F"), id("F"), size(20), fillColor("orange")),
-  box(text("G"), id("G"), size(20), fillColor("brown"))
-];
-edges = [ 
-  edge("A", "B"),  edge("A", "C"),
-  edge("B", "D"), edge("B", "E"), 
-  edge("C", "F"),  edge("C", "G")	   
-];
-render(graph(nodes, edges, size(300)));
+//nodes = [ 
+ // box(text("A"), id("A"), size(20), fillColor("green")),
+//  box(text("B"), id("B"), size(20), fillColor("red")),
+//  box(text("C"), id("C"), size(20), fillColor("blue")),
+//  box(text("D"), id("D"), size(20), fillColor("purple")),
+//  box(text("E"), id("E"), size(20), fillColor("lightblue")),
+//  box(text("F"), id("F"), size(20), fillColor("orange")),
+//  box(text("G"), id("G"), size(20), fillColor("brown"))
+//];
+//edges = [ 
+//  edge("A", "B"),  edge("A", "C"),
+//  edge("B", "D"), edge("B", "E"), 
+////  edge("C", "F"),  edge("C", "G")	   
+//];
+//render(graph(nodes, edges, size(300)));
 </figure>
 ![graph 3](g3.png)
 

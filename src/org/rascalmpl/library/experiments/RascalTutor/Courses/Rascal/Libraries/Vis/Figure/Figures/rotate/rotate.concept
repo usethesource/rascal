@@ -21,16 +21,16 @@ Also see [Angles].
 Examples:
 
 <figure r1.png>
-b = box(size(100,50), fillColor("Red"));
-render(rotate(45, b));
+//b = box(size(100,50), fillColor("Red"));
+//render(rotate(45, b));
 </figure>
 
 ![rotate 1](r1.png)
 
 <figure r2.png>
-b1 = box(size(150,150), fillColor("Blue"));
-b2 = box(size(100,50), fillColor("Red"));
-render(hcat([b1, rotate(45, b2)]));
+//b1 = box(size(150,150), fillColor("Blue"));
+//b2 = box(size(100,50), fillColor("Red"));
+//render(hcat([b1, rotate(45, b2)]));
 </figure>
 
 ![rotate 1](r2.png)

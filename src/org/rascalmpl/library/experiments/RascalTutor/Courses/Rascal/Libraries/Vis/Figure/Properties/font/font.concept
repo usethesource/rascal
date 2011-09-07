@@ -19,9 +19,9 @@ See [fontNames] for a list of available fonts.
 
 Examples:
 <figure f1.png>
-t1 = text("Rascal", font("Serif"), fontSize(20), fontColor("Blue"));
-t2 = text("Rascal", font("Monospaced"), fontSize(20), fontColor("Red"));
-render(hcat([t1, t2], hgap(10), fontSize(20)));
+//t1 = text("Rascal", font("Serif"), fontSize(20), fontColor("Blue"));
+//t2 = text("Rascal", font("Monospaced"), fontSize(20), fontColor("Red"));
+//render(hcat([t1, t2], hgap(10), fontSize(20)));
 </figure>
 ![font 1](f1.png)
 

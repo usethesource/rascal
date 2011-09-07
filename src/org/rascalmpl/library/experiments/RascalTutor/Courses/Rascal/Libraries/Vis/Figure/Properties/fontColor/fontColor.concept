@@ -25,9 +25,9 @@ Also see [ColorModel].
 
 Examples:
 <figure t1.png>
-t1 = text("Rascal rocks", fontColor("Red"));
-t2 = text("Rascal rocks", fontColor("Blue"));
-render(vcat([t1, t2]));
+//t1 = text("Rascal rocks", fontColor("Red"));
+//t2 = text("Rascal rocks", fontColor("Blue"));
+//render(vcat([t1, t2]));
 </figure>
 gives: ![t1](t1.png)
 

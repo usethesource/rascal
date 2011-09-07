@@ -31,47 +31,48 @@ The following properties are relevent for shapes:
 
 Examples:
 
-<figure s1.png>
-points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
-vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
-s = shape(vertices);
-render(s);
+//<figure s1.png>
+//points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+//vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
+//s = shape(vertices);
+//render(s);
 </figure>
 ![shape 1](s1.png)
 
 <figure s2.png>
-points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
-vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
-s = shape(vertices, shapeConnected());
-render(s);
+//points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+//vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
+//s = shape(vertices, shapeConnected());
+//render(s);
 </figure>
 ![shape 2](s2.png)
 
 <figure s3.png>
-points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
-vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
-s = shape(vertices, shapeClosed(), fillColor("LightCoral"));
-render(s);
+//points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+//vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
+//s = shape(vertices, shapeClosed(), fillColor("LightCoral"));
+//render(s);
 </figure>
 ![shape 3](s3.png)
 
 <figure s4.png>
-points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
-vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
-s = shape(vertices, shapeCurved());
-render(s);
+//points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+//vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
+//s = shape(vertices, shapeCurved());
+//render(s);
 </figure>
 ![shape 4](s4.png)
 
 <figure s5.png>
-points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
-vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
-s = shape(vertices, shapeCurved(), shapeClosed(), fillColor("LightCoral"));
-render(s);
+//points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
+//vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
+//s = shape(vertices, shapeCurved(), shapeClosed(), fillColor("LightCoral"));
+//render(s);
 </figure>
 ![shape 5](s5.png)
 
 <figure s6.png>
+/*
 points1 = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 vertices1 =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points1 ];
 s1 = shape(vertices1, shapeCurved(), shapeClosed(), 
@@ -81,6 +82,7 @@ vertices2 =  [ vertex(x, y, ellipse([size(10), fillColor("Green")])) | <x, y> <-
 s2 = shape(vertices2, shapeCurved(), shapeClosed(), 
             fillColor(color("LightGreen", 0.5)), lineColor("Green"));
 render(overlay([s1, s2]));
+*/
 </figure>
 
 ![shape 6](s6.png)

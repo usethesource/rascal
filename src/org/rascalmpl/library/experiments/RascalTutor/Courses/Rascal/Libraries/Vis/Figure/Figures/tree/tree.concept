@@ -38,6 +38,7 @@ render(tree(nodes, edges, gap(20), size(50)));
 ![tree 1](t1.png)
 
 <figure t2.png>
+/*
 nodes = [ ellipse(id("A"), size(30), fillColor("green")),
      	  ellipse(id("B"), size(45), fillColor("red")),
      	  ellipse(id("C"), size(60), fillColor("blue")),
@@ -61,6 +62,7 @@ edges = [ edge("A", "B"),
     	];	    
 render(tree(nodes, edges, gap(30)));
 </figure>
+*/
 ![tree 2](t2.png)
 
 Benefits:

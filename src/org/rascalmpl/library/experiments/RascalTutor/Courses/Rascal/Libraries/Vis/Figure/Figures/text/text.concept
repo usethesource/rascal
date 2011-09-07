@@ -28,25 +28,25 @@ render(text("Rascal"));
 ![text 1](t1.png)
 
 <figure t2.png>
-render(text("Rascal", fontSize(20), fontColor("blue")));
+//render(text("Rascal", fontSize(20), fontColor("blue")));
 </figure>
 ![text 2](t2.png)
 
 <figure t3.png>
-render(box(text("Rascal", fontSize(20), fontColor("blue")), gap(5)));
+//render(box(text("Rascal", fontSize(20), fontColor("blue")), gap(5)));
 </figure>
 ![text 3](t3.png)
 
 <figure t4.png>
-t1 = text("Rascal", fontSize(20), fontColor("black"));
-t2 = text("Rascal", fontSize(40), fontColor("blue"));
-t3 = text("Rascal", fontSize(60), fontColor("red"));
-render(box(hcat([t1, t2, t3], bottom()), gap(10)));
+//t1 = text("Rascal", fontSize(20), fontColor("black"));
+//t2 = text("Rascal", fontSize(40), fontColor("blue"));
+//t3 = text("Rascal", fontSize(60), fontColor("red"));
+//render(box(hcat([t1, t2, t3], bottom()), gap(10)));
 </figure>
 ![text 4](t4.png)
 
 <figure t5.png>
-render(text("Rascal", fontSize(60), fontColor("red"), textAngle(90)));
+//render(text("Rascal", fontSize(60), fontColor("red"), textAngle(90)));
 </figure>
 ![text 5](t5.png)
 
