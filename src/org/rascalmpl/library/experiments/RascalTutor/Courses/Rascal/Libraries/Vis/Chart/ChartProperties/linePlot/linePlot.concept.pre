@@ -1,1 +1,0 @@
-concept("linePlot",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/linePlot/linePlot.concept|,[],[],{"xyChart"},"","",""," \<code\>ChartProperty linePlot()\</code\>\n",{}," Connect the data points in an \<a href=\"/show?concept=xyChart\"\>xyChart\</a\> by straight lines.\n","","","",[])

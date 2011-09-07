@@ -20,7 +20,7 @@ Synopsis:
 Description:
 Messages can be used to communicate information about source texts.
 They can be interpreted by IDEs to display type errors and warnings, etc.
-Message are, for instance, used as [Tree] annotations.
+`Message`s are, for instance, used as [Tree] annotations.
 
 Examples:
 

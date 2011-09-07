@@ -1,1 +1,0 @@
-concept("chartSize",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/chartSize/chartSize.concept|,[],[],{},"","",""," \<code\>ChartProperty chartSize(num w, num h)\</code\>\n",{}," Property of all charts that sets their height and width;\n","","","",[])

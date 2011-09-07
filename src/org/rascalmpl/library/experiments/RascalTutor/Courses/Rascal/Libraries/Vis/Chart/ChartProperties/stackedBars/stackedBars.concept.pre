@@ -1,1 +1,0 @@
-concept("stackedBars",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/stackedBars/stackedBars.concept|,[],[],{"barChart"},"","",""," \<code\>ChartProperty stackedBars()\</code\>\n",{}," Property of \<a href=\"/show?concept=barChart\"\>barChart\</a\>: instead of drawing related bars next to each, stack them.\n","","","",[])

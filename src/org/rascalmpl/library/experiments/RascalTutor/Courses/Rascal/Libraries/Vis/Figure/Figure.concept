@@ -21,6 +21,7 @@ It is based on the following principles:
 * __Compositional__: figures can be composed in many ways.
 * __Declarative__: the definition of a figure does not has any side-effects like, for example, 
   changing the current drawing location or current drawing color.
+* __Scalable__: the dimensions of figures can be scaled automatically.
 
 
 More precisely, figures:

@@ -1,1 +1,0 @@
-concept("horizontal",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Chart/ChartProperties/horizontal/horizontal.concept|,[],[],{"pieChart"},"","",""," \<code\>ChartProperty horizontal()\</code\>\n",{}," Place chart horizontally (this is also the default). Not applicable for \<a href=\"/show?concept=pieChart\"\>pieChart\</a\>.\n","","","",[])

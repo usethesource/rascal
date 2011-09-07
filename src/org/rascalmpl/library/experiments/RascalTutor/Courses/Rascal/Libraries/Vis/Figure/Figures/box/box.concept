@@ -19,25 +19,51 @@ Draw a rectangular box using the properties `props`.
 An optional nested figure `inner` may be placed inside the box.
 
 Examples:
-The fragment
-<figure box1.png>
-b1 = box(width(100), height(20), fillColor("red"));
-render(b1);
-</figure>
-will display: ![box1](box1.png)
 
-We can nest b1 in another box `b2` as follows:
+Lets start with a box `b0` of given (minimal) dimensions:
+<figure box0.png>
+b0 = box(size(150,50), fillColor("lightGray"));
+render(b0);
+</figure>
+that will display as: ![box0](box0.png)
+
+We can nest a new box `b1` in box `b0` as follows:
+<figure box1.png>
+b1 = box(shrink(0.8), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+</figure>
+The result is: ![box1](box1.png)
+
+Note that:
+* Box `b0` contains box `b1`.
+* The dimensions of `b1` are determined by  shrinking to 80% of the dimensions of `b0`.
+
+
+The placement of an inner figure is determined by alignment. 
+We can, for instance, place `b1` in the top left corner of `b0`:
 <figure box2.png>
-b1 = box(width(100), height(20), fillColor("red"));
-b2 = box(b1, gap(10), fillColor("yellow"));
+b1 = box(shrink(0.8), align(0, 0), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+</figure>
+The result is: ![box2](box2.png)
+
+Placing `b1` in the bottom right corner of `b0`:
+<figure box3.png>
+b1 = box(shrink(0.8), align(1, 1), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+</figure>
+gives: ![box3](box3.png)
+
+We can also nest box `b0` in another box `b2` and make `b2` 20% larger than `b0`:
+<figure box4.png>
+b0 = box(size(150,50), fillColor("lightGray"));
+b2 = box(b0, grow(1.2), fillColor("blue"));
 render(b2);
 </figure>
-Note that:
-* A gap is defined for `b2`.
-* The dimensions of `b2` are determined by the dimensions of the inner box and this gap.
-
-
-The result is: ![box2](box2.png)
+The result is: ![box4](box4.png)
 
 Benefits:
 

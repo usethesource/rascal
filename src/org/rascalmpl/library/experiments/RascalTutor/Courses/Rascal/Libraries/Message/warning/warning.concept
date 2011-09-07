@@ -13,7 +13,7 @@ Function: `Message warning(loc source, str msg)`
 Synopsis:
 
 Description:
-Created a warning message.
+Create a warning message.
 
 Examples:
 
