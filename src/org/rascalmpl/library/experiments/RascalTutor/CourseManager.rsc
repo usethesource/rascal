@@ -35,12 +35,12 @@ import Scripting;
 // Compile a concept
 // *** called from Compile servlet in RascalTutor
 
-public str compile(str courseName){
-  if(courseName in listEntries(courseDir)){
-     crs = compileCourse(courseName, courseName, courseDir);
-     return showConcept(crs.concepts[courseName]);
+public str compile(ConceptName rootConcept){
+  if(rootConcept in listEntries(courseDir)){
+     crs = compileCourse(rootConcept);
+     return showConcept(crs.concepts[rootConcept]);
   } else
-     throw "Course <courseName> not found";
+     throw "Course <rootConcept> not found";
 }
 
 // ------------------------------------ Editing --------------------------------------------------
@@ -107,8 +107,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      writeFile(file, combine(lines));
      
      try {
-       c = parseConcept(file);
-       generate(c);
+       c = compileConcept(file);
        updateParentDetails(c.fullName);
        return saveFeedback("", showConcept(c));
      } catch CourseError(e): {
@@ -122,8 +121,7 @@ public str save(ConceptName cn, str text, bool newConcept){
       writeFile(file, text);
       
       println("Parsing concept");
-      c = parseConcept(file);
-      generate(c);
+      c = compileConcept(file);
  
       return saveFeedback(showConcept(c), "");
     } catch ConceptError(e): {

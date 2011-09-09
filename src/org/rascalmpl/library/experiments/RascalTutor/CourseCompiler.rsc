@@ -62,13 +62,7 @@ return "Name: <cn>
 public set[str] sectionKeywords = {"Name", "Details", "Categories", "Syntax", "Types", "Function", "Synopsis", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"};
 
-private str conceptPath = "";
-private str rootConcept = "";
 private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/images/rascal-tutor-small.png\"\>";
-
-private str markup1(list[str] lines){
-  return markup(lines, conceptPath);
-}
 
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
@@ -119,7 +113,13 @@ public str combine(list[str] lines){
   return "<for(str s <- lines){><s>\n<}>";
 }
 
-public Concept parseConcept(loc file){
+// ------------------------ compile a concept ---------------------------------------
+
+public Concept compileConcept(loc file){
+   regenerate = lastModified(file) > lastModified(file[extension = htmlExtension]);
+   
+   setGenerating(regenerate);
+   
    script = readFileLines(file);
    sections = getSections(script);
    
@@ -127,15 +127,13 @@ public Concept parseConcept(loc file){
       throw ConceptError("<file>: Missing section \"Name\"");
       
    name = sections["Name"][0];
-   fullName = getFullConceptName(file);
-   println("Compiling <fullName>");
+   conceptName = getFullConceptName(file);
+   println("Compiling <conceptName>, regenerate = <regenerate>");
    try {
 	         
-	   if(name != basename(fullName))
-	      throw ConceptError("Got concept name \"<name>\", but \"<basename(fullName)>\" is required");
+	   if(name != basename(conceptName))
+	      throw ConceptError("Got concept name \"<name>\", but \"<basename(conceptName)>\" is required");
 	      
-       conceptPath = fullName;
-	   
 	   optDetails      	= getNames(sections["Details"] ? []);
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
@@ -145,53 +143,76 @@ public Concept parseConcept(loc file){
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
-	   html_body        = section("Syntax", markup1(syntaxSection)) +
-                          section("Types", markup1(typesSection)) +
-                          section("Function", markup1(functionSection)) +
-  	                      section("Synopsis", markup1(synopsisSection)) +
-  	                      section("Description", markup1(sections["Description"])) +
-  	                      section("Examples", markup1(sections["Examples"])) +
-  	                      section("Benefits", markup1(sections["Benefits"])) +
-  	                      section("Pitfalls", markup1(sections["Pitfalls"])) +
-  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(fullName,quest)> <}>"); 
+	   html_body        = section("Syntax", markup(syntaxSection, conceptName)) +
+                          section("Types", markup(typesSection, conceptName)) +
+                          section("Function", markup(functionSection, conceptName)) +
+  	                      section("Synopsis", markup(synopsisSection, conceptName)) +
+  	                      section("Description", markup(sections["Description"], conceptName)) +
+  	                      section("Examples", markup(sections["Examples"], conceptName)) +
+  	                      section("Benefits", markup(sections["Benefits"], conceptName)) +
+  	                      section("Pitfalls", markup(sections["Pitfalls"], conceptName)) +
+  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"); 
 	   
 	   related = getAndClearRelated();
 	   warnings = getAndClearWarnings();
 	   
-	   Concept C = concept(fullName, file, warnings, optDetails, related, searchTs, questions, html_body);
-	   
+	   Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
+	   if(regenerate)
+	   	  generate(C, html_body);
 	   return C;
 	} catch NoSuchKey(e):
-	    throw ConceptError("<fullName>: Missing section \"<e>\"");
+	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
 	  catch IOError(e):
-	    throw ConceptError("<fullName>: <e>");
+	    throw ConceptError("<conceptName>: <e>");
 	  catch e: 
-	    throw ConceptError("<fullName>: uncaught exception <e>");
+	    throw ConceptError("<conceptName>: uncaught exception <e>");
 }
 
 public str showConcept(Concept C){
-  cn = C.fullName;
-  childs = children(C);
-  questions = C.questions;
-  warnings = "";
-  if(size(C.warnings) > 0){
-     warnings = "\<ul\>\n";
-     for(w <- C.warnings)
-         warnings += li(w);
-     warnings += "\</ul\>";
-     warnings = section("Warnings", warnings);
-  }
-  return html(
+   html_file = C.file[extension = htmlExtension];
+   return readFile(html_file);
+}
+
+public void generate(Concept C, str html_body){
+   cn = C.fullName;
+   childs = children(C);
+   questions = C.questions;
+   warnings = "";
+   if(size(C.warnings) > 0){
+      warnings = "\<ul\>\n";
+      for(w <- C.warnings)
+          warnings += li(w);
+      warnings += "\</ul\>";
+      warnings = section("Warnings", warnings);
+   }
+  
+   html_code = html(
   	head(title(cn) + prelude(rootname(cn))),
   	body(
   	  "\<a id=\"tutorAction\" href=\"Courses/index.html\"\><logo>\</a\>" +
   	  warnings +
   	  section("Name", showConceptPath(cn)) + searchBox(cn) +
   	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
-  	  C.body +
+  	  html_body +
   	  editMenu(cn)
   	)
-  );
+   );
+
+    
+   html_file = C.file[extension = htmlExtension];
+   try {
+	     writeFile(html_file, html_code);
+   }
+   catch e: println("can not save file <html_file>"); // do nothing
+	 
+   if(size(C.questions) > 0){
+	  qs = C.questions;
+	  quest_file = C.file[extension = questExtension];
+      try {
+	       writeTextValueFile(quest_file, C.questions);
+	  }
+	  catch e: println("can not save file <quest_file>"); // do nothing
+   }
 }
 
 // Update de details section for the parent node pn of cn
@@ -206,8 +227,7 @@ public void updateParentDetails(ConceptName cn){
      return;
   file = conceptFile(pn);
   println("updateParentDetails: file = <file>");
-  pconcept = parseConcept(file);
-  generate(pconcept);      
+  pconcept = compileConcept(file);     
 }
 
 // Generate prelude of web page
@@ -274,8 +294,10 @@ public str editMenu(ConceptName cn){
 
 public list[ConceptName] children(Concept c){
   dir = catenate(courseDir, c.fullName);
-  entries = [ entry | entry <- listEntries(dir), /^[A-Z]/ := entry, isDirectory(catenate(dir, entry))];
-  return [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
+  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
+  res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
+  println("children(<c.fullName>) =\> <res>");
+  return res;
 }
 
 // Extract list of names from a section (e.g. Details section)
@@ -314,7 +336,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           }
           if(size(answers) == 0)
           	throw ConceptError("TextQuestion with no or malformed answers");
-          questions += textQuestion("<nquestions>", markup1([question]), answers);
+          questions += textQuestion("<nquestions>", markup1([question], cname), answers);
           nquestions += 1;
        }
        case /^QChoice:<question:.*>$/: {
@@ -333,18 +355,18 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           	
           choices = [good(g) | str g <- good_answers] + [bad(b) | str b <- bad_answers];
       
-          questions += choiceQuestion("<nquestions>", markup1([question]), choices);
+          questions += choiceQuestion("<nquestions>", markup([question], cname), choices);
           nquestions += 1;
        }
  
       case /^QValue:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(valueOfExpr(), "<nquestions>", qsection, i, cnd);
+           <i, q> = getTvQuestion(cname, valueOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
       
       case /^QType:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(typeOfExpr(), "<nquestions>", qsection, i, cnd);
+           <i, q> = getTvQuestion(cname, typeOfExpr(), "<nquestions>", qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
@@ -361,7 +383,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    return questions;
 }
 
-public tuple[int, Question] getTvQuestion(TVkind kind, str name, list[str] qsection, int i, str cnd){
+public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str name, list[str] qsection, int i, str cnd){
      n = size(qsection);
 	 if(cnd != "")
 	   qsection[i] = "test: <cnd>";
@@ -523,7 +545,7 @@ Type    +      +         +      0   ERROR
           vars = autoDeclare(cndBefore + cndAfter);
         } catch: throw ConceptError("Question <name>: illegal type in test");
 
-     return <i, tvQuestion(name, kind, details(markup1([desc]), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
+     return <i, tvQuestion(name, kind, details(markup([desc], cname), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
 
 // Compute the refinements induced by the path
@@ -542,35 +564,22 @@ public rel[str,str] getBaseRefinements(list[str] names){
    return {};
 }
 
-public Course recompileCourse(Course course){
-   return validatedCourse(course.root, course.title, course.directory, course.concepts);
-}
-   
-public map[ConceptName, Concept] concepts = ();
-public Graph[ConceptName] refinements = {};
-//public list[str] baseConcepts = [];
-
-public Course compileCourse(ConceptName theRootConcept, str courseTitle, loc courseDir){
+public Course compileCourse(ConceptName rootConcept){
    concepts = ();
     
-   rootConcept = theRootConcept;
-   coursePath = courseDir.path;
+   //rootConcept = theRootConcept;
+   //coursePath = courseDir.path;
    courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
 
    for(file <- courseFiles){
-       cpt = parseConcept(file);
+       cpt = compileConcept(file);
        fullName = getFullConceptName(file);
        if(concepts[fullName]?)
        	  println("Double declaration for <fullName>");
-       concepts[fullName] = cpt;       	 
+       concepts[fullName] = cpt;      	 
    }
-   C = validatedCourse(rootConcept, courseTitle, courseDir, concepts);
+   C = validateCourse(rootConcept, concepts);
    baseConcepts = C.baseConcepts;
-    
-   // Generate files for each concept
-   for(name <- concepts){
-      generate(concepts[name]);
-   }
     
    // Generate global course data in JS file
    jsFile = catenate(courseDir, rootConcept + "/course.js");
@@ -585,18 +594,18 @@ public Course compileCourse(ConceptName theRootConcept, str courseTitle, loc cou
    
    warn_html = "";
    if(size(warnings) == 0){
-     warn_html = html(head(title("No warnings in course <C.title>") + prelude(C.root)),
-                      body(h1("No warnings in course <C.title>") + continue));
+     warn_html = html(head(title("No warnings in course <C.root>") + prelude(C.root)),
+                      body(h1("No warnings in course <C.root>") + continue));
    } else {
-     warn_html = html(head(title("Warnings in course <C.title>") + prelude(C.root)),
+     warn_html = html(head(title("Warnings in course <C.root>") + prelude(C.root)),
                       body(continue +
-                           h1("<size(warnings)> warning(s) found in course <C.title>:") +
+                           h1("<size(warnings)> warning(s) found in course <C.root>:") +
                            ul("<for(w <- warnings){><li(w)><}>") +
                            continue
                      ));
    }
    
-   warnFile = catenate(C.directory, C.root + "/warnings.html");
+   warnFile = catenate(courseDir, C.root + "/warnings.html");
    
    try {
       writeFile(warnFile, warn_html);
@@ -606,25 +615,7 @@ public Course compileCourse(ConceptName theRootConcept, str courseTitle, loc cou
    return C;
 }
 
-public void generate(Concept c){
-     html_code = showConcept(c);
-     html_file = c.file[extension = htmlExtension];
-	 try {
-	     writeFile(html_file, html_code);
-	 }
-	 catch e: println("can not save file <html_file>"); // do nothing
-	 
-	 if(size(c.questions) > 0){
-	    qs = c.questions;
-	    quest_file = c.file[extension = questExtension];
-	    try {
-	       writeTextValueFile(quest_file, c.questions);
-	    }
-	    catch e: println("can not save file <quest_file>"); // do nothing
-	 }
-}
-
-public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir, map[ConceptName,Concept] conceptMap){
+public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] conceptMap){
     // Global sanity checks on concept dependencies
     //Graph[ConceptName] fullRefinements = {};
     refinements = {};
@@ -648,7 +639,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
     if(size(roots) != 1)
         warnings += ["Root is not unique: <roots>"];
     if(roots != {rootConcept})
-        warnings += ["Roots <roots> unequal to course name \"<rootConcept>\""];
+        warnings += ["Roots <roots> unequal to course root concept \"<rootConcept>\""];
     
     map[str, ConceptName] fullRelated = ();
     set[str] searchTs = {};
@@ -685,7 +676,7 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
            }
        }
        C.warnings = cwarnings;
-       concepts[cname] = concept(C.fullName, C.file, cwarnings, C.details, C.related, C.searchTerms, C.questions, C.body);
+       conceptMap[cname] = concept(C.fullName, C.file, cwarnings, C.details, C.related, C.searchTerms, C.questions);
        for(w <- cwarnings)
          warnings += ["<showConceptPath(cname)>: <w>"];                     
     } // for(cname
@@ -704,13 +695,10 @@ public Course validatedCourse(ConceptName rootConcept, str title, loc courseDir,
    println("searchTerms1= <searchTerms1>");
    println("extended allBaseConcepts: <sort(toList(allBaseConcepts + searchTs))>");
    println("Warnings:\n<for(w <- warnings){><w>\n<}>");
-   return course(title, courseDir, rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated /*, categories*/);
+   return course(rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated);
 }
 
-
-
-set[str] exclude = {"Chart", "Render", "graph", "tree", "overlay", "pack", "rotate", "scale", 
-                    "shape", "text", "vertex", "wedge", "vcat", "fillColor", "font", "fontColor", "fontNames", "fontSize"};
+set[str] exclude = {"IntroSyntaxDefinitionAndParsing", "AlgebraicDataType"};
 
 public list[loc] crawl(loc dir, str suffix){
 //  println("crawl: <dir>, <listEntries(dir)>");

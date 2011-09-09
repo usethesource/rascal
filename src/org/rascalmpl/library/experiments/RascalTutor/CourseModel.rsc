@@ -30,8 +30,8 @@ alias Questions = list[Question];
 // A Course captures all the information for the run-time execution of a course by the Tutor.
 
 data Course = 
-     course(str title,                                // Title to be displayed
-			loc directory,                            // Directory where source files reside
+     course(//str title,                                // Title to be displayed
+			//loc directory,                            // Directory where source files reside
 			ConceptName root,                         // Name of the root concept
 			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
@@ -48,8 +48,7 @@ data Concept =
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			set[str] searchTerms,    				// Set of search terms
-			Questions questions,                	// List of Questions 
-			str body                                // Main generated html for concept
+			Questions questions                 	// List of Questions 
 	);
         		
 data Question = choiceQuestion(QuestionName name, str descr, list[Choice] choices)
