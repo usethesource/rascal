@@ -105,7 +105,8 @@ function handleSearch(evt){
         results.push(conceptName);
       }
    }
-   //alert("leave handleSearch: " + results);
+  
+//   alert("leave handleSearch: " + results);
    showSearchResults(concept, results, term);
    return false;
 }
@@ -119,17 +120,18 @@ function startsWith(str, prefix){
 }
 
 function match(conceptName, term){
-   conceptName = conceptName.toLowerCase();
+   lcConceptName = conceptName.toLowerCase();
    
-   if(startsWith(conceptName, term) ||
-      endsWith(conceptName, "/" + term) ||
-      conceptName.indexOf("/" + term + "/") !== -1){
+   if(startsWith(lcConceptName, term) ||
+      endsWith(lcConceptName, "/" + term) ||
+      lcConceptName.indexOf("/" + term) !== -1){
       return true;
     }
    
    terms = searchTerms[conceptName]
    if(terms){
      for(var i = 0; i < terms.length; i++){
+       //alert('terms[' + i + '] = ' + terms[i]);
        if(term == terms[i]){
           return true;
        }

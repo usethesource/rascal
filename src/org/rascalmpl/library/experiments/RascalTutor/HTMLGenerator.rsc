@@ -22,6 +22,12 @@ import Scripting;
 
 private set[ConceptName] relatedConcepts = {};
 
+private bool generating = false;
+
+public void setGenerating(bool b){
+  generating = b;
+}
+
 private void addRelated(ConceptName cn){
   relatedConcepts += cn;
 }
@@ -170,13 +176,23 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // render a figure
     case /^\<figure\s*<file:.*>\>$/: {
+      int width = -1;
+      int height = -1;
+      println("file = <file>");
+      if(/<name:.*>\s+<w:[0-9]+>x<h:[0-9]+>$/ := file){
+        file = name;
+        width = toInt(w);
+        height = toInt(h);
+        println("h = <h>, w = <w>");
+      } else
+        println("NO MATCH");
       i += 1;
       codeLines = [];
       while((i < n) && /^\<\/figure\>/ !:= lines[i]){
          codeLines += lines[i];
          i += 1;
       }
-      return < markupFigure(codeLines, file), skipOneNL(lines, i+1, n)  >;
+      return < markupFigure(codeLines, width, height, file), skipOneNL(lines, i+1, n)  >;
     }
     
     // warning
@@ -366,21 +382,18 @@ private str markupCode(str text){
   };
 }
 
-private str markupFigure(list[str] lines, str file){
+private str markupFigure(list[str] lines, int width, int height, str file){
+  if(!generating)
+     return "";
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
   if(/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
-  
-	  // lines[n-1] = "renderSave(<arg>, <courseDir + "/" + conceptPath + "/" + file>);";
-	  
-	  //path = courseDir[path = "///" + courseDir.path + "../<conceptPath>/<file>"];
-	  
-	  path = courseDir[path = courseDir.path + "../<conceptPath>/<file>"];
-	  
-	  //println("path = <path>");
-	  lines[n-1] = "renderSave(<arg>, <path>);";
+ 
+	  path = courseDir[path = courseDir.path + "<conceptPath>/<file>"];
+	  lines[n-1] = (width > 0 && height > 0) ? "renderSave(<arg>, <width>, <height>, <path>);"
+	                                         : "renderSave(<arg>, <path>);";
 	  
 	  for(line <- lines)
 	    println("shell input: <line>");
@@ -413,6 +426,8 @@ private str markupRascalPrompt(list[str] lines){
 // Do screen markup
 
 private str markupScreen(list[str] lines){
+   if(!generating)
+      return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
    result_lines = shell(stripped_code, 5000);
    
