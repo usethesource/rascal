@@ -1,1 +1,0 @@
-concept("toList",|std:///experiments/RascalTutor/Courses/Rascal/Expressions/Values/Set/toList/toList.concept|,[],[],{},"","",""," \<code\>list[&amp;T] toList(set[&amp;T] s)\</code\>\n",{}," Convert a set to a list.\n"," \<pre class=\"screen\"\>\<b\>rascal\>\</b\>import Set;\nok\n\<b\>rascal\>\</b\>toList({1, 2, 3, 4});\nlist[int]: [1,2,3,4]\n\</pre\>","","",[])

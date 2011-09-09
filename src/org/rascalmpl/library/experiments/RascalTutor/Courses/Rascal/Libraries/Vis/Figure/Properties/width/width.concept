@@ -9,13 +9,12 @@ Syntax:
 Types:
 
 Function: 
-# `FProperty width(num w)`
-# `FProperty width(computedNum cw)`
+`FProperty width(num w)`
 
 Synopsis:
 
-Description: Sets the width of a figure to `w`.
-The value of the width may also be computed by a callback `cw`.
+Description: `width` is a synonym for [hsize].
+
 
 Examples:
 

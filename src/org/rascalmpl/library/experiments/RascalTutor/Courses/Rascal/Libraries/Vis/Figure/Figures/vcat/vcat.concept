@@ -22,31 +22,34 @@ When a vertical gap property is available, this will be used as gap between the 
 Examples:
 
 <figure h1.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20), resizable(false), fillColor("Blue"));
 render(vcat([b1, b2]));
 </figure>
 gives: ![h1](h1.png)
 
 <figure h2.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-render(vcat([b1, b2], left()));
+b1 = box(size(50,100), resizable(false), fillColor("Red"), left());
+b2 = box(size(80,20), resizable(false), fillColor("Blue"), left());
+render(vcat([b1, b2]));
 </figure>
 gives: ![h2](h2.png)
 
+
 <figure h3.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-render(vcat([b1, b2], right()));
+b1 = box(size(50,100), resizable(false), fillColor("Red"), right());
+b2 = box(size(80,20), resizable(false), fillColor("Blue"), right());
+render(vcat([b1, b2]));
 </figure>
 gives: ![h3](h3.png)
 
+When several child figures are involved, it is more convenient to change
+the standard alignment for them using [std].
 <figure h4.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-b3 = box(size(80,20), fillColor("Yellow"));
-render(vcat([b1, b2, b3], left(), vgap(10)));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20), resizable(false), fillColor("Blue"));
+b3 = box(size(80,20), resizable(false), fillColor("Yellow"));
+render(vcat([b1, b2, b3], std(left()), vgap(10)));
 </figure>
 gives: ![h4](h4.png)
 

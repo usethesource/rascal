@@ -9,14 +9,14 @@ Syntax:
 Types:
 
 Function:
-# `FProperty vgap(num v)`
-# `FProperty vgap(computedNum cv)`
+`FProperty vgap(num v)`
 
-Synopsis:
+
+Synopsis: 
 
 Description:
-Sets the vertical gap between figures to `v`.
-The value of the vertical gap may also be computed by the callback `cv`.
+Set the vertical gap between figures.
+See [gap].
 
 Examples:
 

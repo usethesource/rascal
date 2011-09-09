@@ -23,7 +23,7 @@ fontNames();
 </screen>
 
 The available fonts (on the machine on which this page was generated) are
-<figure f1.png>
+<xfigure f1.png>
 //samples =  [ text(f, font(f), fontSize(12), left()) | f <- fontNames()];
 //render(grid(samples, size(700), gap(350, 20), left(), bottom()));
 </figure>

@@ -40,7 +40,7 @@ Note that:
 * The dimensions of `b1` are determined by  shrinking to 80% of the dimensions of `b0`.
 
 
-The placement of an inner figure is determined by alignment. 
+The placement of an inner figure is determined by alignment, see [align]. 
 We can, for instance, place `b1` in the top left corner of `b0`:
 <figure box2.png>
 b1 = box(shrink(0.8), align(0, 0), fillColor("green"));

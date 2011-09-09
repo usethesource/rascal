@@ -20,33 +20,41 @@ When a horizontal gap property is available, this will be used as gap between th
 
 Examples:
 <figure h1.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20),  resizable(false), fillColor("Blue"));
 render(hcat([b1, b2]));
 </figure>
 gives: ![h1](h1.png)
 
+`b2` aligned at the top:
 <figure h2.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-render(hcat([b1, b2], top()));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20), resizable(false), fillColor("Blue"), top());
+render(hcat([b1, b2]));
 </figure>
 gives: ![h2](h2.png)
 
+`b2` aligned at the bottom:
 <figure h3.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-render(hcat([b1, b2], bottom()));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20), resizable(false), fillColor("Blue"), bottom());
+render(hcat([b1, b2]));
 </figure>
 gives: ![h3](h3.png)
 
+When a property has to be set for several child figures it is convenient to
+redefine the standard value (using [std]) of a properties:
 <figure h4.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3], bottom(), hgap(10)));
+b1 = box(size(50,100), resizable(false), fillColor("Red"));
+b2 = box(size(80,20), resizable(false), fillColor("Blue"));
+b3 = box(size(80,20), resizable(false), fillColor("Yellow"));
+render(hcat([b1, b2, b3], std(bottom()), hgap(50)));
 </figure>
 gives: ![h4](h4.png)
+
+<warning>
+What is wrong with the above hgap?
+</warning>
 
 
 Benefits:

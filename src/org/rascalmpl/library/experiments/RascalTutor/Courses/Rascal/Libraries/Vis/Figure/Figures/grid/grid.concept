@@ -18,7 +18,7 @@ while the vertical size is determined automatically.
 The [hgap] and [vgap] properties determine the distance between grid points.
 
 Examples:
-<figure g1.png>
+<xfigure g1.png>
 b1 = box(size(50,50), fillColor("Red"));
 b2 = box(size(50,50), fillColor("Blue"));
 b3 = box(size(50,50), fillColor("Yellow"));
@@ -35,7 +35,7 @@ gives:
 ![grid1](g1.png)
 
 Varying the sizes of `b2` and `b5`:
-<figure g2.png>
+<xfigure g2.png>
 b1 = box(size(50,50), fillColor("Red"));
 b2 = box(size(60,30), fillColor("Blue"));
 b3 = box(size(50,50), fillColor("Yellow"));
@@ -52,7 +52,7 @@ gives:
 ![grid2](g2.png)
 
 Varying the alignment of `b2` and `b5` gives:
-<figure g3.png>
+<xfigure g3.png>
 b1 = box(size(50,50), fillColor("Red"));
 b2 = box(size(50,50), fillColor("Blue"), left(), top());
 b3 = box(size(50,50), fillColor("Yellow"));

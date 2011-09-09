@@ -9,13 +9,11 @@ Syntax:
 Types:
 
 Function: 
-# `FProperty lineWidth(num w)`
-# `FProperty lineWidth(computedNum cw)`
+`FProperty lineWidth(num w)`
 
 Synopsis:
 
 Description: Set the width of lines and borders of figures to `w`.
-The width value may also be computed by a callback `cw`.
 
 Examples:
 <figure lw1.png>

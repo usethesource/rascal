@@ -9,14 +9,24 @@ Syntax:
 Types:
 
 Function: 
-# `FProperty fontSize(int s)`
-# `FProperty fontSize(computedInt cs)`
+`FProperty fontSize(int s)`
 
 Synopsis:
 
 Description: Sets the font size (in points) to be used in text.
 
 Examples:
+<figure f1.png>
+t1 = text("Rascal", fontSize(20));
+render(t1);
+</figure>
+![font 1](f1.png)
+
+<figure f2.png>
+t2 = text("Rascal", fontSize(40));
+render(t2);
+</figure>
+![font 2](f2.png)
 
 Benefits:
 

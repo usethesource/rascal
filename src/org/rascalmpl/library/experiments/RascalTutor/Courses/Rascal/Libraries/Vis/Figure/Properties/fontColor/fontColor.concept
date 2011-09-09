@@ -10,14 +10,12 @@ Types:
 
 Function:
 # `FProperty fontColor(Color c)`
-# `FProperty fontColor(computedColor cc)`
 # `FProperty fontColor(str cname)`
 
 Synopsis:
 
 Description: Sets the color to be used for text:
 # Set font color `c`.
-# Set font color to value returned by callback `cc`.
 # Set font color with name `cname`.
 
 
@@ -25,11 +23,16 @@ Also see [ColorModel].
 
 Examples:
 <figure t1.png>
-//t1 = text("Rascal rocks", fontColor("Red"));
-//t2 = text("Rascal rocks", fontColor("Blue"));
-//render(vcat([t1, t2]));
+t1 = text("Rascal rocks", fontColor("Red"));
+render(t1);
 </figure>
 gives: ![t1](t1.png)
+
+<figure t2.png>
+t2 = text("Rascal rocks", fontColor("Blue"));
+render(t2);
+</figure>
+gives: ![t2](t2.png)
 
 
 Benefits:

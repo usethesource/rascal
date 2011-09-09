@@ -16,10 +16,13 @@ Synopsis:
 Description:
 
 `top` defines __top vertical alignment__.
-It sets the vertical anchor to 0% of the height of the current figure.
-`top()` is equivalent to `vanchor(0.0)`.
+It sets the vertical alignment to 0.
 
-Also see [BoxModel] and [vanchor].
+Note that
+* `top()` is equivalent to `valign(0.0)`.
+
+
+Also see [align], [valign] and [CompositionModel].
 
 Examples:
 

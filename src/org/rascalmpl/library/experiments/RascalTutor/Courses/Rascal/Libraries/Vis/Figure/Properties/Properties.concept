@@ -21,61 +21,32 @@ Synopsis:
 <listing>
 data FProperty =
 /* sizes */
-     width(num w)                  // width of figure
-   | width(computedNum cw)
-
-   | height(num h)                 // height of figure
-   | height(computedNum ch)
-
-   | size(num s)		   // width and height (same value)
-   | size(computedNum cs)
-   | size(num w, num h)            // width and height (separate values)
-   | size(computedNum cw, computedNum ch)
-
-   | gap(num g)                    // same hor. and vert. gap between figures
-   | gap(computedNum cg)
-   | gap(num w, num h)             // different hor. and vert. gap between figures
-   | gap(computedNum cw, computedNum ch)
-
-   | hgap(num w)                   // horizontal gap between figures
-   | hgap(computedNum cw)
-
-   | vgap(num h)                   // vertical gap between figures
-   | vgap(computedNum ch)
-
+   | size(num h, num v))           // 2D: minimal width and height
+   | resizable(bool h, bool v)     // 2D: allow resizing
+   | zoomable(bool h, bool v)      // 2D: allow zooming
+   | aspectRatio(num r)            // Fixed aspect ratio
+   | shrink(num h, num v)          // 2D: shrink relative to parent figure
+   | grow(num h, num v)            // 2D: grwo relative to contained figure
    
-/* alignment */
-   | anchor(num h, num v)	   // horizontal (0=left; 1=right) and
-                                   // vertical anchor (0=top,1=bottom)
-   | anchor(computedNum h, computedNum v)
-
-   | hanchor(num h)   
-   | hanchor(computedNum ch)
-             
-   | vanchor(num v)
-   | vanchor(computedNum cv)
+/* composition */
+   | align(num h, num v)	   // 2D: horizontal (0=left; 1=right) and
+                                   //     vertical alignment (0=top,1=bottom)
+   | gap(num h, num v)             // 2D: gap between figures
+   | startGap(num h, num v)        // 2D: gap at begin of composition
+   | endGap(num h, num v)          // 2D: gap at end of composition
+   | justify(bool b)               // 2D: 
+   | pos(num h, num v)             // ????????
    
 /* line and border properties */
    | lineWidth(num w)	           // line width
-   | lineWidth(computedNum cw)
 
    | lineColor(Color c)	           // line color
-   | lineColor(computedColor cc)
    | lineColor(str cname)          // named line color
    
    | fillColor(Color c)	           // fill color of shapes and text
-   | fillColor(computedColor cc)
    | fillColor(str cname)          // named fill color
-   
-/* wedge properties */
-   | fromAngle(num a)
-   | fromAngle(computedNum ca)
 
-   | toAngle(num a)
-   | toAngle(computedNum ca)
-
-   | innerRadius(num r)
-   | innerRadius(computedNum cr)
+   | lineStyle(str style)
 
 /* shape properties */
    | shapeConnected()              // shapes consist of connected points
@@ -84,39 +55,53 @@ data FProperty =
    
 /* font and text properties */
    | font(str fname)               // named font
-   | font(computedStr cfname)
-
    | fontSize(int s)               // font size
-   | fontSize(computedInt cs)
-
    | fontColor(Color c)            // font color
-   | fontColor(computedColor cc)
    | fontColor(str cname)
-
    | textAngle(num a)              // text rotation
-   | textAngle(computedNum ca)
    
 /* interaction properties */  
    | mouseOver(Figure fig)         // add figure when mouse is over current figure
-   | onClick(void() handler)       // callback to handle mouse clicks
-   | doi(int d)                    // limit degree-of-interest to nesting level d
-   | doi(computedInt cd)
+   | onClick(bool() handler)       // callback to handle mouse clicks
+   | onMouseMove(void (bool) handler) 
+                                   // handler when mouse moved over figure
+   | mouseOver(Figure over, Fproperties props...)
+                                   // Show over when mouse is over current figure
+   | onKey(bool (KeySym, bool, map[KeyModifier, bool]) handler)
+                                   // handler for keyboard events
    
 /* other properties */
    | id(str name)                  // name of figure (used in edges and various layouts)
-   | id(computedStr cname)
+   | hint(str name)                // hint for layout strategy: now only for graphs
+   | layer(str id)                 // named layer in layered graph
+   | dir(str s)                    // Drawing direction
+   | toArrow(Figure f)             // arrow at end of edge
+   | fromArrow(Figure f)           // arrow at begin of edge
 
-   | hint(str name)               // hint for layout strategy: now only for graphs
-   | hint(computedStr name)
    ;
 </listing>
 
-Description: An `FProperty` describes a property of a figure. Figures may be nested and a given property
-value applies to all nested figures until it is overruled by a new declaration in a nested figure for the same property.
+Description: 
 
-All figures may have an (optional) list of properties which is represented by the type `FProperties`.
+All figures may have an (optional) list of properties.
 
-Observe that most properties have two variants:
+A property:
+* is represented by the type `FProperty`,
+* has a standard value, unless it is explicitly defined for a figure,
+* describes a property of the figure in which it is declared, but
+* the standard value of each property may be redefined for all figures that are contained in a figure.
+
+
+Several properties have variants that act one or two dimensions. We call them _2D properties_ and use the following naming scheme:
+* `P(num xy)` sets the value for property `P` in both dimensions to the same value `xy`.
+* `P(num x, num y)` sets the value for property `P` to distinct values `x`, respectively, `y`.
+* `hP(num x)` sets the horizontal value for property `P` to `x`.
+* `vP(num y)` sets the vertical value for property `P` to `y`.
+
+
+The properties `width` and `height` are synonyms for `hsize`, respectively, `vsize`.
+
+Most properties have typed arguments but they come in several versions:
 
 * A version with an argument of type `int`, `real`, `num`, `str` or `Color`. The values of these arguments are computed when the property is constructed, i.e., when the Figure is constructed.
 * A version with _computed_ argument like `computeInt`, `computeReal`, `computeNum`, `computeStr` or `computeColor`. These are functions that
@@ -124,14 +109,22 @@ Observe that most properties have two variants:
   can be changed.
 
 Examples:
-See the more detailed description of each property for examples. Just a few examples to show you the spirit:
-* `width(10)` sets the width property to the value 10.
-* `width(int(){return 10;})` sets the width property to the result of executing the argument function `int(){return 10;}` which is, indeed, not a big deal. This usage becomes more interesting when the argument function returns different values for each call.
+Just a few examples to show the spirit:
+* `size(10, 20)` sets the `size` property to 10 (horizontally), respectively 20 (vertically).
+* `hsize(10)` sets the `hsize` property to the value 10.
+* `hsize(int(){return 10;})` sets the `hsize` property to the result of executing the argument function `int(){return 10;}` which is, indeed, not a big deal. This usage becomes more interesting when the argument function returns different values for each call.
+* `fillColor("blue")` sets the fill color of the current figure.
+* `std(fillColor("blue"))` sets the standard fill color for the current figure and for all of its children.
+
+
+See the more detailed description of each property for examples. 
 
 Benefits:
-* Values of properties are defined by an _inheritance-like_ approach: values can be nested and more nested declarations overrule more global ones. This has as advantage that default values can be set at the top level of a figure.
+* Values of properties are defined by an _inheritance-like_ approach: values can be nested and more nested declarations overrule more global ones. Default values can be set locally.
 
 Pitfalls:
+* As described above, each argument of a property may be specified in various manners. 
+  To avoid clutter, __we only show the simplest version__, but be aware that all versions are allowed.
 * A figure may inherit an undesired value for a property; the solution is to redeclare that property locally with the desired value.
 
 Questions:

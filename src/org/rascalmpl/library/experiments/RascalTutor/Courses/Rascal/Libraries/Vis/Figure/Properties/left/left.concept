@@ -15,9 +15,13 @@ Synopsis:
 
 Description:
 
-`left` defines __left horizontal alignment__. It sets the horizontal anchor at 0% and is equivalent to `hanchor(0.0)`.
+`left` defines __left horizontal alignment__. It sets the horizontal alignment at 1.0.
 
-Also see [BoxModel] and [hanchor].
+Note that:
+* `left()` is equivalent to `halign(0.0)`.
+
+
+Also see [align], [halign] and [CompositionModel].
 
 Examples:
 

@@ -9,16 +9,14 @@ Syntax:
 Types:
 
 Function:
-# `hint(str name)`
-# `hint(computedStr name)`
+`hint(str name)`
 
 Synopsis:
 
 Description:
-Gives a hint for the layout strategy to be used. Currently implemented hint all apply to the [graph] layout:
+Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the [graph] layout:
 * `spring`: use force-directed spring layout (the default).
 * `layered`: draw as a layered graph (under development).
-* `lattice`: draw as a lattice (under development).
 
 Examples:
 

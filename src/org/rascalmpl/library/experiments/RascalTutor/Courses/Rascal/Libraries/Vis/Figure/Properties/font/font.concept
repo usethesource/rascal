@@ -9,8 +9,7 @@ Syntax:
 Types:
 
 Function: 
-# `FProperty font(str fname)`
-# `FProperty font(computedStr cfname)`
+`FProperty font(str fname)`
 
 Synopsis:
 
@@ -19,11 +18,16 @@ See [fontNames] for a list of available fonts.
 
 Examples:
 <figure f1.png>
-//t1 = text("Rascal", font("Serif"), fontSize(20), fontColor("Blue"));
-//t2 = text("Rascal", font("Monospaced"), fontSize(20), fontColor("Red"));
-//render(hcat([t1, t2], hgap(10), fontSize(20)));
+t1 = text("Rascal", font("Serif"), fontColor("Blue"));
+render(t1);
 </figure>
 ![font 1](f1.png)
+
+<figure f2.png>
+t2 = text("Rascal", font("Monospaced"), fontColor("Red"));
+render(t2);
+</figure>
+![font 2](f2.png)
 
 Benefits:
 

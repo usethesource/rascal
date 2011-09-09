@@ -9,22 +9,19 @@ Syntax:
 Types:
 
 Function:
-# `FProperty gap(num g)`
-# `FProperty gap(computedNum cg)`
-# `FProperty gap(num h, num v)`
-# `FProperty gap(computedNum ch, computedNum cv)`
+`FProperty gap(num h, num v)`
 
 
 Synopsis:
 
 Description:
-Set the gap between figures:
-# Set the horizontal and vertical gap to `g`. Equivalent to `hgap(g)` and `vgap(g)`.
-# Same as above, but the gap value is computed by a callback `cg`.
-# Set the horizontal gap to `h` and the vertical gap to `v`. Equivalent to `hgap(h)` and `vgap(v)`.
-# Same as the previous one, but the gap values are computed by callback `ch` and `cv`.
+Set the horizontal gap between figures to `h` and the vertical gap to `v`. 
 
 Also see [hgap] and [vgap].
+
+Note that:
+* `gap(hv)` is equivalent to `gap(hv, hv)` and to `hgap(hv), vgap(hv)`.
+* `gap(h, v)` is equivalent to `hgap(h), vgap(v)`.
 
 Examples:
 

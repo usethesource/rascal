@@ -1,1 +1,0 @@
-concept("shapeCurved",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeCurved/shapeCurved.concept|,[],[],{"Library"},{"shape"},"","",""," \<code\>FProperty shapeCurved()\</code\>\n",{}," Connect the points in s \<a href=\"/show?concept=shape\"\>shape\</a\> by a curve rather than by a straight line.\n","","","",[])

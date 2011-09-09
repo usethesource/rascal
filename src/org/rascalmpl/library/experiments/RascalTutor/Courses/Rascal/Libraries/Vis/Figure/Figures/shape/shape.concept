@@ -31,7 +31,7 @@ The following properties are relevent for shapes:
 
 Examples:
 
-//<figure s1.png>
+<xfigure s1.png>
 //points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 //vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
 //s = shape(vertices);
@@ -39,7 +39,7 @@ Examples:
 </figure>
 ![shape 1](s1.png)
 
-<figure s2.png>
+<xfigure s2.png>
 //points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 //vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
 //s = shape(vertices, shapeConnected());
@@ -47,7 +47,7 @@ Examples:
 </figure>
 ![shape 2](s2.png)
 
-<figure s3.png>
+<xfigure s3.png>
 //points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 //vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
 //s = shape(vertices, shapeClosed(), fillColor("LightCoral"));
@@ -55,7 +55,7 @@ Examples:
 </figure>
 ![shape 3](s3.png)
 
-<figure s4.png>
+<xfigure s4.png>
 //points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 //vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
 //s = shape(vertices, shapeCurved());
@@ -63,7 +63,7 @@ Examples:
 </figure>
 ![shape 4](s4.png)
 
-<figure s5.png>
+<xfigure s5.png>
 //points = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 //vertices =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points ];
 //s = shape(vertices, shapeCurved(), shapeClosed(), fillColor("LightCoral"));
@@ -71,7 +71,7 @@ Examples:
 </figure>
 ![shape 5](s5.png)
 
-<figure s6.png>
+<xfigure s6.png>
 /*
 points1 = [<10, 50>, <60, 100>, <110, 60>, <160, 150>];
 vertices1 =  [ vertex(x, y, ellipse(size(10), fillColor("Red"))) | <x, y> <- points1 ];

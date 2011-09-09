@@ -18,7 +18,7 @@ Composition of a list of figures by overlaying them on top of each other.
 Figure are aligned according to their anchor point.
 
 Examples:
-<figure o1.png>
+<xfigure o1.png>
 /*
 b1 = box(size(80,50), fillColor("Red"));
 b2 = box(size(50,30), fillColor("Blue"));
@@ -28,7 +28,7 @@ render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o1](o1.png)
 
-<figure o2.png>
+<xfigure o2.png>
 /*
 b1 = box(size(80,50), top(), right(), fillColor("Red"));
 b2 = box(size(50,30), fillColor("Blue"));
@@ -38,7 +38,7 @@ render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o2](o2.png)
 
-<figure o3.png>
+<xfigure o3.png>
 /*
 b1 = box(size(80,50), bottom(), left(), fillColor("Red"));
 b2 = box(size(50,30), fillColor("Blue"));
@@ -48,7 +48,7 @@ render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o3](o3.png)
 
-<figure o4.png>
+<xfigure o4.png>
 /*
 b1 = box(size(80,50), bottom(), left(), fillColor("Red"));
 b2 = box(size(50,30), fillColor("Blue"));
@@ -58,7 +58,7 @@ render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o4](o4.png)
 
-<figure o5.png>
+<xfigure o5.png>
 /*
 b1 = box(size(80,50), bottom(), left(), fillColor("Red"));
 b2 = box(size(50,30), top(), fillColor("Blue"));

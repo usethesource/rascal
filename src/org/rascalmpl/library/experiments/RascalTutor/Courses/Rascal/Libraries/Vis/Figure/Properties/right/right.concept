@@ -15,10 +15,13 @@ Synopsis:
 
 Description:
 `right` defines __right horizontal alignment__. 
-It sets the horizontal anchor at 100% of the width of the current figure.
-`right()` is equivalent to `hanchor(1.0)`.
+It sets horizontal alignment to 1.0.
 
-Also see [BoxModel], [hanchor].
+Note that
+* `right()` is equivalent to `halign(1.0)`.
+
+
+Also see [align], [halign] and [CompositionModel].
 
 Examples:
 

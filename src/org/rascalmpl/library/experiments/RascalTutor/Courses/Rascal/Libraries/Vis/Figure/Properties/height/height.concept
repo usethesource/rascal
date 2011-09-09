@@ -9,12 +9,11 @@ Syntax:
 Types:
 
 Function:
-# `FProperty height(num h)`
-# `FProperty height(computedNum ch)`
+`FProperty height(num h)`
 
 Synopsis:
 
-Description: Sets the height of a figure to `h`. The value of the height may also be computed by a callback `ch`.
+Description: `height` is a synonym for [vsize].
 
 Examples:
 

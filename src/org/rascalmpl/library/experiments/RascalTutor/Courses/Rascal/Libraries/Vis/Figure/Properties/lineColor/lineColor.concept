@@ -10,14 +10,12 @@ Types:
 
 Function:
 # `FProperty lineColor(Color c)`
-#  `FProperty lineColor(computedColor cc)`
 # `FProperty lineColor(str cname)`
 
 Synopsis:
 
 Description: Sets the color of lines and figure boundaries:
 # Set color to `c`.
-# Same, but the color value is computed by callback `cc`.
 # Set color to color with name `cname`.
 
 
