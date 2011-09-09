@@ -10,60 +10,59 @@ Types:
 
 Function:
 
-`Figure tree(Figures nodes, list[Edge] edges, FProperty props...)`
+`Figure tree(Figure root, Figures children, FProperty props...)`
 
 Synopsis:
 
 Description: `tree` takes a list of nodes and a list of edges and draws a tree.
 The nodes can be arbitrary figures that should have a name (using the [id] property).
-The edges determine connections between named nodes.
-
-The following constraints apply:
-# All nodes should have an `id` property with a unique value.
-# All edges should refer to `id`s that are defined by the nodes.
-# The nodes and edges should form a tree, i.e., a single rooted, acyclic graph.
 
 Examples:
 
 <figure t1.png>
-nodes = [ box(id("A"), fillColor("green")),
-     	  box(id("B"), fillColor("red")),
-     	  box(id("C"), fillColor("blue"))
-     	];
-edges = [ edge("A", "B"),
-          edge("A", "C")
-    	];
-render(tree(nodes, edges, gap(20), size(50)));
+t1 = tree(box(fillColor("green")),
+          [ box(fillColor("red")),
+     	    box(fillColor("blue"))
+     	  ],
+          std(size(50)), std(gap(20))
+    	);
+render(t1);
 </figure>
 ![tree 1](t1.png)
 
+The standard way of drawing trees is in _mahattan_-style: all connection between
+tree nodes are horizontal or vertical. This style is controlled by the [manhattan] property:
+
 <figure t2.png>
-/*
-nodes = [ ellipse(id("A"), size(30), fillColor("green")),
-     	  ellipse(id("B"), size(45), fillColor("red")),
-     	  ellipse(id("C"), size(60), fillColor("blue")),
-     	  ellipse(id("D"), size(75), fillColor("purple")),
-     	  ellipse(id("E"), size(90), fillColor("lightblue")),
-     	  box(id("F"), size(30), fillColor("orange")),
-     	  box(id("G"), size(30), fillColor("brown")),
-     	  box(id("H"), size(30), fillColor("black")),
-     	  box(id("I"), size(30), fillColor("grey")),
-     	  ellipse(id("J"), size(30), fillColor("white"))
-     	];
-edges = [ edge("A", "B"),
-    	  edge("B", "C"),
-    	  edge("B", "D"),
-    	  edge("A", "E"),
-    	  edge("A", "H"),
-    	  edge("E", "F"),
-    	  edge("E", "G"),
-    	  edge("E", "I"),
-    	  edge("E", "J")
-    	];	    
-render(tree(nodes, edges, gap(30)));
+t2 = tree(box(fillColor("green")),
+          [ box(fillColor("red")),
+     	    box(fillColor("blue"))
+     	  ],
+          std(size(50)), std(gap(20)), manhattan(false)
+    	);
+render(t2);
 </figure>
-*/
 ![tree 2](t2.png)
+
+<figure t3.png>
+t3 = tree(ellipse(size(30), fillColor("green")),
+          [ tree(ellipse(size(45), fillColor("red")),
+     	         [ ellipse(size(60), fillColor("blue")),
+     	           ellipse(size(75), fillColor("purple"))
+                 ]),
+            tree(ellipse(size(90), fillColor("lightblue")),
+                 [ box(size(30), fillColor("orange")),
+     	           box(size(30), fillColor("brown")),
+     	           box(size(30), fillColor("grey")),
+     	           ellipse(size(30), fillColor("white"))
+                 ]),
+            box(size(30), fillColor("black"))
+     	  ],
+          std(gap(30)));
+render(t3);
+</figure>
+
+![tree 3](t3.png)
 
 Benefits:
 

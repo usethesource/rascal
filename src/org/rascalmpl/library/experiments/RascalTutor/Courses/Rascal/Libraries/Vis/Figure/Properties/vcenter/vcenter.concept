@@ -15,10 +15,13 @@ Synopsis:
 
 Description:
 `vcenter` defines __vertical centered alignment__.
-It sets the vertical anchor to 50% of the height of the current figure.
-`vcenter()` is equivalent to `vanchor(0.5)`.
+It sets the vertical alignment to 0.5,
 
-Also see [BoxModel] and [vanchor].
+Note that:
+* `vcenter()` is equivalent to `valign(0.5)`.
+
+
+Also see [valign], [align] and [CompositionModel].
 
 Examples:
 

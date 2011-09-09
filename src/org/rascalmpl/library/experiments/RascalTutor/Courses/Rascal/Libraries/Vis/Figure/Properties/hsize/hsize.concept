@@ -11,7 +11,7 @@ Function:
 
 Synopsis: Sets the minimal horizontal size.
 
-Description: See [size]. A synonym for `hsize` is [width].
+Description: See [Properties/size]. A synonym for `hsize` is [width].
 
 Examples:
 

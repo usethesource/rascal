@@ -35,7 +35,8 @@ More precisely, figures:
 
 The Figure library provides two data types:
 * `FProperty` describes a property of a figure such as (also see [Properties]):
-  ** _Positioning_: [Properties/size], [width], [height], [anchor], [hanchor], [vanchor], [gap], [hgap], [vgap], [textAngle].
+  ** _Sizing_: [Properties/size], [hsize] (or [width]), [vsize] (or [height]). 
+  ** _ Positioning_: [align], [halign], [valign], [gap], [hgap], [vgap], [textAngle].
   ** _Visual appearance_: [lineWidth], [lineColor], [fillColor], [font], [fontSize], [fontColor], [shapeConnected],
      [shapeClosed], [shapeCurved].
   ** _Interaction_: [mouseOver].

@@ -30,7 +30,7 @@ will display: ![ellipse 1](e1.png)
 Nesting, for instance, a box in an ellipse
 <figure e2.png>
 b1 = box(width(100), height(20), fillColor("yellow"));
-e1 = ellipse(b1, gap(20), fillColor("red"));
+e1 = ellipse(b1, std(gap(20)), fillColor("red"));
 render(e1);
 </figure>
 

@@ -16,10 +16,13 @@ Synopsis:
 Description:
 
 `hcenter` defines __horizontal centered alignment__.
-It sets the horizontal anchor at 50% of the width of the current figure.
-`hcenter()` is equivalent to `hanchor(0.5)`.
+It sets the horizontal alignment at 0.5.
 
-Also see [BoxModel] and [hanchor].
+Note that:
+* `hcenter()` is equivalent to `halign(0.5)`.
+
+
+Also see [halign], [align] and [CompositionModel].
 
 Examples:
 
