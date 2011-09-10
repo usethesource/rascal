@@ -1,0 +1,33 @@
+Name: shadowPos
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Determines the positions of shadows. The shadow postion can also be set for separate dimensions by hshadowPos and vshadowPos.
+
+Note that:
+* `shadowPos(n)` is equivalent to `shadowPos(n, n)`.
+* `shadowPos(hs, vs)` is equivalent to `hshadowPos(hs), vshadowPos(vs)`.
+
+Examples:
+<figure s1.png 250x150>
+box1 = box(size(200,100), shadow(true), shadowPos(50,50), resizable(false));
+render(box1);
+</figure>
+![s1](s1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

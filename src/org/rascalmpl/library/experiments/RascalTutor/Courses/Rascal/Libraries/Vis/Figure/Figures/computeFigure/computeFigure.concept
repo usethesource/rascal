@@ -9,14 +9,18 @@ Syntax:
 Types:
 
 Function:
-`computeFigure(Figure () computeFig, FProperty props...)`
+# `Figure computeFigure(Figure () computeFig, FProperty props...)`
+# `Figure computeFigure(bool() recomp, Figure () computeFig, FProperty props...)`
 
 Synopsis:
 
 Description:
-The figure that is returned by the callback `computeFig`.
+Return the figure that is returned by the callback `computeFig`.
+
 Subsequent calls to `computeFig` may return different figures and may thus change the resulting visualization.
 The figure is recomputed after each user interaction.
+
+Optionally, a function `recomp` may be given that checks whether the figure should be recomputed.
 
 Examples:
 

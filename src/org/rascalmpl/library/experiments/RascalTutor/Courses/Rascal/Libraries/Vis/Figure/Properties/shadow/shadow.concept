@@ -1,0 +1,31 @@
+Name: shadow
+
+Details:
+
+Syntax:
+
+Types:
+
+Function: `Fproperty shadow(bool b)`
+
+Synopsis:
+
+Description:
+Defines whether a figure will have a shodow or not.
+The color of the shadow is determined by [shadowColor].
+The position of the shadow is determined by [shadowPos].
+
+Examples:
+<figure s1.png>
+box1 = box(size(200,100), shadow(true),resizable(false));
+render(box1);
+</figure>
+![s1](s1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

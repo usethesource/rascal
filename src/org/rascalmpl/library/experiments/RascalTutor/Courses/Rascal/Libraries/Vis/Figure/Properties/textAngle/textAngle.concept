@@ -9,8 +9,7 @@ Syntax:
 Types:
 
 Function: 
-# `FProperty textAngle(num a)`
-# `FProperty textAngle(computedNum ca)`
+`FProperty textAngle(num a)`
 
 
 Synopsis:

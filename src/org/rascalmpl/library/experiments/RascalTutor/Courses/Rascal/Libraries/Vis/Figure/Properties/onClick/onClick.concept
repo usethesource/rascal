@@ -10,7 +10,7 @@ Syntax:
 Types:
 
 Function:
-`onClick(void() handler)`
+`FProperty onClick(void() handler)`
 
 Synopsis:
 

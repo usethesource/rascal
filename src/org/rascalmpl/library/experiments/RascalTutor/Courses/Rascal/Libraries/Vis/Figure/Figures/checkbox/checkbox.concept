@@ -9,7 +9,7 @@ Syntax:
 Types:
 
 Function:
-`checkbox(str text, void(bool state) vcallback, FProperty props...)`
+`Figure checkbox(str text, void(bool state) vcallback, FProperty props...)`
 
 Synopsis:
 
@@ -22,9 +22,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-<warning>
-Does not work properly.
-</warning>
-Do not use checkbox in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+
 Questions:
 

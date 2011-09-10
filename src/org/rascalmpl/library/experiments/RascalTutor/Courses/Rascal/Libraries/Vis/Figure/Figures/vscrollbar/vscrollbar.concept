@@ -1,0 +1,36 @@
+Name: vscrollbar
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`Figure vscrollbar(Figure f, FProperty props ...)`
+
+Synopsis:
+
+Description:
+
+Embed figure `f` in a vertical scrollbar.
+
+Also see [scrollbar] and [hscrollbar].
+
+Examples:
+
+<figure s1.png>
+box1 = box(size(200,100), fillColor("Blue"));
+render(vscrollbar(box1));
+</figure>
+![s1](s1.png)
+
+<warning> 2 scrollbars? </warning>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

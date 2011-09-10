@@ -14,79 +14,6 @@ Function:
 
 Synopsis:
 
-<listing>
-data Figure = 
-/* Atomic figures */
-
-     text(str s, FProperty props...)	        // text label
-   | text computedStr cs,  FProperty props...)
-                                                
-   | outline(map[int,Color] coloredLines,       // file outline
-             FProperty props...)
-   
-   
-/* Containers */
-
-   | box(FProperty props...)			// rectangular box
-   | box(Figure fig, FProperty props...)        // rectangular box with inner element
-   
-   | ellipse(FProperty props...)		// ellipse
-   | ellipse(Figure fig, FProperty props...)    // ellipse with inner element
-   
-   | wedge(FProperty props...)			// wedge
-   | wedge(Figure fig, FProperty props...)      // wedge with inner element
-   
-   | space(FProperty props...)			// invisible box (used for spacing)
-   | space(Figure fig, FProperty props...)      // invisible box with visible inner element
- 
-/* Compositions */
-   
-   | use(Figure elem)                           // use another figure
-   | use(Figure fig, FProperty props...)
- 
-   | hcat(Figures figs, FProperty props...)     // horizontal concatenation
-   
-   | vcat(Figures figs, FProperty props...)     // vertical concatenation
-   
-   | hvcat(Figures figs, FProperty props...)    // horizontal and vertical concatenation
-
-   | overlay(Figures figs, FProperty props...)  // overlay (stacked) composition
-   
-   | shape(list[Vertex] points,                 // shape of to be connected vertices
-           FProperty props...)                 
-   
-   | grid(Figures figs, FProperty props...)     // placement on fixed grid
-   
-   | pack(Figures figs, FProperty props...)     // composition by 2D packing
-   
-   | graph(Figures nodes, list[Edge] edges,     // composition of nodes and edges as graph
-           FProperty props...)     
-   
-                	                        
-   | tree(Figures nodes, list[Edge] edges,      // composition of nodes and edges as tree
-          FProperty props...)
-   
-   | treemap(Figures nodes, list[Edge] edges,   // composition of nodes and edges as treemap
-             FProperty props...) 
-   
-/* Transformations */
-
-   | rotate(num angle, Figure fig)              // Rotate figure around its anchor point
-   | scale(num perc, Figure fig)	        // Scale figure (same for h and v)
-   | scale(num xperc, num yperc, Figure fig)	// Scale figure (different for h and v)
-
-/* interaction */
-
-   | computeFigure(Figure () computeFig, FProperty props...)
-   | button(str label, void () vcallback, FProperty props...)
-   | textfield(str text, void (str) scallback, FProperty props...)
-   | textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)
-   | textarea(list[str] lines, map[int,Color] coloredLines, FProperty props...)
-   | choice(list[str] choices, void(str s) ccallback, FProperty props...)
-   | checkbox(str text, void(bool state) vcallback, FProperty props...)
-   ;
-</listing>
-
 Description:
 `Figure` is the primary data type that represents figures. A list of figures is represented by the type `Figures`.
 Figures can be classified as follows:
@@ -97,8 +24,8 @@ Figures can be classified as follows:
 * __Compositions__: serve to combine figures into new figures. Examples are horizontal ([hcat]) or vertical ([vcat]) concatenation 
   or placement of figures in a [grid], [graph] or [tree].
 * __Transformations__: perform geometric transformations on a given figure.
-* __Interaction__: provide interaction with the user, see [computeFigure], [button], [textField], [textarea], [choice], and
-  [checkbox].
+* __Interaction__: provide interaction with the user, see [computeFigure], [fswitch], [button], [textfield], [combo],
+  [checkbox], [scrollbar], [hscrollbar] and [vscrollbar].
 
 Examples:
 

@@ -1,0 +1,30 @@
+Name: combo
+
+Details:
+
+Categories: Library
+
+Syntax:
+
+Types:
+
+Function:
+`Figure combo(list[str] choices, void(str s) ccallback, FProperty props...)`
+
+Synopsis:
+
+Description:
+Presents a combo box with a list of named choices to the user. When the user selects one of them, callback `ccallback` is
+called with that choice as argument.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+
+
+       

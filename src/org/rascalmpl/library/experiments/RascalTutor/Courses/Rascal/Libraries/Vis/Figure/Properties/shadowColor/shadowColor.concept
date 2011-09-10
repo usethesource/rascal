@@ -1,0 +1,31 @@
+Name: shadowColor
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+* `FProperty shadowColor(Color c)`
+* `FProperty shadowColor(str colorName)`
+
+Synopsis:
+
+Description:
+Defines the color of shadows.
+
+Examples:
+<figure s1.png>
+box1 = box(size(200,100), shadow(true), shadowColor("green"), resizable(false));
+render(box1);
+</figure>
+![s1](s1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

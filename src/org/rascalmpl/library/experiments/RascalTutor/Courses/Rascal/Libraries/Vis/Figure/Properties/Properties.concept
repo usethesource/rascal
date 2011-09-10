@@ -18,68 +18,6 @@ Types:
 Function:
 
 Synopsis:
-<listing>
-data FProperty =
-/* sizes */
-   | size(num h, num v))           // 2D: minimal width and height
-   | resizable(bool h, bool v)     // 2D: allow resizing
-   | zoomable(bool h, bool v)      // 2D: allow zooming
-   | aspectRatio(num r)            // Fixed aspect ratio
-   | shrink(num h, num v)          // 2D: shrink relative to parent figure
-   | grow(num h, num v)            // 2D: grwo relative to contained figure
-   
-/* composition */
-   | align(num h, num v)	   // 2D: horizontal (0=left; 1=right) and
-                                   //     vertical alignment (0=top,1=bottom)
-   | gap(num h, num v)             // 2D: gap between figures
-   | startGap(num h, num v)        // 2D: gap at begin of composition
-   | endGap(num h, num v)          // 2D: gap at end of composition
-   | justify(bool b)               // 2D: 
-   | pos(num h, num v)             // ????????
-   
-/* line and border properties */
-   | lineWidth(num w)	           // line width
-
-   | lineColor(Color c)	           // line color
-   | lineColor(str cname)          // named line color
-   
-   | fillColor(Color c)	           // fill color of shapes and text
-   | fillColor(str cname)          // named fill color
-
-   | lineStyle(str style)
-
-/* shape properties */
-   | shapeConnected()              // shapes consist of connected points
-   | shapeClosed()    		   // closed shapes
-   | shapeCurved()                 // use curves instead of straight lines
-   
-/* font and text properties */
-   | font(str fname)               // named font
-   | fontSize(int s)               // font size
-   | fontColor(Color c)            // font color
-   | fontColor(str cname)
-   | textAngle(num a)              // text rotation
-   
-/* interaction properties */  
-   | mouseOver(Figure fig)         // add figure when mouse is over current figure
-   | onClick(bool() handler)       // callback to handle mouse clicks
-   | onMouseMove(void (bool) handler) 
-                                   // handler when mouse moved over figure
-   | mouseOver(Figure over, Fproperties props...)
-                                   // Show over when mouse is over current figure
-   | onKey(bool (KeySym, bool, map[KeyModifier, bool]) handler)
-                                   // handler for keyboard events
-   
-/* other properties */
-   | id(str name)                  // name of figure (used in edges and various layouts)
-   | hint(str name)                // hint for layout strategy: now only for graphs
-   | layer(str id)                 // named layer in layered graph
-   | dir(str s)                    // Drawing direction
-   | toArrow(Figure f)             // arrow at end of edge
-   | fromArrow(Figure f)           // arrow at begin of edge
-
-   ;
-</listing>
 
 Description: 
 
@@ -92,7 +30,7 @@ A property:
 * the standard value of each property may be redefined for all figures that are contained in a figure.
 
 
-Several properties have variants that act one or two dimensions. We call them _2D properties_ and use the following naming scheme:
+Several properties have variants that act on one or two dimensions. We call them _2D properties_ and use the following naming scheme:
 * `P(num xy)` sets the value for property `P` in both dimensions to the same value `xy`.
 * `P(num x, num y)` sets the value for property `P` to distinct values `x`, respectively, `y`.
 * `hP(num x)` sets the horizontal value for property `P` to `x`.
@@ -107,6 +45,15 @@ Most properties have typed arguments but they come in several versions:
 * A version with _computed_ argument like `computeInt`, `computeReal`, `computeNum`, `computeStr` or `computeColor`. These are functions that
   return a value. These functions are called during the _rendering_ of the figure to which this property is attached. In this way, properties
   can be changed.
+
+
+Properties can be classified as follows:
+* __Sizing__: [size], [hsize], [vsize], [grow], [hgrow], [vgrow], [shrink], [hshrink], [vshrink], 
+            [resizable], [hresizable], [vresizable], [lineWidth], [fontSize]
+* __Aligning__: [align], [halign], [valign], [bottom], [top], [center], [hcenter], [vcenter]
+* __Composing__: [gap], [hgap], [vgap], [startGap], [hstartGap], [vstartGap], [endGap], [hendGap], [vendGap]
+* __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
+* __Interacting__: [onClick], [onMouseMove], [mouseOver], [onKey].
 
 Examples:
 Just a few examples to show the spirit:

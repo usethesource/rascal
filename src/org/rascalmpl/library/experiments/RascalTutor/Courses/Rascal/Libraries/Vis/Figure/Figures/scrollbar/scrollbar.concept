@@ -1,0 +1,34 @@
+Name: scrollbar
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`Figure scrollbar(Figure f, FProperty props ...)`
+
+Synopsis:
+
+Description:
+
+Embed figure `f` in a horizontal and a vertical scrollbar.
+
+Use [hscrollbar] or [vscrollbar] to add a scrollbar in only one dimension.
+
+Examples:
+
+<figure s1.png>
+box1 = box(size(200,100), fillColor("Blue"));
+render(scrollbar(box1));
+</figure>
+![s1](s1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

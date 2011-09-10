@@ -24,33 +24,33 @@ The following constraints apply:
 * All edges should refer to ids that are defined by the nodes.
 
 Examples:
-<xfigure g1.png>
-//nodes = [
-//  box(text("A"), id("A"), size(20), fillColor("LightGreen")),
-//  box(text("B"), id("B"),  size(30), fillColor("LightCoral")),
-//  ellipse(text("C"), id("C"),  size(20), fillColor("LightBlue")),
- // ellipse(text("D"), id("D"), size(20, 40), fillColor("Fuchsia"))
-//];
-//edges = [ 
-//  edge("A", "B"),
-//  edge("A", "C"),
-//  edge("B", "C"),
-//  edge("C", "D"),
-//  edge("D", "A")
-//];    
-//render(graph(nodes, edges, size(200));
+<figure g1.png>
+nodes = [
+  box(text("A"), id("A"), size(20), fillColor("LightGreen")),
+  box(text("B"), id("B"),  size(30), fillColor("LightCoral")),
+  ellipse(text("C"), id("C"),  size(20), fillColor("LightBlue")),
+  ellipse(text("D"), id("D"), size(20, 40), fillColor("Fuchsia"))
+];
+edges = [ 
+  edge("A", "B"),
+  edge("A", "C"),
+  edge("B", "C"),
+  edge("C", "D"),
+  edge("D", "A")
+];    
+render(graph(nodes, edges, std(gap(10)), size(50)));
 </figure>
 
 ![graph 1](g1.png)
 
-A fully connected graph of n nodes:
-<xfigure g2.png>
-//public Figure K(int n){
-//    nodes = [box(text("<i>"), id("<i>"), size(20), fillColor("LightBlue")) | int i <- [1 .. n] ];
-//    edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
-//    return graph(nodes, edges, size(300));
-//}
-//render(K(20));
+A fully connected graph of n nodes (using spring layout):
+<figure g2.png>
+public Figure K(int n){
+    nodes = [box(text("<i>"), id("<i>"), size(20), fillColor("LightBlue")) | int i <- [1 .. n] ];
+    edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
+    return graph(nodes, edges, hint("spring"), size(300));
+}
+render(K(20));
 </figure>
 ![graph 2](g2.png)
 

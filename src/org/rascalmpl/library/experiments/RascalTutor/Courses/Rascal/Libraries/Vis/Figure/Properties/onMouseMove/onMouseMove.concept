@@ -1,0 +1,24 @@
+Name: onMouseMove
+
+Details:
+
+Syntax:
+
+Types:
+
+Function: `FProperty onMouseMove(void (bool) handler)`
+
+Synopsis:
+
+Description:
+Execute `handler` when the mouse moves over the current figure.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

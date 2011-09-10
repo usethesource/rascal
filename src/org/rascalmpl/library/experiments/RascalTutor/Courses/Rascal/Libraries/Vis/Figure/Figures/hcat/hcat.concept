@@ -14,7 +14,7 @@ Function:
 Synopsis:
 
 Description: Horizontal composition of a list of figures.
-By default, horizontal composition is vertically centered but all vertical alignment properties can overrule this.
+By default, all figures are vertically aligned but all vertical alignment properties can overrule this.
 
 When a horizontal gap property is available, this will be used as gap between the figures.
 

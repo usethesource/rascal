@@ -9,8 +9,8 @@ Syntax:
 Types:
 
 Function:
-# `textfield(str text, void (str) scallback, FProperty props...)`
-# `textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)`
+# `Figure textfield(str text, void (str) scallback, FProperty props...)`
+# `Figure textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)`
 
 Synopsis:
 

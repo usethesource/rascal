@@ -9,7 +9,7 @@ Syntax:
 Types:
 
 Function:
-`button(str label, void () vcallback, FProperty props...)`
+`Figure button(str label, void () vcallback, FProperty props...)`
 
 Synopsis:
 
@@ -23,7 +23,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-Do not use button in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
 
 Questions:
 

@@ -29,7 +29,8 @@ The following constraints apply:
 The following properties are relevant for treemap:
 * [width], [height], [Properties/size] of nodes.
 * [gap], [hgap], [vgap] to determine the distance between the elements in the treemap.
-* [doi] (degree-of-interest) determines the maximal nesting level that is displayed. Default: 3.
+
+<warning>The interface of treemap will be made similar that of [tree]</warning>
 
 Examples:
 

@@ -1,0 +1,26 @@
+Name: fswitch
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`Figure fswitch(int () choice, Figures fs, Fproprty props ...)`
+
+Synopsis:
+
+Description:
+Select one of the figures in the fixed list of figures `fs`.
+The result of the function `choice` determines which of the figures to select.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

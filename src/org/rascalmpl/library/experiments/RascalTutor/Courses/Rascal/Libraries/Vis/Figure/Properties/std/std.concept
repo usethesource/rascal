@@ -1,0 +1,37 @@
+Name: std
+
+Details:
+
+Syntax:
+
+Types:
+
+Function: `FProperty std(FProperty prop)`
+
+Synopsis:
+
+Description:
+Set `prop` as the standard property for all figures contained in the current figure.
+
+
+Examples:
+
+In the following, each box controls its own `size` and `lineColor`, but the properties `fillColor`, `lineWidth` and `resizable` are
+controlled by a standard setting in `hcat`:
+
+<figure s1.png>
+boxes = [ box(size(50), lineColor("red")), 
+          box(size(75), lineColor("blue")), 
+          box(size(100),lineColor("yellow"))
+        ];
+render(hcat(boxes, std(fillColor("grey")), std(lineWidth(3)), std(resizable(false))));
+</figure>
+![s1](s1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

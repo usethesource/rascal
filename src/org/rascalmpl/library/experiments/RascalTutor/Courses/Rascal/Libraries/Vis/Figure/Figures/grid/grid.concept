@@ -13,20 +13,23 @@ Function:
 
 Synopsis:
 
-Description: Layout figures in a grid. Place figures on a fixed grid. The [width] property determines the horizontal size of the grid
-while the vertical size is determined automatically.
-The [hgap] and [vgap] properties determine the distance between grid points.
+Description: Layout figures in a grid. Place figures on a fixed grid. The overall size and grid points are determined 
+automatically based on:
+* Size and alignment of the elements.
+* The [hgap] and [vgap] properties that determine the distance between columns and rows.
 
 Examples:
-<xfigure g1.png>
-b1 = box(size(50,50), fillColor("Red"));
-b2 = box(size(50,50), fillColor("Blue"));
-b3 = box(size(50,50), fillColor("Yellow"));
-b4 = box(size(50,50), fillColor("Green"));
-b5 = box(size(50,50), fillColor("Purple"));
-b6 = box(size(50,50), fillColor("Orange"));
-b7 = box(size(50,50), fillColor("Silver"));
-render(grid([b1, b2, b3, b4, b5, b6, b7], width(200), gap(100)));
+<figure g1.png>
+row1 = [ box(size(50,50), fillColor("Red")),
+         box(size(50,50), fillColor("Blue")),
+         box(size(50,50), fillColor("Yellow"))
+       ];
+row2 = [ box(size(50,50), fillColor("Green")),
+         box(size(50,50), fillColor("Purple")),
+         box(size(50,50), fillColor("Orange"))
+       ];
+row3 = [ box(size(50,50), fillColor("Silver"))];
+render(grid([[row1], [row2], [row3]], std(gap(10)), std(resizable(false))));
 </figure>
 
 gives:
@@ -69,9 +72,16 @@ gives:
 
 Benefits:
 
-Pitfalls: The distance between grid points does not include the size of the figures that are placed
-on the grid points. If overlaps of figures are not desired, then the horizontal (or vertical) gap size 
-should be larger than the largest width (height) of the figures to be placed on the grid.
+Pitfalls: 
+<screen>
+// Be aware of _list splicing_! By default, Rascal flattens lists by splicing sublists in the containing list, e.g.
+// introduce a list s
+s = [3, 4];
+// include it in a larger list and observe the elements of `s` have been spliced into the containing list
+[1, 2, s, 5];
+// the behaviour can be changed by including `s` in a extra list level:
+[1, 2, [s], 5];
+</screen>
 
 Questions:
 
