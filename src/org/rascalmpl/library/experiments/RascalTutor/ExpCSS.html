@@ -5,41 +5,35 @@
 
 <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="jquery.jstree.js"></script>
+<script type="text/javascript" src="prelude.js"></script>
 </head>
 <body>
 
-<div id="selector">
-<ul><li><a>Test</a>
-        <ul><li>Test/AAA</a>
-        </ul>
-        <ul><li><a>Test/Cat1</a>
-                <ul><li><a>Test/Cat1/Cat11</a></li>
-                    <li><a>Test/Cat1/Cat12</a></li>
-                    <li><a>Test/Cat1/Cat13</a></li>
-                </ul>
-            </li>
-            <li><a>Iteration 2</a>
-                <ul><li><a>Story D</a></li>
-                </ul>
-            </li>
-       </ul>
-   </li>
-</ul>
+<div id="navPaneContainer">
+navPaneContainer
 </div>
 
 
 <script type="text/javascript">
+$("#navPaneContainer").load("/Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/library/experiments/RascalTutor/Courses/Test/navigate.html",
+                            null, function (a, b, c) {initPane();});
 
-$("#selector").bind("select_node.jstree", function(event, data) {
-    $("#replace").html(($(data.args[0]).text()));
-}).jstree();
-
+function initPane(){
+alert("navPane = " + $("#navPaneContainer").html().substring(0, 200));
+$("#navPane").bind("select_node.jstree", function(event, data) {
+      var url = "/Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/library/experiments/RascalTutor" + $(data.args[0]).attr("href") + " conceptPane";
+      alert(url);
+     $("#conceptPane").load(url, null, function (a, b, c) {alert(a + b + c);});
+}).jstree(
+);
+}
 
 </script>
-Replace text:
-<div id="replace">
-... none ...
+
+<div id="conceptPane">
+xxx
 </div>
+
 
 </body>
 </html>

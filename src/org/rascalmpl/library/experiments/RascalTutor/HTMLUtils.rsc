@@ -108,6 +108,14 @@ public str ol(str txt){
   return "\<ol\><txt>\</ol\>";
 }
 
+public str td(str txt){
+  return td(txt, "left");
+}
+
+public str tdtop(str txt){
+  return "\<td valign=\"top\"\><txt>\</td\>";
+}
+
 public str td(str txt, str align){
   return "\<td align=\"<align>\"\><txt>\</td\>";
 }
@@ -119,6 +127,10 @@ public str tr(str txt){
 public str table(str txt){
   return "\<table\><txt>\</table\>";
 }
+public str table(str id, str txt){
+  return "\<table id=\"<id>\"\><txt>\</table\>";
+}
+
 
 public str th(str txt, str align){
   return "\<th align=\"<align>\"\><txt>\</th\>";

@@ -1,9 +1,49 @@
+var navigation_loaded = false;
+var rootConcept = "Test";
+
+$.setRootConcept = function (c){ rootConcept = c; };
+
 $(document).ready(function(){
+
+  if(navigation_loaded != true){
+  	 $("#navPane").load("/Courses/" + rootConcept + "/navigate.html", null, function(a,b,c){initNavigation();});
+  }
   attachHandlers();
 });
 
+function initNavigation(){
+//alert("initNavigation");
+ 
+ 
+ $("#navPane").bind("select_node.jstree", function(event, data) {
+         var url = $(data.args[0]).attr("href") + " #conceptPane";
+         $("#conceptPane").load(url, null, function (a,b,c) {attachHandlers();});
+      }).jstree({
+		"core" : {
+			"animation" : 100
+		},
+		"ui" : {
+			"select_limit": 1
+		},
+		"plugins" : [
+			"themes", "html_data", "ui"
+		],
+		"themes":  {
+            "theme" : "default",
+            "dots"  : true,
+            "icons" : true
+        }
+    });
+    navigation_loaded = true;
+    $("#navPane").show(500);
+    attachHandlers();
+ //   alert("initNavigation ... done");
+}
+
 function attachHandlers(){
-  
+
+//alert("attachHandlers");
+
   $('#searchField').keyup(searchSuggest);
   $('#searchForm').submit(handleSearch);
   
@@ -16,6 +56,8 @@ function attachHandlers(){
   
   $('#editErrors').hide();
   $('#editForm').submit(handleSave);
+  
+ //alert("alertHandlers ... done");
 }
 
 function reload(data){
@@ -28,13 +70,13 @@ function reload(data){
 function show(fromConcept, toConcept){
   for(var i = 0; i < conceptNames.length; i++){
      if(toConcept == conceptNames[i]){
-      var url = 'show?concept=' + toConcept;    
+      var url = 'show?concept=/' + toConcept;    
       $(location).attr('href',url);
       return;
      }
   }
-  back = '<a href="show?concept=' + fromConcept + '">' +
-         '<img width="30" height="30" src="images/back.png"></a>';
+  back = '<a href="show?concept=/' + fromConcept + '">' +
+         '<img width="30" height="30" src="/images/back.png"></a>';
   
   var options = new Array();
   for(var i = 0; i < conceptNames.length; i++){
@@ -47,7 +89,7 @@ function show(fromConcept, toConcept){
      return;
   }
    if(options.length == 1){
-     var url = 'show?concept=' + options[0];    
+     var url = 'show?concept=/' + options[0];    
      $(location).attr('href',url);
     return;
   }
@@ -143,7 +185,7 @@ function match(conceptName, term){
 
 function showSearchResults(concept, results, term){
    back = '<a href="show?concept=' + concept + '">' +
-          '<img width="30" height="30" src="images/back.png"></a>';
+          '<img width="30" height="30" src="/images/back.png"></a>';
    if(results.length == 0)
       html_code = '<h1>No results found for "' + term + '"</h1>';
    else if(results.length == 1){
@@ -152,7 +194,7 @@ function showSearchResults(concept, results, term){
      $(location).attr('href',url);
      return;
    } else {
-      html_code = '<h1>Search results for "' + term + '"</h1>\n<ul>';
+      html_code = '<h1>' + results.length + ' search results for "' + term + '"</h1>\n<ul>';
       for(var i = 0; i < results.length; i++){
         html_code += '<li>' + makeConceptURL(results[i]) + '</li>\n';
       }
@@ -260,7 +302,7 @@ function handleAnother(evt){
 
 function handleSave(evt){
   var formData = $(this).serialize();
-  //alert("handleSave: " + formData);
+  alert("handleSave: " + formData);
   evt.preventDefault();
   $.get("save", formData, 
     function processSaveFeedback(data, textStatus){
@@ -269,7 +311,7 @@ function handleSave(evt){
      var r = $('#replacement', data).text();
      //alert("c = " + c + "; e = " + e);
      if(e != ""){
-        $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"images/bad.png\">Correct error: " + e);
+        $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"/images/bad.png\">Correct error: " + e);
         $('#editErrors').fadeIn(500);
      } else
         reload(r);
