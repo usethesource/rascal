@@ -119,6 +119,8 @@ public Concept compileConcept(loc file){
    html_file = file[extension = htmlExtension];
    regenerate = !exists(html_file) || lastModified(file) > lastModified(html_file);
    
+   regenerate = true;  // TMP
+   
    setGenerating(regenerate);
    
    script = readFileLines(file);
@@ -242,9 +244,9 @@ public void updateParentDetails(ConceptName cn){
 public str prelude(str courseName){ 
   return "\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
-          '\<script type=\"text/javascript\" src=\"/prelude.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
           '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>
-         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/prelude.css\"/\>\n"
+         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>\n"
          ;
 }
 
