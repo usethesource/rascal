@@ -20,10 +20,12 @@ XXXXXX
 YYYYYYYYYYYYYYYYYY
 ZZZZZZZZ
 RRRRRRR
+SSSSSSSS
+TTTTTTTTT
 
 Text in Figure:
 <figure t1.png>
-render(text("ABCD"));
+render(text("DEF"));
 </figure>
 
 gives: ![t1](t1.png)
@@ -36,7 +38,7 @@ gives: ![t1](t1.png)
 
 The Figure xxx
 <figure box1.png>
-A = box(size(100), lineColor("black"), lineWidth(2), fillColor("blue"));
+A = box(size(100), lineColor("black"), lineWidth(2), fillColor("green"));
 B = ellipse(size(100), lineColor("black"), lineWidth(1), fillColor("yellow"));
 render(hcat( [A, B, A], gap(10)));
 </figure>

@@ -116,7 +116,8 @@ public str combine(list[str] lines){
 // ------------------------ compile a concept ---------------------------------------
 
 public Concept compileConcept(loc file){
-   regenerate = lastModified(file) > lastModified(file[extension = htmlExtension]);
+   html_file = file[extension = htmlExtension];
+   regenerate = !exists(html_file) || lastModified(file) > lastModified(html_file);
    
    setGenerating(regenerate);
    
@@ -185,16 +186,22 @@ public void generate(Concept C, str html_body){
       warnings += "\</ul\>";
       warnings = section("Warnings", warnings);
    }
-  
+   navFile = "/Courses/<rootname(cn)>/navigate.html";
    html_code = html(
   	head(title(cn) + prelude(rootname(cn))),
   	body(
-  	  "\<a id=\"tutorAction\" href=\"Courses/index.html\"\><logo>\</a\>" +
-  	  warnings +
-  	  section("Name", showConceptPath(cn)) + searchBox(cn) +
-  	  ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
-  	  html_body +
-  	  editMenu(cn)
+  	"\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
+  	  //warnings +
+  	  table("container",
+  	        tr(tdtop(div("navPane", "\<!-- replaced with contents of <navFile>\" --\>")) +
+  	  
+  	           tdtop(div("conceptPane", 
+  	              section("Name", showConceptPath(cn)) + searchBox(cn) +
+  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
+  	              html_body +
+  	              editMenu(cn)
+  	           ))
+  	       ))
   	)
    );
 
@@ -233,15 +240,19 @@ public void updateParentDetails(ConceptName cn){
 // Generate prelude of web page
 
 public str prelude(str courseName){ 
-  return "\<script type=\"text/javascript\" src=\"/jquery-1.4.2.min.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/prelude.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>
-         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"prelude.css\"/\>\n";
+  return "\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
+         '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"/prelude.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>
+         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/prelude.css\"/\>\n"
+         ;
 }
 
 public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptName,Concept] concepts){  
   return 
   "/* Generated code for course <courseName>, generated <now()> */
+  '
+  'setRootConcept(<courseName>);
   '
   'var baseConcepts = <mkJsArray(baseConcepts, "new Array()")>;
   '
@@ -268,7 +279,7 @@ public str searchBox(ConceptName cn){
   return "
          '\<div id=\"searchBox\"\>
          '  \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
-         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"images/magnify.png\"\>
+         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"/images/magnify.png\"\>
          '    \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
          '    \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
          '    \<div id=\"popups\"\>\</div\>
@@ -278,10 +289,10 @@ public str searchBox(ConceptName cn){
 }
 
 public str editMenu(ConceptName cn){
-  warnings = "Courses/<rootname(cn)>/warnings.html";
+  warnings = "/Courses/<rootname(cn)>/warnings.html";
  
   return "\n\<div id=\"editMenu\"\>" +
-         "\<a id=\"tutorAction\" href=\"Courses/index.html\"\><logo>\</a\>" +
+         "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
           (editingAllowed ?
               "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
                [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New\</b\>\</a\>] |
@@ -567,9 +578,15 @@ public rel[str,str] getBaseRefinements(list[str] names){
 public Course compileCourse(ConceptName rootConcept){
    concepts = ();
     
-   //rootConcept = theRootConcept;
-   //coursePath = courseDir.path;
    courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
+   println("crawl returns: <courseFiles>");
+   panel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
+   navFile = catenate(courseDir, rootConcept + "/navigate.html");
+   println("crawlNavigation returns:\n<panel>");
+   try {
+	   writeFile(navFile, panel);
+   }
+   catch e: println("can not save file <navFile>"); // do nothing
 
    for(file <- courseFiles){
        cpt = compileConcept(file);
@@ -698,7 +715,7 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
    return course(rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated);
 }
 
-set[str] exclude = {"IntroSyntaxDefinitionAndParsing", "AlgebraicDataType"};
+set[str] exclude = {".svn", "IntroSyntaxDefinitionAndParsing", "AlgebraicDataType"};
 
 public list[loc] crawl(loc dir, str suffix){
 //  println("crawl: <dir>, <listEntries(dir)>");
@@ -711,12 +728,43 @@ public list[loc] crawl(loc dir, str suffix){
       	  res += [sub]; 
        }
        if(isDirectory(sub)) {
-      	  res += crawl(sub, suffix);
+          res += crawl(sub, suffix);
       }
     }
   };
   return res;
 }
+
+private bool hasSubdirs(loc dir){
+  return isDirectory(dir) && size([ e | e <-listEntries(dir), isDirectory(e)]) > 0;
+}
+
+public str crawlNavigation(loc dir, str suffix, str offset){
+  println("crawlNavigation: <dir>, <listEntries(dir)>");
+ 
+  dotSuffix = "." + suffix;
+  dirConcept = "";
+  panel = "";
+  for( str entry <- listEntries(dir) ){
+    if(entry notin exclude){                       // TODO: TEMP
+       loc sub = catenate(dir, entry);
+       if(endsWith(entry, dotSuffix)) {
+          cn = getFullConceptName(sub);
+          ename = substring(entry, 0, size(entry) - size(dotSuffix));
+      	  dirConcept = "\<a href=\"/Courses/<cn>/<ename>.html\"\><ename>\</a\>";
+       }
+       if(isDirectory(sub)) {
+          panel += offset + crawlNavigation(sub, suffix, offset + "  ");
+       }
+    }
+  };
+  
+  if(panel == "")
+     return (dirConcept == "") ? "" : offset + li(dirConcept);
+  
+  return offset + li("<dirConcept>\n<offset>\<ul\><panel><offset>\</ul\>") + "\n";
+}
+
 
 // --------------------------------- Question Presentation ---------------------------
 
@@ -754,11 +802,11 @@ public str status(str id, str txt){
 }
 
 public str good(){
-  return "\<img height=\"25\" width=\"25\" src=\"images/good.png\"/\>";
+  return "\<img height=\"25\" width=\"25\" src=\"/images/good.png\"/\>";
 }
 
 public str bad(){
-   return "\<img height=\"25\" width=\"25\" src=\"images/bad.png\"/\>";
+   return "\<img height=\"25\" width=\"25\" src=\"/images/bad.png\"/\>";
 }
 
 public str status(QuestionName qid){
