@@ -309,6 +309,9 @@ public class JavaBridge {
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
+				catch(NoClassDefFoundError e) {
+					continue;
+				}
 				catch(ClassNotFoundException e){
 					continue;
 				} 
