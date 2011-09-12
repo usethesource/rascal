@@ -119,7 +119,7 @@ public Concept compileConcept(loc file){
    html_file = file[extension = htmlExtension];
    regenerate = !exists(html_file) || lastModified(file) > lastModified(html_file);
    
-   regenerate = true;  // TMP
+   //regenerate = true;  // TMP
    
    setGenerating(regenerate);
    
@@ -188,18 +188,24 @@ public void generate(Concept C, str html_body){
       warnings += "\</ul\>";
       warnings = section("Warnings", warnings);
    }
-   navFile = "/Courses/<rootname(cn)>/navigate.html";
+   navFile = catenate(courseDir, rootname(cn) + "/navigate.html");
+   if(navigationPanel == ""){
+      try {
+	     navigationPanel = readFile(navFile);
+      }
+      catch e: println("can not read file <navFile>"); // do nothing
+   }
    html_code = html(
   	head(title(cn) + prelude(rootname(cn))),
   	body(
   	"\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
   	  //warnings +
   	  table("container",
-  	        tr(tdtop(div("navPane", "\<!-- replaced with contents of <navFile>\" --\>")) +
+  	        tr(tdtop(navigationPanel) +
   	  
   	           tdtop(div("conceptPane", 
-  	              section("Name", showConceptPath(cn)) + searchBox(cn) +
-  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ref <- childs){><showConceptURL(ref, basename(ref))> &#032 <}>")) +
+  	              section("Name", showConceptPath(cn,cn)) + searchBox(cn) +
+  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><showConceptURL(cn, ch)> &#032 <}>")) +
   	              html_body +
   	              editMenu(cn)
   	           ))
@@ -242,11 +248,11 @@ public void updateParentDetails(ConceptName cn){
 // Generate prelude of web page
 
 public str prelude(str courseName){ 
-  return "\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
+  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>
+  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
-          '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
-          '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>
-         '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>\n"
+         '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
+         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
          ;
 }
 
@@ -254,7 +260,7 @@ public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptNa
   return 
   "/* Generated code for course <courseName>, generated <now()> */
   '
-  'setRootConcept(<courseName>);
+  '$.setRootConcept(\"<courseName>\");
   '
   'var baseConcepts = <mkJsArray(baseConcepts, "new Array()")>;
   '
@@ -309,7 +315,7 @@ public list[ConceptName] children(Concept c){
   dir = catenate(courseDir, c.fullName);
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
   res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
-  println("children(<c.fullName>) =\> <res>");
+  //println("children(<c.fullName>) =\> <res>");
   return res;
 }
 
@@ -577,16 +583,18 @@ public rel[str,str] getBaseRefinements(list[str] names){
    return {};
 }
 
+str navigationPanel = "";
+
 public Course compileCourse(ConceptName rootConcept){
    concepts = ();
     
    courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
    println("crawl returns: <courseFiles>");
-   panel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
+   navigationPanel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
    navFile = catenate(courseDir, rootConcept + "/navigate.html");
-   println("crawlNavigation returns:\n<panel>");
+   println("crawlNavigation returns:\n<navigationPanel>");
    try {
-	   writeFile(navFile, panel);
+	   writeFile(navFile, navigationPanel);
    }
    catch e: println("can not save file <navFile>"); // do nothing
 
@@ -609,7 +617,7 @@ public Course compileCourse(ConceptName rootConcept){
    catch e: println("can not save file <jsFile>"); // do nothing
    
    warnings = C.warnings;
-   continue = "\<p\>\<a href=\"/show?concept=<C.root>\"\>Continue with course <C.root>\</a\>\<p\>";
+   continue = "\<p\>\<a href=<show(C.root,C.root)>\>Continue with course <C.root>\</a\>\<p\>";
    
    warn_html = "";
    if(size(warnings) == 0){
@@ -670,16 +678,16 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
          //println("related.r = <r>");
          rbasenames = basenames(r);
          if(!(toSet(rbasenames) <= allBaseConcepts)){
-            cwarnings += ["<showConceptPath(cname)>: unknown concept \"<r>\""];
+            cwarnings += ["<showConceptPath(cname,cname)>: unknown concept \"<r>\""];
          } else {
             parents = generalizations[rbasenames[0]];
             if(size(parents) > 1){
-                cwarnings += ["<showConceptPath(cname)>: ambiguous concept \"<rbasenames[0]>\", add one of its parents <parents> to disambiguate"];
+                cwarnings += ["<showConceptPath(cname,cname)>: ambiguous concept \"<rbasenames[0]>\", add one of its parents <parents> to disambiguate"];
             }
             if(size(rbasenames) >= 2){
                for(int i <- [0 .. size(rbasenames)-2]){
                    if(<rbasenames[i], rbasenames[i+1]> notin baseRefinements){
-                      cwarnings += ["<showConceptPath(cname)>: unknown concept \"<rbasenames[i]>/<rbasenames[i+1]>\""];
+                      cwarnings += ["<showConceptPath(cname,cname)>: unknown concept \"<rbasenames[i]>/<rbasenames[i+1]>\""];
                    }
                } // for
             } // if
@@ -691,13 +699,13 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
        
        for(d <- C.details){
            if((cname + "/" + d) notin refinements[cname]){
-              cwarnings += ["<showConceptPath(cname)>: non-existent detail \"<d>\""];
+              cwarnings += ["<showConceptPath(cname,cname)>: non-existent detail \"<d>\""];
            }
        }
        C.warnings = cwarnings;
        conceptMap[cname] = concept(C.fullName, C.file, cwarnings, C.details, C.related, C.searchTerms, C.questions);
        for(w <- cwarnings)
-         warnings += ["<showConceptPath(cname)>: <w>"];                     
+         warnings += ["<showConceptPath(cname,cname)>: <w>"];                     
     } // for(cname
     
     // Map same search term with/without capitalization to the one with capitalization

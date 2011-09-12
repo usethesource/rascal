@@ -186,13 +186,19 @@ public str escapeForJavascript(str txt){
     };
 }
 
-public str showConceptURL(ConceptName c, str name){
-   return "\<a href=\"/show?concept=<c>\"\><name>\</a\>";
+public str showConceptURL(ConceptName fromConcept, ConceptName toConcept){
+   return show(fromConcept, toConcept);
 }
 
-public str showConceptPath(ConceptName cn){
-  names = basenames(cn);
-  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i), names[i])><}>";
+public str showConceptPath(ConceptName fromConcept, ConceptName toConcept){
+  names = basenames(toConcept);
+  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(fromConcept, compose(names, 0, i))><}>";
+}
+
+// HTML to show a concept
+
+public str show(ConceptName fromConcept, ConceptName toConcept){
+  return "\<a href=\"javascript:show(\'<fromConcept>\',\'<toConcept>\')\"\><basename(toConcept)>\</a\>";
 }
 
 

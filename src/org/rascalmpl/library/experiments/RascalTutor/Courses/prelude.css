@@ -21,14 +21,14 @@ h2 {
 
 table#container {
     border: 0px #666 solid;
-    background-color: MintCream;
+    border-collapse: collapse;
 }
 
 
 table {
 	border-collapse: collapse;
     padding-top: 0.5em;
-    grgin-top: 0.5em;
+    margin-top: 0.5em;
 }
 
 th, td {

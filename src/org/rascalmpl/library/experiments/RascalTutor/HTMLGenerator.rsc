@@ -296,7 +296,7 @@ private str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
     
-    case /^\[<concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(concept); }
+    case /^\[<concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(conceptPath, concept); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -329,13 +329,6 @@ private str markupSubs(str txt){
     case /^_<subsup:[A-Za-z0-9]+>/  => sub(subsup) 
     case /^\^<subsup:[A-Za-z0-9]+>/ => sup(subsup)   
   }
-}
-
-// HTML to show a concept
-
-private str show(str cn){
-  return "\<a href=\"javascript:show(\'<conceptPath>\',\'<cn>\')\"\><cn>\</a\>";
-  //return "\<a href=\"/show?concept=<cn>\"\><cn>\</a\>";
 }
 
 // HTML for an external link
