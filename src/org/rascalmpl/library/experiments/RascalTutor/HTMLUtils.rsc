@@ -112,8 +112,8 @@ public str td(str txt){
   return td(txt, "left");
 }
 
-public str tdtop(str txt){
-  return "\<td valign=\"top\"\><txt>\</td\>";
+public str tdid(str id, str txt){
+  return "\<td id=\"<id>\"\><txt>\</td\>";
 }
 
 public str td(str txt, str align){
@@ -186,13 +186,14 @@ public str escapeForJavascript(str txt){
     };
 }
 
-public str showConceptURL(ConceptName fromConcept, ConceptName toConcept){
-   return show(fromConcept, toConcept);
+public str showConceptURL(ConceptName cn){
+   bn = basename(cn);
+   return "\<a href=\"/Courses/<cn>/<bn>.html\"\><bn>\</a\>";
 }
 
-public str showConceptPath(ConceptName fromConcept, ConceptName toConcept){
-  names = basenames(toConcept);
-  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(fromConcept, compose(names, 0, i))><}>";
+public str showConceptPath(ConceptName cn){
+  names = basenames(cn);
+  return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
 }
 
 // HTML to show a concept

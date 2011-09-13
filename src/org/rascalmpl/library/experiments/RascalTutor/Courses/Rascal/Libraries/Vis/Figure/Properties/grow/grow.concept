@@ -1,0 +1,25 @@
+Name: grow
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty grow(num hg, num vg)`
+
+Synopsis:
+
+Description:
+Grow the current figure relative to any contained figures.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

@@ -19,9 +19,28 @@ h2 {
     font-style: italic;
 }
 
+td#tdnav {
+    vertical-align: top;
+    width: 15%;
+    background-color: peach;
+    border-color: black;
+    border-left-width : 0;
+    border-bottom-width : 0;
+}
+
+td#tdconcept {
+    vertical-align: top;
+    width: 85%;
+    background-color: Snow;
+    border-color: black;
+    border-right-width : 0;
+    border-bottom-width : 0;
+    margin: 5px;
+}
+
 table#container {
-    border: 0px #666 solid;
-    border-collapse: collapse;
+    width: 100%
+    border: 1px solid #000;
 }
 
 
@@ -52,9 +71,10 @@ th { background-color: silver; }
 }
 
 #Name  { 
-    padding: 5px 0px;
+    vertical-align: top;
+/*    padding: 5px 0px;
     margin-top: 2em;
-    position: relative;
+    position: relative;*/
 }
 
 #Warnings { padding: 0.5em 0em;5color: red; }

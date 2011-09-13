@@ -1,4 +1,6 @@
-/* Generated code for course ProblemSolvingStrategies, generated $2011-09-06T21:19:07.681+0200 */
+/* Generated code for course ProblemSolvingStrategies, generated $2011-09-13T14:13:21.986+0200 */
+
+$.setRootConcept("ProblemSolvingStrategies");
 
 var baseConcepts = new Array("Analysis","Extraction","ProblemSolvingStrategies","Synthesis");
 

@@ -4,7 +4,12 @@ var rootConcept = "Test";
 $.setRootConcept = function (c){ rootConcept = c; };
 
 function report(m, s){
-  //alert(m + ": " + s.substring(0, 200));
+/*
+if(s == null)
+   alert(m + ": null");
+else
+   alert(m + ": " + s.substring(0, 200));
+   */
 }
 
 $(document).ready(function(){
@@ -22,11 +27,14 @@ $(document).ready(function(){
 });
 
 function initNavigation(){
+
 //alert("initNavigation");
  
  
  $("#navPane").bind("select_node.jstree", function(event, data) {
-            loadConcept($(data.args[0]).attr("href"));
+            var url = $(data.args[0]).attr("href");
+            loadConceptURL(url);
+            return false;
       }).jstree({
 		"core" : {
 			"animation" : 100
@@ -35,10 +43,10 @@ function initNavigation(){
 			"select_limit": 1
 		},
 		"plugins" : [
-			"themes", "html_data", "ui", "cookies"
+			"themes", "html_data", "ui"
 		],
 		"themes":  {
-            "theme" : "classic",
+            "theme" : "default",
             "dots"  : true,
             "icons" : true
         }
@@ -69,23 +77,39 @@ report("attachHandlers", $("#navPane").html());
   return false;
 }
 
+var rbdata;
+
+function loadConceptURL(url){
+//alert("loadConceptURL: " + url);
+   $("#conceptPane").load(url + " div#conceptPane", null, function (a,b,c) {finishLoad();});
+}
+
 function loadConcept(cn){
-  var url = cn + " div#conceptPane";
-  $("#conceptPane").load(url, null, function (a,b,c) {attachHandlers();});
+  //rbdata = $("#navPane").get_rollback();
+  var url = "/Courses/" + cn  + "/" + basename(cn) + ".html div#conceptPane";
+  report("loadConcept", url);
+  $("#conceptPane").load(url, null, function (a,b,c) {finishLoad();});
+}
+
+function finishLoad(){
+ //$.jstree.rollback(rbdata.rlbk);
+ attachHandlers();
 }
 
 // ------------ Show a concept ------------------------------------------
 
+
 function show(fromConcept, toConcept){
+
+//alert('show: ' + fromConcept + ', ' + toConcept);
+
   for(var i = 0; i < conceptNames.length; i++){
      if(toConcept == conceptNames[i]){
-      var url = 'show?concept=/' + toConcept;    
-      $(location).attr('href',url);
+      loadConcept(toConcept);
       return;
      }
   }
-  back = '<a href="show?concept=/' + fromConcept + '">' +
-         '<img width="30" height="30" src="/images/back.png"></a>';
+  backarrow = back(fromConcept, toConcept);
   
   var options = new Array();
   for(var i = 0; i < conceptNames.length; i++){
@@ -94,7 +118,7 @@ function show(fromConcept, toConcept){
   }
   if(options.length == 0){
      $('title').html('Unknown concept "' + toConcept + '"');
-     $('div#conceptPane').html(back + '<h1>Concept "' + toConcept + '" does not exist, please add it or correct link!</h1>' + back);
+     $('div#conceptPane').html(backarrow + '<h1>Concept "' + toConcept + '" does not exist, please add it or correct link!</h1>' + backarrow);
      return;
   }
   if(options.length == 1){
@@ -104,11 +128,11 @@ function show(fromConcept, toConcept){
    $('title').html('Ambiguous concept "' + toConcept + '"');
    html_code = '<h1>Concept "' + toConcept + '" is ambiguous, select one of (or disambiguate in source):</h1>\n<ul>';
       for(var i = 0; i < options.length; i++){
-        html_code += '<li>' + makeConceptURL(options[i]) + '</li>\n';
+        html_code += '<li>' + makeConceptURL(fromConcept,options[i]) + '</li>\n';
       }
       html_code += '\n</ul>';
 
-   $('div#conceptPane').html(back + html_code + back);
+   $('div#conceptPane').html(backarrow + html_code + backarrow);
 }
 
 // ------------ Handler for suggestions for searchBox -------------------
@@ -169,6 +193,15 @@ function startsWith(str, prefix){
     return str.substring(0, prefix.length) == prefix;
 }
 
+function basename(cn){
+   var si = cn.lastIndexOf("/");
+   if(si >= 0){
+      return cn.substring(si+1);
+   } else {
+      return cn;
+   }
+}
+
 function match(conceptName, term){
    lcConceptName = conceptName.toLowerCase();
    
@@ -192,8 +225,7 @@ function match(conceptName, term){
 }
 
 function showSearchResults(concept, results, term){
-   back = '<a href="show?concept=' + concept + '">' +
-          '<img width="30" height="30" src="/images/back.png"></a>';
+   backarrow = back(concept, concept);
    if(results.length == 0)
       html_code = '<h1>No results found for "' + term + '"</h1>';
    else if(results.length == 1){
@@ -207,12 +239,17 @@ function showSearchResults(concept, results, term){
       html_code += '\n</ul>';
    }
    $('title').html('Search results for "' + term + '"');
-   $('div#conceptPane').html(back + html_code + back);
+   $('div#conceptPane').html(backarrow + html_code + backarrow);
 }
 
 
 function makeConceptURL(fromConcept, toConcept){
-   return '<a href="javascript:show(' + fromConcept + ',' + toConcept + ')">' + toConcept + '</a>';
+   return '<a href="javascript:show(' + "'" + fromConcept + "','" + toConcept + "')" + '">' + toConcept + '</a>';
+}
+
+function back(fromConcept, toConcept){
+   return '<a href="javascript:show(' + "'" + toConcept + "','" + fromConcept + "')" + '">' +
+          '<img width="30" height="30" src="/images/back.png"></a>';
 }
 
 
@@ -326,7 +363,7 @@ function handleSave(evt){
 }
 
 function reload(data){
-  alert("reload");
+  report("reload", data);
   $('div#conceptPane').html(data);
   attachHandlers();
 }

@@ -1,6 +1,6 @@
-/* Generated code for course Test, generated $2011-09-12T15:02:20.519+0200 */
+/* Generated code for course Test, generated $2011-09-13T13:28:41.367+0200 */
 
-var rootConcept = "Test";
+$.setRootConcept("Test");
 
 var baseConcepts = new Array("(","),",",","AAA","BBB","BBB1","BBB2","BBB3","BBB4","BBB5","BBB6","BBB7","Bla","Bla1","Bla2","Bla3","Bla4","Cat1","Cat11","Cat12","Cat13","Cat2","Cat21","Cat22","Test","[","]","lub","map");
 
