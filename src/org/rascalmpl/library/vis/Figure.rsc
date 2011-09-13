@@ -30,7 +30,6 @@ import ToString;
  * Wishlist:
  * - textures
  * - boxes with round corners
- * - dashed/dotted lines
  * - bitmap import and display
  * - new layouts (circular) treemap, icecle
  */
@@ -193,6 +192,14 @@ data TimerAction = restart(int delay)
 				 | noChange();
 
 data Convert = convert(value v, value id);
+
+
+// TEMPORARY, to make doc consistent with code
+// rename mouseOver -> onMouseOver
+
+Fproperty onMouseOver(Figure fig){
+  return mouseOver(fig);
+}
 
 data FProperty =
 	mouseOver(Figure fig)
@@ -735,15 +742,15 @@ public Figure projection(Figure fig, str() id, Figure project,FProperty props ..
   return _projection(fig,id,project,props);
 }
 
-public Figure scrollable(Figure fig, FProperty props...){
+public Figure scrollbar(Figure fig, FProperty props...){
 	return _scrollable(true,true,fig,props);
 }
 
-public Figure hscrollable(Figure fig, FProperty props...){
+public Figure hscrollbar(Figure fig, FProperty props...){
 	return _scrollable(true,false,fig,props);
 }
 
-public Figure vscrollable(Figure fig, FProperty props...){
+public Figure vscrollbar(Figure fig, FProperty props...){
 	return _scrollable(false,true,fig,props);
 }
 
