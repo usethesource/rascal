@@ -136,6 +136,12 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 public java void appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
+@doc{Changes the last modification date of a file}
+public void touch(loc file)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg){
+  appendToFile(file);
+}
+
 @doc{locate a (file) name in a certain path}
 public loc find(str name, list[loc] path) {
   if (dir <- path, f := dir + "/<name>", exists(f)) { 
