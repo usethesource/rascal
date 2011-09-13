@@ -1,4 +1,4 @@
-Name: mouseOver
+Name: onMouseOver
 
 Details:
 
@@ -8,12 +8,11 @@ Syntax:
 
 Types:
 
-Function: `FProperty mouseOver(Figure fig)`
+Function: `FProperty onMouseOver(Figure fig)`
 
 Synopsis:
 
 Description: Show figure `fig` when the mouse hovers over the current figure.
-<warning>Rename to onMouseOver</warning>
 
 Examples:
 
