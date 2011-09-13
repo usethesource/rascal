@@ -46,7 +46,7 @@ public void testTree(){
 	bool majorX = false;
 	render(
 		hcat([
-			scrollable(
+			scrollbar(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
 					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
 					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),std(majorx(bool () { return majorX; })))
