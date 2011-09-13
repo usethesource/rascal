@@ -13,7 +13,7 @@ Function:
 Synopsis:
 
 Description:
-Defines the color of shadows.
+Defines the color of shadows. Also see [shadow] and [shadowPos].
 
 Examples:
 <figure s1.png>

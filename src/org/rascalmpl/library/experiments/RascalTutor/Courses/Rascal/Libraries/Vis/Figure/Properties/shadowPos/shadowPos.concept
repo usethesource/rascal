@@ -17,12 +17,17 @@ Note that:
 * `shadowPos(n)` is equivalent to `shadowPos(n, n)`.
 * `shadowPos(hs, vs)` is equivalent to `hshadowPos(hs), vshadowPos(vs)`.
 
+
+Also see [shadow] and [shadowColor].
+
 Examples:
 <figure s1.png 250x150>
 box1 = box(size(200,100), shadow(true), shadowPos(50,50), resizable(false));
 render(box1);
 </figure>
 ![s1](s1.png)
+
+<warning>Shadow not taken into account for size computation</warning>
 
 Benefits:
 

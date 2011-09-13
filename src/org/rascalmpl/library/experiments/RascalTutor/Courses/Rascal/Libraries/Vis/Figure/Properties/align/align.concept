@@ -58,6 +58,8 @@ render(b2);
 Benefits:
 
 Pitfalls:
+To avoid that `b1` will occupy the complete area of `b2`,
+[resizable] is set to true in these examples.
 
 Questions:
 

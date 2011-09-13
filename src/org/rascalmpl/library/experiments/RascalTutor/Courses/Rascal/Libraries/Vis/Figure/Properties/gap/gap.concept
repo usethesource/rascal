@@ -24,6 +24,15 @@ Note that:
 * `gap(h, v)` is equivalent to `hgap(h), vgap(v)`.
 
 Examples:
+<figure g1.png>
+b1 = box(size(100,50), fillColor("blue"), resizable(false));
+b2 = box(size(50), fillColor("yellow"), resizable(false));
+b3 = box(size(50), fillColor("green"), resizable(false));
+render(hcat([b1, b2, b2], gap(0)));
+</figure>
+![g1](g1.png)
+
+<warning> gap? </warning>
 
 Benefits:
 

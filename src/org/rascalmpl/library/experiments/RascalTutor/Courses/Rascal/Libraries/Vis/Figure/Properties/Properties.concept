@@ -50,7 +50,7 @@ Most properties have typed arguments but they come in several versions:
 Properties can be classified as follows:
 * __Sizing__: [size], [hsize], [vsize], [grow], [hgrow], [vgrow], [shrink], [hshrink], [vshrink], 
             [resizable], [hresizable], [vresizable], [lineWidth], [fontSize]
-* __Aligning__: [align], [halign], [valign], [bottom], [top], [center], [hcenter], [vcenter]
+* __Aligning__: [align], [halign], [valign], [Properties/bottom], [Properties/top], [center], [hcenter], [vcenter]
 * __Composing__: [gap], [hgap], [vgap], [startGap], [hstartGap], [vstartGap], [endGap], [hendGap], [vendGap]
 * __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
 * __Interacting__: [onClick], [onMouseMove], [mouseOver], [onKey].
