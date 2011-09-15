@@ -225,7 +225,6 @@ public class RascalShell {
 			// interactive mode
 			try {
 				new RascalShell().run();
-				System.err.println("Que le Rascal soit avec vous!");
 				System.exit(0);
 			} catch (IOException e) {
 				System.err.println("unexpected error: " + e.getMessage());
