@@ -197,7 +197,7 @@ data Convert = convert(value v, value id);
 // TEMPORARY, to make doc consistent with code
 // rename mouseOver -> onMouseOver
 
-Fproperty onMouseOver(Figure fig){
+FProperty onMouseOver(Figure fig){
   return mouseOver(fig);
 }
 

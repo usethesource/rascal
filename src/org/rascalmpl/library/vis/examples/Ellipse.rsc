@@ -22,13 +22,13 @@ public void e1(){
 	render(ellipse());
 }
 
-// Unsized blue ellipse with sized white inner box
+// Blue ellipse that grows 3x larger than white inner box
 public void e2(){
 	render(ellipse( box(fillColor("white")),
 	                fillColor("mediumblue"), grow(3.0)));
 }
 
-// Unsized blue ellipse with sized white inner text
+// Blue ellipse that grows 1.2x larger than white inner text
 public void e3(){
 	render(ellipse(text("een label", fontColor("white")),
 	               fillColor("mediumblue"), grow(1.2)));

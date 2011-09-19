@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::examples::Compose;
+module vis::examples::Compose
 
 import vis::Figure;
 import vis::Render;
@@ -20,7 +20,7 @@ import IO;
 
 // Horizontal combination of boxes of 100x200 with rgb and (same) named colors
 public void hor1(){
-	render(hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue", 0.5)))],stdLineWidth(2)));
+	render(hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue", 0.5)))],std(lineWidth(2))));
 }
 
 // Horizontal combination of boxeswith named colors and opacity
@@ -56,7 +56,7 @@ public void hor4(){
 			        box(vshrink(0.8),top()),
 			        box(shrink(0.1,0.5), fillColor("green"),top())
 			      ],
-			      stdFillColor("yellow"), hgrow(1.1))
+			      std(fillColor("yellow")), hgrow(1.1))
 		);
 }
 // Horizontal combination of bottom-aligned boxes with some inherited colors
@@ -65,7 +65,7 @@ public void hor5(){
 			        box(vshrink(0.8),bottom()),
 			        box(shrink(0.1,0.5), fillColor("green"),bottom())
 			      ],
-			      stdFillColor("yellow"), hgrow(1.1))
+			      std(fillColor("yellow")), hgrow(1.1))
 		);
 }
 
@@ -75,7 +75,7 @@ public void hor6(){
 			        box(vshrink(0.8),vcenter()),
 			        box(shrink(0.1,0.5), fillColor("green"),vcenter())
 			      ],
-			      stdFillColor("yellow"), hgrow(1.1))
+			      std(fillColor("yellow")), hgrow(1.1))
 		);
 }
 /*
@@ -362,17 +362,17 @@ public void onest2(){
 }
 
 public void exwidth() {
-	render(hcat([box(),box(),box()],width(350),stdFillColor("red")));
+	render(hcat([box(),box(),box()],width(350),std(fillColor("red"))));
 }
 
 
 public void exwidthspace() {
-	render(hcat([box(),box(),box()],width(350),stdFillColor("red"),gapFactor(0.2)));
+	render(hcat([box(),box(),box()],width(350),std(fillColor("red")),gapFactor(0.2)));
 }
 
 
 public void exwidthspaceex() {
-	render(hcat([box(),box(width(150)),box()],width(350),stdFillColor("red"),gapFactor(0.2)));
+	render(hcat([box(),box(width(150)),box()],width(350),std(fillColor("red")),gapFactor(0.2)));
 }
 
 public void alignandautoheight() {

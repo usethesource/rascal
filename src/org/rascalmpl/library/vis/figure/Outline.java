@@ -33,7 +33,6 @@ import static org.rascalmpl.library.vis.properties.Properties.*;
 // */
 public class Outline extends Figure {
 
-	private boolean debug = false;
 	private final IList lineInfo;
 	private final int maxLine;
 
