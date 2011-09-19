@@ -37,7 +37,6 @@ import static org.rascalmpl.library.vis.properties.Properties.VGROW;
 import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
 import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.RESIZABLE;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SIZE;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 import static org.rascalmpl.library.vis.util.vector.Dimension.X;

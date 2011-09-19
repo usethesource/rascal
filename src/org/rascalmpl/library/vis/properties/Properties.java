@@ -13,11 +13,12 @@
 package org.rascalmpl.library.vis.properties;
 
 import static org.rascalmpl.library.vis.properties.CombinedProperty.Combine.MUL;
+import static org.rascalmpl.library.vis.properties.PropertySemantics.BOTH;
+import static org.rascalmpl.library.vis.properties.PropertySemantics.EXTERNAL;
+import static org.rascalmpl.library.vis.properties.PropertySemantics.INTERNAL;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.BLACK;
-import static org.rascalmpl.library.vis.util.FigureColorUtils.LIGHTGRAY;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.WHITE;
 import static org.rascalmpl.library.vis.util.FigureColorUtils.dropShadowColor;
-import static org.rascalmpl.library.vis.properties.PropertySemantics.*;
 
 import java.util.HashMap;
 

@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis.swt.applet;
 
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;

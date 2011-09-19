@@ -68,6 +68,10 @@ public class LayeredGraphEdge extends Figure {
 		
 		fromArrow = prop.getFig(FROM_ARROW);
 		
+		children = new Figure[2];
+		children[0] = toArrow;
+		children[1] = fromArrow;
+		
 		label = prop.getFig(LABEL);
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue() +

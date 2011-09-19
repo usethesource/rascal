@@ -11,8 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure;
 
-import static org.rascalmpl.library.vis.properties.Properties.*;
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
+import static org.rascalmpl.library.vis.properties.Properties.INNER_ALIGN;
+import static org.rascalmpl.library.vis.properties.Properties.TEXT_ANGLE;
+
 import java.util.List;
 
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
@@ -21,7 +22,6 @@ import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**

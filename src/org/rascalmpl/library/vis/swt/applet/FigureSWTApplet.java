@@ -43,7 +43,6 @@ public class FigureSWTApplet extends Composite
 
 
 	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.NO_BACKGROUND | SWT.NO_MERGE_PAINTS ;
-	private static boolean debug = false;
 	private List<FigureSWTApplet> children;
 	private Figure figure; 
 	private FigureExecutionEnvironment env;

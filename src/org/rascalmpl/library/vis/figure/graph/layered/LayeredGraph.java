@@ -119,9 +119,6 @@ public class LayeredGraph extends Figure {
 				registerLayerId(layer, node);
 			}
 		}
-		
-		this.children = new Figure[children.size()];
-		this.children = children.toArray(this.children);
 
 		// Create the edges
 		
@@ -142,10 +139,17 @@ public class LayeredGraph extends Figure {
 				} else if(other.getFrom() == e.getTo() && other.getTo() == e.getFrom()){
 					// Reverse edge, copy its arrows
 					if(debug)System.err.println("Found reverse edge");
+					
 					Figure toArrow = e.toArrow;
+					//if(toArrow != null)
+					//	children.add(toArrow);
 					if(toArrow != null && other.fromArrow == null)
 						other.fromArrow = toArrow;
+					
 					Figure fromArrow = e.fromArrow;
+					//if(fromArrow != null)
+					//	children.add(fromArrow);
+					
 					if(fromArrow != null && other.toArrow == null)
 						other.toArrow = fromArrow;
 					other.getFrom().addIn(e.getFrom());
@@ -161,6 +165,9 @@ public class LayeredGraph extends Figure {
 				e.getTo().addIn(e.getFrom());
 			}
 		}
+		
+		this.children = new Figure[children.size()];
+		this.children = children.toArray(this.children);
 
 		if(debug){
 			for(LayeredGraphEdge e : this.edges){
