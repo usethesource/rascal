@@ -12,7 +12,31 @@ Function:
 
 Synopsis:
 
-Description: <warning>to be written</warning>
+Description: 
+
+To instantiate an IDE for a language implemented using Rascal, follow the steps as shown in the following example:
+
+<screen>
+import util::IDE;
+start syntax ABC = [a-z]+;
+layout Whitespace = [\ \t\n]*;
+start[ABC] abc(str x, loc l) { 
+  return parse(#start[ABC], x, l); 
+}
+registerLanguage("The ABC language", "abc", abc);
+</screen>
+
+After this, your <bold>current</bold> Eclipse instance will start editors for all files ending in .abc and parse them using the abc function. The editor will provide some default highlighting features.
+
+This is a start, now you can step-by-step extend the IDE for your language with additional features:
+  * [Outline]
+  * [Folding]
+  * [DocumentationHover]
+  * [Hyperlinking]
+  * [ErrorMarking]
+  * [Menus]
+
+To be able to reuse your IDE between runs of Eclipse, please read about [Plugin]s.
 
 Examples:
 
