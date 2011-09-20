@@ -309,14 +309,14 @@ public class JavaBridge {
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
-				catch(NoClassDefFoundError e) {
-					continue;
-				}
 				catch(ClassNotFoundException e){
 					continue;
 				} 
 			}
 		} 
+		catch(NoClassDefFoundError e) {
+			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
+		}
 		catch (IllegalArgumentException e) {
 			throw new JavaMethodLinkError(className, e.getMessage(), func, e);
 		} catch (InstantiationException e) {
