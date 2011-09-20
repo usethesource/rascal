@@ -1,0 +1,48 @@
+Name: aspectRatio
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`FProperty aspectRatio(num r)`
+
+Synopsis:
+
+Description:
+Defines the ratio between the horizontal and vertical size of a figure.
+This ratio is maintained whenever the figure is resized.
+An aspect ratio with value 1, turns boxes into squares and ellipses into circles.
+
+Examples:
+
+<figure a0.png>
+b1 = box(fillColor("red"));
+e1 = ellipse(b1, size(200,100), fillColor("yellow"));
+render(e1);
+</figure>
+![a0](a0.png)
+
+<figure a1.png>
+b1 = box(aspectRatio(0.5), fillColor("red"));
+e1 = ellipse(b1, size(200,100), fillColor("yellow"));
+render(e1);
+</figure>
+![a1](a1.png)
+
+<figure a2.png>
+b1 = box(aspectRatio(0.5), fillColor("red"));
+e1 = ellipse(b1, size(400,200), fillColor("yellow"));
+render(e1);
+</figure>
+![a2](a2.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

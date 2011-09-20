@@ -20,33 +20,34 @@ automatically based on:
 
 Examples:
 <figure g1.png>
-row1 = [ box(size(50,50), fillColor("Red")),
-         box(size(50,50), fillColor("Blue")),
-         box(size(50,50), fillColor("Yellow"))
+row1 = [ box(fillColor("Red")),
+         box(fillColor("Blue")),
+         box(fillColor("Yellow"))
        ];
-row2 = [ box(size(50,50), fillColor("Green")),
-         box(size(50,50), fillColor("Purple")),
-         box(size(50,50), fillColor("Orange"))
+row2 = [ box(fillColor("Green")),
+         box(fillColor("Purple")),
+         box(fillColor("Orange"))
        ];
-row3 = [ box(size(50,50), fillColor("Silver"))];
-render(grid([[row1], [row2], [row3]], std(gap(10)), std(resizable(false))));
+row3 = [ box(fillColor("Silver"))];
+render(grid([[row1], [row2], [row3]], std(size(50))));
 </figure>
 
 gives:
 
-
 ![grid1](g1.png)
 
-Varying the sizes of `b2` and `b5`:
-<xfigure g2.png>
-b1 = box(size(50,50), fillColor("Red"));
-b2 = box(size(60,30), fillColor("Blue"));
-b3 = box(size(50,50), fillColor("Yellow"));
-b4 = box(size(50,50), fillColor("Green"));
-b5 = box(size(80,80), fillColor("Purple"));
-b6 = box(size(50,50), fillColor("Orange"));
-b7 = box(size(50,50), fillColor("Silver"));
-render(grid([b1, b2, b3, b4, b5, b6, b7], width(200), gap(100)));
+Changing the size of `b2` to a fixed size:
+<figure g2.png>
+row1 = [ box(fillColor("Red")),
+         box(fillColor("Blue"), size(20), resizable(false)),
+         box(fillColor("Yellow"))
+       ];
+row2 = [ box(fillColor("Green")),
+         box(fillColor("Purple")),
+         box(fillColor("Orange"))
+       ];
+row3 = [ box(fillColor("Silver"))];
+render(grid([[row1], [row2], [row3]], std(size(50))));
 </figure>
 
 gives:
@@ -54,16 +55,18 @@ gives:
 
 ![grid2](g2.png)
 
-Varying the alignment of `b2` and `b5` gives:
-<xfigure g3.png>
-b1 = box(size(50,50), fillColor("Red"));
-b2 = box(size(50,50), fillColor("Blue"), left(), top());
-b3 = box(size(50,50), fillColor("Yellow"));
-b4 = box(size(50,50), fillColor("Green"));
-b5 = box(size(50,50), fillColor("Purple"), bottom(), right());
-b6 = box(size(50,50), fillColor("Orange"));
-b7 = box(size(50,50), fillColor("Silver"));
-render(grid([b1, b2, b3, b4, b5, b6, b7], width(200), gap(100)));
+And now changing the alignment of `b2`:
+<figure g3.png>
+row1 = [ box(fillColor("Red")),
+         box(fillColor("Blue"), size(20), resizable(false), top(), right()),
+         box(fillColor("Yellow"))
+       ];
+row2 = [ box(fillColor("Green")),
+         box(fillColor("Purple")),
+         box(fillColor("Orange"))
+       ];
+row3 = [ box(fillColor("Silver"))];
+render(grid([[row1], [row2], [row3]], std(size(50))));
 </figure>
 
 gives:

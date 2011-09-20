@@ -22,11 +22,19 @@ a visual cue is given that the entered text is erroneous. Only when `validate` r
   the user types ENTER or RETURN, `scallback` will be called.
 
 Examples:
-
+<figure t1.png>
+public Figure tfield(){
+  str entered = "";
+  return vcat([ box(textfield("", void(str s){ entered = s;}, fillColor("yellow")), fillColor("yellow")),
+                text(str(){return "entered: <entered>";}, left())
+              ]);
+}  
+render(tfield()); 
+</figure>
+![t1](t1.png)
 Benefits:
 
 Pitfalls:
 
-Do not use textfield in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
 Questions:
 

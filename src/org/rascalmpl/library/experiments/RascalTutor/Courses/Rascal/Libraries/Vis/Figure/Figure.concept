@@ -36,16 +36,16 @@ More precisely, figures:
 The Figure library provides two data types:
 * `FProperty` describes a property of a figure such as (also see [Properties]):
   ** _Sizing_: [Properties/size], [hsize] (or [width]), [vsize] (or [height]). 
-  ** _ Positioning_: [align], [halign], [valign], [gap], [hgap], [vgap], [textAngle].
-  ** _Visual appearance_: [lineWidth], [lineColor], [fillColor], [font], [fontSize], [fontColor], [shapeConnected],
+  ** _ Positioning_: [align], [gap], [textAngle].
+  ** _Visual appearance_: [lineWidth], [lineColor], [lineStyle], [fillColor], [font], [fontSize], [fontColor], [shadow], [shapeConnected],
      [shapeClosed], [shapeCurved].
-  ** _Interaction_: [mouseOver].
+  ** _Interaction_: [resizable], [onClick], [onKey], [onMouseMove], [onMouseOver].
   ** _Other_: [id]
 
 * `Figure` describes an actual visual element such as (also see [Figures]):
   ** _Atomic Figures_: [text], [outline].
   ** _Containers_: [box], [ellipse], [space].
-  ** _Compositions_: [hcat], [vcat], [hvcat], [pack], [grid], [tree], [treemap], [graph].
+  ** _Compositions_: [hcat], [vcat], [hvcat], [overlay], [pack], [grid], [tree], [treemap], [graph].
   ** _Transformations_: [scale], [rotate].
 
 

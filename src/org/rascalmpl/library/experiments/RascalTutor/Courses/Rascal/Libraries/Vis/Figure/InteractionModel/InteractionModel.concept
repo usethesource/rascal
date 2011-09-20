@@ -2,8 +2,6 @@ Name: InteractionModel
 
 Details:
 
-Categories: Library
-
 Syntax:
 
 Types:
@@ -13,74 +11,41 @@ Function:
 Synopsis:
 
 Description:
-The visualizations created with the Figure library provide generic, but limited, user interaction.
+The visualizations created with the Figure library can use the following generic primitives for user interaction:
 
-===Moving the Canvas===
-
-By using the arrow keys the canvas of the visualization can be moved horizontally or vertically:
-* right arrow key: move canvas right (figure moves left);
-* left arrow key: move canvas left (figure moves right);
-* up arrow key: move canvas up (figure moves down);
-* down arrow key: move canvas up (figure moves up).
-
-
-===Selecting a Figure===
-By clicking on the figure, its bounding box will be drawn as a red rectangle.
-
-===Hovering over a Figure===
-When the mouse hovers over a figure that has a [mouseOver] property, 
-the figure defined by that mouseOver will be displayed on top of the original figure.
-The mouseOver figure will disappear when the mouse moves outside the bounding box of the original figure.
-
-===Zooming in===
-First selecting a figure and then simultaneously pressing the SHIFT key and __mouse button 1__, has the effect that:
-* the whole visualization is faded;
-* the selected figure is enlarged and drawn on top of the faded visualization.
+* __Mouse__. A figure can define its behaviour in response to mouse interaction:
+  ** [onMouseMove]: what to do when the mouse moves while it is already in the area occupied by the current figure.
+  ** [onMouseOver]: what to do when the mouse enters or leaves the area occupied by the current figure.
+  ** [onClick]: what to do when the user clicks on the current figure.
+* __Keyboard__. A figure can define its behaviour in response to keyboard input:
+  ** [onKey]: what to do when the user pressed a keyboard key when the mouse if over the current figure.
+* __Interaction widget__. Various interaction widgets are provided:
+  ** [button]: creates a button that can be pressed.
+  ** [textField]: creates an area where text can be entered.
+  ** [combo]: creates a drop down list from which entries can be selected.
+  ** [checkbox]: creates an on/off check box.
+  ** [scaleSlider]: creates a slider to enter a numeric value.
 
 
-Zooming in may be repeated on subfigures of the selected figure.
-The whole visualization will fade away more and more on each zoom in step.
+The above interaction primitives all have one or more Rascal functions as argument; they act as _callbacks_ when 
+the interaction primitive is activated by the user.
 
-===Zooming out===
-Selecting any part of a zoomed figure and simultaneously pressing the SHIFT key and __mouse button 2__ will 
-zoom out to the previous zoom level.
-
-
+The following properties further support interaction:
+* [fswitch]: replace the current figure by one from a given (static) list of figures.
+* [computeFigure]: replace the current figure by a dynamically created new figure.
+* [timer]: associate a timer with a figure.
 
 Examples:
-We illustrate zooming will the following screen shots. A tree visualization (the code is shown in [tree]):
-
-
-![Tree1](Tree1.png)
-
-===Selecting a Figure===
-
-Select the subtree with light blue circle as root (select it with mouse button 1):
-
-
-![Tree2](Tree2.png)
-
-===Zooming in===
-
-Zoom in on that subtree (with SHIFT + mouse button 1):
-
-
-![Tree3](Tree3.png)
-
-Zoom in on the light blue circle itself:
-
-
-![Tree4](Tree4.png)
-
-===Zooming out===
-
-These steps can be reversed by pressing SHIFT + mouse button 2
-for each zoom level, i.e., 2 times in this example.
-
 
 Benefits:
 
 Pitfalls:
+* Interactive applications highly depend on dynamically changing property values. 
+  They frequently use the possibiliy to use a function, rather than a value for properties.
+  For instance, instead of using `size(10)` one may use `size(int(){ return n;}`, where `n`
+  is a variable in the scope of the function that created the figure.
+* Unfortunately we cannot show an interactive version of the above example here.
+  Try it out in Rascal itself.
 
 Questions:
 
