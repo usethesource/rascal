@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.values.uptr.Factory;
@@ -70,6 +71,12 @@ public class NonTerminalType extends ExternalType {
 	
 	public boolean isConcreteListType() {
 		return SymbolAdapter.isAnyList(getSymbol());
+	}
+	
+	@Override
+	public boolean hasField(String fieldName) {
+		// safe over-approximation
+		return true;
 	}
 	
 	@Override

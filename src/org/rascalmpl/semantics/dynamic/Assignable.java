@@ -337,7 +337,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				Type type = receiverType.getFieldType(index);
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(type, result, __eval);
-			} else if (receiverType.isConstructorType()
+			}
+			else if (receiverType.isExternalType() && receiverType instanceof NonTerminalType) {
+				return receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore());
+			}
+			else if (receiverType.isConstructorType()
 					|| receiverType.isAbstractDataType()) {
 				IConstructor cons = (IConstructor) receiver.getValue();
 				Type node = cons.getConstructorType();
