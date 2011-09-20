@@ -21,6 +21,7 @@ import Integer;
 import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Names;
+import lang::rascal::grammar::definition::Characters; 
 import lang::sdf2::util::Load;
 import lang::sdf2::syntax::Sdf2;   
 
@@ -308,7 +309,7 @@ public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
            + {getRestriction((Restriction) `<Sym s> -/- <Lookaheads ls>`, isLex) | Sym s <- rest};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
-      return {conditional(layouts("LAYOUTLIST"), {\not-follow(l) | l <- getLookaheads(ls) })};
+      return {conditional(\iter-star(sort("LAYOUT")), {\not-follow(l) | l <- getLookaheads(ls) })};
              
        
     default: {
@@ -542,6 +543,9 @@ public Symbol getSymbol(Sym sym, bool isLex) {
         
     case (Sym) `(<Sym first> <Sym+ rest>)` :
         return seq([getSymbol(first, isLex)] + [getSymbol(e, isLex) | e <- rest]);
+
+    case (Sym) `(<Sym s>)` :
+        return getSymbol(s, isLex);
     	
     default: throw "missed a case <sym>";
   } 
