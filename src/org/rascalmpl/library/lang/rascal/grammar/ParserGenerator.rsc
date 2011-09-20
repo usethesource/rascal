@@ -190,8 +190,8 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '  protected static IntegerKeyedHashMap\<IntegerList\> _initDontNest() {
            '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
            '    
-           '    <if (size(dontNest) == 0) {>return result;<}>
-           '    <if (true) { int i = 0;><for (<f,c> <- dontNest) { i += 1;>
+           '    <if (size(dontNest) == 0) {>return result;<} else { int i = 0;>
+           '    <for (<f,c> <- dontNest) { i += 1;>
            '    <if (i % 2000 == 0) {>
            '    _initDontNest<i>(result);
            '    <if (i == 2000) {>return result;<}>
