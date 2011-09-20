@@ -30,7 +30,7 @@ import Relation;
 
 public void definition2disk(loc prefix, GrammarDefinition def) {
   for (m <- def.modules) {
-    writeFile(prefix + "/" + visit(m) { case /::/ => "/" } + ".rsc", module2rascal(def.modules[m]));
+    writeFile((prefix + "/" + visit(m) { case /::/ => "/" })[extension = ".rsc"], module2rascal(def.modules[m]));
   }
 }
 
