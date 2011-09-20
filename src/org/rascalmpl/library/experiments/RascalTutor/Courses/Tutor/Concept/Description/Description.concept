@@ -1,0 +1,33 @@
+Name: Description
+
+Details:
+
+Syntax:
+`Description: $MarkedText$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The `Description` section gives a concise explanation of the concept.
+
+Examples:
+
+The `Description` section of this concept page reads as follows:
+
+`Description:`
+`The ``Description`` section gives a concise explanation of the concept.
+
+
+Benefits:
+
+Pitfalls:
+* Avoid giving examples in the `Description` section but reserve these for the `Examples` section.
+* Do not give explicit lists of subconcepts (details) since they are already included automatically in the `Details` section in the HTML page.
+
+Questions:
+
+       

@@ -1,0 +1,51 @@
+Name: Concept
+
+Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions
+
+Syntax:
+
+
+`Name: $ConceptName$`
+
+`Details: $ConceptName_1$ $ConceptName_2$ ...`
+
+`Syntax: $MarkedText$`
+
+`Types:  $MarkedText$`
+
+`Function:  $MarkedText$`
+
+`Synopsis:  $MarkedText$`
+
+`Description:  $MarkedText$`
+
+`Examples:  $MarkedText$`
+
+`Benefits:  $MarkedText$`
+
+`Pitfalls:  $MarkedText$`
+
+`Questions: $Question_1$, $Question_2$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
+It consists of 11 named sections that we now descripe in turn. Each section starts with a keyword that should appear at the begin of a line.
+
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

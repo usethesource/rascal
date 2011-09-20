@@ -1,0 +1,48 @@
+Name: screen
+
+Details:
+
+Syntax:
+`<screen>`<br>
+$RascalCode$<br>
+`<\screen>`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The commands in the $RascalCode$ are executed and
+they are show together with the response of the Rascal system.
+
+The following is supported:
+* Lines that start with `//` are formatted as ordinary text. This makes it possible to write a story with interspersed Rascal code.
+* Comments in the code of the form `/*$Number$*/` are replaced by numbered markers such as `/*1*/` that can be used in the text to
+  refer back to the code.
+
+Examples:
+
+The text:<br>
+
+`<screen>`<br>
+`1 + 2;`<br>
+`</screen>`
+
+will be shown as:
+
+<screen>
+1 + 2;
+</screen>
+
+Benefits:
+All code in a concept is actually executed before it is included in an HTML file.
+
+Pitfalls:
+* `<screen>` and `</screen>` should start at the begin of a line.
+* The $RascalCode$ in a screen is executed in a fresh Rascal Interpreter. Hence no state can be carried over between screens.
+
+Questions:
+
+       

@@ -1,0 +1,35 @@
+Name: warning
+
+Details:
+
+Syntax: `<warning> $MarkedText$ </warning>`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+With a warning a developers note or urgent message to the student can be inserted.
+All warnings for a course are collected and be inspected later.
+
+Examples:
+
+The input:<br>
+
+`<warning>This is an example warning</warning>`<br>
+
+will give:
+
+<warning>This is an example warning</warning>
+
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

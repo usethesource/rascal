@@ -1,0 +1,40 @@
+Name: listing
+
+Details:
+
+Syntax:
+# `<listing> $RascalCode$ </listing>`
+# `<listing $FileName$>`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+A listing shows Rascal code without executing it. A listing can be:
+# inline: the Rascal code appears between the `<listing>` and `</listing>` brackets.
+# file: the Rascal code is copied from a named file.
+
+Examples:
+
+The input:<br>
+
+`<listing>`<br>
+`x = 3;`<br>
+`</listing>`
+
+will produce:
+
+<listing>
+x = 3;
+</listing>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

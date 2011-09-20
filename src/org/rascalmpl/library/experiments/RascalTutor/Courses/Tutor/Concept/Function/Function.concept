@@ -1,0 +1,29 @@
+Name: Function
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The `Function` section describes signatures of (library) functions
+
+Examples:
+
+Here is an example for the `readFile` function:
+
+`Function:`
+``str readFile(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)``
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

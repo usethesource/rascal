@@ -1,0 +1,35 @@
+Name: Syntax
+
+Details:
+
+Syntax:
+
+`Syntax: $MarkedText$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The syntax section is intended to describe syntactic aspects of language constructs.
+The contents of this section are arbitrary text, but literal text is treated specially:
+* it is displayed in a separate box.
+* all literal text that is not a variable is included in the search index.
+
+Examples:
+
+The syntax section for an if-then statement can be written as:
+
+`Syntax: `\``if ( $$Exp$$ ) $$Statement$$;`\`
+
+only `if`, `(`, `)` and `;` will be added to the search index.
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

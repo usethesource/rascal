@@ -1,0 +1,54 @@
+Name: figure
+
+Details:
+
+Syntax: `<figure $FileName$> $RascalCode$ </figure>`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+With figure markup it is possible to execute visualizations and to include their output in the text.
+$FileName$ is the name of the file to which the visualization will be saved.
+It can later be inserted as [image].
+
+Before executing the Rascal code, the following two imports are added automatically:
+<listing>
+import vis::Figure;
+import vis::Render;
+</listing>
+
+Examples:
+
+The input:
+
+`<figure fig1.png>`<br>
+`render(box(fillColor("red")));`<br>
+`</figure>`
+
+will save a red box in file `fig1.png` and also produce the listing:
+
+<figure fig1.png>
+render(box(fillColor("red")));
+</figure>
+
+Later this file can be included as image using: `![fig1](fig1.png)` with as result:
+![fig1](fig1.png) 
+
+
+Benefits:
+
+Pitfalls:
+* The last line of the $RascalCode$ should be of the form:
+<listing>
+render(...);
+</listing>
+
+* `<figure>` and `</figure>` should occur at the start of a line.
+
+Questions:
+
+       
