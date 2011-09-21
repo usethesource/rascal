@@ -18,7 +18,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -67,6 +66,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -181,27 +182,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new NullPointerException();
 		}
 
-		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(List<URI> l) {
-				l.add(java.net.URI.create("cwd:///"));
-				l.add(java.net.URI.create("std:///"));
-				l.add(java.net.URI.create("testdata:///"));
-				l.add(java.net.URI.create("benchmarks:///"));
-				
-				String property = java.lang.System.getProperty("rascal.path");
-
-				if (property != null) {
-					for (String path : property.split(":")) {
-						l.add(new File(path).toURI());
-					}
-				}
-			}
-
-			@Override
-			public String toString() {
-				return "[current wd and stdlib]";
-			}
-		});
+		rascalPathResolver.addPathContributor(StandardLibraryContributor.getInstance());
 
 		// register some schemes
 		FileURIResolver files = new FileURIResolver();
@@ -644,18 +625,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public void addRascalSearchPath(final URI uri) {
-		rascalPathResolver.addPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(List<URI> path) {
-				path.add(0, uri);
-			}
-
-			@Override
-			public String toString() {
-				return uri.toString();
-			}
-		});
+		rascalPathResolver.addPathContributor(new URIContributor(uri));
 	}
-
+ 
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
 		classLoaders.add(0, loader);

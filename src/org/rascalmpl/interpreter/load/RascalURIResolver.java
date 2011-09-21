@@ -44,7 +44,9 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 	}
 	
 	public void addPathContributor(IRascalSearchPathContributor contrib) {
-		contributors.add(0, contrib);
+		if(!contributors.contains(contrib)){
+			contributors.add(0, contrib);
+		}
 	}
 	
 	/**
