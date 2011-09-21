@@ -1,0 +1,35 @@
+Name: ReferenceToConcept
+
+Details:
+
+Syntax: `[ $ConceptName$ ]`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Creates a link to a concept in the current course.
+The conceptname may be:
+* A full pathname of a concept.
+* A partial pathname (with elements starting at the rooted omitted)
+* A basic conceptname, i.e. the name fo a concept without its hierarchical path.
+
+A partial concept name may be needed if the course contains concepts with the same
+name in different parts of the concept hierarchy.
+
+Examples:
+We can create a reference to the `InlineMarkup` concept in the current course in the following ways:
+* `[Tutor/Markup/InlineMarkup]` gives [Tutor/Markup/InlineMarkup].
+* `[Markup/InlineMarkup]` gives [Markup/InlineMarkup].
+* `[InlineMarkup]` gives [InlineMarkup].
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

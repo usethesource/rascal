@@ -1,0 +1,27 @@
+Name: Code
+
+Details:
+
+Syntax: `` `$MarkedText$` ``
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Creates inline fragments of text that represent code.
+Inside the MarkedText, other markup can be used.
+
+Examples:
+
+```if``` gives `if`
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

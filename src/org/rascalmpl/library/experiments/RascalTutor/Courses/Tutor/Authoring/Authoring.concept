@@ -1,0 +1,42 @@
+Name: Authoring
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+The life cycle of a course consists of the following steps:
+# A new course is created and added to the `Courses/index.html` file of the Tutor (this is at the moment a manual step).
+  The new course consists of one root concept.
+# New subconcepts are created and modified in order to build the full contents of the course.
+
+
+Each concept page contains at the bottom a number of buttons to enable this authoring process:
+
+* __New subconcept__ creates a subconcept of the current concept.
+* __Edit__ allows editing of the current concept. After saving the modified concept,
+a new HTML page will be generated for it. Observe that this does not regenerate the serach index.
+* __Compile Course__ compiles the concepts for which the generated HTML file is out of date and generates an index.
+* __Recompile Course__ compiles _all_ concepts and generates an index.
+* __Warnings__ show a list of all warnings and error messages that were produced during the last (re)compilation of the
+whole course.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+* Authoring is only enabled when the Tutor is running as a SVN checkout.
+When you are using a deployed Rascal Eclipse plugin, the abovementioned buttons will not be available.
+* There is currently no support for renaming/removing/moving concepts. This has to be done at the command line using SVN.
+
+
+Questions:
+
+       

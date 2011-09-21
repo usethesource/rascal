@@ -14,8 +14,12 @@ Description:
 The $MarkedText$ in each section of a concept is plain text.
 Some characters or text strings are used to influence the markup of the text.
 We distinguish:
-* __Structure markup__ influences the structure of the text:
+* __Structure markup__ influences the structure of the text.
 * __Inline markup__ influences the markup for characters or words.
+
+
+Markup that is not recognized by the Tutor is included in the generated HTML.
+This makes it possible to use common HTML idioms like `<blockquote>`, <bold>, etc. in concept pages.
 
 Examples:
 

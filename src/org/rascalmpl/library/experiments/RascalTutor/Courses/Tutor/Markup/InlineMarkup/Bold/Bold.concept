@@ -1,0 +1,25 @@
+Name: Bold
+
+Details:
+
+Syntax: `__ $Text$ __`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+Creates __bold__ text.
+
+Examples:
+`__bold__` gives __bold__.
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

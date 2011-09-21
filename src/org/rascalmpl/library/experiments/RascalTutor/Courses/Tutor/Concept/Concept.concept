@@ -2,9 +2,7 @@ Name: Concept
 
 Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions
 
-Syntax:
-
-
+Syntax:<br>
 `Name: $ConceptName$`
 
 `Details: $ConceptName_1$ $ConceptName_2$ ...`
@@ -36,7 +34,9 @@ Synopsis:
 Description:
 
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
-It consists of 11 named sections that we now descripe in turn. Each section starts with a keyword that should appear at the begin of a line.
+It consists of 11 named sections that we now describe in turn. 
+Each section starts with a keyword that should appear at the begin of a line.
+Only the `Name` section is mandatory.
 
 
 

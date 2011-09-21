@@ -2,7 +2,9 @@ Name: figure
 
 Details:
 
-Syntax: `<figure $FileName$> $RascalCode$ </figure>`
+Syntax: 
+* `<figure $FileName$> $RascalCode$ </figure>`
+* `<figure $FileName$ $Width$x$Height$> $RascalCode$ </figure>`
 
 Types:
 
@@ -14,6 +16,8 @@ Description:
 With figure markup it is possible to execute visualizations and to include their output in the text.
 $FileName$ is the name of the file to which the visualization will be saved.
 It can later be inserted as [image].
+Optionally, $Width$ and $Height$ can be given that define the size of the resulting figure.
+By default, the minimal size of the figue is used.
 
 Before executing the Rascal code, the following two imports are added automatically:
 <listing>

@@ -2,7 +2,7 @@ Name: screen
 
 Details:
 
-Syntax:
+Syntax:<br>
 `<screen>`<br>
 $RascalCode$<br>
 `<\screen>`
