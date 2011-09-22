@@ -22,10 +22,11 @@ One can also refer to colors by name. The full range of
 is supported.
 
 A color can be constructed using:
-* the integer value of the color
+* the integer value of the color (RGBA, 8 bits per color)
 * the [rgb] function that combines the red, green and blue ingredient into an integer representation of the color.
 * the [color] function that maps color names to color values.
 * the [gray] function that creates gray scale values.
+# the [arbColor] function that creates an arbitrary color.
 
 
 The following properties use colors:

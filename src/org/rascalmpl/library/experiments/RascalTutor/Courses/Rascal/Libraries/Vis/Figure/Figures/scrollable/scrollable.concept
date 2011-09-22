@@ -1,0 +1,36 @@
+Name: scrollable
+
+Details:
+
+Syntax:
+
+Types:
+
+Function:
+`Figure scrollable(Figure f, FProperty props ...)`
+
+Synopsis:
+
+Description:
+
+Embeds figure `f` in a scrollable plane. If the space for the scrollable is too small to show the enitire figure `f` then scrollbars will apear. The minimal size of the `scrollable` is the minium size required to show the scrollbars.
+
+See also [hscrollable] and [vscrollable].
+
+Examples:
+
+<figure s1.png 250x250>
+box1 = box(size(2000), fillColor("Blue"));
+sb = scrollable(box1,shrink(0.5));
+render(box(sb,fillColor("red")));
+</figure>
+![s1](s1.png)
+
+
+Benefits:
+
+Pitfalls:
+
+When rendering on-screen the figure is always displayed in a scrollable area. Thus using a scrollable as a toplevel figure makes little sense, as there is no observable difference between `render(scrollable(g))` and `render(g)`.
+
+Questions:

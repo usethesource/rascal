@@ -21,6 +21,8 @@ Our bin packing algorithm is inspired by [LightMaps](http://www.blackpawn.com/te
 The size computation is automatic and attempts to obtain a rectangular image close to a square.
 The gap property is used for the distance between figures.
 
+When the vertical size available is too small, a vertical scrollbar will appear. 
+
 Examples:
 <figure p1.png 200x200>
 b1 = box(size(20,30), fillColor("Red"));

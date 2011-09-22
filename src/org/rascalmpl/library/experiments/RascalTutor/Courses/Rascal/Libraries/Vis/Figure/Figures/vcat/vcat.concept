@@ -14,44 +14,43 @@ Function:
 
 Synopsis:
 
-Description: Vertical composition of a list of figures.
-By default, figures are horizontally centered but all horizontal alignment properties can overrule this.
+Description: This is a special case of [grid]. It is a [grid] with just one column. See [grid] for more information.
 
-When a vertical gap property is available, this will be used as gap between the figures.
+See also [hcat].
 
 Examples:
 
-<figure h1.png>
-b1 = box(size(50,100), resizable(false), fillColor("Red"));
-b2 = box(size(80,20), resizable(false), fillColor("Blue"));
+<figure v1.png 100x200>
+b1 = box(vshrink(0.8), fillColor("Red"));
+b2 = box(fillColor("Blue"));
 render(vcat([b1, b2]));
 </figure>
-gives: ![h1](h1.png)
+gives: ![v1](v1.png)
 
-<figure h2.png>
-b1 = box(size(50,100), resizable(false), fillColor("Red"), left());
-b2 = box(size(80,20), resizable(false), fillColor("Blue"), left());
+<figure v2.png 100x200>
+b1 = box(hshrink(0.5), fillColor("Red"), left());
+b2 = box(hshrink(1.0),fillColor("Blue"));
 render(vcat([b1, b2]));
 </figure>
-gives: ![h2](h2.png)
+gives: ![v2](v2.png)
 
 
-<figure h3.png>
-b1 = box(size(50,100), resizable(false), fillColor("Red"), right());
-b2 = box(size(80,20), resizable(false), fillColor("Blue"), right());
+<figure v3.png 100x200>
+b1 = box(hshrink(0.5), fillColor("Red"), right());
+b2 = box(hshrink(1.0),fillColor("Blue"));
 render(vcat([b1, b2]));
 </figure>
-gives: ![h3](h3.png)
+gives: ![v3](v3.png)
 
 When several child figures are involved, it is more convenient to change
 the standard alignment for them using [std].
-<figure h4.png>
-b1 = box(size(50,100), resizable(false), fillColor("Red"));
-b2 = box(size(80,20), resizable(false), fillColor("Blue"));
-b3 = box(size(80,20), resizable(false), fillColor("Yellow"));
-render(vcat([b1, b2, b3], std(left()), vgap(10)));
+<figure v5.png 100x200>
+b1 = box(hshrink(0.7), fillColor("Red"));
+b2 = box(hshrink(1.0),vshrink(0.5), fillColor("Blue"));
+b3 = box(hshrink(0.5), fillColor("Yellow"));
+render(vcat([b1, b2, b3], std(left()), vgrow(1.1)));
 </figure>
-gives: ![h4](h4.png)
+gives: ![v5](v5.png)
 
 
 Benefits:

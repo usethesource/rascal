@@ -14,55 +14,46 @@ Function:
 Synopsis:
 
 Description: Horizontal composition of a list of figures.
-By default, all figures are vertically aligned but all vertical alignment properties can overrule this.
 
-When a horizontal gap property is available, this will be used as gap between the figures.
+This is a special case of [grid]. It is a grid with just one row. See [grid] for more information.
+
+See also [vcat].
 
 Examples:
-<figure h1.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20),  fillColor("Blue"));
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3], std(resizable(false))));
+<figure h1.png 300x100>
+b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"));
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
 </figure>
 gives: ![h1](h1.png)
 
 `b2` aligned at the top:
-<figure h2.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"), top());
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3],  std(resizable(false))));
+<figure h2.png 300x100>
+b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"),top());
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
 </figure>
 gives: ![h2](h2.png)
 
 `b2` aligned at the bottom:
-<figure h3.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"), bottom());
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3], std(resizable(false))));
+<figure h3.png 300x100>
+b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"),bottom());
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
 </figure>
 gives: ![h3](h3.png)
 
 All boxes aligned at the bottom:
-<figure h4.png>
-b1 = box(size(50,100), fillColor("Red"));
-b2 = box(size(80,20), fillColor("Blue"));
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3], std(resizable(false)), std(bottom())));
+<figure h6.png 300x100>
+b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8), fillColor("Blue"));
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3],std(bottom())));
 </figure>
-gives: ![h4](h4.png)
-
-We can also shrink each box in relative to the space that is allocated for it by `hcat`:
-<figure h5.png>
-b1 = box(size(50,100), fillColor("Red"), hshrink(0.8));
-b2 = box(size(80,20), fillColor("Blue"), hshrink(0.5));
-b3 = box(size(80,20), fillColor("Yellow"));
-render(hcat([b1, b2, b3], std(resizable(false)), std(bottom())));
-</figure>
-gives: ![h5](h5.png)
-
+gives: ![h6](h6.png)
 
 Benefits:
 
