@@ -290,13 +290,16 @@ private str markupRestLine(str line){
        insert (size(op1) == 1) ? i(text) : b(text);
     }
     
-    case /^`<c:[^`]*>`/ => code(markupCode(c))
+    case /^`<c:[^`]*>`/ => (size(c) == 0) ? "`" : code(markupCode(c))
     
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
     
     case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
     
     case /^\[<concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(conceptPath, concept); }
+    
+    case /^\[<course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
+         {insert showOtherCourse(conceptPath, course, concept); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -315,9 +318,9 @@ private str markupRestLine(str line){
     
     case /^\</ => "&lt;"
     
-    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"/images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"Courses/<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"/Courses/<conceptPath>/<file>\"\>"
     
    };
 }
@@ -368,6 +371,7 @@ private str markupListing(list[str] lines){
 private str markupCode(str text){
   return visit(text){
     case /^\</   => "&lt;"
+    case /^\\ /  => "&nbsp;"
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
