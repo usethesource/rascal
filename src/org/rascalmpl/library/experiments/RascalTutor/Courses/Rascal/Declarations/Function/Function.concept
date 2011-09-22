@@ -5,9 +5,13 @@ Details:
 Categories: Language
 
 Syntax: 
-# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`
-# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Statement$`
-# `$Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) throws $Exception_1$, $Exception_2$, ... $Statement$ `
+# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`
+# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Statement$`
+# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) throws $Exception_1$, $Exception_2$, ... $Statement$`
+
+
+where `$Modifiers$` may be:
+* `("public" | "private")? ("java" | "test")?`
 
 Types:
 
@@ -36,6 +40,19 @@ The exceptions that can be thrown by a function can be (optionally) declared as 
 === Parameterized types in function declaration ===
 The types that occur in function declarations may also contain [TypeParameters].
 In this way functions can be defined for arbitrary types. The type variable is bound at the moment the function is called.
+
+<warning> Pattern-directed invocation not yet described</warning>
+
+=== Modifiers ===
+The $Modifiers$ affect _visibility_ and _special behaviour_ of functions:
+* _Visibility_: `private` declares that a function is only visible in the current module. 
+  `public` declares that it is visible outside the module as well. When visibility is not specified, `private` is assumed.
+* _ Special Behaviour`:
+  * `java` declares that the body of the function is implemented in Java. The function should have a
+    `javaClass` annotation that determines where the Java implementation can be found.
+  * `test` declares that this is a test function. A test function is a boolean function (currently) withou arguments. 
+    It can be called as any other function. However, it can also be called automatically
+    by the unit test framework, by typing `:test` at the command line, see [Help].
 
 
 Examples:
