@@ -304,7 +304,7 @@ public str editMenu(ConceptName cn){
           (editingAllowed ?
               "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
                [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New Subconcept\</b\>\</a\>] |
-               [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>\"\>\<b\>Check Course\</b\>\</a\>] |
+               [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>\"\>\<b\>Compile Course\</b\>\</a\>] |
                [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>&flags=regenerate\"\>\<b\>Recompile Course\</b\>\</a\>] |
                [\<a id=\"warnAction\" href=\"<warnings>\"\>\<b\>Warnings\</b\>\</a\>]"
               : "")
