@@ -4,6 +4,7 @@ package org.rascalmpl.library.vis.figure.combine;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.GAP;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import org.rascalmpl.library.vis.figure.Figure;
@@ -46,6 +47,7 @@ public abstract class WithInnerFig extends Figure {
 		if(innerFig!=null){ 
 			for(Dimension d : HOR_VER){
 				minSize.set(d, innerFig.minSize.get(d) * getGrowFactor(d));
+				minSize.setMax(d, innerFig.minSize.get(d) + 2 * prop.get2DReal(d, GAP));
 				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){
 					resizable.set(d,false);
 				}
@@ -58,6 +60,7 @@ public abstract class WithInnerFig extends Figure {
 		if(innerFig == null) return;
 		for(Dimension d : HOR_VER){
 				double innerDesiredWidth =  size.get(d) / getGrowFactor(d);
+				innerDesiredWidth = Math.min(size.get(d) - 2 * prop.get2DReal(d, GAP), innerDesiredWidth);
 				innerFig.size.set(d, innerDesiredWidth);
 				innerFig.location.set(d, (size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
 		}
