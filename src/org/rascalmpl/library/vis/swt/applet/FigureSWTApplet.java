@@ -42,7 +42,7 @@ public class FigureSWTApplet extends Composite
 	implements IFigureConstructionEnv, DisposeListener{
 
 
-	private static final int SWT_FLAGS = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.NO_BACKGROUND | SWT.NO_MERGE_PAINTS ;
+	private static final int SWT_FLAGS = SWT.BORDER | SWT.NO_BACKGROUND | SWT.NO_MERGE_PAINTS ;
 	private List<FigureSWTApplet> children;
 	private Figure figure; 
 	private FigureExecutionEnvironment env;
@@ -58,8 +58,19 @@ public class FigureSWTApplet extends Composite
 		this(parent,cfig,env,true,true);
 	}
 	
+	static int getFlags(boolean hscroll,boolean vscroll){
+		int result = SWT_FLAGS;
+		if(hscroll) {
+			result = result | SWT.H_SCROLL;
+		} 
+		if(vscroll){
+			result = result | SWT.V_SCROLL;
+		}
+		return result;
+	}
+	
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env,boolean hscroll,boolean vscroll) {
-		super(parent, SWT_FLAGS);
+		super(parent, getFlags(hscroll,vscroll));
 		this.env = env;
 		runTimePropertyAdjuster = new RunTimePropertyAdjuster(this);
 		children = new ArrayList<FigureSWTApplet>();
@@ -75,8 +86,8 @@ public class FigureSWTApplet extends Composite
 
 		addPaintListener(viewPortHandler);
 		addControlListener(viewPortHandler);
-		getHorizontalBar().addSelectionListener(viewPortHandler);
-		getVerticalBar().addSelectionListener(viewPortHandler);
+		//getHorizontalBar().addSelectionListener(viewPortHandler);
+		//getVerticalBar().addSelectionListener(viewPortHandler);
 		addMouseListener(inputHandler);
 		addMouseMoveListener(inputHandler);
 		addMouseTrackListener(inputHandler);

@@ -20,7 +20,7 @@ callback `vcallback` is called. Typically, the callback causes a state change in
 
 Examples:
 
-<figure b1.png>
+<figure b1.png 200x100>
 public Figure inc(){
   int n = 0;
   return vcat([ button("Increment", void(){n += 1;}),
@@ -30,8 +30,6 @@ public Figure inc(){
 render(inc());
 </figure>
 ![b1](b1.png)
-
-<warning> no figure dumped</warning>
 
 Clicking the button will increment the value of `n`.
 

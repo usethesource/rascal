@@ -65,8 +65,6 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	@Override
 	public void resizeElement(Rectangle view) {
 		
-		
-		
 	}
 
 	@Override

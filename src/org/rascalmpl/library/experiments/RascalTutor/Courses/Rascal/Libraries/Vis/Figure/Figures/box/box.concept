@@ -38,7 +38,7 @@ The result is: ![box1](box1.png)
 Note that:
 * Box `b0` contains box `b1`.
 * The dimensions of `b1` are determined by  shrinking to 80% of the dimensions of `b0`.
-
+ 
 
 The placement of an inner figure is determined by alignment, see [align]. 
 We can, for instance, place `b1` in the top left corner of `b0`:
@@ -65,6 +65,12 @@ render(b2);
 </figure>
 The result is: ![box4](box4.png)
 
+If no sizes are given at all then the box will expand to fill the available size:
+
+<figure box5.png 400x400>
+render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
+</figure>
+The result is: ![box5](box5.png)
 Benefits:
 
 Pitfalls:

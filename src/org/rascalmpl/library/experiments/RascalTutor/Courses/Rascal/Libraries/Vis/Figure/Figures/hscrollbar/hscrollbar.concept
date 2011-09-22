@@ -19,8 +19,8 @@ Also see [scrollbar] and [vscrollbar].
 
 Examples:
 
-<figure s1.png>
-box1 = box(size(200,100), fillColor("Blue"), resizable(false));
+<figure s1.png 100x100>
+box1 = box(size(200,200), fillColor("Blue"), resizable(false));
 render(hscrollbar(box1));
 </figure>
 ![s1](s1.png)

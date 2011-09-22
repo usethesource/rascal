@@ -8,26 +8,29 @@ Syntax:
 
 Types:
 
-Function: `void renderSave(Figure fig, loc file)`
+Function: 
+#`void renderSave(loc file, Figure fig )`
+#`void renderSave(loc file,  int width, int height, Figure fig)`
 
 Synopsis:
 
 Description:
 Render figure `fig` and write it to the location `file`.
-The file name extension determines the output format. Currently supported formats are:
-* `.png`: PNG
-* `.tiff`: TIFF
-* `.jpeg`: JPEG
+Currently we only support writing files in png (.png) format.
+
+If no width and height are given the size of the resulting image will be the minimal size required to view the figure. 
+
+If a width and height is given then the image will be at least that size. More precisely if the minimum size of the figure is smaller than the given size then the figure will be resized to fit in the given size. If the minium size of the figure is greater than the given size then the image will be the minimum size required to view the figure.
 
 Examples:
 
 Benefits:
 
-Pitfalls:
-Rendering to file is not yet perfect:
-* In some cases the screen picture and the picture that is written
-to fileare not 100% identical.
-* The rendering of fonts is really bad.
+Pitfalls: 
+# Only works inside Eclipse.
+# Some figures have a minimal size of 0, for example: `box(ellipse())`. No part of the figure has an inherent minimal size greater than zero.  When using `renderSave` without specifing a size on such figures a image of size 0x0 (the minimal size) will be rendered. The sollution is then to specifify a width and height. 
+
+Figures that do not have minimal size 0 are figure where a part of the figure has an inherent minimal size, such as a text element (the minimal size of the text element is the minimal size required to show it in the given fontSize). For example `box(box(text("jada"),grow(1.2)),grow(1.2))`
 
 Questions:
 

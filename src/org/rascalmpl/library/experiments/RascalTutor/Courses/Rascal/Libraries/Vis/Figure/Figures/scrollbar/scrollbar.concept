@@ -19,7 +19,7 @@ Use [hscrollbar] or [vscrollbar] to add a scrollbar in only one dimension.
 
 Examples:
 
-<figure s1.png>
+<figure s1.png 400x400>
 box1 = box(size(200,100), fillColor("Blue"));
 render(scrollbar(box1));
 </figure>

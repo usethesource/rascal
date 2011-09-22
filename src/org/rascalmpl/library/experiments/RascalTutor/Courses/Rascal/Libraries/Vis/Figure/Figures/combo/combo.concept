@@ -19,6 +19,18 @@ called with that choice as argument.
 
 Examples:
 
+<figure combo1.png 200x100>
+public Figure comboTest(){
+  str state = "A";
+  return vcat([ combo(["A","B","C","D"], void(str s){ state = s;}),
+                text(str(){return "Current state: " + state ;}, left())
+              ]);
+}
+render(comboTest());
+</figure>
+![combo1](combo1.png)
+
+
 Benefits:
 
 Pitfalls:
