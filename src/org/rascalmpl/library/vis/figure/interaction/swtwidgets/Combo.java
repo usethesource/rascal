@@ -37,6 +37,7 @@ public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 		 for(String s : choices){
 			 combo.add(s);
 		 }
+		 combo.select(0);
 		combo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				doCallback();
