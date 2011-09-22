@@ -34,7 +34,7 @@ Examples:
 Benefits:
 
 Pitfalls:
-Do not use choice in mouseOvers, since they are not yet properly removed when the mouseOver disappears.
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [onMouseOver].
 
 Questions:
 

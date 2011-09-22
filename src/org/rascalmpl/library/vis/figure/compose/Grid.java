@@ -125,6 +125,7 @@ public class Grid extends Compose {
 		minWidth = Math.max(minWidthWithGaps, minWidthWithGrow);
 		
 		if(nrUnresizableColumns.get(d) == 1 && getNrColumns(d) == 1){
+			
 			resizable.set(d,false);
 		}
 		this.minSize.set(d, minWidth);

@@ -33,7 +33,9 @@ render(comboTest());
 
 Benefits:
 
-Pitfalls:
+Pitfalls: 
+
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [onMouseOver].
 
 Questions:
 

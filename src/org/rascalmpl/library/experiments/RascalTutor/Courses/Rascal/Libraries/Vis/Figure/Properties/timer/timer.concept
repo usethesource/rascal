@@ -1,0 +1,32 @@
+Name: timer
+
+Details: 
+
+
+
+Categories: Library
+
+Syntax: 
+
+Types:
+
+Function: `FProperty timer (TimerAction (TimerInfo) ti, void () cbb)`
+
+Synopsis: 
+
+Description:
+
+`data TimerInfo  = stopped(int timeSinceLast) 
+				| running(int timeLeft);
+				
+data TimerAction = restart(int delay)
+				 | stop()
+				 | noChange();`
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:

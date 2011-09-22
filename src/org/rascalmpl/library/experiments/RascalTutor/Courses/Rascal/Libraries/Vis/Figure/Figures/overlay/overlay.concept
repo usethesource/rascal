@@ -15,7 +15,6 @@ Synopsis:
 
 Description:
 Composition of a list of figures by overlaying them on top of each other.
-Figure are aligned according to their own anchor point.
 Alignment gives detailed control over the position of figures in an overlay.
 This can be used to create arbitrary shapes. These shapes can be further controlled
 by 
@@ -25,44 +24,44 @@ by
 * using [fillColor] to define the area color of the closed shape.
 
 Examples:
-<figure o1.png>
-b1 = box(size(80,50), fillColor("Red"));
-b2 = box(size(50,30), fillColor("Blue"));
-b3 = box(size(20,50), fillColor("Yellow"));
-render(overlay([b1, b2, b3], std(resizable(false))));
+<figure o1.png 150x150>
+b1 = box(shrink(1.0,1.0), fillColor("Red"));
+b2 = box(shrink(0.3,0.5), fillColor("Blue"));
+b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
+render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o1](o1.png)
 
-<figure o2.png>
-b1 = box(size(80,50), fillColor("Red"));
-b2 = box(size(50,30), fillColor("Blue"), top(), right());
-b3 = box(size(20,50), fillColor("Yellow"));
-render(overlay([b1, b2, b3], std(resizable(false))));
+<figure o2.png 150x150>
+b1 = box(shrink(1.0,1.0), fillColor("Red"));
+b2 = box(shrink(0.3,0.5), fillColor("Blue"),top(),right());
+b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
+render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o2](o2.png)
 
-<figure o3.png>
-b1 = box(size(80,50), fillColor("Red"));
-b2 = box(size(50,30), fillColor("Blue"), bottom(), left());
-b3 = box(size(20,50), fillColor("Yellow"));
-render(overlay([b1, b2, b3], std(resizable(false))));
+<figure o3.png 150x150>
+b1 = box(shrink(1.0,1.0), fillColor("Red"));
+b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
+b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
+render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o3](o3.png)
 
-<figure o4.png>
-b1 = box(size(80,50), fillColor("Red"));
-b2 = box(size(50,30), fillColor("Blue"),  bottom(), left());
-b3 = box(size(20,50), fillColor("Yellow"), right());
-render(overlay([b1, b2, b3], std(resizable(false))));
+<figure o4.png 150x150>
+b1 = box(shrink(1.0,1.0), fillColor("Red"));
+b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
+b3 = box(shrink(0.1,0.7), fillColor("Yellow"),right());
+render(overlay([b1, b2, b3]));
 </figure>
 gives: ![o4](o4.png)
 
 Alignment gives detailed control over the position of figures in an overlay. 
 
-<figure o5.png>
+<figure o5.png 200x200>
 Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
-ovl = overlay([point(x,y) | <x,y> <- coords], size(200));
+ovl = overlay([point(x,y) | <x,y> <- coords]);
 render(ovl);
 </figure>
 gives: 
@@ -71,11 +70,10 @@ gives:
 
 The overlayed figures can be connected by using [shapeConnected]:
 
-<figure o6.png>
+<figure o6.png 200x200>
 Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 list[tuple[num,num]] coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
-ovl = overlay([point(x,y) | <x,y> <- coords], size(200), 
-                                              shapeConnected(true));
+ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true));
 render(ovl);
 </figure>
 gives: 
@@ -83,11 +81,10 @@ gives:
 ![o6](o6.png)
 
 The next enhancement is to close the begin and end points of the shape, using [shapeClosed]:
-<figure o7.png>
+<figure o7.png 200x200>
 Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
-ovl = overlay([point(x,y) | <x,y> <- coords], size(200), 
-                                              shapeConnected(true),
+ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                               shapeClosed(true));
 render(ovl);
 </figure>
@@ -96,11 +93,10 @@ gives:
 ![o7](o7.png)
 
 Another enhancement is to use curves to connect the figures in the shape, using [shapeCurved]:
-<figure o8.png>
+<figure o8.png 200x200>
 Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
-ovl= overlay([point(x,y) | <x,y> <- coords], size(200), 
-                                             shapeConnected(true),
+ovl= overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                              shapeClosed(true),
                                              shapeCurved(true));
 render(ovl);
@@ -110,11 +106,10 @@ gives:
 ![o8](o8.png)
 
 A final enhancement is to set the fill color of the closed shape:
-<figure o9.png>
+<figure o9.png 200x200>
 Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
-ovl = overlay([point(x,y) | <x,y> <- coords], size(200), 
-                                              shapeConnected(true),
+ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                               shapeClosed(true),
                                               shapeCurved(true),
                                               fillColor("yellow"));
@@ -124,7 +119,18 @@ gives:
 
 ![o9](o9.png)
 
+The [hconnect] and [vconnect] properties can be used to deterimine where shape will connect with the figure.
 
+<figure o10.png 200x200>
+b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
+e1 = ellipse(size(25),resizable(false),vconnect(0.0),bottom(),fillColor("green"));
+b2 = box(shrink(0.2),vconnect(0.0),hconnect(0.0),aspectRatio(1.0),top(),right(),fillColor("blue"));
+ovl = overlay([b1,e1,b2 ],shapeConnected(true),shapeClosed(true),fillColor("yellow"));
+render(ovl);
+</figure>
+gives: 
+
+![o10](o10.png)
 
 
 

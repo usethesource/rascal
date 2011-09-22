@@ -15,7 +15,6 @@ Function:
 Synopsis:
 
 Description: `tree` takes a list of nodes and a list of edges and draws a tree.
-The nodes can be arbitrary figures that should have a name (using the [id] property).
 
 Examples:
 
