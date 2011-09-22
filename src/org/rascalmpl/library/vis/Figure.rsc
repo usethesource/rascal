@@ -132,11 +132,9 @@ public Color arbColor(){
 }
 
 
-/*
 @doc{Create a list of font names}
-@javaClass{org.rascalmpl.library.vis.FigureLibrary}
+@javaClass{org.rascalmpl.library.vis.swt.SWTFontsAndColors}
 public java list[str] fontNames();
-*/
 
 /*
  * FProperty -- visual properties of visual elements
