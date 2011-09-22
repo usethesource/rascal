@@ -33,6 +33,7 @@ import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.library.vis.util.vector.TwoDimensional;
+import static org.rascalmpl.library.vis.util.vector.Dimension.*;
 
 public class ViewPortHandler implements SelectionListener, ControlListener, PaintListener, IFigureChangedListener{
 	
@@ -76,7 +77,12 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 				scrollBars.get(d).setVisible(false);
 			}
 		}
-		disposeScrollbars();
+		if(horBar != null){
+			horBar.addSelectionListener(this);
+		}
+		if(verBar != null){
+			verBar.addSelectionListener(this);
+		}
 		scrollBarsVisible = new TwoDimensional<Boolean>(false, false);
 		scrollableMinSize = new BoundingBox(MIN_SIZE + scrollbarSize.getX(), MIN_SIZE+ scrollbarSize.getY());
 		swtVisiblityMangager = new SWTElementsVisibilityManager();
@@ -87,17 +93,13 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	}
 	
 	private void setScrollbars(){
-		horBar = parent.getHorizontalBar();
-		verBar = parent.getVerticalBar();
-		scrollBars = new TwoDimensional<ScrollBar>(horBar, verBar);
-	}
-	
-	private void disposeScrollbars(){
-		for(Dimension d: HOR_VER){
-			if(scrollBars.get(d) != null){
-				scrollBars.get(d).dispose();
-			}
+		if(horBar == null || horBar.isDisposed()){
+			horBar = parent.getHorizontalBar();
 		}
+		if(verBar== null || verBar.isDisposed()){
+			verBar = parent.getVerticalBar();
+		}
+		scrollBars = new TwoDimensional<ScrollBar>(horBar, verBar);
 	}
 	
 	private void resetToMinSize(){
@@ -163,7 +165,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 				bar.setVisible(shouldBeVisible);
 			}
 		}
-		disposeScrollbars();
 	}
 	
 	private void updateScrollBars(){
@@ -183,7 +184,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			bar.setThumb(selSize);
 			bar.setSelection((int)viewPortLocation.get(d));
 		}
-		disposeScrollbars();
 	}
 	
 	private void resizeWidthDependsOnHeight(){
@@ -201,7 +201,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			scrollBars.get(minor).setVisible(false);
 		}
 		scrollBarsVisible.set(major,false);
-		disposeScrollbars();
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 		
@@ -217,6 +216,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			System.out.printf("ignoring resize while parent is disposed\n");
 			return;
 		}
+		
 		setScrollbars();
 		setScrollBarsVisiblity();
 		if(horBar != null && horBar.isVisible() != scrollBarsVisible.getX() 
@@ -230,7 +230,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		} else {
 			resetToMinSize();
 		}
-		disposeScrollbars();
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 	}
@@ -254,12 +253,13 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		for(Dimension d : HOR_VER){
 			
 			ScrollBar bar = scrollBars.get(d);
+			
 			if(bar != null){
 				viewPortLocation.set(d,bar.getSelection());
+			} else {
 			}
 		}
 		parent.requestRedraw();
-		disposeScrollbars();
 	}
 
 	@Override
@@ -361,7 +361,11 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		if(backbuffer!=null) backbuffer.dispose();
 		swtVisiblityMangager.dispose();
 		zorderManager.dispose();
-		
+		for(Dimension d: HOR_VER){
+			if(scrollBars.get(d) != null){
+				scrollBars.get(d).dispose();
+			}
+		}
 	}
 
 	@Override
