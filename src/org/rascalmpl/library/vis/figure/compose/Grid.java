@@ -3,6 +3,7 @@ package org.rascalmpl.library.vis.figure.compose;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.END_GAP;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.GAP;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.START_GAP;
 import static org.rascalmpl.library.vis.util.Util.flatten;
@@ -110,7 +111,10 @@ public class Grid extends Compose {
 		if(minWidth == -1){
 			overConstrained = true;	
 		}
-		minWidth*= prop.get2DReal(d, GROW);
+		double minWidthWithGrow = minWidth * prop.get2DReal(d, GROW);
+		double minWidthWithGaps = minWidth +  (double)nrHGaps(d) * prop.get2DReal(d, GAP);
+		minWidth = Math.max(minWidthWithGaps, minWidthWithGrow);
+		
 		if(nrUnresizableColumns.get(d) == 1 && getNrColumns(d) == 1){
 			resizable.set(d,false);
 		}
@@ -372,6 +376,7 @@ public class Grid extends Compose {
 		if(overConstrained) return;
 		
 		double spaceForColumns = size.get(d) / prop.get2DReal(d, GROW);
+		spaceForColumns = Math.min(spaceForColumns, size.get(d) - (double)nrHGaps(d) * prop.get2DReal(d, GAP));
 		double spaceLeftOver = spaceForColumns - unresizableColumnsWidth.get(d);
 		double shrinkLeftOver = (spaceLeftOver / spaceForColumns) - totalShrinkAllSetColumns.get(d);
 		double shrinkOfAutoElement = getActualShrinkOfAutoElements(shrinkLeftOver,d);
