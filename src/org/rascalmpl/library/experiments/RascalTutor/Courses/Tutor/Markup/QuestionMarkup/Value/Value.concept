@@ -1,0 +1,103 @@
+Name: Value
+
+Details:
+
+Syntax:
+* `QValue: $Expr$`
+* `QValue: $QSteps$ $Test$ $Listing$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+A value question presents a Rascal expression and poses a question about its value.
+The desired type of the expression is given by a [TypeDescriptor].
+
+The first form presents the value generated for the $TypeDescriptor$ and asks about its type.
+
+The second form allows more preparatory steps and also allows adding a listing to the question.
+
+Examples:
+
+See the effect of the following value questions in the Questions section below.
+
+===== Question 1 =====
+The following question can be paraphrased as: I give you a union of two sets of integers, what is its value?<br>
+`QValue: <A:set[int]> + <B:same[A]>`
+
+===== Question 2 =====
+The following question can be paraphrased as: What is the size of a given list of integers?<br>
+`QValue:`<br>
+`prep: import List;`<br>
+`test: size(<A:list[int]>) == <?>`<br>
+Note that the `List` module is imported as a preparatory step.
+
+===== Question 3 =====
+The following question can be paraphrased as: 
+I give you a union of integers or strings and an unknown set and the result of the union; what is the value of the unknown
+set?<br>
+`QValue:`<br>
+`make: A = set[arb[int,str]]`<br>
+`make: B = same[A]`<br>
+`expr: C = <A> + <B>`<br>
+`hint: <B>`<br>
+`test: <A> + <?> == <C>`<br>
+
+Observe that we generate values for `A` and `B` and compute the value of `C`.
+The value of `B` is the answer we are looking for, and we replace it by `<?>` in the posed test.
+When the student gives a wrong answer, we show the value of `B` as hint.
+
+===== Question 3 =====
+The following question can be paraphrased as: 
+fill in the hole in the definition of funcion find to ensure that it returns all strings that contain "o".<br>
+`QValue:`<br>
+`desc: Return the strings that contain "o".`<br>
+`list:`
+`text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];`<br>
+`public list[str] find(list[str] text){`<br>
+`  return `<br>
+`    for(s <- text)`<br>
+`      if(/o/ <- s)`<br>
+`        <?>;`<br>
+`}`<br>
+`test: find(text) == ["moi", "Mousa", "polutropon"];`<br>
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QValue: <A:set[int]> + <B:same[A]>
+
+QValue:
+prep: import List;
+test: size(<A:list[int]>) == <?>
+
+QValue:
+make: A = set[arb[int,str]]
+make: B = same[A]
+expr: C = <A> + <B>
+hint: <B>
+test: <A> + <?> == <C>
+
+QValue:
+desc: Return the strings that contain "o".
+list:
+text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
+public list[str] find(list[str] text){
+  return 
+    for(s <- text)
+      if(/o/ <- s)
+        <?>;
+}
+test: find(text) == ["moi", "Mousa", "polutropon"];
+
+
+
+
+       

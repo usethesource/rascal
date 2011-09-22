@@ -1,0 +1,27 @@
+Name: Choice
+
+Details:
+
+Syntax: `XChoice $MarkedText$ $Options$`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+Qchoice: 
+b: xxxx.
+b: aaa.
+g: zzz.
+
+       

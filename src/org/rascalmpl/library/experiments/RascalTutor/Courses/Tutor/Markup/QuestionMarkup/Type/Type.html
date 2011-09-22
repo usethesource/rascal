@@ -6,7 +6,7 @@
 
 
 <head>
-<title>Tutor/Concept/Description</title>
+<title>Tutor/Markup/QuestionMarkup/Type</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
@@ -47,9 +47,6 @@
 
       <li><a href="/Courses/Tutor/Markup/QuestionMarkup/QuestionMarkup.html">QuestionMarkup</a>
     <ul>          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Choice/Choice.html">Choice</a></li>
-          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Type/Type.html">Type</a></li>
-          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/TypeDescriptor/TypeDescriptor.html">TypeDescriptor</a></li>
-          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Value/Value.html">Value</a></li>
     </ul></li>
 
       <li><a href="/Courses/Tutor/Markup/StructureMarkup/StructureMarkup.html">StructureMarkup</a>
@@ -74,46 +71,113 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Tutor/Tutor.html">Tutor</a>/<a href="/Courses/Tutor/Concept/Concept.html">Concept</a>/<a href="/Courses/Tutor/Concept/Description/Description.html">Description</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Tutor/Tutor.html">Tutor</a>/<a href="/Courses/Tutor/Markup/Markup.html">Markup</a>/<a href="/Courses/Tutor/Markup/QuestionMarkup/QuestionMarkup.html">QuestionMarkup</a>/<a href="/Courses/Tutor/Markup/QuestionMarkup/Type/Type.html">Type</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Tutor/Concept/Description">
+    <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
 </div>
          
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>Description: <i>MarkedText</i></code>
-
+<span class="sectionHead">Syntax</span>  <ul><li> <code>QType: <i>TypeDescriptor</i></code></li>
+<li> <code>QType: <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
+</ul>
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  The <code>Description</code> section gives a concise explanation of the concept.
+<span class="sectionHead">Description</span>  A type question presents a Rascal expressions and poses a question about its type.
+ The desired type is given by a <a href="javascript:show('Tutor/Markup/QuestionMarkup/Type','TypeDescriptor')">TypeDescriptor</a>.
+ <br/>
+<br/>
+
+ The first form presents the value generated for the <code><i>TypeDescriptor</i></code> and asks about its type.
+ <br/>
+<br/>
+
+ The second form allows more preparatory steps and also allows adding a listing to the question.
 
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  The <code>Description</code> section of this concept page reads as follows:
- <br/>
-<br/>
-
- <code>Description:</code>
- <code>The </code><code>Description</code>` section gives a concise explanation of the concept.
+<span class="sectionHead">Examples</span>  See the effect of the following type questions in the Questions section below.
+  <h4> Question 1 </h4>
+ The following question can be paraphrased as: I give you an arbitrary set of integers, what is its type?<br>
+ <code>QType: &lt;A:set[int]></code>
+  <h4> Question 2 </h4>
+ The following question can be paraphrased as: I give you an addition of a set of integers, strings or reals and another set of the same type; what is the typeof the result?<br>
+ <code>QType: &lt;A:set[arb[int,str,real]]> + &lt;B:same[A]></code>
 
 </div>
+<span class="sectionHead">Questions</span> <br/>
 
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> Avoid giving examples in the <code>Description</code> section but reserve these for the <code>Examples</code> section.</li>
-<li> Do not give explicit lists of subconcepts (details) since they are already included automatically in the <code>Details</code> section in the HTML page.</li>
-</ul>
+<div id="1" class="question">
+<b>Question 1. </b>
+<span id="1good" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
+
+<span id="1bad" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback1" class="answerFeedback"></span>
+ 
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="exercise" value="1">
+<input type="hidden" name="A" value="{11, -20, 3, 5}">
+The type of <tt>{11, -20, 3, 5}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="exercise" value="1">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
 </div>
+ 
+<div id="2" class="question">
+<b>Question 2. </b>
+<span id="2good" class="answerStatus">
+<img height="25" width="25" src="/images/good.png"/>
+</span>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Tutor/Concept/Description&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Tutor/Concept/Description&new=true"><b>New Subconcept</b></a>] |
+<span id="2bad" class="answerStatus">
+<img height="25" width="25" src="/images/bad.png"/>
+</span>
+
+<span id="answerFeedback2" class="answerFeedback"></span>
+ 
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="exercise" value="2">
+<input type="hidden" name="A" value="{-3.969059284863094400}">
+<input type="hidden" name="B" value="{13.19510684474028400, -8.008295219691898800, -7.163865865303646800}">
+The type of <tt>{-3.969059284863094400} + {13.19510684474028400, -8.008295219691898800, -7.163865865303646800}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="exercise" value="2">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Type&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Type&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor&flags=regenerate"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Tutor/warnings.html"><b>Warnings</b></a>]</div>
