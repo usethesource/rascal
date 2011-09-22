@@ -86,8 +86,6 @@ public class FigureSWTApplet extends Composite
 
 		addPaintListener(viewPortHandler);
 		addControlListener(viewPortHandler);
-		//getHorizontalBar().addSelectionListener(viewPortHandler);
-		//getVerticalBar().addSelectionListener(viewPortHandler);
 		addMouseListener(inputHandler);
 		addMouseMoveListener(inputHandler);
 		addMouseTrackListener(inputHandler);
