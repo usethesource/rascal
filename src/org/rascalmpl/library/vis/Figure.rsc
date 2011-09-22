@@ -742,15 +742,15 @@ public Figure projection(Figure fig, str() id, Figure project,FProperty props ..
   return _projection(fig,id,project,props);
 }
 
-public Figure scrollbar(Figure fig, FProperty props...){
+public Figure scrollable(Figure fig, FProperty props...){
 	return _scrollable(true,true,fig,props);
 }
 
-public Figure hscrollbar(Figure fig, FProperty props...){
+public Figure hscrollable(Figure fig, FProperty props...){
 	return _scrollable(true,false,fig,props);
 }
 
-public Figure vscrollbar(Figure fig, FProperty props...){
+public Figure vscrollable(Figure fig, FProperty props...){
 	return _scrollable(false,true,fig,props);
 }
 

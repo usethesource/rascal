@@ -104,12 +104,21 @@ public class Grid extends Compose {
 		this.unresizableColumnsWidth.set(d, totalMinWidthOfUnresizableColumns(d));
 		this.totalShrinkAllSetColumns.set(d,totalShrinkAllSetColumns(d));
 		double minWidth = minWidthByUnShrinking(d);
+		if( totalShrinkAllSetColumns.get(d) == 1.0 && nrShrinkAllColumns.get(d) < getNrColumns(d)){
+			overConstrained = true;
+			return;
+		}
+		if(totalShrinkAllSetColumns.get(d) > 1.0){
+			overConstrained = true;
+			return;
+		}
 		minWidth = Math.max(minWidth,unresizableColumnsWidth.get(d)/ (1.0 - totalShrinkAllSetColumns.get(d)));
 		double maxMinWidthOfAutoElem = maxMinWidthOfAutoElement(d);
 		double shrinkLeftOver = 1.0 - totalShrinkAllSetColumns.get(d);
 		minWidth = getAutoElementsShrinkMinWidth(shrinkLeftOver,d,minWidth,maxMinWidthOfAutoElem);
 		if(minWidth == -1){
 			overConstrained = true;	
+			return;
 		}
 		double minWidthWithGrow = minWidth * prop.get2DReal(d, GROW);
 		double minWidthWithGaps = minWidth +  (double)nrHGaps(d) * prop.get2DReal(d, GAP);
