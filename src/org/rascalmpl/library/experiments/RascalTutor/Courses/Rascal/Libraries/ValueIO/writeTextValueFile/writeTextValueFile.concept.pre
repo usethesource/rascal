@@ -1,1 +1,0 @@
-concept("writeTextValueFile",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/ValueIO/writeTextValueFile/writeTextValueFile.concept|,[],[],{},"","",""," \<code\>void writeTextValueFile(loc file, value val)\</code\>\n",{}," Write a value to a file using a textual file format.\n","","","",[])
