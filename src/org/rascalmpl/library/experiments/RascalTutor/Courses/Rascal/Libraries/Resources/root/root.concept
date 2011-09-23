@@ -17,6 +17,10 @@ Description:
 Retrieve a full hierarchical representation of all resources in the Eclipse workspace.
 
 Examples:
+<screen>
+import util::Resources;
+root();
+</screen>
 
 Benefits:
 

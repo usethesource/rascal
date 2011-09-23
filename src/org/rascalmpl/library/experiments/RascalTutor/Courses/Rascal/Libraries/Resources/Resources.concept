@@ -17,7 +17,7 @@ data Resource = root(set[Resource] projects)
 
 Function:
 
-Synopsis: `import Resources;`
+Synopsis: `import util::Resources;`
 
 Description:
 The Resources library provides direct access to Eclipse projects and the resources they contain. 
@@ -52,8 +52,10 @@ namely the first 10 characters on the first line:
 |project://myProject/src/Main.java|(0,10,1,0,1,10) 
 </listing>
 
+Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:
+
 <screen>
-import Resources;
+import util::Resources;
 getProject(|project://org.eclipse.imp.pdb.values|);
 </screen>
 

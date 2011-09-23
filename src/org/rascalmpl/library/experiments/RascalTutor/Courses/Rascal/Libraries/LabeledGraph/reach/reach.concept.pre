@@ -1,1 +1,0 @@
-concept("reach",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/LabeledGraph/reach/reach.concept|,[],[],{},"","",""," \<code\>set[&amp;T] reach(LGraph[&amp;T] G, set[&amp;T] Start)\</code\>\n",{}," Returns the set of nodes in LabeledGraph \<code\>G\</code\> that are reachable from any of the nodes\n in the set \<code\>Start\</code\>.\n","","","",[])

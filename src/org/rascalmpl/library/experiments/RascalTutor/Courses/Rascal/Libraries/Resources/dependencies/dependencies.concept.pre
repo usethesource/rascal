@@ -1,1 +1,0 @@
-concept("dependencies",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Resources/dependencies/dependencies.concept|,[],[],{},"","",""," \<code\>set[loc] dependencies(loc project)\</code\>\n",{}," Computes referenced projects transitively.\n","","","",[])

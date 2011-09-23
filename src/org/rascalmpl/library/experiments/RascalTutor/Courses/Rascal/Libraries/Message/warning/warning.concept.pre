@@ -1,1 +1,0 @@
-concept("warning",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Message/warning/warning.concept|,[],[],{},"","",""," \<code\>Message warning(loc source, str msg)\</code\>\n",{}," Created a warning message.\n","","","",[])

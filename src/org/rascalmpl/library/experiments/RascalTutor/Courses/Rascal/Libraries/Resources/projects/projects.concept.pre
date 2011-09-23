@@ -1,1 +1,0 @@
-concept("projects",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Resources/projects/projects.concept|,[],[],{},"","",""," \<code\>set[loc] projects()\</code\>\n",{}," Retrieve the set of project locations of the Eclipse workspace.\n","","","",[])

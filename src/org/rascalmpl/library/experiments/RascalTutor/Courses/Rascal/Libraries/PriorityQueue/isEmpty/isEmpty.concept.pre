@@ -1,1 +1,0 @@
-concept("isEmpty",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/PriorityQueue/isEmpty/isEmpty.concept|,[],[],{},"","",""," \<code\>bool isEmpty(PriorityQueue Q)\</code\>\n",{}," Returns \<code\>true\</code\> if PriorityQueue \<code\>Q\</code\> does not contain any (priority, value) pairs.\n","","","",[])

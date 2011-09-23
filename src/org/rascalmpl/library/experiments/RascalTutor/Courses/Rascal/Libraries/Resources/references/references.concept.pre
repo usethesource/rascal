@@ -1,1 +1,0 @@
-concept("references",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/Resources/references/references.concept|,[],[],{},"","",""," \<code\>set[loc] references(loc project)\</code\>\n",{}," Find out which other projects this project references (depends on).\n","","","",[])

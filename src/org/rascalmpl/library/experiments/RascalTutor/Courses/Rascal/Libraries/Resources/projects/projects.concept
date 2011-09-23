@@ -17,6 +17,11 @@ Description:
 Retrieve the set of project locations of the Eclipse workspace.
 
 Examples:
+The following example shows the projects as they existed when this page was generated:
+<screen>
+import util::Resources;
+projects();
+</screen>
 
 Benefits:
 

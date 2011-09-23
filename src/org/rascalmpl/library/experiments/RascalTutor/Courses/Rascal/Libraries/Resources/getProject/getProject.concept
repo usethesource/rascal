@@ -20,7 +20,7 @@ Examples:
 
 <screen>
 import util::Resources;
-getProject(|project://rascal|);
+getProject(|project://org.eclipse.imp.pdb.values|);
 </screen>
 
 Benefits:

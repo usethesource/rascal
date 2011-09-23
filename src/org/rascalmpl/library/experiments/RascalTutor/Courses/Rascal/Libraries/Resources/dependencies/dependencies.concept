@@ -17,6 +17,11 @@ Description:
 Computes referenced projects transitively.
 
 Examples:
+Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:
+<screen>
+import util::Resources;
+dependencies(|project://org.eclipse.imp.pdb.values|);
+</screen>
 
 Benefits:
 
