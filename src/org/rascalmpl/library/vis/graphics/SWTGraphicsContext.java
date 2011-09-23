@@ -31,7 +31,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private Stack<Route> stackPath = new Stack<Route>();
 	private int alphaStroke = FigureColorUtils.OPAQUE, alphaFill = FigureColorUtils.OPAQUE, alphaFont = FigureColorUtils.OPAQUE;
 	private boolean shadow;
-	private boolean fill = false, stroke = true;
+	private boolean fill = true, stroke = true;
 	private boolean debug;
 	private Font currentFont;
 	private FontData currentFontData;
@@ -139,6 +139,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	}
 
 	public void fill(int arg0) {
+		fill = true;
 		alphaFill = FigureColorUtils.getAlpha(arg0);
 		int backgroundCI = FigureColorUtils.withoutAlpha(arg0);
 		if(this.backgroundCI == backgroundCI  && backgroundColor != null) return;
@@ -146,10 +147,11 @@ public class SWTGraphicsContext implements GraphicsContext {
 		disposeIfNessary(backgroundColor);
 		backgroundColor = SWTFontsAndColors.getRgbColor(arg0);
 		gc.setBackground(backgroundColor);
-		fill = true;
+		
 	}
 
 	public void stroke(int arg0) {
+		stroke = true;
 		alphaStroke = FigureColorUtils.getAlpha(arg0);
 		int foreGroundCI = FigureColorUtils.withoutAlpha(arg0);
 		if(this.foreGroundCI == foreGroundCI && foregroundColor != null) return;
@@ -157,7 +159,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		disposeIfNessary(foregroundColor);
 		foregroundColor = SWTFontsAndColors.getRgbColor(arg0);
 		gc.setForeground(foregroundColor);
-		stroke = true;
+		
 	}
 	
 	public void font(int color){
