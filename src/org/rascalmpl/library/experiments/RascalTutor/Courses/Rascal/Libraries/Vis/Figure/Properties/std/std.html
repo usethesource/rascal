@@ -641,7 +641,7 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Set <code>prop</code> as the standard property for all figures contained in the current figure.
+<span class="sectionHead">Description</span>  Set <code>prop</code> as the standard property for all figures contained in the current figure (including the figure itself).
 
 </div>
 
@@ -651,12 +651,16 @@
  <br/>
 <br/>
 
- <pre class="listing">boxes = [ box(size(50), lineColor("red")), 
-          box(size(75), lineColor("blue")), 
-          box(size(100),lineColor("yellow"))
+ <pre class="listing">boxes = [ box(lineColor("red")), 
+          box(), 
+          box(lineColor("yellow"))
         ];
-render(hcat(boxes, std(fillColor("grey")), std(lineWidth(3)), std(resizable(false))));
+render(box(hcat(boxes,shrink(0.9)),std(lineColor("blue")), std(fillColor("grey")), std(lineWidth(3))));
 </pre> <img class="TutorImg"  title="s1" alt="s1" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/std/s1.png">
+ <br/>
+<br/>
+
+ If a figure does not specifiy a certain property then the standard will be used.
 
 </div>
 

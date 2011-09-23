@@ -648,13 +648,15 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">box1 = box(size(200,100), shadow(true), shadowPos(50,50), resizable(false));
-render(box1);
+<span class="sectionHead">Examples</span>  <pre class="listing">box1 = box(shrink(0.5),shadow(true), shadowPos(50,50));
+render(space(box1));
 </pre> <img class="TutorImg"  title="s1" alt="s1" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowPos/s1.png">
- <br/>
-<br/>
 
- <warning>Shadow not taken into account for size computation</warning>
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  Shadow is not taken into account for size computation
+
 </div>
 
 <div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/shadowPos&new=false"><b>Edit</b></a>] | 

@@ -22,16 +22,14 @@ Also see [shadow] and [shadowColor].
 
 Examples:
 <figure s1.png 250x150>
-box1 = box(size(200,100), shadow(true), shadowPos(50,50), resizable(false));
-render(box1);
+box1 = box(shrink(0.5),shadow(true), shadowPos(50,50));
+render(space(box1));
 </figure>
 ![s1](s1.png)
 
-<warning>Shadow not taken into account for size computation</warning>
-
 Benefits:
 
-Pitfalls:
+Pitfalls: Shadow is not taken into account for size computation
 
 Questions:
 

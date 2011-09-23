@@ -40,17 +40,17 @@ Also see [CompositionModel].
 
 Examples:
 
-<figure a1.png>
-b1 = box(size(100,50), align(0,0), resizable(false), fillColor("Red"));
-b2 = box(b1, size(150, 100));
+<figure a1.png 150x150>
+b1 = box(shrink(0.5,0.3), align(0,0), fillColor("Red"));
+b2 = box(b1);
 render(b2);
 </figure>
 
 ![a1](a1.png)
 
-<figure a2.png>
-b1 = box(size(100,50), align(1,0), resizable(false), fillColor("Red"));
-b2 = box(b1, size(150, 100));
+<figure a2.png 150x150>
+b1 = box(shrink(0.5,0.3), align(1,1),fillColor("Red"));
+b2 = box(b1);
 render(b2);
 </figure>
 
@@ -59,8 +59,6 @@ render(b2);
 Benefits:
 
 Pitfalls:
-To avoid that `b1` will occupy the complete area of `b2`,
-[resizable] is set to true in these examples.
 
 Questions:
 

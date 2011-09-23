@@ -24,11 +24,11 @@ Also see [ColorModel].
 
 Examples:
 
-<figure fc1.png>
-b1 = box([size(50), fillColor("Red")]);
-b2 = box([size(50), fillColor("Blue")]);
-b3 = box([size(50), fillColor("Green")]);
-b4 = box([size(50), fillColor("Purple")]);
+<figure fc1.png 200x100>
+b1 = box(fillColor("Red"));
+b2 = box(fillColor("Blue"));
+b3 = box(fillColor("Green"));
+b4 = box(fillColor("Purple"));
 boxes = [b1, b2, b3, b4];
 render(hcat(boxes));
 </figure>

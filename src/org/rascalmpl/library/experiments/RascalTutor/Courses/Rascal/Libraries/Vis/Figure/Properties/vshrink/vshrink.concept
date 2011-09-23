@@ -19,9 +19,9 @@ Also see [shrink] and [hshrink].
 
 Examples:
 
-<figure s1.png>
+<figure s1.png 100x50>
 b1 = box(vshrink(0.5), fillColor("blue"));
-b2 = box(b1, size(100, 50), fillColor("yellow"));
+b2 = box(b1, fillColor("yellow"));
 render(b2);
 </figure>
 ![s1](s1.png)

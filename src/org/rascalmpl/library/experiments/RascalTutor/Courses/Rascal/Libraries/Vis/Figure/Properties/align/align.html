@@ -666,23 +666,17 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box(size(100,50), align(0,0), resizable(false), fillColor("Red"));
-b2 = box(b1, size(150, 100));
+<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box(shrink(0.5,0.3), align(0,0), fillColor("Red"));
+b2 = box(b1);
 render(b2);
 </pre> <img class="TutorImg"  title="a1" alt="a1" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/align/a1.png">
  <br/>
 <br/>
 
- <pre class="listing">b1 = box(size(100,50), align(1,0), resizable(false), fillColor("Red"));
-b2 = box(b1, size(150, 100));
+ <pre class="listing">b1 = box(shrink(0.5,0.3), align(1,1),fillColor("Red"));
+b2 = box(b1);
 render(b2);
 </pre> <img class="TutorImg"  title="a2" alt="a2" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/align/a2.png">
-
-</div>
-
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  To avoid that <code>b1</code> will occupy the complete area of <code>b2</code>,
- <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','resizable')">resizable</a> is set to true in these examples.
 
 </div>
 

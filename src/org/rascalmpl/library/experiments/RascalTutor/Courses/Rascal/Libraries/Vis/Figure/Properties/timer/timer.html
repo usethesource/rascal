@@ -640,15 +640,58 @@
 
 </div>
 
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Executes callback <code>cbb</code> after a specified time.
+
+</div>
+
 <div id="Description">
-<span class="sectionHead">Description</span>  `data TimerInfo  = stopped(int timeSinceLast) 
- 				| running(int timeLeft);
+<span class="sectionHead">Description</span>  This property allows you to execute a callback <code>cbb</code> after a specified time, and also allows you to delay, cancel and restart the timer. 
  <br/>
 <br/>
 
- data TimerAction = restart(int delay)
- 				 | stop()
- 				 | noChange();`
+ At the start and after each event (i.e. other callback) the callback <code>ti</code> will be called. This callback should have type <code>TimerAction (TimerInfo)</code>. The callback is given a <code>TimerInfo</code> structure:
+ <pre class="screen"><b>rascal></b>data TimerInfo  = stopped(int timeSinceLast) 
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;| running(int timeLeft);
+ok
+</pre> This indicates if the timer has stopped and the time since the last execution of the timer (in milliseconds, initialy 0) or if the timer is running and the time that is still left till the callback <code>cbb</code> will be executed.
+ <br/>
+<br/>
+
+ The callcack <code>ti</code> must then return a <code>TimerAction</code> which indicates what action it want to undertake:
+  <pre class="screen"><b>rascal></b>data TimerAction = restart(int delay)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; | stop()
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; | noChange();
+ok
+</pre> <ul><li> <code>restart(int delay)</code> indicates that the timer is restarted and that the callback <code>cbb</code> will be executed <code>delay</code> milliseconds from now. This can also be used to delay the timer. </li>
+<li> <code>stop()</code> indicates that the timer is cancelled.</li>
+<li> <code>noChange()</code> indicates that timer no change to the timer. </li>
+</ul>
+</div>
+
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="listing">c = false;
+void executeTimer(){
+	c = !c;
+}
+TimerAction timeAction(TimerInfo t){
+        if(stopped(_) := t){
+		return restart(300);
+	} else {
+		return noChange();
+	}
+}
+Color getColor(){
+	return c ? color("red") : color("green");
+}
+e = ellipse(fillColor(getColor), timer(timeAction,executeTimer),shrink(0.5));
+render(e);
+</pre> <img class="TutorImg"  title="timer" alt="timer" src="Courses/Rascal/Libraries/Vis/Figure/Properties/timer/timer.png">
+
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  Unfortunatly we cannot show an animated version of the figure above, try it out in rascal yourself.
 
 </div>
 

@@ -646,12 +646,12 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box([size(50), lineWidth(1)]);
-b2 = box([size(50), lineWidth(2)]);
-b3 = box([size(50), lineWidth(3)]);
-b4 = box([size(50), lineWidth(4)]);
+<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box(lineWidth(1));
+b2 = box(lineWidth(2));
+b3 = box(lineWidth(3));
+b4 = box(lineWidth(4));
 boxes = [b1, b2, b3, b4];
-render(hcat(boxes));
+render(hcat(boxes,hgrow(1.2)));
 </pre> gives:
  <img class="TutorImg"  title="h1" alt="h1" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineWidth/lw1.png">
 
