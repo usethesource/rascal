@@ -94,7 +94,13 @@ The following table specifies which properties have an effect on which figures.
 <tr><td>[fillColor]	<td> X		<td> 		<td> X		<td> X		<td> X		<td> 			<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   
 <tr><td>[fontColor]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   
 <tr><td>[font]		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   
-<tr><td>[fontSize]		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   
+<tr><td>[fontSize]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   
+<tr><td>[onKeyDown]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[onKeyUp]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[onMouseDown]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[onMouseUp]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[onMouseOver]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[onMouseUp]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   
 <tr><td>[shadow]		<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
 <tr><td>[shadowColor]	<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
 <tr><td>[shadowPos]2D	<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
