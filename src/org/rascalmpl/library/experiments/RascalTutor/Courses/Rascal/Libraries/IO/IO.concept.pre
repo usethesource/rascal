@@ -1,1 +1,0 @@
-concept("IO",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/IO/IO.concept|,[],[],{}," \<code\>import IO;\</code\>\n","","","",{}," Provides functions for the input/output of values.\n","","","",[])

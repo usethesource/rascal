@@ -1,1 +1,0 @@
-concept("IDE",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/IDE/IDE.concept|,[],[],{}," The IDE library provides access to the Eclipse IMP services to instantiate an IDE for any language you define in Rascal.\n","","","",{},"  \<warning\>to be written\</warning\>\n","","","",[])

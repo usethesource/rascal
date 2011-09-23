@@ -1,1 +1,0 @@
-concept("mkDirectory",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/IO/mkDirectory/mkDirectory.concept|,[],[],{},"","",""," \<code\>bool mkDirectory(loc file)\</code\>\n",{}," Create a directory at location \<code\>file\</code\>.\n","","","",[])

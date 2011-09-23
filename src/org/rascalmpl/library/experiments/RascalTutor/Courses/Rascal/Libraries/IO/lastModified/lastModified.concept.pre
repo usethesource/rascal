@@ -1,1 +1,0 @@
-concept("lastModified",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/IO/lastModified/lastModified.concept|,[],[],{},"","",""," \<code\>datetime lastModified(loc file)\</code\>\n",{}," Returns last modification time of the file at location \<code\>file\</code\>.\n","","","",[])
