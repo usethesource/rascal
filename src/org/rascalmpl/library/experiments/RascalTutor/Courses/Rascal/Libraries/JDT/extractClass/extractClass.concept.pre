@@ -1,1 +1,0 @@
-concept("extractClass",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractClass/extractClass.concept|,[],[],{},"","",""," \<code\>Resource extractClass(loc javaFile)\</code\>\n",{}," Import facts from a Java file.\n","","","",[])

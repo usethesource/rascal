@@ -1,1 +1,0 @@
-concept("extractFactsTransitive",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractFactsTransitive/extractFactsTransitive.concept|,[],[],{},"","",""," \<code\>Resource extractFactsTransitive(loc project)\</code\>\n",{}," Extracts facts from a Java project and all projects it depends on.\n","","","",[])

@@ -1,1 +1,0 @@
-concept("extractProject",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractProject/extractProject.concept|,[],[],{},"","",""," \<code\>Resource extractProject(loc project)\</code\>\n",{}," Import facts from a Java project.\n","","","",[])

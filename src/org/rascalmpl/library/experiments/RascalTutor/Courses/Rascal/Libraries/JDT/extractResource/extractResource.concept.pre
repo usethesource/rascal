@@ -1,1 +1,0 @@
-concept("extractResource",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractResource/extractResource.concept|,[],[],{},"","",""," \<code\>Resource extractResource(Resource res)\</code\>\n",{}," Extract Java facts from a project, file or folder\n","","","",[])

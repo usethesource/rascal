@@ -1,1 +1,0 @@
-concept("extractResources",|std:///experiments/RascalTutor/Courses/Rascal/Libraries/JDT/extractResources/extractResources.concept|,[],[],{},"","",""," \<code\>Resource extractResources(Resource receiver, set[Resource] res)\</code\>\n",{}," Extract facts from a set of resources \<code\>res\</code\> and merge them with a given Resource \<code\>receiver\</code\>.\n","","","",[])
