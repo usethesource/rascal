@@ -246,9 +246,9 @@ data FProperty =
 	|shadow     (bool     b  )
 	|shadow     (bool()   cb )
 	|shadow     (Measure  mv )
-	|spread     (bool     b  )
-	|spread     (bool()   cb )
-	|spread     (Measure  mv )
+	|justify    (bool     b  )
+	|justify    (bool()   cb )
+	|justify    (Measure  mv )
 	|manhattan  (bool     b  )
 	|manhattan  (bool()   cb )
 	|manhattan  (Measure  mv )
@@ -361,9 +361,12 @@ data FProperty =
 	|dir        (str      s  )
 	|dir        (str()    cs )
 	|dir        (Measure  mv )
-	|onClick    (bool ()  h0 )
-	|onMouseMove(void (bool) h1 )
-	|onKey      (bool (KeySym, bool, map[KeyModifier,bool]) h2 )
+	|onMouseDown(bool (int,map[KeyModifier,bool]) h0 )
+	|onMouseUp  (bool (int,map[KeyModifier,bool]) h1 )
+	|onMouseOver(void ()  h2 )
+	|onMouseOff (void ()  h3 )
+	|onKeyDown  (bool (KeySym, map[KeyModifier,bool]) h4 )
+	|onKeyUp    (bool (KeySym, map[KeyModifier,bool]) h5 )
 ;
 
 public FProperty resizable  (bool     b  ){ return unpack([hresizable (b  ),vresizable (b  )]); }
