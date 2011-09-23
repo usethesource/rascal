@@ -472,6 +472,13 @@ public abstract class Figure implements Comparable<Figure> {
 	 */
 	public void connectArrowFrom(double left, double top, double X, double Y,
 			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+	
+	//	for(Dimension d : HOR_VER){
+	//		toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
+	//	}
+	//	toArrow.size.set(toArrow.minSize);
+	//	toArrow.resize(null, new TransformMatrix());
+		
 		if (fromX == X)
 			fromX += 0.00001;
 		double s = (fromY - Y) / (fromX - X);
@@ -514,7 +521,7 @@ public abstract class Figure implements Comparable<Figure> {
 			gc.pushMatrix();
 			gc.translate(left + IX, top + IY);
 			gc.rotate(FigureMath.radians(-90) + theta);
-			//toArrow.drawElemen(gc,visibleSWTElements); TODO: fixme!!!
+			toArrow.drawElement(gc,visibleSWTElements); //TODO: fixme!!!
 			gc.popMatrix();
 		}
 	}
