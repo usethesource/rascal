@@ -77,12 +77,12 @@ public class KeySymTranslate {
 	static final Type[] modifiers = {KeyModifier_modCtrl,KeyModifier_modCommand,KeyModifier_modAlt,KeyModifier_modShift};
 	static final int[] modifiersSWT = {SWT.CTRL, SWT.COMMAND, SWT.ALT, SWT.SHIFT };
 	
-	public static IMap toRascalModifiers(KeyEvent e,IMap prevMap,IEvaluatorContext ctx){
+	public static IMap toRascalModifiers(int stateMask,IMap prevMap,IEvaluatorContext ctx){
 		ValueFactory vf = ValueFactory.getInstance();
 		for(int i = 0 ; i < modifiers.length ;i++){
 			Type controlType = modifiers[i];
 			IValue cons = vf.constructor(controlType);
-			prevMap = prevMap.put(cons, vf.bool((e.stateMask & modifiersSWT[i]) != 0));
+			prevMap = prevMap.put(cons, vf.bool((stateMask & modifiersSWT[i]) != 0));
 		}
 		return prevMap;
 	}

@@ -29,8 +29,6 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	
 	@SuppressWarnings({ "unchecked", "unused" })
 	private static final BogusList<Figure> bogusFigureList = (BogusList<Figure>)BogusList.instance;
-	private static final IBool pdbTrue = ValueFactory.getInstance().bool(true);
-	private static final IBool pdbFalse = ValueFactory.getInstance().bool(false);
 	private static IMap keyboardModifierMap = 
 			ValueFactoryFactory.getValueFactory().map(KeySym.KeyModifier, TypeFactory.getInstance().boolType()); // there is only 1 keyboard , hence static
 	private List<Figure> figuresUnderMouse;  // the figures under mouse from front to back
@@ -118,11 +116,11 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 		env.beginCallbackBatch();
 		for(Figure fig : noLongerUnderMouse){
 			fig.mouseOver = false;
-			fig.executeMouseMoveHandlers(env, pdbFalse);
+			fig.executeMouseMoveHandlers(env, false);
 		}
 		for(Figure fig : newUnderMouse){
 			fig.mouseOver = true;
-			fig.executeMouseMoveHandlers(env, pdbTrue);
+			fig.executeMouseMoveHandlers(env, true);
 		}
 		env.endCallbackBatch(false);
 	
@@ -135,11 +133,11 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 	}
 	
 
-	private void handleKey(KeyEvent e,IBool down){
+	private void handleKey(KeyEvent e,boolean down){
 		boolean captured = false;
 		env.beginCallbackBatch();
 		IValue keySym = KeySymTranslate.toRascalKey(e, env.getRascalContext());
-		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e, keyboardModifierMap, env.getRascalContext());
+		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e.stateMask, keyboardModifierMap, env.getRascalContext());
 		for(Figure fig : figuresUnderMouse){
 			if(fig.executeKeyHandlers(env, keySym, down, keyboardModifierMap)){
 				captured = true;
@@ -156,19 +154,19 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		handleKey(e, ValueFactory.getInstance().bool(true));
+		handleKey(e, true);
 		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		//handleKey(e,pdbFalse);
+		handleKey(e,false);
 	}
 
 	@Override
 	public void mouseMove(MouseEvent e) {
 		mouseLocation.set(e.x,e.y);
-
+		
 		parent.translateFromViewPortToFigure(mouseLocation);
 		handleMouseMove();
 		
@@ -180,13 +178,22 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 
 	@Override
 	public void mouseDown(MouseEvent e) {
+		env.beginCallbackBatch();
+		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e.stateMask, keyboardModifierMap, env.getRascalContext());
+		for(Figure fig : figuresUnderMouse){
+			if(fig.executeOnClick(env,e.button,keyboardModifierMap,true)){
+				break;
+			}
+		}
+		env.endCallbackBatch();
 	}
 
 	@Override
 	public void mouseUp(MouseEvent e) {
 		env.beginCallbackBatch();
+		keyboardModifierMap = KeySymTranslate.toRascalModifiers(e.stateMask, keyboardModifierMap, env.getRascalContext());
 		for(Figure fig : figuresUnderMouse){
-			if(fig.executeOnClick(env)){
+			if(fig.executeOnClick(env,e.button,keyboardModifierMap,false)){
 				break;
 			}
 		}
