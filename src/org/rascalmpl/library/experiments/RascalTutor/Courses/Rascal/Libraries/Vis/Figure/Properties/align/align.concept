@@ -35,6 +35,7 @@ A number of shorthands is provided for common alignment values:
 | `center()`  | `align(0.5, 0.5)` | [Properties/center]  |
 
 
+
 Also see [CompositionModel].
 
 Examples:
