@@ -309,37 +309,37 @@ public class LayeredGraphEdge extends Figure {
 					
 					if(toArrow != null){
 						if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-						//getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
-						//		getFrom().figX(), getFrom().figY(),
-						//		getTo().figX(), getTo().figY(), 
-						//		toArrow,gc
-						//);
+						getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
+								getFrom().figX(), getFrom().figY(),
+								getTo().figX(), getTo().figY(), 
+								toArrow,gc, visibleSWTElements
+						);
 					}
 						
 					if(fromArrow != null){
 						if(debug)System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
-						//getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
-						//		getTo().figX(), getTo().figY(),
-						//		getFrom().figX(), getFrom().figY(), 
-						//		fromArrow,gc
-						//);
+						getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+								getTo().figX(), getTo().figY(),
+								getFrom().figX(), getFrom().figY(), 
+								fromArrow,gc, visibleSWTElements
+						);
 					}
 				} else {
 					if(debug)System.err.println("Drawing to arrow to " + getTo().name);
 					if(toArrow != null){
-						//getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
-						//	getTo().figX(), getTo().figY(), 
-						//	getFrom().figX(), getFrom().figY(),
-						//	toArrow,gc
-						//);
+						getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+							getTo().figX(), getTo().figY(), 
+							getFrom().figX(), getFrom().figY(),
+							toArrow,gc, visibleSWTElements
+						);
 					}
 					if(fromArrow != null){
 						if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
-					    //getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
-						//	getFrom().figX(), getFrom().figY(), 
-						//	getTo().figX(), getTo().figY(),
-						//	fromArrow,gc
-					    //);
+					    getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
+							getFrom().figX(), getFrom().figY(), 
+							getTo().figX(), getTo().figY(),
+							fromArrow,gc, visibleSWTElements
+					    );
 					}
 				}
 			}

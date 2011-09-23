@@ -66,7 +66,7 @@ public class LayeredGraph extends Figure {
 	double hgap;
 	double vgap;
 	double MAXWIDTH;
-	private static final int INFINITY = 1000000;
+	private static final int INFINITY = Integer.MAX_VALUE;
 	
 	private static final boolean debug = true;
 	private static final boolean printGraph = false;
@@ -141,14 +141,14 @@ public class LayeredGraph extends Figure {
 					if(debug)System.err.println("Found reverse edge");
 					
 					Figure toArrow = e.toArrow;
-					//if(toArrow != null)
-					//	children.add(toArrow);
+					if(toArrow != null)
+						children.add(toArrow);
 					if(toArrow != null && other.fromArrow == null)
 						other.fromArrow = toArrow;
 					
 					Figure fromArrow = e.fromArrow;
-					//if(fromArrow != null)
-					//	children.add(fromArrow);
+					if(fromArrow != null)
+						children.add(fromArrow);
 					
 					if(fromArrow != null && other.toArrow == null)
 						other.toArrow = fromArrow;
@@ -1460,7 +1460,7 @@ public class LayeredGraph extends Figure {
 		translateToOrigin();
 		//switchWidthAndHeight();
 		rotateToDirection();
-		minSize.set(400, 400);
+		minSize.set(400, 400); //TODO compute real min size.
 	}
 
 	@Override
