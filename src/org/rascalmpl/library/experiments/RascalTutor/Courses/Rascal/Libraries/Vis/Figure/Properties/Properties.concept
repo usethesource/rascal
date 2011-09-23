@@ -55,6 +55,15 @@ Properties can be classified as follows:
 * __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
 * __Interacting__: [resizable], [onClick], [onMouseMove], [onMouseOver], [onKey].
 
+
+Most properties use dimensions that are _relative_ to their parent or children. The exceptions are
+* [size], [hsize] and [vsize] set a __minimal size__ in pixels.
+* [gap], [hgap] and [vgap] set __a minimal gap size__ in pixels.
+
+
+If the figure in which these properties occur is not [resizable], then the given absolute values are respected.
+Otherwise they act as minimal value and may become larger in the resized figure.
+
 Examples:
 Just a few examples to show the spirit:
 * `size(10, 20)` sets the `size` property to 10 (horizontally), respectively 20 (vertically).
