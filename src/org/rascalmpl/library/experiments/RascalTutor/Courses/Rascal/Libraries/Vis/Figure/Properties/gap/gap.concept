@@ -15,7 +15,7 @@ Function:
 Synopsis:
 
 Description:
-Set the horizontal gap between figures to `h` and the vertical gap to `v`. 
+Set the minimal horizontal gap between figures to `h` and the minimal vertical gap to `v`. 
 
 Also see [hgap] and [vgap].
 
@@ -31,8 +31,6 @@ b3 = box(size(50), fillColor("green"), resizable(false));
 render(hcat([b1, b2, b2], gap(50)));
 </figure>
 ![g1](g1.png)
-
-<warning> gap? </warning>
 
 Benefits:
 

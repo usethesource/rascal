@@ -15,7 +15,7 @@ Function:
 Synopsis: 
 
 Description:
-Set the vertical gap between figures.
+Set the minimal vertical gap between figures.
 See [gap].
 
 Examples:
