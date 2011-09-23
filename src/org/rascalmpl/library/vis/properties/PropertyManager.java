@@ -118,6 +118,13 @@ public class PropertyManager {
 		}
 	}
 	
+	public boolean hasHandlerProperties(){
+		for(Properties p : explicitValues.keySet()){
+			if(p.type == Types.HANDLER) return true;
+		}
+		return false;
+	}
+	
 	public void stealExternalPropertiesFrom(PropertyManager other){
 		stealExternalProperties(other.explicitValues, explicitValues);
 		stealExternalProperties(other.stdValues, stdValues);

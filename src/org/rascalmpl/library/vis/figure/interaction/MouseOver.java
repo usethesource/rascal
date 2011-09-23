@@ -29,7 +29,7 @@ public class MouseOver extends Overlap {
 		}
 		
 		@Override
-		public void executeMouseMoveHandlers(ICallbackEnv env, IBool enter) {
+		public void executeMouseMoveHandlers(ICallbackEnv env, boolean enter) {
 			env.fakeRascalCallBack();
 			super.executeMouseMoveHandlers(env, enter);
 		}

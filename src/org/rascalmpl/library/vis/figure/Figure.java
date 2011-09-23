@@ -27,9 +27,6 @@ import static org.rascalmpl.library.vis.properties.Properties.HSHADOWPOS;
 import static org.rascalmpl.library.vis.properties.Properties.LINE_COLOR;
 import static org.rascalmpl.library.vis.properties.Properties.LINE_STYLE;
 import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
-import static org.rascalmpl.library.vis.properties.Properties.MOUSE_CLICK;
-import static org.rascalmpl.library.vis.properties.Properties.ON_KEY;
-import static org.rascalmpl.library.vis.properties.Properties.ON_MOUSEMOVE;
 import static org.rascalmpl.library.vis.properties.Properties.SHADOW;
 import static org.rascalmpl.library.vis.properties.Properties.SHADOW_COLOR;
 import static org.rascalmpl.library.vis.properties.Properties.VALIGN;
@@ -47,7 +44,9 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
@@ -298,7 +297,7 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public boolean handlesInput(){
-		return prop.isSet(ON_KEY) || prop.isSet(ON_MOUSEMOVE) || prop.isSet(MOUSE_CLICK);
+		return prop.hasHandlerProperties();
 	}
 	
 
@@ -368,16 +367,18 @@ public abstract class Figure implements Comparable<Figure> {
 		return new Rectangle(location.getX() - hlw, location.getY() -hlw , size.getX() + 2*hlw, size.getY() + 2*hlw);
 	}
 	
-	public boolean executeKeyHandlers(ICallbackEnv env,IValue keySym, IBool keyDown, IMap modifiers){
-		Type[] types = {keySym.getType(),keyDown.getType(),modifiers.getType()};
-		IValue[] args = {keySym,keyDown,modifiers};
-		return executeHandlerProperty(env,Properties.ON_KEY,types,args);
+	public boolean executeKeyHandlers(ICallbackEnv env,IValue keySym, boolean keyDown, IMap modifiers){
+		Type[] types = {keySym.getType(),modifiers.getType()};
+		IValue[] args = {keySym,modifiers};
+		if(keyDown) return executeHandlerProperty(env,Properties.ON_KEY_DOWN,types,args);
+		else  return executeHandlerProperty(env,Properties.ON_KEY_UP,types,args);
 	}
 
-	public void executeMouseMoveHandlers(ICallbackEnv env, IBool enter) {
-		Type[] types = {enter.getType()};
-		IValue[] args = {enter};
-		executeHandlerProperty(env,Properties.ON_MOUSEMOVE,types,args);
+	public void executeMouseMoveHandlers(ICallbackEnv env, boolean enter) {
+		Type[] types = {};
+		IValue[] args = {};
+		if(enter) executeHandlerProperty(env,Properties.ON_MOUSE_OVER,types,args);
+		else executeHandlerProperty(env,Properties.ON_MOUSE_OFF,types,args);
 	}
 
 
@@ -386,8 +387,11 @@ public abstract class Figure implements Comparable<Figure> {
 				&& c.getY() >= location.getY() && c.getY() <= location.getY()+ size.getY();
 	}
 
-	public boolean executeOnClick(ICallbackEnv env) {
-		return executeHandlerProperty(env, Properties.MOUSE_CLICK, noTypes, noArgs);
+	public boolean executeOnClick(ICallbackEnv env, int button, IMap modifiers, boolean down) {
+		Type[] types = {TypeFactory.getInstance().integerType(),modifiers.getType()};
+		IValue[] args = {ValueFactory.getInstance().integer(button),modifiers};
+		if(down) return executeHandlerProperty(env, Properties.ON_MOUSE_DOWN, types, args);
+		else return executeHandlerProperty(env, Properties.ON_MOUSE_UP, types, args);
 	}
 	
 	// returns if the event is captured (i.e. not propagated further)

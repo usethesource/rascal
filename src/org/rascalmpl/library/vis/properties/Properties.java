@@ -93,9 +93,12 @@ public enum Properties {
 	FONT				(Types.STR,		"font",				"Helvetica",		INTERNAL	),
 	DIR					(Types.STR,		"dir",				"",					INTERNAL	),
 	
-	MOUSE_CLICK			(Types.HANDLER,	"onClick",			null,		"bool ()"		),
-	ON_MOUSEMOVE		(Types.HANDLER,	"onMouseMove",		null,		"void (bool)"		),
-	ON_KEY				(Types.HANDLER,	"onKey",			null,		"bool (KeySym, bool, map[KeyModifier,bool])");
+	ON_MOUSE_DOWN		(Types.HANDLER,	"onMouseDown",		null,		"bool (int,map[KeyModifier,bool])"		),
+	ON_MOUSE_UP			(Types.HANDLER, "onMouseUp",		null,		"bool (int,map[KeyModifier,bool])"		),	
+	ON_MOUSE_OVER		(Types.HANDLER,	"onMouseOver",		null,		"void ()"		),
+	ON_MOUSE_OFF		(Types.HANDLER,	"onMouseOff",		null,		"void ()"		),
+	ON_KEY_DOWN			(Types.HANDLER,	"onKeyDown",		null,		"bool (KeySym, map[KeyModifier,bool])"),
+	ON_KEY_UP			(Types.HANDLER,	"onKeyUp",			null,		"bool (KeySym, map[KeyModifier,bool])");;
 	
 
 	public String name;
