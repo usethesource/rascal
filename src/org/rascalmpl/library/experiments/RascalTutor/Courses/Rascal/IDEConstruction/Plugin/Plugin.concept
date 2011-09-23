@@ -16,6 +16,7 @@ Description: Using the [IDE] library you can instantiate a new IDE for your lang
 * Add a function called "main" to it.
 * Make sure that the code to register your language via the [IDE] module is called from the main function.
 
+
 The main function will be called:
 * when an eclipse instance is started that has your current project opened
 * when your project is 'openened' 

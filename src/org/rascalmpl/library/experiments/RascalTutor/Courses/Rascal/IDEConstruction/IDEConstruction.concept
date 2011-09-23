@@ -26,7 +26,7 @@ start[ABC] abc(str x, loc l) {
 registerLanguage("The ABC language", "abc", abc);
 </screen>
 
-After this, your <bold>current</bold> Eclipse instance will start editors for all files ending in .abc and parse them using the abc function. The editor will provide some default highlighting features.
+After this, your __current__ Eclipse instance will start editors for all files ending in `.abc` and parse them using the `abc` function. The editor will provide some default highlighting features.
 
 This is a start, now you can step-by-step extend the IDE for your language with additional features:
   * [Outline]
@@ -35,6 +35,7 @@ This is a start, now you can step-by-step extend the IDE for your language with 
   * [Hyperlinking]
   * [ErrorMarking]
   * [Menus]
+
 
 To be able to reuse your IDE between runs of Eclipse, please read about [Plugin]s.
 
