@@ -51,7 +51,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	LayeredGraphNode root;
 	LayeredGraphNode align;
 	LayeredGraphNode sink;
-	final int INFINITY = 1000000;
+	final int INFINITY = Integer.MAX_VALUE;
 	double shift = INFINITY;
 	public double layerHeight;
 	public double blockWidth;

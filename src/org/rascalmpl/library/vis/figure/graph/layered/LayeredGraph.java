@@ -141,14 +141,14 @@ public class LayeredGraph extends Figure {
 					if(debug)System.err.println("Found reverse edge");
 					
 					Figure toArrow = e.toArrow;
-					if(toArrow != null)
-						children.add(toArrow);
+					//if(toArrow != null)
+					//	children.add(toArrow);
 					if(toArrow != null && other.fromArrow == null)
 						other.fromArrow = toArrow;
 					
 					Figure fromArrow = e.fromArrow;
-					if(fromArrow != null)
-						children.add(fromArrow);
+					//if(fromArrow != null)
+					//	children.add(fromArrow);
 					
 					if(fromArrow != null && other.toArrow == null)
 						other.toArrow = fromArrow;
@@ -434,8 +434,6 @@ public class LayeredGraph extends Figure {
 	 * - placeHorizontal by horizontally positioning nodes within each layer
 	 */
 	private void computeGraphLayout(){
-		@SuppressWarnings("unused")  // TODO: Use W as width
-		int W = FigureMath.round(1.5f * FigureMath.sqrt(nodes.size()) + 1); 
 		
 		if(debug)
 			printGraph("Initial graph");
@@ -1191,6 +1189,9 @@ public class LayeredGraph extends Figure {
 		
 		System.err.printf("topAlign=%b, leftAlign=%b\n", leftAlign, topAlign);
 		
+		if(layers.size() <= 1)
+			return;
+		
 		if(topAlign){
 			layerStart = 1; layerEnd = layers.size(); layerStep = 1;
 		} else {	
@@ -1435,24 +1436,28 @@ public class LayeredGraph extends Figure {
 			e1.reduceOverlap(e2);
 		}
 	}
+	
+	private void setGraphMinSize(){
+		double minWidth = 0;
+		double minHeight = 0;
+		for(LayeredGraphNode g : nodes){
+			double w = g.x + g.width()/2;
+			double h = g.y + g.height()/2;
+			if(w > minWidth)
+				minWidth = w;
+			if(h > minHeight)
+				minHeight = h;
+		}
+		minSize.set(minWidth, minHeight);
+	}
 
 	@Override
 	public void computeMinSize() {
 		minSize.setX(prop.getReal(HSIZE));
-		MAXWIDTH = minSize.getX();
-		//MAXWIDTH = width = 1000;
+		MAXWIDTH = Integer.MAX_VALUE;
 		minSize.setY(prop.getReal(VSIZE));
 		hgap = prop.getReal(HGAP);
 		vgap = prop.getReal(VGAP);
-		
-		double maxNodeWidth = 0;
-		
-		for(LayeredGraphNode g : nodes){
-			System.err.printf("%s: %f, %f\n", g.name, g.width(), g.height());
-			if(g.width() > maxNodeWidth){
-				maxNodeWidth = g.width();
-			}
-		}
 
 		//switchWidthAndHeight();
 		computeGraphLayout();
@@ -1460,7 +1465,7 @@ public class LayeredGraph extends Figure {
 		translateToOrigin();
 		//switchWidthAndHeight();
 		rotateToDirection();
-		minSize.set(400, 400); //TODO compute real min size.
+		setGraphMinSize();
 	}
 
 	@Override

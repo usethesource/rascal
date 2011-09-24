@@ -291,11 +291,11 @@ public class LayeredGraphEdge extends Figure {
 				
 				if(toArrow != null){
 					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-					//getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
-					//		getTo().figX(), getTo().figY(),
-					////		node.figX(),  node.figY()-(h/2+vgap/4),
-					//		toArrow,gc
-					//);
+					getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+							getTo().figX(), getTo().figY(),
+							node.figX(),  node.figY()-(h/2+vgap/4),
+							toArrow,gc, visibleSWTElements
+					); 
 					return;
 				}
 			} else {
