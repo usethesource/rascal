@@ -21,6 +21,7 @@ public enum TwoDProperties {
 	ZOOMABLE	("zoomable",	HZOOMABLE,	VZOOMABLE	),
 	START_GAP	("startGap",	HSTART_GAP,	VSTART_GAP	),
 	END_GAP		("endGap",		HEND_GAP,	VEND_GAP	),	
+	MIRROR		("mirror",		HMIRROR,	VMIRROR		),
 	
 	POS			("pos",			HPOS,		VPOS		),
 	SIZE		("size",		HSIZE,		VSIZE		),

@@ -53,6 +53,8 @@ public enum Properties {
 	JUSTIFY				(Types.BOOL,    "justify",			false,				INTERNAL	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				INTERNAL	),
 	MAJOR_X				(Types.BOOL,    "majorx",			false,				INTERNAL	),
+	HMIRROR				(Types.BOOL,	"hmirror",			false,				INTERNAL	),
+	VMIRROR				(Types.BOOL,	"vmirror",			false,				INTERNAL	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				INTERNAL	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				INTERNAL	),   
