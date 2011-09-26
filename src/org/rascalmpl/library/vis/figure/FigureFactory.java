@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
+import org.rascalmpl.library.vis.figure.keys.NominalKey;
 import org.rascalmpl.library.vis.figure.keys.Screen;
 import org.rascalmpl.library.vis.figure.keys.Projection;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -282,7 +283,7 @@ public class FigureFactory {
 		case INTERVALKEY:
 			//return new IntervalKey(env,c.get(0),c.get(1),properties,childProps);
 		case NOMINALKEY:
-			//return new NominalKey(env,(IList)c.get(0),c.get(1),properties,childProps);
+			return new NominalKey(env,(IList)c.get(0),c.get(1),properties,childProps);
 			
 		case HVCAT:
 			children = makeList(env,c.get(0),properties,childPropsNext);

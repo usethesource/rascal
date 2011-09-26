@@ -156,9 +156,12 @@ public class Grid extends Compose {
 	
 	private double maxMinWidthOfAutoElement(Dimension d){
 		double maxMinWidth = 0;
-		for(Figure[] row : figureMatrix){
-			for(Figure elem : row){
-				if(!elem.prop.is2DPropertySet(d, SHRINK) && elem.resizable.get(d)){
+		for(int i = 0; i < getNrColumns(d); i++){
+			boolean columnUnresizable  = columnsSize.get(d)[i].sizeInfo == SizeInfo.UNRESIZABLE;
+			for(int j = 0 ; j < getNrRows(d) ; j++){
+				Figure elem = getFigureFromMatrix(d, j,i);
+				
+				if(!elem.prop.is2DPropertySet(d, SHRINK) && !columnUnresizable){
 					maxMinWidth = Math.max(maxMinWidth,elem.minSize.get(d));
 				}
 			}
@@ -485,6 +488,10 @@ public class Grid extends Compose {
 		
 	}
 	
+	
+	public String toString(){
+		return "GRID";
+	}
 
 	/*
 	public void getFiguresUnderMouseSmart(Coordinate c, Vector<Figure> result){

@@ -116,6 +116,23 @@ public abstract class Figure implements Comparable<Figure> {
 		sequencer++;
 	}
 	
+	public final void registerIds(IFigureConstructionEnv env,NameResolver resolver){
+		resolver.register(this);
+		setChildren(env,resolver);
+		for(Figure child : children){
+			child.registerIds(env,resolver);
+		}
+	}
+	
+	public void setChildren(IFigureConstructionEnv env, NameResolver resolver) {}
+	
+	public final void registerConverts(NameResolver resolver){
+		prop.registerMeasures(resolver);
+		for(Figure child : children){
+			child.registerConverts(resolver);
+		}
+	}
+
 	// init, compute registerNames, registerValues, bbox
 	/* First phase:
 	 * on down: 
@@ -136,16 +153,13 @@ public abstract class Figure implements Comparable<Figure> {
 	 * 
 	 * @param env		the callback environment for computing stuff when initializing
 	 * @param resolver  the name resolver
-	 * @param swtSeen TODO
-	 * @param visible TODO
+	 * @param swtSeen 
+	 * @param visible 
 	 * @param overlaps  the current set of overlaps (figure not abiding to strict inclusive layout), add overlapping figures here
 	 * @param zparent   the parent in the zorder tree, this is a partial view of the figure tree describing only the swt elements and hence their z order
-	 * @return TODO
+	 * @return 
 	 */
 	public final boolean init(IFigureConstructionEnv env,NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible){
-		prop.registerMeasures(resolver);
-		
-		resolver.register(this);
 		resizable.set(prop.getBool(HRESIZABLE), prop.getBool(VRESIZABLE));
 		initElem(env, mparent, swtSeen, visible, resolver);
 		swtSeen = initChildren(env, resolver, mparent, swtSeen, visible);

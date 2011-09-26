@@ -54,12 +54,7 @@ public class MouseOver extends Overlap {
 	}
 
 	@Override
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
-		super.initElem(env, mparent, swtSeen, visible, resolver);
-		this.parent = mparent;
-		if(parent!=null){
-			parent.registerChild(this);
-		}
+	public void setChildren(IFigureConstructionEnv env, NameResolver resolver){
 		computeMouseOver(env);
 		//System.out.printf("Computing mover %s!\n",showMouseOver);
 		if(showMouseOver){
@@ -68,6 +63,16 @@ public class MouseOver extends Overlap {
 			setOverlap(Space.empty);
 			mover.hide(env);
 		}
+	}
+	
+	@Override
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
+		super.initElem(env, mparent, swtSeen, visible, resolver);
+		this.parent = mparent;
+		if(parent!=null){
+			parent.registerChild(this);
+		}
+
 	}
 	
 	@Override
