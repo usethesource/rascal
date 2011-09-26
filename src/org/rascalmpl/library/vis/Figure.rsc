@@ -340,6 +340,9 @@ data FProperty =
 	|shadowColor(Color()  cc )
 	|shadowColor(Measure  mv )
 	|shadowColor(str      ds )
+	|area       (num      r  )
+	|area       (num()    cr )
+	|area       (Measure  mv )
 	|aspectRatio(num      r  )
 	|aspectRatio(num()    cr )
 	|aspectRatio(Measure  mv )
@@ -703,7 +706,7 @@ public data Figure =
    | _tree(Figures figs,FProperties props)
 
    
-   | _treemap(Figures nodes, Edges edges, FProperties props)
+   | _treemap(Figures nodes, FProperties props)
    
    | _nominalKey(list[value] possibilities, Figure (list[value]) whole,FProperties props)
    
@@ -891,8 +894,8 @@ public Figure graph(Figures nodes, Edges edges, FProperty props...){
   return _graph(nodes, edges, [std(resizable(false))] + props);
 }
 
-public Figure treemap(Figures nodes, Edges edges, FProperty props...){
-  return _treemap(nodes, edges, props);
+public Figure treemap(Figures nodes,  FProperty props...){
+  return _treemap(nodes,  props);
 }
 
 public Figure rotate(num angle, Figure fig, FProperty props...){

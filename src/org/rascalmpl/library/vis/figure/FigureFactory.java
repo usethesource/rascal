@@ -49,6 +49,7 @@ import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scale;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.TextField;
 import org.rascalmpl.library.vis.figure.tree.Tree;
+import org.rascalmpl.library.vis.figure.tree.TreeMap;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
@@ -362,8 +363,8 @@ public class FigureFactory {
 			return new Tree(Dimension.Y, children, properties);
 			
 		case TREEMAP: 			
-			//return new TreeMap(env,properties, (IList) c.get(0), (IList)c.get(1), ctx);
-			throw new Error("Treemap temporarily out of order..");
+			children = makeList(env,c.get(0),properties,childPropsNext);
+			return new TreeMap(children, properties);
 
 		case WIDTHDEPSHEIGHT:
 			return new WidthDependsOnHeightWrapper(Dimension.X, env, (IConstructor)c.get(0),  properties);

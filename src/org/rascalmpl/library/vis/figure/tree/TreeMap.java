@@ -11,124 +11,117 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.tree;
 
+import java.util.ArrayList;
+
+import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.combine.containers.Box;
+import org.rascalmpl.library.vis.figure.compose.Compose;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
+import static org.rascalmpl.library.vis.properties.Properties.AREA;
+import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
+
 
 /**
  * Tree map layout. Given a tree consisting of a list of nodes and edges, place them in a space conserving layout.
  * 
+ * Based on Mark Bruls; Kees Huizing and Jarke J. vanWijk. "Squarified Treemaps"
+ * 
  * @author paulk
  *
  */
-//public class TreeMap extends Figure {
-//	protected HashMap<String,TreeMapNode> nodeMap;
-//	private HashSet<TreeMapNode> hasParent;
-//	TreeMapNode root = null;
-//	
-//	public TreeMap(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes, IList edges) {
-//		super(properties);		
-//		nodeMap = new HashMap<String,TreeMapNode>();
-//		hasParent = new HashSet<TreeMapNode>();
-//		
-//		// Construct TreeMapNodes
-//		for(IValue v : nodes){
-//			IConstructor c = (IConstructor) v;
-//			Figure fig = FigureFactory.make(fpa, c, properties, null);
-//			String name = fig.getIdProperty();
-//			if(name.length() == 0)
-//				throw RuntimeExceptionFactory.figureException("TreeMap: Missing id property in node", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//			TreeMapNode tn = new TreeMapNode(fpa, this, properties, fig);
-//			nodeMap.put(name, tn);
-//		}
-//		
-//		// Construct Edges
-//		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-//		IList emptyList = vf.list();
-//
-//		for(IValue v : edges){
-//			IConstructor c = (IConstructor) v;
-//			int iFrom = 0;
-//			int iTo = 1;
-//			IList edgeProperties = c.arity() == 3 ?  (IList) c.get(2) : emptyList;
-//			String from = ((IString)c.get(iFrom)).getValue();
-//
-//			TreeMapNode fromNode = nodeMap.get(from);
-//			if(fromNode == null)
-//				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + from, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//			String to = ((IString)c.get(iTo)).getValue();
-//			TreeMapNode toNode = nodeMap.get(to);
-//			if(toNode == null)
-//				throw RuntimeExceptionFactory.figureException("TreeMap: edge uses non-existing node id " + to, v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//			if(hasParent.contains(toNode))
-//				throw RuntimeExceptionFactory.figureException("TreeMap: node " + to + " has multiple parents", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//			hasParent.add(toNode);
-//			fromNode.addChild(properties, edgeProperties, toNode, fpa.getRascalContext());
-//		}
-//		
-//		root = null;
-//		for(TreeMapNode n : nodeMap.values())
-//			if(!hasParent.contains(n)){
-//				if(root != null)
-//				 throw RuntimeExceptionFactory.figureException("TreeMap: multiple roots found: " + root.rootFigure.getIdProperty() + " and " + n.rootFigure.getIdProperty(),
-//						  edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//				root = n;
-//			}
-//		if(root == null)
-//			throw RuntimeExceptionFactory.figureException("TreeMap: no root found", edges, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
-//	}
-//	
-//	@Override
-//	public
-//	void bbox() {
-//		System.err.printf("TreeMapNode.bbox(), left=%f, top=%f\n", getLeft(), getTop());
-//		minSize.setWidth(getWidthProperty());
-//		if(minSize.getWidth() == 0) 
-//			minSize.setWidth(400);
-//		minSize.setHeight(getHeightProperty());
-//		if(minSize.getHeight() == 0)
-//			minSize.setHeight(400);
-//		root.place(minSize.getWidth(), minSize.getHeight(), true);
-//		setNonResizable();
-//	}
-//	
-//	@Override
-//	public
-//	void draw(GraphicsContext gc) {
-//		applyProperties(gc);
-//		root.draw(gc);
-//	}
-//	
-//	@Override
-//	public boolean mouseInside(double mousex, double mousey){
-//		return root.mouseInside(mousex, mousey) || 
-//		        super.mouseInside(mousex, mousey);
-//	}
-//	
-//
-//	public boolean getFiguresUnderMouse(Coordinate c,Vector<Figure> result){
-//		boolean ret = false;
-//		if(root!=null){
-//			ret = root.getFiguresUnderMouse(c, result);
-//		}
-//		if(mouseInside(c.getX(), c.getY())){
-//			result.add(this);
-//			ret=true;
-//		}
-//		addMeAsFigureUnderMouse(result);
-//		return ret;
-//	}
-//	
-//
-//	public void registerNames(NameResolver resolver){
-//		super.registerNames(resolver);
-//		if(root!=null) root.registerNames(resolver);
-//	}
-//
-//	@Override
-//	public void layout() {
-//		size.set(minSize);
-//		if(root!=null) {
-//			root.setToMinSize();
-//			root.layout();
-//		}
-//	}
-//
-//}
+
+public class TreeMap extends Compose{
+
+
+	double area;
+	Figure[] areas;
+	int curChild;
+
+	public TreeMap(Figure[] figures, PropertyManager properties) {
+		super(figures, properties);
+		this.areas = figures;
+	}
+
+	
+
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
+		area = 0;
+		for(Figure fig : children){
+			area += fig.prop.getReal(AREA);
+		}
+	}
+	
+	private double worstAspectRatio(ArrayList<Figure> figs,double cumulatedArea){
+		double height = (cumulatedArea / area) * size.getY();
+		double result = 1.0;
+		for(Figure fig : figs){
+			double width = (fig.prop.getReal(AREA) / cumulatedArea) * size.getX();
+			double widthDivHeight = width / height;
+			result = Math.max(result, Math.max(widthDivHeight, 1.0/widthDivHeight));
+		}
+		return result;
+	}
+	
+
+	private double layoutRow(double yOffset,double cumulatedArea,ArrayList<Figure> figs){
+		double height = (cumulatedArea / area) * size.getY();
+		double x = 0;
+		for(Figure fig : figs){
+			fig.location.setY(yOffset);
+			fig.location.setX(x);
+			fig.size.setY(height);
+			double width = (fig.prop.getReal(AREA) / cumulatedArea)* size.getX();
+			fig.size.setX( width);
+			if(!fig.size.contains(fig.minSize)){
+				children[curChild] = new Box(null, areas[curChild].prop);
+			} else {
+				children[curChild] = areas[curChild];
+			}
+			curChild++;
+			System.out.printf("Setting %s  area %s %s %s\n",fig,fig.prop.getReal(AREA),area,cumulatedArea);
+			x+=width;
+		}
+		return yOffset + height;
+	}
+	
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		curChild = 0;
+		ArrayList<Figure> currentRow = new ArrayList<Figure>();
+		double prevAR = Double.MAX_VALUE;
+		double yOffset = 0;
+		double cumulatedArea = 0;
+		for(Figure cur : children ){
+			
+			cumulatedArea += cur.prop.getReal(AREA);
+			System.out.printf("Cum area %f\n",cumulatedArea);
+			currentRow.add(cur);
+			double curAR = worstAspectRatio(currentRow,cumulatedArea);
+			if(curAR > prevAR){
+				System.out.printf("Getting wordse area %f\n",cumulatedArea);
+				currentRow.remove(currentRow.size()-1);
+				cumulatedArea -= cur.prop.getReal(AREA);
+				yOffset = layoutRow(yOffset,cumulatedArea,currentRow);
+				currentRow.clear();
+				currentRow.add(cur);
+				cumulatedArea = cur.prop.getReal(AREA);
+				prevAR = Double.MAX_VALUE;
+			} else {
+				prevAR = curAR;
+			}
+			
+		}
+		layoutRow(yOffset,cumulatedArea,currentRow);
+	}
+
+	@Override
+	public void computeMinSize() {
+		minSize.set(10, 10);
+		
+	}
+	
+}

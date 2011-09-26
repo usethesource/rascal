@@ -57,6 +57,7 @@ import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
@@ -538,8 +539,8 @@ public abstract class Figure implements Comparable<Figure> {
 		 */
 		if (toArrow != null) {
 			gc.pushMatrix();
-			//gc.translate(left + IX, top + IY);
-			//gc.rotate(FigureMath.radians(-90) + theta);
+			gc.translate(left + IX, top + IY);
+			gc.rotate(FigureMath.radians(-90) + theta);
 			toArrow.drawElement(gc,visibleSWTElements); //TODO: fixme!!!
 			gc.popMatrix();
 		}

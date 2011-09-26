@@ -61,6 +61,7 @@ public enum Properties {
 	LINE_COLOR			(Types.COLOR,	"lineColor",		BLACK,				INTERNAL	),  
 	SHADOW_COLOR		(Types.COLOR,	"shadowColor",		dropShadowColor(),	INTERNAL	),  
 	
+	AREA				(Types.REAL,	"area",				1.0,				EXTERNAL	),
 	ASPECT_RATIO		(Types.REAL,	"aspectRatio",		1.0,				INTERNAL	),
 	INNER_ALIGN			(Types.REAL,	"ialign",			0.0,				INTERNAL	),
 	HSIZE				(Types.REAL,	"hsize",			0.0,				BOTH		),
