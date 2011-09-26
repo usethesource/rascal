@@ -199,6 +199,69 @@ FProperty onMouseOver(Figure fig){
   return mouseOver(fig);
 }
 
+
+data Orientation =
+		leftRight()
+	|	rightLeft()
+	| 	topDown()
+	|	downTop();
+
+
+str getDir(Orientation or){
+	switch(or){
+		case leftRight() : return "LR";
+		case rightLeft() : return "RL";
+		case topDown() 	 : return "TB";
+		case downTop() 	 : return "BT";
+	}
+}
+
+bool getHMajor(Orientation or){
+	switch(or){
+		case leftRight() : return true;
+		case rightLeft() : return true;
+		case topDown() 	 : return false;
+		case downTop() 	 : return false;
+	}
+}
+
+bool getHMirror(Orientation or){
+	switch(or){
+		case leftRight() : return false;
+		case rightLeft() : return true;
+		case topDown() 	 : return false;
+		case downTop() 	 : return false;
+	}
+}
+
+bool getVMirror(Orientation or){
+	switch(or){
+		case leftRight() : return false;
+		case rightLeft() : return false;
+		case topDown() 	 : return false;
+		case downTop() 	 : return true;
+	}
+}
+
+public FProperty orientation(Orientation or){
+	return unpack([dir(getDir(or)),hmajor(getHMajor(or)),hmirror(getHMirror(or)),vmirror(getVMirror(or))]);
+}
+
+public FProperty orientation(Orientation () or){
+	return unpack([dir(str () {
+		return getDir(or());
+	}),
+	hmajor(bool () {
+		return getHMajor(or());
+	}),
+	hmirror(bool () {
+		return getHMirror(or());
+	}),
+	vmirror(bool () {
+		return getVMirror(or())
+	;})]);
+}
+
 data FProperty =
 	mouseOver(Figure fig)
 	|std(FProperty property)
@@ -252,9 +315,9 @@ data FProperty =
 	|manhattan  (bool     b  )
 	|manhattan  (bool()   cb )
 	|manhattan  (Measure  mv )
-	|majorx     (bool     b  )
-	|majorx     (bool()   cb )
-	|majorx     (Measure  mv )
+	|hmajor     (bool     b  )
+	|hmajor     (bool()   cb )
+	|hmajor     (Measure  mv )
 	|hmirror    (bool     b  )
 	|hmirror    (bool()   cb )
 	|hmirror    (Measure  mv )
@@ -530,7 +593,8 @@ public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hcon
 public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hconnect   (cr12 ),vconnect   (mv212)]); }
 public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hconnect   (mv20 ),vconnect   (r220 )]); }
 public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hconnect   (mv21 ),vconnect   (cr221)]); }
-public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hconnect   (mv22 ),vconnect   (mv222)]); }// end generated code
+public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hconnect   (mv22 ),vconnect   (mv222)]); }
+// end generated code
 
 public FProperty width(num w){
 	return hsize(w);
