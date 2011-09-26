@@ -38,8 +38,7 @@ public class ComputeFigure extends LayoutProxy {
 		prevValue = null;
 	}
 
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
-		
+	public void setChildren(IFigureConstructionEnv env, NameResolver resolver){
 		if(prevValue == null || recompute.getValue()){
 			IConstructor figureCons =
 				(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);

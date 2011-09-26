@@ -23,8 +23,12 @@ public class FigureSwitch extends WithInnerFig{
 	}
 
 	@Override
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
+	public void setChildren(IFigureConstructionEnv env, NameResolver resolver){
 		children = choices;
+	}
+	
+	@Override
+	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		this.visible = visible;
 	}
 

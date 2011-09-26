@@ -85,10 +85,7 @@ public class NameResolver {
 		}
 	}
 
-	public Figure resolveKey(String value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 	
 	
 

@@ -170,7 +170,7 @@ public java list[str] fontNames();
 
 
 data Like = like(str id);
-public data Measure = measure(num quantity,str axisId);
+public data Measure = measure(value quantity,str axisId);
 
 public alias FProperties = list[FProperty];
  
@@ -189,7 +189,7 @@ data TimerAction = restart(int delay)
 				 | stop()
 				 | noChange();
 
-data Convert = convert(value v, value id);
+data Convert = convert(value v, str id);
 
 
 // TEMPORARY, to make doc consistent with code
@@ -1043,7 +1043,7 @@ public Figure palleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
- 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.2),vgrow(1.1));
+ 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.05),vgrow(1.1));
  		return vcat([
  		text(name,fontSize(13)),
  		box(

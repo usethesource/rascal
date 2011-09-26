@@ -163,10 +163,10 @@ public enum Properties {
 			PropertyManager pm, IFigureConstructionEnv env, Convert<PropValue> convert) {
 		if(arg.getType().isAbstractDataType()){
 			IConstructor cs = (IConstructor) arg;
-			if(cs.getName().equals("convert")){
-				return new MeasureValue<PropValue>(
-						producePropertyValue(cs.get(0),pm,env, ConvertStr.instance), 
-						producePropertyValue(cs.get(1),pm,env, DoNotConvert.instance));
+			if(cs.getName().equals("measure")){
+				return new MeasureValue<PropValue>(convert, pm , env,
+						producePropertyValue(cs.get(1),pm,env, ConvertStr.instance), 
+						producePropertyValue(cs.get(0),pm,env, DoNotConvert.instance));
 			}
 		} 
 		return produceMaybeComputedValue(arg,pm,env,convert);
