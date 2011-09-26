@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Atze J. van der Ploeg - atze.van.der.ploeg@cwi.nl - CWI}
-module vis::examples::GenTree
+module GenTree
 
 import vis::Figure;
 import vis::Render;
@@ -14,6 +14,7 @@ import vis::Render;
 import Integer;
 import Real;
 import IO;
+
 
 public Color arbColor(){
 	return rgb(toInt(arbReal() * 255.0),toInt(arbReal() * 255.0),toInt(arbReal() * 255.0));
@@ -43,15 +44,16 @@ public void testTree(){
 	int maxKids = 4;
 	int leafChance = 20;
 	bool man = false;
-	bool majorX = false;
+	Orientation or = topDown();
 	render(
 		hcat([
-			scrollbar(
+			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
 					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
-					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),std(majorx(bool () { return majorX; })))
+					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),
+					std(orientation(Orientation () { return or; })))
 				),
-			grid([
+			vcat([grid([
 				[text(str () { return "hgap: <hg>";}),scaleSlider(int() { return 0; } ,int () { return 200; } , int () { return hg; },void (int s) { hg = s; })],
 				[text(str () { return "vgap: <vg>";}),scaleSlider(int() { return 0; } ,int () { return 200; } , int () { return vg; },void (int s) { vg = s; })],
 				[text(str () { return "minwidth: <minx>";}),scaleSlider(int() { return 0; } ,int () { return 400; } , int () { return minx; },void (int s) { minx = s; maxx = max(minx,maxx); })],
@@ -63,11 +65,18 @@ public void testTree(){
 				[text(str () { return "minKids: <minKids>";}),scaleSlider(int() { return 1; } ,int () { return 10; } , int () { return minKids; },void (int s) { minKids = s; maxKids = max(minKids,maxKids);})],
 				[text(str () { return "maxKids: <maxKids>";}),scaleSlider(int() { return minKids; } ,int () { return 10; } , int () { return maxKids; },void (int s) { maxKids = s; maxKids = max(minKids,maxKids);})],
 				[text(str () { return "leafChance: <leafChance>";}),scaleSlider(int() { return 0; } ,int () { return 100; } , int () { return leafChance; },void (int s) { leafChance = s; })],
-				[space(), checkbox("Manhattan",false,void (bool b){ man = b; })],
-				[space(), checkbox("horizontal",false,void (bool b){ majorX = b; })],
-				[space(),button("Generate!",void() {recompute = true;})]
-				
-			],hshrink(0.15))
+				[space(), checkbox("Manhattan",false,void (bool b){ man = b; })]		
+			])
+			,
+			choice(["topDown","downTop","leftRight","rightLeft"],void (str s){
+						switch(s){
+							case "topDown" : or = topDown();
+							case "downTop" : or = downTop();
+							case "leftRight" : or = leftRight();
+							case "rightLeft" : or = rightLeft();
+						}
+					},vshrink(0.25)),
+			button("Generate!",void() {recompute = true;},vshrink(0.1))],hshrink(0.15))
 		])
 	);
 }
