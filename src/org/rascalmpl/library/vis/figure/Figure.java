@@ -539,7 +539,6 @@ public abstract class Figure implements Comparable<Figure> {
 		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
 		 */
 		double rotd = -90 + Math.toDegrees(theta);
-		double rotr = -Math.PI + theta;
 		if (toArrow != null) {
 			gc.pushMatrix();
 			gc.translate(left + IX , top + IY );
