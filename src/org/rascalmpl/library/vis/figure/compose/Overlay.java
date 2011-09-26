@@ -74,6 +74,7 @@ public class Overlay extends Compose{
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		System.out.printf("Got here!!!!!!!!!!\n");
 		for(Figure fig : children){
 			for(Dimension d : HOR_VER){
 				fig.size.set(d,size.get(d)*fig.prop.get2DReal(d, SHRINK));
@@ -112,6 +113,7 @@ public class Overlay extends Compose{
 	        		gc.vertex(children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
 	        				 children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
+	        	System.out.printf("child %s\n",children[i].location);
 	        }
         }
         

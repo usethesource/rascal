@@ -219,7 +219,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.rotate((float)angle);
+		transform2.rotate((float)angle);
 		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
@@ -230,7 +230,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
 		gc.getTransform(transform2);
-		transform.translate((float) x, (float) y);
+		transform2.translate((float) x, (float) y);
 		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
@@ -239,7 +239,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
 		gc.getTransform(transform);
-		transform.scale((float) scaleX, (float) scaleY);
+		transform2.scale((float) scaleX, (float) scaleY);
 		transform.multiply(transform2);
 		gc.setTransform(transform);
 	}
