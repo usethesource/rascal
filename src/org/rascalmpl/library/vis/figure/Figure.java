@@ -35,6 +35,7 @@ import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
 import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SIZE;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.MIRROR;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 import static org.rascalmpl.library.vis.util.vector.Dimension.X;
 import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
@@ -56,7 +57,6 @@ import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
@@ -197,6 +197,11 @@ public abstract class Figure implements Comparable<Figure> {
 
 	public void resizeChildren(Rectangle view, TransformMatrix transform) {
 		for(Figure child : children){
+			for(Dimension d : HOR_VER){
+				if(prop.get2DBool(d, MIRROR)){
+					child.location.set(d,size.get(d) - (child.location.get(d) + child.size.get(d)));
+				}
+			}
 			child.location.add(location);
 			child.resize(view,transform);
 		}

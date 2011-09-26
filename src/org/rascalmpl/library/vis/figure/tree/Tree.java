@@ -149,24 +149,45 @@ public class Tree extends Compose {
 		gc.line(from.getX(), from.getY(), to.getX() ,to.getY());
 	}
 	
-	Coordinate getChildCenter(int i){
-		if(children[i] instanceof Tree){
-			Tree subTree = (Tree)children[i];
-			return new Coordinate(major,children[i].location.get(major),
-					subTree.root.location.get(minor) +  subTree.root.minSize.get(minor)/2.0);
+	boolean majorFlipped(){
+		return children.length > 1 && root.location.get(major) > children[2].location.get(major);
+	}
+	
+	double getBottomRoot(){
+		if(majorFlipped()){
+			return root.location.get(major);
+		} else {
+			return root.location.get(major) + root.size.get(major);
+		}
+	}
+	
+	double getMinorCenter(int child){
+		if(children[child] instanceof Tree){
+			Tree subTree = (Tree)children[child];
+			return subTree.root.location.get(minor) +  subTree.root.minSize.get(minor)/2.0;
 			
 		} else {
-			return new Coordinate(major,children[i].location.get(major),
-					children[i].location.get(minor) + children[i].size.get(minor)/2.0);
+			return children[child].location.get(minor) + children[child].size.get(minor)/2.0;
 		}
+	}
+	
+	Coordinate getChildCenter(int i){
+		double majorPos = children[i].location.get(major) ;
+		if(majorFlipped()){
+			majorPos += children[i].size.get(major);
+		}
+		return new Coordinate(major,majorPos,getMinorCenter(i));
 	}
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		if(children.length == 1) return;
 		double hg = prop.get2DReal(major, GAP)/2.0;
-		Coordinate fromRoot = getChildCenter(0);
-		fromRoot.add(major,root.size.get(major));
+		if(majorFlipped()){
+			hg=-hg;
+		}
+		Figure root = children[0];
+		Coordinate fromRoot = new Coordinate(major,getBottomRoot(),root.location.get(minor) + root.size.get(minor)/2.0);
 		
 		if(prop.getBool(MANHATTAN_LINES)){
 			Coordinate toCenter = new Coordinate(fromRoot);

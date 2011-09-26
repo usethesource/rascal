@@ -255,6 +255,12 @@ data FProperty =
 	|majorx     (bool     b  )
 	|majorx     (bool()   cb )
 	|majorx     (Measure  mv )
+	|hmirror    (bool     b  )
+	|hmirror    (bool()   cb )
+	|hmirror    (Measure  mv )
+	|vmirror    (bool     b  )
+	|vmirror    (bool()   cb )
+	|vmirror    (Measure  mv )
 	|fillColor  (Color    c  )
 	|fillColor  (Color()  cc )
 	|fillColor  (Measure  mv )
@@ -381,6 +387,9 @@ public FProperty startGap   (Measure  mv ){ return unpack([hstartGap  (mv ),vsta
 public FProperty endGap     (bool     b  ){ return unpack([hendGap    (b  ),vendGap    (b  )]); }
 public FProperty endGap     (bool()   cb ){ return unpack([hendGap    (cb ),vendGap    (cb )]); }
 public FProperty endGap     (Measure  mv ){ return unpack([hendGap    (mv ),vendGap    (mv )]); }
+public FProperty mirror     (bool     b  ){ return unpack([hmirror    (b  ),vmirror    (b  )]); }
+public FProperty mirror     (bool()   cb ){ return unpack([hmirror    (cb ),vmirror    (cb )]); }
+public FProperty mirror     (Measure  mv ){ return unpack([hmirror    (mv ),vmirror    (mv )]); }
 public FProperty pos        (num      r  ){ return unpack([hpos       (r  ),vpos       (r  )]); }
 public FProperty pos        (num()    cr ){ return unpack([hpos       (cr ),vpos       (cr )]); }
 public FProperty pos        (Measure  mv ){ return unpack([hpos       (mv ),vpos       (mv )]); }
@@ -441,6 +450,15 @@ public FProperty endGap     (bool()   cb12 ,Measure  mv212){ return unpack([hend
 public FProperty endGap     (Measure  mv20 ,bool     b220 ){ return unpack([hendGap    (mv20 ),vendGap    (b220 )]); }
 public FProperty endGap     (Measure  mv21 ,bool()   cb221){ return unpack([hendGap    (mv21 ),vendGap    (cb221)]); }
 public FProperty endGap     (Measure  mv22 ,Measure  mv222){ return unpack([hendGap    (mv22 ),vendGap    (mv222)]); }
+public FProperty mirror     (bool     b00  ,bool     b200 ){ return unpack([hmirror    (b00  ),vmirror    (b200 )]); }
+public FProperty mirror     (bool     b01  ,bool()   cb201){ return unpack([hmirror    (b01  ),vmirror    (cb201)]); }
+public FProperty mirror     (bool     b02  ,Measure  mv202){ return unpack([hmirror    (b02  ),vmirror    (mv202)]); }
+public FProperty mirror     (bool()   cb10 ,bool     b210 ){ return unpack([hmirror    (cb10 ),vmirror    (b210 )]); }
+public FProperty mirror     (bool()   cb11 ,bool()   cb211){ return unpack([hmirror    (cb11 ),vmirror    (cb211)]); }
+public FProperty mirror     (bool()   cb12 ,Measure  mv212){ return unpack([hmirror    (cb12 ),vmirror    (mv212)]); }
+public FProperty mirror     (Measure  mv20 ,bool     b220 ){ return unpack([hmirror    (mv20 ),vmirror    (b220 )]); }
+public FProperty mirror     (Measure  mv21 ,bool()   cb221){ return unpack([hmirror    (mv21 ),vmirror    (cb221)]); }
+public FProperty mirror     (Measure  mv22 ,Measure  mv222){ return unpack([hmirror    (mv22 ),vmirror    (mv222)]); }
 public FProperty pos        (num      r00  ,num      r200 ){ return unpack([hpos       (r00  ),vpos       (r200 )]); }
 public FProperty pos        (num      r01  ,num()    cr201){ return unpack([hpos       (r01  ),vpos       (cr201)]); }
 public FProperty pos        (num      r02  ,Measure  mv202){ return unpack([hpos       (r02  ),vpos       (mv202)]); }
@@ -512,8 +530,7 @@ public FProperty connect    (num()    cr11 ,num()    cr211){ return unpack([hcon
 public FProperty connect    (num()    cr12 ,Measure  mv212){ return unpack([hconnect   (cr12 ),vconnect   (mv212)]); }
 public FProperty connect    (Measure  mv20 ,num      r220 ){ return unpack([hconnect   (mv20 ),vconnect   (r220 )]); }
 public FProperty connect    (Measure  mv21 ,num()    cr221){ return unpack([hconnect   (mv21 ),vconnect   (cr221)]); }
-public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hconnect   (mv22 ),vconnect   (mv222)]); }
-// end generated code
+public FProperty connect    (Measure  mv22 ,Measure  mv222){ return unpack([hconnect   (mv22 ),vconnect   (mv222)]); }// end generated code
 
 public FProperty width(num w){
 	return hsize(w);
