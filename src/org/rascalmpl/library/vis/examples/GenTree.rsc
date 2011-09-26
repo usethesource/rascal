@@ -49,7 +49,7 @@ public void testTree(){
 		hcat([
 			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
-					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny),toReal(maxx),toReal(maxy));}
+					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,10,10,10,10);}
 					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),
 					std(orientation(Orientation () { return or; })))
 				),
@@ -77,6 +77,47 @@ public void testTree(){
 						}
 					},vshrink(0.25)),
 			button("Generate!",void() {recompute = true;},vshrink(0.1))],hshrink(0.15))
+		])
+	);
+}
+
+
+public Figure genTreeMap(int leafChance,int minDepth,int maxDepth, int minKids, int maxKids,real minArea){
+	FProperties p = [fillColor(arbColor()),area((100.0 - minArea) * arbReal() + minArea)];
+	if(maxDepth == 0 || minDepth <= 0 && toInt(arbReal() * 100.0) <= leafChance){ return box(p); }
+	int nr = arbInt(maxKids-minKids) + minKids;
+
+	return treemap(
+		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr]],p);	
+}
+
+
+public void testTreeMap(){
+	bool recompute = false;
+	int minArea = 0;
+	int minDepth = 1;
+	int maxDepth = 3;
+	int minKids = 1;
+	int maxKids = 4;
+	int leafChance = 20;
+	render(
+		hcat([
+			scrollable(
+				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
+					Figure () { return genTreeMap(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minArea));}
+				)
+			),
+			vcat([
+				grid([
+				[text(str () { return "minArea: <minArea>";}),scaleSlider(int() { return 0; } ,int () { return 100; } , int () { return minArea; },void (int s) { minArea = s; })],
+				[text(str () { return "minDepth: <minDepth>";}),scaleSlider(int() { return 0; } ,int () { return 10; } , int () { return minDepth; },void (int s) { minDepth = s; maxDepth = max(maxDepth,minDepth); })],
+				[text(str () { return "maxDepth: <maxDepth>";}),scaleSlider(int() { return 0; } ,int () { return 10; } , int () { return maxDepth; },void (int s) { maxDepth = s; maxDepth = max(maxDepth,minDepth); })],
+				[text(str () { return "minKids: <minKids>";}),scaleSlider(int() { return 1; } ,int () { return 10; } , int () { return minKids; },void (int s) { minKids = s; maxKids = max(minKids,maxKids);})],
+				[text(str () { return "maxKids: <maxKids>";}),scaleSlider(int() { return minKids; } ,int () { return 10; } , int () { return maxKids; },void (int s) { maxKids = s; maxKids = max(minKids,maxKids);})],
+				[text(str () { return "leafChance: <leafChance>";}),scaleSlider(int() { return 0; } ,int () { return 100; } , int () { return leafChance; },void (int s) { leafChance = s; })]
+				]),
+				button("Generate!",void() {recompute = true;},vshrink(0.1))
+			],hshrink(0.15))
 		])
 	);
 }
