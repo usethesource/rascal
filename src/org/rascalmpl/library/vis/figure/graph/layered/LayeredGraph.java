@@ -19,6 +19,8 @@ import static org.rascalmpl.library.vis.properties.Properties.ID;
 import static org.rascalmpl.library.vis.properties.Properties.LAYER;
 import static org.rascalmpl.library.vis.properties.Properties.VGAP;
 import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.MIRROR;
+import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,12 +35,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
+import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.values.ValueFactoryFactory;
 /**
 
@@ -1484,6 +1490,45 @@ public class LayeredGraph extends Figure {
 			e.drawElement(gc, visibleSWTElements);
 		}
 		gc.translate(-location.getX(), -location.getY());
+	}
+	
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
+		super.initChildren(env, resolver, mparent, swtSeen, visible);
+		for(LayeredGraphEdge e : edges){
+			if(e.fromArrow!=null){
+				e.fromArrow.init(env, resolver, mparent, swtSeen, visible);
+			}
+			if(e.toArrow!=null){
+				e.toArrow.init(env, resolver, mparent, swtSeen, visible);
+			}
+			if(e.label!=null){
+				e.label.init(env, resolver, mparent, swtSeen, visible);
+			}
+		}
+		return false;
+	}
+	
+
+	public void resizeChildren(Rectangle view, TransformMatrix transform) {
+		for(LayeredGraphEdge e : edges){
+			if(e.fromArrow!=null){
+				e.fromArrow.location.set(0,0);
+				e.fromArrow.size.set(minSize);
+				e.fromArrow.resize(view,transform);
+			}
+			if(e.toArrow!=null){
+				e.toArrow.location.set(0,0);
+				e.toArrow.size.set(minSize);
+				e.toArrow.resize(view,transform);
+			}
+			if(e.label!=null){
+				e.label.location.set(0,0);
+				e.label.size.set(minSize);
+				e.label.resize(view,transform);
+			}
+		}
+		super.resizeChildren(view, transform);
 	}
 	
 }

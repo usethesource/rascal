@@ -497,18 +497,19 @@ public abstract class Figure implements Comparable<Figure> {
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
 		toArrow.size.set(toArrow.minSize);
+		toArrow.location.set(0,0);
 		toArrow.resize(null, new TransformMatrix());
 		
 		if (fromX == X)
 			fromX += 0.00001;
-		double s = (fromY - Y) / (fromX - X);
+		double s = (fromY - Y) / (fromX -X);
 
 		double theta = Math.atan(s);
 		if (theta < 0) {
 			if (fromX < X)
 				theta += Math.PI;
 		} else {
-			if (fromX < X)
+			if (fromX < Y)
 				theta += Math.PI;
 		}
 		double IX;
@@ -537,10 +538,15 @@ public abstract class Figure implements Comparable<Figure> {
 		/*
 		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
 		 */
+		double rotd = -90 + Math.toDegrees(theta);
+		double rotr = -Math.PI + theta;
 		if (toArrow != null) {
 			gc.pushMatrix();
-			gc.translate(left + IX, top + IY);
-			gc.rotate(FigureMath.radians(-90) + theta);
+			gc.translate(left + IX , top + IY );
+			
+			gc.rotate(rotd);
+			gc.translate(-toArrow.size.getX()/2.0,0);
+			toArrow.applyProperties(gc);
 			toArrow.drawElement(gc,visibleSWTElements); //TODO: fixme!!!
 			gc.popMatrix();
 		}
