@@ -52,7 +52,7 @@ public enum Properties {
 	SHADOW				(Types.BOOL,	"shadow",			false,				INTERNAL	),
 	JUSTIFY				(Types.BOOL,    "justify",			false,				INTERNAL	),
 	MANHATTAN_LINES		(Types.BOOL,	"manhattan",		true,				INTERNAL	),
-	MAJOR_X				(Types.BOOL,    "majorx",			false,				INTERNAL	),
+	HMAJOR				(Types.BOOL,    "hmajor",			false,				INTERNAL	),
 	HMIRROR				(Types.BOOL,	"hmirror",			false,				INTERNAL	),
 	VMIRROR				(Types.BOOL,	"vmirror",			false,				INTERNAL	),
 	

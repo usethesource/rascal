@@ -32,7 +32,7 @@ public class Screen extends WithInnerFig{
 	
 	// TODO: this is copied from newtree, maybe put in figure...
 	private void setMajorDimension() {
-		if(prop.getBool(Properties.MAJOR_X)){
+		if(prop.getBool(Properties.HMAJOR)){
 			major = Dimension.X;
 		} else {
 			major = Dimension.Y;

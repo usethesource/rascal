@@ -36,6 +36,7 @@ public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 		for(String val : choices){
              list.add(val);
         }
+		list.select(0);
 		list.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

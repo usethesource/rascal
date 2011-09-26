@@ -87,7 +87,7 @@ public class Tree extends Compose {
 	}
 
 	private void setMajorDimension() {
-		if(prop.getBool(Properties.MAJOR_X)){
+		if(prop.getBool(Properties.HMAJOR)){
 			major = Dimension.X;
 		} else {
 			major = Dimension.Y;
