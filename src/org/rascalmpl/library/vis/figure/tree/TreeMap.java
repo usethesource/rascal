@@ -81,7 +81,6 @@ public class TreeMap extends Compose{
 				children[curChild] = areas[curChild];
 			}
 			curChild++;
-			System.out.printf("Setting %s  area %s %s %s\n",fig,fig.prop.getReal(AREA),area,cumulatedArea);
 			x+=width;
 		}
 		return yOffset + height;
@@ -98,11 +97,9 @@ public class TreeMap extends Compose{
 		for(Figure cur : children ){
 			
 			cumulatedArea += cur.prop.getReal(AREA);
-			System.out.printf("Cum area %f\n",cumulatedArea);
 			currentRow.add(cur);
 			double curAR = worstAspectRatio(currentRow,cumulatedArea);
 			if(curAR > prevAR){
-				System.out.printf("Getting wordse area %f\n",cumulatedArea);
 				currentRow.remove(currentRow.size()-1);
 				cumulatedArea -= cur.prop.getReal(AREA);
 				yOffset = layoutRow(yOffset,cumulatedArea,currentRow);
