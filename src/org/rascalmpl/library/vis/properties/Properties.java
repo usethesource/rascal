@@ -98,8 +98,8 @@ public enum Properties {
 	
 	ON_MOUSE_DOWN		(Types.HANDLER,	"onMouseDown",		null,		"bool (int,map[KeyModifier,bool])"		),
 	ON_MOUSE_UP			(Types.HANDLER, "onMouseUp",		null,		"bool (int,map[KeyModifier,bool])"		),	
-	ON_MOUSE_OVER		(Types.HANDLER,	"onMouseOver",		null,		"void ()"		),
-	ON_MOUSE_OFF		(Types.HANDLER,	"onMouseOff",		null,		"void ()"		),
+	ON_MOUSE_OVER		(Types.HANDLER,	"onMouseEnter",		null,		"void ()"		),
+	ON_MOUSE_OFF		(Types.HANDLER,	"onMouseExit",		null,		"void ()"		),
 	ON_KEY_DOWN			(Types.HANDLER,	"onKeyDown",		null,		"bool (KeySym, map[KeyModifier,bool])"),
 	ON_KEY_UP			(Types.HANDLER,	"onKeyUp",			null,		"bool (KeySym, map[KeyModifier,bool])");;
 	
