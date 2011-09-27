@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Atze J. van der Ploeg - atze.van.der.ploeg@cwi.nl - CWI}
-module GenTree
+module vis::examples::GenTree
 
 import vis::Figure;
 import vis::Render;
@@ -49,7 +49,7 @@ public void testTree(){
 		hcat([
 			scrollable(
 				computeFigure(bool () { if(recompute){ recompute = false ; return true;} return false; },
-					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,10,10,10,10);}
+					Figure () { return genTree(leafChance,minDepth,maxDepth,minKids,maxKids,toReal(minx),toReal(miny), toReal(maxx),toReal(maxy));}
 					,std(gap(real () { return toReal(hg);},real () { return toReal(vg); })),std(manhattan(bool () {return man; })),
 					std(orientation(Orientation () { return or; })))
 				),
