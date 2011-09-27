@@ -13,6 +13,7 @@
 package org.rascalmpl.library.vis.figure.combine.containers;
 
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.SIZE;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import java.util.List;
@@ -21,9 +22,11 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 
 
 /**
@@ -82,7 +85,7 @@ public class Ellipse extends Container {
 		double ey = 	(c.getY() - Y) / h2;
 		return  ex * ex + ey * ey <= 1;
 	}
-	// TODO: fixme
+
 	/**
 	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
 	 * At the intersection with the border of the current figure, place an arrow that is appropriately rotated.
@@ -94,10 +97,18 @@ public class Ellipse extends Container {
 	 * @param fromY		Y of center of figure from which connection is to be drawn
 	 * @param toArrow	the figure to be used as arrow
 	 */
-	/*
+	
 	@Override
-	public void connectArrowFrom(double left, double top, double X, double Y, double fromX, double fromY,
-			Figure toArrow,GraphicsContext gc){
+	public void connectArrowFrom(double left, double top, double X, double Y,
+			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+		System.out.printf("Is toch echt gespecial !!\n");
+		
+		for(Dimension d : HOR_VER){
+			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
+		}
+		toArrow.size.set(toArrow.minSize);
+		toArrow.location.set(0,0);
+		toArrow.resize(null, new TransformMatrix());
 		
 		if(fromX == X)
 			fromX += 0.00001;
@@ -111,21 +122,25 @@ public class Ellipse extends Container {
         }
         double sint = FigureMath.sin(theta);
         double cost = FigureMath.cos(theta);
-        double r = minSize.getHeight() * minSize.getWidth() / (4 * FigureMath.sqrt((minSize.getHeight()*minSize.getHeight()*cost*cost + minSize.getWidth()*minSize.getWidth()*sint*sint)/4));
+        double r = minSize.getY() * minSize.getX() / (4 * FigureMath.sqrt((minSize.getY()*minSize.getY()*cost*cost + minSize.getX()*minSize.getX()*sint*sint)/4));
         double IX = X + r * cost;
         double IY = Y + r * sint;
         
    //     fpa.line(left + fromX, top + fromY, left + IX, top + IY);
-        
+        double rotd = -90 + Math.toDegrees(theta);
         if(toArrow != null){
         	gc.pushMatrix();
         	gc.translate(left + IX, top + IY);
-        	gc.rotate(FigureMath.radians(-90) + theta);
-        	toArrow.draw(gc);
+        	gc.rotate(rotd);
+			gc.translate(-toArrow.size.getX()/2.0,0);
+        	
+			
+			toArrow.applyProperties(gc);
+			toArrow.drawElement(gc,visibleSWTElements); 
         	gc.popMatrix();
         }
 	}
-	*/
+	
 	
 	@Override
 	public String  toString(){

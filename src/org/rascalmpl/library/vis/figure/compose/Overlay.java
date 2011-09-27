@@ -74,7 +74,6 @@ public class Overlay extends Compose{
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		System.out.printf("Got here!!!!!!!!!!\n");
 		for(Figure fig : children){
 			for(Dimension d : HOR_VER){
 				fig.size.set(d,size.get(d)*fig.prop.get2DReal(d, SHRINK));
