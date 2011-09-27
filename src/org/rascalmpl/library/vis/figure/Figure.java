@@ -493,6 +493,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public void connectArrowFrom(double left, double top, double X, double Y,
 			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
 	
+		System.out.printf("Niet gespecialiseerd %s!!\n",this);
 		for(Dimension d : HOR_VER){
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
@@ -546,7 +547,7 @@ public abstract class Figure implements Comparable<Figure> {
 			gc.rotate(rotd);
 			gc.translate(-toArrow.size.getX()/2.0,0);
 			toArrow.applyProperties(gc);
-			toArrow.drawElement(gc,visibleSWTElements); //TODO: fixme!!!
+			toArrow.drawElement(gc,visibleSWTElements); 
 			gc.popMatrix();
 		}
 	}

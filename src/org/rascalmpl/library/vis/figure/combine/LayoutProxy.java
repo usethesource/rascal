@@ -1,8 +1,12 @@
 package org.rascalmpl.library.vis.figure.combine;
 
+import java.util.List;
+
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 public abstract class LayoutProxy extends WithInnerFig {
@@ -37,6 +41,14 @@ public abstract class LayoutProxy extends WithInnerFig {
 			children = EMPTY_ARRAY;
 		}
 		innerFig = inner;
+	}
+	
+	@Override
+	public void connectArrowFrom(double left, double top, double X, double Y,
+			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+		if(children.length > 0){
+			children[0].connectArrowFrom(left, top, X, Y, fromX, fromY, toArrow, gc, visibleSWTElements);
+		}
 	}
 	
 }
