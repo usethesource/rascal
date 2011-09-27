@@ -192,12 +192,7 @@ data TimerAction = restart(int delay)
 data Convert = convert(value v, str id);
 
 
-// TEMPORARY, to make doc consistent with code
-// rename mouseOver -> onMouseOver
 
-FProperty onMouseOver(Figure fig){
-  return mouseOver(fig);
-}
 
 
 data Orientation =
@@ -435,8 +430,8 @@ data FProperty =
 	|dir        (Measure  mv )
 	|onMouseDown(bool (int,map[KeyModifier,bool]) h0 )
 	|onMouseUp  (bool (int,map[KeyModifier,bool]) h1 )
-	|onMouseOver(void ()  h2 )
-	|onMouseOff (void ()  h3 )
+	|onMouseEnter(void ()  h2 )
+	|onMouseExit(void ()  h3 )
 	|onKeyDown  (bool (KeySym, map[KeyModifier,bool]) h4 )
 	|onKeyUp    (bool (KeySym, map[KeyModifier,bool]) h5 )
 ;
@@ -780,11 +775,11 @@ public Figure vaxis(Figure fig, FProperty props ...){
 }
 
 public Figure hscreen(Figure fig, FProperty props ...){
-  return _screen(fig, props + [majorx(true)]);
+  return _screen(fig, props + [hmajor(false)]);
 }
 
 public Figure vscreen(Figure fig, FProperty props ...){
-  return _screen(fig, props + [majorx(false)]);
+  return _screen(fig, props + [hmajor(true)]);
 }
 
 public Figure leftAxis(str name,str i,Figure fig, FProperty props ...){

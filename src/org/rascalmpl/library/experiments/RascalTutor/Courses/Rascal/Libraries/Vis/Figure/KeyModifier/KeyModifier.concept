@@ -1,0 +1,30 @@
+Name: KeyModifier
+
+Details:
+
+Syntax: 
+<listing>
+data KeyModifier =
+	  modCtrl()
+	| modAlt()
+	| modShift()
+	| modCommand();
+</listing>
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Describes keymodifiers, the keyboards keys Control, Alt, Shift and Command (Super/Windows/Apple key)
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

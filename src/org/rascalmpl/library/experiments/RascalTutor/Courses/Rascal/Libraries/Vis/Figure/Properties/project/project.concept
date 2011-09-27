@@ -1,0 +1,23 @@
+Name: project
+
+Details:
+
+Syntax: `FProperty project              (Figure f0, str p0)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Project figure `f0` from this figure onto the screen with [id] `p0`. See [hscreen] and [vscreen]
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

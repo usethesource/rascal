@@ -15,11 +15,11 @@ Function:
 Synopsis:
 
 Description:
-An edge connects nodes in [tree]s, [graph]s, and [treemap]s.
+An edge connects nodes in [graph]s.
 The arguments `from` and `to` are node [id]s.
 
 Examples:
-See [tree], [graph], or [treemap].
+See [graph].
 
 Benefits:
 

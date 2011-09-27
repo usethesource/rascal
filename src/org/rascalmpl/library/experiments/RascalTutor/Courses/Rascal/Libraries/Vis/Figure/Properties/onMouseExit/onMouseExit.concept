@@ -1,0 +1,23 @@
+Name: onMouseExit
+
+Details:
+
+Syntax: `FProperty onMouseExit(void () cb)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Execute callback `cb` when the mouse pointer exits the figure. See also [onMouseEnter].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

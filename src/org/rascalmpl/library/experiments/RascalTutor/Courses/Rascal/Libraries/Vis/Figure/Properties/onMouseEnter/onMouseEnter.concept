@@ -1,0 +1,35 @@
+Name: onMouseEnter
+
+Details:
+
+Syntax: `FProperty onMouseEnter(void () cb)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Execute callback `cb` when the mouse pointer enters the figure. See also [onMouseExit].
+
+Examples:
+
+	
+
+<figure mouseenter.png 300x300>
+c = false; 
+b = box(fillColor(Color () { return c ? color("red") : color("green"); }),
+	onMouseEnter(void () { c = true; }), onMouseExit(void () { c = false ; })
+	,shrink(0.5));
+render(b);
+</figure>
+![onkeydown](onkeydown.png)
+
+
+Benefits: 
+
+Pitfalls: Unfortunatly we cannot show an interactive version here, try it out in Rascal yourself.
+
+Questions:
+
+       

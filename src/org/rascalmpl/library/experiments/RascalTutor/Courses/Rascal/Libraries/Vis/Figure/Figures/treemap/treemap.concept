@@ -10,49 +10,28 @@ Types:
 
 Function:
 
-`Figure treemap(FProperties, Figures nodes, list[Edge] edges, FProperty props...)`
+`Figure treemap(Figures nodes, FProperty props...)`
 
 Synopsis:
 
 Description:
-Takes a list of nodes and a list of edges and draws a treemap, see [TreeMapping](http://en.wikipedia.org/wiki/Treemapping).
-The nodes can be arbitrary figures that should have a name (using the [id] property).
-Unlike [tree], the figure of each node is ignored and only its __dimensions__ (= surface) are used.
-The edges determine connections between named nodes. 
+Takes a list of nodes and and draws a treemap, see [TreeMapping](http://en.wikipedia.org/wiki/Treemapping).
+The nodes can be arbitrary figures and each node should specify its area, trough the [area] property.
+If the treemapping algorithm assigns a size to a figure that is smaller than its minimal size then a box (with the same properties) is drawn instead of the actual figure.
 
-The following constraints apply:
-* All nodes should have an id property with a unique value.
-* All edges should refer to ids that are defined by the nodes.
-* The nodes and edges should form a tree, i.e., a single rooted, acyclic graph.
-
-
-The following properties are relevant for treemap:
-* [width], [height], [Properties/size] of nodes.
-* [gap], [hgap], [vgap] to determine the distance between the elements in the treemap.
-
-<warning>The interface of treemap will be made similar that of [tree]</warning>
 
 Examples:
 
-<figure tm1.png>
-nodes = [
-  box(id("A"), size(30), fillColor("green")),
-  box(id("B"), size(30), fillColor("red")),
-  box(id("C"), size(30), fillColor("blue")),
-  box(id("D"), size(30), fillColor("purple")),
-  box(id("E"), size(30), fillColor("lightblue")),
-  box(id("F"), size(30), fillColor("orange")),
-  box(id("G"), size(30), fillColor("brown")),
-  box(id("H"), size(30), fillColor("black")),
-  box(id("I"), size(30), fillColor("grey")),
-  box(id("J"), size(30), fillColor("white"))
-];
-edges = [ 
-  edge("A", "B"),  edge("B", "C"),  edge("B", "D"),
-  edge("A", "E"),  edge("A", "H"),  edge("E", "F"),
-  edge("E", "G"),  edge("E", "I"),  edge("E", "J")
-];		
-render(treemap(nodes, edges, gap(8), top(), fillColor("Black")));    
+<figure tm1.png 350x400>
+t = treemap([box(area(10),fillColor("green")),
+	     box(area(20),fillColor("red")),
+	     box(text("jada"),area(10)),
+            box(vcat([
+            	text("nested"),
+            	treemap([box(area(5),fillColor("purple")),box(area(10),fillColor("orange"))])
+            ],shrink(0.9)),area(30),fillColor("lightblue"))
+     ]);
+render(t);
 </figure>
 ![treemap 1](tm1.png)
 

@@ -1,0 +1,23 @@
+Name: onMouseUp
+
+Details:
+
+Syntax: `FProperty onMouseUp  (bool (int,map[KeyModifier,bool]) cb )
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Execute callback `cb` when a mouse button is released. Works the same as [onMouseDown].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

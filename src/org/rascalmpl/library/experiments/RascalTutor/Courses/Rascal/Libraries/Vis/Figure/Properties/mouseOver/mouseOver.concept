@@ -1,4 +1,4 @@
-Name: onMouseOver
+Name: mouseOver
 
 Details:
 
@@ -8,7 +8,7 @@ Syntax:
 
 Types:
 
-Function: `FProperty onMouseOver(Figure fig)`
+Function: `FProperty mouseOver(Figure fig)`
 
 Synopsis:
 
@@ -34,3 +34,5 @@ Pitfalls: Unfortunatly we cannot show an interactive version here. Try it out in
 
 Questions:
 
+
+       

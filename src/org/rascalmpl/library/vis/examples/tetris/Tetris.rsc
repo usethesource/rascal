@@ -139,8 +139,8 @@ public Figure tetris(){
 		return 0;
 	}
 	
-	bool keyDown(KeySym key, bool down, map[KeyModifier,bool] modifierMap){
-		if(!down || paused) return true;
+	bool keyDown(KeySym key, map[KeyModifier,bool] modifierMap){
+		if( paused) return true;
 		currentAction = keyToAction(key);
 		switch(currentAction){
 			case nothing() : ;
@@ -161,8 +161,11 @@ public Figure tetris(){
 		 return !(nothing() := currentAction);
 	}
 	
-	void setPause(bool mouseOn){
-		paused = !mouseOn;
+	void pause(){
+		paused = true;
+	}
+	void resume(){
+		paused = false;
 	}
 	
 	void handleTimer(){
@@ -242,7 +245,7 @@ public Figure tetris(){
 				)
 				])
 			],vgrow(1.01))
-		, onMouseMove(setPause),onKey(keyDown),std(fontColor("white")),std(fillColor("darkblue")),aspectRatio(18.0/20.0),grow(1.03));
+		, onMouseOver(resume),onMouseOff(pause),onKeyDown(keyDown),std(fontColor("white")),std(fillColor("darkblue")),aspectRatio(18.0/20.0),grow(1.03));
 
 }
 	 

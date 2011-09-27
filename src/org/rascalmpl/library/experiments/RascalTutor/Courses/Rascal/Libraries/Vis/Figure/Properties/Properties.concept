@@ -114,6 +114,7 @@ The following table specifies which properties have an effect on which figures.
 <tr><td>[startGap]2D	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
 <tr><td>[endGap]2D		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
 <tr><td>[textAngle]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
+<tr><td>[orientation]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   
 </table>
 
 Benefits:

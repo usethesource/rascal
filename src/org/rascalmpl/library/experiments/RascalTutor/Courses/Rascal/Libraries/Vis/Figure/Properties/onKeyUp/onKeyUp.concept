@@ -1,0 +1,23 @@
+Name: onKeyUp
+
+Details:
+
+Syntax: `onKeyUp (bool (KeySym, map[KeyModifier,bool]))`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Execute callback when key is released. Works the same as [onKeyDown].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

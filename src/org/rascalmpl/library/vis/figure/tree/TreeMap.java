@@ -42,14 +42,17 @@ public class TreeMap extends Compose{
 
 	public TreeMap(Figure[] figures, PropertyManager properties) {
 		super(figures, properties);
-		this.areas = figures;
+		this.areas = new Figure[figures.length];
+		for(int i = 0 ; i < figures.length ; i++){
+			this.areas[i] = figures[i];
+		}
 	}
 
 	
 
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
 		area = 0;
-		for(Figure fig : children){
+		for(Figure fig : areas){
 			area += fig.prop.getReal(AREA);
 		}
 	}
@@ -75,7 +78,7 @@ public class TreeMap extends Compose{
 			fig.size.setY(height);
 			double width = (fig.prop.getReal(AREA) / cumulatedArea)* size.getX();
 			fig.size.setX( width);
-			if(!fig.size.contains(fig.minSize)){
+			if(fig.size.getX() < fig.minSize.getX() || fig.size.getY() < fig.minSize.getY()){
 				children[curChild] = new Box(null, areas[curChild].prop);
 			} else {
 				children[curChild] = areas[curChild];
@@ -94,7 +97,7 @@ public class TreeMap extends Compose{
 		double prevAR = Double.MAX_VALUE;
 		double yOffset = 0;
 		double cumulatedArea = 0;
-		for(Figure cur : children ){
+		for(Figure cur : areas ){
 			
 			cumulatedArea += cur.prop.getReal(AREA);
 			currentRow.add(cur);
