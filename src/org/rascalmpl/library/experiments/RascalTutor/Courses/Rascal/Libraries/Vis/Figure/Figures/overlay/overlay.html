@@ -58,7 +58,11 @@
     <ul>          <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a></li>
           <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a></li>
           <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
-          <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a></li>
+          <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>
+      <ul>              <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity/Associativity.html">Associativity</a></li>
+              <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a></li>
+      </ul></li>
+
           <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a></li>
           <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a></li>
     </ul></li>
@@ -507,7 +511,6 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/grid/grid.html">grid</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hcat/hcat.html">hcat</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscrollable/hscrollable.html">hscrollable</a></li>
-                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscrollbar/hscrollbar.html">hscrollbar</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hvcat/hvcat.html">hvcat</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/outline/outline.html">outline</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/overlay/overlay.html">overlay</a></li>
@@ -516,7 +519,6 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scale/scale.html">scale</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scaleSlider/scaleSlider.html">scaleSlider</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scrollable/scrollable.html">scrollable</a></li>
-                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scrollbar/scrollbar.html">scrollbar</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/space/space.html">space</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/text/text.html">text</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/textfield/textfield.html">textfield</a></li>
@@ -524,7 +526,6 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/treemap/treemap.html">treemap</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vcat/vcat.html">vcat</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscrollable/vscrollable.html">vscrollable</a></li>
-                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscrollbar/vscrollbar.html">vscrollbar</a></li>
         </ul></li>
 
               <li><a href="/Courses/Rascal/Libraries/Vis/Figure/InteractionModel/InteractionModel.html">InteractionModel</a></li>
@@ -649,6 +650,7 @@
 <li> make a smooth connection between figures in the overlay, see <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','shapeCurved')">shapeCurved</a>.</li>
 <li> connecting the first and the last figure in the shape, see <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','shapeClosed')">shapeClosed</a>.</li>
 <li> using <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','fillColor')">fillColor</a> to define the area color of the closed shape.</li>
+<li> using <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','hconnect')">hconnect</a> or <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','vconnect')">vconnect</a> to determine where the figures in a shape will be connected.</li>
 </ul>
 </div>
 
@@ -762,7 +764,8 @@ render(ovl);
  <br/>
 <br/>
 
- The <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','hconnect')">hconnect</a> and <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','vconnect')">vconnect</a> properties can be used to deterimine where shape will connect with the figure.
+ The <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','hconnect')">hconnect</a> and <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','vconnect')">vconnect</a> properties can be used to determine where a
+ shape will connect with a figure.
  <br/>
 <br/>
 

@@ -642,7 +642,7 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Takes a list of nodes and a list of edges and draws a graph. 
- The nodes can be arbitrary figures that should have a name (using the id property). 
+ The nodes can be arbitrary figures that should have a name (using the <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','id')">id</a> property). 
  The edges determine connections between named nodes. 
  <br/>
 <br/>
@@ -650,61 +650,64 @@
  The following constraints apply:
  <ul><li> All nodes should have an id property with a unique value.</li>
 <li> All edges should refer to ids that are defined by the nodes.</li>
+</ul> The following properties are applicable to graphs:
+ <ul><li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','id')">id</a> to define the identity of nodes and to define edges between nodes.</li>
+<li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','hint')">hint</a> determines the layout algorithm to use. Currently, only <code>"layered"</code> is supported.</li>
+<li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','layer')">layer</a> is used to define the placement of nodes in the same layer.</li>
+<li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','dir')">dir</a> is used to define the drawing direction.</li>
+<li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','toArrow')">toArrow</a> and <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','fromArrow')">fromArrow</a> are used to define arrows on edges.</li>
+<li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','label')">label</a> defines an edge label.</li>
 </ul>
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">nodes = [
-  box(text("A"), id("A"), size(20), fillColor("LightGreen")),
-  box(text("B"), id("B"),  size(30), fillColor("LightCoral")),
-  ellipse(text("C"), id("C"),  size(20), fillColor("LightBlue")),
-  ellipse(text("D"), id("D"), size(20, 40), fillColor("Fuchsia"))
-];
-edges = [ 
-  edge("A", "B"),
-  edge("A", "C"),
-  edge("B", "C"),
-  edge("C", "D"),
-  edge("D", "A")
-];    
-render(graph(nodes, edges, std(gap(10)), size(50)));
+<span class="sectionHead">Examples</span>  <pre class="listing">nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
+     	  box(text("B"), id("B"),  size(60), fillColor("orange")),
+     	  ellipse( text("C"), id("C"),  size(70), fillColor("lightblue")),
+     	  ellipse(text("D"), id("D"), size(200, 40), fillColor("violet")),
+          box(text("E"), id("E"), size(50), fillColor("silver")),
+	  box(text("F"), id("F"), size(50), fillColor("coral"))
+     	];
+edges = [ edge("A", "B"), edge("B", "C"), edge("B", "D"), edge("A", "C"),
+          edge("C", "E"), edge("C", "F"), edge("D", "E"), edge("D", "F"),
+          edge("A", "F")
+    	]; 
+render(graph(nodes, edges, hint("layered"), gap(100)));
 </pre> <img class="TutorImg"  title="graph 1" alt="graph 1" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g1.png">
  <br/>
 <br/>
 
- A fully connected graph of n nodes (using spring layout):
- <xfigure g2.png>
- public Figure K(int n){
-     nodes = [box(text("<i>"), id("<i>"), size(20), fillColor("LightBlue")) | int i &lt;- [1 .. n] ];
-     edges = [[edge("<i>", "<j>") | int j &lt;- [ 1 .. n], j != i] | int i &lt;- [ 1 .. n ] ];
-     return graph(nodes, edges, hint("spring"), size(300));
- }
- render(K(20));
- </figure>
- <img class="TutorImg"  title="graph 2" alt="graph 2" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g2.png">
- <br/>
-<br/>
+ <pre class="listing">nodes = [ box(text("A"), id("A"), size(30), fillColor("green")),
+     	  box(text("B"), id("B"),  size(30), fillColor("red")),
+     	  box(text("C"), id("C"),  size(30), fillColor("blue")),
+     	  box(text("D"), id("D"), size(30), fillColor("purple")),
+     	  box(text("E"), id("E"), size(30), fillColor("lightblue")),
+     	  box(text("F"), id("F"), size(30), fillColor("orange")),
+     	  box(text("G"), id("G"), size(30), fillColor("brown")),
+     	  box(text("H"), id("H"), size(30), fillColor("black")),
+     	  box(text("I"), id("I"), size(30), fillColor("grey")),
+     	  box(text("J"), id("J"), size(30), fillColor("white")),
+     	  box(text("K"), id("K"), size(30), fillColor("deeppink")),
+     	  box(text("L"), id("L"), size(30), fillColor("deeppink")),
+     	  box(text("M"), id("M"), size(30), fillColor("deeppink"))
+     	];
+edges = [ edge("A", "B"),  edge("A", "C"),  edge("A", "D"),
+    	  edge("B", "E"), edge("B", "F"), edge("B", "G"),
+    	  edge("C", "H"),  edge("C", "I"),  edge("C", "J"),
+    	  edge("D", "K"),   edge("D", "L"),  edge("D", "M"),
+    	  edge("K", "G"), edge("A", "G")
+    	]; 
+render(graph(nodes, edges, hint("layered"), gap(40)));
+</pre> <img class="TutorImg"  title="graph 1" alt="graph 1" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g2.png">
 
- A tree drawn using graph layout:
- <xfigure g3.png>
- //nodes = [ 
-  // box(text("A"), id("A"), size(20), fillColor("green")),
- //  box(text("B"), id("B"), size(20), fillColor("red")),
- //  box(text("C"), id("C"), size(20), fillColor("blue")),
- //  box(text("D"), id("D"), size(20), fillColor("purple")),
- //  box(text("E"), id("E"), size(20), fillColor("lightblue")),
- //  box(text("F"), id("F"), size(20), fillColor("orange")),
- //  box(text("G"), id("G"), size(20), fillColor("brown"))
- //];
- //edges = [ 
- //  edge("A", "B"),  edge("A", "C"),
- //  edge("B", "D"), edge("B", "E"), 
- ////  edge("C", "F"),  edge("C", "G")	   
- //];
- //render(graph(nodes, edges, size(300)));
- </figure>
- <img class="TutorImg"  title="graph 3" alt="graph 3" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g3.png">
+</div>
 
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> The layered graph layout performs best when (these are imperfections of the current implementation): <ul><li> the node sizes are more or less equal.</li>
+<li> the <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/graph','hgap')">hgap</a> is set to a value equal to the average width of the nodes.</li>
+</ul></li>
+<li> Spring layout is at the moment disabled.</li>
+</ul>
 </div>
 
 <div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/graph&new=false"><b>Edit</b></a>] | 

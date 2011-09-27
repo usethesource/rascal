@@ -22,6 +22,7 @@ by
 * make a smooth connection between figures in the overlay, see [shapeCurved].
 * connecting the first and the last figure in the shape, see [shapeClosed].
 * using [fillColor] to define the area color of the closed shape.
+* using [hconnect] or [vconnect] to determine where the figures in a shape will be connected.
 
 Examples:
 <figure o1.png 150x150>
@@ -119,7 +120,8 @@ gives:
 
 ![o9](o9.png)
 
-The [hconnect] and [vconnect] properties can be used to deterimine where shape will connect with the figure.
+The [hconnect] and [vconnect] properties can be used to determine where a
+shape will connect with a figure.
 
 <figure o10.png 200x200>
 b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
