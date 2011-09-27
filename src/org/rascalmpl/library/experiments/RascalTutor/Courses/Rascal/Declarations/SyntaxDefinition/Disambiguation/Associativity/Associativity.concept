@@ -1,0 +1,41 @@
+Name: Associativity
+
+Details:
+
+Syntax: 
+   * `syntax $Exp$ = $Assoc$ $Label$ $Symbol_1$ $Symbol_2$ ...`
+   * `syntax $Exp$ = $Assoc$ ( $Alt_1$ | $Alt_2$ | ...)`
+   * `syntax $Exp$ = $Assoc$ $Symbol_1$ $Symbol_2$ ...`
+ 
+
+Here $Assoc$ is one of: `left`, `right`, `assoc` or `non-assoc`. See [SyntaxDefinition]s on how to define alternatives and [Symbol]s.
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Using Associativity declarations we may disambiguate binary recursive operators. 
+
+The semantics are that an associativity modifier will instruct the parser to disallow certain productions to nest _at particular argument positions_:
+  * `left` and `assoc` will disallow productions to directly nest in their _right-most_ position.
+  * `right` will disallow productions to directly nest in their _left-most_ position.
+  * `non-assoc` will disallow productions to directly nest in either their left-most or their right-most position.
+
+
+Note that associativity has no effect on any other position than the left-most and right-most position (see also [Priority]).
+
+When associativity is declared for a group of productions, e.g. `left ( $Alt_1$ | $Alt _2$ | $Alt_3$)`, then each alternative will be mutually associative to each other alternative _and itself_. If an alternative of a group defines its own local associativity, as in `left ( right $Alt_1$ | $Alt_2$ | $Alt_3$)`, then $Alt_1$ is right associative with respect to itself and left associative with respect to all others in the group. 
+
+Examples:
+
+Benefits:
+  * short notation for common constructs in programming languages
+
+Pitfalls:
+  * different semantics than SDF's associativity
+
+Questions:
+
+       

@@ -1,0 +1,56 @@
+Name: Priority
+
+Details:
+
+Syntax: `syntax $Exp$ = $alt_1$ > $alt_2$ > $alt_3$` is the basic syntax for priorities.
+
+Groups of equal priority are also allowed as in: `syntax $Exp$ = $alt_1$ | $alt_2$ > $alt_3$ | $alt_4$`. See also [Associativity].
+                      
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Priority declarations define a partial ordering between the productions _within a single non-terminal_. The feature is specifically designed to fit with the semantics of expression sub-languages embedded in programming languages. There exist other mechanisms for [Disambiguation], if [Priority] does not work for you.
+
+The semantics of a priority relation `A > B` is that B will not be nested under A in the left-most or right-most position.
+Any other position of A will allow B fine.
+
+Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
+
+Examples:
+
+The following snippet uses all [Priority] features:
+<listing>
+syntax Exp 
+  = A: Id
+  | B: Number 
+  > C: Exp "[" Exp "]" 
+  | D: Exp "!"
+  > E: Exp "*" Exp 
+  > F: Exp "+" Exp;
+  | bracket G: "(" Exp ")"
+</listing>
+A short explanation:
+  * C and D share a group of equal priority. They are incomparable in the partial ordering. That's fine because `1![2]` is not ambiguous.
+  * Similarly A and B share a group; yet they are not recursive and so do not play any role in the priority ordering.
+  * C and D both have higher priority then E and F, which means that E and F may not be directly nested under C or D.
+  * However: E and F will be allowed under the second argument of C because it is not an outermost position. That's fine because `1 [2 + 3]` is not ambiguous. 
+
+
+Here a number of strings for this language, with brackets to show how they will be parsed: 
+  * "1 + 2 * 3" will be parsed as "1 + (2 * 3)" because E > F.
+  * "1 + 2 [ 3 ]" will be parsed as "1 + (2\[3\])" because C > F.
+  * "1 * 3!" will be parsed as "1 + (3!)" because D > E.
+  * "1 + [2 * 3]" will be parsed as "1 + ([2 * 3])" because priority is only defined for outermost positions.
+
+Benefits:
+  * Short notation for common notation
+
+Pitfalls:
+  * Please do not assume that Rascal's priorities have the same semantics as SDF's priorities.
+
+Questions:
+
+       

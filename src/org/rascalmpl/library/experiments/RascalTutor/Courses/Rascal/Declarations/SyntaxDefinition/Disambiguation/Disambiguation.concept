@@ -1,6 +1,6 @@
 Name: Disambiguation
 
-Details: Symbols Priority Associativity FollowAndPreceedeRestrictions Reserve
+Details: 
 
 Categories:
 
@@ -20,6 +20,7 @@ The first way is to add disambiguation declarations to the [SyntaxDefinition]. Y
    * [Follow] declarations, which can be used to implement longest match using lookahead
    * [Preceed] declarations, which can be used to implement first match using look behind
    * [Reserve] declarations, which allow you to finite sets of strings from a [SyntaxDefinition] to implement keyword reservation
+
 
 The second way is to add [Actions] that will be triggered just after parsing and allow you to trim a parse forest using any information necessary.
 
