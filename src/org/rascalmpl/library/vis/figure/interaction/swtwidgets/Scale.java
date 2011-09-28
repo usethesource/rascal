@@ -22,11 +22,12 @@ public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 	public Scale(IFigureConstructionEnv env, Dimension major, PropertyValue<Integer> low, PropertyValue<Integer> high,  PropertyValue<Integer> selected,IValue callback,
 			PropertyManager properties) {
 		super(env, callback, properties);
-		widget = makeWidget(env.getSWTParent(), major, env);
-		widget.setVisible(false);
 		this.selected = selected;
 		this.low = low;
 		this.high = high;
+		widget = makeWidget(env.getSWTParent(), major, env);
+		widget.setVisible(false);
+
 	}
 	
 
@@ -37,6 +38,7 @@ public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 		case Y: swtConstant = SWT.VERTICAL; break;
 		}
 		org.eclipse.swt.widgets.Scale result = new org.eclipse.swt.widgets.Scale(comp,swtConstant);
+		result.setSelection(selected.getValue());
 		result.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
