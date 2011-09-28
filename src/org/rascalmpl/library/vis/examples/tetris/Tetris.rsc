@@ -245,7 +245,7 @@ public Figure tetris(){
 				)
 				])
 			],vgrow(1.01))
-		, onMouseOver(resume),onMouseOff(pause),onKeyDown(keyDown),std(fontColor("white")),std(fillColor("darkblue")),aspectRatio(18.0/20.0),grow(1.03));
+		, onMouseEnter(resume),onMouseExit(pause),onKeyDown(keyDown),std(fontColor("white")),std(fillColor("darkblue")),aspectRatio(18.0/20.0),grow(1.03));
 
 }
 	 
