@@ -25,7 +25,7 @@ Figures can be classified as follows:
   or placement of figures in a [grid], [graph] or [tree].
 * __Transformations__: perform geometric transformations on a given figure.
 * __Interaction__: provide interaction with the user, see [computeFigure], [fswitch], [button], [textfield], [combo],
-  [checkbox], [scrollable], [hscrollable] and [vscrollable].
+  [checkbox], [scaleSlider],[scrollable], [hscrollable] and [vscrollable].
 
 Examples:
 

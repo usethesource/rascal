@@ -6,7 +6,7 @@
 
 
 <head>
-<title>Rascal/Libraries/Vis/Figure/Properties/mouseOver</title>
+<title>Rascal/Libraries/Vis/Figure/Properties/justify</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
@@ -532,6 +532,7 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshrink/vshrink.html">vshrink</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/font/font.html">font</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/valign/valign.html">valign</a></li>
+                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/ialign/ialign.html">ialign</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeConnected/shapeConnected.html">shapeConnected</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/halign/halign.html">halign</a></li>
@@ -540,8 +541,7 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyDown/onKeyDown.html">onKeyDown</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/layer/layer.html">layer</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onClick/onClick.html">onClick</a></li>
-                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseOver/onMouseOver.html">onMouseOver</a></li>
-                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vresizable/vresizable.html">vresizable</a></li>
+                          <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vresizable/vresizable.html">vresizable</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyUp/onKeyUp.html">onKeyUp</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/area/area.html">area</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseDown/onMouseDown.html">onMouseDown</a></li>
@@ -641,47 +641,30 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Figure.html">Figure</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/Properties.html">Properties</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/mouseOver.html">mouseOver</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Figure.html">Figure</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/Properties.html">Properties</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/justify/justify.html">justify</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Rascal/Libraries/Vis/Figure/Properties/mouseOver">
+    <input type="hidden" name="concept" value="Rascal/Libraries/Vis/Figure/Properties/justify">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
 </div>
          
-<div id="Function">
-<span class="sectionHead">Function</span>  <code>FProperty mouseOver(Figure fig)</code>
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <code>FProperty justify(bool b)</code>
 
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Show figure <code>fig</code> when the mouse hovers over the current figure.
+<span class="sectionHead">Description</span>  If set to <code>true</code> then a <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/justify','hvcat')">hvcat</a> will be rendered "justified". That is instead of aligning the figures in each row to the left or right according to <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/justify','ialign')">ialign</a> the horizonal space in each row will be set so that the row fills the complete width. This is the same as the "justified" alignment mode in a word processor.
 
 </div>
 
-<div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">public Figure stairs(int nr){
-	props = (nr == 0) ? [] : [mouseOver(stairs(nr-1))];
-	return box([props] + 
-        [ ( nr %2 == 0 )? left() : right(),
-          resizable(false),size(100),fillColor("green"),valign(0.25) ]);
-}
-render(box(stairs(10),grow(1.2),bottom(),center()));
-</pre> <img class="TutorImg"  title="onkeydown" alt="onkeydown" src="/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/onkeydown.png">
-
-</div>
-
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  Unfortunatly we cannot show an interactive version here. Try it out in Rascal yourself.
-
-</div>
-
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/mouseOver&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/mouseOver&new=true"><b>New Subconcept</b></a>] |
+<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/justify&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/justify&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>

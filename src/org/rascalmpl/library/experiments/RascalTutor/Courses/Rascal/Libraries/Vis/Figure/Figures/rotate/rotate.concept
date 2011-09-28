@@ -14,6 +14,11 @@ Function:
 Synopsis:
 
 Description:
+
+<warning>
+Currently doesn't work!
+</warning>
+
 Rotate figure `fig` `angle` degrees around its anchor point.
 
 Also see [Angles].

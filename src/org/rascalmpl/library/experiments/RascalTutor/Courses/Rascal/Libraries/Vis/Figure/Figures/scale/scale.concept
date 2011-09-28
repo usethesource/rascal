@@ -17,6 +17,11 @@ Function:
 Synopsis:
 
 Description:
+
+<warning>
+Currently doesn't work!
+</warning>
+
 Scale figure `fig`. When only a single percentage `perc` is given, this applied to
 the horizontal and vertical dimension.
 

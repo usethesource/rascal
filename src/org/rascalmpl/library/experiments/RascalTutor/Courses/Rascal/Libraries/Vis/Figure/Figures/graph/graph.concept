@@ -28,7 +28,7 @@ The following properties are applicable to graphs:
 * [id] to define the identity of nodes and to define edges between nodes.
 * [hint] determines the layout algorithm to use. Currently, only `"layered"` is supported.
 * [layer] is used to define the placement of nodes in the same layer.
-* [dir] is used to define the drawing direction.
+* [orientation] is used to define the drawing direction.
 * [toArrow] and [fromArrow] are used to define arrows on edges.
 * [label] defines an edge label.
 

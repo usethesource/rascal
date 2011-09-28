@@ -51,6 +51,8 @@ render(hvcat([b1, b2, b3, b4, b5, b6], gap(5)));
 </figure>
 displayed in a 100x120 area gives: ![h2](h2.png)
 
+The alignment of the rows can be set using [justify] and [ialign].
+
 Benefits:
 
 Pitfalls:
