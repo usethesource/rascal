@@ -60,6 +60,8 @@ public class SWTGraphicsContext implements GraphicsContext {
 		currentFontData = null;
 		currentFont = null;
 		translateX = translateY = 0;
+		stackMatrix.clear();
+		gc.setTransform(null);
 	}
 	
 	public GC getGC(){
