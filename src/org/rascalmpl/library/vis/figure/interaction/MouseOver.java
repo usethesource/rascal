@@ -56,7 +56,6 @@ public class MouseOver extends Overlap {
 	@Override
 	public void setChildren(IFigureConstructionEnv env, NameResolver resolver){
 		computeMouseOver(env);
-		//System.out.printf("Computing mover %s!\n",showMouseOver);
 		if(showMouseOver){
 			setOverlap(mover);
 		} else {
@@ -79,7 +78,9 @@ public class MouseOver extends Overlap {
 	public boolean initChildren(IFigureConstructionEnv env,
 			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
 		swtSeen = innerFig.init(env, resolver, mparent, swtSeen, visible);
-		mover.init(env, resolver, this, swtSeen, visible);
+		if(showMouseOver){
+			mover.init(env, resolver, this, swtSeen, visible);
+		}
 		return swtSeen;
 	}
 	
@@ -101,6 +102,7 @@ public class MouseOver extends Overlap {
 			}
 		}
 	}
+	
 	
 	@Override	
 	public void destroyElement(IFigureConstructionEnv env) {
