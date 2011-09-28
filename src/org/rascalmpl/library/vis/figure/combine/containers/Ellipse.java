@@ -47,7 +47,7 @@ public class Ellipse extends Container {
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.ellipse(location.getX() , location.getY() , size.getX() , size.getY() );
+		gc.ellipse(globalLocation.getX() , globalLocation.getY() , size.getX() , size.getY() );
 	}
 	
 	@Override
@@ -64,7 +64,7 @@ public class Ellipse extends Container {
 		super.resizeElement(view);
 		if(innerFig == null) return;
 		for(Dimension d : HOR_VER){
-			innerFig.location.add(d,innerFig.size.get(d)*(1.0-SHRINK_EXTRA) * innerFig.prop.get2DReal(d, ALIGN));
+			innerFig.localLocation.add(d,innerFig.size.get(d)*(1.0-SHRINK_EXTRA) * innerFig.prop.get2DReal(d, ALIGN));
 			innerFig.size.set(d, innerFig.size.get(d)*SHRINK_EXTRA);
 		}
 		
@@ -79,8 +79,8 @@ public class Ellipse extends Container {
 	public boolean mouseInside(Coordinate c){
 		double w2 = size.getX()/2;
 		double h2 = size.getY()/2;
-		double X = location.getX() + w2;
-		double Y = location.getY() + h2;
+		double X = globalLocation.getX() + w2;
+		double Y = globalLocation.getY() + h2;
 		double ex =  (c.getX() - X) / w2;
 		double ey = 	(c.getY() - Y) / h2;
 		return  ex * ex + ey * ey <= 1;
@@ -107,7 +107,7 @@ public class Ellipse extends Container {
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
 		toArrow.size.set(toArrow.minSize);
-		toArrow.location.set(0,0);
+		toArrow.globalLocation.set(0,0);
 		toArrow.resize(null, new TransformMatrix());
 		
 		if(fromX == X)
@@ -144,6 +144,6 @@ public class Ellipse extends Container {
 	
 	@Override
 	public String  toString(){
-		return String.format("Ellipse %s %s", location,size);
+		return String.format("Ellipse %s %s", globalLocation,size);
 	}
 }

@@ -104,14 +104,16 @@ public abstract class Figure implements Comparable<Figure> {
 	public PropertyManager prop;
 	public BoundingBox minSize;
 	public BoundingBox size;
-	public Coordinate location; // the location of the left, top corner of this figure the global coordinate systenm
+	public Coordinate localLocation; // the location of the left, top corner of this figure relative to the parent location
+	public Coordinate globalLocation; //
 	public TwoDimensional<Boolean> resizable;
 
 	public Figure(PropertyManager properties) {
 		this.prop = properties;
 		minSize = new BoundingBox();
 		size = new BoundingBox();
-		location = new Coordinate();
+		localLocation = new Coordinate();
+		globalLocation = new Coordinate();
 		resizable = new TwoDimensional<Boolean>(true, true);
 		sequenceNr = sequencer;
 		sequencer++;
@@ -214,10 +216,10 @@ public abstract class Figure implements Comparable<Figure> {
 		for(Figure child : children){
 			for(Dimension d : HOR_VER){
 				if(prop.get2DBool(d, MIRROR)){
-					child.location.set(d,size.get(d) - (child.location.get(d) + child.size.get(d)));
+					child.localLocation.set(d,size.get(d) - (child.localLocation.get(d) + child.size.get(d)));
 				}
 			}
-			child.location.add(location);
+			child.globalLocation.set(globalLocation);
 			child.resize(view,transform);
 		}
 	}
@@ -228,6 +230,15 @@ public abstract class Figure implements Comparable<Figure> {
 	public void reverseTransformation(TransformMatrix transform) {}
 	public void onResizeUp() { }
 
+	public void updateGlobalLocation(){
+		
+		for(Figure child : children){
+			child.globalLocation.set(globalLocation);
+			child.globalLocation.add(child.localLocation);
+			child.updateGlobalLocation();
+		}
+	}
+	
 	public final void draw(Coordinate zoom, GraphicsContext gc,Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		// TODO: iets met rotate en transformaties
 //		Coordinate offset = new Coordinate();
@@ -335,7 +346,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public void adjustSizeAndLocation(){
 		for(Dimension d : HOR_VER){
 			if(!resizable.get(d)){
-				location.add(d, (size.get(d) - minSize.get(d)) * prop.get2DReal(d, ALIGN) );
+				localLocation.add(d, (size.get(d) - minSize.get(d)) * prop.get2DReal(d, ALIGN) );
 				size.set(d,minSize.get(d));
 			}
 		}
@@ -344,14 +355,15 @@ public abstract class Figure implements Comparable<Figure> {
 			double car = size.getX() / size.getY();
 			if(car > ar) { // too wide
 				double newWidth = size.getY() * ar;
-				location.add(X, (size.getX() - newWidth) * prop.getReal(HALIGN));
+				localLocation.add(X, (size.getX() - newWidth) * prop.getReal(HALIGN));
 				size.setX(newWidth);
 			} else if( car < ar){ // too tall
 				double newHeight = size.getX() / ar;
-				location.add(Y, (size.getY() - newHeight) * prop.getReal(VALIGN));
+				localLocation.add(Y, (size.getY() - newHeight) * prop.getReal(VALIGN));
 				size.setY(newHeight);
 			}
 		}
+		globalLocation.add(localLocation);
 	}
 	
 
@@ -371,20 +383,20 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public boolean overlapsWith(Rectangle r){
-		return r == null || r.overlapsWith(location, size);
+		return r == null || r.overlapsWith(globalLocation, size);
 	}
 	
 	public boolean isContainedIn(Rectangle r){
-		return  r == null || r.contains(location,size);
+		return  r == null || r.contains(globalLocation,size);
 	}
 	
 	public Rectangle getRectangle(){
-		return new Rectangle(location, size);
+		return new Rectangle(globalLocation, size);
 	}
 	
 	public Rectangle getRectangleIncludingOuterLines(){
 		double hlw = 0.5 * prop.getReal(LINE_WIDTH);
-		return new Rectangle(location.getX() - hlw, location.getY() -hlw , size.getX() + 2*hlw, size.getY() + 2*hlw);
+		return new Rectangle(globalLocation.getX() - hlw, globalLocation.getY() -hlw , size.getX() + 2*hlw, size.getY() + 2*hlw);
 	}
 	
 	public boolean executeKeyHandlers(ICallbackEnv env,IValue keySym, boolean keyDown, IMap modifiers){
@@ -403,8 +415,8 @@ public abstract class Figure implements Comparable<Figure> {
 
 
 	public boolean mouseInside(Coordinate c) {
-		return c.getX() >= location.getX() && c.getX() <= location.getX() + size.getX()
-				&& c.getY() >= location.getY() && c.getY() <= location.getY()+ size.getY();
+		return c.getX() >= globalLocation.getX() && c.getX() <= globalLocation.getX() + size.getX()
+				&& c.getY() >= globalLocation.getY() && c.getY() <= globalLocation.getY()+ size.getY();
 	}
 
 	public boolean executeOnClick(ICallbackEnv env, int button, IMap modifiers, boolean down) {
@@ -498,7 +510,7 @@ public abstract class Figure implements Comparable<Figure> {
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
 		toArrow.size.set(toArrow.minSize);
-		toArrow.location.set(0,0);
+		toArrow.globalLocation.set(0,0);
 		toArrow.resize(null, new TransformMatrix());
 		
 		if (fromX == X)

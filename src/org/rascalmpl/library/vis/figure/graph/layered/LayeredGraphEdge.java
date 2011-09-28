@@ -169,10 +169,10 @@ public class LayeredGraphEdge extends Figure {
 					points1[i] = points[i];
 				points = points1;
 			}
-			points[cp++] = location.getX() + x;
-			points[cp++] = location.getY() + y;
+			points[cp++] = globalLocation.getX() + x;
+			points[cp++] = globalLocation.getY() + y;
 		} else {
-			gc.line(location.getX()+ x1, location.getY() + y1, location.getX() + x, location.getY() + y);
+			gc.line(globalLocation.getX()+ x1, globalLocation.getY() + y1, globalLocation.getX() + x, globalLocation.getY() + y);
 			x1 = x; y1 = y;
 		}
 	}
@@ -182,7 +182,7 @@ public class LayeredGraphEdge extends Figure {
 			addPointToCurve(x, y,gc);
 			drawCurve(gc);
 		} else
-			gc.line(location.getX()+ x1, location.getY() + y1, location.getX() + x, location.getY() + y);	
+			gc.line(globalLocation.getX()+ x1, globalLocation.getY() + y1, globalLocation.getX() + x, globalLocation.getY() + y);	
 	}
 	/**
 	 * Draw a bezier curve through a list of points. Inspired by a blog post "interpolating curves" by rj, which is in turn inspired by
@@ -282,16 +282,16 @@ public class LayeredGraphEdge extends Figure {
 //				addPointToCurve(location.getX() + node.figX() + w/2,        location.getY() + node.figY());
 //				endCurve(location.getX() + node.figX() + w/2,        		 location.getY() + node.figY());
 				
-				beginCurve(location.getX() + node.figX(),                   location.getY() + node.figY()-h/2,gc);
-				addPointToCurve(location.getX() + node.figX()+w/4,          location.getY() + node.figY()-(h/2+vgap/4),gc);
-				addPointToCurve(location.getX() + node.figX()+w/2,          location.getY() + node.figY()-(h/2+vgap/2),gc);
-				addPointToCurve(location.getX() + node.figX(),              location.getY() + node.figY()-(h+vgap),gc);
-				addPointToCurve(location.getX() + node.figX(),              location.getY() + node.figY()-(h/2+vgap/4),gc);
-				endCurve(location.getX() + node.figX(),                     location.getY() + node.figY()-h/2,gc);
+				beginCurve(globalLocation.getX() + node.figX(),                   globalLocation.getY() + node.figY()-h/2,gc);
+				addPointToCurve(globalLocation.getX() + node.figX()+w/4,          globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
+				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/2),gc);
+				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h+vgap),gc);
+				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
+				endCurve(globalLocation.getX() + node.figX(),                     globalLocation.getY() + node.figY()-h/2,gc);
 				
 				if(toArrow != null){
 					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-					getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+					getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getTo().figX(), getTo().figY(),
 							node.figX(),  node.figY()-(h/2+vgap/4),
 							toArrow,gc, visibleSWTElements
@@ -300,8 +300,8 @@ public class LayeredGraphEdge extends Figure {
 				}
 			} else {
 			
-				gc.line(location.getX() + getFrom().figX(), location.getY() + getFrom().figY(), 
-					 location.getX() + getTo().figX(), location.getY() + getTo().figY());
+				gc.line(globalLocation.getX() + getFrom().figX(), globalLocation.getY() + getFrom().figY(), 
+						globalLocation.getX() + getTo().figX(), globalLocation.getY() + getTo().figY());
 			}
 			
 			if(fromArrow != null || toArrow != null){
@@ -309,7 +309,7 @@ public class LayeredGraphEdge extends Figure {
 					
 					if(toArrow != null){
 						if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-						getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
+						getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 								getFrom().figX(), getFrom().figY(),
 								getTo().figX(), getTo().figY(), 
 								toArrow,gc, visibleSWTElements
@@ -318,7 +318,7 @@ public class LayeredGraphEdge extends Figure {
 						
 					if(fromArrow != null){
 						if(debug)System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
-						getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 								getTo().figX(), getTo().figY(),
 								getFrom().figX(), getFrom().figY(), 
 								fromArrow,gc, visibleSWTElements
@@ -327,7 +327,7 @@ public class LayeredGraphEdge extends Figure {
 				} else {
 					if(debug)System.err.println("Drawing to arrow to " + getTo().name);
 					if(toArrow != null){
-						getTo().figure.connectArrowFrom(location.getX(), location.getY(), 
+						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getTo().figX(), getTo().figY(), 
 							getFrom().figX(), getFrom().figY(),
 							toArrow,gc, visibleSWTElements
@@ -335,7 +335,7 @@ public class LayeredGraphEdge extends Figure {
 					}
 					if(fromArrow != null){
 						if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
-					    getFrom().figure.connectArrowFrom(location.getX(), location.getY(), 
+					    getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getFrom().figX(), getFrom().figY(), 
 							getTo().figX(), getTo().figY(),
 							fromArrow,gc, visibleSWTElements

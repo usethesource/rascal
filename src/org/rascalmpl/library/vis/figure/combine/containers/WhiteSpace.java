@@ -23,7 +23,7 @@ public class WhiteSpace extends Container{
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
 		gc.fill(FigureColorUtils.WHITE);
 		gc.stroke(FigureColorUtils.WHITE);
-		gc.rect(location.getX(), location.getY() , size.getX(), size.getY());
+		gc.rect(localLocation.getX(), localLocation.getY() , size.getX(), size.getY());
 	}
 
 }

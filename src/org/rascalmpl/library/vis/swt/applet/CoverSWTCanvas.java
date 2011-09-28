@@ -36,8 +36,8 @@ public class CoverSWTCanvas extends Canvas implements PaintListener, MouseMoveLi
 	
 	@Override
 	public void mouseMove(MouseEvent e) {
-		e.x+=part.location.getX();
-		e.y+=part.location.getY();
+		e.x+=part.localLocation.getX();
+		e.y+=part.localLocation.getY();
 		parent.mouseMove(e);
 	}
 
@@ -46,13 +46,13 @@ public class CoverSWTCanvas extends Canvas implements PaintListener, MouseMoveLi
 		//System.out.printf("Redrawing me %s\n",this);
 		//e.gc.drawOval(0, 0, getSize().x, getSize().y);
 		Image img = parent.getFigureImage();
-		e.gc.drawImage(img,FigureMath.round(-part.location.getX()),FigureMath.round(-part.location.getY()));
+		e.gc.drawImage(img,FigureMath.round(-part.localLocation.getX()),FigureMath.round(-part.localLocation.getY()));
 	}
 
 	public void relocate() {
-		System.out.printf("Relocating me %s %s %s\n",this,part.size,part.location);
+		System.out.printf("Relocating me %s %s %s\n",this,part.size,part.localLocation);
 		setSize(FigureMath.round(part.size.getX()),FigureMath.round(part.size.getY()));
-		setLocation(FigureMath.round(part.location.getX()),FigureMath.round(part.location.getY()));
+		setLocation(FigureMath.round(part.localLocation.getX()),FigureMath.round(part.localLocation.getY()));
 	}
 
 }

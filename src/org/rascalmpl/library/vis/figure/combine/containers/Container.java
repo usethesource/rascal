@@ -47,7 +47,7 @@ public abstract class Container extends WithInnerFig {
 	
 	@Override
 	public String  toString(){
-		return String.format("Container %s %s", location,size);
+		return String.format("Container %s %s", globalLocation,size);
 	}
 	
 

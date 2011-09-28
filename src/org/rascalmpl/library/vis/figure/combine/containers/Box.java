@@ -33,7 +33,7 @@ public class Box extends Container {
 
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.rect(location.getX() , location.getY() , size.getX() , size.getY() );
+		gc.rect(globalLocation.getX() , globalLocation.getY() , size.getX() , size.getY() );
 	}
 	
 	@Override

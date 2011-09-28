@@ -42,7 +42,7 @@ public abstract class WidthDependsOnHeight extends Compose{
 
 
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.rect(location.getX()-3, location.getY()-3, size.getX()+3, size.getY()+3);
+		gc.rect(globalLocation.getX()-3, globalLocation.getY()-3, size.getX()+3, size.getY()+3);
 	}
 	
 	

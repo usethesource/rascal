@@ -62,7 +62,7 @@ public abstract class WithInnerFig extends Figure {
 				double innerDesiredWidth =  size.get(d) / getGrowFactor(d);
 				innerDesiredWidth = Math.min(size.get(d) - 2 * prop.get2DReal(d, GAP), innerDesiredWidth);
 				innerFig.size.set(d, innerDesiredWidth);
-				innerFig.location.set(d, (size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
+				innerFig.localLocation.set(d, (size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
 		}
 	}
 	

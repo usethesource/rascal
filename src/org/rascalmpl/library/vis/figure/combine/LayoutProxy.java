@@ -29,7 +29,7 @@ public abstract class LayoutProxy extends WithInnerFig {
 	@Override
 	public void resizeElement(Rectangle view) {
 		innerFig.size.set(size);
-		innerFig.location.set(0,0);
+		innerFig.localLocation.set(0,0);
 	}
 	
 

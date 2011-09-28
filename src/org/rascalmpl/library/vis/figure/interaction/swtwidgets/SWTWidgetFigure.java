@@ -70,8 +70,8 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
 		visibleSWTElements.add(this);
-		int rx = FigureMath.round(location.getX() + gc.getTranslateX());
-		int ry = FigureMath.round(location.getY() + gc.getTranslateY());
+		int rx = FigureMath.round(globalLocation.getX() + gc.getTranslateX());
+		int ry = FigureMath.round(globalLocation.getY() + gc.getTranslateY());
 		if(widget.getLocation().x != rx || widget.getLocation().y != ry){
 			widget.setLocation(rx,ry);
 		 }
