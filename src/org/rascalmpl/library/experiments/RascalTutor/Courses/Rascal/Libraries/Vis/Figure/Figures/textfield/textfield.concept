@@ -39,7 +39,7 @@ Pitfalls:
 Unfortunately we cannot show an interactive version of the above example here.
 Try it out in Rascal itself.
 
-Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [onMouseOver].
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [mouseOver].
 
 Questions:
 

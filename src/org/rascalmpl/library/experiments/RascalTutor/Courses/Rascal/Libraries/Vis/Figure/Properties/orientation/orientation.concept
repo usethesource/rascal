@@ -2,15 +2,8 @@ Name: orientation
 
 Details:
 
-Syntax: `FProperty orientation(Orientation o)`
-
-Types:
-
-Function:
-
-Synopsis:
-
-Description: Describes the orientation of a [graph] or a [tree]. Possible values are:
+Syntax:<br>
+`FProperty orientation(Orientation o)`
 
 <listing>
 data Orientation =
@@ -19,6 +12,17 @@ data Orientation =
 	| 	topDown()
 	|	downTop();
 </listing>
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Describes the orientation of a [graph] or a [tree]. Possible values are described by
+the datatype `orientation`.
+
+
 
 Examples:
 

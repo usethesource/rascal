@@ -18,6 +18,10 @@ Description:
 An edge connects nodes in [graph]s.
 The arguments `from` and `to` are node [id]s.
 
+Applicable properties are:
+* [fromArrow]
+* [toArrow]
+
 Examples:
 See [graph].
 

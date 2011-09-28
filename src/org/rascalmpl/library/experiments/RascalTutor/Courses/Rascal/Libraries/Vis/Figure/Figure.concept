@@ -39,7 +39,8 @@ The Figure library provides two data types:
   ** _ Positioning_: [align], [gap], [textAngle].
   ** _Visual appearance_: [lineWidth], [lineColor], [lineStyle], [fillColor], [font], [fontSize], [fontColor], [shadow], [shapeConnected],
      [shapeClosed], [shapeCurved].
-  ** _Interaction_: [resizable], [onClick], [onKey], [onMouseMove], [onMouseOver].
+  ** _Interaction_: [resizable], [onClick], [onKeyDown], [onKeyUp], [onMouseEnter], [onMouseExit], [onMouseDown], [onMouseUp], 
+     [onClick], [onMouseMove].
   ** _Other_: [id]
 
 * `Figure` describes an actual visual element such as (also see [Figures]):

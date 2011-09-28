@@ -2,17 +2,18 @@ Name: hscreen
 
 Details:
 
-Syntax: `Figure hscreen(Figure inner,FProperty prop...)`
+Syntax: 
 
 Types:
 
-Function: 
+Function: `Figure hscreen(Figure inner,FProperty prop...)`
 
 Synopsis: Creates a horizontal screen on which things can be projected.
 
 Description: Figures nested within the hscreen can project figures onto the screen using the [project] property. A screen must have an [id] property giving its name. 
 
 The position of the hscreen depends on the alignment of the inner figure. If the inner figure is placed at the top then the screen will be at the bottom and vice versa.
+<warning>erroneous figs generated</warning>
 
 <figure hscreen1.png 200x100>
 i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d"]],top());

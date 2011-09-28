@@ -11,7 +11,7 @@ Function: `Fproperty shadow(bool b)`
 Synopsis:
 
 Description:
-Defines whether a figure will have a shodow or not.
+Defines whether a figure will have a shadow or not.
 The color of the shadow is determined by [shadowColor].
 The position of the shadow is determined by [shadowPos].
 

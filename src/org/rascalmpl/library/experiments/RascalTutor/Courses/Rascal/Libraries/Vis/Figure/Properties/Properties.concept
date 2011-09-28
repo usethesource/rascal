@@ -53,7 +53,7 @@ Properties can be classified as follows:
 * __Aligning__: [align], [halign], [valign], [Properties/bottom], [Properties/top], [Properties/center], [hcenter], [vcenter]
 * __Composing__: [gap], [hgap], [vgap], [startGap], [hstartGap], [vstartGap], [endGap], [hendGap], [vendGap]
 * __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
-* __Interacting__: [resizable], [onClick], [onMouseMove], [onMouseOver], [onKey].
+* __Interacting__: [resizable], [onClick], [onMouseEnter], [onMouseExit], [onMouseDown], [onMouseUp], [onMouseMove], [onKeyDown], [onKeyUp].
 
 
 Most properties use dimensions that are _relative_ to their parent or children. The exceptions are
@@ -75,12 +75,12 @@ Just a few examples to show the spirit:
 
 See the more detailed description of each property for examples. 
 
-The following table specifies which properties have an effect on which figures.
+The following table specifies which properties have an effect on which figures. A property followed by the note "2D" exists in several variants as explained above.
 
 
 <table>
 <tr><td> X 		<td> [outline] 	<td> [text] 	<td> [box] 	<td> [ellipse]	<td> [space] 	<td> [scrollable] 	<td> [grid]	<td> [hvcat] 	<td> [overlay] 	<td> [pack] 	<td> [tree] 	<td> [graph] 	<td>[fswitch] 	<td> [computeFigure] 	<td> [button] 	<td> [textfield] 	<td> [combo] 	<td> [checkbox] 	<td> [scaleSlider] 	<td>[treemap] 		<td>[edge] 	
-<tr><td>[size]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>
+<tr><td>[Properties/size]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>
 <tr><td>[connect]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>
 <tr><td>[align]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>   
 <tr><td>[shrink]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		      	<td>

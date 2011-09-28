@@ -2,11 +2,11 @@ Name: vscreen
 
 Details:
 
-Syntax: `Figure vscreen(Figure fig, FProperty props ...)`
+Syntax: 
 
 Types:
 
-Function:
+Function: `Figure vscreen(Figure fig, FProperty props ...)`
 
 Synopsis:
 

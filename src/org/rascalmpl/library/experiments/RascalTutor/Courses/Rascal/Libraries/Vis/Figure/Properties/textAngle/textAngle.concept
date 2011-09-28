@@ -20,6 +20,11 @@ Also see [Angles].
 
 Examples:
 
+<figure ta1.png>
+render(text("Rascal", fontSize(20), textAngle(45)));
+</figure>
+![ta1](ta1.png)
+
 Benefits:
 
 Pitfalls:

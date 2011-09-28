@@ -14,14 +14,18 @@ Description:
 The visualizations created with the Figure library can use the following generic primitives for user interaction:
 
 * __Mouse__. A figure can define its behaviour in response to mouse interaction:
+  ** [onMouseEnter]: what to do when the mouse enters the area occupied by the current figure.
+  ** [onMouseExit]: what to do when the mouse leaves the area occupied by the current figure.
+  ** [onMouseDown]: what to do when the mouse is pressed when the mouse is in the area occupied by the current figure.
+  ** [onMouseUp]: what to do when the mouse is released when the mouse is in the area occupied by the current figure.
   ** [onMouseMove]: what to do when the mouse moves while it is already in the area occupied by the current figure.
-  ** [onMouseOver]: what to do when the mouse enters or leaves the area occupied by the current figure.
   ** [onClick]: what to do when the user clicks on the current figure.
 * __Keyboard__. A figure can define its behaviour in response to keyboard input:
-  ** [onKey]: what to do when the user pressed a keyboard key when the mouse if over the current figure.
+  ** [onKeyDown]: what to do when the user pressed a keyboard key when the mouse if over the current figure.
+  ** [onKeyUp]: what to do when the user releases a keyboard key when the mouse if over the current figure.
 * __Interaction widget__. Various interaction widgets are provided:
   ** [button]: creates a button that can be pressed.
-  ** [textField]: creates an area where text can be entered.
+  ** [textfield]: creates an area where text can be entered.
   ** [combo]: creates a drop down list from which entries can be selected.
   ** [checkbox]: creates an on/off check box.
   ** [scaleSlider]: creates a slider to enter a numeric value.
