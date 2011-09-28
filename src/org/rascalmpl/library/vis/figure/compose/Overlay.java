@@ -78,9 +78,9 @@ public class Overlay extends Compose{
 			for(Dimension d : HOR_VER){
 				fig.size.set(d,size.get(d)*fig.prop.get2DReal(d, SHRINK));
 				if(fig.prop.is2DPropertySet(d, POS)){
-					fig.location.set(d,size.get(d) * (fig.prop.get2DReal(d, POS) - fig.prop.get2DReal(d,ALIGN) * fig.prop.get2DReal(d, SHRINK)));
+					fig.localLocation.set(d,size.get(d) * (fig.prop.get2DReal(d, POS) - fig.prop.get2DReal(d,ALIGN) * fig.prop.get2DReal(d, SHRINK)));
 				} else {
-					fig.location.set(d,(size.get(d) - fig.size.get(d)) * fig.prop.get2DReal(d, ALIGN));
+					fig.localLocation.set(d,(size.get(d) - fig.size.get(d)) * fig.prop.get2DReal(d, ALIGN));
 				}
 			}
 		}
@@ -100,27 +100,27 @@ public class Overlay extends Compose{
         }
         
         if(closed && connected && children.length >= 0){
-        	gc.vertex( children[0].location.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
-    				children[0].location.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY()  );
+        	gc.vertex( children[0].globalLocation.getX() + children[0].prop.getReal(HCONNECT) * children[0].size.getX(),
+    				children[0].globalLocation.getY()   + children[0].prop.getReal(VCONNECT)  * children[0].size.getY()  );
         }
         if(connected){
 	        for(int i = 0 ; i < children.length ; i++){
 	        	if(curved ){
-	        		gc.curveVertex( children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-	        				 children[i].location.getY()  + children[i].prop.getReal(VCONNECT)  * children[i].size.getY()  );
+	        		gc.curveVertex( children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				 children[i].globalLocation.getY()  + children[i].prop.getReal(VCONNECT)  * children[i].size.getY()  );
 	        	} else {
-	        		gc.vertex(children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-	        				 children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
+	        		gc.vertex(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+	        				 children[i].globalLocation.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 	        	} 
-	        	System.out.printf("child %s\n",children[i].location);
+	        	System.out.printf("child %s\n",children[i].globalLocation);
 	        }
         }
         
         if(connected){
 			if(closed){
 				int i = children.length-1;
-        		gc.vertex(children[i].location.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
-        				children[i].location.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
+        		gc.vertex(children[i].globalLocation.getX() + children[i].prop.getReal(HCONNECT) * children[i].size.getX(),
+        				children[i].globalLocation.getY()  + children[i].prop.getReal(VCONNECT) * children[i].size.getY()  );
 				gc.endShape(FigureMath.CLOSE);
 			} else 
 				gc.endShape();

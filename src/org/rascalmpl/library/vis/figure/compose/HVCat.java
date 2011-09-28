@@ -70,8 +70,8 @@ public class HVCat extends WidthDependsOnHeight{
 			for(int j = startOfRow ; j < endOfRow ; j++){
 				Figure child = children[j];
 				child.size.set(child.minSize);
-				child.location.set(major, x);
-				child.location.set(minor, y + ( (maxMinor - child.minSize.get(minor)) * prop.get2DReal(minor,ALIGN)));
+				child.localLocation.set(major, x);
+				child.localLocation.set(minor, y + ( (maxMinor - child.minSize.get(minor)) * prop.get2DReal(minor,ALIGN)));
 				x+= child.minSize.get(major) + gap;
 			}
 			y+=maxMinor +  prop.get2DReal(minor, TwoDProperties.GAP);

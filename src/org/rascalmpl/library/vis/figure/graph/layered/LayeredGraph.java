@@ -1478,18 +1478,18 @@ public class LayeredGraph extends Figure {
 	public void resizeElement(Rectangle view) {
 		for(LayeredGraphNode g : nodes){
 			if(g.figure != null){
-				g.figure.location.set(g.x - g.figure.minSize.getX()/2, g.y - g.figure.minSize.getY()/2);
+				g.figure.localLocation.set(g.x - g.figure.minSize.getX()/2, g.y - g.figure.minSize.getY()/2);
 			}
 		}
 	}
 	
 
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.translate(location.getX(), location.getY());
+		gc.translate(globalLocation.getX(), globalLocation.getY());
 		for(LayeredGraphEdge e : edges){
 			e.drawElement(gc, visibleSWTElements);
 		}
-		gc.translate(-location.getX(), -location.getY());
+		gc.translate(-globalLocation.getX(), -globalLocation.getY());
 	}
 	
 	public boolean initChildren(IFigureConstructionEnv env,
@@ -1513,17 +1513,20 @@ public class LayeredGraph extends Figure {
 	public void resizeChildren(Rectangle view, TransformMatrix transform) {
 		for(LayeredGraphEdge e : edges){
 			if(e.fromArrow!=null){
-				e.fromArrow.location.set(0,0);
+				e.fromArrow.localLocation.set(0,0);
+				e.fromArrow.globalLocation.set(0,0);
 				e.fromArrow.size.set(minSize);
 				e.fromArrow.resize(view,transform);
 			}
 			if(e.toArrow!=null){
-				e.toArrow.location.set(0,0);
+				e.toArrow.localLocation.set(0,0);
+				e.toArrow.globalLocation.set(0,0);
 				e.toArrow.size.set(minSize);
 				e.toArrow.resize(view,transform);
 			}
 			if(e.label!=null){
-				e.label.location.set(0,0);
+				e.label.localLocation.set(0,0);
+				e.label.globalLocation.set(0,0);
 				e.label.size.set(minSize);
 				e.label.resize(view,transform);
 			}

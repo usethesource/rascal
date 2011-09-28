@@ -467,15 +467,15 @@ public class Grid extends Compose {
 	
 	
 	private void setXPos(Dimension d, int row, int collumn,double val){
-		getFigureFromMatrix(d, row, collumn).location.set(d,val);
+		getFigureFromMatrix(d, row, collumn).localLocation.set(d,val);
 	}
 	
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		if(overConstrained) {
-			gc.text(OVERCONSTRAINED_MESSAGE, location.getX() + 0.5 * size.getX() - getTextWidth(OVERCONSTRAINED_MESSAGE),
-					location.getY() + 0.5 * size.getY()  - getTextAscent());
+			gc.text(OVERCONSTRAINED_MESSAGE, globalLocation.getX() + 0.5 * size.getX() - getTextWidth(OVERCONSTRAINED_MESSAGE),
+					globalLocation.getY() + 0.5 * size.getY()  - getTextAscent());
 			return;
 		}
 	}

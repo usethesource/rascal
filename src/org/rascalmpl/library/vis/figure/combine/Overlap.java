@@ -22,6 +22,7 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
 public class Overlap extends LayoutProxy{
 	
 	public Figure over;
+	public Coordinate desiredOverlapLocation;
 	
 	public Overlap(Figure under, Figure over, PropertyManager properties){
 		super(under,properties);
@@ -29,6 +30,7 @@ public class Overlap extends LayoutProxy{
 		children[0] = under;
 		children[1] = over;
 		this.over = over;
+		desiredOverlapLocation = new Coordinate();
 	}
 	
 	
@@ -70,12 +72,17 @@ public class Overlap extends LayoutProxy{
 			if(over.size.get(d) < over.minSize.get(d)){
 				over.size.set(d, over.minSize.get(d));
 			}
-			over.location.set(d, 
+			over.localLocation.set(d, 
 					(over.prop.get2DReal(d, ALIGN)  * (innerFig.size.get(d) - over.size.get(d))) + 
 					(over.prop.get2DReal(d,ALIGN) -0.5)*2.0 * over.size.get(d));
 			
 		}
 //		System.out.printf("OVer %s %s \n",over.size,innerFig.size);
+	}
+	
+	@Override
+	public void onResizeUp() { 
+		desiredOverlapLocation.set(over.globalLocation);
 	}
 	
 	@Override	

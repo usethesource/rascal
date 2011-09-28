@@ -78,8 +78,8 @@ public class Text extends Figure {
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		//System.out.printf("Drawing %s\n",this);
 		double y = -minSizeUnrotated.getY()/2.0;
-		double tx =  location.getX() + minSize.getX()/2.0;
-		double ty =  location.getY() + minSize.getY()/2.0;;
+		double tx =  globalLocation.getX() + minSize.getX()/2.0;
+		double ty =  globalLocation.getY() + minSize.getY()/2.0;;
 		double lux = -minSizeUnrotated.getX()/2.0;
 		double luy = -minSizeUnrotated.getY()/2.0;
 		gc.translate( tx,  ty);
@@ -99,6 +99,6 @@ public class Text extends Figure {
 	@Override
 	public
 	String toString(){
-		return String.format("text %s %s %s", txt.getValue(), location, minSize);
+		return String.format("text %s %s %s", txt.getValue(), localLocation, minSize);
 	}
 }

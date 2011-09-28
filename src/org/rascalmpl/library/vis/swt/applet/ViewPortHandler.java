@@ -230,6 +230,8 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		} else {
 			resetToMinSize();
 		}
+		Rectangle part = getViewPortRectangle();
+		adjustOverlaps(part);
 		updateScrollBars();
 		parent.notifyLayoutChanged();
 	}
@@ -256,6 +258,8 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			
 			if(bar != null){
 				viewPortLocation.set(d,bar.getSelection());
+				Rectangle part = getViewPortRectangle();
+				adjustOverlaps(part);
 			} else {
 			}
 		}
@@ -294,9 +298,14 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 		
 		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
+		for(Overlap f : overlapFigures){
+			if(f.over.overlapsWith(part)){
+				f.over.draw(zoom, gc, part, swtVisiblityMangager.getVisibleSWTElementsVector());
+			}
+		}
 		gc.translate(part.getLocation().getX(), part.getLocation().getY());
 		
-		drawOverlaps(part);
+
 		
 		gc.dispose();
 		swtGC.drawImage(backbuffer, 0, 0);
@@ -313,35 +322,35 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		}
 	}
 
-	public void drawOverlaps(Rectangle part) {
+	public void adjustOverlaps(Rectangle part) {
 		for(Overlap f : overlapFigures){
 			if(f.innerFig.overlapsWith(part)){
-				drawOverlap(part,  f);
+				adjustOverlap(part,  f);
 			}
 		}
 	}
 	
-
-
-	private void drawOverlap(Rectangle part, Overlap f) {
-
-		Coordinate left = new Coordinate(part.getLocation());
-		Figure over = f.over;
-		Rectangle realPart = new Rectangle(left,part.getSize());
+	private void adjustOverlap(Rectangle part, Overlap f){
+		if(!f.over.overlapsWith(part)){
+			return;
+		}
+		boolean change = false;
 		for(Dimension d : HOR_VER){
-			if(over.location.get(d) < part.getLocation().get(d)){
-				left.set(d,over.location.get(d));
-			}
-			double overRight = over.location.get(d) + over.size.get(d);
-			if(over.location.get(d) + over.size.get(d) > part.getRightDown().get(d)){
-				left.set(d,part.getLocation().get(d) + (overRight - part.getRightDown().get(d)));
+			if(f.desiredOverlapLocation.get(d) < part.getLocation().get(d)){
+				f.over.globalLocation.set(d,part.getLocation().get(d));
+				change = true;
+			} else if(f.desiredOverlapLocation.get(d) + f.over.size.get(d) > part.getRightDown().get(d)){
+				f.over.globalLocation.set(d,part.getRightDown().get(d) - f.over.size.get(d));
+				change = true;
+			} else {
+				f.over.globalLocation.set(d,f.desiredOverlapLocation.get(d));
 			}
 		}
-		realPart.update();
-		gc.translate(-realPart.getLocation().getX(), -realPart.getLocation().getY());
-		over.draw(zoom, gc, realPart,swtVisiblityMangager.getVisibleSWTElementsVector());
-		gc.translate(realPart.getLocation().getX(), realPart.getLocation().getY());
+		if(change || !f.over.globalLocation.equals(f.desiredOverlapLocation)){
+			f.over.updateGlobalLocation();
+		}
 	}
+
 	
 
 	private void setBackBuffer(){

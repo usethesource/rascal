@@ -73,8 +73,8 @@ public class TreeMap extends Compose{
 		double height = (cumulatedArea / area) * size.getY();
 		double x = 0;
 		for(Figure fig : figs){
-			fig.location.setY(yOffset);
-			fig.location.setX(x);
+			fig.localLocation.setY(yOffset);
+			fig.localLocation.setX(x);
 			fig.size.setY(height);
 			double width = (fig.prop.getReal(AREA) / cumulatedArea)* size.getX();
 			fig.size.setX( width);

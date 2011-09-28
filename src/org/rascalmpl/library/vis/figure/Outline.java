@@ -53,7 +53,7 @@ public class Outline extends Figure {
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		
 	    double lw = prop.getReal(LINE_WIDTH);
-			gc.rect(location.getX(), location.getY(), size.getX(), size.getY());
+			gc.rect(globalLocation.getX(), globalLocation.getY(), size.getX(), size.getY());
 			for(IValue v : lineInfo){
 				IConstructor lineDecor = (IConstructor) v;
 				int lino = ((IInteger) lineDecor.get(0)).intValue();
@@ -81,8 +81,8 @@ public class Outline extends Figure {
 				}
 
 				gc.stroke(color);
-				double vpos = location.getY() + (lino * size.getY()) /maxLine ;
-				gc.line(location.getX() + + lw, vpos, location.getX() + size.getX() - lw, vpos);
+				double vpos = globalLocation.getY() + (lino * size.getY()) /maxLine ;
+				gc.line(globalLocation.getX() + + lw, vpos, globalLocation.getX() + size.getX() - lw, vpos);
 			}
 	}
 

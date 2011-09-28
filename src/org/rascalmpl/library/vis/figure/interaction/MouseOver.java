@@ -41,7 +41,7 @@ public class MouseOver extends Overlap {
 		}
 		
 		public String toString(){
-			return String.format("Mouse Over %s %s %s %d",location,size,innerFig,sequenceNr);
+			return String.format("Mouse Over %s %s %s %d",globalLocation,size,innerFig,sequenceNr);
 		}
 	}
 	

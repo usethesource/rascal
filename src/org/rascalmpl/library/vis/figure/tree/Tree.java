@@ -133,12 +133,12 @@ public class Tree extends Compose {
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		root.location.set(minor,rootMinor );
-		root.location.set(major,0);
+		root.localLocation.set(minor,rootMinor );
+		root.localLocation.set(major,0);
 		root.size.set(root.minSize);
 		for(int i = 1 ; i < children.length ; i++){
-			children[i].location.set(major,childrenMajor);
-			children[i].location.set(minor,childrenMinor[i-1]);
+			children[i].localLocation.set(major,childrenMajor);
+			children[i].localLocation.set(minor,childrenMinor[i-1]);
 		}
 		for(Figure fig : children){
 			fig.size.set(fig.minSize);
@@ -150,29 +150,29 @@ public class Tree extends Compose {
 	}
 	
 	boolean majorFlipped(){
-		return children.length > 1 && root.location.get(major) > children[2].location.get(major);
+		return children.length > 1 && root.globalLocation.get(major) > children[2].globalLocation.get(major);
 	}
 	
 	double getBottomRoot(){
 		if(majorFlipped()){
-			return root.location.get(major);
+			return root.globalLocation.get(major);
 		} else {
-			return root.location.get(major) + root.size.get(major);
+			return root.globalLocation.get(major) + root.size.get(major);
 		}
 	}
 	
 	double getMinorCenter(int child){
 		if(children[child] instanceof Tree){
 			Tree subTree = (Tree)children[child];
-			return subTree.root.location.get(minor) +  subTree.root.minSize.get(minor)/2.0;
+			return subTree.root.globalLocation.get(minor) +  subTree.root.minSize.get(minor)/2.0;
 			
 		} else {
-			return children[child].location.get(minor) + children[child].size.get(minor)/2.0;
+			return children[child].globalLocation.get(minor) + children[child].size.get(minor)/2.0;
 		}
 	}
 	
 	Coordinate getChildCenter(int i){
-		double majorPos = children[i].location.get(major) ;
+		double majorPos = children[i].globalLocation.get(major) ;
 		if(majorFlipped()){
 			majorPos += children[i].size.get(major);
 		}
@@ -187,7 +187,7 @@ public class Tree extends Compose {
 			hg=-hg;
 		}
 		Figure root = children[0];
-		Coordinate fromRoot = new Coordinate(major,getBottomRoot(),root.location.get(minor) + root.size.get(minor)/2.0);
+		Coordinate fromRoot = new Coordinate(major,getBottomRoot(),root.globalLocation.get(minor) + root.size.get(minor)/2.0);
 		
 		if(prop.getBool(MANHATTAN_LINES)){
 			Coordinate toCenter = new Coordinate(fromRoot);

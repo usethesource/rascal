@@ -80,8 +80,8 @@ public class Pack extends WidthDependsOnHeight {
 		if(!fits){
 			String message = "Pack: cannot fit!";
 			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
-			gc.rect(location.getX(), location.getY(), size.getX(), size.getY());
-			gc.text(message, location.getX() + size.getX()/2.0 - getTextWidth(message)/2.0, location.getY() + size.getY()/2.0 );
+			gc.rect(globalLocation.getX(), globalLocation.getY(), size.getX(), size.getY());
+			gc.text(message, globalLocation.getX() + size.getX()/2.0 - getTextWidth(message)/2.0, globalLocation.getY() + size.getY()/2.0 );
 		}
 	}
 
@@ -144,8 +144,8 @@ public class Pack extends WidthDependsOnHeight {
 					break;
 				}
 				nd.figure = fig;
-				fig.location.setX(nd.left);
-				fig.location.setY(nd.top);
+				fig.localLocation.setX(nd.left);
+				fig.localLocation.setY(nd.top);
 				//System.out.printf("Fig locatation %s\n",fig.location);
 			}
 		}
