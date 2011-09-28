@@ -24,5 +24,5 @@ public int ack(int m, int n)
 
 // Tests
 
-test ack(2,5) == 13;
-test ack(3,4) == 125;
+public test bool t1(){ return ack(2,5) == 13; }
+public test bool t2(){ return ack(3,4) == 125; }
