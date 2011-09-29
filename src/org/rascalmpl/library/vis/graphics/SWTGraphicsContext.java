@@ -460,7 +460,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	
 	public void setFont(String fontName, int fontSize, FontStyle... styles) {
 		int styleMask = FontStyle.toStyleMask(styles);
-		if(currentFontData != null && currentFontData.name.equals(fontName) && currentFontData.height == (int)fontSize && currentFontData.style == styleMask){
+		if(currentFontData != null && currentFontData.getName().equals(fontName) && currentFontData.getHeight() == (int)fontSize && currentFontData.getStyle() == styleMask){
 			return;
 		}
 		FontData fd = new FontData(fontName, (int) fontSize, styleMask );
