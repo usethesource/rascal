@@ -24,8 +24,8 @@ public property_table readCxt(loc input)  {
     map[str, set[str]] vb1 = ();
     int nRows = toInt(d[2]);
     int nCols = toInt(d[3]);
-    int start = 5+nRows+nCols;
-    list[str] e = tail(d, size(d)-start);
+    int theStart = 5+nRows+nCols;
+    list[str] e = tail(d, size(d)-theStart);
     int idx = 5;
     for (str f <- e) {
          set[str] b = {d[5+nRows+i]|int i<-[0, 1..(size(f)-1)], charAt(f,i)==88};
