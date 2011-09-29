@@ -106,10 +106,8 @@ public int queens3(int B ...)
   return nsolutions;
 }
 
-public bool testQueens()
+public test bool testQueens()
 {
    N = 5;
    return queens3() == 10;
 }
-
-test testQueens();

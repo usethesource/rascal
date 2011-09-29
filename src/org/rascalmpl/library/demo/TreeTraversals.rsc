@@ -146,20 +146,20 @@ public tuple[int, NODE] count_and_inc(NODE T, int D) {
 
 private NODE N = f(g(i(1),g(i(2),i(3))),i(4));
    
-test cnta(N) == 4;
-test cntb(N) == 4;
-test sumtreea(N) == 10;
-test sumtreeb(N) == 10;
+public test bool f1() = cnta(N) == 4;
+public test bool f2() = cntb(N) == 4;
+public test bool f3() = sumtreea(N) == 10;
+public test bool f4() = sumtreeb(N) == 10;
    
-test inc(N) == f(g(i(2),g(i(3),i(4))),i(5));
+public test bool f5() = inc(N) == f(g(i(2),g(i(3),i(4))),i(5));
    
-test frepla(N) == f(h(i(1),h(i(2),i(3))),i(4));
-test freplb(N) == f(h(i(1),h(i(2),i(3))),i(4));
+public test bool f6() = frepla(N) == f(h(i(1),h(i(2),i(3))),i(4));
+public test bool f7() = freplb(N) == f(h(i(1),h(i(2),i(3))),i(4));
    
-test freplG2H3a(N) == f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4));
-test freplG2H3b(N) == f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4));
+public test bool f8() = freplG2H3a(N) == f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4));
+public test bool f9() = freplG2H3b(N) == f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4));
    
-test drepl(N) == f(g(i(1),h(i(2),i(3))),i(4));
-test srepl(N) == f(h(i(1),g(i(2),i(3))),i(4));
+public test bool f10() = drepl(N) == f(g(i(1),h(i(2),i(3))),i(4));
+public test bool f11() = srepl(N) == f(h(i(1),g(i(2),i(3))),i(4));
    
-test count_and_inc(N,3) == <4, f(g(i(4),g(i(5),i(6))),i(7))>;
+public test bool f12() = count_and_inc(N,3) == <4, f(g(i(4),g(i(5),i(6))),i(7))>;

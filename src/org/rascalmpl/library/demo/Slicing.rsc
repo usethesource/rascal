@@ -98,12 +98,14 @@ private	set[use] Example1 =
 private	set[use] Example2 =
 		BackwardSlice(CONTROLSTATEMENT, PRED, USES, DEFS,<10, "product">);
 
-test Example1 ==  
+public test bool t1() =
+  Example1 ==  
 	     { <1, "EXEC">, <2, "EXEC">,  <3, "EXEC">, <5, "i">, <5, "n">,  
 	        <6, "sum">, <6, "i">, <6, "EXEC">, <8, "i">, <8, "EXEC">, 
 	       <9, "sum"> };
 
-test Example2 ==
+public test bool t2() =
+  Example2 ==
             { <1, "EXEC">,  <2, "EXEC">, <4, "EXEC">, <5, "i">, <5, "n">, 
 	      <7, "i">, <7, "product">, <7, "EXEC">, 
 	       <8, "i">, <8, "EXEC">, <10,  "product">  };

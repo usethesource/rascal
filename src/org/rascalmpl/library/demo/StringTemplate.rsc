@@ -56,7 +56,8 @@ public void person(){
 
 
   // Beware, in the generated code each empty line contains 6 spaces!
-  test genClass("Person", fields) ==
+  public test bool t1() =
+    genClass("Person", fields) ==
               "
     public class Person {
       

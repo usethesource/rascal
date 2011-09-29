@@ -20,28 +20,29 @@ alias Proc = str;
 private	rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
                                  <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
-test size(Calls) == 8;
+public test bool t1() = size(Calls) == 8;
 
-test carrier(Calls) == {"a", "b", "c", "d", "e", "f", "g"};
+public test bool t2() = carrier(Calls) == {"a", "b", "c", "d", "e", "f", "g"};
 
-test size(Relation::carrier(Calls)) == 7;
+public test bool t3() = size(Relation::carrier(Calls)) == 7;
 
 set[str] dCalls = domain(Calls);
 set[str] rCalls = range(Calls);
 
 set[Proc] entryPoints = top(Calls);
 
-test top(Calls) == {"a", "f"};
-test bottom(Calls) == {"c", "e"};
+public test bool t4() = top(Calls) == {"a", "f"};
+public test bool t5() = bottom(Calls) == {"c", "e"};
 
-test Calls+ == 
+public test bool t6() =
+   Calls+ == 
 		{<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
  		 <"d","e">, <"f", "e">, <"f", "g">, <"g", "e">, 
 		 <"a", "c">, <"a", "d">, <"b", "e">, <"a", "e">}
 		;
 
-test (Calls+)["a"] == {"b", "c", "d", "e"};
+public test bool t7() = (Calls+)["a"] == {"b", "c", "d", "e"};
 
-test (Calls+)["f"] == {"e", "g"};
+public test bool t8() = (Calls+)["f"] == {"e", "g"};
 
-test (Calls+)["a"] & (Calls+)["f"] ==  {"e"};
+public test bool t9() = (Calls+)["a"] & (Calls+)["f"] ==  {"e"};

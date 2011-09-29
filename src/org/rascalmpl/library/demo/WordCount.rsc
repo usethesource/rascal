@@ -154,9 +154,9 @@ public list[str] Jabberwocky = [
 	"And the mome raths outgrabe."
 ];
 
-test wordCount(Jabberwocky, countLine1) == 216;
-test wordCount(Jabberwocky, countLine2) == 216;
-test wordCount(Jabberwocky, countLine3) == 216;
+public test bool t1() = wordCount(Jabberwocky, countLine1) == 216;
+public test bool t2() = wordCount(Jabberwocky, countLine2) == 216;
+public test bool t3() = wordCount(Jabberwocky, countLine3) == 216;
 
 // Without caching:
 // txt: 94208 lines
