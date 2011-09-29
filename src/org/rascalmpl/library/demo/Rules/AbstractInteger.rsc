@@ -50,8 +50,8 @@ rule e3 eq(s(Integer N), s(Integer M))   => eq(N,M);
 
 // Tests
 		  
-test add(s(s(z())), s(s(s(z())))) == s(s(s(s(s(z())))));
-test mul(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(z()))))));
-test exp(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(s(s(z()))))))));
-test eq(s(s(z())),  s(s(s(z())))) == bfalse();
-test eq(s(s(s(z()))), s(s(s(z())))) == btrue();
+public test bool t1() = add(s(s(z())), s(s(s(z())))) == s(s(s(s(s(z())))));
+public test bool t2() = mul(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(z()))))));
+public test bool t3() = exp(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(s(s(z()))))))));
+public test bool t4() = eq(s(s(z())),  s(s(s(z())))) == bfalse();
+public test bool t5() = eq(s(s(s(z()))), s(s(s(z())))) == btrue();
