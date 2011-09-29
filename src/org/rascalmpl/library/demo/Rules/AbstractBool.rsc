@@ -33,14 +33,14 @@ rule o4 bor(bfalse(), bfalse())   => bfalse();
 
 // Tests
 
-test bor(band(btrue(),btrue()),band(btrue(), bfalse())) ==  btrue();
-test btrue() == btrue();
-test bfalse() == bfalse();
-test btrue() != bfalse();
-test band(btrue(),bfalse()) == bfalse();
-test band(band(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();
-test bor(btrue(),bfalse()) == btrue();
-test bor(bor(btrue(),btrue()),bor(btrue(), bfalse())) == btrue();
-test bor(bor(bfalse(),bfalse()),bor(bfalse(), bfalse())) == bfalse();
-test bor(band(btrue(),btrue()),band(btrue(), bfalse())) == btrue();
-test band(bor(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();
+public test bool t1() =  bor(band(btrue(),btrue()),band(btrue(), bfalse())) ==  btrue();
+public test bool t2() =  btrue() == btrue();
+public test bool t3() =  bfalse() == bfalse();
+public test bool t4() =  btrue() != bfalse();
+public test bool t5() =  band(btrue(),bfalse()) == bfalse();
+public test bool t6() =  band(band(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();
+public test bool t7() =  bor(btrue(),bfalse()) == btrue();
+public test bool t8() =  bor(bor(btrue(),btrue()),bor(btrue(), bfalse())) == btrue();
+public test bool t9() =  bor(bor(bfalse(),bfalse()),bor(bfalse(), bfalse())) == bfalse();
+public test bool t10() =  bor(band(btrue(),btrue()),band(btrue(), bfalse())) == btrue();
+public test bool t11() =  band(bor(btrue(),btrue()),band(btrue(), bfalse())) == bfalse();

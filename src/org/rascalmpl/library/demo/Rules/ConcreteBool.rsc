@@ -27,11 +27,11 @@ rule a1 `btrue & <Bool B2>`   => B2;
 rule a2 `bfalse & <Bool B2>`  => `bfalse`;
 
 rule o1 `btrue | btrue`       => `btrue`;
-rule o2 `btrue | bfalse`      =>` btrue`;
+rule o2 `btrue | bfalse`      => `btrue`;
 rule o3 `bfalse | btrue`      => `btrue`;
 rule o4 `bfalse | bfalse`     => `bfalse`;
 
-test `btrue` == `btrue`;
-test `btrue | btrue` == `btrue`; 
-test `bfalse | btrue` == `btrue`;
-test `bfalse & bfalse` == `bfalse`;
+public test bool t1() = `btrue` == `btrue`;
+public test bool t2() = `btrue | btrue` == `btrue`; 
+public test bool t3() = `bfalse | btrue` == `btrue`;
+public test bool t4() = `bfalse & bfalse` == `bfalse`;

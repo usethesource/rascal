@@ -23,7 +23,7 @@ Bool reduce(Bool B) {
     };
 }
 
-  test reduce(`btrue`) == `btrue`;
-  test reduce(`btrue | btrue`) == `btrue`;
-  test reduce(`bfalse | btrue`) ==  `btrue`;
-  test reduce(`bfalse & bfalse`) == `bfalse`;
+public test bool t1() = reduce(`btrue`) == `btrue`;
+public test bool t2() = reduce(`btrue | btrue`) == `btrue`;
+public test bool t3() = reduce(`bfalse | btrue`) ==  `btrue`;
+public test bool t4() = reduce(`bfalse & bfalse`) == `bfalse`;

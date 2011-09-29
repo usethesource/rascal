@@ -31,4 +31,4 @@ public Bool reduce(Bool B) {
 
 // Tests
 	
-test reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))) == btrue();
+public test bool t1() = reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))) == btrue();
