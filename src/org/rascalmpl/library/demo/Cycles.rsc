@@ -47,7 +47,8 @@ public rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int
 private	rel[int, int] Graph = {<1,2>,<2,3>,<3,1>,<2,4>,<4,5>,<5,2>,<2,6>,<6,7>,<7,6>};
 
 
-test Graph+ ==
+public test bool t1() =
+  Graph+ ==
 		{<1, 1>, <1, 2>, <1, 3>, <1, 4>, <1, 5>, <1, 6>, <1, 7>,
   	 	 <2, 1>, <2, 2>, <2, 3>, <2, 4>, <2, 5>, <2, 6>, <2, 7>,
   	 	 <3, 1>, <3, 2>, <3, 3>, <3, 4>, <3, 5>, <3, 6>, <3, 7>,
@@ -58,7 +59,8 @@ test Graph+ ==
   		
 private rel[int, set[int]] Cycles = cycles(Graph);
 
-test Cycles ==
+public test bool t2() =
+  Cycles ==
 		{< 1, {1, 2, 3, 4, 5, 6, 7}>,
   		 < 2, {1, 2, 3, 4, 5, 6, 7}>,
   		 < 3,  {1, 2, 3, 4, 5, 6, 7}>,
@@ -67,7 +69,8 @@ test Cycles ==
   		 < 6,  {6, 7}>,
   		 < 7,  {6, 7}> };
 
-test allSubCycles(Graph, Cycles) ==
+public test bool t3() =
+  allSubCycles(Graph, Cycles) ==
 		{< 1, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,
   		 < 2, { {1, 2, 3, 4, 5}, {1, 2, 3}, {2, 4, 5}} >,
   		 < 3, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,

@@ -83,7 +83,8 @@ public rel[str,set[str]] example1(){
 	return dominators(PRED, ROOT);
 }
 
-test example1() ==
+public test bool t1() =
+  example1() ==
  	{
 		<"R", {"A", "B", "C", "D", "E", "F", "G", "L", "H", "I", "J", "K"}>, 
 		<"A", {}>, 
@@ -121,7 +122,8 @@ public rel[int,set[int]] example2(){
 	return dominators(PRED, ROOT);
 }
 
-test example2() ==
+public test bool t2() =
+  example2() ==
 	{
 		<1, {2, 3, 4, 5, 6, 7, 8, 9, 10}>, 
 		<2, {}>,

@@ -68,7 +68,7 @@ public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[
 	return LIN;
 }
 
-public bool testReaching1(){
+public test bool testReaching1(){
 
 	// Reaching definitions, example ASU, p626
 
@@ -100,7 +100,7 @@ public bool testReaching1(){
                       
 }
 
-bool testReaching2(){
+public test bool testReaching2(){
 
 // Example from Aho, Sethi, Ullman, p619
 
@@ -131,7 +131,7 @@ bool testReaching2(){
 	return true;
 }
 
-public bool testLive(){
+public test bool testLive(){
 
 	rel[stat,stat] PRED = { <1,2>, <2,3>, <3,4>, <4,5>, <5,6>, <5,7>, <6,7>, <7,4>};
 	rel[stat, var] DEFS = { <1, "i">, <2, "j">, <3, "a">, <4, "i">, <5, "j">, <6, "a">, <7, "i">};
@@ -149,7 +149,3 @@ public bool testLive(){
 		       <7, <6, "u2">>, <7, <5, "j">>, <7, <4, "i">>, <7, <7, "u3">>, 
 		       <4, <7, "u3">>, <4, <6, "u2">>, <4, <5, "j">>, <4, <4, "i">>};
 }
-
-test testReaching1();
-test testReaching2();
-test testLive();

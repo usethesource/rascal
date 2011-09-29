@@ -44,7 +44,7 @@ public str capAll2(str S)
    };
 }
 
-test capitalize("1") == "1";
-test capitalize("rascal") == "Rascal";
-test capAll1("turn this into a title") == "Turn This Into A Title";
-test capAll2("turn this into a title") == "Turn This Into A Title";
+public test bool t1() =  capitalize("1") == "1";
+public test bool t2() =  capitalize("rascal") == "Rascal";
+public test bool t3() =  capAll1("turn this into a title") == "Turn This Into A Title";
+public test bool t4() =  capAll2("turn this into a title") == "Turn This Into A Title";

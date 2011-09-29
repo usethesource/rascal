@@ -36,12 +36,12 @@ public int inner2(list[int] V1, list[int] V2){
 
 // Tests
  
-test inner1([], []) == 0;
-test inner1([1],[1]) == 1;
-test inner1([1,2], [3,4])  == 11;
-test inner1([1,2,3],[4,5,6])  == 32;
+public test bool t1() = inner1([], []) == 0; 
+public test bool t2() = inner1([1],[1]) == 1;
+public test bool t3() = inner1([1,2], [3,4])  == 11;
+public test bool t4() = inner1([1,2,3],[4,5,6])  == 32;
    	
-test inner2([], [])  == 0;
-test inner2([1],[1]) == 1;
-test inner2([1,2], [3,4]) == 11;
-test inner2([1,2,3],[4,5,6]) == 32;
+public test bool t5() = inner2([], [])  == 0;
+public test bool t6() = inner2([1],[1]) == 1;
+public test bool t7() = inner2([1,2], [3,4]) == 11;
+public test bool t8() = inner2([1,2,3],[4,5,6]) == 32;

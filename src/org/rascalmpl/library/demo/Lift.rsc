@@ -36,8 +36,9 @@ rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
 // Tests
 
-test ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
-			             < "Appl" , "DB" > , < "Appl" , "Appl" > };
+public test bool t1() =
+  ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
+			          < "Appl" , "DB" > , < "Appl" , "Appl" > };
 
 
 
