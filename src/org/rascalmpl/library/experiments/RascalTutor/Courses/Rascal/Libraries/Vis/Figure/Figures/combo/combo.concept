@@ -18,7 +18,6 @@ Presents a combo box with a list of named choices to the user. When the user sel
 called with that choice as argument.
 
 Examples:
-<warning>Erroneous fig</warning>
 
 <figure combo1.png 200x100>
 public Figure comboTest(){

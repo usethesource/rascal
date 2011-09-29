@@ -53,11 +53,11 @@ Properties can be classified as follows:
 * __Aligning__: [align], [halign], [valign], [Properties/bottom], [Properties/top], [Properties/center], [hcenter], [vcenter]
 * __Composing__: [gap], [hgap], [vgap], [startGap], [hstartGap], [vstartGap], [endGap], [hendGap], [vendGap]
 * __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
-* __Interacting__: [resizable], [onClick], [onMouseEnter], [onMouseExit], [onMouseDown], [onMouseUp], [onMouseMove], [onKeyDown], [onKeyUp].
+* __Interacting__: [resizable], [onMouseDown],[onMouseUp], [onMouseEnter],  [onMouseExit],[mouseOver], [onKeyDown],[onKeyUp].
 
 
 Most properties use dimensions that are _relative_ to their parent or children. The exceptions are
-* [size], [hsize] and [vsize] set a __minimal size__ in pixels.
+* [Properties/size], [hsize] and [vsize] set a __minimal size__ in pixels.
 * [gap], [hgap] and [vgap] set __a minimal gap size__ in pixels.
 
 
@@ -75,53 +75,46 @@ Just a few examples to show the spirit:
 
 See the more detailed description of each property for examples. 
 
-The following table specifies which properties have an effect on which figures. A property followed by the note "2D" exists in several variants as explained above.
-
+The following table specifies which properties have an effect on which figures.
 
 <table>
-<tr><td> X 		<td> [outline] 	<td> [text] 	<td> [box] 	<td> [ellipse]	<td> [space] 	<td> [scrollable] 	<td> [grid]	<td> [hvcat] 	<td> [overlay] 	<td> [pack] 	<td> [tree] 	<td> [graph] 	<td>[fswitch] 	<td> [computeFigure] 	<td> [button] 	<td> [textfield] 	<td> [combo] 	<td> [checkbox] 	<td> [scaleSlider] 	<td>[treemap] 		<td>[edge] 	
-<tr><td>[Properties/size]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>
-<tr><td>[connect]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>
-<tr><td>[align]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>   
-<tr><td>[shrink]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		      	<td>
-<tr><td>[resizable]2D	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X			<td> X		      	<td>
-<tr><td>[aspectRatio]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> 		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		  	<td> X		      	<td>
-<tr><td>[gap]2D		<td> 		<td> 		<td> X		<td> X		<td> X		<td> 			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		  	<td> 		   	<td>
-<tr><td>[grow]2D	<td> 		<td> 		<td> X		<td> X		<td> X		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[id]		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>   
-<tr><td>[lineColor]	<td> X		<td> 		<td> X		<td> X		<td> X		<td> 			<td> 		<td> 		<td> X		<td> 		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td> X
-<tr><td>[lineWidth]	<td> X		<td> 		<td> X		<td> X		<td> X		<td> 			<td> 		<td> 		<td> X		<td> 		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td> X
-<tr><td>[lineStyle]	<td> X		<td> 		<td> X		<td> X		<td> X		<td> 			<td> 		<td> 		<td> X		<td> 		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td> X
-<tr><td>[fillColor]	<td> X		<td> 		<td> X		<td> X		<td> X		<td> 			<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X		   	<td>   
-<tr><td>[fontColor]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td>    		<td>
-<tr><td>[font]		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td>    		<td>
-<tr><td>[fontSize]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> 		   	<td>   
-<tr><td>[onKeyDown]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[onKeyUp]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[onMouseDown]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   	
-<tr><td>[onMouseUp]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[onMouseEnter]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X   		<td>
-<tr><td>[onMouseExit]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X   		<td>
-<tr><td>[mouseOver]	<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   		   			   	
-<tr><td>[shadow]	<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[shadowColor]	<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[shadowPos]2D	<td> X		<td> X		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> X		   	<td>   
-<tr><td>[ialign]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td>		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[justify]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[hint]		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> 		   	<td>   
-<tr><td>[manhattan]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[shapeClosed]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> 		<td> X 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[shapeConnected]<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> 		<td> X 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> 		   	<td>   
-<tr><td>[shapeCurved]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td>		<td> 		<td> X 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> 		   	<td>   
-<tr><td>[startGap]2D	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[endGap]2D	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> 		   	<td>   
-<tr><td>[textAngle]	<td> 		<td> X		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td>
-<tr><td>[orientation]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>   			<td>
-<tr><td>[hint]		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td> 	   		<td>
-<tr><td>[area]		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X			<td> X		   	<td> X   		<td>
-<tr><td>[toArrow]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td> X
-<tr><td>[fromArrow]	<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td> X
-<tr><td>[label]		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 			<td> 		   	<td>    		<td> X
+<tr><td>X 		<td>[box]  <td>[button]  <td>[checkbox] 	<td>[combo]  <td>[computeFigure] 	<td>[ellipse] <td>[fswitch] 	<td>[graph]  <td>[grid] <td>[hvcat] 	<td>[outline]  <td>[overlay]  <td>[pack]<td>[scaleSlider] <td>[scrollable]  <td>[space]  <td>[text]  <td>[textfield] 	<td>[tree]  
+<tr><td>[align]2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[aspectRatio]	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> 		
+<tr><td>[connect]2D	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[endGap]2D		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[fillColor]	<td> X		<td> X		<td> X			<td> X		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> X		<td> 		<td> X		   <td> 			<td> X		<td> 		<td> X			<td> 		
+<tr><td>[font]		<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[fontColor]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[fontSize]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[gap]2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> X		<td> X		<td> 		<td> 		<td> X		<td> 		  <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td>[grow]2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> 		
+<tr><td>[hint]		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> X		<td>		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[ialign]		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> X		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td>[id]		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[justify]		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> X		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[lineColor]	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td>[lineStyle]	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td>[lineWidth]	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td>[manhattan]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> X		
+<tr><td>[mouseOver]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[onKeyDown]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[onKeyUp]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[onMouseDown]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[onMouseUp]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[onMouseUp]	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td>[orientation]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[resizable]2D	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[shadow]		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td>[shadowColor]	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td>[shadowPos]2D	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td>[shapeClosed]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[shapeConnected]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[shapeCurved]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[shrink]2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[Properties/size]2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td>[startGap]2D	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td>[textAngle]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
 </table>
 
 Benefits:

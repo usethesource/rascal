@@ -17,7 +17,6 @@ Description:
 Presents a list of named choices to the user. When the user selects one of them, callback `ccallback` is
 called with that choice as argument.
 
-<warning>Erroneous fig</warning>
 <figure choice1.png 400x100>
 public Figure choiceTest(){
   str state = "A";

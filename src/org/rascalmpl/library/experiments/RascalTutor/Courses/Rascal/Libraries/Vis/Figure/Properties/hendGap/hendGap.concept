@@ -1,0 +1,23 @@
+Name: hendGap
+
+Details:
+
+Syntax: `FProperty hendGap(bool g)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Specifies if a [hcat] or [grid] will end with (half) a horizontal gap. See also [endGap] and [vendGap].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

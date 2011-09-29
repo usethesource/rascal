@@ -1,0 +1,23 @@
+Name: connect
+
+Details:
+
+Syntax: `FProperty connect(real h, real v)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Describes where a line connects with this figure. See [hconnect], [vconnect] and [overlay].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

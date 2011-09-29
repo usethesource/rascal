@@ -1,0 +1,23 @@
+Name: vconnect
+
+Details:
+
+Syntax: `FProperty vconnect(num r)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Describes where a line connects with this figure. 0.0 means on the top and 1.0 at the bottom. See also [connect] and [vconnect].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

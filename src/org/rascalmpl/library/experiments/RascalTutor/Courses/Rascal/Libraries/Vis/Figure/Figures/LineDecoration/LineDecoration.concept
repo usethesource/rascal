@@ -1,0 +1,31 @@
+Name: LineDecoration
+
+Details:
+
+Syntax: 
+
+Types:
+
+Function: <listing>
+public data LineDecoration = 
+    info(int lineNumber, str msg)
+  | warning(int lineNumber, str msg)
+  | error(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg, int level)
+  ;
+</listing>
+
+Synopsis:
+
+Description: Describes the linedocorations for an [outline]. 
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

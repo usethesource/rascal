@@ -1,0 +1,23 @@
+Name: hstartGap
+
+Details:
+
+Syntax: `FProperty hstartGap(bool h)`
+
+Types:
+
+Function:
+
+Synopsis:
+
+Description: Specifies if a [hcat] or [grid] will start with (half) a horizontal gap. See also [startGap] and [vstartGap].
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

@@ -41,15 +41,13 @@ render(grid(split(boxes, 3)));
 </figure>
 ![c3](c3.png)
 
-<warning> Here is the old code + output</warning>
 
-<listing>
-boxes = [ hcat([text(c), box([size(20, 20), fillColor(c)])],
-               gap(5), center(), right())
+<figure c2.png 800x800>
+boxes = [ box(hcat([text(c), box([size(20, 20), fillColor(c)])],hgrow(1.2)),grow(1.2))
         | c <- colorNames() 
         ];
-render(grid(boxes, gap(200, 25), size(500)));
-</listing>
+render(hvcat(boxes,justify(true)));
+</figure>
 
 ![colors](c2.png)
 
