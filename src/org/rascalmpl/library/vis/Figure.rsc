@@ -257,6 +257,10 @@ public FProperty orientation(Orientation () or){
 	;})]);
 }
 
+public FProperty onMouseOver(Figure fig) {
+	return mouseOver(fig);
+}
+
 data FProperty =
 	mouseOver(Figure fig)
 	|std(FProperty property)
