@@ -92,9 +92,8 @@ public class Screen extends WithInnerFig{
 		for(Dimension d: HOR_VER){
 			innerFig.size.set(d,(size.get(d) - minExtraSizeForProjections.get(d)) * innerFig.prop.get2DReal(d, SHRINK));
 			innerFig.localLocation.set(d,(size.get(d) - innerFig.size.get(d)) * innerFig.prop.get2DReal(d, ALIGN));
-			innerFig.localLocation.add(localLocation);
-
 		}
+		innerFig.globalLocation.set(globalLocation);
 		innerFig.resize(view,transform);
 		double majorSpaceForProjection = size.get(major) - innerFig.size.get(major);
 		double majorProjectionOffset = innerFig.size.get(major) * (1.0 - innerFig.prop.get2DReal(major, ALIGN));
@@ -102,12 +101,13 @@ public class Screen extends WithInnerFig{
 			Figure pFrom = p.projectFrom;
 			Figure pr = p.projection;
 			double projectFromMinor = 
-				pFrom.localLocation.get(minor) - localLocation.get(minor);
+				pFrom.globalLocation.get(minor) - globalLocation.get(minor);
 			pr.size.set(minor, pFrom.size.get(minor) * pr.prop.get2DReal(minor, SHRINK));
 			pr.size.set(major,majorSpaceForProjection * pr.prop.get2DReal(major, SHRINK ));
 			pr.size.setMax(pr.minSize);
 			pr.localLocation.set(minor,projectFromMinor + (pFrom.size.get(minor) - pr.size.get(minor)) * pr.prop.get2DReal(minor, ALIGN));
 			pr.localLocation.set(major,majorProjectionOffset + (majorSpaceForProjection - pr.size.get(major))* pr.prop.get2DReal(major, ALIGN));
+			pr.globalLocation.set(globalLocation);
 			pr.resize(view, transform);
 		}
 	}
