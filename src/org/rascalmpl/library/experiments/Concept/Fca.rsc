@@ -52,7 +52,7 @@ public property_table readCxt(loc input)  {
        nodes += compose(s0, s1, c, z, big);
      }  
      list[Edge] edges =   [ edge("<z[x[0]]>", "<z[x[1]]>", [lineWidth(1)]) | x<-q];  
-     return graph( nodes, edges, [hint(layout_alg)]);
+     return graph( nodes, edges, [hint(layout_alg), gap(50)]);
      }
      
 // Auxilary functions

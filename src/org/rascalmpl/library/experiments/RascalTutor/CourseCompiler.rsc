@@ -258,7 +258,7 @@ public str prelude(str courseName){
 
 public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptName,Concept] concepts){  
   return 
-  "/* Generated code for course <courseName>, generated <now()> */
+  "/* Generated code for course <courseName> */
   '
   '$.setRootConcept(\"<courseName>\");
   '
