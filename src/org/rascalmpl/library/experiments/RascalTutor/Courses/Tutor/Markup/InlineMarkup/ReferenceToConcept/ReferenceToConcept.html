@@ -29,6 +29,7 @@
       <li><a href="/Courses/Tutor/Concept/Name/Name.html">Name</a></li>
       <li><a href="/Courses/Tutor/Concept/Pitfalls/Pitfalls.html">Pitfalls</a></li>
       <li><a href="/Courses/Tutor/Concept/Questions/Questions.html">Questions</a></li>
+      <li><a href="/Courses/Tutor/Concept/Synopsis/Synopsis.html">Synopsis</a></li>
       <li><a href="/Courses/Tutor/Concept/Syntax/Syntax.html">Syntax</a></li>
       <li><a href="/Courses/Tutor/Concept/Types/Types.html">Types</a></li>
   </ul></li>
@@ -87,26 +88,29 @@
 </div>
          
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Refer to a concept in this course.
+<span class="sectionHead">Synopsis</span>  Refer to a concept in this course or another course.
 
 </div>
 
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>[ <i>ConceptName</i> ]</code>
-
+<span class="sectionHead">Syntax</span>  <ol><li> <code>[ <i>ConceptName</i> ]</code></li>
+<li> <code>[ <i>OtherCourse</i> : <i>ConceptName</i> ]</code></li>
+</ol>
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Creates a link to a concept in the current course.
+<span class="sectionHead">Description</span>  The first form creates a link to a concept in the current course.
  The conceptname may be:
  <ul><li> A full pathname of a concept.</li>
 <li> A partial pathname (with elements starting at the rooted omitted)</li>
-<li> A basic conceptname, i.e. the name fo a concept without its hierarchical path.<br/>
-<br/>
- A partial concept name may be needed if the course contains concepts with the same
+<li> A basic conceptname, i.e. the name fo a concept without its hierarchical path.</li>
+</ul> A partial concept name may be needed if the course contains concepts with the same
  name in different parts of the concept hierarchy.
-</li>
-</ul>
+ <br/>
+<br/>
+
+ The second form creates a link to a concept in another course.
+
 </div>
 
 <div id="Examples">
@@ -114,6 +118,7 @@
  <ul><li> <code>[Tutor/Markup/InlineMarkup]</code> gives <a href="javascript:show('Tutor/Markup/InlineMarkup/ReferenceToConcept','Tutor/Markup/InlineMarkup')">Tutor/Markup/InlineMarkup</a>.</li>
 <li> <code>[Markup/InlineMarkup]</code> gives <a href="javascript:show('Tutor/Markup/InlineMarkup/ReferenceToConcept','Markup/InlineMarkup')">Markup/InlineMarkup</a>.</li>
 <li> <code>[InlineMarkup]</code> gives <a href="javascript:show('Tutor/Markup/InlineMarkup/ReferenceToConcept','InlineMarkup')">InlineMarkup</a>.</li>
+<li> <code>[Rascal:If]</code> gives <a href="/Courses/Rascal/Statements/If/If.html">Rascal:If</a>.</li>
 </ul>
 </div>
 

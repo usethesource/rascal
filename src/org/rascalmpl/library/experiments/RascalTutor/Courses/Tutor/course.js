@@ -4,7 +4,7 @@ $.setRootConcept("Tutor");
 
 var baseConcepts = new Array("![","#","##","###",")","*","**","***",",","...]",":","<","</","<\\","==","===","====",">",">`","Authoring","Benefits","Bold","BulletLists","Callout","Choice","Code","Concept","Description","Details","Examples","ExternalURL","Function","Image","Index","InlineMarkup","Italic","Markup","Name","NamedParagraph","NewParagraph","NumberedLists","Pitfalls","QType","QValue","QuestionMarkup","Questions","ReferenceToConcept","StructureMarkup","Synopsis","Syntax","Table","Tutor","Type","TypeDescriptor","Types","Value","VarName","Variable","Varname","XChoice","[","\\","]","](","_","__","`<","arb","bool","datetime","figure","int","list","listing","loc","map","num","real","same","screen","set","str","tuple","void","warning","x","|","|---------|---------|");
 
-var conceptNames = new Array("Tutor","Tutor/Authoring","Tutor/Concept","Tutor/Concept/Benefits","Tutor/Concept/Description","Tutor/Concept/Details","Tutor/Concept/Examples","Tutor/Concept/Function","Tutor/Concept/Name","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Concept/Syntax","Tutor/Concept/Types","Tutor/Markup","Tutor/Markup/InlineMarkup","Tutor/Markup/InlineMarkup/Bold","Tutor/Markup/InlineMarkup/Callout","Tutor/Markup/InlineMarkup/Code","Tutor/Markup/InlineMarkup/ExternalURL","Tutor/Markup/InlineMarkup/Image","Tutor/Markup/InlineMarkup/Italic","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Markup/InlineMarkup/Variable","Tutor/Markup/QuestionMarkup","Tutor/Markup/QuestionMarkup/Choice","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/TypeDescriptor","Tutor/Markup/QuestionMarkup/Value","Tutor/Markup/StructureMarkup","Tutor/Markup/StructureMarkup/BulletLists","Tutor/Markup/StructureMarkup/NamedParagraph","Tutor/Markup/StructureMarkup/NewParagraph","Tutor/Markup/StructureMarkup/NumberedLists","Tutor/Markup/StructureMarkup/Table","Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/listing","Tutor/Markup/StructureMarkup/screen","Tutor/Markup/StructureMarkup/warning");
+var conceptNames = new Array("Tutor","Tutor/Authoring","Tutor/Concept","Tutor/Concept/Benefits","Tutor/Concept/Description","Tutor/Concept/Details","Tutor/Concept/Examples","Tutor/Concept/Function","Tutor/Concept/Name","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Concept/Synopsis","Tutor/Concept/Syntax","Tutor/Concept/Types","Tutor/Markup","Tutor/Markup/InlineMarkup","Tutor/Markup/InlineMarkup/Bold","Tutor/Markup/InlineMarkup/Callout","Tutor/Markup/InlineMarkup/Code","Tutor/Markup/InlineMarkup/ExternalURL","Tutor/Markup/InlineMarkup/Image","Tutor/Markup/InlineMarkup/Italic","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Markup/InlineMarkup/Variable","Tutor/Markup/QuestionMarkup","Tutor/Markup/QuestionMarkup/Choice","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/TypeDescriptor","Tutor/Markup/QuestionMarkup/Value","Tutor/Markup/StructureMarkup","Tutor/Markup/StructureMarkup/BulletLists","Tutor/Markup/StructureMarkup/NamedParagraph","Tutor/Markup/StructureMarkup/NewParagraph","Tutor/Markup/StructureMarkup/NumberedLists","Tutor/Markup/StructureMarkup/Table","Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/listing","Tutor/Markup/StructureMarkup/screen","Tutor/Markup/StructureMarkup/warning");
 
 var searchTerms = {};
 
@@ -24,6 +24,8 @@ searchTerms["Tutor/Concept/Function"] = null;
 searchTerms["Tutor/Markup/StructureMarkup/NamedParagraph"] = new Array("==","====","===");
 
 searchTerms["Tutor/Markup/QuestionMarkup/Choice"] = null;
+
+searchTerms["Tutor/Concept/Synopsis"] = null;
 
 searchTerms["Tutor/Markup/StructureMarkup/BulletLists"] = new Array("**","*","***");
 
@@ -49,7 +51,7 @@ searchTerms["Tutor/Markup/InlineMarkup/ExternalURL"] = new Array(")","[","](");
 
 searchTerms["Tutor/Markup/StructureMarkup/listing"] = new Array(">`","#","listing","`<");
 
-searchTerms["Tutor/Markup/InlineMarkup/ReferenceToConcept"] = new Array("[","]");
+searchTerms["Tutor/Markup/InlineMarkup/ReferenceToConcept"] = new Array(":","[","]");
 
 searchTerms["Tutor/Concept/Details"] = new Array("Details",":",",");
 
