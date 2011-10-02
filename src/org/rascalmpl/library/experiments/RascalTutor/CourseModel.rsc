@@ -188,3 +188,26 @@ public bool writingAllowed(){
     println("writingAllowed: svn = <courseDirSVN>, wa = <writingAllowed>");
     return writingAllowed;
 }
+
+set[str] exclude = {".svn"};
+
+public list[loc] crawl(loc dir, str suffix){
+//  println("crawl: <dir>, <listEntries(dir)>");
+  list[loc] res = [];
+  dotSuffix = "." + suffix;
+  for( str entry <- listEntries(dir) ){
+    if(entry notin exclude){                       // TODO: TEMP
+       loc sub = catenate(dir, entry);
+       if(endsWith(entry, dotSuffix)) { 
+      	  res += [sub]; 
+      	  //if(regenerate)
+      	 //   touch(sub);
+       }
+       if(isDirectory(sub)) {
+          res += crawl(sub, suffix);
+      }
+    }
+  };
+  return res;
+}
+
