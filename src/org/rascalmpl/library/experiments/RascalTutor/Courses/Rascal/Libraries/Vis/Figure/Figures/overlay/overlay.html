@@ -211,6 +211,7 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshadowPos/vshadowPos.html">vshadowPos</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/justify/justify.html">justify</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vgap/vgap.html">vgap</a></li>
+                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vconnect/vconnect.html">vconnect</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hendGap/hendGap.html">hendGap</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vresizable/vresizable.html">vresizable</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/bottom/bottom.html">bottom</a></li>
@@ -224,6 +225,7 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/manhattan/manhattan.html">manhattan</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/gap/gap.html">gap</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/size/size.html">size</a></li>
+                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hconnect/hconnect.html">hconnect</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hcenter/hcenter.html">hcenter</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowColor/shadowColor.html">shadowColor</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/id/id.html">id</a></li>
@@ -263,6 +265,7 @@
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hcat/hcat.html">hcat</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/treemap/treemap.html">treemap</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/space/space.html">space</a></li>
+                  <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/LineDecoration/LineDecoration.html">LineDecoration</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/choice/choice.html">choice</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscreen/vscreen.html">vscreen</a></li>
                   <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scrollable/scrollable.html">scrollable</a></li>
@@ -683,7 +686,7 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+<span class="sectionHead">Examples</span>  <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"));
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -691,7 +694,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),top(),right());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -699,7 +702,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
@@ -707,7 +710,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
+ <pre class="listing">b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"),right());
 render(overlay([b1, b2, b3]));
@@ -719,7 +722,7 @@ render(overlay([b1, b2, b3]));
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,0: Undeclared type: FigureStatic Error: prompt:///:1,6: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords]);
 render(ovl);
@@ -735,7 +738,7 @@ render(ovl);
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,0: Undeclared type: FigureStatic Error: prompt:///:1,6: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 list[tuple[num,num]] coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true));
 render(ovl);
@@ -748,7 +751,7 @@ render(ovl);
 <br/>
 
  The next enhancement is to close the begin and end points of the shape, using <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','shapeClosed')">shapeClosed</a>:
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,0: Undeclared type: FigureStatic Error: prompt:///:1,6: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true));
@@ -762,7 +765,7 @@ render(ovl);
 <br/>
 
  Another enhancement is to use curves to connect the figures in the shape, using <a href="javascript:show('Rascal/Libraries/Vis/Figure/Figures/overlay','shapeCurved')">shapeCurved</a>:
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,0: Undeclared type: FigureStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl= overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                              shapeClosed(true),
@@ -777,7 +780,7 @@ render(ovl);
 <br/>
 
  A final enhancement is to set the fill color of the closed shape:
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,0: Undeclared type: FigureStatic Error: prompt:///:1,6: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true),
@@ -797,7 +800,7 @@ render(ovl);
  <br/>
 <br/>
 
- <warning>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Parse error in std:///vis/Figure.rsc from <261,29> to <261,29>Static Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: ellipseStatic Error: prompt:///:1,5: Undeclared variable, function or constructor: boxStatic Error: prompt:///:1,6: Undeclared variable, function or constructor: overlayStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
+ <pre class="listing">b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
 e1 = ellipse(size(25),resizable(false),vconnect(0.0),bottom(),fillColor("green"));
 b2 = box(shrink(0.2),vconnect(0.0),hconnect(0.0),aspectRatio(1.0),top(),right(),fillColor("blue"));
 ovl = overlay([b1,e1,b2 ],shapeConnected(true),shapeClosed(true),fillColor("yellow"));
