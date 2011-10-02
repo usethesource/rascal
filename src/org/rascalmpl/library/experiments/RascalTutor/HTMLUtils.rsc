@@ -202,9 +202,6 @@ public str show(ConceptName fromConcept, ConceptName toConcept){
   return "\<a href=\"javascript:show(\'<fromConcept>\',\'<toConcept>\')\"\><toConcept>\</a\>";
 }
 
-public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept){
-  return "\<a href=\"javascript:showOtherCourse(\'<fromConcept>\',\'<course>\',\'<toConcept>\')\"\><course>:<toConcept>\</a\>";
-}
 
 
 

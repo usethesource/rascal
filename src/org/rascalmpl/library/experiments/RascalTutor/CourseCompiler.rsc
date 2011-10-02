@@ -731,31 +731,7 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
    return course(rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated);
 }
 
-set[str] exclude = {".svn", "IntroSyntaxDefinitionAndParsing", "AlgebraicDataType"};
-
-public list[loc] crawl(loc dir, str suffix){
-//  println("crawl: <dir>, <listEntries(dir)>");
-  list[loc] res = [];
-  dotSuffix = "." + suffix;
-  for( str entry <- listEntries(dir) ){
-    if(entry notin exclude){                       // TODO: TEMP
-       loc sub = catenate(dir, entry);
-       if(endsWith(entry, dotSuffix)) { 
-      	  res += [sub]; 
-      	  if(regenerate)
-      	    touch(sub);
-       }
-       if(isDirectory(sub)) {
-          res += crawl(sub, suffix);
-      }
-    }
-  };
-  return res;
-}
-
-private bool hasSubdirs(loc dir){
-  return isDirectory(dir) && size([ e | e <-listEntries(dir), isDirectory(e)]) > 0;
-}
+set[str] exclude = {".svn"};
 
 public str crawlNavigation(loc dir, str suffix, str offset){
   println("crawlNavigation: <dir>, <listEntries(dir)>");

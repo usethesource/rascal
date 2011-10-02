@@ -520,3 +520,21 @@ private set[str]  searchTerms(list[str] lines){
     };
     return terms;
 }
+
+public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept){
+   otherCourseFiles = crawl(catenate(courseDir, course), conceptExtension);
+   lcToConcept = toLowerCase(toConcept);
+   options = for(file <- otherCourseFiles){
+                 cn = getFullConceptName(file);
+                 if(endsWith(toLowerCase(cn), lcToConcept))
+                    append cn;
+             }
+   if(size(options) == 1)
+      return  "\<a href=\"/Courses/<options[0]>/<toConcept>.html\"\><course>:<toConcept>\</a\>";       
+   if(size(options) == 0)
+     addWarning("Reference to unknown concept in other course: <course>:<toConcept>");
+   if(size(options) > 1)
+     addWarning("Ambiguous reference to concept in other course: <course>:<toConcept>Resolve with one of <for(opt <- options){>\t<opt> <}>");
+   return "??<course>:<toConcept>??";
+}
+
