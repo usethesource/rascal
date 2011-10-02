@@ -31,7 +31,7 @@ bool editingAllowed = true;
 public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>
        '
-       'Details:
+       'Synopsis:
        '
        'Syntax:
        '
@@ -39,7 +39,7 @@ return "Name: <cn>
        '
        'Function:
        '
-       'Synopsis:
+       'Details:
        '
        'Description:
        '
@@ -57,10 +57,8 @@ return "Name: <cn>
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
 
-// Categories is deprecated but still here to guarantee correct parsing of concepts
-
-public set[str] sectionKeywords = {"Name", "Details", "Categories", "Syntax", "Types", "Function", "Synopsis", "Description",
-                                   "Examples", "Benefits", "Pitfalls", "Questions"};
+public list[str] sectionKeywords = ["Name",  "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
+                                   "Examples", "Benefits", "Pitfalls", "Questions"];
 
 private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/images/rascal-tutor-small.png\"\>";
 
@@ -145,22 +143,23 @@ public Concept compileConcept(loc file){
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
-	   html_body        = section("Syntax", markup(syntaxSection, conceptName)) +
-                          section("Types", markup(typesSection, conceptName)) +
-                          section("Function", markup(functionSection, conceptName)) +
-  	                      section("Synopsis", markup(synopsisSection, conceptName)) +
-  	                      section("Description", markup(sections["Description"], conceptName)) +
-  	                      section("Examples", markup(sections["Examples"], conceptName)) +
-  	                      section("Benefits", markup(sections["Benefits"], conceptName)) +
-  	                      section("Pitfalls", markup(sections["Pitfalls"], conceptName)) +
-  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"); 
-	   
 	   related = getAndClearRelated();
 	   warnings = getAndClearWarnings();
 	   
 	   Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
-	   if(regen)
-	   	  generate(C, html_body);
+	   if(regen){
+	      html_synopsis = section("Synopsis", markup(synopsisSection, conceptName)) +
+	                      section("Syntax", markup(syntaxSection, conceptName)) +
+                          section("Types", markup(typesSection, conceptName)) +
+                          section("Function", markup(functionSection, conceptName));
+  	      html_body     = section("Description", markup(sections["Description"], conceptName)) +
+  	                      section("Examples", markup(sections["Examples"], conceptName)) +
+  	                      section("Benefits", markup(sections["Benefits"], conceptName)) +
+  	                      section("Pitfalls", markup(sections["Pitfalls"], conceptName)) +
+  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>");
+	   
+	   	  generate(C, html_synopsis, html_body);
+	   }
 	   return C;
 	} catch NoSuchKey(e):
 	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
@@ -175,7 +174,7 @@ public str showConcept(Concept C){
    return readFile(html_file);
 }
 
-public void generate(Concept C, str html_body){
+public void generate(Concept C, str html_synopsis, str html_body){
    cn = C.fullName;
    childs = children(C);
    questions = C.questions;
@@ -204,6 +203,7 @@ public void generate(Concept C, str html_body){
   	  
   	           tdid("tdconcept", div("conceptPane", 
   	              section("Name", showConceptPath(cn)) + searchBox(cn) +
+  	              html_synopsis +
   	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><showConceptURL(ch)> &#032 <}>")) +
   	              html_body +
   	              editMenu(cn)
