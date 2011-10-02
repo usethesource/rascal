@@ -1,6 +1,6 @@
 Name: vshrink
 
-Details:
+Synopsis: Decrease (shrink) vertical size of figure relative to its parent.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty vshrink(num vs)`
 
-Synopsis:
+Details:
 
 Description:
 Vertically shrink the current figure relative to the figure it is contained in (its parent). 
@@ -18,7 +18,6 @@ Shrink is expressed as a factor smaller than 1.
 Also see [shrink] and [hshrink].
 
 Examples:
-
 <figure s1.png 100x50>
 b1 = box(vshrink(0.5), fillColor("blue"));
 b2 = box(b1, fillColor("yellow"));
@@ -32,9 +31,3 @@ Pitfalls:
 
 Questions:
 
-       
-
-
-       
-
-       

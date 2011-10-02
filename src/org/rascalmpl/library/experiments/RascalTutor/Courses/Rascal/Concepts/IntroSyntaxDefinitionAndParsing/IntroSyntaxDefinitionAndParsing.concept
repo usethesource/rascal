@@ -1,8 +1,6 @@
 Name:IntroSyntaxDefinitionAndParsing
 
-Categories:
-
-Synopsis:
+Synopsis: Concept: _Syntax definition of new languages_.
 
 Description:
 
@@ -13,6 +11,7 @@ There are two main approaches to this:
    This can be achieved using regular expression patterns.
 * _Structured information_: Use syntax analysis to extract the complete, nested, structure of the source code 
    in the form of a syntax tree.
+
 
 Using [SyntaxDefinition]s you can define the syntax of any (programming) language. Then Rascal:
 * will generate parsers

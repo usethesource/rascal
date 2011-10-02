@@ -1,22 +1,17 @@
 Name: For
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
-
 `for ( $Exp_1$ , $Exp_2$ , ... , $Exp_n$ ) $Statement$;`
-
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 The for-statement executes $Statement$ for all possible combinations of values of the expressions $Exp_i$.
 If one of the expressions is a boolean expression, we do try all its possible values.
 

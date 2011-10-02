@@ -1,14 +1,19 @@
-Name:AAA
+Name: AAA
+
+Synopsis:
+
+Syntax:
+A + B
+
+Types:
+xxx
+
+Function:
 
 Details:
 
-Categories:
-
-Syntax: A + B
-
-Types: xxx
-
-Description:xxx  < xx  [WRONGLINK]
+Description:
+xxx  < xx  [WRONGLINK]
 
 Examples:
 abc def ghi jkl
@@ -24,17 +29,7 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: {1, <?> }
 type: set[int]
 hint: one or more integer values separated by commas
-
-
-
-
-
-
-
-
-
 

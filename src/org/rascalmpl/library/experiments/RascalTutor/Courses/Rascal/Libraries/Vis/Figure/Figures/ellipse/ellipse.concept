@@ -1,8 +1,6 @@
 Name: ellipse
 
-Details:
-
-Categories: Library
+Synopsis: An ellipse.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `FProperty ellipse(FProperty props...)`
 # `FProperty ellipse(Figure inner, FProperty props)`
 
-Synopsis:
+Details:
 
 Description:
 Draw an ellipse using the sizes given in properties `props`. 
@@ -37,7 +35,6 @@ render(e1);
 gives:
 
 ![ellipse 2](e2.png)
-
 
 Benefits:
 

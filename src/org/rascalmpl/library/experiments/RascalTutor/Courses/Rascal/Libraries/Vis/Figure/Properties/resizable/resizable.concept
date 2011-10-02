@@ -1,6 +1,6 @@
 Name: resizable
 
-Details:
+Synopsis: Define whether figure can be resized.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty resizable(bool hr, bool vr)`
 
-Synopsis:
+Details:
 
 Description:
 Determine whether a figure can be resized in the horizontal or the vertical dimension, or in both directions.
@@ -28,4 +28,3 @@ Pitfalls:
 
 Questions:
 
-       

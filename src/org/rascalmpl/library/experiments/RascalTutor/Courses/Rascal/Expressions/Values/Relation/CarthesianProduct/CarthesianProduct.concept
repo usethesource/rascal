@@ -1,10 +1,9 @@
 Name: CarthesianProduct
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Exp_1$ * $Exp_2$`
+Syntax:
+`$Exp_1$ * $Exp_2$`
 
 Types:
 |`$Exp_1$`     | `$Exp_2$`    | `$Exp_1$ * $Exp_2$`  |
@@ -13,9 +12,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Returns a binary relation that is the Carthesian product of two sets.
+Description:
+Returns a binary relation that is the Carthesian product of two sets.
 
 Examples:
 <screen>

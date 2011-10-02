@@ -1,21 +1,21 @@
 Name: Message
 
-Details:
-
-Categories: Library
+Synopsis: The `Message` datatype represents messages in the IDE.
 
 Syntax:
+
+Types:
 <listing>
 data Message = error(str msg, loc at)
              | warning(str msg, loc at)
              | info(str msg, loc at);
 </listing>
 
-Types:
+
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Messages can be used to communicate information about source texts.

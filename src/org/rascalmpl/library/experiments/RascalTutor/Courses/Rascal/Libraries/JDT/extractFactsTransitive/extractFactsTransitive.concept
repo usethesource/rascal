@@ -1,8 +1,6 @@
 Name: extractFactsTransitive
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Resource extractFactsTransitive(loc project)`
 
-Synopsis:
+Details:
 
 Description:
 Extracts facts from a Java project and all projects it depends on.

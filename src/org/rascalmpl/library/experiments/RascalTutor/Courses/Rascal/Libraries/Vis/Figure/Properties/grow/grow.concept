@@ -1,6 +1,6 @@
 Name: grow
 
-Details:
+Synopsis: Grow (increase) the size of a figure relative to any contained figures.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty grow(num hg, num vg)`
 
-Synopsis:
+Details:
 
 Description:
 Grow the current figure relative to any contained figures. Growth is expressed as a factor larger than 1.
@@ -22,7 +22,6 @@ Note that:
 Also see [hgrow] and [vgrow].
 
 Examples:
-
 <figure g1.png>
 b1 = box(size(100, 50), fillColor("blue"));
 b2 = box(b1, grow(1.5), fillColor("yellow"));
@@ -36,4 +35,3 @@ Pitfalls:
 
 Questions:
 
-       

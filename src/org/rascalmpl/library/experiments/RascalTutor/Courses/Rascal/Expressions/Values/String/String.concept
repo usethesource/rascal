@@ -1,8 +1,9 @@
-Name:String
+Name: String
 
-Categories:Language
+Synopsis: String values.
 
-Syntax: `"$StringChar_1$$StringChar_2$..."`
+Syntax:
+`"$StringChar_1$$StringChar_2$..."`
 where $StringChar$ may be one of the following:
 * __Ordinary character__: Any character except `<`, `>`, `"`, `'` or `\`.
 * __Escaped character__: Backslash `\` followed by any of  `<`, `>`, `"`, `'` or `\` represents the escaped character itself.
@@ -15,7 +16,12 @@ where $StringChar$ may be one of the following:
 
 * __String Interpolation__: `<$Exp$>`
 
-Types: `str`
+Types:
+`str`
+
+Function:
+
+Details:
 
 Description:
 <warning>Library functions replaceAll, replaceFirst, replaceLast not yet included (reconsider) </warning>

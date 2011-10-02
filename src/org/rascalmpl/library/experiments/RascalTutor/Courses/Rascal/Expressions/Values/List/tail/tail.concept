@@ -1,8 +1,6 @@
 Name: tail
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `list[&T] tail(list[&T] lst) throws EmptyList`
 # `list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
 Description:
 # Return a list consisting of all but the first element of `lst`.

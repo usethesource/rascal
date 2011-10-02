@@ -1,25 +1,24 @@
 Name: toRel
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`rel[&K, &V] toRel(map[&K, &V] M)`
+Function:
+`rel[&K, &V] toRel(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description: Covert map `M` to a relation.
+Description:
+Covert map `M` to a relation.
 
 Examples:
 <screen>
 import Map;
 toRel(("apple": 1, "pear": 2, "ananas": 3));
 </screen>
-
 
 Benefits:
 

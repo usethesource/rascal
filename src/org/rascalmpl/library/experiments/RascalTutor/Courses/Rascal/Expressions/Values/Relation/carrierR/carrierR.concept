@@ -1,18 +1,18 @@
 Name: carrierR
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)`
+Function:
+`rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)`
 
-Synopsis:
+Details:
 
-Description: Returns relation `R` restricted to tuples with elements in set `S`.
+Description:
+Returns relation `R` restricted to tuples with elements in set `S`.
 
 Examples:
 <screen>

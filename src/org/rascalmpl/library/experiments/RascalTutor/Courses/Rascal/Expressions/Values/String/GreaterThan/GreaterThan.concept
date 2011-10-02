@@ -1,10 +1,9 @@
 Name: GreaterThan
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax:`$Exp_1$ > $Exp_2$`
+Syntax:
+`$Exp_1$ > $Exp_2$`
 
 Types:
 | `$Exp_1$` | `$Exp_2$` | `$Exp_1$ > $Exp_2$` |
@@ -13,9 +12,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Yields `true` if the string value of $Exp_1$ is strictly lexicographically greater
+Description:
+Yields `true` if the string value of $Exp_1$ is strictly lexicographically greater
 than the string value of $Exp_2$, and `false` otherwise.
 
 Examples:
@@ -30,5 +30,4 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 

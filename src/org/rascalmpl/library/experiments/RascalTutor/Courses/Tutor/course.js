@@ -1,13 +1,15 @@
-/* Generated code for course Tutor, generated $2011-09-22T16:03:39.515+0200 */
+/* Generated code for course Tutor */
 
 $.setRootConcept("Tutor");
 
-var baseConcepts = new Array("![","#","##","###",")","*","**","***",",",":","<","</","<\\","==","===","====",">",">`","Authoring","Benefits","Bold","BulletLists","Callout","Choice","Code","Concept","Description","Details","Examples","ExternalURL","Function","Image","Index","InlineMarkup","Italic","Markup","Name","NamedParagraph","NewParagraph","NumberedLists","Pitfalls","QChoice","QuestionMarkup","Questions","ReferenceToConcept","StructureMarkup","Synopsis","Syntax","Table","Tutor","Types","VarName","Variable","Varname","[","\\","]","](","_","__","`<","figure","listing","screen","warning","x","|","|---------|---------|");
+var baseConcepts = new Array("![","#","##","###",")","*","**","***",",","...]",":","<","</","<\\","==","===","====",">",">`","Authoring","Benefits","Bold","BulletLists","Callout","Choice","Code","Concept","Description","Details","Examples","ExternalURL","Function","Image","Index","InlineMarkup","Italic","Markup","Name","NamedParagraph","NewParagraph","NumberedLists","Pitfalls","QType","QValue","QuestionMarkup","Questions","ReferenceToConcept","StructureMarkup","Synopsis","Syntax","Table","Tutor","Type","TypeDescriptor","Types","Value","VarName","Variable","Varname","XChoice","[","\\","]","](","_","__","`<","arb","bool","datetime","figure","int","list","listing","loc","map","num","real","same","screen","set","str","tuple","void","warning","x","|","|---------|---------|");
 
-var conceptNames = new Array("Tutor","Tutor/Authoring","Tutor/Concept","Tutor/Concept/Benefits","Tutor/Concept/Description","Tutor/Concept/Details","Tutor/Concept/Examples","Tutor/Concept/Function","Tutor/Concept/Name","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Concept/Syntax","Tutor/Concept/Types","Tutor/Markup","Tutor/Markup/InlineMarkup","Tutor/Markup/InlineMarkup/Bold","Tutor/Markup/InlineMarkup/Callout","Tutor/Markup/InlineMarkup/Code","Tutor/Markup/InlineMarkup/ExternalURL","Tutor/Markup/InlineMarkup/Image","Tutor/Markup/InlineMarkup/Italic","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Markup/InlineMarkup/Variable","Tutor/Markup/QuestionMarkup","Tutor/Markup/QuestionMarkup/Choice","Tutor/Markup/StructureMarkup","Tutor/Markup/StructureMarkup/BulletLists","Tutor/Markup/StructureMarkup/NamedParagraph","Tutor/Markup/StructureMarkup/NewParagraph","Tutor/Markup/StructureMarkup/NumberedLists","Tutor/Markup/StructureMarkup/Table","Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/listing","Tutor/Markup/StructureMarkup/screen","Tutor/Markup/StructureMarkup/warning");
+var conceptNames = new Array("Tutor","Tutor/Authoring","Tutor/Concept","Tutor/Concept/Benefits","Tutor/Concept/Description","Tutor/Concept/Details","Tutor/Concept/Examples","Tutor/Concept/Function","Tutor/Concept/Name","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Concept/Syntax","Tutor/Concept/Types","Tutor/Markup","Tutor/Markup/InlineMarkup","Tutor/Markup/InlineMarkup/Bold","Tutor/Markup/InlineMarkup/Callout","Tutor/Markup/InlineMarkup/Code","Tutor/Markup/InlineMarkup/ExternalURL","Tutor/Markup/InlineMarkup/Image","Tutor/Markup/InlineMarkup/Italic","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Markup/InlineMarkup/Variable","Tutor/Markup/QuestionMarkup","Tutor/Markup/QuestionMarkup/Choice","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/TypeDescriptor","Tutor/Markup/QuestionMarkup/Value","Tutor/Markup/StructureMarkup","Tutor/Markup/StructureMarkup/BulletLists","Tutor/Markup/StructureMarkup/NamedParagraph","Tutor/Markup/StructureMarkup/NewParagraph","Tutor/Markup/StructureMarkup/NumberedLists","Tutor/Markup/StructureMarkup/Table","Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/listing","Tutor/Markup/StructureMarkup/screen","Tutor/Markup/StructureMarkup/warning");
 
 var searchTerms = {};
 
+
+searchTerms["Tutor/Markup/QuestionMarkup/Value"] = new Array("QValue",":");
 
 searchTerms["Tutor/Concept/Pitfalls"] = null;
 
@@ -55,6 +57,8 @@ searchTerms["Tutor/Markup"] = null;
 
 searchTerms["Tutor/Authoring"] = null;
 
+searchTerms["Tutor/Markup/QuestionMarkup/TypeDescriptor"] = new Array("loc","set","num","same","tuple","bool",",","int","...]","str","value","arb","void","[","datetime","map","]","real","list");
+
 searchTerms["Tutor/Concept/Description"] = new Array(":","Description");
 
 searchTerms["Tutor/Concept/Benefits"] = null;
@@ -68,6 +72,8 @@ searchTerms["Tutor"] = null;
 searchTerms["Tutor/Concept"] = new Array("Details","Syntax","Synopsis","Function","Types","Examples",":","Name","Description","Benefits",",","Pitfalls","Questions");
 
 searchTerms["Tutor/Markup/StructureMarkup/screen"] = new Array("<\\","screen","<",">");
+
+searchTerms["Tutor/Markup/QuestionMarkup/Type"] = new Array(":","QType");
 
 searchTerms["Tutor/Markup/StructureMarkup/Table"] = new Array("|---------|---------|","|","\\");
 

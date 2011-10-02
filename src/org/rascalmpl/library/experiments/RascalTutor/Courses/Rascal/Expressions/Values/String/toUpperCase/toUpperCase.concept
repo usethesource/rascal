@@ -1,18 +1,18 @@
 Name: toUpperCase
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str toUpperCase(str s)`
+Function:
+`str toUpperCase(str s)`
 
-Synopsis:
+Details:
 
-Description: Converts all characters in string `s` to uppercase.
+Description:
+Converts all characters in string `s` to uppercase.
 
 Also see [toLowerCase].
 

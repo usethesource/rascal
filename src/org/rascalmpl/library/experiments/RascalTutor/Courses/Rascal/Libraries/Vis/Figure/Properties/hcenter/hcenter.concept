@@ -1,8 +1,6 @@
 Name: hcenter
 
-Details:
-
-Categories: Library
+Synopsis: Horizontal, centered, alignmnent.
 
 Syntax:
 
@@ -11,10 +9,9 @@ Types:
 Function:
 `FProperty hcenter()`
 
-Synopsis:
+Details:
 
 Description:
-
 `hcenter` defines __horizontal centered alignment__.
 It sets the horizontal alignment at 0.5.
 

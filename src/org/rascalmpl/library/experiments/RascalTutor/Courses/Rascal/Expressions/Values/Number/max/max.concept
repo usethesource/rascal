@@ -1,10 +1,18 @@
-Name:max
+Name: max
 
-Categories: Library
+Synopsis:
 
-Function: `&T <: num max(&T <: num n, &T <: num m)`
+Syntax:
 
-Description: The largest of two numbers. The type of the result is the same as the type of the largest argument.
+Types:
+
+Function:
+`&T <: num max(&T <: num n, &T <: num m)`
+
+Details:
+
+Description:
+The largest of two numbers. The type of the result is the same as the type of the largest argument.
 
 Examples:
 <screen>
@@ -41,10 +49,4 @@ prep: import Number;
 make: A = num
 hint: any value smaller than <A>
 test: max(<A>, <?>) == <A>
-
-
-
-
-
-
 

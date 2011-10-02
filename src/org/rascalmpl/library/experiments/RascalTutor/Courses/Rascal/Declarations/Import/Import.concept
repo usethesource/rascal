@@ -1,19 +1,17 @@
 Name: Import
 
-Details:
+Synopsis: Declare the import a module.
 
-Categories: Language
-
-Syntax: `import $QualifiedName$;`
+Syntax:
+`import $QualifiedName$;`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 An import has as effect that all public entities declared in module $QualifiedName$ are made available to the importing module. Circular imports are allowed. Two kinds of imported modules are supported:
 
 * Another Rascal module.
@@ -23,8 +21,6 @@ An import has as effect that all public entities declared in module $QualifiedNa
 In the former case, all publicly visible entities in the imported module become available in the importing module. In the latter case, all non-terminals (symbols in SDF parlance) that are declared in $L$ become available as types in the importing module. In addition, concrete syntax patterns and parse functions can be used for any non-terminal that is defined in $L$.
 
 Import is _non-transitive_, i.e., the visible entities from an imported module are not re-exported by the importing module.
-
-
 
 Examples:
 

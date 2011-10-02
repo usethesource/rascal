@@ -1,18 +1,18 @@
 Name: println
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `void println(value V)`
+Function:
+`void println(value V)`
 
-Synopsis:
+Details:
 
-Description: Print a value on the output stream.
+Description:
+Print a value on the output stream.
 
 Examples:
 <screen>

@@ -1,21 +1,21 @@
 Name: Concatenation
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax:`$Exp_1$ + $Exp_2$`
+Syntax:
+`$Exp_1$ + $Exp_2$`
 
 Types:
 | `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ > $Exp_2$`                                 |
 |:-------------------------------|:--------------------------------|:----------------------------------------------------|
 | `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `tuple[ $T_11$, $T_12$, ..., $T_21$, $T_22$, ... ]` |
- 
+
 Function:
 
-Synopsis:
+Details:
 
-Description: Returns a tuple consisting of the concatenation of the tuple elements of $Exp_1$ and $Exp_2$.
+Description:
+Returns a tuple consisting of the concatenation of the tuple elements of $Exp_1$ and $Exp_2$.
 
 Examples:
 <screen>

@@ -1,8 +1,6 @@
 Name: Exception
 
-Details:
-
-Categories: Library
+Synopsis: The `Exception` datatype used in all Rascal execptions.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 <listing Exception.rsc>
 
-Synopsis:
+Details:
 
 Description: `RuntimeException` is an [AlgebraicDataType] that describes the _soft_ exceptions that can be caught by a Rascal program.
 Since declarations for ADTs are extensible, the user can add new exceptions when needed.

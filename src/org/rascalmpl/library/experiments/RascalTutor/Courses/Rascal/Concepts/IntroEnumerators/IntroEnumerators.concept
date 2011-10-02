@@ -1,8 +1,14 @@
-Name:IntroEnumerators
+Name: IntroEnumerators
 
-Categories:
+Synopsis: Concept: _Enumerating values_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
 Enumerators enumerate the values in a given (finite) domain, be it the elements in a list, the substrings of a string, 

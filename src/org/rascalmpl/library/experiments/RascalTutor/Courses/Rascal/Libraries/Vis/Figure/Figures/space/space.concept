@@ -1,8 +1,6 @@
 Name: space
 
-Details:
-
-Categories: Library
+Synopsis: An invisible space.
 
 Syntax:
 
@@ -11,10 +9,9 @@ Types:
 Function:
 `Figure space(Figure inner, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
-
 A space is an invisible placeholder and acts like an invisible box.
 
 Examples:

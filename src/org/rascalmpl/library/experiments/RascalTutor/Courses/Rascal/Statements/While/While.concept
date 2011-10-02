@@ -1,8 +1,6 @@
 Name: While
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 `while ( $Exp$ ) $Statement$;`
@@ -11,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 The Boolean expression $Exp$ is evaluated repeatedly and $Statement$ is executed when the test is true. 
 Execution ends the first time that the test yields false. 
 The test $Exp$ is executed from scratch in each repetition and only the first `true` value (if any) is used.

@@ -1,10 +1,18 @@
-Name:power
+Name: power
 
-Categories: Library
+Synopsis:
 
-Function: `set[set[&T]] power(set[&T] s)`
+Syntax:
 
-Description: Returns a set with all subsets of `s`.
+Types:
+
+Function:
+`set[set[&T]] power(set[&T] s)`
+
+Details:
+
+Description:
+Returns a set with all subsets of `s`.
 
 Examples:
 <screen>

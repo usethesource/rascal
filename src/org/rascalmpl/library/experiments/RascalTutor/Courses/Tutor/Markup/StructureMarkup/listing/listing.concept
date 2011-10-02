@@ -1,6 +1,7 @@
 Name: listing
 
-Details:
+Synopsis:
+Markup for a code listing.
 
 Syntax:
 # `<listing> $RascalCode$ </listing>`
@@ -10,7 +11,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A listing shows Rascal code without executing it. A listing can be:
@@ -18,7 +19,6 @@ A listing shows Rascal code without executing it. A listing can be:
 # file: the Rascal code is copied from a named file.
 
 Examples:
-
 The input:<br>
 
 `<listing>`<br>
@@ -37,4 +37,3 @@ Pitfalls:
 
 Questions:
 
-       

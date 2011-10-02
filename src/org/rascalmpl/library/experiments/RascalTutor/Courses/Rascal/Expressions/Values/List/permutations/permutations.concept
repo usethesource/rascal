@@ -1,18 +1,18 @@
 Name: permutations
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[list[&T]] permutations(list[&T] lst)`
+Function:
+`set[list[&T]] permutations(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: Returns all permutations of a list.
+Description:
+Returns all permutations of a list.
 
 Examples:
 <screen>

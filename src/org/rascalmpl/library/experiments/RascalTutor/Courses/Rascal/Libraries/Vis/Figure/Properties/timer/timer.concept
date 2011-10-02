@@ -1,21 +1,18 @@
 Name: timer
 
-Details: 
+Synopsis:
+Define interactive, time-dependent, behaviour.
 
-
-
-Categories: Library
-
-Syntax: 
+Syntax:
 
 Types:
 
-Function: `FProperty timer (TimerAction (TimerInfo) ti, void () cbb)`
+Function:
+`FProperty timer (TimerAction (TimerInfo) ti, void () cbb)`
 
-Synopsis: Executes callback `cbb` after a specified time.
+Details:
 
-Description: 
-
+Description:
 This property allows you to execute a callback `cbb` after a specified time, and also allows you to delay, cancel and restart the timer. 
 
 At the start and after each event (i.e. other callback) the callback `ti` will be called. This callback should have type `TimerAction (TimerInfo)`. The callback is given a `TimerInfo` structure:
@@ -38,9 +35,7 @@ data TimerAction = restart(int delay)
 * `stop()` indicates that the timer is cancelled.
 * `noChange()` indicates that timer no change to the timer. 
 
-
 Examples:
-
 <figure timer.png 150x150>
 c = false;
 void executeTimer(){
@@ -63,6 +58,8 @@ render(e);
 
 Benefits:
 
-Pitfalls: Unfortunatly we cannot show an animated version of the figure above, try it out in rascal yourself.
+Pitfalls:
+Unfortunatly we cannot show an animated version of the figure above, try it out in rascal yourself.
 
 Questions:
+

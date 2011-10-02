@@ -1,8 +1,6 @@
 Name: extractResources
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Resource extractResources(Resource receiver, set[Resource] res)`
 
-Synopsis:
+Details:
 
 Description:
 Extract facts from a set of resources `res` and merge them with a given Resource `receiver`.

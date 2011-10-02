@@ -1,16 +1,15 @@
 Name: reachR
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`set[&T] reachR(LGraph[&T] G, set[&T] Start, set[&T] Restr)`
+Function:
+`set[&T] reachR(LGraph[&T] G, set[&T] Start, set[&T] Restr)`
 
-Synopsis:
+Details:
 
 Description:
 Returns the set of nodes in LabeledGraph `G` that are reachable from any of the nodes

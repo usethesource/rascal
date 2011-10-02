@@ -1,8 +1,10 @@
 Name: screen
 
-Details:
+Synopsis:
+Include the results of an interactive session of the Rascal interpreter.
 
-Syntax:<br>
+Syntax:
+<br>
 `<screen>`<br>
 $RascalCode$<br>
 `<\screen>`
@@ -11,7 +13,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The commands in the $RascalCode$ are executed and
@@ -23,7 +25,6 @@ The following is supported:
   refer back to the code.
 
 Examples:
-
 The text:<br>
 
 `<screen>`<br>
@@ -45,4 +46,3 @@ Pitfalls:
 
 Questions:
 
-       

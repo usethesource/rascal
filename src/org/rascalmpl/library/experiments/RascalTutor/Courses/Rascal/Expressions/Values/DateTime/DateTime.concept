@@ -1,15 +1,18 @@
-Name:DateTime
+Name: DateTime
 
-Details:
+Synopsis: Date and time values.
 
-Categories: Language
-
-Syntax: 
+Syntax:
 # `$` `$Date$`
 # `$` `$Time$`
 # `$` `$DateTime$`
 
-Types: `datetime`
+Types:
+`datetime`
+
+Function:
+
+Details:
 
 Description:
 Date, time, and datetime values are represented by the `datetime` type.
@@ -73,7 +76,6 @@ DT.justDate;
 DT.justTime;
 DT.century;
 </screen>
-
 
 Benefits:
 

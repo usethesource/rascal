@@ -1,18 +1,21 @@
-Name:in
+Name: in
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ in $Exp_2$`
+Syntax:
+`$Exp_1$ in $Exp_2$`
 
 Types:
-
-
 | `$Exp_1$`           |  `$Exp_2$`      | `$Exp_1$ in $Exp_2$` |
 |:--------------------|:----------------|:---------------------|
 | `$T_1$`  <: `$T_2$` |  `list[$T_2$]`  | `bool`               |
 
+Function:
 
-Description: Yields `true` if the value of $Exp_1$ occurs as element in the value of $Exp_2$ and `false` otherwise. 
+Details:
+
+Description:
+Yields `true` if the value of $Exp_1$ occurs as element in the value of $Exp_2$ and `false` otherwise. 
 The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
 
 Examples:

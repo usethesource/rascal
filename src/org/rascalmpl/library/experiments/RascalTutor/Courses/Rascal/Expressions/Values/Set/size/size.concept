@@ -1,10 +1,18 @@
-Name:size
+Name: size
 
-Categories: Library
+Synopsis:
 
-Function: `int size(set[&T] s)`
+Syntax:
 
-Description: Returns the number of elements in `s`.
+Types:
+
+Function:
+`int size(set[&T] s)`
+
+Details:
+
+Description:
+Returns the number of elements in `s`.
 
 Examples:
 <screen>
@@ -18,9 +26,9 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QValue:
 prep: import Set;
 make: N = int[0,5]
 hint: <N> values separated by commas
 test: size({ <?> }) == <N>
+

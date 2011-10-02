@@ -1,6 +1,7 @@
 Name: Pitfalls
 
-Details:
+Synopsis:
+Comprehensive list of known shortcomings or usage problems of the concept.
 
 Syntax:
 
@@ -8,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-The `Pitfalls` section briefly lists known shortcomings or usage problems of the concept.
 
 Examples:
 
@@ -21,4 +21,3 @@ Pitfalls:
 
 Questions:
 
-       

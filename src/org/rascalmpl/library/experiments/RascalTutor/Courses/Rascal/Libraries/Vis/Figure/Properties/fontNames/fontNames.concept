@@ -1,8 +1,6 @@
 Name: fontNames
 
-Details:
-
-Categories: Library
+Synopsis: The available font names.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `list[str] fontNames()`
 
-Synopsis:
+Details:
 
 Description:
 Gives a list of names of available fonts.

@@ -1,18 +1,15 @@
 Name: onClick
 
-Details:
-
-Categories:
+Synopsis: Define interactive behaviour for mouse click.
 
 Syntax:
-
 
 Types:
 
 Function:
 `FProperty onClick(void() handler)`
 
-Synopsis:
+Details:
 
 Description:
 Define a handler for mouse clicks on the current figure.

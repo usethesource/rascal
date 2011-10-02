@@ -1,11 +1,17 @@
-Name:toInt
+Name: toInt
 
-Categories: Library
+Synopsis:
 
-Function: `int toInt(num n)`
+Syntax:
+
+Types:
+
+Function:
+`int toInt(num n)`
+
+Details:
 
 Description:
-
 Convert a number to an integer. If `n` is an integer, this is the identity. If `n` is a real value (implemented as BigDecimal) to an integer (implemented as BigInteger). This conversion is analogous to a narrowing primitive conversion from double to long as defined in the Java Language Specification: any fractional part of this BigDecimal will be discarded. Note that this conversion can loose information about the precision of the BigDecimal value.
 
 Examples:

@@ -1,6 +1,6 @@
 Name: shadowPos
 
-Details:
+Synopsis: Define the position of a [shadow].
 
 Syntax:
 
@@ -8,7 +8,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Determines the positions of shadows. The shadow postion can also be set for separate dimensions by hshadowPos and vshadowPos.
@@ -29,8 +29,8 @@ render(space(box1));
 
 Benefits:
 
-Pitfalls: Shadow is not taken into account for size computation
+Pitfalls:
+Shadow is not taken into account for size computation
 
 Questions:
 
-       

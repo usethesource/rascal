@@ -1,6 +1,6 @@
 Name: fswitch
 
-Details:
+Synopsis: Dynamic selection from a fixed list of figures.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `Figure fswitch(int () choice, Figures fs, Fproprty props ...)`
 
-Synopsis:
+Details:
 
 Description:
 Select one of the figures in the fixed list of figures `fs`.
@@ -25,4 +25,3 @@ Pitfalls:
 
 Questions:
 
-       

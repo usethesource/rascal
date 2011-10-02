@@ -1,18 +1,18 @@
 Name: isEmpty
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`bool isEmpty(str s)`
+Function:
+`bool isEmpty(str s)`
 
-Synopsis:
+Details:
 
-Description: Returns `true` if string `s` is empty.
+Description:
+Returns `true` if string `s` is empty.
 
 Examples:
 <screen>

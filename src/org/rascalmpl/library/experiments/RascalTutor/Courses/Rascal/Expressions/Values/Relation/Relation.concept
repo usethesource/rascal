@@ -1,19 +1,20 @@
-Name:Relation
+Name: Relation
 
-Categories: Language
+Synopsis: Relation values.
 
-Synopsis:
-
-Syntax:  `{ <$Exp_11$, $Exp_12$, ... > , <$Exp_21$, $Exp_22$, ... > , ... }`
+Syntax:
+`{ <$Exp_11$, $Exp_12$, ... > , <$Exp_21$, $Exp_22$, ... > , ... }`
 
 Types:
 | `$Exp_11$` |  `$Exp_12$` |  ...  | `{ <$Exp_11$, $Exp_12$, ... > , ... }`  |
 |:-----------|:------------|:------|:----------------------------------------|
 | `$T_1$`    |    `$T_2$`  |  ...  |  `rel[$T_1$, $T_2$, ... ]`              |
 
+Function:
+
+Details:
 
 Description:
-
 A relation is a set of elements with the following property:
 
 * All elements have the same static tuple type.
@@ -29,9 +30,7 @@ where the $E_ij$ are expressions that yield the desired element type $T_i$.
 
 Since relations are a form of set all operations on [Set]s are also applicable to relations.
 
-
 Examples:
-
 <screen>
 {<1,10>, <2,20>, <3,30>}
 // instead of rel[int,int] we can also give `set[tuple[int,int]]` as type of the above expression

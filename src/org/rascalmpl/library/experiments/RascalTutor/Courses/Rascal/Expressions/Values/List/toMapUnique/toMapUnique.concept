@@ -1,18 +1,18 @@
 Name: toMapUnique
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey`
+Function:
+`map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey`
 
-Synopsis:
+Details:
 
-Description: Convert a list of tuples to a map; result must be a map.
+Description:
+Convert a list of tuples to a map; result must be a map.
 
 Examples:
 <screen>

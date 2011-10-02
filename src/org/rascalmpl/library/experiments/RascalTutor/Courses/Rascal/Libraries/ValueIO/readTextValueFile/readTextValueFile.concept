@@ -1,8 +1,6 @@
 Name: readTextValueFile
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `value readTextValueFile(loc file)`
 # `&T readTextValueFile(type[&T] result, loc file)`
 
-Synopsis:
+Details:
 
 Description:
 # Read a value from a text file.

@@ -1,6 +1,6 @@
 Name: shrink
 
-Details:
+Synopsis: Decrease (shrink) the size of a figure relative to its parent.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty shrink(num hg, num vg)`
 
-Synopsis:
+Details:
 
 Description:
 Shrink the current figure relative to the figure it is contained in (its parent). 
@@ -23,7 +23,6 @@ Note that:
 Also see [hshrink] and [vshrink].
 
 Examples:
-
 <figure s1.png>
 b1 = box(shrink(0.5), fillColor("blue"));
 b2 = box(b1, size(100, 50), fillColor("yellow"));
@@ -37,4 +36,3 @@ Pitfalls:
 
 Questions:
 
-       

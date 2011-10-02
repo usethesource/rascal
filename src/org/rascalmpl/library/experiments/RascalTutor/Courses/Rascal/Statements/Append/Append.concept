@@ -1,8 +1,6 @@
 Name: Append
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 `append $Exp$`
@@ -11,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 An append statement may only occur in the body of a [While], [Do] or [For] statement. 
 It appends the value of $Exp$ to the resulting list value of the loop construct in which it occurs.
 

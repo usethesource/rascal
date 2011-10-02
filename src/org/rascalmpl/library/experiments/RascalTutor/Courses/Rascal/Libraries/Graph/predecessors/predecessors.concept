@@ -1,16 +1,15 @@
 Name: predecessors
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`set[&T] predecessors(Graph[&T] G, &T From)`
+Function:
+`set[&T] predecessors(Graph[&T] G, &T From)`
 
-Synopsis:
+Details:
 
 Description:
 Returns the direct predecessors of node `From` in Graph `G`.

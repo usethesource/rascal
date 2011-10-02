@@ -1,16 +1,15 @@
 Name: top
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`set[&T] top(LGraph[&T] G)`
+Function:
+`set[&T] top(LGraph[&T] G)`
 
-Synopsis:
+Details:
 
 Description:
 Returns the top nodes of LabeledGraph `G`, i.e., the root nodes that do not have any predecessors.

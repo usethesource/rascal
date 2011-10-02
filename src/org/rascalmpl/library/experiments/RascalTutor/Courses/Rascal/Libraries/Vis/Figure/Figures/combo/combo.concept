@@ -1,8 +1,6 @@
 Name: combo
 
-Details:
-
-Categories: Library
+Synopsis: An interactive combo box.
 
 Syntax:
 
@@ -11,14 +9,13 @@ Types:
 Function:
 `Figure combo(list[str] choices, void(str s) ccallback, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Presents a combo box with a list of named choices to the user. When the user selects one of them, callback `ccallback` is
 called with that choice as argument.
 
 Examples:
-
 <figure combo1.png 200x100>
 public Figure comboTest(){
   str state = "A";
@@ -30,15 +27,10 @@ render(comboTest());
 </figure>
 ![combo1](combo1.png)
 
-
 Benefits:
 
-Pitfalls: 
-
+Pitfalls:
 Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [mouseOver].
 
 Questions:
 
-
-
-       

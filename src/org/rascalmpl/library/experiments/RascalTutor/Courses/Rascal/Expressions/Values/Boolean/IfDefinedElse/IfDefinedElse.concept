@@ -1,19 +1,23 @@
 Name: IfDefinedElse
 
+Synopsis:
+
+Syntax:
+`$Exp_1$ ? $Exp_2$`
+
+Types:
+
+Function:
+
 Details:
 
-Categories:
-
-Syntax: `$Exp_1$ ? $Exp_2$`
-
 Description:
-
 | `$Exp_1$` | `$Exp_2$` | `$Exp_1$ ? $Exp_2$`|
 |:----------|:----------|:-------------------|
 | `$T_1$`   | `$T_2$`   |  `$T_2$ <: $T_1$` |
 
 Examples:
- 
+
 Benefits:
 
 Pitfalls:

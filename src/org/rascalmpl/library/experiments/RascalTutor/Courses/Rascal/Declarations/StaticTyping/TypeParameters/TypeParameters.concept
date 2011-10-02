@@ -1,19 +1,17 @@
 Name: TypeParameters
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `& $Name$`
+Syntax:
+`& $Name$`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 A type parameter may occur at every syntactic position where a type is required and turns an ordinary type into a parameterized type.
 Parameterized types are used to define polymorphic functions and data types, i.e., functions and data types that are applicable for more than one type. Type parameters are bound to an actual type when the function or data type is applied and further uses of the type parameter are consistently replaced by the actual type.
 
@@ -33,7 +31,6 @@ All other occurrences of type parameters are _using occurrences_. The following 
 * For every using occurrence of a type parameter there should be a binding occurrence of a type parameter with the same name.
 
 Examples:
-
 Let\'s consider a small example of the use of function parameters in a function declaration, see [Function]
 for more details on function declarations.
 The following function `swap` returns a tuple in which its arguments are swapped and can be applied to arbitrary values 

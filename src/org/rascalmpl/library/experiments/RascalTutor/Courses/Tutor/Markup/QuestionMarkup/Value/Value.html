@@ -47,6 +47,9 @@
 
       <li><a href="/Courses/Tutor/Markup/QuestionMarkup/QuestionMarkup.html">QuestionMarkup</a>
     <ul>          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Choice/Choice.html">Choice</a></li>
+          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Type/Type.html">Type</a></li>
+          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/TypeDescriptor/TypeDescriptor.html">TypeDescriptor</a></li>
+          <li><a href="/Courses/Tutor/Markup/QuestionMarkup/Value/Value.html">Value</a></li>
     </ul></li>
 
       <li><a href="/Courses/Tutor/Markup/StructureMarkup/StructureMarkup.html">StructureMarkup</a>
@@ -83,6 +86,11 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Question about the value of a Rascal expression or program.
+
+</div>
+
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ul><li> <code>QValue: <i>Expr</i></code></li>
 <li> <code>QValue: <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
@@ -163,9 +171,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{4, 5, 11, 6}">
-<input type="hidden" name="B" value="{16, -16, 12}">
-<pre class="prequestion">{4, 5, 11, 6} + {16, -16, 12} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{18}">
+<input type="hidden" name="B" value="{13, -16, -17, 3}">
+<pre class="prequestion">{18} + {13, -16, -17, 3} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -193,8 +201,8 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[14, -9]">
-<pre class="prequestion">size([14, -9]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[7, -14, 8, 13, 18]">
+<pre class="prequestion">size([7, -14, 8, 13, 18]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -222,9 +230,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{19, -2}">
-<input type="hidden" name="B" value="{-10, -6}">
-<pre class="prequestion">{19, -2} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-2,-6,-10,19}</pre>
+<input type="hidden" name="A" value="{&quot;Sy Snootles&quot;, &quot;P&quot;, &quot;O&quot;, &quot;Cranberry&quot;, &quot;X&quot;}">
+<input type="hidden" name="B" value="{&quot;Anakin Skywalker&quot;, &quot;Elmo&quot;, &quot;Obi-Wan Kenobi&quot;, &quot;Forgetful Jones&quot;}">
+<pre class="prequestion">{&quot;Sy Snootles&quot;, &quot;P&quot;, &quot;O&quot;, &quot;Cranberry&quot;, &quot;X&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;O&quot;,&quot;Sy Snootles&quot;,&quot;Cranberry&quot;,&quot;Elmo&quot;,&quot;X&quot;,&quot;Forgetful Jones&quot;,&quot;Obi-Wan Kenobi&quot;,&quot;Anakin Skywalker&quot;,&quot;P&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

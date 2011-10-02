@@ -1,16 +1,15 @@
 Name: readRSF
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`map[str, rel[str,str]] readRSF(str nameRSFFile) throws IO(str msg)`
+Function:
+`map[str, rel[str,str]] readRSF(str nameRSFFile) throws IO(str msg)`
 
-Synopsis:
+Details:
 
 Description:
 Read a file in Rigi Standard Format (RSF). Since an RSF file may define more than one relation,

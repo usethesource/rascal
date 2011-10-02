@@ -1,16 +1,15 @@
 Name: lastModified
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`datetime lastModified(loc file)`
+Function:
+`datetime lastModified(loc file)`
 
-Synopsis:
+Details:
 
 Description:
 Returns last modification time of the file at location `file`.

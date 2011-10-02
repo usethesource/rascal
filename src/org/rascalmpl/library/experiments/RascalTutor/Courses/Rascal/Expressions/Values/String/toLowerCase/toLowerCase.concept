@@ -1,18 +1,18 @@
 Name: toLowerCase
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str toLowerCase(str s)`
+Function:
+`str toLowerCase(str s)`
 
-Synopsis:
+Details:
 
-Description: Convert all characters in string `s` to lowercase. Also see [toUpperCase].
+Description:
+Convert all characters in string `s` to lowercase. Also see [toUpperCase].
 
 Examples:
 <screen>

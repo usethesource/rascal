@@ -1,16 +1,21 @@
-Name:Set
+Name: Set
 
-Categories: Language
+Synopsis: Set values.
 
-Syntax: `{ $Exp_1$, $Exp_2$, ... }`
+Syntax:
+`{ $Exp_1$, $Exp_2$, ... }`
 
 Types:
-
 |  `$Exp_1$` |  `$Exp_2$` |  ...  |  `{ $Exp_1$, $Exp_2$, ... }`   |
 |:-----------|:-----------|:------|:-------------------------------|
 | `$T_1$`    | `$T_2$`    |  ...  |  `set[ lub($T_1$, $T_2$, ... ) ]` |
 
-Description: A set is an unordered sequence of values and has the following properties:
+Function:
+
+Details:
+
+Description:
+A set is an unordered sequence of values and has the following properties:
 
 * All elements have the same static type.
 * The order of the elements does not matter.
@@ -48,12 +53,12 @@ S = {1, 2, 3};
 //or becomes a subset when it is surrounded with extra braces
 {10, {S}, 20};
 </screen>
+
 Benefits:
 
 Pitfalls:
 
 Questions:
-
 QChoice: Sets can be used to represent a sequence of values when
 b: The values have duplicates.
 g: The values have no duplicates and no order.

@@ -1,14 +1,15 @@
 Name: manhattan
 
-Details:
+Synopsis: Define the drawing style of [tree]s.
 
 Syntax:
 
 Types:
 
-Function: `FProperty manhattan(bool b)`
+Function:
+`FProperty manhattan(bool b)`
 
-Synopsis:
+Details:
 
 Description:
 Determine drawing style for [tree]s:
@@ -16,7 +17,6 @@ Determine drawing style for [tree]s:
 * When false, all connections are drawn diagonally.
 
 Examples:
-
 <figure t1.png>
 t1 = tree(box(fillColor("green")),
           [ box(fillColor("red")),
@@ -46,4 +46,3 @@ Pitfalls:
 
 Questions:
 
-       

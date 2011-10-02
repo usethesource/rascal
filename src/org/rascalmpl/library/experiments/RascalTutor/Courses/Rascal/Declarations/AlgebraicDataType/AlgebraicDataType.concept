@@ -1,8 +1,7 @@
 Name: AlgebraicDataType
 
-Details:
 
-Categories: Language
+Synopsis: Define a user-defined type (Algebraic Data Type).
 
 Syntax:  `data $Name$ = $Alt_1$ | $Alt_1$ | ... ;`
 
@@ -10,7 +9,7 @@ Types: Introduces the type $Name$ and constructor functions for each alternative
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 

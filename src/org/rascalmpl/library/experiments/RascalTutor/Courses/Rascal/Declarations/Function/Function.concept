@@ -1,10 +1,8 @@
 Name: Function
 
-Details:
+Synopsis: Declare a function.
 
-Categories: Language
-
-Syntax: 
+Syntax:
 # `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`
 # `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Statement$`
 # `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) throws $Exception_1$, $Exception_2$, ... $Statement$`
@@ -17,7 +15,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 === Variant 1 ===
@@ -53,7 +51,6 @@ The $Modifiers$ affect _visibility_ and _special behaviour_ of functions:
   * `test` declares that this is a test function. A test function is a boolean function (currently) withou arguments. 
     It can be called as any other function. However, it can also be called automatically
     by the unit test framework, by typing `:test` at the command line, see [Help].
-
 
 Examples:
 <screen>

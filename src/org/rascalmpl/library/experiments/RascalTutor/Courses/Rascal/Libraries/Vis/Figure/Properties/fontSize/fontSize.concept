@@ -1,19 +1,18 @@
 Name: fontSize
 
-Details:
-
-Categories: Library
+Synopsis: Size of the font to be used for [text].
 
 Syntax:
 
 Types:
 
-Function: 
+Function:
 `FProperty fontSize(int s)`
 
-Synopsis:
+Details:
 
-Description: Sets the font size (in points) to be used in text.
+Description:
+Sets the font size (in points) to be used in text.
 
 Examples:
 <figure f1.png>

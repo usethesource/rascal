@@ -1,18 +1,23 @@
-Name:Conditional
+Name: Conditional
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ ? $Exp_2$ : $Exp_3$`
+Syntax:
+`$Exp_1$ ? $Exp_2$ : $Exp_3$`
 
 Types:
-
 | `$Exp_1$`   | `$Exp_2$`  |  `$Exp_3$` | `$Exp_1$ ? $Exp_2$ : $Exp_3$`  |
 |:------------|:-----------|:-----------|--------------------------------|
 |  `bool`     | `int`      |  `int`     | `int`                          |
 |  `bool`     | `int`      |  `real`    | `real`                         |
 |  `bool`     | `real`     |  `real`    | `real`                         |
 
-Description: If the value of $Exp$ is `true` then the value of $Exp_1$ else the value of $Exp_2$.
+Function:
+
+Details:
+
+Description:
+If the value of $Exp$ is `true` then the value of $Exp_1$ else the value of $Exp_2$.
 
 Examples:
 <screen>
@@ -25,7 +30,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: (<A:int> > <B:int>) ? <C:int> : <D:int>
 
 QType: (<A:int> > <B:int>) ? <C:real> : <D:real>

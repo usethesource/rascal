@@ -1,18 +1,18 @@
 Name: charAt
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `int charAt(str s, int i) throws IndexOutOfBounds(int index)`
+Function:
+`int charAt(str s, int i) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
-Description: Returns the character at position `i` in string `s`.
+Description:
+Returns the character at position `i` in string `s`.
 
 Examples:
 <screen>

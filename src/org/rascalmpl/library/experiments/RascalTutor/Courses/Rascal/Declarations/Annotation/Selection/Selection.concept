@@ -1,10 +1,9 @@
 Name: Selection
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Expr$ @ $Name$`
+Syntax:
+`$Expr$ @ $Name$`
 
 Types:
 | `$Expr$`       | `$Expr$ @ $Name$`                             |
@@ -13,10 +12,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Retrieves the value of annotation $Name$ of the value of $Exp$ (may be undefined!).
 
 Examples:

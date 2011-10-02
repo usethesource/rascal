@@ -1,18 +1,15 @@
 Name: hvcat
 
-Details:
-
-Categories: Library
+Synopsis: Horizontal and vertical composition of a list of figures.
 
 Syntax:
 
 Types:
 
 Function:
-
 `Figure hvcat(Figures figs, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Horizontal and vertical composition of a list of figures within a given width 
@@ -25,7 +22,6 @@ Within each row, the horizontal gap controls the distance between figures and th
 its alignment in the row.
 
 The distance between rows is controlled by the vertical gap.
-
 
 Examples:
 <figure h1.png 400x50>

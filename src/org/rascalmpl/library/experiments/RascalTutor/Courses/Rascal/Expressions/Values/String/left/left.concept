@@ -1,8 +1,6 @@
 Name: left
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `str left(str s, int n)`
 # `str left(str s, int n, str pad)`
 
-Synopsis:
+Details:
 
 Description:
 # Left align string `s` in string of length `n` using spaces.

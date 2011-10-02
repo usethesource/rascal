@@ -1,8 +1,6 @@
 Name: Range
 
-Details:
-
-Categories: Language
+Synopsis: Numeric range values.
 
 Syntax:
 * `[ $Exp_1$ .. $Exp_3$ ]`
@@ -12,9 +10,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Ranges are a shorthand for describing lists of integers from 
+Description:
+Ranges are a shorthand for describing lists of integers from 
 $Exp_1$ up to and including $Exp_3$ with increments of 1.
 When $Exp_2$ is present and it is taken as the second element of the list
 and $Exp2$ - $Exp_2$ is used as increment for the subsequent list elements.
@@ -25,7 +24,6 @@ Examples:
 [1, 3 .. 10];
 [1, -2 .. -10];
 </screen>
-
 
 Benefits:
 Ranges are mostly used to loop over ranges of integers.

@@ -1,8 +1,14 @@
-Name:EASY
+Name: EASY
 
-Categories:
+Synopsis: The Extract-Analyze-SYnthesize (EASY) paradigm.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
 ![Easy Workflow](easy-workflow.png|300px|right)

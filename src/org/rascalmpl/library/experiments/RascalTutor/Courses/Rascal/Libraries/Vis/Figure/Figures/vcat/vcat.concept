@@ -1,25 +1,22 @@
 Name: vcat
 
-Details:
-
-Categories: Library
+Synopsis: Vertical composition of figures.
 
 Syntax:
 
 Types:
 
 Function:
-
 `Figure vcat(Figures figs, FProperty props...)`
 
-Synopsis:
+Details:
 
-Description: This is a special case of [grid]. It is a [grid] with just one column. See [grid] for more information.
+Description:
+This is a special case of [grid]. It is a [grid] with just one column. See [grid] for more information.
 
 See also [hcat].
 
 Examples:
-
 <figure v1.png 100x200>
 b1 = box(vshrink(0.8), fillColor("Red"));
 b2 = box(fillColor("Blue"));
@@ -51,7 +48,6 @@ b3 = box(hshrink(0.5), fillColor("Yellow"));
 render(vcat([b1, b2, b3], std(left()), vgrow(1.1)));
 </figure>
 gives: ![v5](v5.png)
-
 
 Benefits:
 

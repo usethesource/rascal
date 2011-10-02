@@ -1,6 +1,7 @@
 Name: hsize
 
-Details:
+Synopsis:
+Defines the minimal horizontal size.
 
 Syntax:
 
@@ -9,9 +10,10 @@ Types:
 Function:
 `FProperty hsize(num h)`
 
-Synopsis: Sets the minimal horizontal size.
+Details:
 
-Description: See [Properties/size]. A synonym for `hsize` is [width].
+Description:
+See [Properties/size]. A synonym for `hsize` is [width].
 
 Examples:
 
@@ -21,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

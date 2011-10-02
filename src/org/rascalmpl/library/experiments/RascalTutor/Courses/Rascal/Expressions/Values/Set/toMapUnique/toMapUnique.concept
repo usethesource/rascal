@@ -1,10 +1,18 @@
-Name:toMapUnique
+Name: toMapUnique
 
-Categories: Library
+Synopsis:
 
-Function: `map[&A, set[&B]] toMapUnique(set[tuple[&A, &B]] s) throws DuplicateKey`
+Syntax:
 
-Description: Convert a set of tuples to a map. The result should be a legal map (i.e., without duplicate keys).
+Types:
+
+Function:
+`map[&A, set[&B]] toMapUnique(set[tuple[&A, &B]] s) throws DuplicateKey`
+
+Details:
+
+Description:
+Convert a set of tuples to a map. The result should be a legal map (i.e., without duplicate keys).
 
 Examples:
 <screen>
@@ -13,7 +21,6 @@ toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
 // Now explore an erroneous example:
 toMapUnique({<"a", 1>, <"b", 2>, <"c", 1>});
 </screen>
-
 
 Benefits:
 

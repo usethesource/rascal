@@ -1,8 +1,6 @@
 Name: size
 
-Details:
-
-Categories: Library
+Synopsis: Define the minimal size of a figure.
 
 Syntax:
 
@@ -11,9 +9,10 @@ Types:
 Function:
 `Fproperty size(num h, num v)`
 
-Synopsis:
+Details:
 
-Description: Define the __minimal__ size of a figure by
+Description:
+Define the __minimal__ size of a figure by
 setting [hsize] to `h` and [vsize] to `v`.
 
 Note that:

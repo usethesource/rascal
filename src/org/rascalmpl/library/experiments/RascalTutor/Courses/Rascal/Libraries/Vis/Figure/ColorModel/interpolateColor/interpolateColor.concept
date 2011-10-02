@@ -1,8 +1,6 @@
 Name: interpolateColor
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Color interpolateColor(Color from, Color to, real percentage)`
 
-Synopsis:
+Details:
 
 Description:
 Interpolate between two colors (in RGB space). The percentage indicates the distance between

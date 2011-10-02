@@ -1,8 +1,6 @@
 Name: vgap
 
-Details:
-
-Categories: Library
+Synopsis: Define minimal vertical gap in compositions.
 
 Syntax:
 
@@ -11,8 +9,7 @@ Types:
 Function:
 `FProperty vgap(num v)`
 
-
-Synopsis: 
+Details:
 
 Description:
 Set the minimal vertical gap between figures.

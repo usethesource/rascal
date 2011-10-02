@@ -1,8 +1,6 @@
 Name: cpuTime
 
-Details:
-
-Categories: Library
+Synopsis: Measuring CPU time.
 
 Syntax:
 
@@ -12,11 +10,12 @@ Function:
 # `int cpuTime()`
 # `int cpuTime(void () block)`
 
-Synopsis:
+Details:
 
 Description:
 # Current cpu time in nanoseconds since the start of the thread that runs the code that calls this function.
 # The cpu time in nanoseconds used by the execution of the code `block`.
+
 Examples:
 
 Benefits:

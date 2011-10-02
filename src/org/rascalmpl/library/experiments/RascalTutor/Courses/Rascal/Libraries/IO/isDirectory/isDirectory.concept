@@ -1,16 +1,15 @@
 Name: isDirectory
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`bool isDirectory(loc file)`
+Function:
+`bool isDirectory(loc file)`
 
-Synopsis:
+Details:
 
 Description:
 Check whether the location `file` is a directory.

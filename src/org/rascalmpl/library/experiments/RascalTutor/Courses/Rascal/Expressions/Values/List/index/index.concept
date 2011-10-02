@@ -1,18 +1,18 @@
 Name: index
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[int] index(list[&T] lst)`
+Function:
+`list[int] index(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: Returns a list of all legal index values for a given list `lst`. See [List/domain] for a function that returns a set of legal index values.
+Description:
+Returns a list of all legal index values for a given list `lst`. See [List/domain] for a function that returns a set of legal index values.
 
 Examples:
 <screen>

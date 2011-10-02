@@ -1,4 +1,4 @@
-/* Generated code for course Test, generated $2011-09-21T13:19:58.188+0200 */
+/* Generated code for course Test */
 
 $.setRootConcept("Test");
 
@@ -33,9 +33,9 @@ searchTerms["Test/BBB/BBB1"] = null;
 
 searchTerms["Test/Cat1"] = null;
 
-searchTerms["Test/Bla/Bla4"] = null;
-
 searchTerms["Test"] = new Array("),","(","lub","[",",","map","]");
+
+searchTerms["Test/Bla/Bla4"] = null;
 
 searchTerms["Test/Bla/Bla3"] = null;
 
@@ -43,9 +43,9 @@ searchTerms["Test/Bla/Bla2"] = null;
 
 searchTerms["Test/Bla/Bla1"] = null;
 
-searchTerms["Test/BBB"] = null;
-
 searchTerms["Test/BBB/Cat1"] = null;
+
+searchTerms["Test/BBB"] = null;
 
 searchTerms["Test/AAA"] = null;
 

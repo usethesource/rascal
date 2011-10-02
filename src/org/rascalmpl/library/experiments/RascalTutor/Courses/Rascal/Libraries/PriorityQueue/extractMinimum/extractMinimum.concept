@@ -1,16 +1,15 @@
 Name: extractMinimum
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q)`
+Function:
+`tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q)`
 
-Synopsis:
+Details:
 
 Description:
 Find the pair with the minimum priority and remove it from PriorityQueue `Q`.
@@ -24,7 +23,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-
 
 Questions:
 

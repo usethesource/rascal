@@ -1,23 +1,20 @@
 Name: Call
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Name$ ( $Exp_1$, $Exp_2$, ... )`
+Syntax:
+`$Name$ ( $Exp_1$, $Exp_2$, ... )`
 
 Types:
 | `$Exp_1$`  | `$Exp_2$` | ... | `$Name$ ( $Exp_1$, $Exp_2$, ... )` |
 |:-----------|:----------|:----|:-----------------------------------|
 | `$T_1$`    | `$T_2$`   | ... | Determined by $Name$, $T_i$ and function declarations |
 
-
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 First, the actual parameter expressions $Exp_i$ are evaluated resulting in values $V_i$.
 Based on $Name$ and the argument types $T_i$, the identity of the function to be called is determined.
 

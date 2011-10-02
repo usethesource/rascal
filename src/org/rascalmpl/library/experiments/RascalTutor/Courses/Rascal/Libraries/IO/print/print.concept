@@ -1,16 +1,15 @@
 Name: print
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `bool print(value V...)`
+Function:
+`bool print(value V...)`
 
-Synopsis:
+Details:
 
 Description:
 Print a list of values on the output stream and always return `true`. 

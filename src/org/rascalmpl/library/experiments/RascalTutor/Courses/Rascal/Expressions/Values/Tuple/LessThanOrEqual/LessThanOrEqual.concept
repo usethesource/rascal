@@ -1,15 +1,18 @@
-Name:LessThanOrEqual
+Name: LessThanOrEqual
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ <= $Exp_2$`
+Syntax:
+`$Exp_1$ <= $Exp_2$`
 
 Types:
-
 | `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ <= $Exp_2$` |
 |:-------------------------------|:--------------------------------|:---------------------|
 | `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `bool`               |
 
+Function:
+
+Details:
 
 Description:
 Yields `true` if 
@@ -31,3 +34,4 @@ Benefits:
 Pitfalls:
 
 Questions:
+

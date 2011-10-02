@@ -1,8 +1,6 @@
 Name: readFileLines
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -11,8 +9,7 @@ Types:
 Function:
 `list[str] readFileLines(loc filename) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
 
-
-Synopsis:
+Details:
 
 Description:
 Return the contents of a file location as a list of lines.

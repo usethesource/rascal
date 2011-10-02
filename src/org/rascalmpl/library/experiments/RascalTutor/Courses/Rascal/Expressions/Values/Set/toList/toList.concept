@@ -1,10 +1,18 @@
-Name:toList
+Name: toList
 
-Categories: Library
+Synopsis:
 
-Function: `list[&T] toList(set[&T] s)`
+Syntax:
 
-Description: Convert a set to a list.
+Types:
+
+Function:
+`list[&T] toList(set[&T] s)`
+
+Details:
+
+Description:
+Convert a set to a list.
 
 Examples:
 <screen>

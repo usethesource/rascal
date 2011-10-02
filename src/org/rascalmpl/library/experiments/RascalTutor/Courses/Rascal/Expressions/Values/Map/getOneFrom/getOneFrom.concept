@@ -1,18 +1,18 @@
 Name: getOneFrom
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `&K getOneFrom(map[&K, &V] M) throws emptyMap`
+Function:
+`&K getOneFrom(map[&K, &V] M) throws emptyMap`
 
-Synopsis:
+Details:
 
-Description: Returns an arbitrary key of map `M`.
+Description:
+Returns an arbitrary key of map `M`.
 
 Examples:
 <screen>
@@ -21,6 +21,7 @@ getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
 getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
 getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
 </screen>
+
 Benefits:
 
 Pitfalls:

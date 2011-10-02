@@ -1,16 +1,18 @@
 Name: NoMatch
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Pat$ !:= $Exp$`
+Syntax:
+`$Pat$ !:= $Exp$`
 
 Types:
-
 | `$Pat$`  | `$Exp$` |`$Pat$ !:= $Exp$`|
 |:---------|:--------|:----------------|
 | Pattern  | `value` | `bool`          |
+
+Function:
+
+Details:
 
 Description:
 

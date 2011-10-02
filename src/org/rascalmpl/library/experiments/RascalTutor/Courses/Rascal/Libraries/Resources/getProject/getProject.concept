@@ -1,8 +1,6 @@
 Name: getProject
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,13 +9,12 @@ Types:
 Function:
 `Resource getProject(loc project)`
 
-Synopsis:
+Details:
 
 Description:
 Retrieves the hierarchical representation of a single named project.
 
 Examples:
-
 <screen>
 import util::Resources;
 getProject(|project://org.eclipse.imp.pdb.values|);

@@ -1,14 +1,18 @@
 Name: Motivation
 
-Details: 
-
-Categories: Language 
-
-Synopsis: Rascal is a new language for _meta-programming_, this is the activity of writing meta-programs.
+Synopsis:
+Rascal is a new language for _meta-programming_, this is the activity of writing meta-programs.
 Using Rascal you create programs that read, analyse, transform, generate and/or visualize other programs. 
-    
-Description: 
 
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
 _Meta-programs_ are programs that analyze, transform or generate other programs. Ordinary programs work on data; meta-programs work on programs. 
 
 The _range of programs_ to which meta-programming can be applied is large: from programs in standard languages like C and Java to domain-specific languages for describing high-level system models or applications in specialized areas like gaming or finance. In some cases, even test results or performance data are used as input for meta-programs.
@@ -32,7 +36,6 @@ All these cases involve a form of meta-programming: software programs (in a wide
 Since representation of information is central to the approach, Rascal provides a rich set of built-in data types. To support extraction and analysis, parsing and advanced pattern matching are provided. High-level control structures make analysis and synthesis of complex datastructures simple.
 
 Benefits:
-
 * __Familiar syntax__ in a _what-you-see is-what-you-get_ style is used even for sophisticated concepts 
    and this makes the language easy to learn and easy to use.
 * __Sophisticated built-in data types__ provide standard solutions for many meta-programming problems.
@@ -52,3 +55,4 @@ Pitfalls:
 * At the time of writing, this checking is done during execution, but we are working on this.
 
 Questions:
+

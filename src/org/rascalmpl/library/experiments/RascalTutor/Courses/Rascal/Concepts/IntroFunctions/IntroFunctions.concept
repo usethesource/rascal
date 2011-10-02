@@ -1,11 +1,16 @@
-Name:IntroFunctions
+Name: IntroFunctions
 
-Categories:
+Synopsis: Concept: _Functions_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-
 Functions allow the definition of frequently used operations. They have a name and formal parameters. They are explicitly declared and are fully typed. 
 Functions can also be used as values thus enabling higher-order functions. 
 Rascal is a higher-order language in which functions are first-class values.
@@ -13,7 +18,6 @@ Rascal is a higher-order language in which functions are first-class values.
 See [Function] for details.
 
 Examples:
-
 Here is an example of a function that counts the number of assignment statements in a program:
 <listing>
 int countAssignments(PROGRAM P){

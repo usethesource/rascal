@@ -1,16 +1,16 @@
 Name: Syntax
 
-Details:
+Synopsis:
+Part of the synopsis that summarizes syntax introduced by this concept.
 
 Syntax:
-
 `Syntax: $MarkedText$`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The syntax section is intended to describe syntactic aspects of language constructs.
@@ -18,8 +18,8 @@ The contents of this section are arbitrary text, but literal text is treated spe
 * it is displayed in a separate box.
 * all literal text that is not a variable is included in the search index.
 
-Examples:
 
+Examples:
 The syntax section for an if-then statement can be written as:
 
 `Syntax: `\``if ( $$Exp$$ ) $$Statement$$;`\`
@@ -32,4 +32,3 @@ Pitfalls:
 
 Questions:
 
-       

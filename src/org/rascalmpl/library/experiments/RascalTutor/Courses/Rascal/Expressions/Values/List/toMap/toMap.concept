@@ -1,18 +1,19 @@
 Name: toMap
 
-Details:
-
-Categories: Library
+Synopsis:
+<Warning> Why duplicate key?</warning>
 
 Syntax:
 
 Types:
 
-Function: `map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey`
+Function:
+`map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey`
 
-Synopsis:
-<Warning> Why duplicate key?</warning>
-Description: Convert a list of tuples to a map in which the first element of each tuple is 
+Details:
+
+Description:
+Convert a list of tuples to a map in which the first element of each tuple is 
 associated with the set of second elements from all tuples with the same first element. Keys should be unique.
 
 Examples:

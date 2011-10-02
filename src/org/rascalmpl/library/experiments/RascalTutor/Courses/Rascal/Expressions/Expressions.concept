@@ -1,13 +1,17 @@
-Name:Expressions
+Name: Expressions
 
-Details: Values Operators Patterns
+Synopsis: The expressions available in Rascal.
 
-Categories: Language
+Syntax:
 
-Synopsis:
+Types:
+
+Function:
+
+Details:
+Values Operators Patterns
 
 Description:
-
 The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure. <warning>This illustration seems to be wrong, and confusing</warning>
 ![Structure of Expressions](exp-parts.png|500px|right)
 

@@ -1,10 +1,9 @@
 Name: TransitiveClosure
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Exp$ +`
+Syntax:
+`$Exp$ +`
 
 Types:
 |`$Exp$`              | `$Exp$ +`           |
@@ -13,9 +12,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Returns the transitive closure of a binary relation.
+Description:
+Returns the transitive closure of a binary relation.
 
 Examples:
 <screen>

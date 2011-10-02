@@ -1,9 +1,15 @@
-Name:Number
+Name: Number
 
-Categories: Language
+Synopsis: Number values.
+
+Syntax:
 
 Types:
 `int`, `real`, `num`
+
+Function:
+
+Details:
 
 Description:
 Numbers include integers (values of type `int`) and reals (values of type `real`). 

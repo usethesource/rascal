@@ -1,16 +1,15 @@
 Name: insertElement
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`PriorityQueue insertElement(PriorityQueue Q, int priority, int val)`
+Function:
+`PriorityQueue insertElement(PriorityQueue Q, int priority, int val)`
 
-Synopsis:
+Details:
 
 Description:
 Insert the pair (`priority`, `val`) in PriorityQueue Q.

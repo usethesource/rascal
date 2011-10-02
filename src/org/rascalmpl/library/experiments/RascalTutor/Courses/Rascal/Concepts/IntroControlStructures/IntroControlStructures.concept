@@ -1,17 +1,21 @@
-Name:IntroControlStructures
+Name: IntroControlStructures
 
-Categories:
+Synopsis: Concept: _Success-directed control structures_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-
 Control structures like [If], [While] and [For] statement are driven by Boolean expressions.
 Actually, combinations of generators and Boolean expressions can be used to drive the control structures. 
 In the latter case, the Boolean expression is executed for each generated value.
 
 Examples:
-
 A classical if statement:
 <listing>
 if(N <= 0)

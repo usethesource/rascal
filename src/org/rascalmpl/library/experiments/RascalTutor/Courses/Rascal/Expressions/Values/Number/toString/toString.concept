@@ -1,10 +1,18 @@
-Name:toString
+Name: toString
 
-Categories: Library
+Synopsis:
 
-Function: `str toString(num n)`
+Syntax:
 
-Description: Convert a number to a string.
+Types:
+
+Function:
+`str toString(num n)`
+
+Details:
+
+Description:
+Convert a number to a string.
 
 Examples:
 <screen>

@@ -1,25 +1,25 @@
-Name:FieldSelection
+Name: FieldSelection
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Exp$ . $Name$`
+Syntax:
+`$Exp$ . $Name$`
 
 Types:
-
 | `$Exp$`                                 | `$Name$` | `$Exp$ . $Name$` |
 |:----------------------------------------|:---------|:-----------------|
 |`tuple[ $T_1$ $L_1$, $T_2$ $L_2$, ... ]` |  `$L_i$` | `$T_i$`          |
 
-Description:
+Function:
 
+Details:
+
+Description:
 Field selection applies to tuples with named elements.
 $Exp$ should evaluate to a tuple with field $Name$ and returns the value of that field.
 $Name$ stands for itself and is not evaluated.
 
 Examples:
-
 <screen>
 tuple[int key, str val] T = <1, "abc">;
 T.val;

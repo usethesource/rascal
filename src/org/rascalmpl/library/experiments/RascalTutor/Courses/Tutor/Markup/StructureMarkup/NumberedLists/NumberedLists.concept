@@ -1,8 +1,9 @@
 Name: NumberedLists
 
-Details:
+Synopsis:
+A (possibly nested) list of numbered points.
 
-Syntax: 
+Syntax:
 # `# $MarkedText$`
 # `## $MarkedText$`
 # `### $MarkedText$`
@@ -12,7 +13,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 NumberedLists create, possibly nested, lists of numbered points.
@@ -53,9 +54,7 @@ will produce:
 Benefits:
 
 Pitfalls:
-
 Do not forget to add two newlines after a NumberedList, otherwise the new paragraph becomes part of the last list item.
 
 Questions:
 
-       

@@ -1,11 +1,13 @@
 Name: Concept
 
-Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions
+Synopsis:
+A _concept_ is the basic building block of a course.
 
-Syntax:<br>
-`Name: $ConceptName$`
+Syntax:
+<br>
+`Name: $ConceptName$` (__mandatory__).
 
-`Details: $ConceptName_1$ $ConceptName_2$ ...`
+`Synopsis:  $MarkedText$` (__mandatory__).
 
 `Syntax: $MarkedText$`
 
@@ -13,32 +15,33 @@ Syntax:<br>
 
 `Function:  $MarkedText$`
 
-`Synopsis:  $MarkedText$`
+`Details: $ConceptName_1$ $ConceptName_2$ ...`
 
 `Description:  $MarkedText$`
 
-`Examples:  $MarkedText$`
+`Examples:  $MarkedText$` (__recommended__).
 
 `Benefits:  $MarkedText$`
 
 `Pitfalls:  $MarkedText$`
 
-`Questions: $Question_1$, $Question_2$`
+`Questions: $Question_1$, $Question_2$` (__recommended__)
+
+Name and Synopsis are mandatory, the others are optional.
+It is recommended to give examples and questions.
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
+Name Synopsis Syntax Types Function Details Description Examples Benefits Pitfalls Questions
 
 Description:
-
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
 It consists of 11 named sections that are described separately. 
 Each section starts with a keyword that should appear at the begin of a line.
 Only the `Name` section is mandatory.
-
-
 
 Examples:
 
@@ -48,4 +51,3 @@ Pitfalls:
 
 Questions:
 
-       

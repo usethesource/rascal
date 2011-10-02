@@ -1,8 +1,6 @@
 Name: root
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Resource root()`
 
-Synopsis:
+Details:
 
 Description:
 Retrieve a full hierarchical representation of all resources in the Eclipse workspace.

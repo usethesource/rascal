@@ -1,16 +1,18 @@
 Name: Match
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Pat$ := $Exp$`
+Syntax:
+`$Pat$ := $Exp$`
 
 Types:
 | `$Pat$`   | `$Exp$` |`$Pat$ := $Exp$`|
 |:----------|:--------|:---------------|
 | [Patterns] | `value` | `bool`         |
 
+Function:
+
+Details:
 
 Description:
 

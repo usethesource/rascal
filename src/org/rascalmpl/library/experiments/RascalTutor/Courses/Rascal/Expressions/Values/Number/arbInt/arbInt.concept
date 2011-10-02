@@ -1,12 +1,19 @@
-Name:arbInt
+Name: arbInt
 
-Categories: Library
+Synopsis:
+
+Syntax:
+
+Types:
 
 Function:
 * `int arbInt( )`
 * `int arbInt(int limit)`
 
-Description: Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`].
+Details:
+
+Description:
+Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`].
 
 Examples:
 <screen>
@@ -16,7 +23,8 @@ arbInt()
 arbInt()
 </screen>
 
-Benefits: <tt>arbInt</tt> is a convenient generator for pseudo-random integers.
+Benefits:
+<tt>arbInt</tt> is a convenient generator for pseudo-random integers.
 
 Pitfalls:
 

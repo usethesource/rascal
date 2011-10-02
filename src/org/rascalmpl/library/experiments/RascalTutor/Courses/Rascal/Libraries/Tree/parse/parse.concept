@@ -1,8 +1,6 @@
 Name: parse
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `&T<:Tree java parse(type[&T<:Tree] start, str input)`
 # `public &T<:Tree java parse(type[&T<:Tree] start, loc input)`
 
-Synopsis:
+Details:
 
 Description:
 # Parse a string and return a parse tree.

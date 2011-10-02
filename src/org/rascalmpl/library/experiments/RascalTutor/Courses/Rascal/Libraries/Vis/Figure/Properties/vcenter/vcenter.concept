@@ -1,8 +1,6 @@
 Name: vcenter
 
-Details:
-
-Categories: Library
+Synopsis: Vertical, centered, alignment.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `FProperty vcenter()`
 
-Synopsis:
+Details:
 
 Description:
 `vcenter` defines __vertical centered alignment__.

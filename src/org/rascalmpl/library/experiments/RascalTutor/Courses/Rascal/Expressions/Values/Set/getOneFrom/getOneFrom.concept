@@ -1,10 +1,18 @@
-Name:getOneFrom
+Name: getOneFrom
 
-Categories: Library
+Synopsis:
 
-Function: `&T getOneFrom(set[&T] s) throws emptySet`
+Syntax:
 
-Description: Returns a random element from set `s`.
+Types:
+
+Function:
+`&T getOneFrom(set[&T] s) throws emptySet`
+
+Details:
+
+Description:
+Returns a random element from set `s`.
 
 Examples:
 <screen>

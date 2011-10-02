@@ -1,16 +1,16 @@
 Name: RSF
 
-Details:
+Synopsis: Functions for reading/writing the Rigi Standard Format (RSF).
 
-Categories: Library
 
-Syntax: 
+Syntax:
+`import RSF;`
 
 Types:
 
 Function:
 
-Synopsis:`import RSF;`
+Details:
 
 Description:
 Rigi Standard Format (RSF) is a textual format to represent binary relations and is 

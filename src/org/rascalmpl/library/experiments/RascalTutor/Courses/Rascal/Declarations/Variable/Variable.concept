@@ -1,22 +1,19 @@
 Name: Variable
 
-Details:
+Synopsis: Declare a variable.
 
-Categories: Language
-
-Syntax: 
+Syntax:
 # `$Type$ $Name$ = $Exp$;`
 # `$Type$ $Name$;`
 
 Types:
-
 |`$Type$`  | `$Exp$`     |
 |:---------|:------------|
 | `$Type$` | `<: $Type$` |
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The effect of a variable declaration is to introduce a new variable $Name$ and
@@ -50,7 +47,6 @@ Rascal provides local type inference, which allows the implicit declaration of v
 * All uses of an implicitly declared variable must be compatible with its implicit type.
 
 Examples:
-
 <screen>
 // Two explicit variable declarations:
 int max = 100;
@@ -62,6 +58,7 @@ day = {<"mon", 1>, <"tue", 2>, <"wed",3>,
 int month = 12;
 month ="December";
 </screen>
+
 Benefits:
 
 Pitfalls:

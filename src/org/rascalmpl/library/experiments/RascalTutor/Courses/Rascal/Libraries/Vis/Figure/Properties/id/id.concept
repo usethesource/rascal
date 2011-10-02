@@ -1,19 +1,18 @@
 Name: id
 
-Details:
-
-Categories: Library
+Synopsis: Identity.
 
 Syntax:
 
 Types:
 
-Function: 
+Function:
 `FProperty id(str name)`
 
-Synopsis:
+Details:
 
-Description: Assign the identity `name` to the current figure. Identities are used in
+Description:
+Assign the identity `name` to the current figure. Identities are used in
 various compositions like [graph] and [treemap].
 
 Examples:

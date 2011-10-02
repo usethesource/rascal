@@ -1,16 +1,15 @@
 Name: delete
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[&T] delete(list[&T] lst, int n) throws IndexOutOfBounds(int index)`
+Function:
+`list[&T] delete(list[&T] lst, int n) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
 Description:
 Delete the `n`-th element from a list. A new list without the `n`-th element is returned as result.
@@ -21,7 +20,6 @@ Examples:
 import List;
 delete([1, 2, 3], 1);
 </screen>
-
 
 Benefits:
 

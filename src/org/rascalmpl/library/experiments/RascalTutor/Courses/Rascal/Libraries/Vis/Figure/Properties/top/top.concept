@@ -1,8 +1,6 @@
 Name: top
 
-Details:
-
-Categories: Library
+Synopsis: Top, vertical, alignment.
 
 Syntax:
 
@@ -11,10 +9,9 @@ Types:
 Function:
 `FProperty top()`
 
-Synopsis:
+Details:
 
 Description:
-
 `top` defines __top vertical alignment__.
 It sets the vertical alignment to 0.
 

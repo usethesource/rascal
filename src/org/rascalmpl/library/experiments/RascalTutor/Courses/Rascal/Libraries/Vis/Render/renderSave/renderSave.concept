@@ -1,18 +1,16 @@
 Name: renderSave
 
-Details:
-
-Categories: Library
+Synopsis: Render and save a figure to a file.
 
 Syntax:
 
 Types:
 
-Function: 
+Function:
 #`void renderSave(loc file, Figure fig )`
 #`void renderSave(loc file,  int width, int height, Figure fig)`
 
-Synopsis:
+Details:
 
 Description:
 Render figure `fig` and write it to the location `file`.
@@ -26,7 +24,7 @@ Examples:
 
 Benefits:
 
-Pitfalls: 
+Pitfalls:
 # Only works inside Eclipse.
 # Some figures have a minimal size of 0, for example: `box(ellipse())`. No part of the figure has an inherent minimal size greater than zero.  When using `renderSave` without specifing a size on such figures a image of size 0x0 (the minimal size) will be rendered. The sollution is then to specifify a width and height. 
 

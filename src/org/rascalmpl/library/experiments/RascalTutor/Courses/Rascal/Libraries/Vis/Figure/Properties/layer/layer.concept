@@ -1,14 +1,15 @@
 Name: layer
 
-Details:
+Synopsis: A layer in a [graph].
 
 Syntax:
 
 Types:
 
-Function: `FProperty layer(str name)`
+Function:
+`FProperty layer(str name)`
 
-Synopsis:
+Details:
 
 Description:
 Introduces a named layer in a [graph]. All nodes with the same layer name are placed in the same layer.
@@ -33,4 +34,3 @@ Pitfalls:
 
 Questions:
 
-       

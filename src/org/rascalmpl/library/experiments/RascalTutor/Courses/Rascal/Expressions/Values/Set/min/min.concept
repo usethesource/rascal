@@ -1,11 +1,18 @@
-Name:min
+Name: min
 
-Categories: Library
+Synopsis:
 
+Syntax:
 
-Function: `&T min(set[&T] s)`
+Types:
 
-Description: Returns the smallest element from a set.
+Function:
+`&T min(set[&T] s)`
+
+Details:
+
+Description:
+Returns the smallest element from a set.
 
 Examples:
 <screen>

@@ -1,19 +1,18 @@
 Name: font
 
-Details:
-
-Categories: Library
+Synopsis: Define font to be used for [text].
 
 Syntax:
 
 Types:
 
-Function: 
+Function:
 `FProperty font(str fname)`
 
-Synopsis:
+Details:
 
-Description: Sets the font to be used for text.
+Description:
+Sets the font to be used for text.
 See [fontNames] for a list of available fonts.
 
 Examples:

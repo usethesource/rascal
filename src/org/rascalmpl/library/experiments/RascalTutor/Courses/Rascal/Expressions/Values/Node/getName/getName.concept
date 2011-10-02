@@ -1,18 +1,18 @@
 Name: getName
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str getName(node T)`
+Function:
+`str getName(node T)`
 
-Synopsis:
+Details:
 
-Description: Returns the name of a node.
+Description:
+Returns the name of a node.
 
 Examples:
 <screen>

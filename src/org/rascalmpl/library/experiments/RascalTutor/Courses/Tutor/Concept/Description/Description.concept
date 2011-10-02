@@ -1,6 +1,7 @@
 Name: Description
 
-Details:
+Synopsis:
+Gives a concise explanation of the concept.
 
 Syntax:
 `Description: $MarkedText$`
@@ -9,18 +10,15 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-The `Description` section gives a concise explanation of the concept.
 
 Examples:
-
 The `Description` section of this concept page reads as follows:
 
 `Description:`
 `The ``Description`` section gives a concise explanation of the concept.
-
 
 Benefits:
 
@@ -30,4 +28,3 @@ Pitfalls:
 
 Questions:
 
-       

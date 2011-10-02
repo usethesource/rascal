@@ -1,18 +1,21 @@
-Name:notin
+Name: notin
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ notin $Exp_2$`
+Syntax:
+`$Exp_1$ notin $Exp_2$`
 
 Types:
-
-
 | `$Exp_1$`           |  `$Exp_2$`    | `$Exp_1$ notin $Exp_2$` |
 |:--------------------|:--------------|:------------------------|
 | `$T_1$`  <: `$T_2$` |  `set[$T_2$]` | `bool`                  |
 
+Function:
 
-Description: Yields `true` if the value of $Exp_1$ does not occur as element in the value of $Exp_2$ and `false` otherwise. The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
+Details:
+
+Description:
+Yields `true` if the value of $Exp_1$ does not occur as element in the value of $Exp_2$ and `false` otherwise. The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
 
 Examples:
 <screen>

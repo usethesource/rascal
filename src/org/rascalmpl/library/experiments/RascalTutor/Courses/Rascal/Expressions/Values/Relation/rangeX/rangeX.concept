@@ -1,18 +1,18 @@
 Name: rangeX
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)`
+Function:
+`rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)`
 
-Synopsis:
+Details:
 
-Description: Restriction of binary relation `R` to tuples with second element not in set `S`.
+Description:
+Restriction of binary relation `R` to tuples with second element not in set `S`.
 
 Examples:
 <screen>

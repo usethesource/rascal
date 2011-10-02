@@ -1,13 +1,17 @@
-Name:FieldAssignment
+Name: FieldAssignment
+
+Synopsis: Assignment to a field of a tuple or datatype.
+
+Syntax:
+`$Exp_1$ [ $Name$ = $Exp_2$ ]`
+
+Types:
+
+Function:
 
 Details:
 
-Categories:
-
-Syntax: `$Exp_1$ [ $Name$ = $Exp_2$ ]`
-
 Description:
-
 $Exp_1$ should evaluate to a tuple or datatype with a field $Name$; assign the value of $Exp_2$ to that field
 
 Field assignment applies to all values that have named components like tuples and relations with named elements, data types, and locations. 
@@ -15,7 +19,6 @@ Field assignment returns a new value in which the named component has been repla
 $Name$ stands for itself and is not evaluated.
 
 Examples:
-
 <screen>
 tuple[int key, str val] T = <1, "abc">;
 T[val = "def"];

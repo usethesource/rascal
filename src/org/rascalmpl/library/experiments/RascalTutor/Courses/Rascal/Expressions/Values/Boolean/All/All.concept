@@ -1,10 +1,9 @@
 Name: All
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `all ( $Exp_1$, $Exp_2$, ... )`
+Syntax:
+`all ( $Exp_1$, $Exp_2$, ... )`
 
 Types:
 | `$Exp_1$` | `$Exp_2$` | ... | `all ( $Exp_1$, $Exp_2$, ... )` |
@@ -13,7 +12,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Yields `true` when all combinations of values of $Exp_i$ are true.
@@ -35,3 +34,4 @@ all(int n <- [], n > 0);
 </screen>
 
 Questions:
+

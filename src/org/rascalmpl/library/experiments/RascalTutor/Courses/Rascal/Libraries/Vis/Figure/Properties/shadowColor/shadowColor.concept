@@ -1,6 +1,6 @@
 Name: shadowColor
 
-Details:
+Synopsis: Define the color of a [shadow].
 
 Syntax:
 
@@ -10,7 +10,7 @@ Function:
 * `FProperty shadowColor(Color c)`
 * `FProperty shadowColor(str colorName)`
 
-Synopsis:
+Details:
 
 Description:
 Defines the color of shadows. Also see [shadow] and [shadowPos].
@@ -28,4 +28,3 @@ Pitfalls:
 
 Questions:
 
-       

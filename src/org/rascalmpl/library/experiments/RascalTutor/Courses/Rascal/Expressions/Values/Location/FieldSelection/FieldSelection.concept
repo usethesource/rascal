@@ -1,10 +1,9 @@
 Name: FieldSelection
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Exp$ . $Name$`
+Syntax:
+`$Exp$ . $Name$`
 
 Types:
 | `$Exp$` | `$Name$` | `$Exp$ . $Name$` |
@@ -13,7 +12,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Field selection applies to locations. 

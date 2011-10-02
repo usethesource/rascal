@@ -1,20 +1,18 @@
 Name: Test
 
-Details:
-
-Categories:
-
-Related:
-
 Synopsis:
+This is the synopsis.
 
 Syntax:
 
-Types: `map[lub($T_1$, $T_2$), $T_3$]`
+Types:
+`map[lub($T_1$, $T_2$), $T_3$]`
 
+Function:
+
+Details:
 
 Description:
-
 PPPPPPsfd
 XXXXXX
 YYYYYYYYYYYYYYYYYY
@@ -48,9 +46,6 @@ will be displayed as
 |-----|----|
 | ![Box 1](box1.png) | zzz |
 
-
-
-
 Examples:
 
 Benefits:
@@ -58,7 +53,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:int>
 QValue: 2 * <A:int>
 

@@ -1,18 +1,21 @@
-Name:FieldProjection
+Name: FieldProjection
+
+Synopsis: Projection of tuple.
+
+Syntax:
+`$Exp$ < $Field_1$, $Field_2$ ... >`
+
+Types:
+
+Function:
 
 Details:
 
-Categories:
-
-Syntax: `$Exp$ < $Field_1$, $Field_2$ ... >`
-
 Description:
-
 $Exp$ should evaluate to a tuple or relation, and $Field_i$ should be a field name or an integer constant
  that refers to elements in the order in which they occur in the original value (counting from 0). 
 
 Examples:
-
 Suppose we have a relation with traffic information that records the name of the day, the day number, and the length of the traffic jams at that day.
 <screen>
 rel[str day, int daynum, int length] Traffic = 

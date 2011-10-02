@@ -1,18 +1,19 @@
 Name: Graph
 
-Details:
+Synopsis: Functions on the graph datatype.
 
-Categories: Library
-
-Syntax:`alias Graph[&T] = rel[&T from, &T to];`
+Syntax:
+`import Graph;`
 
 Types:
+`alias Graph[&T] = rel[&T from, &T to];`
 
 Function:
 
-Synopsis: `import Graph;`
+Details:
 
-Description: The Graph data type is a binary relation and all operators and functions defined
+Description:
+The Graph data type is a binary relation and all operators and functions defined
 on [Relation] are also defined on Graph.
 
 Examples:

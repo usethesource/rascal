@@ -1,18 +1,18 @@
 Name: rangeR
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)`
+Function:
+`map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)`
 
-Synopsis:
+Details:
 
-Description: Returns the map restricted to pairs with values in `S`.
+Description:
+Returns the map restricted to pairs with values in `S`.
 
 Examples:
 <screen>
@@ -25,3 +25,4 @@ Benefits:
 Pitfalls:
 
 Questions:
+

@@ -1,12 +1,16 @@
-Name:IntroRewriteRules
+Name: IntroRewriteRules
 
-Categories:
+Synopsis: Concept: _Rewrite rules_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-
-Rewrite Rules
 
 A rewrite rule is a recipe on how to simplify values. 
 Remember: ($a$ + $b$)$^2$ = $a^2$ + 2$ab$ + $b^2$? 
@@ -19,7 +23,6 @@ during computations.
 Since rewrite rules are activated automatically, one may always assume that expressions are in simplified form.
 
 Examples:
-
 In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
 to avoid intermediate results like `sum(product(num(1), x), product(num(0), y))` that can be simplified to `x`. 
 The following rules achieve this:
@@ -37,7 +40,6 @@ to that expression and all its subexpressions and when a pattern at the left-han
 Benefits:
 
 Pitfalls:
-
 Rewrite rules are _Turing complete_, in other words any computable function can be defined using rewrite rules, 
 including functions that do not terminate. This is a point of attention when using rewrite rules.
 

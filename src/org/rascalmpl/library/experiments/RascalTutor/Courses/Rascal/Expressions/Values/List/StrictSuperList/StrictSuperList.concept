@@ -1,19 +1,20 @@
 Name: StrictSuperList
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ > $Exp_2$`
+Syntax:
+`$Exp_1$ > $Exp_2$`
 
 Types:
-
-
 | `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ > $Exp_2$` |
 |:--------------|:---------------|:--------------------|
 | `list[$T_1$]` |  `list[$T_2$]` | `bool`              |
 
+Function:
+
+Details:
 
 Description:
-
 Yields `true` if the value of $Exp_2$ is a strict sublist of the value of $Exp_1$,  and `false` otherwise.
 
 Examples:
@@ -29,5 +30,5 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:list[arb]> > <B:same[A]>
+

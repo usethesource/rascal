@@ -1,8 +1,9 @@
 Name: KeyModifier
 
-Details:
+Synopsis: The `KeyModifier` datatype describes key modifiers in user-interactions.
 
-Syntax: 
+Syntax:
+Types:
 <listing>
 data KeyModifier =
 	  modCtrl()
@@ -11,13 +12,14 @@ data KeyModifier =
 	| modCommand();
 </listing>
 
-Types:
+
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Describes keymodifiers, the keyboards keys Control, Alt, Shift and Command (Super/Windows/Apple key)
+Description:
+Describes key modifiers, the keyboards keys Control, Alt, Shift and Command (Super/Windows/Apple key)
 
 Examples:
 
@@ -27,4 +29,3 @@ Pitfalls:
 
 Questions:
 
-       

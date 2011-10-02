@@ -1,13 +1,18 @@
-Name:Statements
-
-Categories:Language
+Name: Statements
 
 Synopsis:
+All Rascal statements.
+![Statement Types](statement-parts.png|700px|right)
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-All Rascal statements.
-
-![Statement Types](statement-parts.png|700px|right)
 
 Examples:
 

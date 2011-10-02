@@ -1,18 +1,15 @@
 Name: pack
 
-Details:
-
-Categories: Library
+Synopsis: Dense packing of a list of figures.
 
 Syntax:
 
 Types:
 
 Function:
-
 `Figure pack(Figures figs, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Pack the given figures in arbitrary order to fill space as efficiently as possible.

@@ -1,14 +1,15 @@
 Name: onMouseMove
 
-Details:
+Synopsis: Define interactive behaviour when the mouse moves over this figure.
 
 Syntax:
 
 Types:
 
-Function: `FProperty onMouseMove(void (bool) handler)`
+Function:
+`FProperty onMouseMove(void (bool) handler)`
 
-Synopsis:
+Details:
 
 Description:
 Execute `handler` when the mouse moves over the current figure.
@@ -21,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

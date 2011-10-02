@@ -1,18 +1,18 @@
 Name: domain
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[&T0] domain (rel[&T0,&T1] R)`
+Function:
+`set[&T0] domain (rel[&T0,&T1] R)`
 
-Synopsis:
+Details:
 
-Description: Returns a set consisting of the first element of each tuple in binary relation.
+Description:
+Returns a set consisting of the first element of each tuple in binary relation.
 
 Examples:
 <screen>

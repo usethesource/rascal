@@ -1,19 +1,18 @@
 Name: lineWidth
 
-Details:
-
-Categories: Library
+Synopsis: Defines the width of lines.
 
 Syntax:
 
 Types:
 
-Function: 
+Function:
 `FProperty lineWidth(num w)`
 
-Synopsis:
+Details:
 
-Description: Set the width of lines and borders of figures to `w`.
+Description:
+Set the width of lines and borders of figures to `w`.
 
 Examples:
 <figure lw1.png 400x100>

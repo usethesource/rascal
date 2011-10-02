@@ -1,13 +1,13 @@
-Name:If
+Name: If
 
-Categories: Language
+Synopsis:
+Conditional statement
 
 Syntax:
 * `if ( $Exp$ ) $Statement$;`
 * `if ( $Exp$ ) $Statement_1$ else $Statement_2$;`
 
 Types:
-
 | `$Exp$` | `if ( $Exp$ ) $Statement$;` |
 |:--------|:----------------------------|
 | `bool`  |  `void`                     |
@@ -15,9 +15,13 @@ Types:
 | `$Exp$` | $Statement_1$ | $Statement_2$ | `if ( $Exp$ ) $Statement_1$ else $Statement_2$;` |
 |:--------|:--------------|:--------------|:-------------------------------------------------|
 | `bool`  |  $T_1$        | $T_2$         | `lub($T_1$, $T_2$)`                              |
- 
 
-Description: The test $Exp$ is evaluated and its outcome determines the statement to be executed: 
+Function:
+
+Details:
+
+Description:
+The test $Exp$ is evaluated and its outcome determines the statement to be executed: 
 $Statement_1$ if $Exp$ yields `true` and $Statement_2$ otherwise. 
 The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
 The value of an if-then-else statement is the value of the statement that was executed.
@@ -36,7 +40,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: if( <A:int> > <B:int> ) 10; else 20;
 
 QType: if( <A:int> > <B:int> ) <C:str>; else <D:str>;

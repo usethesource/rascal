@@ -1,21 +1,20 @@
 Name: mouseOver
 
-Details:
-
-Categories: Library
+Synopsis: Define interactive mouse over behaviour.
 
 Syntax:
 
 Types:
 
-Function: `FProperty mouseOver(Figure fig)`
+Function:
+`FProperty mouseOver(Figure fig)`
 
-Synopsis:
+Details:
 
-Description: Show figure `fig` when the mouse hovers over the current figure.
+Description:
+Show figure `fig` when the mouse hovers over the current figure.
 
 Examples:
-
 <figure onkeydown.png 300x300>
 public Figure stairs(int nr){
 	props = (nr == 0) ? [] : [mouseOver(stairs(nr-1))];
@@ -27,12 +26,10 @@ render(box(stairs(10),grow(1.2),bottom(),center()));
 </figure>
 ![onkeydown](onkeydown.png)
 
-
 Benefits:
 
-Pitfalls: Unfortunatly we cannot show an interactive version here. Try it out in Rascal yourself.
+Pitfalls:
+Unfortunatly we cannot show an interactive version here. Try it out in Rascal yourself.
 
 Questions:
 
-
-       

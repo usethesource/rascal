@@ -1,8 +1,10 @@
 Name: KeySym
 
-Details:
+Synopsis: Dadatype describing a key on the keyboard.
 
-Syntax: 
+Syntax:
+
+Types:
 <listing>
 data KeySym =
   keyPrintable(str key)
@@ -74,13 +76,14 @@ data KeySym =
 | keyUnknown(int keyCode);
 </listing>
 
-Types:
 
-Function: 
 
-Synopsis: A datatype describing a key on the keyboard. Any key that is printable is represented by `keyPrintable(str key)`, for example 'a' is described by `keyPrintable("a")`. Unkown keys are described by `keyUnkown(int keyCode)` where `keyCode` is their keycode.
+Function:
+
+Details:
 
 Description:
+A datatype describing a key on the keyboard. Any key that is printable is represented by `keyPrintable(str key)`, for example 'a' is described by `keyPrintable("a")`. Unkown keys are described by `keyUnkown(int keyCode)` where `keyCode` is their keycode.
 
 Examples:
 
@@ -90,4 +93,3 @@ Pitfalls:
 
 Questions:
 
-       

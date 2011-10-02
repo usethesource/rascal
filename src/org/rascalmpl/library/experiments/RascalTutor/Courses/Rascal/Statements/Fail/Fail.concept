@@ -1,16 +1,15 @@
 Name: Fail
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `fail;`
+Syntax:
+`fail;`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A fail statement may only occur in the action part of a [PatternWithAction].

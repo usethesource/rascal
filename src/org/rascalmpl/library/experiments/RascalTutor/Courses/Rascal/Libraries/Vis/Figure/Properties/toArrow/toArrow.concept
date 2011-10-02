@@ -1,14 +1,15 @@
 Name: toArrow
 
-Details:
+Synopsis: Add an error to the destination of an [edge].
 
 Syntax:
 
 Types:
 
-Function: FProperty toArrow(Figure f)
+Function:
+FProperty toArrow(Figure f)
 
-Synopsis:
+Details:
 
 Description:
 Add an arrow to the destination of a [graph] edge. 
@@ -37,6 +38,3 @@ Pitfalls:
 
 Questions:
 
-       
-
-       

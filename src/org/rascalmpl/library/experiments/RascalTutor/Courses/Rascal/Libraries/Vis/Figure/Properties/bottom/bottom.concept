@@ -1,8 +1,6 @@
 Name: bottom
 
-Details:
-
-Categories: Library
+Synopsis: Bottom alignment.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `FProperty bottom()`
 
-Synopsis:
+Details:
 
 Description:
 `bottom` defines __bottom alignment__.

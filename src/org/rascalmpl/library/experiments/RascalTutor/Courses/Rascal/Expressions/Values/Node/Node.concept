@@ -1,10 +1,9 @@
 Name: Node
 
-Details:
+Synopsis: Node values.
 
-Categories: Language
-
-Syntax: `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )`
+Syntax:
+`$Exp_0$ ( $Exp_1$, $Exp_2$, ... )`
 
 Types:
 |`$Exp_0$`  | `$Exp_1$` | `$Exp_2$` | ... | `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )` |
@@ -13,9 +12,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Values of type `node` represent untyped trees and are constructed as follows:
+Description:
+Values of type `node` represent untyped trees and are constructed as follows:
 * the string value of $Exp_0$ is the node name;
 * zero or more expressions of type `value` are the node\'s children.
 

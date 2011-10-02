@@ -1,19 +1,19 @@
 Name: ValueIO
 
-Details:
+Synopsis: Functions for reading and writing values in textual and binary format.
 
-Categories: Library
 
 Syntax:
+`import ValueIO;`
 
 Types:
 
 Function:
 
-Synopsis: `import ValueIO;`
+Details:
 
 Description:
-Functions for reading and writing values in textual and binary format.
+
 
 Examples:
 

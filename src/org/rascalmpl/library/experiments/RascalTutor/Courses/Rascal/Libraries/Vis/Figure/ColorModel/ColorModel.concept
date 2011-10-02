@@ -1,16 +1,15 @@
 Name: ColorModel
 
-Details:
-
-Categories: Library
+Synopsis: The model used for defining colors.
 
 Syntax:
 
-Types: `alias Color = int;`
+Types:
+`alias Color = int;`
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A color is expressed in the RGB color space and consists of a red, green and blue
@@ -38,7 +37,6 @@ The following properties use colors:
 all these properties accept a Color value or, for convenience, also a color name.
 
 Examples:
-
 <figure b1.png>
 b1 = box([size(50), fillColor("MidNightBlue")]);
 render(b1);
@@ -52,7 +50,6 @@ b2 = box([size(50), fillColor(rgb(25,25,112))]);
 render(b2);
 </figure>
 and obtain (unsurprisingly) the same result: ![b2](b2.png)
-
 
 Benefits:
 

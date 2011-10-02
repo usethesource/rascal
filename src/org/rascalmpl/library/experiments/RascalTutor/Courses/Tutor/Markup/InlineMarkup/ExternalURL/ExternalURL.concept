@@ -1,21 +1,22 @@
 Name: ExternalURL
 
-Details:
+Synopsis:
+Refer to an external URL.
 
-Syntax: `[ $Name$ ]($URL$)`
+Syntax:
+`[ $Name$ ]($URL$)`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Creates a link to an external url.
 $Name$ is displayed in the text, and $URL$ is the destination URL.
 
 Examples:
-
 `[Rascal](http://www.rascal-mpl.org)` gives [Rascal](http://www.rascal-mpl.org).
 
 Benefits:
@@ -24,4 +25,3 @@ Pitfalls:
 
 Questions:
 
-       

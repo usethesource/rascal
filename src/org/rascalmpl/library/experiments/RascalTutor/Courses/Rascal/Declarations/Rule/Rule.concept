@@ -1,16 +1,15 @@
 Name: Rule
 
-Details:
+Synopsis: Declare a rewrite rule.
 
-Categories: Language
-
-Syntax: `rule $Name$ $PatternWithAction$;`
+Syntax:
+`rule $Name$ $PatternWithAction$;`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Functions are the workhorses of Rascal. They can have any value as parameter or result and are explicitly called by the user. Also, functions are declared inside modules and their visibility can be controlled.
@@ -29,9 +28,6 @@ During execution of rules the following applies:
 * The right-hand side of rules can contain fail statements, which cause backtracking over the alternative matches or alternative rules for a certain constructor.
 
 * When the right-hand side is a statement, an [Insert] statement determines the value of the actual replacement. 
-
-
-
 
 Examples:
 <screen>

@@ -1,18 +1,19 @@
 Name: Figure
 
-Details:
+Synopsis: Overview of the complete Figure library.
 
-Categories: Library
 
 Syntax:
+`import vis::Figure;`
 
 Types:
 
 Function:
 
-Synopsis: `import vis::Figure;`
+Details:
 
-Description: The Figure library provides visualization functionality that
+Description:
+The Figure library provides visualization functionality that
 can be used to synthesize information. 
 This plays, for example, a role in the synthesis part of the [EASY] paradigm.
 It is based on the following principles:
@@ -49,14 +50,11 @@ The Figure library provides two data types:
   ** _Compositions_: [hcat], [vcat], [hvcat], [overlay], [pack], [grid], [tree], [treemap], [graph].
   ** _Transformations_: [scale], [rotate].
 
-
-
 Examples:
 
 Benefits:
 
 Pitfalls:
-
 One of the functions [render] or [renderSave] are needed to actually view a Figure.
 
 Questions:

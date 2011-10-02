@@ -1,19 +1,17 @@
 Name: Annotation
 
-Details:
+Synopsis: Declare an annotation type for nodes.
 
-Categories:
-
-Syntax: `anno $AnnoType$ $OnType$ @ $Name$`
+Syntax:
+`anno $AnnoType$ $OnType$ @ $Name$`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 An annotation may be associated with any node value, be it a pure node or some [AlgebraicDataType] derived from it.
 
 Annotations are intended to attach application data to values,
@@ -38,7 +36,6 @@ The following constructs are provided for handling annotations:
 * `$Var$ @ $Anno$ = $Val$`: is an assignment statement that sets the value of annotation $Anno$ of the value of variable $Var$ to $Val$.
 
 Examples:
-
 Here is a declaration of an annotation that attaches location information to certain syntactic constructs of 
 programs (e.g., `EXPRESSION`) with name `posinfo`:
 

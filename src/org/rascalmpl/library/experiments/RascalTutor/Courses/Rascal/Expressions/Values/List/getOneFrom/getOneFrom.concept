@@ -1,18 +1,18 @@
 Name: getOneFrom
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `&T getOneFrom(list[&T] lst) throws EmptyList`
+Function:
+`&T getOneFrom(list[&T] lst) throws EmptyList`
 
-Synopsis:
+Details:
 
-Description: Get an arbitrary element from a list. See [List/takeOneFrom] for a function that also removes the selected element.
+Description:
+Get an arbitrary element from a list. See [List/takeOneFrom] for a function that also removes the selected element.
 
 Examples:
 <screen>

@@ -1,8 +1,6 @@
 Name: Help
 
-Details:
-
-Categories:
+Synopsis: Help facilities.
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Various forms of help are available.
 
 At the command console, type __:help__ to get a list of help commands.

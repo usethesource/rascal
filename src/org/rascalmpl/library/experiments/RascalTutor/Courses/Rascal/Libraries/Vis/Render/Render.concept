@@ -1,18 +1,18 @@
 Name: Render
 
-Details:
+Synopsis: Render a figure on screen or save it to a file.
 
-Categories: Library
 
 Syntax:
+`import vis::Render;`
 
 Types:
 
 Function:
 
-Synopsis: import vis::Render;
+Details:
 
-Description: Rendering of figures.
+Description:
 
 Examples:
 

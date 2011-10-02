@@ -1,8 +1,6 @@
 Name: IDEConstruction
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: 
-
+Description:
 To instantiate an IDE for a language implemented using Rascal, follow the steps as shown in the following example:
 
 <screen>
@@ -47,4 +44,3 @@ Pitfalls:
 
 Questions:
 
-       

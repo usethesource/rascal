@@ -1,19 +1,20 @@
 Name: arbColor
 
-Details:
+Synopsis:
+Creates an arbitrary color.
 
 Syntax:
 
 Types:
 
-Function: `FProperty arbColor()`
+Function:
+`FProperty arbColor()`
 
-Synopsis: Creates an arbitrary color.
+Details:
 
 Description:
 
 Examples:
-
 <figure a1.png>
 box1 = box(fillColor(arbColor()));
 box2 = box(fillColor(arbColor()));
@@ -28,4 +29,3 @@ Pitfalls:
 
 Questions:
 
-       

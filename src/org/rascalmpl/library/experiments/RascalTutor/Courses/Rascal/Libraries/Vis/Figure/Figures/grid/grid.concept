@@ -1,8 +1,6 @@
 Name: grid
 
-Details:
-
-Categories: Library
+Synopsis: Place figures in a grid with cells of equal size.
 
 Syntax:
 
@@ -11,9 +9,10 @@ Types:
 Function:
 `grid(list[list[Figure]] figs, FProperty props...)`
 
-Synopsis:
+Details:
 
-Description: Layout figures in a grid. 
+Description:
+Layout figures in a grid. 
 
 All elements that are resizable and do not specify a [shrink] will be get of the same size. For example:
 <figure grid1.png>
@@ -144,8 +143,6 @@ Gives
 [hcat] and [vcat] are special cases of `grid`.
 
 Examples:
-
-
 Element with a fixed size:
 <figure g2.png 250x250>
 row1 = [ box(fillColor("Red")),
@@ -185,7 +182,7 @@ gives:
 
 Benefits:
 
-Pitfalls: 
+Pitfalls:
 <screen>
 // Be aware of _list splicing_! By default, Rascal flattens lists by splicing sublists in the containing list, e.g.
 // introduce a list s

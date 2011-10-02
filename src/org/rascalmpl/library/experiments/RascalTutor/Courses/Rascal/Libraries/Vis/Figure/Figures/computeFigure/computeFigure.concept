@@ -1,8 +1,6 @@
 Name: computeFigure
 
-Details:
-
-Categories: Library
+Synopsis: A dynamically computed figure.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `Figure computeFigure(Figure () computeFig, FProperty props...)`
 # `Figure computeFigure(bool() recomp, Figure () computeFig, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Return the figure that is returned by the callback `computeFig`.

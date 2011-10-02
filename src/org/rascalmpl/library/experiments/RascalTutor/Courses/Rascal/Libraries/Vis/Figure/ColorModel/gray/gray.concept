@@ -1,21 +1,18 @@
 Name: gray
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
 Function:
-
 # `Color gray(int g)`
 # `Color gray(int g, real alpha)`
 # `Color gray(real perc)`
 # `Color gray(real perc, real alpha)`
 
-Synopsis:
+Details:
 
 Description:
 Create gray colors in various shades:
@@ -51,7 +48,6 @@ b3 = box(fillColor(gray(0.5, 1.0)));
 render(hcat([b1, b2, b3], size(50)));
 </figure>
 gives: ![h3](h3.png)
-
 
 Benefits:
 

@@ -1,8 +1,6 @@
 Name: fillColor
 
-Details:
-
-Categories: Library
+Synopsis: Fill color.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `FProperty fillColor(Color c)`
 # `FProperty fillColor(str cname)`
 
-Synopsis:
+Details:
 
 Description:
 Set the color used to fill the inside of figures:
@@ -23,7 +21,6 @@ Set the color used to fill the inside of figures:
 Also see [ColorModel].
 
 Examples:
-
 <figure fc1.png 200x100>
 b1 = box(fillColor("Red"));
 b2 = box(fillColor("Blue"));

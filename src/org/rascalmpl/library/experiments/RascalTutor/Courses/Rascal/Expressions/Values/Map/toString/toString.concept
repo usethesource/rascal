@@ -1,18 +1,18 @@
 Name: toString
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`str toString(map[&K, &V] M)`
+Function:
+`str toString(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description: Convert map `M` to a string.
+Description:
+Convert map `M` to a string.
 
 Examples:
 <screen>

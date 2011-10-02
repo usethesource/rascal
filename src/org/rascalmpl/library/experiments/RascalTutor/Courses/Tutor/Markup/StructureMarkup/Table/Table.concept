@@ -1,21 +1,21 @@
 Name: Table
 
-Details:
+Synopsis:
+Mark up for a table.
 
-Syntax:<br>
+Syntax:
+<br>
 `| $Header_1$ | $Header_2$ | ... |`<br>
 `|---------|---------| ... |`<br>
 `| $Entry_1$   \   | $Entry_2$    | ... |`
-
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Each line in a table description starts and ends with a `|` character which is also used to separate columns.
 
 A table description consists of:
@@ -26,8 +26,8 @@ A table description consists of:
   a column description that end with a `:` character.
 * Lines given the table entries.
 
-
-Examples:<br>
+Examples:
+<br>
 
 ===== Example 1 =====
 
@@ -65,11 +65,9 @@ gives (with column B right-aligned):
 |---|----:|---|
 | 12| 123| 2 |
 
-
 Benefits:
 
 Pitfalls:
 
 Questions:
 
-       

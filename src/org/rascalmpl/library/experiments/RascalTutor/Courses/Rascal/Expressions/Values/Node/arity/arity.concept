@@ -1,18 +1,18 @@
 Name: arity
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: int arity(node T)
+Function:
+int arity(node T)
 
-Synopsis:
+Details:
 
-Description: Returns the number of children of a node.
+Description:
+Returns the number of children of a node.
 
 Examples:
 <screen>

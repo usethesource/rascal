@@ -1,8 +1,6 @@
 Name: ConcreteSyntax
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
@@ -10,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description:<warning>This page is to be written</warning>
+Description:
+<warning>This page is to be written</warning>
 
 Examples:
 
@@ -22,4 +21,3 @@ Pitfalls:
 
 Questions:
 
-       

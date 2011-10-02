@@ -1,18 +1,18 @@
 Name: ident
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `rel[&T,&T] ident(set[&T] S)`
+Function:
+`rel[&T,&T] ident(set[&T] S)`
 
-Synopsis:
+Details:
 
-Description: The identity relation for set `S`.
+Description:
+The identity relation for set `S`.
 
 Examples:
 <screen>

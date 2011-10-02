@@ -1,18 +1,18 @@
 Name: domainR
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&K, &V] domainR(map[&K, &V] M, set[&K] S)`
+Function:
+`map[&K, &V] domainR(map[&K, &V] M, set[&K] S)`
 
-Synopsis:
+Details:
 
-Description: Return the map `M` restricted to pairs with key in `S`.
+Description:
+Return the map `M` restricted to pairs with key in `S`.
 
 Examples:
 <screen>

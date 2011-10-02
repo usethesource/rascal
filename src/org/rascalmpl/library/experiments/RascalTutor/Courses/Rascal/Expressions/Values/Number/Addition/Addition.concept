@@ -1,20 +1,23 @@
-Name:Addition
+Name: Addition
 
-Categories: Language
+Synopsis:
 
-Syntax: 
+Syntax:
 `$Exp_1$ + $Exp_2$`
 
 Types:
-
 | `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ + $Exp_2$`  |
 |:-----------|:-----------|:---------------------|
 | `int`      |  `int`     | `int`                |
 | `int`      |  `real`    | `real`               |
 | `real`     |  `real`    | `real`               |
 
+Function:
 
-Description: Yields the numerical sum of the values of $Exp_1$ and $Exp_2$.
+Details:
+
+Description:
+Yields the numerical sum of the values of $Exp_1$ and $Exp_2$.
 
 Examples:
 <screen>
@@ -27,7 +30,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:int[0]> + <B:int[0]>
 desc: Adding integers. 
 
@@ -49,3 +51,4 @@ make: A = int
 make: B = int[0,10]
 expr: C = <A> - <B>
 test: <A> + <?> == <C>
+

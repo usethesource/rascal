@@ -1,11 +1,8 @@
 Name: Subscription
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: 
-
+Syntax:
 # `$Exp_0$ [ $Exp_1$, $Exp_2$, ... $Exp_n$]`
 
 # `$Exp_0$ [ $Exp_1$]`
@@ -21,12 +18,12 @@ Types:
 |:----------------------------------|:--------------|:---------------------------------|
 | `rel[$T_1$, $T_2$, ... $T_m$]`    | `set[$T_1$]`  | `rel[$T_2$, $T_2$, ... $T_m$]`   |
 
-
 Function:
 
-Synopsis:
+Details:
 
-Description: Relation resulting from subscription of a relation $Exp_0$.
+Description:
+Relation resulting from subscription of a relation $Exp_0$.
 
 ===Variant 1===
 Subscription with the index values of $Exp_1$, $Exp_2$, .... 
@@ -41,7 +38,6 @@ The result is a relation with all tuples that have these index values as first e
 with the index values removed from the tuple. 
 
 Examples:
-
 <screen>
 R = {<1,10>, <2,20>, <1,11>, <3,30>, <2,21>};
 R[1];
@@ -68,6 +64,4 @@ Benefits:
 Pitfalls:
 
 Questions:
-
-
 

@@ -1,18 +1,18 @@
 Name: domainX
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&K, &V] domainX(map[&K, &V] M, set[&K] S)`
+Function:
+`map[&K, &V] domainX(map[&K, &V] M, set[&K] S)`
 
-Synopsis:
+Details:
 
-Description: Return the map `M` restricted to pairs with key not in `S`.
+Description:
+Return the map `M` restricted to pairs with key not in `S`.
 
 Examples:
 <screen>

@@ -1,18 +1,17 @@
 Name: mapper
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)`
+Function:
+`map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)`
 
-Synopsis:
+Details:
 
-Description: 
+Description:
 Apply the functions `F` and `G` to each key/value pair in a map and return the transformed map.
 
 Examples:
@@ -28,3 +27,4 @@ Benefits:
 Pitfalls:
 
 Questions:
+

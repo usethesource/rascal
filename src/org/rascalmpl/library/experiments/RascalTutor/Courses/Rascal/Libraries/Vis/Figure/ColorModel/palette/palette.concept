@@ -1,21 +1,20 @@
 Name: palette
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str palette(int n)`
+Function:
+`str palette(int n)`
 
-Synopsis:
+Details:
 
-Description: Provides a color name from a palette of 12 good distinguishable colors.
+Description:
+Provides a color name from a palette of 12 good distinguishable colors.
 
 Examples:
-
 <figure h1.png>
 boxes = [ box([size(50), fillColor(palette(i))]) | int i <- [0 .. 11] ];
 render(hcat(boxes));

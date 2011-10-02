@@ -1,12 +1,19 @@
-Name:Integer
+Name: Integer
 
-Categories: Language
+Synopsis: Integer values.
 
-Syntax: sequence of digits of arbitrary length.
-Types: `int`
+Syntax:
+sequence of digits of arbitrary length.
+
+Types:
+`int`
+
+Function:
+
+Details:
 
 Description:
-The integer values are represented by the type <tt>int</tt> and are written as usual. They can be arbitrarily large.
+The integer values are represented by the type <tt>int</tt> and are written as usual. They can be _arbitrarily large_.
 
 See [Number] for all operations and functions on integers, reals and numbers.
 
@@ -20,6 +27,5 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:int>
 

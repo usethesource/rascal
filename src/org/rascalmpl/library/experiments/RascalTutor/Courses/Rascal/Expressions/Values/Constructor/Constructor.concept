@@ -1,10 +1,9 @@
 Name: Constructor
 
-Details:
+Synopsis: Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
-Categories: Language
-
-Syntax: `$Name$ ( $Exp_1$, $Exp_2$, ... )`
+Syntax:
+`$Name$ ( $Exp_1$, $Exp_2$, ... )`
 
 Types:
 | `$Exp_1$` | `$Exp_2$` | ... |  `$Name$ ( $Exp_1$, $Exp_2$, ... )` |
@@ -13,10 +12,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 
 named, values and to provide access to the elements of such a collection through their name. 
 

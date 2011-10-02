@@ -1,8 +1,6 @@
 Name: readTextValueString
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `value readTextValueString(str input)`
 # `&T readTextValueString(type[&T] result, str input)`
 
-Synopsis:
+Details:
 
 Description:
 # Read a text representation of a value from a string.

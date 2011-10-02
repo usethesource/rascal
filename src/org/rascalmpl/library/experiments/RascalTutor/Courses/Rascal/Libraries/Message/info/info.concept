@@ -1,16 +1,15 @@
 Name: info
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`Message info(loc source, str msg)`
+Function:
+`Message info(loc source, str msg)`
 
-Synopsis:
+Details:
 
 Description:
 Creates an info message.

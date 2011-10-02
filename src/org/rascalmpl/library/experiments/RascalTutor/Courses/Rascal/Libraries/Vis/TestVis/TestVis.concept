@@ -1,6 +1,6 @@
 Name: TestVis
 
-Details:
+Synopsis: List of visualization tests (for developers only).
 
 Syntax:
 
@@ -8,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: The big page of visualisation tests.
+Description:
+
 
 Examples:
 <figure test1.png 350x350>
@@ -272,10 +273,10 @@ render(h);
 render(ellipse(text("een label", fontColor("white")),fillColor("mediumblue"), grow(1.2)));
 </figure>
 ![test](test32.png)
+
 Benefits:
 
 Pitfalls:
 
 Questions:
 
-       

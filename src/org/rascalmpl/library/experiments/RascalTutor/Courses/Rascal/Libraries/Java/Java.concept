@@ -1,17 +1,10 @@
 Name: Java
 
-Details:
-
-Categories: Library Eclipse
+Synopsis: The Entity datatype for representing facts about Java programs.
 
 Syntax:
 
 Types:
-
-Function:
-
-Synopsis:
-
 <listing>
 data Entity = entity(list[Id] id);
 
@@ -82,8 +75,12 @@ data Modifier =
 
 Note (/*1*/) how various Rascal keywords like `int` and `public` have to be escaped.
 
-Description:
 
+Function:
+
+Details:
+
+Description:
 This module provides a data model for facts that are extracted from Java source code.
 The Java constructs that may occur in extracted facts are represented by the datatype `Entity`. 
 An `Entity` represents a fully qualified identifier (represented by a list of `Id`s) pointing to a 
@@ -105,7 +102,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-
 This module is only available in the Eclipse version of Rascal.
 
 Questions:

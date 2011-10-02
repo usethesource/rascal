@@ -1,8 +1,6 @@
 Name: Libraries
 
-Details:
-
-Categories:  Library
+Synopsis: The available Rascal libraries.
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-All Rascal libraries.
 
 Examples:
 

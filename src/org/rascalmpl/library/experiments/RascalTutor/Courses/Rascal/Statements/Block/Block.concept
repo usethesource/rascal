@@ -1,16 +1,15 @@
 Name: Block
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `{ $Statement_1$ ... $Statement_n$ }`
+Syntax:
+`{ $Statement_1$ ... $Statement_n$ }`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A _block_ consists of a sequence of statements separated by semi-colons.

@@ -1,18 +1,18 @@
 Name: slice
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[&T] slice(list[&T] lst, int start, int len) throws IndexOutOfBounds(int index)`
+Function:
+`list[&T] slice(list[&T] lst, int start, int len) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
-Description: Returns a sublist of `lst` from index `start` of length `len`.
+Description:
+Returns a sublist of `lst` from index `start` of length `len`.
 
 Examples:
 <screen>

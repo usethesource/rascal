@@ -1,8 +1,6 @@
 Name: choice
 
-Details:
-
-Categories: Library
+Synopsis: An interactive choice.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `choice(list[str] choices, void(str s) ccallback, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Presents a list of named choices to the user. When the user selects one of them, callback `ccallback` is

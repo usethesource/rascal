@@ -1,18 +1,18 @@
 Name: domain
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[int] domain(list[&T] lst)`
+Function:
+`set[int] domain(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: returns the set of all legal index values for a list. Also see [List/index] for a function that returns a list
+Description:
+returns the set of all legal index values for a list. Also see [List/index] for a function that returns a list
 of index values.
 
 Examples:

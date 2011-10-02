@@ -1,17 +1,10 @@
 Name: JDT
 
-Details:
-
-Categories: Library Eclipse
-
-Syntax:
-
-Types:
-
-Function:
-
 Synopsis:
 
+Syntax: Datatypes for representing relations between parts of Java programs.
+
+Types:
 <listing>
 // Maps any ast at a certain location to a qualified name represented by an Entity
 public alias BindingRel = rel[loc, Entity];
@@ -78,8 +71,13 @@ anno EntityRel  Resource@declaredFields;
 anno EntityRel  Resource@calls;
 </listing>
 
-Description:
 
+
+Function:
+
+Details:
+
+Description:
 Detailed information can be extracted from Java projects in the current Eclipse workspace. 
 The JDT library module depends heavily on the library modules
 * [Resources] for extracting projects and files from an Eclipse project.
@@ -102,7 +100,6 @@ The access to facts about Java files proceeds in two steps:
 This information can be extracted by various functions defined in this module.
 
 Examples:
-
 Here is an example function that extracts the sub-type relation from a given project:
 
 <listing>
@@ -112,7 +109,6 @@ EntityRel getSubTypeInformation(loc project){
          {class("Object") x top(fm@extends + fm@implements);
 }
 </listing>
-
 
 Benefits:
 

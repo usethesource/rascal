@@ -1,8 +1,6 @@
 Name: matchLocations
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,11 +9,9 @@ Types:
 Function:
 `tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[loc, &T2] JDTlocs)`
 
-
-Synopsis:
+Details:
 
 Description:
-
 Compose two relations by matching JDT locations with Rascal locations and return a tuple with the composition result and the locations that could not be matched. The source code locations of the JDT AST nodes might not always be the same as the ones in your own parse tree. This function picks the 'best fitting' user provided locations for JDT locations that don't have a direct match. It works correctly for the Java 1.4 grammar in the sdf-library, but other grammars might need a specific implementation.
      
 Returns a tuple with the composition result and the locations that could not be matched
@@ -25,7 +21,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-
 This function may become deprecated.
 
 Questions:

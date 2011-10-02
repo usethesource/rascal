@@ -1,18 +1,18 @@
 Name: Benchmark
 
-Details:
-
-Categories: Library
+Synopsis:
+Functions for time measurement and benchmarking.
 
 Syntax:
+`import Benchmark;`
 
 Types:
 
 Function:
 
-Synopsis: `import Benchmark;`
+Details:
 
-Description: Functions for time measurement and benchmarking.
+Description:
 
 Examples:
 

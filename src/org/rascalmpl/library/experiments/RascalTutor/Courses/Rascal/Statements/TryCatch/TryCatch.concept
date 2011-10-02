@@ -1,8 +1,6 @@
 Name: TryCatch
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 <listing>
@@ -19,10 +17,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 A try catch statement has as purpose to catch any [Exception]s that are raised during the execution of $Statement_1$.
 These exceptions may caused by:
 

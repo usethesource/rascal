@@ -1,8 +1,6 @@
 Name: Comprehensions
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Comprehensions provide a concise notation to conditionally generate new values for the types:
 
 * `list`, see [List/Comprehension],
@@ -35,7 +32,6 @@ excluded by a test. When a filter fails, execution continues with the preceding 
 
 Each enumerator may introduce new variables that can be used in subsequent generators as well as in the contributing expressions.
 A generator can use the variables introduced by preceding generators. 
-
 
 Examples:
 <screen>

@@ -1,6 +1,7 @@
 Name: Function
 
-Details:
+Synopsis:
+Part of the synopsis that describes function signatures introduced by this concept.
 
 Syntax:
 
@@ -8,13 +9,11 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-The `Function` section describes signatures of (library) functions
 
 Examples:
-
 Here is an example for the `readFile` function:
 
 `Function:`
@@ -26,4 +25,3 @@ Pitfalls:
 
 Questions:
 
-       

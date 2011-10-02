@@ -1,6 +1,7 @@
 Name: InlineMarkup
 
-Details:
+Synopsis:
+Markup directives used in input lines.
 
 Syntax:
 
@@ -8,7 +9,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 
@@ -20,4 +21,3 @@ Pitfalls:
 
 Questions:
 
-       

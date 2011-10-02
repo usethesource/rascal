@@ -1,8 +1,6 @@
 Name: eval
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -14,7 +12,7 @@ Function:
 # `value eval(list[str] commands) throws Timeout`
 # `value eval(list[str] commands, int duration) throws Timeout`
 
-Synopsis:
+Details:
 
 Description:
 Evaluate a command or a list of commands and return the value of the last command that is executed.

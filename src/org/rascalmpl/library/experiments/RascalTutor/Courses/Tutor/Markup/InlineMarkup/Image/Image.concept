@@ -1,14 +1,16 @@
 Name: Image
 
-Details:
+Synopsis:
+Include an image.
 
-Syntax: `![$Name$]($File$|$Options$)`
+Syntax:
+`![$Name$]($File$|$Options$)`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Describes an image to be included:
@@ -23,9 +25,7 @@ Describes an image to be included:
   ** `border $N$px`: image will have a $N$ pixel border.
   ** `space $N$px`: image will occupy $N$x$N$ pixels.
 
-
 Examples:
-
 ==== Example 1 ====
 `![image example](image.png)` will produce:<br> ![image example](image.png)
 ==== Example 2 ====
@@ -39,4 +39,3 @@ Pitfalls:
 
 Questions:
 
-       

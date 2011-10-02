@@ -1,18 +1,18 @@
 Name: carrier
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[&T] carrier (rel[&T,&T] R)`
+Function:
+`set[&T] carrier (rel[&T,&T] R)`
 
-Synopsis:
+Details:
 
-Description: Returns all elements in any tuple in a relation.
+Description:
+Returns all elements in any tuple in a relation.
 
 Examples:
 <screen>

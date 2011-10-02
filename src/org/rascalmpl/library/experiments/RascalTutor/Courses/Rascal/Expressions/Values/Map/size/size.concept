@@ -1,18 +1,18 @@
 Name: size
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `int size(map[&K, &V] M)`
+Function:
+`int size(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description: Returns the number of pairs in map `M`.
+Description:
+Returns the number of pairs in map `M`.
 
 Examples:
 <screen>

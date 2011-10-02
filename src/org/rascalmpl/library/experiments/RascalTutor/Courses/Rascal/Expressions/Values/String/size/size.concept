@@ -1,18 +1,18 @@
 Name: size
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `int size(str s)`
+Function:
+`int size(str s)`
 
-Synopsis:
+Details:
 
-Description: Returns the length (number of characters) in string `s`.
+Description:
+Returns the length (number of characters) in string `s`.
 
 Examples:
 <screen>

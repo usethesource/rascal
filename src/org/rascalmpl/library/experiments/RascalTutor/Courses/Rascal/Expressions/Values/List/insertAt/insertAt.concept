@@ -1,18 +1,18 @@
 Name: insertAt
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds(int index)`
+Function:
+`list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
-Description: Returns a new list with the value of `elm` inserted at index position `n` of the old list.
+Description:
+Returns a new list with the value of `elm` inserted at index position `n` of the old list.
 
 Examples:
 <screen>

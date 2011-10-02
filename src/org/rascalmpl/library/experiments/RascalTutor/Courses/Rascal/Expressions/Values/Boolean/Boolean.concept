@@ -1,11 +1,16 @@
-Name:Boolean
+Name: Boolean
 
-Categories: Language
+Synopsis: Boolean values.
 
-Synopsis:
+Syntax:
+`true`, `false`
 
-Syntax: `true`, `false`
-Types: `bool`
+Types:
+`bool`
+
+Function:
+
+Details:
 
 Description:
 The Booleans are represented by the type `bool` which has two values: `true` and `false`.
@@ -52,10 +57,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 * Pattern matches during rewriting.
 
-
-
 Examples:
-
 Consider the following match of a list
 <listing>
 [1, list[int] L, 2, list[int] M] := [1,2,3,2,4]

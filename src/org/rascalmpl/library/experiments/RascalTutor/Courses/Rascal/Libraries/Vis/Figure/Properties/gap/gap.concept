@@ -1,8 +1,6 @@
 Name: gap
 
-Details:
-
-Categories: Library
+Synopsis: Define minimal gap between figures in compositions.
 
 Syntax:
 
@@ -11,8 +9,7 @@ Types:
 Function:
 `FProperty gap(num h, num v)`
 
-
-Synopsis:
+Details:
 
 Description:
 Set the minimal horizontal gap between figures to `h` and the minimal vertical gap to `v`. 

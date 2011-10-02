@@ -1,8 +1,6 @@
 Name: color
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `Color color(str name)`
 # `Color color(str name, real alpha)`
 
-Synopsis:
+Details:
 
 Description:
 Returns color with given name. 
@@ -22,7 +20,6 @@ When the transparency `alpha` is given, the color is adjusted accordingly.
 The list of available color names is given by [colorNames].
 
 Examples:
-
 <figure b1.png>
 c = color("Red");
 b1 = box([size(50), fillColor(c)]);

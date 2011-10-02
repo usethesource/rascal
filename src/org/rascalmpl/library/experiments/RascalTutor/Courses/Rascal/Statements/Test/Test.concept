@@ -1,6 +1,6 @@
 Name: Test
 
-Details:
+Synopsis:
 
 Syntax:
 
@@ -8,14 +8,12 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The `test` statement is deprecated and is replaced by the `test` modifier in function declarations, see [Function].
 
-
 Examples:
-
 
 Benefits:
 

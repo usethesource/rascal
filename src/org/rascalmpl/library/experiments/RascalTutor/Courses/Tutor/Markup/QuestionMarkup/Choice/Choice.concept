@@ -1,14 +1,16 @@
 Name: Choice
 
-Details:
+Synopsis:
+Multiple-choice question.
 
-Syntax: `XChoice $MarkedText$ $Options$`
+Syntax:
+`XChoice $MarkedText$ $Options$`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 
@@ -24,4 +26,3 @@ b: xxxx.
 b: aaa.
 g: zzz.
 
-       

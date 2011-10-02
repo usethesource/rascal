@@ -1,18 +1,18 @@
 Name: setAnnotations
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `&T <: node java setAnnotations(&T <: node x, map[str, value] annotations)`
+Function:
+`&T <: node java setAnnotations(&T <: node x, map[str, value] annotations)`
 
-Synopsis:
+Details:
 
-Description: Set the annotations on node value `x` as descriped by map `annotations`.
+Description:
+Set the annotations on node value `x` as descriped by map `annotations`.
 
 Examples:
 <screen>

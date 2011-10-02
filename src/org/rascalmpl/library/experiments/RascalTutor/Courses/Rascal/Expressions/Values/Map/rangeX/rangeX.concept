@@ -1,18 +1,18 @@
 Name: rangeX
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `map[&K, &V] rangeX(map[&K, &V] M, set[&V] S)`
+Function:
+`map[&K, &V] rangeX(map[&K, &V] M, set[&V] S)`
 
-Synopsis:
+Details:
 
-Description: Returns the map restricted to pairs with values not in `S`.
+Description:
+Returns the map restricted to pairs with values not in `S`.
 
 Examples:
 <screen>

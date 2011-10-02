@@ -1,8 +1,6 @@
 Name: Figures
 
-Details:
-
-Categories: Library
+Synopsis: Overview of all figures.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 `Figure` is the primary data type that represents figures. A list of figures is represented by the type `Figures`.

@@ -1,6 +1,7 @@
 Name: Benefits
 
-Details:
+Synopsis:
+Briefly lists known advantages of the concept.
 
 Syntax:
 
@@ -8,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-The `Benefits` briefly lists known advantages of the concept.
 
 Examples:
 
@@ -21,4 +21,3 @@ Pitfalls:
 
 Questions:
 
-       

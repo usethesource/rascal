@@ -1,16 +1,15 @@
 Name: mkDirectory
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`bool mkDirectory(loc file)`
+Function:
+`bool mkDirectory(loc file)`
 
-Synopsis:
+Details:
 
 Description:
 Create a directory at location `file`.

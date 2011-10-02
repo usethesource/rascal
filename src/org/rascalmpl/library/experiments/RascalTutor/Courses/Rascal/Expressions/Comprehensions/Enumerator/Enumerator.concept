@@ -1,19 +1,17 @@
 Name: Enumerator
 
-Details:
+Synopsis:
 
-Categories:
-
-Syntax: `$Pattern$ <- $Exp$`
+Syntax:
+`$Pattern$ <- $Exp$`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 An enumerator generates all the values in a given subject value. 
 For elementary types (`bool`, `int`, `real`, `num`, `loc`, `datetime`, `str`) this is just a singleton.
 For compositie types (`list`, `set`, `map`, `tuple`, `rel`, `node`) the values of their elements, 
@@ -44,7 +42,6 @@ int N <- {"apples", "oranges"}
 will be flagged as an error since the pattern can never match.
 
 Examples:
-
 Here are some examples of enumerators:
 
 * `int N <- {1, 2, 3, 4, 5}`.

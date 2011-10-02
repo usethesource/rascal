@@ -1,18 +1,18 @@
 Name: reverse
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str reverse(str s)`
+Function:
+`str reverse(str s)`
 
-Synopsis:
+Details:
 
-Description: Returns string with all characters of string `s` in reverse order.
+Description:
+Returns string with all characters of string `s` in reverse order.
 
 Examples:
 <screen>

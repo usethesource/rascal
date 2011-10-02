@@ -1,8 +1,6 @@
 Name: Scripting
 
-Details:
-
-Categories: Library
+Synopsis: Functions for calling the Rascal shell and Rascal evaluator from Rascal programs.
 
 Syntax:
 
@@ -10,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description:  A framework for calling the Rascal shell and Rascal evaluator from Rascal programs.
+Description:
+
 
 Examples:
 

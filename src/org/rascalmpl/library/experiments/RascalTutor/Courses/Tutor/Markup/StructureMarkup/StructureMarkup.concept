@@ -1,6 +1,7 @@
 Name: StructureMarkup
 
-Details:
+Synopsis:
+Markup for structured text entities.
 
 Syntax:
 
@@ -8,7 +9,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 
@@ -20,4 +21,3 @@ Pitfalls:
 
 Questions:
 
-       

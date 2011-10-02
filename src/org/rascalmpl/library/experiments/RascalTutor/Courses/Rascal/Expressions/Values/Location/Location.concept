@@ -1,10 +1,9 @@
-Name:Location
+Name: Location
 
-Details:
+Synopsis: (Source code) location values.
 
-Categories: Language
-
-Syntax: `| $Uri$ | ( $O$, $L$, <$BL$, $BC$> , <$EL$,$EC$> )`
+Syntax:
+`| $Uri$ | ( $O$, $L$, <$BL$, $BC$> , <$EL$,$EC$> )`
 where:
 * $Uri$ is an arbitrary Uniform Resource Identifier (URI).
 
@@ -17,7 +16,12 @@ where:
 
 The part following the second pipe symbol (`|`) is optional.
 
-Types: `loc`
+Types:
+`loc`
+
+Function:
+
+Details:
 
 Description:
 Location values are represented by the type `loc` and serve the following purposes:
@@ -73,10 +77,7 @@ The elements of a location value can be accessed and modified using the standard
 
 *`end.line`, `end.column` end line and column of text area.
 
-
-
 Examples:
-
 Locations with specific position information should always be generated automatically but for the curious here is an example:
 <listing>
 |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)

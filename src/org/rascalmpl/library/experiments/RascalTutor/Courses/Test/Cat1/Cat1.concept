@@ -1,12 +1,18 @@
-Name:Cat1
+Name: Cat1
 
-Categories: Cat1
+Synopsis:
++
 
-Related:
+Syntax:
 
-Synopsis:  +
+Types:
 
-Description: aa bb cc dd eee ff f f  d  d gs g 1 2 3
+Function:
+
+Details:
+
+Description:
+aa bb cc dd eee ff f f  d  d gs g 1 2 3
 
 Examples:
 

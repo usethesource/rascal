@@ -1,18 +1,20 @@
 Name: LabeledGraph
 
-Details:
+Synopsis:
+Functions on labeled graphs.
 
-Categories: Library
-
-Syntax:`alias LGraph[&T] = rel[&T from, &L label &T to];`
+Syntax:
+`import LabeledGraph;`
 
 Types:
+`alias LGraph[&T] = rel[&T from, &L label &T to];`
 
 Function:
 
-Synopsis: `import LabeledGraph;`
+Details:
 
-Description: The LabeledGraph data type is a binary relation with labeled edges and all operators and functions defined
+Description:
+The LabeledGraph data type is a binary relation with labeled edges and all operators and functions defined
 on [Relation] are also defined on Graph.
 
 Examples:

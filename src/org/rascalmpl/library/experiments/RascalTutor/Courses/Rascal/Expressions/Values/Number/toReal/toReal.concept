@@ -1,10 +1,18 @@
-Name:toReal
+Name: toReal
 
-Categories: Library
+Synopsis:
 
-Function: `real toReal(num n)`
+Syntax:
 
-Description: Convert a number to a real
+Types:
+
+Function:
+`real toReal(num n)`
+
+Details:
+
+Description:
+Convert a number to a real
 
 Examples:
 <screen>

@@ -1,6 +1,6 @@
 Name: Plugin
 
-Details:
+Synopsis:
 
 Syntax:
 
@@ -8,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Using the [IDE] library you can instantiate a new IDE for your language. Follow the following steps if you want to automate the registering process of your language, and perhaps releasy an Eclipse plugin based on your Rascal code.
+Description:
+Using the [IDE] library you can instantiate a new IDE for your language. Follow the following steps if you want to automate the registering process of your language, and perhaps releasy an Eclipse plugin based on your Rascal code.
 
 * Create a file named "Plugin.rsc" in the root of your Rascal project.
 * Add a function called "main" to it.
@@ -30,4 +31,3 @@ Pitfalls:
 
 Questions:
 
-       

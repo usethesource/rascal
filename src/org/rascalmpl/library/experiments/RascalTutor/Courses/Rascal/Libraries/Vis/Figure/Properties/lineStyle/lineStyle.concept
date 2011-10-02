@@ -1,6 +1,7 @@
 Name: lineStyle
 
-Details:
+Synopsis:
+Sets the style of lines and borders of figures.
 
 Syntax:
 
@@ -9,7 +10,7 @@ Types:
 Function:
 `FProperty lineStyle(str style)`
 
-Synopsis: Sets the style of lines and borders of figures.
+Details:
 
 Description:
 The following line styles are available:
@@ -20,7 +21,6 @@ The following line styles are available:
 * `"dashdotdot"`
 
 Examples:
-
 <figure box1.png>
 b1 = box(size(50), lineStyle("dash"));
 render(b1);
@@ -51,4 +51,3 @@ Pitfalls:
 
 Questions:
 
-       

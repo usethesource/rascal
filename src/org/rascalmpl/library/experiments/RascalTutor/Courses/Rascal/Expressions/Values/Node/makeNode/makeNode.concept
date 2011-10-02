@@ -1,18 +1,18 @@
 Name: makeNode
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `node makeNode(str N, value V...)`
+Function:
+`node makeNode(str N, value V...)`
 
-Synopsis:
+Details:
 
-Description: Creates a node given its function name and arguments.
+Description:
+Creates a node given its function name and arguments.
 
 Examples:
 <screen>

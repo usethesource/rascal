@@ -1,18 +1,18 @@
 Name: invert
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `rel[&T1, &T0] invert (rel[&T0, &T1] R)`
+Function:
+`rel[&T1, &T0] invert (rel[&T0, &T1] R)`
 
-Synopsis:
+Details:
 
-Description: Invert the tuples in relation `R`.
+Description:
+Invert the tuples in relation `R`.
 
 Examples:
 <screen>

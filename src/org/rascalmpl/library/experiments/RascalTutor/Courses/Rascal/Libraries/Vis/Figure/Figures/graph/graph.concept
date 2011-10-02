@@ -1,8 +1,6 @@
 Name: graph
 
-Details:
-
-Categories: Library
+Synopsis: Graph layout.
 
 Syntax:
 
@@ -10,9 +8,8 @@ Types:
 
 Function:
 `Figure graph(Figures nodes, list[Edge] edges, FProperty props...)`
-   
 
-Synopsis:
+Details:
 
 Description:
 Takes a list of nodes and a list of edges and draws a graph. 

@@ -1,18 +1,18 @@
 Name: domain
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[&K] domain(map[&K, &V] M)`
+Function:
+`set[&K] domain(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description: Returns the domain (set of keys) of map `M`.
+Description:
+Returns the domain (set of keys) of map `M`.
 
 Examples:
 <screen>

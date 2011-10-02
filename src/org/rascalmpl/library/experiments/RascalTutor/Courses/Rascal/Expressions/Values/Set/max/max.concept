@@ -1,10 +1,18 @@
-Name:max
+Name: max
 
-Categories: Library
+Synopsis:
 
-Function: `&T max(set[&T] s)`
+Syntax:
 
-Description: Returns the largest element from a set.
+Types:
+
+Function:
+`&T max(set[&T] s)`
+
+Details:
+
+Description:
+Returns the largest element from a set.
 
 Examples:
 <screen>

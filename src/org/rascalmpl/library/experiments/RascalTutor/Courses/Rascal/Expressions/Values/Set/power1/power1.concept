@@ -1,10 +1,18 @@
-Name:power1
+Name: power1
 
-Categories: Library
+Synopsis:
 
-Function: `set[set[&T]] power1(set[&T] s)`
+Syntax:
 
-Description: Return all subsets (excluding the empty set) of `s`.
+Types:
+
+Function:
+`set[set[&T]] power1(set[&T] s)`
+
+Details:
+
+Description:
+Return all subsets (excluding the empty set) of `s`.
 
 Examples:
 <screen>

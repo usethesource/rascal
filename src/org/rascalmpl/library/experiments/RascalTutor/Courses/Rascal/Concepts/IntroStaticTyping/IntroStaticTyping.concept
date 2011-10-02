@@ -1,8 +1,14 @@
-Name:IntroStaticTyping
+Name: IntroStaticTyping
 
-Categories: Language
+Synopsis: Concept: _Static type checking_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
 Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the figure.

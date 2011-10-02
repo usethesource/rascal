@@ -1,8 +1,6 @@
 Name: Throw
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 `throw $Exp$`
@@ -11,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 A throw statement causes the immediate abortion of the execution of the current function with $Exp$\'s value as exception value.
 The exception can be caught by a [TryCatch] statement in the current function or in one of its callers.
 If the exception is not caught, the execution of the Rascal program is terminated. The following rules apply:
@@ -22,8 +19,6 @@ If the exception is not caught, the execution of the Rascal program is terminate
 * The static type of $Exp$ should be `RuntimeException`, see [Exception].
 
 * The Rascal program may contain data declarations that extend the type `RuntimeException`.
-
-
 
 Examples:
 

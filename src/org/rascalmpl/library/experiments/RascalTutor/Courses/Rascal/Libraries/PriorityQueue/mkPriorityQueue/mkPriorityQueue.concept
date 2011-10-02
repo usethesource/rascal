@@ -1,8 +1,6 @@
 Name: mkPriorityQueue
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `PriorityQueue mkPriorityQueue()`
 # `PriorityQueue mkPriorityQueue(int priority, int val)`
 
-Synopsis:
+Details:
 
 Description:
 # Create an empty PriorityQueue.

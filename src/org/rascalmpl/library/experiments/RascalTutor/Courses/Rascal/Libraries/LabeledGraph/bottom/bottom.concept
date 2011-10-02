@@ -1,16 +1,15 @@
 Name: bottom
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`set[&T] bottom(LGraph[&T] G)`
+Function:
+`set[&T] bottom(LGraph[&T] G)`
 
-Synopsis:
+Details:
 
 Description:
 Returns the bottom nodes of LabeledGraph `G`, i.e., the leaf nodes that don't have any descendants.

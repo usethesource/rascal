@@ -1,8 +1,6 @@
 Name: head
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 * `&T head(list[&T] lst) throws EmptyList`
 * `list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds(int index)`
 
-Synopsis:
+Details:
 
 Description:
 * Returns the first element of a list or throws `EmptyList` when the list is empty.

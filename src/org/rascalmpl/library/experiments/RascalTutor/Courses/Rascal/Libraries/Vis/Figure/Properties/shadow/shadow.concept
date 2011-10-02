@@ -1,14 +1,15 @@
 Name: shadow
 
-Details:
+Synopsis: Add a shadow to the current figure.
 
 Syntax:
 
 Types:
 
-Function: `Fproperty shadow(bool b)`
+Function:
+`Fproperty shadow(bool b)`
 
-Synopsis:
+Details:
 
 Description:
 Defines whether a figure will have a shadow or not.
@@ -28,4 +29,3 @@ Pitfalls:
 
 Questions:
 
-       

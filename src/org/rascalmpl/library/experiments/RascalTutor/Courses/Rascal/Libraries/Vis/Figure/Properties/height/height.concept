@@ -1,8 +1,6 @@
 Name: height
 
-Details:
-
-Categories: Library
+Synopsis: Define the minimal vertical size.
 
 Syntax:
 
@@ -11,9 +9,10 @@ Types:
 Function:
 `FProperty height(num h)`
 
-Synopsis:
+Details:
 
-Description: `height` is a synonym for [vsize].
+Description:
+`height` is a synonym for [vsize].
 
 Examples:
 

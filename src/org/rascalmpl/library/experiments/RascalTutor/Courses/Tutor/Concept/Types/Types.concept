@@ -1,6 +1,7 @@
 Name: Types
 
-Details:
+Synopsis:
+Part of the synopsis that describes any types or typing rules introduced by this concept.
 
 Syntax:
 `Types: $MarkedText$`
@@ -9,14 +10,14 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The `Types` section describes any types that are involved in the concept that is described.
 The description can be just text, but in many cases a table is useful to describe types.
 
-Examples:
 
+Examples:
 Here is a type description of an if-then-else statement:
 
 `Types:`
@@ -43,4 +44,3 @@ Pitfalls:
 
 Questions:
 
-       

@@ -1,25 +1,26 @@
 Name: Negation
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `! $Exp$`
+Syntax:
+`! $Exp$`
 
 Types:
 | ` $Exp$` | `! $Exp$` |
 |:---------|:----------|
 | `bool`   | `bool`    |
 
-Description:
+Function:
 
+Details:
+
+Description:
 The _not_ operator on Boolean values defined as follows:
 
 | `$Exp$`  | `! $Exp$` |
 |:---------|:----------|
 | `true`   | `false`   |
 | `false`  | `true`    |
-
 
 Examples:
 

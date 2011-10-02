@@ -1,6 +1,7 @@
 Name: Callout
 
-Details:
+Synopsis:
+Create a numeric callout for the digits 1--9.
 
 Syntax:
 
@@ -8,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-Creates a numeric callout for the digits 1--9.
 
 Examples:
 `/*``9*/` gives /*9*/
@@ -23,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

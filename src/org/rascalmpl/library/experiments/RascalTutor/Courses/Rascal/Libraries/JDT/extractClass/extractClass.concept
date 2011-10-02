@@ -1,8 +1,6 @@
 Name: extractClass
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Resource extractClass(loc javaFile)`
 
-Synopsis:
+Details:
 
 Description:
 Import facts from a Java file.

@@ -1,18 +1,18 @@
 Name: invertUnique
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`map[&V, &K] invertUnique(map[&K, &V] M) throws MultipleKey`
+Function:
+`map[&V, &K] invertUnique(map[&K, &V] M) throws MultipleKey`
 
-Synopsis:
+Details:
 
-Description: Returns a map with key and value inverted; result should be a map.
+Description:
+Returns a map with key and value inverted; result should be a map.
 
 Also see [Map/invert] and [Exception].
 

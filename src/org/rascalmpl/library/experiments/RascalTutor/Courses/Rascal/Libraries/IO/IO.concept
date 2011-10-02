@@ -1,18 +1,17 @@
 Name: IO
 
-Details:
-
-Categories: Library
+Synopsis: Functions for reading/writing values from/to files.
 
 Syntax:
+`import IO;`
 
 Types:
 
 Function:
 
-Synopsis: `import IO;`
+Details:
 
-Description: Provides functions for the input/output of values.
+Description:
 
 Examples:
 

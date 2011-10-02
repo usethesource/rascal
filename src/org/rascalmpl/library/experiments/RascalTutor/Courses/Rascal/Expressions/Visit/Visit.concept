@@ -1,8 +1,6 @@
 Name: Visit
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 <listing>
@@ -18,7 +16,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Visiting the nodes in a tree is a very common task in the [EASY] domain. 
@@ -95,8 +93,6 @@ Regular expression patterns match only values of type string.
 * For other structured types (list, set, map, tuple, rel), the elements of the structured type are visited and 
 matched against the cases. 
 When inserts are made, a new structured value is created. In these cases a stragegy does not have any effect.
-
-
 
 Examples:
 

@@ -1,18 +1,18 @@
 Name: startsWith
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`bool startsWith(str s, str prefix)`
+Function:
+`bool startsWith(str s, str prefix)`
 
-Synopsis:
+Details:
 
-Description: Yields `true` if string `s` starts with the string `prefix`.
+Description:
+Yields `true` if string `s` starts with the string `prefix`.
 
 Examples:
 <screen>
@@ -25,3 +25,4 @@ Benefits:
 Pitfalls:
 
 Questions:
+

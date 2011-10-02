@@ -1,6 +1,7 @@
 Name: QuestionMarkup
 
-Details:
+Synopsis:
+Mark up for interactive questions.
 
 Syntax:
 
@@ -8,7 +9,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The following types of questions are supported:
@@ -37,7 +38,6 @@ Given that the listing is optional, this template represents 5 different questio
 * `test: $Expr_1$ == $Expr_2$`: the equality that should hold. The expressions may contain references to variables. On side may contain a hole (`<?>`).
 * `list: $Text$`: a listing that runs until the next question or the end off the concept. It may contain a hole.
 
-
 Examples:
 * `prep: import List;` imports the List module before executing the following steps.
 * `make: A = set[arb[int,str]]` introduces `A` and assigns it a value of the indicated type.
@@ -51,4 +51,3 @@ Pitfalls:
 
 Questions:
 
-       

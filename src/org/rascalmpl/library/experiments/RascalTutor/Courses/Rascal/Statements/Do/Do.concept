@@ -1,8 +1,7 @@
 Name: Do
 
-Details:
-
-Categories: Language
+Synopsis:
+Repeat statements while condition holds.
 
 Syntax:
 `do $Statement$ while ( $Exp$ );`
@@ -11,10 +10,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 $Statement$ is executed repeatedly, as long as the Boolean expression $Exp$ yields true. 
 Expression $Exp$ is executed from scratch in each repetition and only the first true value (if any) is used.
 

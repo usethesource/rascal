@@ -1,10 +1,18 @@
-Name:reducer
+Name: reducer
 
-Categories: Library
+Synopsis:
 
-Function: `&T reducer(set[&T] s, &T (&T, &T) fn, &T unit)`
+Syntax:
 
-Description: Apply the function `fn` to successive elements of set `s` starting with `unit`.
+Types:
+
+Function:
+`&T reducer(set[&T] s, &T (&T, &T) fn, &T unit)`
+
+Details:
+
+Description:
+Apply the function `fn` to successive elements of set `s` starting with `unit`.
 
 Examples:
 <screen>

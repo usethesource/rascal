@@ -1,16 +1,18 @@
 Name: align
 
-Details:
+Synopsis: Alignment of figure relative to parent.
 
 Syntax:
 
 Types:
 
-Function:  `FProperty align(num h, num v)`
+Function:
+`FProperty align(num h, num v)`
 
-Synopsis:
+Details:
 
-Description: Defines the horizontal and vertical alignment of a figure relative to its parents.
+Description:
+Defines the horizontal and vertical alignment of a figure relative to its parents.
 Alignments range from 0 (left, top) to 1 (right, bottom) as follows:
 
 ![Align](Align.png|400px|center)
@@ -39,7 +41,6 @@ A number of shorthands is provided for common alignment values:
 Also see [CompositionModel].
 
 Examples:
-
 <figure a1.png 150x150>
 b1 = box(shrink(0.5,0.3), align(0,0), fillColor("Red"));
 b2 = box(b1);
@@ -62,4 +63,3 @@ Pitfalls:
 
 Questions:
 
-       

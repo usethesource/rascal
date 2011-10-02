@@ -1,10 +1,18 @@
-Name:toMap
+Name: toMap
 
-Categories: Library
+Synopsis:
 
-Function: `map[&A, set[&B]] toMap(set[tuple[&A, &B]] s)`
+Syntax:
 
-Description: Convert a set of tuples to a map in which the first element of each tuple is associated with the set of second elements of all tuples with the same first element.
+Types:
+
+Function:
+`map[&A, set[&B]] toMap(set[tuple[&A, &B]] s)`
+
+Details:
+
+Description:
+Convert a set of tuples to a map in which the first element of each tuple is associated with the set of second elements of all tuples with the same first element.
 
 Examples:
 <screen>

@@ -1,8 +1,6 @@
 Name: userTime
 
-Details:
-
-Categories: Library
+Synopsis: Measuring user time.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `int userTime()`
 # `int userTime(void () block)`
 
-Synopsis:
+Details:
 
 Description:
 # Current time in nanoseconds since the start of the thread that runs the code that calls this function.

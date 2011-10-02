@@ -1,16 +1,15 @@
 Name: warning
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `Message warning(loc source, str msg)`
+Function:
+`Message warning(loc source, str msg)`
 
-Synopsis:
+Details:
 
 Description:
 Create a warning message.

@@ -1,6 +1,6 @@
 Name: hshadowPos
 
-Details:
+Synopsis: Horizontal position of shadows.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty hshadowPos(num hs)`
 
-Synopsis:
+Details:
 
 Description:
 Set the horizontal shadow position. See [shadowPos].
@@ -22,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

@@ -1,10 +1,18 @@
-Name:min
+Name: min
 
-Categories: Library
+Synopsis:
 
-Function: `&T <: num min(&T <: num n, &T <: num m)`
+Syntax:
 
-Description: The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
+Types:
+
+Function:
+`&T <: num min(&T <: num n, &T <: num m)`
+
+Details:
+
+Description:
+The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
 
 Examples:
 <screen>
@@ -19,7 +27,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: min(<A:int>, <B:int>)
 prep: import Number;
 
@@ -31,3 +38,4 @@ prep: import Number;
 
 QValue: min(<A:num>, <B:num>)
 prep:  import Number;
+

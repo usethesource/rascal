@@ -1,13 +1,18 @@
-Name:Examples
+Name: Examples
 
-Details: Hello Factorial ColoredTrees
+Synopsis: Some simple examples of Rascal programs.
 
-Categories: Example
+Syntax:
 
-Synopsis:
+Types:
+
+Function:
+
+Details:
+Hello Factorial ColoredTrees
 
 Description:
-Some simple examples of Rascal programs.
+
 
 Examples:
 

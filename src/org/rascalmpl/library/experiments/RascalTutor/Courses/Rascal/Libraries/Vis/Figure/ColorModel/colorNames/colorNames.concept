@@ -1,18 +1,18 @@
 Name: colorNames
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[str] colorNames()`
+Function:
+`list[str] colorNames()`
 
-Synopsis:
+Details:
 
-Description: Gives a sorted list of available color names that can be used by the [color] function.
+Description:
+Gives a sorted list of available color names that can be used by the [color] function.
 
 Examples:
 <screen>

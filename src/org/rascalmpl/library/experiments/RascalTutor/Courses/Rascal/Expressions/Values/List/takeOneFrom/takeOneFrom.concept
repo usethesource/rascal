@@ -1,18 +1,18 @@
 Name: takeOneFrom
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `tuple[&T, list[&T]] takeOneFrom(list[&T] lst) throws EmptyList`
+Function:
+`tuple[&T, list[&T]] takeOneFrom(list[&T] lst) throws EmptyList`
 
-Synopsis:
+Details:
 
-Description: Select an arbitrary element from `lst`, and return a tuple consisting of:
+Description:
+Select an arbitrary element from `lst`, and return a tuple consisting of:
 * the selected element, and 
 * a new list consisting of all elements of `lst` except the selected element.
 

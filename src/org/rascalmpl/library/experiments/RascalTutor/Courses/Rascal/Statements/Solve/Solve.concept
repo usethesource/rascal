@@ -1,8 +1,6 @@
 Name: Solve
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 `solve($Var_1$, $Var_2$, ..., $Var_n$; $Exp$) $Statement$;`
@@ -11,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Rascal provides a solve statement for performing arbitrary fixed-point computations. This means, repeating a certain computation as long as it causes changes. This can, for instance, be used for the solution of sets of simultaneous 
 linear equations but has much wider applicability.
 
@@ -28,7 +25,6 @@ Note that this computation will only terminate if the variables range over a so-
 in which values can only become larger until a fixed upperbound or become smaller until a fixed lower bound.
 
 Examples:
-
 Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
 we use it here just as a simple illustration). Transitive closure of a relation is usually defined as:
 <listing>

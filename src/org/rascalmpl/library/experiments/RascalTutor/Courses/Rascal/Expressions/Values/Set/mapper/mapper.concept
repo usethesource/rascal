@@ -1,10 +1,18 @@
-Name:mapper
+Name: mapper
 
-Categories: Library
+Synopsis:
 
-Function: `set[&U] mapper(set[&T] s, &U(&T) fn)`
+Syntax:
 
-Description: Return a set obtained by applying function `fn` to all elements of set `s`.
+Types:
+
+Function:
+`set[&U] mapper(set[&T] s, &U(&T) fn)`
+
+Details:
+
+Description:
+Return a set obtained by applying function `fn` to all elements of set `s`.
 
 Examples:
 <screen>

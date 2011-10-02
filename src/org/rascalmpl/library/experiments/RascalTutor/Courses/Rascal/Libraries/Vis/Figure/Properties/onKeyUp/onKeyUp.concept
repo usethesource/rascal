@@ -1,16 +1,19 @@
 Name: onKeyUp
 
-Details:
+Synopsis: Define interactive behaviour when key is released.
 
-Syntax: `onKeyUp (bool (KeySym, map[KeyModifier,bool]))`
+Syntax:
+
 
 Types:
 
 Function:
+`onKeyUp (bool (KeySym, map[KeyModifier,bool]))`
 
-Synopsis:
+Details:
 
-Description: Execute callback when key is released. Works the same as [onKeyDown].
+Description:
+Execute callback when key is released. Works the same as [onKeyDown].
 
 Examples:
 
@@ -20,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

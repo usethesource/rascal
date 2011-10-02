@@ -1,10 +1,18 @@
-Name:isEmpty
+Name: isEmpty
 
-Categories: Library
+Synopsis:
 
-Function: `bool isEmpty(set[&T] s)`
+Syntax:
 
-Description: Yields `true` if `s` is empty, and `false` otherwise.
+Types:
+
+Function:
+`bool isEmpty(set[&T] s)`
+
+Details:
+
+Description:
+Yields `true` if `s` is empty, and `false` otherwise.
 
 Examples:
 <screen>

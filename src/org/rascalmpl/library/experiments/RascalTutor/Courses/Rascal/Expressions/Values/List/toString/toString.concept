@@ -1,18 +1,18 @@
 Name: toString
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `str toString(list[&T] lst)`
+Function:
+`str toString(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: Convert `lst` to a string.
+Description:
+Convert `lst` to a string.
 
 Examples:
 <screen>

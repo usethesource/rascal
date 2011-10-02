@@ -1,12 +1,10 @@
 Name: Properties
 
-Details:
-
-Categories: Library
+Synopsis: Overview of all visual properties that apply to figures.
 
 Syntax:
 
-Types: 
+Types:
 * `FProperty`
 * `alias FProperties = list[FProperty];`
 * `alias computedInt = int();`
@@ -17,10 +15,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: 
-
+Description:
 All figures may have an (optional) list of properties.
 
 A property:

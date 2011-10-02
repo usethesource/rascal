@@ -1,8 +1,6 @@
 Name: Declarations
 
-Details: StaticTyping SyntaxDefinition
-
-Categories: Language
+Synopsis: The entities that can be declared in Rascal programs.
 
 Syntax:
 
@@ -10,10 +8,11 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
+StaticTyping SyntaxDefinition
 
 Description:
-All entities that can be declared in Rascal programs.
+
 
 Examples:
 

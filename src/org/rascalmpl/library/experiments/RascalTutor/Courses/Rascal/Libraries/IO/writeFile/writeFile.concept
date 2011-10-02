@@ -1,8 +1,6 @@
 Name: writeFile
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `void writeFile(loc file, value V...) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
 
-Synopsis:
+Details:
 
 Description:
 Write a textual representation of some values to a file:

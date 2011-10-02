@@ -1,8 +1,6 @@
 Name: projects
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `set[loc] projects()`
 
-Synopsis:
+Details:
 
 Description:
 Retrieve the set of project locations of the Eclipse workspace.

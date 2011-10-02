@@ -1,11 +1,16 @@
-Name:Renovation
+Name: Renovation
 
-Categories: Example
+Synopsis: Use case: _System renovation_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-
 ![Extract-Analyze-View Paradigm](extract-analyze-view-paradigm.png|300px|right)
 _Charlotte_ is software engineer at a large financial institution in Paris and she is looking for options to connect an old and dusty software system to a web interface. 
 

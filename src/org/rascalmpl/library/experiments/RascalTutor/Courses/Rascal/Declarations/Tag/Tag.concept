@@ -1,8 +1,6 @@
 Name: Tag
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 
@@ -10,7 +8,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 
@@ -18,7 +16,8 @@ Examples:
 
 Benefits:
 
-Pitfalls: <warning>To be provided</warning>
+Pitfalls:
+<warning>To be provided</warning>
 
 Questions:
 

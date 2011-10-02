@@ -1,6 +1,7 @@
 Name: Details
 
-Details:
+Synopsis:
+Links to more detailed concepts that complement the description of the current concept.
 
 Syntax:
 `Details: $ConceptName_1$, $ConceptName_2$, ...`
@@ -9,7 +10,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 To fully describe a concept, subconcepts (or details) are needed.
@@ -20,15 +21,11 @@ This alphabetical order can be influenced by explicitly stating concepts in the 
 The effect is that the concepts listed there will be shown first, followed by the unmentioned subconcepts
 in alphabetical order.
 
-
-
 Examples:
-
 In [Concept] we want to order the details in the order as they appear in the concept description.
 Its `Details` section is therefore:
 
 `Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions`
-
 
 Benefits:
 
@@ -36,4 +33,3 @@ Pitfalls:
 
 Questions:
 
-       

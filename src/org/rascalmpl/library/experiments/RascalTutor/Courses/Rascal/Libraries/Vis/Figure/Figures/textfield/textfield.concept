@@ -1,8 +1,6 @@
 Name: textfield
 
-Details:
-
-Categories: Library
+Synopsis: Interactive text entry field.
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `Figure textfield(str text, void (str) scallback, FProperty props...)`
 # `Figure textfield(str text, void (str) scallback, bool (str) validate, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 A textfield in which the user can enter text:
@@ -32,10 +30,10 @@ public Figure tfield(){
 render(tfield()); 
 </figure>
 ![t1](t1.png)
+
 Benefits:
 
 Pitfalls:
-
 Unfortunately we cannot show an interactive version of the above example here.
 Try it out in Rascal itself.
 

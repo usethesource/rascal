@@ -1,8 +1,6 @@
 Name: readBinaryValueFile
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,8 +10,7 @@ Function:
 # `value readBinaryValueFile(loc file)`
 # `&T readBinaryValueFile(type[&T] result, loc file)`
 
-
-Synopsis:
+Details:
 
 Description:
 # Read a value from a binary file.

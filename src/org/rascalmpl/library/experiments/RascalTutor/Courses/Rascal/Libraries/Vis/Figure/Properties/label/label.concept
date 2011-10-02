@@ -1,14 +1,15 @@
 Name: label
 
-Details:
+Synopsis: A label on an [edge].
 
 Syntax:
 
 Types:
 
-Function: `FProperty label(Figure f)`
+Function:
+`FProperty label(Figure f)`
 
-Synopsis:
+Details:
 
 Description:
 Adds figure `f` as label to an [edge] in a [graph].
@@ -37,4 +38,3 @@ Pitfalls:
 
 Questions:
 
-       

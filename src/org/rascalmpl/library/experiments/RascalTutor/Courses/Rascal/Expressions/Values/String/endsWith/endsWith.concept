@@ -1,18 +1,18 @@
 Name: endsWith
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`bool endsWith(str s, str suffix)`
+Function:
+`bool endsWith(str s, str suffix)`
 
-Synopsis:
+Details:
 
-Description: Yields `true` if string `s` ends with the string `suffix`.
+Description:
+Yields `true` if string `s` ends with the string `suffix`.
 
 Examples:
 <screen>

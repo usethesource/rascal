@@ -1,18 +1,18 @@
 Name: isEmpty
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `bool isEmpty(map[&K, &V] M)`
+Function:
+`bool isEmpty(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description: Returns `true` if map `M` is empty, and `false` otherwise.
+Description:
+Returns `true` if map `M` is empty, and `false` otherwise.
 
 Examples:
 <screen>

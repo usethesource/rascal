@@ -1,18 +1,18 @@
 Name: toSet
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[&T] toSet(list[&T] lst)`
+Function:
+`set[&T] toSet(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: Convert `lst` to a set.
+Description:
+Convert `lst` to a set.
 
 Examples:
 <screen>

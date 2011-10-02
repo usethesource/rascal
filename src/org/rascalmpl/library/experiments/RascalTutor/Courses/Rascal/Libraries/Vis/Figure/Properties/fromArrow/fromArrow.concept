@@ -1,14 +1,15 @@
 Name: fromArrow
 
-Details:
+Synopsis: Arrow for source of an [edge].
 
 Syntax:
 
 Types:
 
-Function: FProperty fromArrow(Figure f)
+Function:
+FProperty fromArrow(Figure f)
 
-Synopsis:
+Details:
 
 Description:
 Add an arrow to the source of a [graph] edge. 
@@ -37,4 +38,3 @@ Pitfalls:
 
 Questions:
 
-       

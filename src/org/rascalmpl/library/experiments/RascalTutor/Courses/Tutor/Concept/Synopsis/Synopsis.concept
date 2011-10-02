@@ -1,0 +1,28 @@
+Name: Synopsis
+
+Synopsis: One-line summary of the concept.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+The full summary of a concept consists of the Synopsis and the optional elements
+[Syntax], [Types] and [Function].
+
+Synopsis is __mandatory__ (this is not yet enforced).
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

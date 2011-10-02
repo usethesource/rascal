@@ -1,18 +1,18 @@
 Name: fromInt
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `bool fromInt( )`
+Function:
+`bool fromInt( )`
 
-Synopsis:
+Details:
 
-Description: Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
+Description:
+Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
 
 Examples:
 <screen>

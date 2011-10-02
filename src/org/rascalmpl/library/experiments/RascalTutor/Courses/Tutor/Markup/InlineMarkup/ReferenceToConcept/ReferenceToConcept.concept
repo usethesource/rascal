@@ -1,14 +1,16 @@
 Name: ReferenceToConcept
 
-Details:
+Synopsis:
+Refer to a concept in this course.
 
-Syntax: `[ $ConceptName$ ]`
+Syntax:
+`[ $ConceptName$ ]`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Creates a link to a concept in the current course.
@@ -32,4 +34,3 @@ Pitfalls:
 
 Questions:
 
-       

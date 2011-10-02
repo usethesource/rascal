@@ -1,14 +1,15 @@
 Name: scaleSlider
 
-Details:
+Synopsis: Interactive slider.
 
 Syntax:
 
 Types:
 
-Function: `Figure scaleSlider(int() low, int high(), int () selection, void(int) callback)`
+Function:
+`Figure scaleSlider(int() low, int high(), int () selection, void(int) callback)`
 
-Synopsis:
+Details:
 
 Description:
 Create an interactive slider that can be used to interactively control an integer parameter.
@@ -58,4 +59,3 @@ Try it out in Rascal itself.
 
 Questions:
 
-       

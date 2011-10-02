@@ -1,6 +1,7 @@
 Name: Value
 
-Details:
+Synopsis:
+Question about the value of a Rascal expression or program.
 
 Syntax:
 * `QValue: $Expr$`
@@ -10,7 +11,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A value question presents a Rascal expression and poses a question about its value.
@@ -21,7 +22,6 @@ The first form presents the value generated for the $TypeDescriptor$ and asks ab
 The second form allows more preparatory steps and also allows adding a listing to the question.
 
 Examples:
-
 See the effect of the following value questions in the Questions section below.
 
 ===== Question 1 =====
@@ -65,13 +65,11 @@ fill in the hole in the definition of funcion find to ensure that it returns all
 `}`<br>
 `test: find(text) == ["moi", "Mousa", "polutropon"];`<br>
 
-
 Benefits:
 
 Pitfalls:
 
 Questions:
-
 QValue: <A:set[int]> + <B:same[A]>
 
 QValue:
@@ -97,7 +95,3 @@ public list[str] find(list[str] text){
 }
 test: find(text) == ["moi", "Mousa", "polutropon"];
 
-
-
-
-       

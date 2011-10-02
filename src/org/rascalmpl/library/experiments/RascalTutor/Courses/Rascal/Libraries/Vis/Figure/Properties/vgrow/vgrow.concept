@@ -1,6 +1,6 @@
 Name: vgrow
 
-Details:
+Synopsis: Increase (grow) the vertical size of a figure relative to its contained figures.
 
 Syntax:
 
@@ -9,16 +9,15 @@ Types:
 Function:
 `FProperty vgrow(num hg)`
 
-Synopsis:
+Details:
 
 Description:
-Defines the vertical growth of a figure relative to its embedded figures.
+Defines the vertical growth of a figure relative to its contained figures.
 Growth is expressed as a factor larger than 1.
 
 Also see [grow] and [hgrow].
 
 Examples:
-
 <figure g1.png>
 b1 = box(size(100, 50), fillColor("blue"));
 b2 = box(b1, vgrow(1.5), fillColor("yellow"));
@@ -32,6 +31,3 @@ Pitfalls:
 
 Questions:
 
-       
-
-       

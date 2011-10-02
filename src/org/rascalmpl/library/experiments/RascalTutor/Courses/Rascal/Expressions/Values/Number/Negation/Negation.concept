@@ -1,18 +1,22 @@
-Name:Negation
+Name: Negation
 
-Categories: Language
+Synopsis:
 
-Syntax: `- $Exp$`
+Syntax:
+`- $Exp$`
 
 Types:
-
 | `$Exp$`  |  `- $Exp$` |
 |:---------|:-----------|
 | `int`    |  `int`     |
 | `real`   |  `real`    |
 
+Function:
 
-Description: Yields the negated values of $Exp$.
+Details:
+
+Description:
+Yields the negated values of $Exp$.
 
 Examples:
 <screen>
@@ -26,7 +30,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType:  -<A:int>
 QType:  -<A:real>
 QValue: -<A:num>

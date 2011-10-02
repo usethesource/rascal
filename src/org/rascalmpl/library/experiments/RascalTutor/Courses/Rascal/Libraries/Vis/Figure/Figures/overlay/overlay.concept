@@ -1,8 +1,6 @@
 Name: overlay
 
-Details:
-
-Categories: Library
+Synopsis: Composition of figures by superposition.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Figure overlay(Figures figs, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Composition of a list of figures by overlaying them on top of each other.
@@ -133,10 +131,6 @@ render(ovl);
 gives: 
 
 ![o10](o10.png)
-
-
-
-
 
 Benefits:
 

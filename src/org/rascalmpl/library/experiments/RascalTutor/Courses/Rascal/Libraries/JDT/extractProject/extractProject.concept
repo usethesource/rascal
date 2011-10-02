@@ -1,8 +1,6 @@
 Name: extractProject
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Resource extractProject(loc project)`
 
-Synopsis:
+Details:
 
 Description:
 Import facts from a Java project.

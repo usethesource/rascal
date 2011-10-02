@@ -1,8 +1,7 @@
 Name: Installing
 
-Details:
-
-Categories:
+Synopsis:
+The latest download and installation instructions can be found at the [Rascal Website](http://www.rascal-mpl.org).
 
 Syntax:
 
@@ -10,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-The latest download and installation instructions can be found at the [Rascal Website](http://www.rascal-mpl.org).
 
 Examples:
 

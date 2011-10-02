@@ -1,9 +1,10 @@
 Name: orientation
 
-Details:
+Synopsis: Define the orientation of a [tree] or [graph].
 
-Syntax:<br>
-`FProperty orientation(Orientation o)`
+Syntax:
+
+Types:
 
 <listing>
 data Orientation =
@@ -13,16 +14,16 @@ data Orientation =
 	|	downTop();
 </listing>
 
-Types:
+
 
 Function:
+`FProperty orientation(Orientation o)`
 
-Synopsis:
+Details:
 
-Description: Describes the orientation of a [graph] or a [tree]. Possible values are described by
+Description:
+Describes the orientation of a [graph] or a [tree]. Possible values are described by
 the datatype `orientation`.
-
-
 
 Examples:
 
@@ -32,4 +33,3 @@ Pitfalls:
 
 Questions:
 
-       

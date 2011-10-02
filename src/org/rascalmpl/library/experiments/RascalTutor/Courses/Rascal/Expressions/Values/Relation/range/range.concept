@@ -1,18 +1,18 @@
 Name: range
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `set[&T1] range (rel[&T0,&T1] R)`
+Function:
+`set[&T1] range (rel[&T0,&T1] R)`
 
-Synopsis:
+Details:
 
-Description: Returns the range (i.e., second element of each tuple) of binary relation `R`
+Description:
+Returns the range (i.e., second element of each tuple) of binary relation `R`
 
 Examples:
 <screen>

@@ -1,4 +1,4 @@
-/* Generated code for course ProblemSolvingStrategies, generated $2011-09-14T15:13:50.033+0200 */
+/* Generated code for course ProblemSolvingStrategies */
 
 $.setRootConcept("ProblemSolvingStrategies");
 

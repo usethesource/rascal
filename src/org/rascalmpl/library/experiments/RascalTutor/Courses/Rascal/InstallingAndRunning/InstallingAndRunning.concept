@@ -1,8 +1,7 @@
 Name: InstallingAndRunning
 
-Details:
-
-Categories:
+Synopsis:
+Instructions to install and run Rascal.
 
 Syntax:
 
@@ -10,7 +9,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 

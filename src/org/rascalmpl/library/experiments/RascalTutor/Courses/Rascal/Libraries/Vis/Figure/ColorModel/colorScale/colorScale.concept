@@ -1,8 +1,6 @@
 Name: colorScale
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)`
 
-Synopsis:
+Details:
 
 Description:
 Gives a list of numbers, return a function that maps these numbers to a color scale between the colors `from` and `to`.

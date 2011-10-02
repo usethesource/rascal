@@ -1,13 +1,16 @@
 Name: Concrete
 
-Details:
-
-Categories:
-
 Synopsis:
 
-Description:
+Syntax:
 
+Types:
+
+Function:
+
+Details:
+
+Description:
 Suppose we want to manipulate text written in some hypothetical language LANG. 
 Then first the concrete syntax of LANG has to be defined by importing an SDF module that declares the non-terminals and syntax rules for LANG. 
 Next LANG programs have to be parsed. LANG programs made come from text files or they may be included in the Rascal program as literals. 

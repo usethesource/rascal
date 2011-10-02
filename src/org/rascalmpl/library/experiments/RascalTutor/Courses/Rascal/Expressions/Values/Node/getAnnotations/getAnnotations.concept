@@ -1,18 +1,18 @@
 Name: getAnnotations
 
-Details:
+Synopsis:
 
-Categories: Library
-
-Syntax: 
+Syntax:
 
 Types:
 
-Function:`map[str,value] getAnnotations(node x)`
+Function:
+`map[str,value] getAnnotations(node x)`
 
-Synopsis:
+Details:
 
-Description: Retrieve the annnotations of a node value as a map.
+Description:
+Retrieve the annnotations of a node value as a map.
 
 Examples:
 <warning> anno declaration on node is broken </warning>

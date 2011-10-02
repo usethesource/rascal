@@ -1,8 +1,6 @@
 Name: hcat
 
-Details:
-
-Categories: Library
+Synopsis: Horizontal composition of a list of figures.
 
 Syntax:
 
@@ -11,11 +9,11 @@ Types:
 Function:
 `Figure hcat(Figures figs, FProperty props...)`
 
-Synopsis:
+Details:
 
-Description: Horizontal composition of a list of figures.
+Description:
 
-This is a special case of [grid]. It is a grid with just one row. See [grid] for more information.
+Horizontal composition is a special case of [grid]. It is a grid with just one row. See [grid] for more information.
 
 See also [vcat].
 

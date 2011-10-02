@@ -1,8 +1,6 @@
 Name: Tree
 
-Details:
-
-Categories: Library
+Synopsis: Functions on parse trees.
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 `Tree` is the universal parse tree data type and can be used to parse text in any language. 
 We do not give its full declaration here since internal details are never needed by Rascal users. 
 The following is noteworthy:

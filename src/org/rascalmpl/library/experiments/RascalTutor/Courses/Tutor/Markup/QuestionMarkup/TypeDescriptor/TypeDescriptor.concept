@@ -1,8 +1,10 @@
 Name: TypeDescriptor
 
-Details:
+Synopsis:
+Description of a Rascal types used in type and value questions.
 
-Syntax:<br>
+Syntax:
+<br>
 A $TypeDescriptor$ is one of
 * `bool`
 * `int`
@@ -33,7 +35,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A TypeDescriptor is used to describe Rascal types and values in questions and are used to automatically generate
@@ -57,7 +59,6 @@ Examples:
 Benefits:
 
 Pitfalls:
-
 * There is currently
  an arbitrary built-in limit that restricts generated lists, sets,
 maps and relations to at most 5 elements.
@@ -65,4 +66,3 @@ maps and relations to at most 5 elements.
 
 Questions:
 
-       

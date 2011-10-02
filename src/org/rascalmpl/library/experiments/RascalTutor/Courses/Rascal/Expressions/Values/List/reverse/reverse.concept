@@ -1,18 +1,18 @@
 Name: reverse
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[&T] reverse(list[&T] lst)`
+Function:
+`list[&T] reverse(list[&T] lst)`
 
-Synopsis:
+Details:
 
-Description: Returns a list with the elements of `lst` in reverse order.
+Description:
+Returns a list with the elements of `lst` in reverse order.
 
 Examples:
 <screen>

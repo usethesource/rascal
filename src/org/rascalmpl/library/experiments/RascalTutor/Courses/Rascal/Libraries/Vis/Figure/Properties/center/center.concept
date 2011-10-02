@@ -1,8 +1,6 @@
 Name: center
 
-Details:
-
-Categories: Library
+Synopsis: Centered alignment.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `FProperty center()`
 
-Synopsis:
+Details:
 
 Description:
 `center` defines __horizontal and vertical centered alignment__.

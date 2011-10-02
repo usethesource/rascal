@@ -1,8 +1,7 @@
 Name: Disambiguation
 
-Details: 
-
-Categories:
+Synopsis:
+Disambiguation is the definition of filters on the parse trees that [SyntaxDefinition]s define. There are several ways of defining [Disambiguation] in Rascal.
 
 Syntax:
 
@@ -10,9 +9,10 @@ Types:
 
 Function:
 
-Synopsis: Disambiguation is the definition of filters on the parse trees that [SyntaxDefinition]s define. There are several ways of defining [Disambiguation] in Rascal.
+Details:
 
-Description: There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from [SyntaxDefinitions].
+Description:
+There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from [SyntaxDefinitions].
 
 The first way is to add disambiguation declarations to the [SyntaxDefinition]. You can choose from:
    * [Priority] declarations, which can be used to define the relative priority in expression languages

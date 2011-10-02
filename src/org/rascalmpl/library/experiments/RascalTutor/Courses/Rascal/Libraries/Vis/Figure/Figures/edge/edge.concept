@@ -1,18 +1,15 @@
 Name: edge
 
-Details:
-
-Categories: Library
+Synopsis: An edge in a graph.
 
 Syntax:
 
 Types:
 
 Function:
-
 `Edge edge(str from, str to, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 An edge connects nodes in [graph]s.

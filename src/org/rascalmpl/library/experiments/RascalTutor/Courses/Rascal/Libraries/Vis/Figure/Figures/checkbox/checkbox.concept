@@ -1,8 +1,6 @@
 Name: checkbox
 
-Details:
-
-Categories: Library
+Synopsis: An interactive checkbox.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Figure checkbox(str text, void(bool state) vcallback, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 A checkbox that can be selected or deselected by the user.

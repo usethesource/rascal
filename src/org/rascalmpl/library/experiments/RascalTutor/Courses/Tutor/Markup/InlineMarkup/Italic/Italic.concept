@@ -1,17 +1,18 @@
 Name: Italic
 
-Details:
+Synopsis:
+Create _italic_ text.
 
-Syntax: `_ $Text$ _`
+Syntax:
+`_ $Text$ _`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-Creates _italic_ text.
 
 Examples:
 `_italic_` gives: _italic_.
@@ -22,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

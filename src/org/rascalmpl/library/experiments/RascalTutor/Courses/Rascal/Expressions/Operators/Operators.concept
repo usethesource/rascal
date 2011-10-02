@@ -1,13 +1,16 @@
-Name:Operators
+Name: Operators
+
+Synopsis: The Rascal operators.
+
+Syntax:
+
+Types:
+
+Function:
 
 Details:
 
-Categories:
-
-Synopsis:
-
 Description:
-
 An _operator expression_ consists of an operator and one or more operands. The evaluation order of the operands depends on the operator. 
 The operator is applied to the operands and the resulting value (or values in some cases) is the result of the operator expression. 
 

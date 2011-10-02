@@ -1,11 +1,8 @@
 Name: Symbols
 
-Details:
+Synopsis:
 
-Categories:
-
-Syntax: 
-
+Syntax:
 Nonterminal symbols are written using identifier names that _start with a capital_.
 Any symbol can be labeled with field names that start with lowercase characters: `$Symbol$ $fieldName$`.
 
@@ -48,15 +45,13 @@ Finally we can add inline conditions ([Disambiguations]) to symbols that constra
 Symbols can be composed arbitrarily.
 
 Types:
-
 Every non-terminal symbol is a type.
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 The basic symbols are the non-terminal name and the labeled non-terminal name. These refer to the names defined by [SyntaxDefinition]. You can use any defined non-terminal name in any other definition (lexical in syntax, syntax in lexical, etc). 
 
 Then we have literals and character classes to define the _terminals_ of a grammar. When you use a literal such as `"begin"`, Rascal will produce a definition for it down to the character level before generating a parser: `syntax "begin" = [b][e][g][i][n];`. This effect will be visible in the [ParseTrees] produced by the parser. For case insensitive literals you will see a similar effect; the use of `'begin'` produces `syntax 'begin' = [bB][eE][gG][iI][nN]`.
@@ -80,7 +75,6 @@ The _constraint_ symbols are specially there to deal with the fact that Rascal d
 * It is important to note that these constraints work on a character-by-character level in the input stream. So, a follow constraint such as `A >> [a-z]` means that the character immediately following a recognized A must be in the range `[a-z]`.
 * Read more on the constraint symbols via [Disambiguations].
 
-
 Examples:
 
 Benefits:
@@ -88,5 +82,4 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 

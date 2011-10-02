@@ -1,8 +1,6 @@
 Name: Program
 
-Details:
-
-Categories:Language
+Synopsis: A Rascal program consists of a number of [Module]s.
 
 Syntax:
 
@@ -10,9 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description:  A Rascal program consists of a number of [Module]s.
+Description:
 
 
 Examples:

@@ -1,18 +1,18 @@
 Name: toInt
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: int toInt(bool b)
+Function:
+int toInt(bool b)
 
-Synopsis:
+Details:
 
-Description: Maps `true` to `1` and `false` to 0.
+Description:
+Maps `true` to `1` and `false` to 0.
 
 Examples:
 <screen>

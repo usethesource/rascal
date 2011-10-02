@@ -1,12 +1,13 @@
 Name: LineDecoration
 
-Details:
+Synopsis: Describes the line decorations for an [outline]. 
 
-Syntax: 
+Syntax:
 
 Types:
 
-Function: <listing>
+
+<listing>
 public data LineDecoration = 
     info(int lineNumber, str msg)
   | warning(int lineNumber, str msg)
@@ -16,9 +17,12 @@ public data LineDecoration =
   ;
 </listing>
 
-Synopsis:
+Function:
 
-Description: Describes the linedocorations for an [outline]. 
+Details:
+
+Description:
+
 
 Examples:
 
@@ -28,4 +32,3 @@ Pitfalls:
 
 Questions:
 
-       

@@ -1,8 +1,6 @@
 Name: outline
 
-Details:
-
-Categories: Library
+Synopsis: Outline to summarize file related information.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Figure outline(list[LineDecoration] lineInfo, int maxLine, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 An outline is a rectangle with colored horizontal lines and is primarily used to summarize
@@ -21,7 +19,6 @@ of [LineDecoration]s that associate  information, warnings, errors or highlights
 This information is also used by source editors.
 
 Examples:
-
 <figure o1.png>
 render(outline([info(100,"a"), warning(125, "b"), highlight(190, "c")], 200, size(50, 200)));
 </figure>

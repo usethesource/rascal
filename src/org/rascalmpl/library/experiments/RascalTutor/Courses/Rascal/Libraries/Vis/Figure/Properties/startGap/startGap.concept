@@ -1,16 +1,18 @@
 Name: startGap
 
-Details:
+Synopsis: Define the gap at the start of a composition.
 
-Syntax: `FProperty startGap(bool h, bool v)`
+Syntax:
 
 Types:
 
 Function:
+`FProperty startGap(bool h, bool v)`
 
-Synopsis:
+Details:
 
-Description: Specifies if a [hcat],[vcat] or [grid] will start with (half) a gap. See also [hstartGap] and [vstartGap].
+Description:
+Specifies if a [hcat],[vcat] or [grid] will start with (half) a gap. See also [hstartGap] and [vstartGap].
 
 Examples:
 
@@ -20,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

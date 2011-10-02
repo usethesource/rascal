@@ -1,11 +1,8 @@
 Name: Assert
 
-Details:
-
-Categories:  Language
+Synopsis:
 
 Syntax:
-
 # `assert $Exp_1$`
 # `assert $Exp_1$ : $Exp_2$`
 
@@ -16,10 +13,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 An assert statement may occur everywhere where a declaration is allowed. It has two forms:
 
 An assert statement consists of a Boolean expression $Exp_1$ and an optional string expression $Exp_2$

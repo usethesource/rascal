@@ -1,8 +1,9 @@
 Name: figure
 
-Details:
+Synopsis:
+Markup of code that generates a figure.
 
-Syntax: 
+Syntax:
 * `<figure $FileName$> $RascalCode$ </figure>`
 * `<figure $FileName$ $Width$x$Height$> $RascalCode$ </figure>`
 
@@ -10,7 +11,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 With figure markup it is possible to execute visualizations and to include their output in the text.
@@ -26,7 +27,6 @@ import vis::Render;
 </listing>
 
 Examples:
-
 The input:
 
 `<figure fig1.png>`<br>
@@ -42,7 +42,6 @@ render(box(fillColor("red")));
 Later this file can be included as image using: `![fig1](fig1.png)` with as result:
 ![fig1](fig1.png) 
 
-
 Benefits:
 
 Pitfalls:
@@ -55,4 +54,3 @@ render(...);
 
 Questions:
 
-       

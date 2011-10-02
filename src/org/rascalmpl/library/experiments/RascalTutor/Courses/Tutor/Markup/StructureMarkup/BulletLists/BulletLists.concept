@@ -1,8 +1,9 @@
 Name: BulletLists
 
-Details:
+Synopsis:
+A (possible nested) list of bullet points.
 
-Syntax: 
+Syntax:
 # `* $MarkedText$`
 # `** $MarkedText$`
 # `*** $MarkedText$`
@@ -12,7 +13,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 BulletLists create, possibly nested, lists of points.
@@ -54,9 +55,7 @@ will produce:
 Benefits:
 
 Pitfalls:
-
 Do not forget to add two newlines after a BulletList, otherwise the new paragraph becomes part of the last list item.
 
 Questions:
 
-       

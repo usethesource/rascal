@@ -1,23 +1,18 @@
 Name: scale
 
-Details:
-
-Categories: Library
+Synopsis: Scale a figure.
 
 Syntax:
 
 Types:
 
 Function:
-
 # `Figure scale(num perc, Figure fig)`
 # `Figure scale(num xperc, num yperc, Figure fig)`
- 
 
-Synopsis:
+Details:
 
 Description:
-
 <warning>
 Currently doesn't work!
 </warning>
@@ -47,7 +42,6 @@ Reducing `lineWidth` to 0.5 and scaling by 2 given a `lineWidth` of 1:
 //render(scale(2, b));
 </figure>
 ![scale 2](sc2.png)
-
 
 Questions:
 

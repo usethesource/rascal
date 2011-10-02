@@ -1,8 +1,6 @@
 Name: right
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `str right(str s, int n)`
 # `str right(str s, int n, str pad)`
 
-Synopsis:
+Details:
 
 Description:
 # Right align string `s` in string of length `n` using spaces.
@@ -30,5 +28,4 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 

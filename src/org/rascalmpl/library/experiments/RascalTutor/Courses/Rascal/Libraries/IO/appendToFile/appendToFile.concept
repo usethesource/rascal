@@ -1,8 +1,6 @@
 Name: appendToFile
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `void appendToFile(loc file, value V...) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)`
 
-Synopsis:
+Details:
 
 Description:
 Append a textual representation of some values to an existing file

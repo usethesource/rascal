@@ -1,10 +1,18 @@
-Name:arbReal
+Name: arbReal
 
-Categories: Library
+Synopsis:
 
-Function: `real arbReal( )`
+Syntax:
 
-Description: Returns an arbitrary real value in the interval [0.0, 1.0].
+Types:
+
+Function:
+`real arbReal( )`
+
+Details:
+
+Description:
+Returns an arbitrary real value in the interval [0.0, 1.0].
 
 Examples:
 <screen>

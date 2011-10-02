@@ -1,8 +1,6 @@
 Name: toReal
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -10,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Maps `true` to `1,0` and `false` to `0.0`.
+Description:
+Maps `true` to `1,0` and `false` to `0.0`.
 
 Examples:
 <screen>

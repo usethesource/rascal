@@ -1,8 +1,6 @@
 Name: text
 
-Details:
-
-Categories: Library
+Synopsis: Text.
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `Figure text(str s, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Creates a text string. The following properties are relevant for text:
@@ -21,7 +19,6 @@ Creates a text string. The following properties are relevant for text:
 * [textAngle]: determines the angle (in degrees) at which text is draw (also see [Angles]). Default is 0.
 
 Examples:
-
 <figure t1.png>
 render(text("Rascal"));
 </figure>

@@ -1,22 +1,21 @@
 Name: FieldSelection
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Exp$ . $Name$`
+Syntax:
+`$Exp$ . $Name$`
 
 Types:
 |`$Exp$`                                | `$Exp$ . $Name$` |
 |:--------------------------------------|:-----------------|
 | `rel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]` | `set[$T_i$]`     |
 
-
 Function:
 
-Synopsis:
+Details:
 
-Description: $Exp$ should evaluate to a relation that has an $i$-th field label $L_i$ that is identical to $Name$.
+Description:
+$Exp$ should evaluate to a relation that has an $i$-th field label $L_i$ that is identical to $Name$.
 Return a set with all values of that field.
 $Name$ stands for itself and is not evaluated.
 

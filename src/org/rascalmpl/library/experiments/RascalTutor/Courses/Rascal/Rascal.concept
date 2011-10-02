@@ -1,13 +1,18 @@
 Name: Rascal
 
-Details: Motivation InstallingAndRunning EASY Concepts Examples Declarations Expressions Statements Libraries
+Synopsis:
+Rascal is a powerful but simple meta-programming language that can be learned in layers. 
 
-Categories: Language Library Example
+Syntax:
 
-Synopsis: Rascal is a powerful but simple meta-programming language that can be learned in layers. 
+Types:
 
-Description: 
+Function:
 
+Details:
+Motivation InstallingAndRunning EASY Concepts Examples Declarations Expressions Statements Libraries
+
+Description:
 What you need to know about Rascal is this, in this particular order:
 * Why and how would you use Rascal? Check out [Motivation] and [EASY].
 * How to get started? Read [InstallingAndRunning].
@@ -22,16 +27,14 @@ What are the key distinguishing features of Rascal?
 * [ConcreteSyntax] to analyse and transform source code using patterns in the programming language that is manipulated.
 * Rapid [IDEConstruction] using Eclipse [IMP].
 * Reusable aspects of meta programming in the [Libraries].
- 
-Examples:
 
+Examples:
 Read about simple [Examples] of Rascal code. The Rascal [Libraries] also contain demos of Rascal. By the way, you will find example code on almost every page in this tutor environment.
 
 Benefits:
 * It should have everything you need for any kind of meta program you want to write. See [Motivation].
 
 Pitfalls:
-
 * See [Motivation].
 * It is not an object-oriented programming language. It is an procedural/functional language with immutable data.
 * It allows you to write highly imperative code, but do not forget that it might have a better declarative construct for you to use instead.
@@ -39,5 +42,4 @@ Pitfalls:
 * It has a static type system, but the type-checker is not finished yet.
 
 Questions:
-
 

@@ -1,12 +1,16 @@
-Name:IntroPatternMatching
+Name: IntroPatternMatching
 
-Categories:
+Synopsis: Concept: _Pattern matching_.
 
-Synopsis:
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
-
-Pattern Matching
 
 Pattern matching determines whether a given pattern matches a given value. 
 The outcome can be `false` (no match) or `true` (a match). A pattern match that succeeds may bind values to variables.

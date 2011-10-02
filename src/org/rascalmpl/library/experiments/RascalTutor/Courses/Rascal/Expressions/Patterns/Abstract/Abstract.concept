@@ -1,13 +1,16 @@
 Name: Abstract
 
-Details:
-
-Categories:
-
 Synopsis:
 
-Description:
+Syntax:
 
+Types:
+
+Function:
+
+Details:
+
+Description:
 An abstract pattern is recursively defined and may contain the following elements:
 
 * Literal of one of the basic types [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime].
@@ -100,8 +103,6 @@ A typed, labelled, pattern matches when the subject value has type $Type$ and $P
 [$Type$] $Pat$
 </listing>
 matches provided that the subject has type $Type$ and $Pat$ matches.
-
-
 
 Examples:
 

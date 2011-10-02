@@ -1,16 +1,18 @@
-Name:Product
+Name: Product
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ * $Exp_2$`
+Syntax:
+`$Exp_1$ * $Exp_2$`
 
 Types:
-
-
 | `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ * $Exp_2$`         |
 |:--------------|:---------------|:----------------------------|
 | `list[$T_1$]` |  `list[$T_2$]` | `list[tuple[$T_1$,$T_2$]]`  |
 
+Function:
+
+Details:
 
 Description:
 Yields a list of tuples resulting from the product of the values of $Exp_1$ and $Exp_2$. 
@@ -26,12 +28,9 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:list[arb[int,str]]> * <B:same[A]>
 
 QType: <A:list[arb]> * <B:same[A]>
 
 QValue: <A:list[arb[0,int,str,num,real]]> * <B:same[A]>
-
-
 

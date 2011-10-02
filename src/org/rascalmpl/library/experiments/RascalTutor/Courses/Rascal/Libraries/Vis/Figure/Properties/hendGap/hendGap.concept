@@ -1,16 +1,18 @@
 Name: hendGap
 
-Details:
+Synopsis: Horizontal end gap in compositions.
 
-Syntax: `FProperty hendGap(bool g)`
+Syntax:
 
 Types:
 
 Function:
+`FProperty hendGap(bool g)`
 
-Synopsis:
+Details:
 
-Description: Specifies if a [hcat] or [grid] will end with (half) a horizontal gap. See also [endGap] and [vendGap].
+Description:
+Specifies if a [hcat] or [grid] will end with (half) a horizontal gap. See also [endGap] and [vendGap].
 
 Examples:
 
@@ -20,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

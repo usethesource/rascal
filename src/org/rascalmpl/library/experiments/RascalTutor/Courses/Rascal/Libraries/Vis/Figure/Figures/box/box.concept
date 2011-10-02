@@ -1,8 +1,6 @@
 Name: box
 
-Details:
-
-Categories: Library
+Synopsis: A rectangular box.
 
 Syntax:
 
@@ -12,14 +10,13 @@ Function:
 # `Figure box(FProperty props...)`
 # `Figure box(Figure inner, FProperty props...)`
 
-Synopsis:
+Details:
 
 Description:
 Draw a rectangular box using the properties `props`.
 An optional nested figure `inner` may be placed inside the box.
 
 Examples:
-
 Lets start with a box `b0` of given (minimal) dimensions:
 <figure box0.png>
 b0 = box(size(150,50), fillColor("lightGray"));
@@ -71,6 +68,7 @@ If no sizes are given at all then the box will expand to fill the available size
 render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
 </figure>
 The result is: ![box5](box5.png)
+
 Benefits:
 
 Pitfalls:

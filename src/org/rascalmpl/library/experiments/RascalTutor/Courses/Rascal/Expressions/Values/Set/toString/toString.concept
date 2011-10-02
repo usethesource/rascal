@@ -1,10 +1,18 @@
-Name:toString
+Name: toString
 
-Categories: Library
+Synopsis:
 
-Function: `str toString(set[&T] s)`
+Syntax:
 
-Description: Converts a set to a string.
+Types:
+
+Function:
+`str toString(set[&T] s)`
+
+Details:
+
+Description:
+Converts a set to a string.
 
 Examples:
 <screen>

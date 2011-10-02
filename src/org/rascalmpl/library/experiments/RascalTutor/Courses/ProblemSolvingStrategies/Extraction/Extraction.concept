@@ -1,8 +1,7 @@
 Name: Extraction
 
-Details:
-
-Categories: All
+Synopsis:
+Strategies to extract facts from software systems.
 
 Syntax:
 
@@ -10,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 How can we extract facts from the _System under Investigation_ (SUI) that we are interested in? 
 The extraction workflow is shown in the figure _Extraction Workflow_ below and consists of the following steps:
 
@@ -65,8 +63,6 @@ The Rascal features that are most frequently used for extraction are:
 * Visits to traverse syntax trees and to locally extract information.
 
 * The repertoire of built-in datatypes (like lists, maps, sets and relations) to represent the extracted facts.
-
-
 
 Examples:
 

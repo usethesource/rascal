@@ -1,6 +1,7 @@
 Name: Authoring
 
-Details:
+Synopsis:
+Creating and writing a course using the RascalTutor.
 
 Syntax:
 
@@ -8,7 +9,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The life cycle of a course consists of the following steps:
@@ -36,7 +37,5 @@ Pitfalls:
 When you are using a deployed Rascal Eclipse plugin, the abovementioned buttons will not be available.
 * There is currently no support for renaming/removing/moving concepts. This has to be done at the command line using SVN.
 
-
 Questions:
 
-       

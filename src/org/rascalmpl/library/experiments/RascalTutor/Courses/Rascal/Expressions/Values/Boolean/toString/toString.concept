@@ -1,8 +1,6 @@
 Name: toString
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -10,9 +8,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Maps `true` to `"true"` and `false` to `"false"`.
+Description:
+Maps `true` to `"true"` and `false` to `"false"`.
 
 Examples:
 <screen>

@@ -1,10 +1,9 @@
 Name: Assignment
 
-Details:
+Synopsis:
 
-Categories: Language
-
-Syntax: `$Assignable$ $AssignmentOp$ $Exp$`
+Syntax:
+`$Assignable$ $AssignmentOp$ $Exp$`
 
 
 where $AssignmentOp$ may be one of `=`, `+=`, `-=`, `*=`, `/=`, or `?=`.
@@ -23,7 +22,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The purpose of an assignment is to assign a new value to a simple variable or to an element of a more complex data structure. 
@@ -73,9 +72,6 @@ We distinguish the following forms of assignment:
   First the value $Exp$ is determined and should be a data value of the form `$Name$($V_1$, $V_2$, ..., $V_n$). 
   Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
 
-
-
-
 Examples:
 <screen>
 // 1. Variable assignable:
@@ -114,9 +110,9 @@ S;
 I;
 </screen>
 
-
 Benefits:
 
 Pitfalls:
 
 Questions:
+

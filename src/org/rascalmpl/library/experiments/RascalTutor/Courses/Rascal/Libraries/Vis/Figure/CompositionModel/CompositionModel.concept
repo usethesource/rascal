@@ -1,6 +1,6 @@
 Name: CompositionModel
 
-Details:
+Synopsis: The model for composing figures.
 
 Syntax:
 
@@ -8,7 +8,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 The Figure library uses the following model for the composition of figures:
@@ -46,12 +46,9 @@ Examples:
 Benefits:
 
 Pitfalls:
-
 * Although sizes are traditionally used to determine the size of geometric figures, it is better to use relative sizes using `grow`, `shrink` and `align` since this makes figures resizable.
 
 * [resizable] can be used to control the resizing behaviour of a figure.
 
 Questions:
 
-
-       

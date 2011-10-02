@@ -1,18 +1,20 @@
-Name:Map
+Name: Map
 
-Categories: Language
+Synopsis: Map values.
 
-Syntax: `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`
+Syntax:
+`( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`
 
 Types:
-
 | `$KeyExp_1$` | `$ValExp_1$` | `$KeyExp_2$` | `$ValExp_2$` | ... | `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`  |
 |:-------------|:-------------|:-------------|:-------------|:----|:-------------------------------------------------------------|
 | `$TK_1$`     |  `$TV_1$`    |  `$TK_2$`    | `$TV_2$`     | ... | `map[lub($TK_1$, $TK_2$, ... ) , lub($TV_1$, $TV_2$, ... )]` |
 
+Function:
+
+Details:
 
 Description:
-
 A map is a set of key : value pairs and has the following properties:
 
 * Key and value may have different static types.

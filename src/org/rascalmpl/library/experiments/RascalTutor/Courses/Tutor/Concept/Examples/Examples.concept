@@ -1,6 +1,7 @@
 Name: Examples
 
-Details:
+Synopsis:
+Examples to illustrate the concept.
 
 Syntax:
 
@@ -8,10 +9,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-Give a number of simple but complete examples to illustrate the concepts and its variations.
+Gives a number of simple but complete examples to illustrate the concepts and its variations.
 Running examples (using [screen]) are preferred.
 
 Examples:
@@ -22,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

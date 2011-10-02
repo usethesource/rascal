@@ -1,13 +1,12 @@
 Name: Resources
 
-Details:
+Synopsis: Functions on Eclipse resources.
 
-Categories: Library Eclipse
 
 Syntax:
+`import util::Resources;`
 
 Types:
-
 <listing>
 data Resource = root(set[Resource] projects) 
               | project(loc id, set[Resource] contents)
@@ -17,7 +16,7 @@ data Resource = root(set[Resource] projects)
 
 Function:
 
-Synopsis: `import util::Resources;`
+Details:
 
 Description:
 The Resources library provides direct access to Eclipse projects and the resources they contain. 
@@ -34,7 +33,6 @@ Each Resource, but the root, has an `id` field that explains the exact location 
 The schema `project` that is supported by source locations (see [Location]) gives direct access to Eclipse projects.
 
 Examples:
-
 A location that points to a project in the Eclipse workspace  named "myProject":
 <listing>
 |project://myProject| 

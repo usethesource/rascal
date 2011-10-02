@@ -1,16 +1,18 @@
 Name: connect
 
-Details:
+Synopsis: Connection point for figure in an [overlay].
 
-Syntax: `FProperty connect(real h, real v)`
+Syntax:
 
 Types:
 
 Function:
+`FProperty connect(real h, real v)`
 
-Synopsis:
+Details:
 
-Description: Describes where a line connects with this figure. See [hconnect], [vconnect] and [overlay].
+Description:
+Describes where a line connects with this figure. See [hconnect], [vconnect] and [overlay].
 
 Examples:
 
@@ -20,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

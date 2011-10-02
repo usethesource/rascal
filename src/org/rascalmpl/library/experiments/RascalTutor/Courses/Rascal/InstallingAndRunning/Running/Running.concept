@@ -1,8 +1,6 @@
 Name: Running
 
-Details:
-
-Categories:
+Synopsis: Running the Rascal system.
 
 Syntax:
 
@@ -10,10 +8,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 The Rascal system comes in two flavours: a command line version and a version integrated in Eclipse.
 
 At the command line the Rascal system can be invoked by typing the command __rascal__. 

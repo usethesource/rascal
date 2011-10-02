@@ -1,8 +1,8 @@
 Name: Associativity
 
-Details:
+Synopsis:
 
-Syntax: 
+Syntax:
    * `syntax $Exp$ = $Assoc$ $Label$ $Symbol_1$ $Symbol_2$ ...`
    * `syntax $Exp$ = $Assoc$ ( $Alt_1$ | $Alt_2$ | ...)`
    * `syntax $Exp$ = $Assoc$ $Symbol_1$ $Symbol_2$ ...`
@@ -14,9 +14,10 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
-Description: Using Associativity declarations we may disambiguate binary recursive operators. 
+Description:
+Using Associativity declarations we may disambiguate binary recursive operators. 
 
 The semantics are that an associativity modifier will instruct the parser to disallow certain productions to nest _at particular argument positions_:
   * `left` and `assoc` will disallow productions to directly nest in their _right-most_ position.
@@ -38,4 +39,3 @@ Pitfalls:
 
 Questions:
 
-       

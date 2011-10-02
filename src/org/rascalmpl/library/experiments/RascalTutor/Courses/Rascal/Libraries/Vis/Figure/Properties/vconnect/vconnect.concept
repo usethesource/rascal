@@ -1,16 +1,19 @@
 Name: vconnect
 
-Details:
+Synopsis: Vertical connection point of a figure in an [overlay].
 
-Syntax: `FProperty vconnect(num r)`
+Syntax:
+
 
 Types:
 
 Function:
+`FProperty vconnect(num r)`
 
-Synopsis:
+Details:
 
-Description: Describes where a line connects with this figure. 0.0 means on the top and 1.0 at the bottom. See also [connect] and [vconnect].
+Description:
+Describes where a line connects with this figure. 0.0 means on the top and 1.0 at the bottom. See also [connect] and [vconnect].
 
 Examples:
 
@@ -20,4 +23,3 @@ Pitfalls:
 
 Questions:
 
-       

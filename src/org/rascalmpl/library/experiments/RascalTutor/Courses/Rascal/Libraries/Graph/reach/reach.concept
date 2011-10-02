@@ -1,16 +1,15 @@
 Name: reach
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`set[&T] reach(Graph[&T] G, set[&T] Start)`
+Function:
+`set[&T] reach(Graph[&T] G, set[&T] Start)`
 
-Synopsis:
+Details:
 
 Description:
 Returns the set of nodes in Graph `G` that are reachable from any of the nodes

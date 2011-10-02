@@ -1,8 +1,6 @@
 Name: Return
 
-Details:
-
-Categories: Language
+Synopsis:
 
 Syntax:
 # `return;`
@@ -12,7 +10,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A return statement comes in two variants: without and with an expreesion,

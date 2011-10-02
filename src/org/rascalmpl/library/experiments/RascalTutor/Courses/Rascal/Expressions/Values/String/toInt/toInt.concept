@@ -1,16 +1,15 @@
 Name: toInt
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `int toInt(str s) throws IllegalArgument(value v)`
+Function:
+`int toInt(str s) throws IllegalArgument(value v)`
 
-Synopsis:
+Details:
 
 Description:
 Converts string `s` to integer. Throws `IllegalArgument` when `s` cannot be converted.

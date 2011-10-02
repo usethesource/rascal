@@ -1,6 +1,6 @@
 Name: ErrorMarking
 
-Details:
+Synopsis:
 
 Syntax:
 
@@ -8,7 +8,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 
@@ -20,4 +20,3 @@ Pitfalls:
 
 Questions:
 
-       

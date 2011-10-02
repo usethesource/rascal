@@ -1,8 +1,6 @@
 Name: Module
 
-Details:
-
-Categories: Language
+Synopsis: Declare a module.
 
 Syntax:
 <listing>
@@ -17,7 +15,7 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A module declaration consists of:

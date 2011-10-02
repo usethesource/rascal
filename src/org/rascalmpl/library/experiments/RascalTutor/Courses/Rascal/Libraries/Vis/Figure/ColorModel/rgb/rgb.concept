@@ -1,8 +1,6 @@
 Name: rgb
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
@@ -12,7 +10,7 @@ Function:
 # `Color rgb(int red, int green, int blue)`
 # `Color rgb(int red, int green, int blue, real alpha)`
 
-Synopsis:
+Details:
 
 Description:
 Create a color from a `red`, `green` and `blue` contribution each in the range [0,255].

@@ -1,8 +1,6 @@
 Name: left
 
-Details:
-
-Categories: Library
+Synopsis: Left, horizontal, alignment.
 
 Syntax:
 
@@ -11,10 +9,9 @@ Types:
 Function:
 `FProperty left()`
 
-Synopsis:
+Details:
 
 Description:
-
 `left` defines __left horizontal alignment__. It sets the horizontal alignment at 1.0.
 
 Note that:

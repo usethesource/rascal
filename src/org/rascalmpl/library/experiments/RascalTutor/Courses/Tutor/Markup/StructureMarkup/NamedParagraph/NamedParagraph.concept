@@ -1,8 +1,9 @@
 Name: NamedParagraph
 
-Details:
+Synopsis:
+Mark up for a named paragraph.
 
-Syntax: 
+Syntax:
 # `==$ParagraphName$==`
 # `===$ParagraphName$===`
 # `====$ParagraphName$====`
@@ -12,13 +13,12 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 A NamedParagraph produces a named paragraph of a level that is determined by the number of `=` characters surrounding the $ParagraphName$.
 
 Examples:
-
 The input:
 
 `==Level 1 Paragraph==`
@@ -34,4 +34,3 @@ A NamedParagraph should start at the start of a line.
 
 Questions:
 
-       

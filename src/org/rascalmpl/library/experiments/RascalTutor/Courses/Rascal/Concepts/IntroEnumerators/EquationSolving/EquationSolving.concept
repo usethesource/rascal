@@ -1,8 +1,14 @@
-Name:EquationSolving
-
-Categories:
+Name: EquationSolving
 
 Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
 
 Description:
 Many problems can be solved by forms of _constraint solving_. 
@@ -13,7 +19,6 @@ The actual solution (if any) is found by enumerating solutions and testing their
 Rascal provides a [Solve] statement that helps writing constraint solvers. 
 
 Examples:
-
 A typical example is dataflow analysis where the propagation of values through a program can be described by a set of equations. Their solution can be found with the solve statement. <warning> add links </warning>
 
 Benefits:

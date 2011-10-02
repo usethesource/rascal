@@ -1,18 +1,18 @@
 Name: toList
 
-Details:
-
-Categories:
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[tuple[&K, &V]] toList(map[&K, &V] M)`
+Function:
+`list[tuple[&K, &V]] toList(map[&K, &V] M)`
 
-Synopsis:
+Details:
 
-Description:  Convert a map to a list of tuples.
+Description:
+Convert a map to a list of tuples.
 
 Examples:
 <screen>

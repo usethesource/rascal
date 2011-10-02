@@ -1,8 +1,6 @@
 Name: rotate
 
-Details:
-
-Categories: Library
+Synopsis: Rotate a figure.
 
 Syntax:
 
@@ -11,10 +9,9 @@ Types:
 Function:
 `Figure rotate(num angle, Figure fig)`
 
-Synopsis:
+Details:
 
 Description:
-
 <warning>
 Currently doesn't work!
 </warning>
@@ -24,7 +21,6 @@ Rotate figure `fig` `angle` degrees around its anchor point.
 Also see [Angles].
 
 Examples:
-
 <xfigure r1.png>
 //b = box(size(100,50), fillColor("Red"));
 //render(rotate(45, b));

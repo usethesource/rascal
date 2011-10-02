@@ -1,6 +1,6 @@
 Name: valign
 
-Details:
+Synopsis: Vertical alignment.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 `FProperty valign(num v)`
 
-Synopsis:
+Details:
 
 Description:
 Set the vertical alignment to `v`.
@@ -17,8 +17,6 @@ Set the vertical alignment to `v`.
 Also see [align] and [CompositionModel].
 
 Examples:
-
-
 <figure a1.png>
 b1 = box(size(100,50), valign(0), resizable(false), fillColor("Red"));
 b2 = box(b1, size(150, 100));
@@ -35,11 +33,9 @@ render(b2);
 
 ![a2](a2.png)
 
-
 Benefits:
 
 Pitfalls:
 
 Questions:
 
-       

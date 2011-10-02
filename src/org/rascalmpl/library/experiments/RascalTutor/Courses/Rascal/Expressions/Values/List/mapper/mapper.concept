@@ -1,18 +1,18 @@
 Name: mapper
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `list[&T] mapper(list[&T] lst, &T (&T) fn)`
+Function:
+`list[&T] mapper(list[&T] lst, &T (&T) fn)`
 
-Synopsis:
+Details:
 
-Description: Apply a function `fn` to each element of `lst` and return the list of results.
+Description:
+Apply a function `fn` to each element of `lst` and return the list of results.
 
 Examples:
 <screen>

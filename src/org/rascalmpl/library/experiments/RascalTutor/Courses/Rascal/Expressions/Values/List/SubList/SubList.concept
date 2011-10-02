@@ -1,19 +1,20 @@
-Name:SubList
+Name: SubList
 
-Categories: Language
+Synopsis:
 
-Syntax: `$Exp_1$ <= $Exp_2$`
+Syntax:
+`$Exp_1$ <= $Exp_2$`
 
 Types:
-
-
 | `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ <= $Exp_2$` |
 |:--------------|:---------------|:---------------------|
 | `list[$T_1$]` |  `list[$T_2$]` | `bool`               |
 
+Function:
+
+Details:
 
 Description:
-
 Yields `true` if the value of $Exp_1$ is equal to or a sublist of the value of $Exp_2$,  and `false` otherwise.
 
 Examples:
@@ -28,6 +29,5 @@ Benefits:
 Pitfalls:
 
 Questions:
-
 QType: <A:set[arb]> <= <B:same[A]>
 

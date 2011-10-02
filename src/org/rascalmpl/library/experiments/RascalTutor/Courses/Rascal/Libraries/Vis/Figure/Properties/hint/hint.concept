@@ -1,8 +1,6 @@
 Name: hint
 
-Details:
-
-Categories: Library
+Synopsis: Hint at layout algorithm to be used in graphs.
 
 Syntax:
 
@@ -11,12 +9,12 @@ Types:
 Function:
 `hint(str name)`
 
-Synopsis:
+Details:
 
 Description:
 Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the [graph] layout:
-* `spring`: use force-directed spring layout (the default).
-* `layered`: draw as a layered graph (under development).
+* `spring`: use force-directed spring layout (currently disabled).
+* `layered`: draw as a layered graph (the default).
 
 Examples:
 

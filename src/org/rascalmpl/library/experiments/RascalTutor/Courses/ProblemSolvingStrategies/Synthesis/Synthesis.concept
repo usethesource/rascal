@@ -1,8 +1,7 @@
 Name: Synthesis
 
-Details:
-
-Categories: All
+Synopsis:
+Strategies to synthesise results.
 
 Syntax:
 
@@ -10,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Results are synthesized as shown in the Figure _Synthesis Workflow_ below. This consists of the following steps:
 ![Synthesis Workflow](define-synthesis.png|400px|right|space 2px)
 

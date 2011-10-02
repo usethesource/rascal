@@ -1,8 +1,6 @@
 Name: dependencies
 
-Details:
-
-Categories: Library Eclipse
+Synopsis:
 
 Syntax:
 
@@ -11,7 +9,7 @@ Types:
 Function:
 `set[loc] dependencies(loc project)`
 
-Synopsis:
+Details:
 
 Description:
 Computes referenced projects transitively.

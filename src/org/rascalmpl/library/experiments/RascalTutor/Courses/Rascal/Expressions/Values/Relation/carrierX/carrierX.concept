@@ -1,18 +1,18 @@
 Name: carrierX
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function: `rel[&T,&T] carrierX (rel[&T,&T] R, set[&T] S)`
+Function:
+`rel[&T,&T] carrierX (rel[&T,&T] R, set[&T] S)`
 
-Synopsis:
+Details:
 
-Description: Returns relation `R` excluding tuples with some element in `S`.
+Description:
+Returns relation `R` excluding tuples with some element in `S`.
 
 Examples:
 <screen>

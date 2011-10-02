@@ -1,6 +1,7 @@
 Name: Variable
 
-Details:
+Synopsis:
+Markup for a variable.
 
 Syntax:
 * `$ $VarName$ $`
@@ -11,13 +12,14 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
 Creates variables in text and code. A variable name may be followed by `_` (or `^`) and an
 index (a number or an identifier) which will be displayed as a subscript (or superscript).
 
-Examples:<br>
+Examples:
+<br>
 ===== Example 1 =====
 `$``Var``$` gives $Var$.
 
@@ -35,4 +37,3 @@ Pitfalls:
 
 Questions:
 
-       

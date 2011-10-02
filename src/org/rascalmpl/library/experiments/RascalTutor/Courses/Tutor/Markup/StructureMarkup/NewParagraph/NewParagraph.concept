@@ -1,6 +1,7 @@
 Name: NewParagraph
 
-Details:
+Synopsis:
+Introduce a new paragraph.
 
 Syntax:
 
@@ -8,10 +9,9 @@ Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 A new paragraph is created by two consecutive empty lines.
 
 Examples:
@@ -37,4 +37,3 @@ Pitfalls:
 
 Questions:
 
-       

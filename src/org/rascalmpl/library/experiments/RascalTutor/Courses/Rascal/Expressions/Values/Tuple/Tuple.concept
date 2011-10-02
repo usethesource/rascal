@@ -1,12 +1,18 @@
-Name:Tuple
+Name: Tuple
 
-Categories: Language
+Synopsis: Tuple values.
 
-Syntax: `< $Exp_1$, $Exp_2$, ... >`
+Syntax:
+`< $Exp_1$, $Exp_2$, ... >`
+
 Types:
 | `$Exp_1$`  | `$Exp_2$`  |  ...  | `< $Exp_1$, $Exp_2$, ... >` |
 |:-----------|:-----------|:------|:----------------------------|
 | `$T_1$`    |  $T_2$     | ...   | `tuple[$T_1$, $T_2$, ... ]` |
+
+Function:
+
+Details:
 
 Description:
 A tuple is a sequence of elements with the following properties:

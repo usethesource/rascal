@@ -1,16 +1,18 @@
 Name: vscreen
 
-Details:
+Synopsis: Vertical projection screen.
 
-Syntax: 
+Syntax:
 
 Types:
 
-Function: `Figure vscreen(Figure fig, FProperty props ...)`
+Function:
+`Figure vscreen(Figure fig, FProperty props ...)`
 
-Synopsis:
+Details:
 
-Description: Creates a vertical screen on which things can be projected. Works the same as [hscreen].
+Description:
+Creates a vertical screen on which things can be projected. Works the same as [hscreen].
 
 Examples:
 
@@ -20,4 +22,3 @@ Pitfalls:
 
 Questions:
 
-       

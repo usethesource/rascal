@@ -1,19 +1,17 @@
 Name: Alias
 
-Details:
+Synopsis: Declare an alias for a type.
 
-Categories: Language
-
-Syntax: `alias $Name$  = $Type$;`
+Syntax:
+`alias $Name$  = $Type$;`
 
 Types:
 
 Function:
 
-Synopsis:
+Details:
 
 Description:
-
 Everything can be expressed using the elementary types and values that are provided by Rascal. 
 However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use o aliases is a good way to document your intentions. 
 

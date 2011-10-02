@@ -1,15 +1,18 @@
 Name: IsDefined
 
-Details:
+Synopsis:
 
-Categories:
-
-Syntax: `$Exp$ ?`
+Syntax:
+`$Exp$ ?`
 
 Types:
 | `$Exp$` | `$Exp$ ?` |
 |:-------|:---------|
 |  `$T$`   |   `bool`      |
+
+Function:
+
+Details:
 
 Description:
 

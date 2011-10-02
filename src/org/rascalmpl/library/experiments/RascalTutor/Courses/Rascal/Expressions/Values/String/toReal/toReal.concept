@@ -1,18 +1,18 @@
 Name: toReal
 
-Details:
-
-Categories: Library
+Synopsis:
 
 Syntax:
 
 Types:
 
-Function:`real toReal(str s) throws IllegalArgument(value v)`
+Function:
+`real toReal(str s) throws IllegalArgument(value v)`
 
-Synopsis:
+Details:
 
-Description: Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
+Description:
+Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
 
 Examples:
 <screen>

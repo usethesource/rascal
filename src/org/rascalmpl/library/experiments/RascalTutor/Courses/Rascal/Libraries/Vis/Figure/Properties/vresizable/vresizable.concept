@@ -1,6 +1,6 @@
 Name: vresizable
 
-Details:
+Synopsis: Define whether figure is resizable in the vertical direction.
 
 Syntax:
 
@@ -9,10 +9,9 @@ Types:
 Function:
 `FProperty vresizable(bool vr)`
 
-Synopsis:
+Details:
 
 Description:
-
 Define whether a figure can be resized in the vertical direction.
 
 Also see: [resizable].
@@ -25,4 +24,3 @@ Pitfalls:
 
 Questions:
 
-       

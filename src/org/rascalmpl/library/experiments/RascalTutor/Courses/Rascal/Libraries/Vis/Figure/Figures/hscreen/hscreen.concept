@@ -1,16 +1,19 @@
 Name: hscreen
 
-Details:
+Synopsis:
+Creates a horizontal screen on which things can be projected.
 
-Syntax: 
+Syntax:
 
 Types:
 
-Function: `Figure hscreen(Figure inner,FProperty prop...)`
+Function:
+`Figure hscreen(Figure inner,FProperty prop...)`
 
-Synopsis: Creates a horizontal screen on which things can be projected.
+Details:
 
-Description: Figures nested within the hscreen can project figures onto the screen using the [project] property. A screen must have an [id] property giving its name. 
+Description:
+Figures nested within the hscreen can project figures onto the screen using the [project] property. A screen must have an [id] property giving its name. 
 
 The position of the hscreen depends on the alignment of the inner figure. If the inner figure is placed at the top then the screen will be at the bottom and vice versa.
 
@@ -59,4 +62,3 @@ Pitfalls:
 
 Questions:
 
-       
