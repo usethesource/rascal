@@ -40,6 +40,8 @@ import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.control_exceptions.BreakException;
+import org.rascalmpl.interpreter.control_exceptions.ContinueException;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -203,9 +205,12 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new NotYetImplemented(this.toString()); // TODO
-
+			if (getTarget().isEmpty()) {
+				throw new BreakException();
+			}
+			else {
+				throw new BreakException(Names.name(getTarget().getName()));
+			}
 		}
 
 	}
@@ -218,8 +223,12 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new NotYetImplemented(this.toString()); // TODO
+			if (getTarget().isEmpty()) {
+				throw new ContinueException();
+			}
+			else {
+				throw new ContinueException(Names.name(getTarget().getName()));
+			}
 
 		}
 
@@ -250,7 +259,17 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			while (true) {
 				try {
-					body.interpret(__eval);
+					try {
+						body.interpret(__eval);
+					}
+					catch (BreakException e) {
+						IValue value = __eval.__getAccumulators().pop().done();
+						return org.rascalmpl.interpreter.result.ResultFactory
+								.makeResult(value.getType(), value, __eval);
+					}
+					catch (ContinueException e) {
+						// just continue;
+					}
 
 					gen = generator.getBacktracker(__eval);
 					gen.init();
@@ -391,9 +410,42 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						if (i == size - 1) {
 							// NB: no result handling here.
 							__eval.setCurrentAST(body);
-							body.interpret(__eval);
-							// __eval.unwind(olds[i]);
-							// __eval.pushEnv();
+							
+							try {
+								body.interpret(__eval);
+							}
+							catch (Failure e) {
+								// TODO: failure should undo variable assignments outside the scope of the for!
+								if (!e.hasLabel()) { 
+									continue;
+								}
+								else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+									continue;
+								}
+
+								throw e;
+							}
+							catch (ContinueException e) {
+								if (!e.hasLabel() && getLabel().isEmpty()) { 
+									continue;
+								}
+								else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+									continue;
+								}
+
+								throw e;
+							}
+							catch (BreakException e) {
+								if (!e.hasLabel() && getLabel().isEmpty()) { 
+									break;
+									
+								}
+								else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+									break;
+								}
+
+								throw e;
+							}
 						} else {
 							i++;
 							gens[i] = generators
@@ -493,14 +545,27 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							__eval.setCurrentAST(body);
-							return body.interpret(__eval);
-						}
+							try {
+								return body.interpret(__eval);
+							}
+							catch (Failure e) {
+								if (!e.hasLabel()) { 
+									continue;
+								}
+								else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+									continue;
+								}
 
-						i++;
-						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init();
-						olds[i] = __eval.getCurrentEnvt();
-						__eval.pushEnv();
+								throw e;
+							}
+						}
+						else {
+							i++;
+							gens[i] = generators.get(i).getBacktracker(__eval);
+							gens[i].init();
+							olds[i] = __eval.getCurrentEnvt();
+							__eval.pushEnv();
+						}
 					} else {
 						__eval.unwind(olds[i]);
 						__eval.pushEnv();
@@ -552,14 +617,27 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
 							__eval.setCurrentAST(body);
-							return body.interpret(__eval);
-						}
+							try {
+								return body.interpret(__eval);
+							}
+							catch (Failure e) {
+								if (!e.hasLabel()) { 
+									continue;
+								}
+								else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+									continue;
+								}
 
-						i++;
-						gens[i] = generators.get(i).getBacktracker(__eval);
-						gens[i].init();
-						olds[i] = __eval.getCurrentEnvt();
-						__eval.pushEnv();
+								throw e;
+							}
+						}
+						else {
+							i++;
+							gens[i] = generators.get(i).getBacktracker(__eval);
+							gens[i].init();
+							olds[i] = __eval.getCurrentEnvt();
+							__eval.pushEnv();
+						}
 					} else {
 						__eval.unwind(olds[i]);
 						__eval.pushEnv();
@@ -1090,7 +1168,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
 
-					while (i >= 0 && i < size) {
+					conditions:while (i >= 0 && i < size) {
 						__eval.unwind(olds[i]);
 						__eval.pushEnv();
 
@@ -1100,15 +1178,56 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						if (gens[i].hasNext() && gens[i].next()) {
 							if (i == size - 1) {
 								__eval.setCurrentAST(body);
-								body.interpret(__eval);
-								continue loop;
-							}
+								
+								try {
+									body.interpret(__eval);
+									continue loop;
+								}
+								catch (Failure e) {
+									// try next assignment of generators!
+									// TODO: failure should undo assignment
+									if (!e.hasLabel() && getLabel().isEmpty()) { 
+										continue conditions;
+									}
+									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+										continue conditions;
+									}
 
-							i++;
-							gens[i] = generators
-							.get(i).getBacktracker(__eval);
-							gens[i].init();
-							olds[i] = __eval.getCurrentEnvt();
+									throw e;
+								}
+								catch (ContinueException e) {
+									// try next assignment of generators!
+									if (!e.hasLabel() && getLabel().isEmpty()) { 
+										continue conditions;
+									}
+									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+										continue conditions;
+									}
+
+									throw e;
+								}
+								catch (BreakException e) {
+									if (!e.hasLabel() && getLabel().isEmpty()) { 
+										IValue value = __eval.__getAccumulators().pop().done();
+										return org.rascalmpl.interpreter.result.ResultFactory
+												.makeResult(value.getType(), value, __eval);
+									}
+									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+										IValue value = __eval.__getAccumulators().pop().done();
+										return org.rascalmpl.interpreter.result.ResultFactory
+												.makeResult(value.getType(), value, __eval);
+									}
+
+									throw e;
+								}
+							}
+							else {
+								i++;
+								gens[i] = generators
+										.get(i).getBacktracker(__eval);
+								gens[i].init();
+								olds[i] = __eval.getCurrentEnvt();
+							}
 						} else {
 							i--;
 						}

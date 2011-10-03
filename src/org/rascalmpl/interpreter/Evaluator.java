@@ -682,7 +682,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		} catch (Return e) {
 			throw new UnguardedReturnError(stat);
 		} catch (Failure e) {
-			throw new UnguardedFailError(stat);
+			throw new UnguardedFailError(stat, e);
 		} catch (Insert e) {
 			throw new UnguardedInsertError(stat);
 		}

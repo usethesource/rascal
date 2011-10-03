@@ -582,6 +582,8 @@ syntax Bound
 
 keyword RascalKeywords
 	= "int"
+	| "break"
+	| "continue"
 	| "rat" 
 	| "true" 
 	| "bag" 

@@ -122,16 +122,20 @@ public class StatementTests extends TestFramework {
 
 	@Test
 	public void fail() {
-	}
-
-	@Test
-	public void first() {
+		prepare("data X = x(int i) | x();");
+		prepareMore("X x(int i) { if (i % 2 == 0) fail x; else return x(); }");
+		assertTrue(runTestInSameEvaluator("x(2) := x(2)"));
+		assertTrue(runTestInSameEvaluator("x(3) == x()"));
+		
 	}
 
 	@Test
 	public void testFor() {
 		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4]){ n = n + i;} n == 10;}"));
 		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4], n <= 3){ n = n + i;} n == 6;}"));
+		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4]){ n = n + 1; if (n == 3) break; } n == 3;}"));
+		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4], n <= 3){ if (n == 3) continue; n = n + 1; } n == 3;}"));
+		assertTrue(runTest("{int n = 0; loop:for(int i <- [1,2,3,4], n <= 3){ if (n == 3) fail loop; n = n + 1; } n == 3;}"));
 	}
 	
 	@Test
@@ -145,6 +149,7 @@ public class StatementTests extends TestFramework {
 	public void ifThen() {
 		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} n == 10;}"));
 		assertTrue(runTest("{int n = 10; if(n < 15){n = n - 4;} n == 6;}"));
+		assertTrue(runTest("{int n = 10; l:if(int i <- [1,2,3]){ if (i % 2 != 0) { n = n + 4; fail l; } n = n - 4;} n == 10;}"));
 	}
 	
 
