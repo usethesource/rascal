@@ -117,6 +117,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
 		Type tuple = getTypeFactory().tupleType(argTypes);
 		AbstractFunction failed = null;
+		Failure failure = null;
 		
 		for (AbstractFunction candidate : candidates) {
 			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
@@ -129,13 +130,14 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 				}
 				catch (Failure e) {
 					failed = candidate;
+					failure = e;
 					// could happen if function body throws fail
 				}
 			}
 		}
 		
 		if (failed != null && mustSucceed) {
-			throw new UnguardedFailError(failed.ast);
+			throw new UnguardedFailError(failed.ast, failure);
 		}
 		
 		return null;

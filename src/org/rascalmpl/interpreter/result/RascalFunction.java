@@ -48,6 +48,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
@@ -178,6 +179,12 @@ public class RascalFunction extends NamedFunction {
 						}
 						catch (Failure e) {
 							// backtrack current pattern assignment
+							if (!e.hasLabel() || e.hasLabel() && e.getLabel().equals(getName())) {
+								continue;
+							}
+							else {
+								throw new UnguardedFailError(getAst(), e);
+							}
 //							ctx.unwind(olds[i]);
 //							i--;
 //							ctx.pushEnv();
