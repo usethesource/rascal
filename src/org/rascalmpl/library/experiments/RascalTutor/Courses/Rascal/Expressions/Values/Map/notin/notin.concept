@@ -1,6 +1,6 @@
 Name: notin
 
-Synopsis:
+Synopsis: Negated membership test on the keys of a map.
 
 Syntax:
 `$Exp_1$ notin $Exp_2$`

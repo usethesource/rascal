@@ -1,6 +1,6 @@
 Name: mapper
 
-Synopsis:
+Synopsis: Apply a function to all (key, value) pairs in a map.
 
 Syntax:
 

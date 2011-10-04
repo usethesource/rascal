@@ -1,6 +1,6 @@
 Name: toString
 
-Synopsis:
+Synopsis: Convert a map to a string.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Convert map `M` to a string.
+
 
 Examples:
 <screen>

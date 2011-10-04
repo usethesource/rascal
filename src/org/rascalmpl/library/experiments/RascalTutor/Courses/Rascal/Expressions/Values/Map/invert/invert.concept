@@ -1,6 +1,6 @@
 Name: invert
 
-Synopsis:
+Synopsis: Invert the (key,value) pairs in a map.
 
 Syntax:
 

@@ -1,6 +1,6 @@
 Name: SubMap
 
-Synopsis:
+Synopsis: Submap operator on map values.
 
 Syntax:
 `$Exp_1$ <= $Exp_2$`

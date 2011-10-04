@@ -1,6 +1,6 @@
 Name: in
 
-Synopsis:
+Synopsis: Membership test on the keys of a map.
 
 Syntax:
 `$Exp_1$ in $Exp_2$`

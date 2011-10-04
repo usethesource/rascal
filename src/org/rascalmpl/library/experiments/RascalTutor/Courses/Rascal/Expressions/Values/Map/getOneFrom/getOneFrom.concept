@@ -1,6 +1,6 @@
 Name: getOneFrom
 
-Synopsis:
+Synopsis: Get a random key from a map.
 
 Syntax:
 

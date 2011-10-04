@@ -1,6 +1,6 @@
 Name: StrictSuperMap
 
-Synopsis:
+Synopsis: Strict supermap operator on map values.
 
 Syntax:
 `$Exp_1$ > $Exp_2$`

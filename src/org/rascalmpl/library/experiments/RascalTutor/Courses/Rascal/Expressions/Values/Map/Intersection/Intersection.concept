@@ -1,6 +1,6 @@
 Name: Intersection
 
-Synopsis:
+Synopsis:  Intersection of two maps.
 
 Syntax:
 `$Exp_1$ & $Exp_2$`

@@ -1,6 +1,6 @@
 Name: toList
 
-Synopsis:
+Synopsis: Convert a map to a list of tuples.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Convert a map to a list of tuples.
+
 
 Examples:
 <screen>

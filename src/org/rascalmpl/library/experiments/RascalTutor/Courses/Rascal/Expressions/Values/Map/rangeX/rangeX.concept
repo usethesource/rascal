@@ -1,6 +1,6 @@
 Name: rangeX
 
-Synopsis:
+Synopsis: Map with certain values in (key,value) pairs excluded.
 
 Syntax:
 

@@ -1,6 +1,6 @@
 Name: isEmpty
 
-Synopsis:
+Synopsis: Test whether a map is empty.
 
 Syntax:
 

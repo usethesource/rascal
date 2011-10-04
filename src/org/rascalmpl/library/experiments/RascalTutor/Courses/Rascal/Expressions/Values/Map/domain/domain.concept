@@ -1,6 +1,6 @@
 Name: domain
 
-Synopsis:
+Synopsis: Determine the domain (set of keys) of a map.
 
 Syntax:
 

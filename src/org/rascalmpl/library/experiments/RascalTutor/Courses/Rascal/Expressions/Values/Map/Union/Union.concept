@@ -1,6 +1,6 @@
 Name: Union
 
-Synopsis:
+Synopsis: Union of two maps.
 
 Syntax:
 `$Exp_1$ + $Exp_2$`

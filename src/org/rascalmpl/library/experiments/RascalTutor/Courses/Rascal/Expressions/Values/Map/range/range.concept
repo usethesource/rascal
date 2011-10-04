@@ -1,6 +1,6 @@
 Name: range
 
-Synopsis:
+Synopsis: The range (set of values that correspond to its keys) of a map.
 
 Syntax:
 

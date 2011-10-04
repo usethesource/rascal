@@ -1,6 +1,6 @@
 Name: toRel
 
-Synopsis:
+Synopsis: Covert a map to a relation.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Covert map `M` to a relation.
+
 
 Examples:
 <screen>
