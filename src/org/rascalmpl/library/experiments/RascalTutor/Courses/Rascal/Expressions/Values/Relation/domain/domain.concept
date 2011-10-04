@@ -1,6 +1,6 @@
 Name: domain
 
-Synopsis:
+Synopsis: Domain of a binary relation: a set consisting of the first element of each tuple.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns a set consisting of the first element of each tuple in binary relation.
+
 
 Examples:
 <screen>

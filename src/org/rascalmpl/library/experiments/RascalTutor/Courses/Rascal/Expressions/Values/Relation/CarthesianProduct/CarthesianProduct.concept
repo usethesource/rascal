@@ -1,6 +1,6 @@
 Name: CarthesianProduct
 
-Synopsis:
+Synopsis: Carthesian product of two relation values.
 
 Syntax:
 `$Exp_1$ * $Exp_2$`

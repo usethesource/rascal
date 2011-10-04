@@ -1,6 +1,6 @@
 Name: invert
 
-Synopsis:
+Synopsis: Invert the tuples in a relation.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Invert the tuples in relation `R`.
+
 
 Examples:
 <screen>

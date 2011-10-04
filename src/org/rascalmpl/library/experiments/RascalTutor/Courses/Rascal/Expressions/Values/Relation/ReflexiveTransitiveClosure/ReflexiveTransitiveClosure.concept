@@ -1,6 +1,6 @@
 Name: ReflexiveTransitiveClosure
 
-Synopsis:
+Synopsis: The reflexive transitive closure of a binary relation.
 
 Syntax:
 `$Exp$ *`
@@ -15,7 +15,7 @@ Function:
 Details:
 
 Description:
-Returns the reflexive transitive closure of a binary relation.
+
 
 Examples:
 <screen>

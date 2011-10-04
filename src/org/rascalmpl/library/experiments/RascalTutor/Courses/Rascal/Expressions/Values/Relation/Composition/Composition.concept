@@ -1,6 +1,6 @@
 Name: Composition
 
-Synopsis:
+Synopsis: Composition of two relation values.
 
 Syntax:
 `$Exp_1$ o $Exp_2$`

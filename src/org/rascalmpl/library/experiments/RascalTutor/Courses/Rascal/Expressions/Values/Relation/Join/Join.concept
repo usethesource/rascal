@@ -1,6 +1,6 @@
 Name: Join
 
-Synopsis:
+Synopsis: Join two relation values.
 
 Syntax:
 `$Exp_1$ join $Exp_2$`

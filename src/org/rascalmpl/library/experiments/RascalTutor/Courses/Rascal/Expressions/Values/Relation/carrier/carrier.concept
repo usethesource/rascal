@@ -1,6 +1,6 @@
 Name: carrier
 
-Synopsis:
+Synopsis: Returns the set of all elements in any tuple in a relation.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns all elements in any tuple in a relation.
+
 
 Examples:
 <screen>

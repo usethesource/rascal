@@ -1,6 +1,6 @@
 Name: complement
 
-Synopsis:
+Synopsis: Complement of a relation.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Complement of relation
+
 
 Examples:
 <screen>

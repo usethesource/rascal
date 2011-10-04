@@ -1,6 +1,6 @@
 Name: Subscription
 
-Synopsis:
+Synopsis: Indexing of a relation via tuple values.
 
 Syntax:
 # `$Exp_0$ [ $Exp_1$, $Exp_2$, ... $Exp_n$]`

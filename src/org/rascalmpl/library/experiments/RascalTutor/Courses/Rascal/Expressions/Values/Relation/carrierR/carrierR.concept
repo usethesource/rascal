@@ -1,6 +1,6 @@
 Name: carrierR
 
-Synopsis:
+Synopsis: A relation restricted to certain element values in tuples.
 
 Syntax:
 

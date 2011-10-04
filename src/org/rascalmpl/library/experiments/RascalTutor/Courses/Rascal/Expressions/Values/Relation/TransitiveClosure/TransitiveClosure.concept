@@ -1,6 +1,6 @@
 Name: TransitiveClosure
 
-Synopsis:
+Synopsis: Transitive closure on relation values.
 
 Syntax:
 `$Exp$ +`
