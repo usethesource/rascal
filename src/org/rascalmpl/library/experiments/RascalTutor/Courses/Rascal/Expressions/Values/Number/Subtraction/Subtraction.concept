@@ -1,6 +1,6 @@
 Name: Subtraction
 
-Synopsis:
+Synopsis: Subtract two numeric values.
 
 Syntax:
 `$Exp_1$ - $Exp_2$`

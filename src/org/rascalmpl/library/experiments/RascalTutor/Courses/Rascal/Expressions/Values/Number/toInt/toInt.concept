@@ -1,6 +1,6 @@
 Name: toInt
 
-Synopsis:
+Synopsis: Convert a numeric value to an integer.
 
 Syntax:
 

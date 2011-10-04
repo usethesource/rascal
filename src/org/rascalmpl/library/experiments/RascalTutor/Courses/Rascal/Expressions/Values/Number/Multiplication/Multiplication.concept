@@ -1,6 +1,6 @@
 Name: Multiplication
 
-Synopsis:
+Synopsis: Multiply two numeric values.
 
 Syntax:
 `$Exp_1$ * $Exp_2$`

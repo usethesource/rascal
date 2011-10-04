@@ -1,6 +1,6 @@
 Name: toString
 
-Synopsis:
+Synopsis: Convert a numeric value to a string.
 
 Syntax:
 
@@ -12,7 +12,6 @@ Function:
 Details:
 
 Description:
-Convert a number to a string.
 
 Examples:
 <screen>

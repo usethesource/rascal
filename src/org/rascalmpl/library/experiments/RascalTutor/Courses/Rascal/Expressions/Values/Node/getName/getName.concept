@@ -1,6 +1,6 @@
 Name: getName
 
-Synopsis:
+Synopsis: Determine the name of a node.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns the name of a node.
+
 
 Examples:
 <screen>

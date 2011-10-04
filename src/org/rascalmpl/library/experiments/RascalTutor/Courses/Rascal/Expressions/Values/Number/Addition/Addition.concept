@@ -1,6 +1,6 @@
 Name: Addition
 
-Synopsis:
+Synopsis: Addition on numeric values.
 
 Syntax:
 `$Exp_1$ + $Exp_2$`

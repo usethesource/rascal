@@ -1,6 +1,6 @@
 Name: makeNode
 
-Synopsis:
+Synopsis: Creates a node given its function name and arguments.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Creates a node given its function name and arguments.
+
 
 Examples:
 <screen>

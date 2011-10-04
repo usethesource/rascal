@@ -1,6 +1,6 @@
 Name: arity
 
-Synopsis:
+Synopsis: Determine the number of children of a node.
 
 Syntax:
 
@@ -12,7 +12,7 @@ int arity(node T)
 Details:
 
 Description:
-Returns the number of children of a node.
+
 
 Examples:
 <screen>

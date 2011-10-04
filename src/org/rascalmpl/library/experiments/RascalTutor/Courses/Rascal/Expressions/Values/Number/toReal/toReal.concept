@@ -1,6 +1,6 @@
 Name: toReal
 
-Synopsis:
+Synopsis: Convert a numeric value to a real.
 
 Syntax:
 
@@ -12,7 +12,6 @@ Function:
 Details:
 
 Description:
-Convert a number to a real
 
 Examples:
 <screen>

@@ -1,6 +1,6 @@
 Name: NotEqual
 
-Synopsis:
+Synopsis: Not equal operator on numeric values.
 
 Syntax:
 `$Exp_1$ != $Exp_2$`

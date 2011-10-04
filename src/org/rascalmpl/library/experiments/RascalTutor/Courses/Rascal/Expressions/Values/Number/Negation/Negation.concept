@@ -1,6 +1,6 @@
 Name: Negation
 
-Synopsis:
+Synopsis: Negate a numeric value.
 
 Syntax:
 `- $Exp$`

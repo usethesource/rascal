@@ -1,6 +1,6 @@
 Name: setAnnotations
 
-Synopsis:
+Synopsis: Add anootations to a node value.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Set the annotations on node value `x` as descriped by map `annotations`.
+Set the annotations on node value `x` as descriped by the map `annotations`.
 
 Examples:
 <screen>

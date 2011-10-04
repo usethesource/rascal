@@ -1,6 +1,6 @@
 Name: Remainder
 
-Synopsis:
+Synopsis: Remainder of two integer values.
 
 Syntax:
 `$Exp_1$ % $Exp_2$`
