@@ -1,6 +1,6 @@
 Name: Call
 
-Synopsis:
+Synopsis: Function call.
 
 Syntax:
 `$Name$ ( $Exp_1$, $Exp_2$, ... )`

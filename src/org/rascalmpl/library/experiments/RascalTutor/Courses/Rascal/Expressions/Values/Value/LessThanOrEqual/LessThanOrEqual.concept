@@ -1,6 +1,6 @@
 Name: LessThanOrEqual
 
-Synopsis:
+Synopsis: Less than or equal operator on values.
 
 Syntax:
 `$Exp_1$ <= $Exp_2$`
