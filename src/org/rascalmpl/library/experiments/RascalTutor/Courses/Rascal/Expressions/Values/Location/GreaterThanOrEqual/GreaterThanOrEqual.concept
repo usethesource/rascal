@@ -1,6 +1,6 @@
 Name: GreaterThanOrEqual
 
-Synopsis:
+Synopsis: The greater than or equal operator on location values.
 
 Syntax:
 `$Exp_1$ >= $Exp_2$`

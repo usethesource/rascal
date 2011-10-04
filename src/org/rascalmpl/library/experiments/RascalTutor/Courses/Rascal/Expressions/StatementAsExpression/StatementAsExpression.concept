@@ -1,6 +1,6 @@
 Name: StatementAsExpression
 
-Synopsis:
+Synopsis: Statements that have a value and can be used as expressions.
 
 Syntax:
 

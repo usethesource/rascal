@@ -1,6 +1,6 @@
 Name: getOneFrom
 
-Synopsis:
+Synopsis: Pick a random element from a list.
 
 Syntax:
 

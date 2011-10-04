@@ -1,6 +1,6 @@
 Name: index
 
-Synopsis:
+Synopsis: A list of legal index values of a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns a list of all legal index values for a given list `lst`. See [List/domain] for a function that returns a set of legal index values.
+Returns a list of all legal index values for a given list `lst`. See [List/domain] for a function that returns a _set_ of legal index values.
 
 Examples:
 <screen>

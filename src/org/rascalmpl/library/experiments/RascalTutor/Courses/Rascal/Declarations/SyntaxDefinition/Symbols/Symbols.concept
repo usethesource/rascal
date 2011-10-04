@@ -1,6 +1,6 @@
 Name: Symbols
 
-Synopsis:
+Synopsis: The symbols that can occur in a syntax definition.
 
 Syntax:
 Nonterminal symbols are written using identifier names that _start with a capital_.

@@ -1,8 +1,8 @@
 Name: Regular
 
-Synopsis:
+Synopsis: Regular expression patterns.
 
-Syntax:
+Syntax: `/ $RegExp$ / $Modifiers$`
 
 Types:
 

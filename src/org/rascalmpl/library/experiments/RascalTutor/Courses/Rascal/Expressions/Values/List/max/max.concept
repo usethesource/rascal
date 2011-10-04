@@ -1,6 +1,6 @@
 Name: max
 
-Synopsis:
+Synopsis: Determine the largest element from a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns the largest element from a list.
+
 
 Examples:
 <screen>

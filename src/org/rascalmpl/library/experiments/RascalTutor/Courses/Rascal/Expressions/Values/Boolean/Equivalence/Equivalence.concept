@@ -1,6 +1,6 @@
 Name: Equivalence
 
-Synopsis:
+Synopsis: The _equivalence_ operator on Boolean values.
 
 Syntax:
 `$Exp_1$ <==> $Exp_2$`

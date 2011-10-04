@@ -1,8 +1,19 @@
 Name: Abstract
 
-Synopsis:
+Synopsis: The abstract patterns.
 
-Syntax:
+Syntax:<br>
+`$Type$ $Var$`<br>
+`$Var$*`<br>
+`$Var$`<br>
+`[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`<br>
+`{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`<br>
+`< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`<br>
+`$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`<br>
+`/ $Pat$`<br>
+`$Var$ : $Pat$`<br>
+`$Type$ $Var$ : $Pat$`<br>
+`[$Type$] $Pat$`
 
 Types:
 
@@ -32,7 +43,7 @@ A multi-variable is an abbreviation for a variable declaration pattern.
 
 * A _variable pattern_
 <listing>
-Var
+$Var$
 </listing>
 A variable pattern can act in two roles:
 

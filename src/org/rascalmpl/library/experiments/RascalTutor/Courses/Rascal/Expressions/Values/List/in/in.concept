@@ -1,6 +1,6 @@
 Name: in
 
-Synopsis:
+Synopsis: Membership test on list elements.
 
 Syntax:
 `$Exp_1$ in $Exp_2$`

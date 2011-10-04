@@ -1,6 +1,6 @@
 Name: Difference
 
-Synopsis:
+Synopsis: The difference between two lists.
 
 Syntax:
 `$Exp_1$ - $Exp_2$`
@@ -17,7 +17,7 @@ Function:
 Details:
 
 Description:
-If both $Exp_1$ and $Exp_2$ have a set as value, the result is the difference of these two list values. If one of $Exp_1$ or $Exp_2$ does not have a list as value, it is first converted to a list before the difference is computed.
+If both $Exp_1$ and $Exp_2$ have a list as value, the result is the difference of these two list values. If one of $Exp_1$ or $Exp_2$ does not have a list as value, it is first converted to a list before the difference is computed.
 
 Examples:
 <screen>

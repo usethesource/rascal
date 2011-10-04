@@ -1,12 +1,12 @@
 Name: toReal
 
-Synopsis:
+Synopsis: Convert Boolean value to real.
 
 Syntax:
 
 Types:
 
-Function:
+Function: `real toReal(bool b)`
 
 Details:
 

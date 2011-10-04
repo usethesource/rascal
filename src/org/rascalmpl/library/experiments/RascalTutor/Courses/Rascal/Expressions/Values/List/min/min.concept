@@ -1,6 +1,6 @@
 Name: min
 
-Synopsis:
+Synopsis: Determine the smallest element from a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns the smallest element from a list.
+
 
 Examples:
 <screen>

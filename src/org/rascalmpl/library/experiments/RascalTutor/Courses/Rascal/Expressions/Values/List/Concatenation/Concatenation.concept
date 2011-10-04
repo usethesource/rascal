@@ -1,6 +1,6 @@
 Name: Concatenation
 
-Synopsis:
+Synopsis: Concatenate two lists.
 
 Syntax:
 `$Exp_1$ + $Exp_2$`

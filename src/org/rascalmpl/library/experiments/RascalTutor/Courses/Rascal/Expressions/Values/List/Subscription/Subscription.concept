@@ -1,6 +1,6 @@
 Name: Subscription
 
-Synopsis:
+Synopsis: Retrieve a list element via its index.
 
 Syntax:
 `$Exp_1$ [ $Exp_2$ ]`

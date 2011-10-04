@@ -1,6 +1,6 @@
 Name: Equal
 
-Synopsis:
+Synopsis: Equality on lists.
 
 Syntax:
 `$Exp_1$ == $Exp_2$`

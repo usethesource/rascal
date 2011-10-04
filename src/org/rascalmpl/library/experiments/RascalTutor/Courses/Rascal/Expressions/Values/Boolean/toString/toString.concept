@@ -1,12 +1,12 @@
 Name: toString
 
-Synopsis:
+Synopsis: Convert Boolean value to string.
 
 Syntax:
 
 Types:
 
-Function:
+Function: str toString(bool b)`
 
 Details:
 

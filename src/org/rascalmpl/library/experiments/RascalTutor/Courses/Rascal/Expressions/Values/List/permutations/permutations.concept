@@ -1,6 +1,6 @@
 Name: permutations
 
-Synopsis:
+Synopsis: Compute all permutations of a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns all permutations of a list.
+
 
 Examples:
 <screen>

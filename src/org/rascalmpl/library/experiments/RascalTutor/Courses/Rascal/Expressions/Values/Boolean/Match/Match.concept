@@ -1,6 +1,6 @@
 Name: Match
 
-Synopsis:
+Synopsis: Match a [Pattern] against an [Expression].
 
 Syntax:
 `$Pat$ := $Exp$`

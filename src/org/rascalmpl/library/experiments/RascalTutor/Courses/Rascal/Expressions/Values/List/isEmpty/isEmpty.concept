@@ -1,6 +1,6 @@
 Name: isEmpty
 
-Synopsis:
+Synopsis: Test whether a list is empty.
 
 Syntax:
 

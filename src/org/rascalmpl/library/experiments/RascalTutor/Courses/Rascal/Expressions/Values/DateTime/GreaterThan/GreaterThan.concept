@@ -1,6 +1,6 @@
 Name: GreaterThan
 
-Synopsis:
+Synopsis: Greater than operator on datetime values.
 
 Syntax:
 `$Exp_1$ > $Exp_2$`

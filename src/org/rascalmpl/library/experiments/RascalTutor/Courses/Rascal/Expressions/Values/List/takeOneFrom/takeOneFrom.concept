@@ -1,6 +1,6 @@
 Name: takeOneFrom
 
-Synopsis:
+Synopsis: Remove an arbitrary element from a list.
 
 Syntax:
 

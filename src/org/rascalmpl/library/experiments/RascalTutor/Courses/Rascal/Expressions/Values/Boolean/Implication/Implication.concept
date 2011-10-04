@@ -1,6 +1,6 @@
 Name: Implication
 
-Synopsis:
+Synopsis: The _implication_ operator on Boolean values.
 
 Syntax:
 `$Exp_1$ ==> $Exp_2$`

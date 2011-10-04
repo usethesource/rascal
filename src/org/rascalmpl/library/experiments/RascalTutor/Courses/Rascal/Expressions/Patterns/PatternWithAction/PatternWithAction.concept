@@ -1,6 +1,6 @@
 Name: PatternWithAction
 
-Synopsis:
+Synopsis: A pattern with an associated action that is executed on a succesfull match.
 
 Syntax:
 # `$Pattern$ => $Exp$`

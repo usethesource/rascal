@@ -1,6 +1,6 @@
 Name: All
 
-Synopsis:
+Synopsis: All argument expressions are true.
 
 Syntax:
 `all ( $Exp_1$, $Exp_2$, ... )`

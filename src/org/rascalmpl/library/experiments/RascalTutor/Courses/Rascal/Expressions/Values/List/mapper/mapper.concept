@@ -1,6 +1,6 @@
 Name: mapper
 
-Synopsis:
+Synopsis: Apply a function to all list elements and return list of results.
 
 Syntax:
 

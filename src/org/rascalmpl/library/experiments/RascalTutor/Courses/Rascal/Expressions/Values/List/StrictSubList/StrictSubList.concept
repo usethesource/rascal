@@ -1,6 +1,6 @@
 Name: StrictSubList
 
-Synopsis:
+Synopsis: The strict sublist operator on lists.
 
 Syntax:
 `$Exp_1$ < $Exp_2$`

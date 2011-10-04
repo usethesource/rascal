@@ -1,7 +1,6 @@
 Name: AmbiguityDetection
 
-Synopsis:
-[AmbiDexter] is a tool that analyzes [SyntaxDefinition]s, including their [Disambiguation]s, to try and determine which ambiguities it contains. 
+Synopsis: Ambiguity detection helps to find ambiguities in syntax definitions.
 
 Syntax:
 
@@ -12,6 +11,7 @@ Function:
 Details:
 
 Description:
+[AmbiDexter] is a tool that analyzes [SyntaxDefinition]s, including their [Disambiguation]s, to try and determine which ambiguities it contains. 
 Static detection of ambiguity is not decidable, nevertheless [AmbiDexter] does a fine job at finding them. 
 
 <warning>[AmbiDexter] is now a separate commandline tool which still needs integration</warning>

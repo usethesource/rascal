@@ -1,8 +1,20 @@
 Name: Concrete
 
-Synopsis:
+Synopsis: Concrete patterns
 
 Syntax:
+<listing>
+` $Token_1$ $Token_2$ ... $Token_n$ `
+</listing>
+<listing>
+($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
+</listing>
+<listing>
+<$Type$ $Var$><br>
+</listing>
+<listing>
+<$Var$>
+</listing>
 
 Types:
 

@@ -1,6 +1,6 @@
 Name: FieldSelection
 
-Synopsis:
+Synopsis: Field selection on locations.
 
 Syntax:
 `$Exp$ . $Name$`

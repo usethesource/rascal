@@ -1,6 +1,6 @@
 Name: FieldSelection
 
-Synopsis:
+Synopsis: Select a field from a datetime value.
 
 Syntax:
 `$Exp$ . $Name$`
@@ -15,7 +15,7 @@ Function:
 Details:
 
 Description:
-Field selection applies to `datatime` values. 
+Field selection applies to `datetime` values. 
 $Name$ should be one of the supported fields listen in [DateTime] and returns the value of that field. 
 Name stands for itself and is not evaluated.
 

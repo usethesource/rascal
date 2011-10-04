@@ -1,6 +1,6 @@
 Name: Negation
 
-Synopsis:
+Synopsis: The _not_ operator on Boolean values.
 
 Syntax:
 `! $Exp$`

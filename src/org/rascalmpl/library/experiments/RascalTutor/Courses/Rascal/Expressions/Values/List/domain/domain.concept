@@ -1,6 +1,6 @@
 Name: domain
 
-Synopsis:
+Synopsis: The set of all legal indices of a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-returns the set of all legal index values for a list. Also see [List/index] for a function that returns a list
+Returns the set of all legal index values for a list. Also see [List/index] for a function that returns a list
 of index values.
 
 Examples:

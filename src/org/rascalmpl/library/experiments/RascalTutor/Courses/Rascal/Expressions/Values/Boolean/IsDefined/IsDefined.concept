@@ -1,6 +1,6 @@
 Name: IsDefined
 
-Synopsis:
+Synopsis: Test whether the value of an expression is defined.
 
 Syntax:
 `$Exp$ ?`

@@ -1,6 +1,6 @@
 Name: Or
 
-Synopsis:
+Synopsis: The _or_ operator on Boolean values.
 
 Syntax:
 `$Exp_1$ || $Exp_2$`

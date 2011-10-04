@@ -1,6 +1,6 @@
 Name: Product
 
-Synopsis:
+Synopsis: Compute the product of two lists.
 
 Syntax:
 `$Exp_1$ * $Exp_2$`

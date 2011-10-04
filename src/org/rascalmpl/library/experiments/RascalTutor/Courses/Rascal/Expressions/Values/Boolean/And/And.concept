@@ -1,6 +1,6 @@
 Name: And
 
-Synopsis:
+Synopsis: Boolean _and_ operator (`&&`).
 
 Syntax:
 `$Exp_1$ && $Exp_2$`

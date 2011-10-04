@@ -667,6 +667,11 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Convert a list of tuples to a map.
+
+</div>
+
 <div id="Function">
 <span class="sectionHead">Function</span>  <code>map[&amp;A,&amp;B] toMapUnique(list[tuple[&amp;A, &amp;B]] lst) throws MultipleKey</code>
 
@@ -689,6 +694,12 @@ map[int, int]: (3:30,2:20,1:10)
 Uncaught Rascal Exception: prompt:///:1,0: MultipleKey(1)
     somewhere in: $shell$
 </pre>
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  The keys in a map are unique by definition.
+ <code>toMapUnique</code> throws a <code>MultipleKey</code> exception when the list contains more than one tuple with the same first value.
+
 </div>
 
 <div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/toMapUnique&new=false"><b>Edit</b></a>] | 

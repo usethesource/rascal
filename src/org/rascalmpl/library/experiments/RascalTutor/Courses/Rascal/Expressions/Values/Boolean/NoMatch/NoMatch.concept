@@ -1,6 +1,6 @@
 Name: NoMatch
 
-Synopsis:
+Synopsis: Negated [Match] operator.
 
 Syntax:
 `$Pat$ !:= $Exp$`

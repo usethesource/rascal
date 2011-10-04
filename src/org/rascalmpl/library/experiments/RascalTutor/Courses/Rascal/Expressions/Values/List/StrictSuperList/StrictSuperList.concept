@@ -1,6 +1,6 @@
 Name: StrictSuperList
 
-Synopsis:
+Synopsis: The strict super list operator on lists.
 
 Syntax:
 `$Exp_1$ > $Exp_2$`

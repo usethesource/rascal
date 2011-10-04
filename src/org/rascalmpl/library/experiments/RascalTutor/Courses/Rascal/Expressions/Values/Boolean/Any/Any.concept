@@ -1,6 +1,6 @@
 Name: Any
 
-Synopsis:
+Synopsis: Any combination of argument values is true.
 
 Syntax:
 `any ( $Exp_1$, $Exp_2$, ... )`

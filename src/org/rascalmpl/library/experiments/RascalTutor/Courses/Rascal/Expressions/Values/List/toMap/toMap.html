@@ -668,12 +668,12 @@
 </div>
          
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  <Warning> Why duplicate key?</warning>
+<span class="sectionHead">Synopsis</span>  Convert a list of pairs to a map.
 
 </div>
 
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>map[&amp;A,set[&amp;B]] toMap(list[tuple[&amp;A, &amp;B]] lst) throws DuplicateKey</code>
+<span class="sectionHead">Function</span>  <code>map[&amp;A,set[&amp;B]] toMap(list[tuple[&amp;A, &amp;B]] lst)</code>
 
 </div>
 
@@ -693,6 +693,13 @@ map[int, set[int]]: (
   1:{11,10}
 )
 </pre>
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <code>toMap</code> collects all values in tuples with the same first value in a set.
+ Contrast this with <code>toMapUnique</code> that associates each first tuple value with the second tuple value,
+ but imposes the constraint that those keys are unique.
+
 </div>
 
 <div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/toMap&new=false"><b>Edit</b></a>] | 

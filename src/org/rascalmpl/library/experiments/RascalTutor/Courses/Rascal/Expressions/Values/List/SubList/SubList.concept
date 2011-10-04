@@ -1,6 +1,6 @@
 Name: SubList
 
-Synopsis:
+Synopsis: The sublist operator on lists.
 
 Syntax:
 `$Exp_1$ <= $Exp_2$`

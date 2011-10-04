@@ -1,7 +1,6 @@
 Name: AmbiguityDiagnosis
 
-Synopsis:
-The [DrAmbiguity] diagnosis tool can help you find the causes of ambiguous parse trees and possible [Disambiguation]s to solve them in a [SyntaxDefinition].
+Synopsis: Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambiguous.
 
 Syntax:
 
@@ -12,6 +11,7 @@ Function:
 Details:
 
 Description:
+The [DrAmbiguity] diagnosis tool can help you find the causes of ambiguous parse trees and possible [Disambiguation]s to solve them in a [SyntaxDefinition].
 DrAmbiguity is a library that processes any parse forest produced by a parser generated from Rascal's [SyntaxDefinition]s. Please read [Disambiguation] first.
 
 <warning>DrAmbiguity is now only a library function, while it should be integrated into the Rascal IDE</warning>

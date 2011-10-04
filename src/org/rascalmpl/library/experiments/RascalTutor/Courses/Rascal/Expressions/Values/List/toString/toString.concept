@@ -1,6 +1,6 @@
 Name: toString
 
-Synopsis:
+Synopsis: Convert a list to a string.
 
 Syntax:
 

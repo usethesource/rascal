@@ -1,6 +1,6 @@
 Name: TypeConstraints
 
-Synopsis:
+Synopsis: Type constraints restrict the acceptable type for parameters.
 
 Syntax:
 `&$Name$ <: $Type$`

@@ -1,6 +1,6 @@
 Name: sort
 
-Synopsis:
+Synopsis: Sort the elements of a list.
 
 Syntax:
 
@@ -15,7 +15,6 @@ Description:
 Sort the elements of a list.
 
 Examples:
-<warning> Something wrong here, seems scope issue</warning>
 <screen>
 import List;
 sort([10, 4, -2, 11, 100, 5]);

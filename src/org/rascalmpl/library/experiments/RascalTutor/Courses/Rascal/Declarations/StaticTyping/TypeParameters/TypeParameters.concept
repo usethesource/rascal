@@ -1,6 +1,6 @@
 Name: TypeParameters
 
-Synopsis:
+Synopsis: Type parameters enable parameterized types.
 
 Syntax:
 `& $Name$`

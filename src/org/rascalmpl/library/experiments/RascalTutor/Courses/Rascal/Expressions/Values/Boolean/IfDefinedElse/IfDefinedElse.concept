@@ -1,6 +1,6 @@
 Name: IfDefinedElse
 
-Synopsis:
+Synopsis: Test whether expression has a defined value, otherwise provide alternative.
 
 Syntax:
 `$Exp_1$ ? $Exp_2$`

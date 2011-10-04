@@ -1,6 +1,6 @@
 Name: notin
 
-Synopsis:
+Synopsis: Negated membership test on lists.
 
 Syntax:
 `$Exp_1$ notin $Exp_2$`

@@ -1,7 +1,7 @@
 Name: SyntaxDefinition
 
 Synopsis:
-Syntax Definitions allow you to define parsers for programming languages or other formats.
+Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.
 
 Syntax:
 There are four kinds of non-terminals you can define: _lexical_, _syntax_, _layout_ and _keyword_. They all have the same syntax, but they differ in how they are processed by the parser generator and how parse trees defined by them are processed by pattern matching and expression evaluation.

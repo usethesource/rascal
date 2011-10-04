@@ -1,13 +1,13 @@
 Name: fromInt
 
-Synopsis:
+Synopsis: Convert from integer to Boolean.
 
 Syntax:
 
 Types:
 
 Function:
-`bool fromInt( )`
+`bool fromInt(int n)`
 
 Details:
 
