@@ -1,6 +1,6 @@
 Name: Subscription
 
-Synopsis:
+Synopsis: Retrieve a tuple field by its index position.
 
 Syntax:
 `$Exp_1$ [ $Exp_2$ ]`

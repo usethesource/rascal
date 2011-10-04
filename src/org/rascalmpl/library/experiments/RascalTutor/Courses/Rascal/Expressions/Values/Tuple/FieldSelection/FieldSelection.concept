@@ -1,6 +1,6 @@
 Name: FieldSelection
 
-Synopsis:
+Synopsis: Select a field from a tuple by its field name.
 
 Syntax:
 `$Exp$ . $Name$`

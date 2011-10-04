@@ -1,6 +1,6 @@
 Name: Concatenation
 
-Synopsis:
+Synopsis: Concatenate two tuple values.
 
 Syntax:
 `$Exp_1$ + $Exp_2$`
