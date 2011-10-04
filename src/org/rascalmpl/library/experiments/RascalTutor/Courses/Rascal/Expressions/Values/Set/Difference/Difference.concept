@@ -1,6 +1,6 @@
 Name: Difference
 
-Synopsis:
+Synopsis: The difference between two sets.
 
 Syntax:
 `$Exp_1$ - $Exp_2$`

@@ -1,6 +1,6 @@
 Name: Product
 
-Synopsis:
+Synopsis: The product of two set values.
 
 Syntax:
 `$Exp_1$ * $Exp_2$`

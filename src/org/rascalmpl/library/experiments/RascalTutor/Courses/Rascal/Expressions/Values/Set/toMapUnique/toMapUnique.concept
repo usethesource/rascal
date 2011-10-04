@@ -1,18 +1,18 @@
 Name: toMapUnique
 
-Synopsis:
+Synopsis: Convert a set of tuples to a map.
 
 Syntax:
 
 Types:
 
 Function:
-`map[&A, set[&B]] toMapUnique(set[tuple[&A, &B]] s) throws DuplicateKey`
+`map[&A, set[&B]] toMapUnique(set[tuple[&A, &B]] s) throws MulipleKey`
 
 Details:
 
 Description:
-Convert a set of tuples to a map. The result should be a legal map (i.e., without duplicate keys).
+Convert a set of tuples to a map. The result should be a legal map (i.e., without multiple keys).
 
 Examples:
 <screen>

@@ -1,6 +1,6 @@
 Name: StrictSubSet
 
-Synopsis:
+Synopsis: Strict subset operator on set values.
 
 Syntax:
 `$Exp_1$ < $Exp_2$`

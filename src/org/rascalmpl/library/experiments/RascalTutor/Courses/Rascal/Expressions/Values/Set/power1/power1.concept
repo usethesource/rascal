@@ -1,6 +1,6 @@
 Name: power1
 
-Synopsis:
+Synopsis: The powerset (excluding the empty set) of a set value.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Return all subsets (excluding the empty set) of `s`.
+Returns all subsets (excluding the empty set) of `s`.
 
 Examples:
 <screen>

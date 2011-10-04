@@ -1,6 +1,6 @@
 Name: SubSet
 
-Synopsis:
+Synopsis: Subset operator on set values.
 
 Syntax:
 `$Exp_1$ <= $Exp_2$`

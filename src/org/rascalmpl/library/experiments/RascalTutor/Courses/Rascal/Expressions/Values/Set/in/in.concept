@@ -1,6 +1,6 @@
 Name: in
 
-Synopsis:
+Synopsis: Membership test on set values.
 
 Syntax:
 `$Exp_1$ in $Exp_2$`

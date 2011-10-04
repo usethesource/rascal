@@ -1,6 +1,6 @@
 Name: reducer
 
-Synopsis:
+Synopsis: Apply a function to successive elements of a set and combine the results.
 
 Syntax:
 

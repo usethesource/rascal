@@ -1,6 +1,6 @@
 Name: SuperSet
 
-Synopsis:
+Synopsis: Superset operator on set values.
 
 Syntax:
 `$Exp_1$ >= $Exp_2$`

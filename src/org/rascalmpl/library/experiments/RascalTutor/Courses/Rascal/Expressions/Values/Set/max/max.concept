@@ -1,6 +1,6 @@
 Name: max
 
-Synopsis:
+Synopsis: Determine the largest element of a set.
 
 Syntax:
 
@@ -12,7 +12,6 @@ Function:
 Details:
 
 Description:
-Returns the largest element from a set.
 
 Examples:
 <screen>

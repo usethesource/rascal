@@ -1,6 +1,6 @@
 Name: toString
 
-Synopsis:
+Synopsis: Convert a set to a string.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Converts a set to a string.
+
 
 Examples:
 <screen>

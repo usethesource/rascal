@@ -1,6 +1,6 @@
 Name: toList
 
-Synopsis:
+Synopsis: Convert a set to a list.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Convert a set to a list.
+
 
 Examples:
 <screen>

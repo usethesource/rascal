@@ -1,6 +1,6 @@
 Name: StrictSuperSet
 
-Synopsis:
+Synopsis: Strict superset operator on set values.
 
 Syntax:
 `$Exp_1$ > $Exp_2$`

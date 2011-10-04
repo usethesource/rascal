@@ -1,6 +1,6 @@
 Name: size
 
-Synopsis:
+Synopsis:  Determine the number of elements in a set.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns the number of elements in `s`.
+
 
 Examples:
 <screen>

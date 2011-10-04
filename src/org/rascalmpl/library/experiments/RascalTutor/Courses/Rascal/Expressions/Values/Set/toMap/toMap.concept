@@ -1,6 +1,6 @@
 Name: toMap
 
-Synopsis:
+Synopsis: Convert a set of tuples to a map.
 
 Syntax:
 

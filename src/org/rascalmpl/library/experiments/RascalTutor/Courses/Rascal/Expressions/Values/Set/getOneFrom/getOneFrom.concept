@@ -1,6 +1,6 @@
 Name: getOneFrom
 
-Synopsis:
+Synopsis: Returns a random element from a set.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Returns a random element from set `s`.
+
 
 Examples:
 <screen>
