@@ -1,6 +1,6 @@
 Name: predecessors
 
-Synopsis:
+Synopsis: Determine the direct predessors of a graph node.
 
 Syntax:
 

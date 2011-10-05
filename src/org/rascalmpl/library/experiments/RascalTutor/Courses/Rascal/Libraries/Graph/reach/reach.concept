@@ -1,6 +1,6 @@
 Name: reach
 
-Synopsis:
+Synopsis: Determine the graph nodes reachable from a set of nodes.
 
 Syntax:
 

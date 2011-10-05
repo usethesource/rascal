@@ -1,6 +1,6 @@
 Name: While
 
-Synopsis:
+Synopsis: While loop.
 
 Syntax:
 `while ( $Exp$ ) $Statement$;`

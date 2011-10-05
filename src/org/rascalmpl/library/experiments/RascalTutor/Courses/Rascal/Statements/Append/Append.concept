@@ -1,6 +1,6 @@
 Name: Append
 
-Synopsis:
+Synopsis: Append an element to the list value produced by various loop statements.
 
 Syntax:
 `append $Exp$`

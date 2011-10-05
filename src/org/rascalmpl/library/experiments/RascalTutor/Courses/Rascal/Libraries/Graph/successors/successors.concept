@@ -1,6 +1,6 @@
 Name: successors
 
-Synopsis:
+Synopsis: Determine the direct successors of a graph node.
 
 Syntax:
 

@@ -1,6 +1,6 @@
 Name: Assert
 
-Synopsis:
+Synopsis: An executable assertion.
 
 Syntax:
 # `assert $Exp_1$`

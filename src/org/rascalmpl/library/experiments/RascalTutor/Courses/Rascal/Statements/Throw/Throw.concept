@@ -1,6 +1,6 @@
 Name: Throw
 
-Synopsis:
+Synopsis: Throw an exception.
 
 Syntax:
 `throw $Exp$`

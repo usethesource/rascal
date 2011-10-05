@@ -1,6 +1,6 @@
 Name: Solve
 
-Synopsis:
+Synopsis: Solve a set of equalities by fixed-point iteration.
 
 Syntax:
 `solve($Var_1$, $Var_2$, ..., $Var_n$; $Exp$) $Statement$;`

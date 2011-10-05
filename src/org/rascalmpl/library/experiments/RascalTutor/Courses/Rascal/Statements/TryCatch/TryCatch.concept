@@ -1,6 +1,6 @@
 Name: TryCatch
 
-Synopsis:
+Synopsis: Try to execute a statement and catch resulting exceptions.
 
 Syntax:
 <listing>

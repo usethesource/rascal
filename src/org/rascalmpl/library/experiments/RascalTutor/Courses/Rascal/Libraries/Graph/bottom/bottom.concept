@@ -1,6 +1,6 @@
 Name: bottom
 
-Synopsis:
+Synopsis: Determine the bottom nodes (leaves) of a graph.
 
 Syntax:
 

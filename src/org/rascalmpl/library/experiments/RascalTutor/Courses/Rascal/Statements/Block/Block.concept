@@ -1,6 +1,6 @@
 Name: Block
 
-Synopsis:
+Synopsis: Group statements into a block.
 
 Syntax:
 `{ $Statement_1$ ... $Statement_n$ }`

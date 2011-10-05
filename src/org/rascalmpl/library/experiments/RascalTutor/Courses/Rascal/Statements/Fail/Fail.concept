@@ -1,6 +1,6 @@
 Name: Fail
 
-Synopsis:
+Synopsis: Let the current statement fail.
 
 Syntax:
 `fail;`

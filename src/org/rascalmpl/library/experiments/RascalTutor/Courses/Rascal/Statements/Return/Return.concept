@@ -1,6 +1,6 @@
 Name: Return
 
-Synopsis:
+Synopsis: Return a value as result of a [Function].
 
 Syntax:
 # `return;`

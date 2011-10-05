@@ -1,6 +1,6 @@
 Name: reachR
 
-Synopsis:
+Synopsis: Determine the graph nodes reachable from a set of nodes using a restricted set of intermediate nodes.
 
 Syntax:
 
