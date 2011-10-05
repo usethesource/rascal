@@ -1,6 +1,6 @@
 Name: Basic
 
-Synopsis: Some basic, simple examples of Rascal programs.
+Synopsis: Some basic, simple, examples of Rascal programs.
 
 Syntax:
 
@@ -14,11 +14,13 @@ Hello Factorial ColoredTrees
 Description:
 
 
+
 Examples:
 
 Benefits:
 
 Pitfalls:
+These programs illustrate various features of Rascal rather than typical use cases of the language.
 
 Questions:
 

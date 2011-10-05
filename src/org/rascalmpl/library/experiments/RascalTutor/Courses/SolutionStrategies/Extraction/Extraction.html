@@ -6,22 +6,22 @@
 
 
 <head>
-<title>ProblemSolvingStrategies/Extraction</title>
+<title>SolutionStrategies/Extraction</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
-<script type="text/javascript" src="/Courses/ProblemSolvingStrategies/course.js"></script>
+<script type="text/javascript" src="/Courses/SolutionStrategies/course.js"></script>
 
 </head>
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
-<ul><li><a href="/Courses/ProblemSolvingStrategies/ProblemSolvingStrategies.html">ProblemSolvingStrategies</a>
-<ul>  <li><a href="/Courses/ProblemSolvingStrategies/Analysis/Analysis.html">Analysis</a></li>
-  <li><a href="/Courses/ProblemSolvingStrategies/Extraction/Extraction.html">Extraction</a></li>
-  <li><a href="/Courses/ProblemSolvingStrategies/Synthesis/Synthesis.html">Synthesis</a></li>
+<ul><li><a href="/Courses/SolutionStrategies/SolutionStrategies.html">SolutionStrategies</a>
+<ul>  <li><a href="/Courses/SolutionStrategies/Analysis/Analysis.html">Analysis</a></li>
+  <li><a href="/Courses/SolutionStrategies/Extraction/Extraction.html">Extraction</a></li>
+  <li><a href="/Courses/SolutionStrategies/Synthesis/Synthesis.html">Synthesis</a></li>
 </ul></li>
 
 </ul>
@@ -30,13 +30,13 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/ProblemSolvingStrategies/ProblemSolvingStrategies.html">ProblemSolvingStrategies</a>/<a href="/Courses/ProblemSolvingStrategies/Extraction/Extraction.html">Extraction</a>
+<span class="sectionHead">Name</span> <a href="/Courses/SolutionStrategies/SolutionStrategies.html">SolutionStrategies</a>/<a href="/Courses/SolutionStrategies/Extraction/Extraction.html">Extraction</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="ProblemSolvingStrategies/Extraction">
+    <input type="hidden" name="concept" value="SolutionStrategies/Extraction">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -50,7 +50,7 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  How can we extract facts from the <i>System under Investigation</i> (SUI) that we are interested in? 
  The extraction workflow is shown in the figure <i>Extraction Workflow</i> below and consists of the following steps:
-  <ul><li> First and foremost we have to determine which facts we need. This sounds trivial, but it is not. The problem is that we have to anticipate which facts will be needed in the next---not yet defined---analysis phase. A common approach is to use look-ahead and to sketch the queries that are likely to be used in the analysis phase and to determine which facts are needed for them. Start with extracting these facts and refine the extraction phase when the analysis phase is completely defined. <img class="TutorImg" width="400px" style="float: right;" hspace="2px" vspace="2px"  title="Extraction Workflow" alt="Extraction Workflow" src="/Courses/ProblemSolvingStrategies/Extraction/define-extraction.png"></li>
+  <ul><li> First and foremost we have to determine which facts we need. This sounds trivial, but it is not. The problem is that we have to anticipate which facts will be needed in the next---not yet defined---analysis phase. A common approach is to use look-ahead and to sketch the queries that are likely to be used in the analysis phase and to determine which facts are needed for them. Start with extracting these facts and refine the extraction phase when the analysis phase is completely defined. <img class="TutorImg" width="400px" style="float: right;" hspace="2px" vspace="2px"  title="Extraction Workflow" alt="Extraction Workflow" src="/Courses/SolutionStrategies/Extraction/define-extraction.png"></li>
 <li> If relevant facts are already available (and they are reliable!) then we are done. This may happen when you are working on a system that has already been analyzed by others.</li>
 <li> Otherwise you need the source code of the SUI. This requires: <ul><li> Checking that all sources are available (and can be compiled by the host system on which they are usually compiled and executed). Due to missing or unreliable configuration management on the original system this may be a labour-intensive step that requires many iterations.</li>
 <li> Determining in which languages the sources are written. In larger systems it is common that three or more different languages are being used.</li>
@@ -76,11 +76,11 @@
 </ul>
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=ProblemSolvingStrategies/Extraction&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=ProblemSolvingStrategies/Extraction&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=ProblemSolvingStrategies"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=ProblemSolvingStrategies&flags=regenerate"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/ProblemSolvingStrategies/warnings.html"><b>Warnings</b></a>]</div>
+<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=SolutionStrategies/Extraction&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=SolutionStrategies/Extraction&new=true"><b>New Subconcept</b></a>] |
+               [<a id="compileAction" href="/compile?name=SolutionStrategies"><b>Compile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=SolutionStrategies&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="warnAction" href="/Courses/SolutionStrategies/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>
 </td></tr></table>
