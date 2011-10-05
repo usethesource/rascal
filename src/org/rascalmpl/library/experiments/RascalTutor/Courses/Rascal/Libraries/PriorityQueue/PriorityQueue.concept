@@ -1,7 +1,7 @@
 Name: PriorityQueue
 
 Synopsis:
-Functions on priority queues.
+A `PriorityQueue` datatype and associated functions.
 
 
 Syntax:

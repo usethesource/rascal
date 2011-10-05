@@ -27,7 +27,7 @@ with that case are executed. These cases may:
 The value of a visit expression is the original subject value with all replacements made as dictated by matching cases. The traversal order in a visit expressions can be explicitly defined by the programmer. 
 
 Examples:
-An example of visiting is given in [ColoredTrees].
+An example of visiting is given in [Recipes:ColoredTrees].
 
 Benefits:
 

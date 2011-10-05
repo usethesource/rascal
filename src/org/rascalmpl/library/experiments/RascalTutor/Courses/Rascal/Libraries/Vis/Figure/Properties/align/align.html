@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -695,7 +694,7 @@
  <ul><li> <code>align(hv)</code> is equivalent to <code>halign(hv), valign(hv)</code>.</li>
 <li> <code>align(h, v)</code> is equivalent to <code>halign(h), valign(v)</code>.</li>
 </ul> A number of shorthands is provided for common alignment values:
-  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> Shorthand   </th><th align="left"> Corresponds to    </th><th align="left"> See                  </th></tr><tr><td align="left"> <code>left()</code>    </td><td align="left"> <code>halign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/left')">Properties/left</a>    </td></tr><tr><td align="left"> <code>hcenter()</code> </td><td align="left"> <code>halign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/hcenter')">Properties/hcenter</a> </td></tr><tr><td align="left"> <code>right()</code>   </td><td align="left"> <code>halign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/right')">Properties/right</a>   </td></tr><tr><td align="left"> <code>top()</code>     </td><td align="left"> <code>valign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/top')">Properties/top</a>     </td></tr><tr><td align="left"> <code>vcenter()</code> </td><td align="left"> <code>valign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/vcenter')">Properties/vcenter</a> </td></tr><tr><td align="left"> <code>bottom()</code>  </td><td align="left"> <code>valign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/bottom')">Properties/bottom</a>  </td></tr><tr><td align="left"> <code>center()</code>  </td><td align="left"> <code>align(0.5, 0.5)</code> </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/center')">Properties/center</a>  </td></tr></table> <br/>
+  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> Shorthand   </th><th align="left"> Corresponds to    </th><th align="left"> See                  </th></tr><tr><td align="left"> <code>left()</code>    </td><td align="left"> <code>halign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/left')">left</a>    </td></tr><tr><td align="left"> <code>hcenter()</code> </td><td align="left"> <code>halign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/hcenter')">hcenter</a> </td></tr><tr><td align="left"> <code>right()</code>   </td><td align="left"> <code>halign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/right')">right</a>   </td></tr><tr><td align="left"> <code>top()</code>     </td><td align="left"> <code>valign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/top')">top</a>     </td></tr><tr><td align="left"> <code>vcenter()</code> </td><td align="left"> <code>valign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/vcenter')">vcenter</a> </td></tr><tr><td align="left"> <code>bottom()</code>  </td><td align="left"> <code>valign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/bottom')">bottom</a>  </td></tr><tr><td align="left"> <code>center()</code>  </td><td align="left"> <code>align(0.5, 0.5)</code> </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','Properties/center')">center</a>  </td></tr></table> <br/>
 <br/>
 
  Also see <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/align','CompositionModel')">CompositionModel</a>.

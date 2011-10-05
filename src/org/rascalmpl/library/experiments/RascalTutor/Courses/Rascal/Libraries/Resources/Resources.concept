@@ -1,6 +1,6 @@
 Name: Resources
 
-Synopsis: Functions on Eclipse resources.
+Synopsis: A `Resource` datatype and related functions on Eclipse resources.
 
 
 Syntax:

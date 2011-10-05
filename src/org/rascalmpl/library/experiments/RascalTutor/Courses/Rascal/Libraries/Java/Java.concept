@@ -1,6 +1,6 @@
 Name: Java
 
-Synopsis: The Entity datatype for representing facts about Java programs.
+Synopsis: An Entity datatype for representing facts about Java programs.
 
 Syntax:
 

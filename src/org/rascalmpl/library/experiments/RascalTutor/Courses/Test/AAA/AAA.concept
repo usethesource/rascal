@@ -16,6 +16,13 @@ Description:
 xxx  < xx  [WRONGLINK]
 
 External link: [Rascal:union].
+<warning>Hier is een warning in AAA</warning>
+
+En hier een error:
+<screen>
+1;
+2/0;
+</screen>
 
 Examples:
 abc def ghi jkl

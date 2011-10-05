@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -744,9 +743,9 @@ set[int]: {5,4}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{&quot;Sy Snootles&quot;, &quot;A&quot;}">
-<input type="hidden" name="B" value="{&quot;Prince Charming&quot;, &quot;Rosemary&quot;, &quot;Redcurrant&quot;, &quot;F&quot;, &quot;Forgetful Jones&quot;}">
-The type of <tt>{&quot;Sy Snootles&quot;, &quot;A&quot;} &amp; {&quot;Prince Charming&quot;, &quot;Rosemary&quot;, &quot;Redcurrant&quot;, &quot;F&quot;, &quot;Forgetful Jones&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{6, -18, 16, -17}">
+<input type="hidden" name="B" value="{18, 18, 7, -8, -8}">
+The type of <tt>{6, -18, 16, -17} &amp; {18, 18, 7, -8, -8}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -775,9 +774,9 @@ The type of <tt>{&quot;Sy Snootles&quot;, &quot;A&quot;} &amp; {&quot;Prince Cha
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;E-3PO&quot;, &quot;Guava&quot;, &quot;Melon&quot;, &quot;Admiral Sarn&quot;, &quot;Slimey the Worm&quot;}">
-<input type="hidden" name="B" value="{&quot;Strawberry&quot;, &quot;Cinnamon&quot;, &quot;Obi-Wan Kenobi&quot;, &quot;Pineapple&quot;}">
-The type of <tt>{&quot;E-3PO&quot;, &quot;Guava&quot;, &quot;Melon&quot;, &quot;Admiral Sarn&quot;, &quot;Slimey the Worm&quot;} &amp; {&quot;Strawberry&quot;, &quot;Cinnamon&quot;, &quot;Obi-Wan Kenobi&quot;, &quot;Pineapple&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{$2073-08-02T09:09:28.098+0200}">
+<input type="hidden" name="B" value="{$2128-09-06, $2099-10-02, $2053-07-06, $2037-09-06T20:40:03.278+0200}">
+The type of <tt>{$2073-08-02T09:09:28.098+0200} &amp; {$2128-09-06, $2099-10-02, $2053-07-06, $2037-09-06T20:40:03.278+0200}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -806,9 +805,9 @@ The type of <tt>{&quot;E-3PO&quot;, &quot;Guava&quot;, &quot;Melon&quot;, &quot;
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{8}">
-<input type="hidden" name="B" value="{-14, -9}">
-<pre class="prequestion">{8} &amp; {-14, -9} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-9, 0, -9, -13, -17.279874544253335200}">
+<input type="hidden" name="B" value="{2.91317996326493600, 7}">
+<pre class="prequestion">{-9, 0, -9, -13, -17.279874544253335200} &amp; {2.91317996326493600, 7} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

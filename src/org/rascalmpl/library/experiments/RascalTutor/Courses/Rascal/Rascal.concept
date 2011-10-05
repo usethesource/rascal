@@ -29,17 +29,17 @@ What are the key distinguishing features of Rascal?
 * Reusable aspects of meta programming in the [Libraries].
 
 Examples:
-Read about simple [Examples] of Rascal code. The Rascal [Libraries] also contain demos of Rascal. By the way, you will find example code on almost every page in this tutor environment.
+Read simple examples of Rascal code in [Recipes:Basic]. The Rascal [Libraries] contain many examples of Rascal code. 
+You will also find example code on almost every page in this tutor environment.
 
 Benefits:
-* It should have everything you need for any kind of meta program you want to write. See [Motivation].
+* Rascal has everything you need for any kind of meta program you want to write. See [Motivation].
 
 Pitfalls:
-* See [Motivation].
-* It is not an object-oriented programming language. It is an procedural/functional language with immutable data.
-* It allows you to write highly imperative code, but do not forget that it might have a better declarative construct for you to use instead.
-* It is slow sometimes because it needs more optimization.
-* It has a static type system, but the type-checker is not finished yet.
+* Rascal is a procedural/functional language with immutable data. Do not confuse this with object-oriented programming.
+* Rascal allows you to write highly imperative code, but it has declarative constructs that lead to shorter and more readable code.
+* Rascal execution is sometimes slow; we are working on more optimization.
+* Rascal has a static type system, but the type-checker is not yet finished; currently types are checked at run-time.
 
 Questions:
 

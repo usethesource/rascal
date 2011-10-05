@@ -1,6 +1,6 @@
 Name: Graph
 
-Synopsis: Functions on the graph datatype.
+Synopsis: A `Graph` datatype with associated functions.
 
 Syntax:
 `import Graph;`

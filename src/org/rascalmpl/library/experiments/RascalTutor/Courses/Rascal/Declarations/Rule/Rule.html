@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -682,7 +681,7 @@
  <br/>
 <br/>
 
- Rewrite rules, on the other hand, operate only on nodes and <a href="javascript:show('Rascal/Declarations/Rule','Declarations/AlgebraicDataType')">Declarations/AlgebraicDataType</a>, they are implicitly applied when a 
+ Rewrite rules, on the other hand, operate only on nodes and <a href="javascript:show('Rascal/Declarations/Rule','Declarations/AlgebraicDataType')">AlgebraicDataType</a>, they are implicitly applied when a 
  new value (we refer to this as the <i>subject</i> value) is constructed. The scope of rewrite rules is the whole Rascal program. 
  Rewrite rules are applied to the subject value in a bottom-up fashion. As a result, the subject value may be changed. 
  This process is repeated as long as there are rules that can be applied to the current subject value. 

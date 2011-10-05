@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -715,7 +714,7 @@ java:608)
     at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:190)
     at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:115)
     at org.rascalmpl.library.Scripting.shell(Scripting.java:85)
-    at sun.reflect.GeneratedMethodAccessor130.invoke(null:-1)
+    at sun.reflect.GeneratedMethodAccessor165.invoke(null:-1)
     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorI&raquo;
 mpl.java:25)
     at java.lang.reflect.Method.invoke(Method.java:597)
@@ -798,8 +797,8 @@ java:304)
 java:189)
     at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Stateme&raquo;
 nt.java:617)
-    at org.rascalmpl.semantics.dynamic.Statement$IfThen.interpret(Statement.java&raquo;
-:496)
+    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.&raquo;
+java:555)
     at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Stateme&raquo;
 nt.java:617)
     at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.&raquo;
@@ -822,14 +821,26 @@ java:304)
 java:189)
     at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Stateme&raquo;
 nt.java:617)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.&raquo;
-java:972)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:96&raquo;
-5)
+    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:39&raquo;
+4)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.ja&raquo;
+va:222)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:&raquo;
+177)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(Overlo&raquo;
+adedFunctionResult.java:125)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(Overloaded&raquo;
+FunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expressio&raquo;
+n.java:419)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.&raquo;
+java:304)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.&raquo;
+java:189)
     at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Stateme&raquo;
 nt.java:617)
     at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.&raquo;
-java:575)
+java:555)
     at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.ja&raquo;
 va:222)
     at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:&raquo;
@@ -841,7 +852,8 @@ FunctionResult.java:101)
     at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(Overloaded&raquo;
 FunctionResult.java:92)
     at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:424)
-    at org.rascalmpl.library.experiments.RascalTutor.Save.doGet(Save.java:46)
+    at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:&raquo;
+39)
     at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
     at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
     at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:527)
@@ -893,9 +905,9 @@ a:436)
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Division">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="-1">
-<input type="hidden" name="B" value="17">
-The type of <tt>-1 / 17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="10">
+<input type="hidden" name="B" value="-16">
+The type of <tt>10 / -16</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -924,9 +936,9 @@ The type of <tt>-1 / 17</tt> is <textarea rows="1" cols="30" name="answer" class
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Division">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="-14">
-<input type="hidden" name="B" value="13.28410195083610400">
-The type of <tt>-14 / 13.28410195083610400</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="9">
+<input type="hidden" name="B" value="-17.907713981117945200">
+The type of <tt>9 / -17.907713981117945200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -955,9 +967,9 @@ The type of <tt>-14 / 13.28410195083610400</tt> is <textarea rows="1" cols="30" 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Division">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="6.6874800925970000">
-<input type="hidden" name="B" value="-20">
-The type of <tt>6.6874800925970000 / -20</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="5.87231113168074400">
+<input type="hidden" name="B" value="1">
+The type of <tt>5.87231113168074400 / 1</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -986,9 +998,9 @@ The type of <tt>6.6874800925970000 / -20</tt> is <textarea rows="1" cols="30" na
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Division">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="-4.072528126487262400">
-<input type="hidden" name="B" value="-8">
-<pre class="prequestion">-4.072528126487262400 / -8 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-10.798769928042633200">
+<input type="hidden" name="B" value="-19">
+<pre class="prequestion">-10.798769928042633200 / -19 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

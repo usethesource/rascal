@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -718,9 +717,9 @@ bool: false
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="-3">
-<input type="hidden" name="B" value="5">
-The type of <tt>-3 == 5</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-5">
+<input type="hidden" name="B" value="17">
+The type of <tt>-5 == 17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -749,9 +748,9 @@ The type of <tt>-3 == 5</tt> is <textarea rows="1" cols="30" name="answer" class
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="-2.08223462611290000">
-<input type="hidden" name="B" value="-9.68891765909988400">
-The type of <tt>-2.08223462611290000 == -9.68891765909988400</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="8.40344463747109200">
+<input type="hidden" name="B" value="-15.054439889646871200">
+The type of <tt>8.40344463747109200 == -15.054439889646871200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -780,9 +779,9 @@ The type of <tt>-2.08223462611290000 == -9.68891765909988400</tt> is <textarea r
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="6">
-<input type="hidden" name="B" value="12.5359990983023200">
-The type of <tt>6 == 12.5359990983023200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="10.37442573775193600">
+<input type="hidden" name="B" value="-5.578160210459430800">
+The type of <tt>10.37442573775193600 == -5.578160210459430800</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -811,9 +810,9 @@ The type of <tt>6 == 12.5359990983023200</tt> is <textarea rows="1" cols="30" na
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="-20">
-<input type="hidden" name="B" value="8.44079716991663200">
-The type of <tt>-20 == 8.44079716991663200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="10.92044501568808800">
+<input type="hidden" name="B" value="18">
+The type of <tt>10.92044501568808800 == 18</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -842,9 +841,9 @@ The type of <tt>-20 == 8.44079716991663200</tt> is <textarea rows="1" cols="30" 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="-3.56127121945194800">
-<input type="hidden" name="B" value="19.25682239658143600">
-<pre class="prequestion">-3.56127121945194800 == 19.25682239658143600 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="19.02527856208998000">
+<input type="hidden" name="B" value="-14">
+<pre class="prequestion">19.02527856208998000 == -14 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

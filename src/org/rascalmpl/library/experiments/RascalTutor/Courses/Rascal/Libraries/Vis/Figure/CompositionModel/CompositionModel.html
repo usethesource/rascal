@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -682,7 +681,7 @@
 <br/>
 
  The ingredients are:
- <ul><li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/size')">Properties/size</a> determines the <i>minimal</i> horizontal and vertical size of a figure. Sizes can be set separately per dimension using <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','hsize')">hsize</a> (synonym <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','width')">width</a>) or <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','vsize')">vsize</a> (synonym: <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','height')">height</a>). Figures can never become smaller than their minimal size.</li>
+ <ul><li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/size')">size</a> determines the <i>minimal</i> horizontal and vertical size of a figure. Sizes can be set separately per dimension using <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','hsize')">hsize</a> (synonym <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','width')">width</a>) or <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','vsize')">vsize</a> (synonym: <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','height')">height</a>). Figures can never become smaller than their minimal size.</li>
 <li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','shrink')">shrink</a> determines how much smaller a figure is relative to its parent size. Shrink can also be set per dimension using <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','hshrink')">hshrink</a> or <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','vshrink')">vshrink</a>.</li>
 <li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','grow')">grow</a> determines how much larger a figure is relative to its child size. Grow can also be set per dimension using <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','hgrow')">hgrow</a> or <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','vgrow')">vgrow</a>.</li>
 <li> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','align')">align</a> determines the alignment of a figure relative to its parent. Alignment can also be set per dimension using <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','halign')">halign</a> or <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','halign')">halign</a>.</li>
@@ -690,7 +689,7 @@
  <br/>
 <br/>
 
-  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> Shorthand   </th><th align="left"> Corresponds to     </th><th align="left"> See                  </th></tr><tr><td align="left"> <code>left()</code>    </td><td align="left"> <code>halign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/left')">Properties/left</a>    </td></tr><tr><td align="left"> <code>hcenter()</code> </td><td align="left"> <code>halign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/hcenter')">Properties/hcenter</a> </td></tr><tr><td align="left"> <code>right()</code>   </td><td align="left"> <code>halign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/right')">Properties/right</a>   </td></tr><tr><td align="left"> <code>top()</code>     </td><td align="left"> <code>valign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/top')">Properties/top</a>     </td></tr><tr><td align="left"> <code>vcenter()</code> </td><td align="left"> <code>valign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/vcenter')">Properties/vcenter</a> </td></tr><tr><td align="left"> <code>bottom()</code>  </td><td align="left"> <code>valign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/bottom')">Properties/bottom</a>  </td></tr><tr><td align="left"> <code>center()</code>  </td><td align="left"> <code>align(0.5, 0.5)</code> </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/center')">Properties/center</a>  </td></tr></table> <br/>
+  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> Shorthand   </th><th align="left"> Corresponds to     </th><th align="left"> See                  </th></tr><tr><td align="left"> <code>left()</code>    </td><td align="left"> <code>halign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/left')">left</a>    </td></tr><tr><td align="left"> <code>hcenter()</code> </td><td align="left"> <code>halign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/hcenter')">hcenter</a> </td></tr><tr><td align="left"> <code>right()</code>   </td><td align="left"> <code>halign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/right')">right</a>   </td></tr><tr><td align="left"> <code>top()</code>     </td><td align="left"> <code>valign(0.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/top')">top</a>     </td></tr><tr><td align="left"> <code>vcenter()</code> </td><td align="left"> <code>valign(0.5)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/vcenter')">vcenter</a> </td></tr><tr><td align="left"> <code>bottom()</code>  </td><td align="left"> <code>valign(1.0)</code>     </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/bottom')">bottom</a>  </td></tr><tr><td align="left"> <code>center()</code>  </td><td align="left"> <code>align(0.5, 0.5)</code> </td><td align="left"> <a href="javascript:show('Rascal/Libraries/Vis/Figure/CompositionModel','Properties/center')">center</a>  </td></tr></table> <br/>
 <br/>
 
  The following units are used:

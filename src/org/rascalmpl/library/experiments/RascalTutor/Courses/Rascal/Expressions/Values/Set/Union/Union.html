@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -748,9 +747,9 @@ set[int]: {4,3,2,1}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{18.13914892785910400, -5.66490861532927200, -0.052616959400153600}">
-<input type="hidden" name="B" value="{18.48698883169234000}">
-The type of <tt>{18.13914892785910400, -5.66490861532927200, -0.052616959400153600} + {18.48698883169234000}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-12.418839564317534400, 3.44574300672101200, 2.74672856841746000, 1.38041989684067600, 2.49830802885063600}">
+<input type="hidden" name="B" value="{6.37147423236996400, -14.764295236595694800, -8.8404072716775200, 0.70359851402434800}">
+The type of <tt>{-12.418839564317534400, 3.44574300672101200, 2.74672856841746000, 1.38041989684067600, 2.49830802885063600} + {6.37147423236996400, -14.764295236595694800, -8.8404072716775200, 0.70359851402434800}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -779,9 +778,9 @@ The type of <tt>{18.13914892785910400, -5.66490861532927200, -0.0526169594001536
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Date&quot;, &quot;Lavender&quot;, &quot;Ernie&quot;, &quot;Eggplant&quot;}">
-<input type="hidden" name="B" value="{&quot;Prince Charming&quot;, &quot;Q&quot;, &quot;Yoda&quot;, &quot;Thyme&quot;}">
-<pre class="prequestion">{&quot;Date&quot;, &quot;Lavender&quot;, &quot;Ernie&quot;, &quot;Eggplant&quot;} + {&quot;Prince Charming&quot;, &quot;Q&quot;, &quot;Yoda&quot;, &quot;Thyme&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{&quot;Rosemary&quot;, &quot;Barkley the Dog&quot;, &quot;Cinnamon&quot;, &quot;Coriander&quot;}">
+<input type="hidden" name="B" value="{&quot;Sy Snootles&quot;, &quot;Emperor Palpatine&quot;}">
+<pre class="prequestion">{&quot;Rosemary&quot;, &quot;Barkley the Dog&quot;, &quot;Cinnamon&quot;, &quot;Coriander&quot;} + {&quot;Sy Snootles&quot;, &quot;Emperor Palpatine&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -809,9 +808,9 @@ The type of <tt>{18.13914892785910400, -5.66490861532927200, -0.0526169594001536
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{-1, -3, -10}">
-<input type="hidden" name="B" value="{11, 16, 0, -13}">
-<pre class="prequestion">{-1, -3, -10} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-1,-3,11,-10,-13,0,16}</pre>
+<input type="hidden" name="A" value="{&quot;Guava&quot;, &quot;Han Solo&quot;}">
+<input type="hidden" name="B" value="{&quot;Slimey the Worm&quot;}">
+<pre class="prequestion">{&quot;Guava&quot;, &quot;Han Solo&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Guava&quot;,&quot;Han Solo&quot;,&quot;Slimey the Worm&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -839,9 +838,9 @@ The type of <tt>{18.13914892785910400, -5.66490861532927200, -0.0526169594001536
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{-4, -11, 9, -6, 15}">
-<input type="hidden" name="B" value="{13, 11, -5}">
-<pre class="prequestion">{-4, -11, 9, -6, 15} + {13, 11, -5} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-17.136643468217864800, 3.48139883570226800, -15.693920133416212800, 9.2429426350977600, 10.71085147973641600}">
+<input type="hidden" name="B" value="{11.03174365361599200, -18.3875746027972786400}">
+<pre class="prequestion">{-17.136643468217864800, 3.48139883570226800, -15.693920133416212800, 9.2429426350977600, 10.71085147973641600} + {11.03174365361599200, -18.3875746027972786400} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

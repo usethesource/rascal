@@ -1,6 +1,6 @@
 Name: Message
 
-Synopsis: The `Message` datatype represents messages in the IDE.
+Synopsis: A `Message` datatype that represents messages in the IDE.
 
 Syntax:
 

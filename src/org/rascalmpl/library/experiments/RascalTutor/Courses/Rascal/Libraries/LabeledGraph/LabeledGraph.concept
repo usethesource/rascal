@@ -1,7 +1,7 @@
 Name: LabeledGraph
 
 Synopsis:
-Functions on labeled graphs.
+A `LabeledGraph` datatype with associated functions.
 
 Syntax:
 `import LabeledGraph;`

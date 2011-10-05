@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -674,6 +673,26 @@
 
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/Benchmark/Benchmark.html">Benchmark</a> &#032 <a href="/Courses/Rascal/Libraries/Graph/Graph.html">Graph</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/IDE.html">IDE</a> &#032 <a href="/Courses/Rascal/Libraries/IO/IO.html">IO</a> &#032 <a href="/Courses/Rascal/Libraries/Java/Java.html">Java</a> &#032 <a href="/Courses/Rascal/Libraries/JDT/JDT.html">JDT</a> &#032 <a href="/Courses/Rascal/Libraries/LabeledGraph/LabeledGraph.html">LabeledGraph</a> &#032 <a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a> &#032 <a href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a> &#032 <a href="/Courses/Rascal/Libraries/Resources/Resources.html">Resources</a> &#032 <a href="/Courses/Rascal/Libraries/RSF/RSF.html">RSF</a> &#032 <a href="/Courses/Rascal/Libraries/Scripting/Scripting.html">Scripting</a> &#032 <a href="/Courses/Rascal/Libraries/Tree/Tree.html">Tree</a> &#032 <a href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a> &#032 <a href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a> &#032 
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  The libraries provide the following functionality:
+ <ul><li> <a href="javascript:show('Rascal/Libraries','Benchmark')">Benchmark</a>: Functions for time measurement and benchmarking.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Graph')">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
+<li> <a href="javascript:show('Rascal/Libraries','IDE')">IDE</a>: Provides access to the Eclipse IMP services to instantiate an IDE for any language you define in Rascal.</li>
+<li> <a href="javascript:show('Rascal/Libraries','IO')">IO</a>: Functions for reading/writing values from/to files.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Java')">Java</a>: An <code>Entity</code> datatype for representing facts about Java programs.</li>
+<li> <a href="javascript:show('Rascal/Libraries','JDT')">JDT</a>: Datatypes for representing relations between parts of Java programs.</li>
+<li> <a href="javascript:show('Rascal/Libraries','LabeledGraph')">LabeledGraph</a>: A <code>LabeledGraph</code> datatype with associated functions.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Message')">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
+<li> <a href="javascript:show('Rascal/Libraries','PriorityQueue')">PriorityQueue</a>: A <code>PriorityQueue</code> datatype and associated functions.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Resources')">Resources</a>: A <code>Resource</code> datatype and related functions on Eclipse resources.</li>
+<li> <a href="javascript:show('Rascal/Libraries','RSF')">RSF</a>: Functions for reading/writing the Rigi Standard Format (RSF).</li>
+<li> <a href="javascript:show('Rascal/Libraries','Scripting')">Scripting</a>: Functions for calling the Rascal shell and Rascal evaluator from Rascal programs.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Tree')">Tree</a>: Functions on parse trees.</li>
+<li> <a href="javascript:show('Rascal/Libraries','ValueIO')">ValueIO</a>: Functions for reading and writing values in textual and binary format.</li>
+<li> <a href="javascript:show('Rascal/Libraries','Vis')">Vis</a>: Functions for creating visualizations.</li>
+</ul>
 </div>
 
 <div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries&new=false"><b>Edit</b></a>] | 
