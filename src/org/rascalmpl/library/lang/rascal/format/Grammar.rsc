@@ -193,7 +193,7 @@ public str symbol2rascal(Symbol sym) {
     case lit(x) :
     	return "\"<escape(x)>\"";
     case cilit(x) :
-    	return "\"<escape(x)>\"";
+    	return "\'<escape(x)>\'";
     case \lex(x):
     	return x;
     case \keywords(x):
