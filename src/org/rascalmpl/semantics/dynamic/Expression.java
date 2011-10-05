@@ -139,7 +139,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public Result interpret(Evaluator __eval) {
 			java.util.List<org.rascalmpl.ast.Expression> producers = this
@@ -241,7 +241,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public Result interpret(Evaluator __eval) {
 
