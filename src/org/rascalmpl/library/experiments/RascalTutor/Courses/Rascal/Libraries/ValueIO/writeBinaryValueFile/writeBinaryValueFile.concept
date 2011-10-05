@@ -1,6 +1,6 @@
 Name: writeBinaryValueFile
 
-Synopsis:
+Synopsis: Write a value to a file using an efficient binary file format.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Write a value to a file using an efficient binary file format.
+
 
 Examples:
 

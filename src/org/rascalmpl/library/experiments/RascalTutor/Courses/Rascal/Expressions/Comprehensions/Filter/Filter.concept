@@ -1,6 +1,6 @@
 Name: Filter
 
-Synopsis:
+Synopsis: Filter values in a [Comprehension].
 
 Syntax:
 `$Exp$`

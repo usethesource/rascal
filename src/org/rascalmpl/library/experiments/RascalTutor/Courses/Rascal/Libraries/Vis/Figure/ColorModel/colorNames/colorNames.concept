@@ -1,6 +1,6 @@
 Name: colorNames
 
-Synopsis:
+Synopsis: Sorted list of available color names that can be used by the [color] function.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Gives a sorted list of available color names that can be used by the [color] function.
+
 
 Examples:
 <screen>

@@ -1,6 +1,6 @@
 Name: unparse
 
-Synopsis:
+Synopsis: Yield the string of characters that form the leafs of a given parse tree.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Yields the string of characters that form the leafs of the given parse tree.
+
 
 Examples:
 

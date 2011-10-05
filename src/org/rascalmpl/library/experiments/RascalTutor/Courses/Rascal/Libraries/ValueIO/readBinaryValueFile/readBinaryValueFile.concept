@@ -1,6 +1,6 @@
 Name: readBinaryValueFile
 
-Synopsis:
+Synopsis: Read a value from a binary file.
 
 Syntax:
 

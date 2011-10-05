@@ -1,6 +1,6 @@
 Name: Enumerator
 
-Synopsis:
+Synopsis: Enumerate all values in a given subject value.
 
 Syntax:
 `$Pattern$ <- $Exp$`

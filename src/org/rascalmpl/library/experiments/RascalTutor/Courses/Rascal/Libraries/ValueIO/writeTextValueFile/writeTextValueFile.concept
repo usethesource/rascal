@@ -1,6 +1,6 @@
 Name: writeTextValueFile
 
-Synopsis:
+Synopsis: Write a value to a file using a textual file format.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Write a value to a file using a textual file format.
+
 
 Examples:
 

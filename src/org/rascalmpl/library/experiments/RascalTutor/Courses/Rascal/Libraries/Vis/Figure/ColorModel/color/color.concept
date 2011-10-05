@@ -1,6 +1,6 @@
 Name: color
 
-Synopsis:
+Synopsis: Return a color with a given name.
 
 Syntax:
 

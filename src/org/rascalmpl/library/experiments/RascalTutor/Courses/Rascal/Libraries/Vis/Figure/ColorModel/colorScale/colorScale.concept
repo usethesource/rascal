@@ -1,6 +1,6 @@
 Name: colorScale
 
-Synopsis:
+Synopsis: Compute a color scale for range of values.
 
 Syntax:
 

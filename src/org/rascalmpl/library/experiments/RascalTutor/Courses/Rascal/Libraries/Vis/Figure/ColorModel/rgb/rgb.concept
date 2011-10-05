@@ -1,6 +1,6 @@
 Name: rgb
 
-Synopsis:
+Synopsis: Create a color from a `red`, `green` and `blue` contribution.
 
 Syntax:
 

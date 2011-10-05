@@ -1,6 +1,6 @@
 Name: parse
 
-Synopsis:
+Synopsis: Parse a string or file and return a parse tree.
 
 Syntax:
 
