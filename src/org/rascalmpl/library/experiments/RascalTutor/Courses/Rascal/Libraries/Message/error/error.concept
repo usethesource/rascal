@@ -1,6 +1,6 @@
 Name: error
 
-Synopsis:
+Synopsis: Create an error message.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Creates an error message.
+
 
 Examples:
 

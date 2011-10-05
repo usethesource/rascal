@@ -1,6 +1,6 @@
 Name: top
 
-Synopsis:
+Synopsis: Determine the set of top nodes (roots) of a labeled graph.
 
 Syntax:
 

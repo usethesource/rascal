@@ -1,6 +1,6 @@
 Name: isOnBuildPath
 
-Synopsis:
+Synopsis: Check if a Resource is on its project's build path.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Check if a Resource is on its project's build path.
+
 
 Examples:
 

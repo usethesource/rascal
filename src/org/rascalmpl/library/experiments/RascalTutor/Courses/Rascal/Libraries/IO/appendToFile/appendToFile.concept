@@ -1,6 +1,6 @@
 Name: appendToFile
 
-Synopsis:
+Synopsis: Append a value to a file.
 
 Syntax:
 

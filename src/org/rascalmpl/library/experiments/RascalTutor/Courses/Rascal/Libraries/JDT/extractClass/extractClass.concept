@@ -1,6 +1,6 @@
 Name: extractClass
 
-Synopsis:
+Synopsis: Import facts from a Java file.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Import facts from a Java file.
+
 
 Examples:
 

@@ -1,6 +1,6 @@
 Name: extractFactsTransitive
 
-Synopsis:
+Synopsis: Extracts facts from a Java project and all projects it depends on.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Extracts facts from a Java project and all projects it depends on.
+
 
 Examples:
 

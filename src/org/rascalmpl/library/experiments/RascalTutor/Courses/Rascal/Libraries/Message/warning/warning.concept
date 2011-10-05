@@ -1,6 +1,6 @@
 Name: warning
 
-Synopsis:
+Synopsis: Create a warning message.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Create a warning message.
+
 
 Examples:
 

@@ -1,6 +1,6 @@
 Name: isFile
 
-Synopsis:
+Synopsis: Check whether a file is actually a file (and not a directory).
 
 Syntax:
 

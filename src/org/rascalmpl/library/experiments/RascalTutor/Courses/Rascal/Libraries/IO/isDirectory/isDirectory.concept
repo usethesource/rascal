@@ -1,6 +1,6 @@
 Name: isDirectory
 
-Synopsis:
+Synopsis: Check whether a file is a directory.
 
 Syntax:
 

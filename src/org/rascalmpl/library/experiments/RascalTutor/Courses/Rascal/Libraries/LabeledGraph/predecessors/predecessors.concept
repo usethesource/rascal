@@ -1,6 +1,6 @@
 Name: predecessors
 
-Synopsis:
+Synopsis: Determine the set of direct predecessors of a node in a labeled graph.
 
 Syntax:
 

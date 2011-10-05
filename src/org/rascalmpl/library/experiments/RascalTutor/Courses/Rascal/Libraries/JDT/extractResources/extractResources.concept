@@ -1,6 +1,6 @@
 Name: extractResources
 
-Synopsis:
+Synopsis: Extract facts from a set of resources and merge them.
 
 Syntax:
 

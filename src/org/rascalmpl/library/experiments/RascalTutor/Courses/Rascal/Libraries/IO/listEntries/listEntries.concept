@@ -1,6 +1,6 @@
 Name: listEntries
 
-Synopsis:
+Synopsis: List the entries in a directory.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-List the entries in a directory.
+List the entries in directory `file`.
 
 Examples:
 

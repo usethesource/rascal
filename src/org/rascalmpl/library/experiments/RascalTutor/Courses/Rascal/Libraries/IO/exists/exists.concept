@@ -1,6 +1,6 @@
 Name: exists
 
-Synopsis:
+Synopsis: Check whether a file exists.
 
 Syntax:
 

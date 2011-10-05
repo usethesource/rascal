@@ -1,6 +1,6 @@
 Name: println
 
-Synopsis:
+Synopsis: Print a value followed by a newline.
 
 Syntax:
 

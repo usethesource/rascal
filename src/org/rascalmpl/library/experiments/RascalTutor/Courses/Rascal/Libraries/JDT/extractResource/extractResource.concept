@@ -1,6 +1,6 @@
 Name: extractResource
 
-Synopsis:
+Synopsis: Extract Java facts from a project, file or folder
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Extract Java facts from a project, file or folder
+
 
 Examples:
 
