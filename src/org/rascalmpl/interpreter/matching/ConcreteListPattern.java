@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -43,7 +44,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	}
 
 	private void initListPatternDelegate(List<IMatchingResult> list) {
-		Type type = getType(null);
+		Type type = getType(null, null);
 		
 		if (type instanceof NonTerminalType) {
 			IConstructor rhs = ((NonTerminalType) type).getSymbol();
@@ -80,7 +81,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return callOrTree._getType();
 	}
 
@@ -102,7 +103,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public java.util.List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return pat.getVariables();
 	}
 }

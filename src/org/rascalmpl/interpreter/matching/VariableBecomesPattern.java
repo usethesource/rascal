@@ -13,6 +13,7 @@
 package org.rascalmpl.interpreter.matching;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -47,18 +48,18 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public List<String> getVariables() {
-		List<String> first = var.getVariables();
-		List<String> second = pat.getVariables();
-		List<String> vars = new ArrayList<String>(first.size() + second.size());
+	public List<IVarPattern> getVariables() {
+		List<IVarPattern> first = var.getVariables();
+		List<IVarPattern> second = pat.getVariables();
+		List<IVarPattern> vars = new ArrayList<IVarPattern>(first.size() + second.size());
 		vars.addAll(first);
 		vars.addAll(second);
 		return vars;
 	}
 	
 	@Override
-	public Type getType(Environment env) {
-		return pat.getType(env);
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
+		return pat.getType(env, patternVars);
 	}
 	
 	@Override

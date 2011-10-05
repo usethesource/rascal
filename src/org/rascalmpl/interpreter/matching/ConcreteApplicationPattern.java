@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		this.myType = x._getType();
 	}
 	
-	public List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return tupleMatcher.getVariables();
 	}
 	
@@ -227,9 +228,10 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		
 		return false;
 	}
-	
+
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env,
+			HashMap<String, IVarPattern> patternVars) {
 		return myType;
 	}
 }

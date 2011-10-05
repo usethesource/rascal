@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -29,8 +32,8 @@ import org.rascalmpl.interpreter.env.Environment;
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+	public List<IVarPattern> getVariables(){
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
 		for (int i = 0; i < children.size(); i++) {
 			res.addAll(children.get(i).getVariables());
 		 }
@@ -38,7 +41,7 @@ import org.rascalmpl.interpreter.env.Environment;
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -69,11 +70,12 @@ public class TuplePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		if (type == null) {
 			Type fieldTypes[] = new Type[children.size()];
 			for(int i = 0; i < children.size(); i++){
-				fieldTypes[i] = children.get(i).getType(env);
+				fieldTypes[i] = children.get(i).getType(env, patternVars);
+				patternVars = merge(patternVars, children.get(i).getVariables());
 			}
 			type = tf.tupleType(fieldTypes);
 		}
@@ -81,8 +83,8 @@ public class TuplePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+	public List<IVarPattern> getVariables(){
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
 		for (int i = 0; i < children.size(); i += 1) {
 			res.addAll(children.get(i).getVariables());
 		}

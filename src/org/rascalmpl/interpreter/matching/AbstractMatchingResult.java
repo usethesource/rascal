@@ -14,7 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -45,7 +47,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	}
 	
 	public boolean mayMatch(Type subjectType, Environment env){
-		return mayMatch(getType(env), subjectType);
+		return mayMatch(getType(env, null), subjectType);
 	}
 	
 	protected void checkInitialized(){
@@ -59,8 +61,8 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 		return initialized && hasNext;
 	}
 	
-	public java.util.List<String> getVariables(){
-		return new java.util.LinkedList<String>();
+	public List<IVarPattern> getVariables(){
+		return new java.util.LinkedList<IVarPattern>();
 	}
 	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<IMatchingResult> iterator){
@@ -79,7 +81,27 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 //		return ctx.getEvaluator().eval((Expression) getAST()).getValue();
 	}
 	
-	abstract public Type getType(Environment env);
+	abstract public Type getType(Environment env, HashMap<String,IVarPattern> patternVars);
+	
+	public HashMap<String,IVarPattern> merge(HashMap<String,IVarPattern> left, List<IVarPattern> right){
+		if(left == null){
+			HashMap<String,IVarPattern> res = new  HashMap<String,IVarPattern>();
+			for(IVarPattern vpr: right){
+				res.put(vpr.name(), vpr);
+			}
+			return res;
+		}
+		for(IVarPattern vpr: right){
+			String name = vpr.name();
+			if(left.containsKey(name)){
+				IVarPattern vpl = left.get(name);
+				if(!vpl.isVarIntroducing() && vpr.isVarIntroducing())
+					left.put(name, vpr);
+			} else
+				left.put(name, vpr);	
+		}
+		return left;
+	}
 
 	abstract public boolean next();
 	

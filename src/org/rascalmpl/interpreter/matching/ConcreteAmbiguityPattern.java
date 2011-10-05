@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -24,7 +27,7 @@ class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 		super(ctx, x);
 	}
 
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		// TODO Auto-generated method stub
 		return null;
 	}

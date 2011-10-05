@@ -17,6 +17,9 @@ package org.rascalmpl.interpreter.matching;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -32,7 +35,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class ConcreteListVariablePattern extends AbstractMatchingResult {
+public class ConcreteListVariablePattern extends AbstractMatchingResult implements IVarPattern {
 	private String name;
 	private NonTerminalType declaredType;
 	
@@ -51,14 +54,14 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return declaredType;
 	}
 
 	@Override
-	public java.util.List<String> getVariables() {
-		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
-		res.addFirst(name);
+	public List<IVarPattern> getVariables() {
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern>();
+		res.addFirst(this);
 		return res;
 	}
 
@@ -169,5 +172,20 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	@Override
 	public String toString() {
 		return declaredType + " " + name + ":=" + subject;
+	}
+
+	@Override
+	public boolean isVarIntroducing() {
+		return iDeclaredItMyself;
+	}
+
+	@Override
+	public String name() {
+		return getName();
+	}
+
+	@Override
+	public Type getType() {
+		return declaredType;
 	}
 }

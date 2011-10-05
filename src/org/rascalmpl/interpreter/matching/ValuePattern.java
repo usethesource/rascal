@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -32,7 +35,7 @@ public class ValuePattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return val.getType();
 	}
 	

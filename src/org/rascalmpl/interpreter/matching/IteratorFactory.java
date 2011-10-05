@@ -71,7 +71,7 @@ public class IteratorFactory {
 
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
-		Type patType = matchPattern.getType(ctx.getCurrentEnvt());
+		Type patType = matchPattern.getType(ctx.getCurrentEnvt(), null);
 
 		if (subjectType.isValueType()) {
 			System.err.println("???");

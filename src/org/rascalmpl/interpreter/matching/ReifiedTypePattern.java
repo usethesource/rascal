@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -34,7 +35,7 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		// TODO: check if this would do it
 		return RascalTypeFactory.getInstance().reifiedType(tf.valueType());
 	}
@@ -47,7 +48,7 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return nodePattern.getVariables();
 	}
 	

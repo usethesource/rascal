@@ -14,6 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -21,10 +24,11 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.utils.Names;
 
-public class QualifiedNamePattern extends AbstractMatchingResult {
+public class QualifiedNamePattern extends AbstractMatchingResult implements IVarPattern {
 	protected org.rascalmpl.ast.QualifiedName name;
 	private Type declaredType;
 	protected boolean anonymous = false;
@@ -32,8 +36,11 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	private boolean iWroteItMySelf;
 	
 	public QualifiedNamePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.ast.QualifiedName name){
+		
 		super(ctx, x);
+		
 		this.name = name;
+		if(debug)System.err.println("QualifiedNamePattern: " + name);
 		this.anonymous = getName().equals("_");
 		Environment env = ctx.getCurrentEnvt();
 		
@@ -48,7 +55,6 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 				declaredType = varRes.getType();
 			}
 		}
-		
 		iWroteItMySelf = false;
 	}
 	
@@ -59,14 +65,19 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
+		if(patternVars != null && patternVars.containsKey(name)){
+			Type ot = patternVars.get(name).getType();
+			if(ot.compareTo(declaredType) < 0)
+					declaredType = ot;
+		}
 		return declaredType;
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
-		res.addFirst(getName());
+	public List<IVarPattern> getVariables(){
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern>();
+		res.addFirst(this);
 		return res;
 	}
 	
@@ -142,4 +153,21 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	public boolean bindingInstance() {
 		return iWroteItMySelf;
 	}
+
+	@Override
+	public boolean isVarIntroducing() {
+		return bindingInstance();
+	}
+
+	@Override
+	public String name() {
+		return getName();
+	}
+
+	@Override
+	public Type getType() {
+		return declaredType;
+	}
+
+	
 }
