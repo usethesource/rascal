@@ -106,6 +106,7 @@ import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.HomeURIResolver;
 import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
+import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -207,8 +208,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 		resolverRegistry.registerInputOutput(rascalPathResolver);
 
-		HomeURIResolver home = new HomeURIResolver();
-		resolverRegistry.registerInputOutput(home);
+		resolverRegistry.registerInputOutput(new HomeURIResolver());
+		resolverRegistry.registerInputOutput(new TempURIResolver());
 	}
 
 	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
