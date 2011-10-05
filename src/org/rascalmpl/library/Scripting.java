@@ -76,10 +76,11 @@ public class Scripting {
 		StringWriter es = new StringWriter();
 		PrintWriter err = new PrintWriter(es);
 		RascalShell shell = null;
+		Timer timer = null;
 		
 		try {
 			shell = new RascalShell(in, err, out, ((Evaluator) ctx).getClassLoaders(), ((Evaluator) ctx).getRascalResolver());
-			Timer timer = new ShellTimer(shell, duration.intValue());
+			timer = new ShellTimer(shell, duration.intValue());
 			timer.start();
 			shell.run();
 			timer.cancel();
@@ -108,6 +109,10 @@ public class Scripting {
 			System.err.println("unexpected error: " + e.getMessage());
 			if (shell != null) {
 				System.err.println(shell.getEvaluator().getStackTrace());
+				shell.stop();
+			}
+			if(timer != null){
+				timer.cancel();
 			}
 			System.err.println("caused by:");
 			e.printStackTrace();
@@ -115,6 +120,12 @@ public class Scripting {
 		} finally {
 			out.close();
 			err.close();
+			if(shell != null){
+				shell.stop();
+			}
+			if(timer != null){
+				timer.cancel();
+			}
 		}
 	}
 	

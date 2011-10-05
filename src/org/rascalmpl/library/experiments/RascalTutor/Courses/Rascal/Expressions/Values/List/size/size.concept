@@ -17,7 +17,7 @@ Description:
 Examples:
 <screen>
 import List;
-size([10, 20, 30]);
+size([20, 10, 30]);
 </screen>
 
 Benefits:

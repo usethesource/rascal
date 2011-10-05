@@ -32,7 +32,7 @@ public list[&T] mix(list[&T] l, list[&T] r){
 @javaClass{org.rascalmpl.library.List}
 public java list[&T] delete(list[&T] lst, int n);
 
-@doc{A list of all legal index values for a list}
+@doc{A set of all legal index values for a list}
 @javaClass{org.rascalmpl.library.List}
 public java set[int] domain(list[&T] lst);
 

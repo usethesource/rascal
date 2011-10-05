@@ -33,11 +33,16 @@
       <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+      <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
       <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+  <ul>      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>          <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+    </ul></li>
+
+      <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
       <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
     <ul>          <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
           <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
@@ -77,12 +82,6 @@
       <li><a href="/Courses/Rascal/EASY/ModelDrivenEngineering/ModelDrivenEngineering.html">ModelDrivenEngineering</a></li>
       <li><a href="/Courses/Rascal/EASY/Renovation/Renovation.html">Renovation</a></li>
       <li><a href="/Courses/Rascal/EASY/Security/Security.html">Security</a></li>
-  </ul></li>
-
-  <li><a href="/Courses/Rascal/Examples/Examples.html">Examples</a>
-  <ul>      <li><a href="/Courses/Rascal/Examples/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-      <li><a href="/Courses/Rascal/Examples/Factorial/Factorial.html">Factorial</a></li>
-      <li><a href="/Courses/Rascal/Examples/Hello/Hello.html">Hello</a></li>
   </ul></li>
 
   <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
@@ -673,22 +672,32 @@
 </div>
 
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[&amp;T] sort(list[&amp;T] lst)</code>
-
+<span class="sectionHead">Function</span>  <ol><li> <code>list[&amp;T] sort(list[&amp;T] lst)</code></li>
+<li> <code>list[&amp;T] sort(list[&amp;T] lst, bool (&amp;T a, &amp;T b) lessThanOrEqual)</code></li>
+</ol>
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Sort the elements of a list.
-
+<span class="sectionHead">Description</span>  Sort the elements of a list:
+ <ol><li> Use the built-in ordering on values to compare list elements.</li>
+<li> Give an additional <code>lessThanOrEqual</code> function that will be used to compare elements.</li>
+</ol>
 </div>
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
 ok
+<b>rascal></b>import String;
+ok
 <b>rascal></b>sort([10, 4, -2, 11, 100, 5]);
 list[int]: [-2,4,5,10,11,100]
-<b>rascal></b>sort([&quot;pear&quot;, &quot;apple&quot;, &quot;banana&quot;, &quot;ananas&quot;, &quot;kiwi&quot;]);
-list[str]: [&quot;ananas&quot;,&quot;apple&quot;,&quot;banana&quot;,&quot;kiwi&quot;,&quot;pear&quot;]
+<b>rascal></b>fruits = [&quot;mango&quot;, &quot;strawberry&quot;, &quot;pear&quot;, &quot;pineapple&quot;, &quot;banana&quot;, &quot;ananas&quot;, &quot;kiwi&quot;&raquo;
+];
+list[str]: [&quot;mango&quot;,&quot;strawberry&quot;,&quot;pear&quot;,&quot;pineapple&quot;,&quot;banana&quot;,&quot;ananas&quot;,&quot;kiwi&quot;]
+<b>rascal></b>sort(fruits);
+list[str]: [&quot;ananas&quot;,&quot;banana&quot;,&quot;kiwi&quot;,&quot;mango&quot;,&quot;pear&quot;,&quot;pineapple&quot;,&quot;strawberry&quot;]
+<b>rascal></b>sort(fruits, bool(str a, str b){ return size(a) &gt;= size(b); });
+list[str]: [&quot;strawberry&quot;,&quot;pineapple&quot;,&quot;ananas&quot;,&quot;banana&quot;,&quot;mango&quot;,&quot;kiwi&quot;,&quot;pear&quot;]
 </pre>
 </div>
 
