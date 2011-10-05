@@ -38,6 +38,7 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	private double[] xs = {-1f, -1f, -1f, -1f};
 	
+	LayeredGraph graph;
 	protected LinkedList<LayeredGraphNode> in;
 	protected LinkedList<LayeredGraphNode> out;
 	protected LinkedList<LayeredGraphNode> inShadowed;
@@ -50,17 +51,34 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	boolean marked = false;
 	LayeredGraphNode root;
 	LayeredGraphNode align;
-	LayeredGraphNode sink;
+	private LayeredGraphNode sink;
 	final int INFINITY = Integer.MAX_VALUE;
-	double shift = INFINITY;
+	final double DINFINITY = Double.MAX_VALUE;
+	private double shift = DINFINITY;
 	public double layerHeight;
 	public double blockWidth;
+	private double virtWidth = 20;  // Dimensions of a virtual node
+	private double virtHeight = 20;
 	
-	LayeredGraphNode(String name, Figure fig){
+	LayeredGraphNode(LayeredGraph g, String name, Figure fig){
+		this.graph = g;
 		this.name = name;
 		this.figure = fig;
 		in = new LinkedList<LayeredGraphNode>();
 		out = new LinkedList<LayeredGraphNode>();
+		root = align = sink = this;
+		shift = DINFINITY;
+	}
+	
+	LayeredGraphNode(LayeredGraph g, String name, double vw, double vh){
+		this(g, name, null);
+		virtWidth = vw;
+		virtHeight = vh;
+	}
+	
+	public void init(){
+		x = y = -1;
+		marked = false;
 		root = align = sink = this;
 	}
 	
@@ -446,9 +464,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	 * Note that the values in xs[0] ... xs[1] are preserved
 	 */
 	public void clearHorizontal(){
-		root = align = sink = this;
+		root = align = this;
+		setSink(this);
 		x = -1;
-		shift = INFINITY;
+		shift = DINFINITY;
+		blockWidth = width();
 	}
 	
 	/**
@@ -479,6 +499,22 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		this.x = xs[Direction.ord(dir)] = x;
 	}
 	
+	public void setShift(double s){
+		shift = s;
+	}
+	
+	public double getShift(){
+		return shift;
+	}
+	
+	public void setSink(LayeredGraphNode s){
+		sink = s;
+	}
+	
+	public LayeredGraphNode getSink(){
+		return sink;
+	}
+	
 	public void shiftX(double shift[]){
 		for(Direction dir : Direction.dirs){
 			int k = Direction.ord(dir);
@@ -502,11 +538,11 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	double width(){
-		return figure != null ? figure.minSize.getX() : 0;
+		return figure != null ? figure.minSize.getX() : virtWidth;
 	}
 	
 	double height(){
-		return figure != null ? figure.minSize.getY() : 0;
+		return figure != null ? figure.minSize.getY() : virtHeight;
 	}
 	
 	String getLayer(){

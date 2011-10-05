@@ -162,6 +162,7 @@ public class LayeredGraphEdge extends Figure {
 	}
 	
 	private void addPointToCurve(double x, double y,GraphicsContext gc){
+		System.err.printf("addPoints(: %f,%f\n", x, y);
 		if(useSplines){
 			if(cp == points.length){
 				double points1[] = new double[2*points.length];
@@ -269,9 +270,8 @@ public class LayeredGraphEdge extends Figure {
 				LayeredGraphNode node = getTo();
 				double h = node.figure.minSize.getY();
 				double w = node.figure.minSize.getX();
-				@SuppressWarnings("unused")
-				double hgap = prop.getReal(HGAP);
-				double vgap = prop.getReal(VGAP);
+				double hgap = getFrom().graph.prop.getReal(HGAP);
+				double vgap = getFrom().graph.prop.getReal(VGAP);
 				
 //				beginCurve(location.getX() + node.figX(),                   location.getY() + node.figY()-h/3);
 //				addPointToCurve(location.getX() + node.figX(),              location.getY() + node.figY()-h/3);
@@ -281,13 +281,22 @@ public class LayeredGraphEdge extends Figure {
 //				addPointToCurve(location.getX() + node.figX() + w/2 + hgap, location.getY() + node.figY());
 //				addPointToCurve(location.getX() + node.figX() + w/2,        location.getY() + node.figY());
 //				endCurve(location.getX() + node.figX() + w/2,        		 location.getY() + node.figY());
+//				
+//				beginCurve(globalLocation.getX() + node.figX()+w/2,               globalLocation.getY() + node.figY()-h/2,gc);
+//				addPointToCurve(globalLocation.getX() + node.figX()+w/4,          globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
+//				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/2),gc);
+//				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h+vgap),gc);
+//				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
+//				endCurve(globalLocation.getX() + node.figX(),                     globalLocation.getY() + node.figY()-h/2,gc);
+					System.err.printf("hgap=%f, vgap=%f\n", hgap, vgap);
 				
-				beginCurve(globalLocation.getX() + node.figX(),                   globalLocation.getY() + node.figY()-h/2,gc);
-				addPointToCurve(globalLocation.getX() + node.figX()+w/4,          globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
-				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/2),gc);
-				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h+vgap),gc);
-				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
-				endCurve(globalLocation.getX() + node.figX(),                     globalLocation.getY() + node.figY()-h/2,gc);
+				System.err.printf("Start self edge:\n");
+				beginCurve(globalLocation.getX() + node.figX()+w/2,               globalLocation.getY() + node.figY()-h/4,gc);
+				addPointToCurve(globalLocation.getX() + node.figX()+w/2+hgap/3,   globalLocation.getY() + node.figY()-(h/2),gc);
+				addPointToCurve(globalLocation.getX() + node.figX()+w/2+hgap/3,   globalLocation.getY() + node.figY()-(h/2+vgap/3),gc);
+				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/3),gc);
+				endCurve(globalLocation.getX() + node.figX()+w/4,                 globalLocation.getY() + node.figY()-h/2,gc);
+
 				
 				if(toArrow != null){
 					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);

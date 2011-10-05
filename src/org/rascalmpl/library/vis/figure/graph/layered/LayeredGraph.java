@@ -13,14 +13,12 @@
 package org.rascalmpl.library.vis.figure.graph.layered;
 
 import static org.rascalmpl.library.vis.properties.Properties.DIR;
-import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 import static org.rascalmpl.library.vis.properties.Properties.HGAP;
+import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
 import static org.rascalmpl.library.vis.properties.Properties.ID;
 import static org.rascalmpl.library.vis.properties.Properties.LAYER;
 import static org.rascalmpl.library.vis.properties.Properties.VGAP;
-import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.MIRROR;
-import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
+import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,9 +38,7 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
-import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -66,6 +62,7 @@ public class LayeredGraph extends Figure {
 	protected ArrayList<LayeredGraphNode> nodes;
 	protected ArrayList<LayeredGraphEdge> edges;
 	protected HashMap<String, LayeredGraphNode> registeredNodeIds;
+	LinkedList<LinkedList<LayeredGraphNode>> layers;
 	protected HashMap<String, LinkedList<LayeredGraphNode>> registeredLayerIds;
 	protected IFigureConstructionEnv fpa;
 	
@@ -73,8 +70,9 @@ public class LayeredGraph extends Figure {
 	double vgap;
 	double MAXWIDTH;
 	private static final int INFINITY = Integer.MAX_VALUE;
+	private static final double DINFINITY = Double.MAX_VALUE;
 	
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	private static final boolean printGraph = false;
 	
 	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes,
@@ -117,7 +115,7 @@ public class LayeredGraph extends Figure {
 			if(getRegisteredNodeId(name) != null)
 				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		
-			LayeredGraphNode node = new LayeredGraphNode(name, fig);
+			LayeredGraphNode node = new LayeredGraphNode(this, name, fig);
 			this.nodes.add(node);
 			registerNodeId(name, node);
 			
@@ -328,7 +326,7 @@ public class LayeredGraph extends Figure {
 	 * - right top/bottom is aligned to maximum of narrowest
 	 */
 	private void alignToSmallest(){
-		double minX[] = {INFINITY, INFINITY, INFINITY, INFINITY};
+		double minX[] = {DINFINITY, DINFINITY, DINFINITY, DINFINITY};
 		double maxX[] = {-1, -1, -1, -1};
 		
 		for(Direction dir : Direction.dirs){
@@ -341,7 +339,7 @@ public class LayeredGraph extends Figure {
 			}
 		}
 		
-		double narrowest = INFINITY;
+		double narrowest = DINFINITY;
 		int dirNarrowest = -1;
 		
 		for(Direction dir : Direction.dirs){
@@ -441,25 +439,28 @@ public class LayeredGraph extends Figure {
 	 */
 	private void computeGraphLayout(){
 		
-		if(debug)
-			printGraph("Initial graph");
 		
-		LinkedList<LinkedList<LayeredGraphNode>> layers = assignLayers(MAXWIDTH); 
-		if(debug)
-			print("assignLayers", layers);
-		
-		layers = insertVirtualNodes(layers);
-		if(debug)
-			print("insertVirtualNodes", layers);
-		
-		layers = reduceCrossings(layers);
-		if(debug)
-			print("reduceCrossings", layers);
-		
-		layers = moveInnerCrossingsDown(layers);
-		if(debug)
-			print("moveInnerCrossingsDown", layers);
-		
+		if(layers == null){
+			if(debug)
+				printGraph("Initial graph");
+			
+			layers = assignLayers(MAXWIDTH); 
+			if(debug)
+				print("assignLayers", layers);
+			
+			layers = insertVirtualNodes(layers);
+			if(debug)
+				print("insertVirtualNodes", layers);
+			
+			layers = reduceCrossings(layers);
+			if(debug)
+				print("reduceCrossings", layers);
+			
+			layers = moveInnerCrossingsDown(layers);
+			if(debug)
+				print("moveInnerCrossingsDown", layers);
+			}
+			
 		placeHorizontal(layers);
 		
 		placeLabels(layers);
@@ -763,7 +764,7 @@ public class LayeredGraph extends Figure {
 			
 			String vname =  fromName + "_" + to.name + "[" + (from.layer + delta) + "]";
 			if(debug)System.err.println("Creating virtual node " + vname + " between " + fromName + " and " + to.name);
-			LayeredGraphNode virtual = new LayeredGraphNode(vname, null);
+			LayeredGraphNode virtual = new LayeredGraphNode(this, vname, hgap/2, vgap);
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			IString vfVname = vf.string(vname);
 			nodes.add(virtual);
@@ -852,22 +853,23 @@ public class LayeredGraph extends Figure {
 		for(int i = 0; i < layers.size(); i++){
 			LinkedList<LayeredGraphNode> layer = layers.get(i);
 			
-			for(int j = 0; j < layer.size(); j++){
-				LayeredGraphNode g = layer.get(j);
-				g.x = (j+1) * 10;
-			}
-//			double w = 0;
 //			for(int j = 0; j < layer.size(); j++){
 //				LayeredGraphNode g = layer.get(j);
-//				w += g.width();
+//				g.x = (j+1) * 50;
 //			}
-//			w += (layer.size() - 1) * hgap; // account for gaps between nodes
-//			double x = (MAXWIDTH - w)/2;
-//			for(int j = 0; j < layer.size(); j++){
-//				double wg =  layer.get(j).width();
-//				layer.get(j).x = x + wg/2;
-//				x += wg + hgap;
-//			}
+			
+			double w = 0;
+			for(int j = 0; j < layer.size(); j++){
+				LayeredGraphNode g = layer.get(j);
+				w += g.width();
+			}
+			w += (layer.size() - 1) * hgap; // account for gaps between nodes
+			double x = (MAXWIDTH - w)/2;
+			for(int j = 0; j < layer.size(); j++){
+				double wg =  layer.get(j).width();
+				layer.get(j).x = x + wg/2;
+				x += wg + hgap;
+			}
 		}
 		return layers;
 	}
@@ -1241,7 +1243,8 @@ public class LayeredGraph extends Figure {
 								System.err.println("Encountered marked edge: " + um.name + " -> " + vk.name);
 							if(!isMarked(um, vk) && (leftAlign ? r < um.pos :  um.pos < r)){
 								um.align = vk;
-								um.blockWidth = Math.max(um.blockWidth, vk.width());
+								/**/ um.blockWidth = Math.max(um.blockWidth, vk.width());
+								
 								vk.root = um.root;
 								vk.align = vk.root;
 								r = um.pos;
@@ -1258,9 +1261,8 @@ public class LayeredGraph extends Figure {
 		if(debug)System.err.println("placeBlock: " + v.name + " x = " + v.getX(dir));
 		if(v.getX(dir) == -1){
 			boolean leftDir = Direction.isLeftDirection(dir);
-			//v.setX(dir, leftDir ? v.blockWidth/2 : MAXWIDTH - v.blockWidth/2);
+			//v.setX(dir, leftDir ? v.root.blockWidth/2 : MAXWIDTH - v.root.blockWidth/2);
 			v.setX(dir, leftDir ? v.width()/2 : MAXWIDTH - v.width()/2);
-			//v.setX(dir, leftDir ? 0 : MAXWIDTH);
 		
 			LayeredGraphNode w = v;
 			do {
@@ -1271,24 +1273,26 @@ public class LayeredGraph extends Figure {
 					LayeredGraphNode u = layer.get(w.pos + (leftDir ? -1 : 1)).root;
 					placeBlock(layers, u, dir);
 					
-					if(v.sink == v){
-						v.sink = u.sink;
-						if(debug)System.err.println("placeBlock: " + v.name + ".sink => " + u.sink.name);
+					if(v.getSink() == v){
+						v.setSink(u.getSink());
+						if(debug)System.err.println("placeBlock: " + v.name + ".sink => " + u.getSink().name);
 					}
-					double xDelta = hgap + (v.root.blockWidth + u.root.blockWidth)/2;
+					//double xDelta = hgap + (v.blockWidth + u.blockWidth)/2;
+					double xDelta = hgap + (v.width() + u.blockWidth)/2;
+					//double xDelta = hgap + (v.root.blockWidth + u.root.blockWidth)/2;
 					
-					if(v.sink != u.sink){
+					if(v.getSink() != u.getSink()){
 						double s = leftDir ? v.getX(dir) - u.getX(dir) - xDelta : u.getX(dir) - v.getX(dir) - xDelta;
 						
-						u.sink.shift = leftDir ? Math.min(u.sink.shift, s) : Math.max(u.sink.shift, s);
-						if(debug)System.err.println("placeBlock: " + u.sink.name + ".sink.shift => " + u.sink.shift );
+						u.getSink().setShift(leftDir ? Math.min(u.getSink().getShift(), s) : Math.max(u.getSink().getShift(), s));
+						if(debug)System.err.println("placeBlock: " + u.getSink().name + ".sink.shift => " + u.getSink().getShift() );
 					} else {
-						v.setX(dir, leftDir ? Math.max(v.getX(dir), u.getX(dir) + xDelta) : Math.min(v.getX(dir), u.getX(dir) - xDelta));
-						if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
+							v.setX(dir, leftDir ? Math.max(v.getX(dir), u.getX(dir) + xDelta) : Math.min(v.getX(dir), u.getX(dir) - xDelta));
+							if(debug)System.err.println(v.name + ".x -> " + v.getX(dir));
 					}
 				}
 				w = w.align;
-			} while (w != v); // && (leftDir ? w.pos > 0 : w.pos < layers.get(w.layer).size() - 1));
+			} while (w != v);
 		}
 		if(debug)System.err.println("placeBlock =>  " + v.name + " x = " + v.getX(dir));
 	}
@@ -1311,14 +1315,14 @@ public class LayeredGraph extends Figure {
 			if(debug)System.err.println("compactHorizontal2: " + v.name);
 
 			v.setX(dir, v.root.getX(dir));
-			if(v.root == v && v.root.sink.shift < INFINITY){
+			if(v.root == v && v.root.getSink().getShift() < DINFINITY){
 				if(leftAligned)
-					v.setX(dir, v.getX(dir) + v.root.sink.shift);
+					v.setX(dir, v.getX(dir) + v.root.getSink().getShift());
 				else {
-					//v.setX(dir, v.sink.shift - v.getX(dir));
-					v.setX(dir,  v.getX(dir) - v.root.sink.shift);
+					v.setX(dir,  v.getX(dir) - v.root.getSink().getShift());
 				}
 			}
+			if(debug)System.err.println("compactHorizontal3: " + v.name + ".x = " + v.getX(dir));
 		}
 	}
 	
@@ -1340,7 +1344,8 @@ public class LayeredGraph extends Figure {
 			}
 			for(LayeredGraphNode g : layer){
 				g.layerHeight = hlayer;
-				g.y = y + hlayer/2;
+				//g.y = y + hlayer/2;
+				g.y = y + g.height()/2;
 			}
 			y += hlayer + vgap;
 		}
@@ -1394,11 +1399,11 @@ public class LayeredGraph extends Figure {
 					g.clearHorizontal();
 			}
 			alignVertical(layers, dir);
+
 			System.err.println("alignVertical done");
 			printGraph("after alignVertical");
 			compactHorizontal(layers, dir);
 			printGraph("after compactHorizontal");
-			System.err.println("compactHorizontal done");
 		}
 		return layers;
 	}
@@ -1483,7 +1488,6 @@ public class LayeredGraph extends Figure {
 		}
 	}
 	
-
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		gc.translate(globalLocation.getX(), globalLocation.getY());
 		for(LayeredGraphEdge e : edges){

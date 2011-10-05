@@ -76,7 +76,7 @@ public void testTree(){
 							case "rightLeft" : or = rightLeft();
 						}
 					},vshrink(0.25)),
-			button("Generate!",void() {recompute = true;},vshrink(0.1))],hshrink(0.15))
+			button("Generate!",void() {recompute = true;},vshrink(0.1))],hresizable(false))
 		])
 	);
 }
