@@ -117,7 +117,6 @@ public Concept compileConcept(loc file){
    html_file = file[extension = htmlExtension];
    regen = regenerate || (!exists(html_file) || lastModified(file) > lastModified(html_file));
    
-   
    setGenerating(regen);
    
    script = readFileLines(file);
@@ -143,10 +142,6 @@ public Concept compileConcept(loc file){
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
-	   related = getAndClearRelated();
-	   warnings = getAndClearWarnings();
-	   
-	   Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
 	   if(regen){
 	      html_synopsis = section("Synopsis", markup(synopsisSection, conceptName)) +
 	                      section("Syntax", markup(syntaxSection, conceptName)) +
@@ -157,10 +152,15 @@ public Concept compileConcept(loc file){
   	                      section("Benefits", markup(sections["Benefits"], conceptName)) +
   	                      section("Pitfalls", markup(sections["Pitfalls"], conceptName)) +
   	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>");
-	   
+  	      related        = getAndClearRelated();
+	      warnings       = getAndClearWarnings();
+	      
+	      Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
 	   	  generate(C, html_synopsis, html_body);
-	   }
-	   return C;
+	   	  return C;
+	   } else
+	   	return concept(conceptName, file, [], optDetails, [], searchTs, questions);
+
 	} catch NoSuchKey(e):
 	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
 	  catch IOError(e):
@@ -588,7 +588,6 @@ str navigationPanel = "";
 bool regenerate = false;
 
 public Course compileCourse(ConceptName rootConcept, str flags){
-
    if(/regenerate/ := flags)
       regenerate = true;
       
@@ -650,7 +649,7 @@ public Course compileCourse(ConceptName rootConcept, str flags){
 
 public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] conceptMap){
     // Global sanity checks on concept dependencies
-    //Graph[ConceptName] fullRefinements = {};
+    // Graph[ConceptName] fullRefinements = {};
     refinements = {};
     Graph[ConceptName] baseRefinements = {};
     
