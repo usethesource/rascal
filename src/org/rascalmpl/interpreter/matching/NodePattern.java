@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -184,7 +185,7 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		if (type == null) {
 			type = getConstructorType(env);
 
@@ -196,12 +197,12 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 
 	private Type getSignatureType(Environment env) {
-		int arity = tuple.getType(env).getArity() - 1;
+		int arity = tuple.getType(env, null).getArity() - 1;
 
 		Type[] types = new Type[arity];
 
 		for (int i = 1; i < arity + 1; i += 1) {
-			types[i - 1] =  tuple.getType(env).getFieldType(i);
+			types[i - 1] =  tuple.getType(env, null).getFieldType(i);
 		}
 
 		return tf.tupleType(types);
@@ -248,7 +249,7 @@ public class NodePattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public java.util.List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return tuple.getVariables();
 	}
 	

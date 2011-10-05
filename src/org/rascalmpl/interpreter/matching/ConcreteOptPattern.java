@@ -13,6 +13,7 @@
 package org.rascalmpl.interpreter.matching;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -50,7 +51,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		}
 		else if (list.size() == 1) {
 			optArg = list.get(0);
-			NonTerminalType nont = (NonTerminalType) optArg.getType(ctx.getCurrentEnvt());
+			NonTerminalType nont = (NonTerminalType) optArg.getType(ctx.getCurrentEnvt(), null);
 			if (SymbolAdapter.isOpt(nont.getSymbol())) {
 				// I think this can only happen when a variable of type opt is there
 				type = Opt.MayExist;
@@ -112,7 +113,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return RascalTypeFactory.getInstance().nonTerminalType(ProductionAdapter.getType(production));
 	}
 
@@ -149,7 +150,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	}
 
 	@Override
-	public java.util.List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		if (optArg != null) {
 			return optArg.getVariables();
 		}

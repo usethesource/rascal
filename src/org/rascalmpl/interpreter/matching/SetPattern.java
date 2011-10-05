@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,19 +46,20 @@ public class SetPattern extends AbstractMatchingResult {
 	/*
 	 * The variables are indexed from 0, ..., nVar-1 in the order in which they occur in the pattern.
 	 * There are three kinds:
-	 * - a list variable
+	 * - a set variable
 	 * - an element variable
 	 * - a non-literal pattern that contains variables
 	 */
 	private int nVar;							// Number of variables
 	private HashSet<String> patVars;            // List of names of variables at top-level of the pattern
-	private HashSet<String> allVars;			// List of names of all the variables in the pattern 
+	private HashMap<String,IVarPattern> allVars;// Map of names of all the variables in the pattern 
 												// (including nested subpatterns)
 	private String[] varName;					// Name of each variable
-	private ISet[] varVal;						// Value of each variable
+	private IValue[] varVal;				    // Value of each variable
 	private IMatchingResult[] varPat;			// The pattern value for non-literal patterns
-	private boolean[] isSetVar;				    // Is this a set variable?	
-	private Iterator<?>[] varGen;				// Value generator for this variables
+	private boolean[] isSetVar;				    // Is this a set variable?
+	private boolean[] isBinding;                // Is this a binding variable occurrence?
+	private Iterator<?>[] varGen;				// Value generator for this variable
 	
 	private int currentVar;					    // The currently matched variable
     private boolean firstMatch;				    // First match of this pattern?
@@ -73,14 +75,15 @@ public class SetPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		if(patternSize == 0){
 			return tf.setType(tf.voidType());
 		}
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = patternChildren.get(i).getType(env);
+			Type childType = patternChildren.get(i).getType(env, patternVars);
+			patternVars = merge(patternVars, patternChildren.get(i).getVariables());
 			if(childType.isSetType()){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
@@ -91,12 +94,17 @@ public class SetPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+	public List<IVarPattern> getVariables(){
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
 		for (int i = 0; i < patternChildren.size(); i++) {
 			res.addAll(patternChildren.get(i).getVariables());
 		 }
 		return res;
+	}
+	
+	private boolean isSetVar(int i){
+		IVarPattern def = allVars.get(varName[i]);
+		return isSetVar[i] || (def != null && def.getType().isSetType());
 	}
 	
 	// Sort the variables: element variables and non-literal patterns should 
@@ -104,26 +112,29 @@ public class SetPattern extends AbstractMatchingResult {
 	
 	private void sortVars(){
 		String[] newVarName = new String[patternSize];
-		ISet[]newVarVal= new ISet[patternSize];
+		IValue[]newVarVal= new ISet[patternSize];
 		IMatchingResult[] newVarPat = new IMatchingResult[patternSize];
 		boolean[] newIsSetVar = new boolean[patternSize];
+		boolean[] newIsBinding = new boolean[patternSize];
 		
 		int nw = 0;
 		for(int i = 0; i < nVar; i++){
-			if(!isSetVar[i]){
+			if(!isSetVar(i)){
 				newVarName[nw] = varName[i];
 				newVarVal[nw] = varVal[i];
 				newVarPat[nw] = varPat[i];
 				newIsSetVar[nw] = isSetVar[i];
+				newIsBinding[nw] = isBinding[i];
 				nw++;
 			}
 		}
 		for(int i = 0; i < nVar; i++){
-			if(isSetVar[i]){
+			if(isSetVar(i)){
 				newVarName[nw] = varName[i];
 				newVarVal[nw] = varVal[i];
 				newVarPat[nw] = varPat[i];
 				newIsSetVar[nw] = isSetVar[i];
+				newIsBinding[nw] = isBinding[i];
 				nw++;
 			}
 		}
@@ -134,19 +145,20 @@ public class SetPattern extends AbstractMatchingResult {
 			varVal[i] = newVarVal[i];
 			varPat[i] = newVarPat[i];
 			isSetVar[i] = newIsSetVar[i];
+			isBinding[i] = newIsBinding[i];
 		}
 	}
 	
 	private void printVars(){
 		for(int i = 0; i < nVar; i++){
-			System.err.printf("%d: %s, isSetVar=%b, pat=%s, val=%s\n", i, varName[i], isSetVar[i], varPat[i], varVal[i]);
+			System.err.printf("%d: %s, isSetVar=%b, isBinding=%b, pat=%s, val=%s\n", i, varName[i], isSetVar(i), isBinding[i], varPat[i], varVal[i]);
 		}
 	}
 	
 	private boolean declaredAsSetVar(String name){
 		for(int i = 0; i < nVar; i++){
 			if(varName[i].equals(name))
-				return isSetVar[i];
+				return isSetVar(i);
 		}
 		return false;
 	}
@@ -166,14 +178,16 @@ public class SetPattern extends AbstractMatchingResult {
 		setSubjectElementType = setSubject.getElementType();
 		staticSubjectElementType = staticSetSubjectType.isSetType() ? staticSetSubjectType.getElementType() : tf.valueType();
 		Environment env = ctx.getCurrentEnvt();
-		fixedSetElements = ctx.getValueFactory().set(getType(env).getElementType());
+		//fixedSetElements = ctx.getValueFactory().set(getType(env).getElementType());
+		fixedSetElements = ctx.getValueFactory().set(setSubjectElementType);
 		
 		nVar = 0;
 		patVars = new HashSet<String>();
-		allVars = new HashSet<String>();
+		allVars = new HashMap<String, IVarPattern>();
 		varName = new String[patternSize];  			// Some overestimations
 		isSetVar = new boolean[patternSize];
-		varVal = new ISet[patternSize];
+		isBinding = new boolean[patternSize];
+		varVal = new IValue[patternSize];
 		varPat = new IMatchingResult[patternSize];
 		varGen = new Iterator<?>[patternSize];
 		/*
@@ -184,9 +198,9 @@ public class SetPattern extends AbstractMatchingResult {
 			if(debug)System.err.println("child = " + child);
 			if(child instanceof TypedVariablePattern){
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
-				Type childType = child.getType(env);
+				Type childType = child.getType(env, null);
 				String name = ((TypedVariablePattern)child).getName();
-				if(!patVar.isAnonymous() && allVars.contains(name)){
+				if(!patVar.isAnonymous() && allVars.containsKey(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
 				if(childType.comparable(staticSetSubjectType) || childType.comparable(staticSubjectElementType)){
@@ -195,11 +209,12 @@ public class SetPattern extends AbstractMatchingResult {
 					 */
 					if(!patVar.isAnonymous()){
 						patVars.add(name);
-						allVars.add(name);
+						allVars.put(name, (IVarPattern)child);
 					}
 					varName[nVar] = name;
 					varPat[nVar] = child;
 					isSetVar[nVar] = childType.isSetType();
+					isBinding[nVar] = true;
 					nVar++;
 				} else {
 					hasNext = false;
@@ -209,19 +224,26 @@ public class SetPattern extends AbstractMatchingResult {
 				}
 				
 			} else if(child instanceof MultiVariablePattern){
+				/*
+				 * Explicitly declared set variable
+				 */
 				MultiVariablePattern multiVar = (MultiVariablePattern) child;
 				String name = multiVar.getName();
-				if(!multiVar.isAnonymous() && allVars.contains(name)){
+				if(!multiVar.isAnonymous() && allVars.containsKey(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
 				varName[nVar] = name;
 				varPat[nVar] = child;
 				isSetVar[nVar] = true;
+				isBinding[nVar] = true;
 				nVar++;
 			} else if(child instanceof QualifiedNamePattern){
+				/*
+				 * Use of a variable
+				 */
 				QualifiedNamePattern qualName = (QualifiedNamePattern) child;
 				String name = qualName.getName();
-				if (!qualName.isAnonymous() && allVars.contains(name)) {
+				if (!qualName.isAnonymous() && allVars.containsKey(name)) {
 					/*
 					 * A set/element variable that was declared earlier in the pattern itself,
 					 * or in a preceding nested pattern element.
@@ -235,6 +257,7 @@ public class SetPattern extends AbstractMatchingResult {
 						// If is was declared as set in the current pattern then we are sure it is a set variable,
 						// otherwise we assume for now that it is not but we check this again later in matchVar.
 						isSetVar[nVar] = declaredAsSetVar(name);
+						isBinding[nVar] = false;
 						nVar++;
 					} else {
 						/*
@@ -245,6 +268,7 @@ public class SetPattern extends AbstractMatchingResult {
 					varName[nVar] = name;
 					varPat[nVar] = child;
 					isSetVar[nVar] = false;
+					isBinding[nVar] = false;
 					nVar++;
 				} else  {
 					Result<IValue> varRes = env.getVariable(name);
@@ -254,6 +278,7 @@ public class SetPattern extends AbstractMatchingResult {
 						varName[nVar] = name;
 						varPat[nVar] = child;
 						isSetVar[nVar] = false;
+						isBinding[nVar] = true;
 						nVar++;
 						// TODO: Why is this here? The pattern also declares the variable,
 						// so this just causes errors when we use variables in set patterns.
@@ -286,11 +311,12 @@ public class SetPattern extends AbstractMatchingResult {
 								 */
 								if(!name.equals("_")){
 									patVars.add(name);
-									allVars.add(name);
+									allVars.put(name, (IVarPattern) child);
 								}
 								varName[nVar] = name;
 								varPat[nVar] = child;
 								isSetVar[nVar] = varRes.getType().isSetType();
+								isBinding[nVar] = false;
 								nVar++;
 					    	}
 					    }
@@ -298,24 +324,29 @@ public class SetPattern extends AbstractMatchingResult {
 				}
 			} else if(child instanceof LiteralPattern){
 				IValue lit = ((LiteralPattern) child).toIValue(env);
-				Type childType = child.getType(env);
+				Type childType = child.getType(env, null);
 				if(!childType.comparable(staticSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
-				Type childType = child.getType(env);
+				Type childType = child.getType(env, null);
 				if(!childType.comparable(staticSubjectElementType)){
 					hasNext = false;
 					return;
 					// can't throw type error: throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
-				java.util.List<String> childVars = child.getVariables();
+				java.util.List<IVarPattern> childVars = child.getVariables();
 				if(!childVars.isEmpty()){ 
-					allVars.addAll(childVars);
+					for(IVarPattern vp : childVars){
+						IVarPattern prev = allVars.get(vp.name());
+						if(prev == null || vp.isVarIntroducing())
+							allVars.put(vp.name(), vp);
+					}
 					varName[nVar] = child.toString();
 					varPat[nVar] = child;
 					isSetVar[nVar] = false;
+					isBinding[nVar] = false;
 					nVar++;
 				} else {
 					// TODO: this should check for isConstant or something, which includes a check for anti patterns and deep patterns
@@ -358,7 +389,10 @@ public class SetPattern extends AbstractMatchingResult {
 	private ISet available(){
 		ISet avail = availableSetElements;
 		for(int j = 0; j < currentVar; j++){
-			avail = avail.subtract(varVal[j]);
+			if(isSetVar(j))
+				avail = avail.subtract((ISet)varVal[j]);
+			else
+				avail = avail.delete(varVal[j]);
 		}
 		return avail;
 	}
@@ -384,7 +418,7 @@ public class SetPattern extends AbstractMatchingResult {
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
 			if(qualName.isAnonymous() || env.getVariable(name) == null){
-				if(isSetVar[i]){
+				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
 					if(elements.size() == 0)
@@ -394,14 +428,23 @@ public class SetPattern extends AbstractMatchingResult {
 			} else {
 				IValue val = env.getVariable(name).getValue();
 				// Variable has been set before, use its dynamic type to distinguish set variables.
-				if(val.getType().isSetType())
+				if(val.getType().isSetType()){
 					isSetVar[i] = true;
-				varGen[i] = new SingleIValueIterator(val);
+					if(elements.equals(val)){
+						varGen[i] = new SingleIValueIterator(val);
+						return true;
+					}
+					return false;
+				}
+				if(elements.contains(val)){
+					varGen[i] = new SingleIValueIterator(val);
+				} else
+					return false;
 			}
 			return true;
 		}
 		
-		if(isSetVar[i]){
+		if(isSetVar(i)){
 			varGen[i] = new SubSetGenerator(elements, ctx);
 			return true;
 		}
@@ -411,25 +454,29 @@ public class SetPattern extends AbstractMatchingResult {
 		return true;
 	}
 	
-	private boolean matchVar(int i, IValue elements){
+	private boolean matchPatternElement(int i, IValue elements){
 		
 		IValue elem ;
-		if(isSetVar[i]){
+		if(isSetVar(i)){
 			varVal[i] = (ISet) elements;
 			elem = elements;
 		} else {
 			if(elements.getType().isSetType()){
 				ISet set = (ISet) elements;
-				varVal[i] = (ISet) elements;
 				assert set.size() == 1;
-				elem = set.iterator().next();
+				varVal[i] = elem = set.iterator().next();
 			} else {
-				elem = elements;
-				varVal[i] = ctx.getValueFactory().set(elem.getType()).insert(elem);
+				varVal[i] = elem = elements;
+				//varVal[i] = ctx.getValueFactory().set(elem.getType()).insert(elem); // TODO: Should this be  a set?
 			}
 		}
 		
 		// TODO: see if we can use a static type here?!
+		
+//		if(!isBinding[i] && varPat[i] instanceof QualifiedNamePattern){
+//			Result<IValue> r = ctx.getCurrentEnvt().getVariable(varName[i]);
+//			return r.getValue().isEqual(elements);
+//		}
 		varPat[i].initMatch(ResultFactory.makeResult(elem.getType(), elem, ctx));
 		return varPat[i].next();
 	}
@@ -451,8 +498,8 @@ public class SetPattern extends AbstractMatchingResult {
 			}
 			
 			if(nVar == 1){
-				if(isSetVar[0] || availableSetElements.size() == 1){
-					return matchVar(0, availableSetElements);
+				if(isSetVar(0) || availableSetElements.size() == 1){
+					return matchPatternElement(0, availableSetElements);
 				}
 				return false;
 			}
@@ -472,7 +519,7 @@ public class SetPattern extends AbstractMatchingResult {
 		do {
 			if(debug)System.err.println("currentVar=" + varName[currentVar] + "; nVar=" + nVar);
 			while(varGen[currentVar].hasNext()){
-				if(matchVar(currentVar, (IValue) varGen[currentVar].next())){
+				if(matchPatternElement(currentVar, (IValue) varGen[currentVar].next())){
 					currentVar++;
 					if(currentVar <= nVar - 1){
 						if(!makeGen(currentVar, available())){

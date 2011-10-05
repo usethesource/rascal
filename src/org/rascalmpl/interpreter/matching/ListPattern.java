@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -87,8 +88,8 @@ public class ListPattern extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+	public List<IVarPattern> getVariables(){
+		java.util.LinkedList<IVarPattern> res = new java.util.LinkedList<IVarPattern> ();
 		for (int i = 0; i < patternChildren.size(); i += delta) {
 			res.addAll(patternChildren.get(i).getVariables());
 		 }
@@ -153,9 +154,9 @@ public class ListPattern extends AbstractMatchingResult  {
 			isListVar[i] = false;
 			isBindingVar[i] = false;
 			Environment env = ctx.getCurrentEnvt();
-			if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env))){  // <------
+			if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env, null))){  // <------
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
-				Type childType = child.getType(env);
+				Type childType = child.getType(env, null);
 				String name = patVar.getName();
 				varName[i] = name;
 				if(!patVar.isAnonymous() && allVars.contains(name)){
@@ -260,7 +261,7 @@ public class ListPattern extends AbstractMatchingResult  {
 					System.err.println("List: child " + child);
 					System.err.println("List: child is a" + child.getClass());
 				}
-				Type childType = child.getType(env);
+				Type childType = child.getType(env, null);
 				
 			    // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
 				// need to use list matching on the fixed arity children of the application of a production
@@ -269,9 +270,11 @@ public class ListPattern extends AbstractMatchingResult  {
 					return;
 //					throw new UnexpectedTypeError(staticListSubjectElementType,childType, getAST());
 				}
-				java.util.List<String> childVars = child.getVariables();
+				java.util.List<IVarPattern> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
-					allVars.addAll(childVars);
+					for(IVarPattern vp : childVars){ // TODO: This does not profit from extra information
+						allVars.add(vp.name());
+					}
 					isListVar[nListVar] = false; // TODO: This looks wrong
 					nListVar++;
 				} 
@@ -304,14 +307,15 @@ public class ListPattern extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public Type getType(Environment env) {                      
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {                      
 		if(patternSize == 0){
 			return tf.listType(tf.voidType());
 		}
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i += delta){
-			Type childType = patternChildren.get(i).getType(env);
+			Type childType = patternChildren.get(i).getType(env, patternVars);
+			patternVars = merge(patternVars, patternChildren.get(i).getVariables());
 			
 			if(childType.isListType()){
 				elemType = elemType.lub(childType.getElementType());

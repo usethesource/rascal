@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -37,7 +38,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 		this.pat = pat;
 	}
 
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return type;
 	}
 	
@@ -47,7 +48,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return pat.getVariables();
 	}
 	
@@ -57,7 +58,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 		
 		Environment env = ctx.getCurrentEnvt();
 		
-		if (type instanceof NonTerminalType && pat.getType(env).isSubtypeOf(tf.stringType()) && subject.getValue().getType().isSubtypeOf(Factory.Tree)) {
+		if (type instanceof NonTerminalType && pat.getType(env, null).isSubtypeOf(tf.stringType()) && subject.getValue().getType().isSubtypeOf(Factory.Tree)) {
 			if (subject.getValue().getType().isSubtypeOf(type)) {
 				subject = ResultFactory.makeResult(tf.stringType(), ctx.getValueFactory().string(TreeAdapter.yield((IConstructor) subject.getValue())), ctx);
 				pat.initMatch(subject);
@@ -73,7 +74,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 //			if (!mayMatch(pat.getType(env), type)) {
 //				throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());
 //			}
-			this.hasNext = pat.getType(env).equivalent(type);
+			this.hasNext = pat.getType(env, null).equivalent(type);
 		}
 		
 	}

@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,18 +38,18 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	}
 
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return TypeFactory.getInstance().valueType();
 		// TODO: return pat.getType(env) is too restrictive, reconsider this.
 	}
 	
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env){
-		return TypeReachability.mayOccurIn(getType(env), subjectType, env);
+		return TypeReachability.mayOccurIn(getType(env, null), subjectType, env);
 	}
 	
 	@Override
-	public List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return pat.getVariables();
 	}
 	

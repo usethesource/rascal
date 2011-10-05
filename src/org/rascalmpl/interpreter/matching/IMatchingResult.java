@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -26,10 +29,13 @@ import org.rascalmpl.interpreter.result.Result;
  */
 public interface IMatchingResult extends IBooleanResult {
 	/**
+	 * @param patternVars TODO
 	 * @param env: the module scope
+	 * @param patternVars: the variable introduced earlier in the pattern.
 	 * @return the Rascal type of this MatchPattern
 	 */
-	public Type getType(Environment env);
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars);
+	
 	
 	/**
 	 * @param subject to be matched is stored in the matching result, which initialized the state for lazy backtracking behavior.
@@ -46,7 +52,7 @@ public interface IMatchingResult extends IBooleanResult {
 	/**
 	 * @return the variables that are bound in the pattern
 	 */
-	public java.util.List<String> getVariables();
+	public List<IVarPattern> getVariables();
 
 	public AbstractAST getAST();
 	

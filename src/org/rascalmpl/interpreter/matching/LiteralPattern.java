@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.matching;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -37,12 +38,12 @@ public class LiteralPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
-	public List<String> getVariables() {
+	public List<IVarPattern> getVariables() {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 			return literal.getType();
 	}
 	

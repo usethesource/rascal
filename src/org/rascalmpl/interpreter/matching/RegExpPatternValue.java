@@ -16,6 +16,8 @@ package org.rascalmpl.interpreter.matching;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,7 +81,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	}
 
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment ev, HashMap<String,IVarPattern> patternVars) {
 		return tf.stringType();
 	}
 
@@ -160,8 +162,12 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	}
 	
 	@Override
-	public java.util.List<String> getVariables(){
-		return patternVars;
+	public List<IVarPattern> getVariables(){
+		List<IVarPattern> res = new LinkedList<IVarPattern>();
+		for(String name : patternVars){
+			res.add(new RegExpVar(name));
+		}
+		return res;
 	}
 	
 	@Override
