@@ -11,7 +11,7 @@ var searchTerms = {};
 
 searchTerms["Tutor/Markup/QuestionMarkup/Value"] = new Array("QValue",":");
 
-searchTerms["Tutor/Concept/Pitfalls"] = null;
+searchTerms["Tutor/Concept/Pitfalls"] = new Array(":","Pitfalls");
 
 searchTerms["Tutor/Markup/InlineMarkup/Variable"] = new Array("Varname","Index","VarName");
 
@@ -19,13 +19,13 @@ searchTerms["Tutor/Markup/QuestionMarkup"] = null;
 
 searchTerms["Tutor/Markup/StructureMarkup/warning"] = new Array("</","<","warning",">");
 
-searchTerms["Tutor/Concept/Function"] = null;
+searchTerms["Tutor/Concept/Function"] = new Array("Function",":");
 
 searchTerms["Tutor/Markup/StructureMarkup/NamedParagraph"] = new Array("==","====","===");
 
 searchTerms["Tutor/Markup/QuestionMarkup/Choice"] = null;
 
-searchTerms["Tutor/Concept/Synopsis"] = null;
+searchTerms["Tutor/Concept/Synopsis"] = new Array("Synopsis",":");
 
 searchTerms["Tutor/Markup/StructureMarkup/BulletLists"] = new Array("**","*","***");
 
@@ -39,13 +39,13 @@ searchTerms["Tutor/Markup/InlineMarkup"] = null;
 
 searchTerms["Tutor/Markup/StructureMarkup"] = null;
 
-searchTerms["Tutor/Concept/Questions"] = null;
+searchTerms["Tutor/Concept/Questions"] = new Array(":",",","Questions");
 
 searchTerms["Tutor/Markup/InlineMarkup/Code"] = null;
 
 searchTerms["Tutor/Concept/Name"] = new Array(":","Name");
 
-searchTerms["Tutor/Concept/Examples"] = null;
+searchTerms["Tutor/Concept/Examples"] = new Array("Examples",":");
 
 searchTerms["Tutor/Markup/InlineMarkup/ExternalURL"] = new Array(")","[","](");
 
@@ -63,7 +63,7 @@ searchTerms["Tutor/Markup/QuestionMarkup/TypeDescriptor"] = new Array("loc","set
 
 searchTerms["Tutor/Concept/Description"] = new Array(":","Description");
 
-searchTerms["Tutor/Concept/Benefits"] = null;
+searchTerms["Tutor/Concept/Benefits"] = new Array(":","Benefits");
 
 searchTerms["Tutor/Markup/InlineMarkup/Image"] = new Array(")","![","](","|");
 

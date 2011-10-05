@@ -5,9 +5,9 @@ A _concept_ is the basic building block of a course.
 
 Syntax:
 <br>
-`Name: $ConceptName$` (__mandatory__).
+`Name: $ConceptName$` (__mandatory__)
 
-`Synopsis:  $MarkedText$` (__mandatory__).
+`Synopsis:  $MarkedText$` (__mandatory__)
 
 `Syntax: $MarkedText$`
 
@@ -19,7 +19,7 @@ Syntax:
 
 `Description:  $MarkedText$`
 
-`Examples:  $MarkedText$` (__recommended__).
+`Examples:  $MarkedText$` (__recommended__)
 
 `Benefits:  $MarkedText$`
 

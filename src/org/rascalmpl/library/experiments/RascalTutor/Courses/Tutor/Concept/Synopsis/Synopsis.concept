@@ -3,6 +3,7 @@ Name: Synopsis
 Synopsis: One-line summary of the concept that is usable as a tool tip.
 
 Syntax:
+`Synopsis:  $MarkedText$` (__mandatory__)
 
 Types:
 

@@ -4,6 +4,7 @@ Synopsis:
 Questions about the concept.
 
 Syntax:
+`Questions: $Question_1$, $Question_2$` (__recommended__)
 
 Types:
 

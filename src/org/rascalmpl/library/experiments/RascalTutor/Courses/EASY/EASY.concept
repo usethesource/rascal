@@ -21,6 +21,8 @@ This is an abstract view on solving meta-programming problems, but is rather com
 
 We give some typical use cases in the details.
 
+Rascal has been designed to fully support problem solving that fits the EASY paradigm.
+
 Examples:
 
 Benefits:

@@ -4,7 +4,7 @@ Synopsis:
 The name of a concept.
 
 Syntax:
-`Name: $ConceptName$`
+`Name: $ConceptName$` (__mandatory__)
 
 Types:
 
