@@ -1,6 +1,6 @@
 Name: isEmpty
 
-Synopsis:
+Synopsis: Check whether priority queue is empty.
 
 Syntax:
 

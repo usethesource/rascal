@@ -1,6 +1,6 @@
 Name: shell
 
-Synopsis:
+Synopsis: Execute a string containing Rascal commands and return the output of the RascalShell.
 
 Syntax:
 

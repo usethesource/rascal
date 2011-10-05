@@ -1,6 +1,6 @@
 Name: evalType
 
-Synopsis:
+Synopsis: Evaluate a (list of) Rascal commands and return the type of the last command.
 
 Syntax:
 

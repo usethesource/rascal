@@ -1,6 +1,6 @@
 Name: root
 
-Synopsis:
+Synopsis: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Retrieve a full hierarchical representation of all resources in the Eclipse workspace.
+
 
 Examples:
 <screen>

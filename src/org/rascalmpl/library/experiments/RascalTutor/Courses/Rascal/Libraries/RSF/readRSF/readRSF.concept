@@ -1,6 +1,6 @@
 Name: readRSF
 
-Synopsis:
+Synopsis: Read a file in Rigi Standard Format (RSF). 
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Read a file in Rigi Standard Format (RSF). Since an RSF file may define more than one relation,
+Since an RSF file may define more than one relation,
 a mapping from relation name to relation value is returned.
 
 Examples:

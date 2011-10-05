@@ -1,6 +1,6 @@
 Name: dependencies
 
-Synopsis:
+Synopsis: Compute the (transitive) dependencies of a project.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Computes referenced projects transitively.
+
 
 Examples:
 Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:

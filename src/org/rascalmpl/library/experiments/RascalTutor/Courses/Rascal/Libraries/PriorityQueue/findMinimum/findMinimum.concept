@@ -1,6 +1,6 @@
 Name: findMinimum
 
-Synopsis:
+Synopsis: Find the minimum priority in a prority queue.
 
 Syntax:
 

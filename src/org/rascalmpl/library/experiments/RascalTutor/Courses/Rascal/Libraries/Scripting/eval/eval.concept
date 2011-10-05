@@ -1,6 +1,6 @@
 Name: eval
 
-Synopsis:
+Synopsis: Evaluate a (list of) Rascal commands and return the value of the last command.
 
 Syntax:
 

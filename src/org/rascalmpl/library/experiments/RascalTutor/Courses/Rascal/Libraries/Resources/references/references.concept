@@ -1,6 +1,6 @@
 Name: references
 
-Synopsis:
+Synopsis: The set of projects that are referenced by a project.
 
 Syntax:
 
@@ -12,7 +12,6 @@ Function:
 Details:
 
 Description:
-Find out which other projects this project references (depends on).
 
 Examples:
 
