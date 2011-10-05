@@ -42,7 +42,7 @@ public abstract class PatternWithAction extends
 
 			IMatchingResult pv = this.getPattern().getMatcher(__eval);
 
-			Type pt = pv.getType(__eval.getCurrentEnvt());
+			Type pt = pv.getType(__eval.getCurrentEnvt(), null);
 
 			if (pv instanceof NodePattern) {
 				pt = ((NodePattern) pv).getConstructorType(__eval
@@ -83,7 +83,7 @@ public abstract class PatternWithAction extends
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			IMatchingResult pv = this.getPattern().getMatcher(__eval);
-			Type pt = pv.getType(__eval.getCurrentEnvt());
+			Type pt = pv.getType(__eval.getCurrentEnvt(), null);
 
 			if (pv instanceof NodePattern) {
 				pt = ((NodePattern) pv).getConstructorType(__eval
