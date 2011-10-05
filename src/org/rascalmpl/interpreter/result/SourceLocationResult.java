@@ -17,16 +17,20 @@ package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -133,8 +137,22 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 			return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
 		}
-		else if (name.equals("children")) {
-			throw new NotYetImplemented("directory listing not yet implemented");
+		else if (name.equals("ls")) {
+			try {
+				IListWriter w = ctx.getValueFactory().listWriter();
+				Type stringType = getTypeFactory().stringType();
+				
+				for (String elem : ctx.getResolverRegistry().listEntries(uri)) {
+					w.append(this.add(makeResult(stringType, vf.string(elem), ctx)).getValue());
+				}
+				
+				IList result = w.done();
+				// a list of loc's
+				return makeResult(result.getType(), result, ctx);
+				
+			} catch (IOException e) {
+				throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
+			}
 		}
 		else if (name.equals("extension")) {
 			String path = uri.getPath();
@@ -273,7 +291,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent, uri.getQuery(), uri.getFragment());	
 				}
 			}
-			else if (name.equals("children")) {
+			else if (name.equals("ls")) {
 				throw new UnsupportedOperationError("can not update the children of a location", ctx.getCurrentAST());
 			}
 			else if (name.equals("extension")) {
