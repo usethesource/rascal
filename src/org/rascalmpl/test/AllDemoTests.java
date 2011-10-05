@@ -15,6 +15,7 @@ package org.rascalmpl.test;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AllDemoTests extends TestFramework {
@@ -34,47 +35,47 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import demo::Rules::AbstractInteger;"));
 	}
 	
-	@Test
+	@Ignore @Test 
 	public void AbstractPicoAssembly(){
 		assertTrue(runRascalTests("import demo::AbstractPico::Assembly;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void AbstractPicoCommonSubexpression() {
 		assertTrue(runRascalTests("import demo::AbstractPico::CommonSubexpression;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void AbstractPicoConstantPropagation() {
 		assertTrue(runRascalTests("import demo::AbstractPico::ConstantPropagation;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void AbstractPicoControlflow() {
 		assertTrue(runRascalTests("import demo::AbstractPico::Controlflow;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void AbstractPicoEval() {
 		assertTrue(runRascalTests("import demo::AbstractPico::Eval;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void AbstractPicoPrograms() {
 		assertTrue(runRascalTests("import demo::AbstractPico::Programs;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void AbstractPicoTypecheck() {
 		assertTrue(runRascalTests("import demo::AbstractPico::Typecheck;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void AbstractPicoUninit() {
 		assertTrue(runRascalTests("import demo::AbstractPico::Uninit;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void AbstractPicoUseDef() {
 		assertTrue(runRascalTests("import demo::AbstractPico::UseDef;"));
 	}
@@ -94,7 +95,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import demo::Calls;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void CarFDL() {
 		assertTrue(runRascalTests("import demo::CarFDL;"));
 	}
@@ -114,12 +115,12 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import demo::Rules::ConcreteBoolVisit;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void ConcretePicoEval() {
 		assertTrue(runRascalTests("import demo::ConcretePico::Eval;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void ConcretePicoTypecheck() {
 		assertTrue(runRascalTests("import demo::ConcretePico::Typecheck;"));
 	}
@@ -139,32 +140,32 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import demo::FactorialTest;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void FunAbstract() {
 		assertTrue(runRascalTests("import demo::Fun::FunAbstract;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void GenericFeatherweightJava() {
 		assertTrue(runRascalTests("import demo::GenericFeatherweightJava::Examples;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void GrammarToolsGrammar() {
 		assertTrue(runRascalTests("import experiments::GrammarTools::Grammar;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void GrammarToolsImportBNF() {
 		assertTrue(runRascalTests("import experiments::GrammarTools::ImportBNF;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void GrammarToolsItemSet() {
 		assertTrue(runRascalTests("import experiments::GrammarTools::ItemSet;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void GrammarToolsFirstFollow() {
 		assertTrue(runRascalTests("import experiments::GrammarTools::FirstFollow;"));
 	}
@@ -189,7 +190,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import  demo::Lift;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void LRGen() {
 		assertTrue(runRascalTests("import  experiments::Parsing::LRGen;"));
 	}
@@ -199,22 +200,22 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import   demo::McCabe;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void ModelTransformationsBook2Publication() {
 		assertTrue(runRascalTests("import  experiments::ModelTransformations::Book2Publication;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void ModelTransformationsFamilies2Persons() {
 		assertTrue(runRascalTests("import experiments::ModelTransformations::Families2Persons;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void ModelTransformationsTree2List() {
 		assertTrue(runRascalTests("import experiments::ModelTransformations::Tree2List;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void ParsingGRD(){
 		assertTrue(runRascalTests("import experiments::Parsing::GRD;"));
 	}
@@ -244,12 +245,12 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import demo::Squares;"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void StateMachine(){
 		assertTrue(runRascalTests("import demo::StateMachine::CanReach;"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void StateMachineOld(){
 		assertTrue(runRascalTests("import demo::StateMachine::OldCanReach;"));
 	}
