@@ -1,6 +1,6 @@
 Name: startsWith
 
-Synopsis:
+Synopsis: Check whether a string value starts with a given substring.
 
 Syntax:
 

@@ -1,6 +1,6 @@
 Name: toLowerCase
 
-Synopsis:
+Synopsis: Convert the characters in a string value to lower case.
 
 Syntax:
 

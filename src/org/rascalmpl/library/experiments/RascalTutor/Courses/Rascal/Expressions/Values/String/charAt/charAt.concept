@@ -1,6 +1,6 @@
 Name: charAt
 
-Synopsis:
+Synopsis: Return character in a string by its index position.
 
 Syntax:
 

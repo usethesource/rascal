@@ -1,6 +1,6 @@
 Name: isEmpty
 
-Synopsis:
+Synopsis: Check whether a string is empty.
 
 Syntax:
 

@@ -1,6 +1,6 @@
 Name: endsWith
 
-Synopsis:
+Synopsis: Check whether a string ends with a given substring.
 
 Syntax:
 

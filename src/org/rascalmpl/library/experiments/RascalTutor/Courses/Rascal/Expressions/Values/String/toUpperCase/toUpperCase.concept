@@ -1,6 +1,6 @@
 Name: toUpperCase
 
-Synopsis:
+Synopsis:Convert the characters in a string value to upper case.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Converts all characters in string `s` to uppercase.
+Converts all characters in string `s` to upper case.
 
 Also see [toLowerCase].
 

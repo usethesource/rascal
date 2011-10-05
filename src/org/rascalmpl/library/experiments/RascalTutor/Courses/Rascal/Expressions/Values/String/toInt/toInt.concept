@@ -1,6 +1,6 @@
 Name: toInt
 
-Synopsis:
+Synopsis: Convert a string value to integer.
 
 Syntax:
 
