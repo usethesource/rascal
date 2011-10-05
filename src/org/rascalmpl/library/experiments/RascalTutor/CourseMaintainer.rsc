@@ -10,27 +10,23 @@
 
 module experiments::RascalTutor::CourseMaintainer
 
+import String;
+import List;
+import IO;
+import Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
-import String;
-import Set;
-import List;
-import Relation;
-import Map;
-import Graph;
-import IO;
-import DateTime;
-import experiments::RascalTutor::HTMLUtils;
-import experiments::RascalTutor::HTMLGenerator;
-import experiments::RascalTutor::ValueGenerator;
 
 
 public list[loc] getCourseFiles(ConceptName rootConcept){
   return crawl(catenate(courseDir, rootConcept), conceptExtension);
 }
 
-public void statistics(ConceptName rootConcept){
+/*
+ * Compute statistics on section occurrence in a course
+ */
 
+public void statistics(ConceptName rootConcept){
   courseFiles = getCourseFiles(rootConcept);
   
   map[str,int] stats = ();
@@ -52,6 +48,54 @@ public void statistics(ConceptName rootConcept){
   	println("<left(sectionName, 15)><perc>%");
   }
 }
+
+/*
+ * List all missing sections with given name in a course.
+ */
+
+public void missingSection(ConceptName rootConcept, str section){
+   courseFiles = getCourseFiles(rootConcept);
+   n = 0;
+   println("Concepts with missing <section>:");
+   for(file <- courseFiles){
+       sections = getSections(readFileLines(file));
+       if(!sections[section]? || sections[section] == []){
+          println(file);
+          n += 1;
+       }
+   }
+   if(n == 0)
+      println("NONE!");
+}
+
+/*
+ * List all sections with given name in a course.
+ */
+
+public void listSection(ConceptName rootConcept, str section){
+   courseFiles = getCourseFiles(rootConcept);
+   for(file <- courseFiles){
+       sections = getSections(readFileLines(file));
+       if(sections[section]? && sections[section] != []){
+         cn = getFullConceptName(file);
+          println("<left(basename(cn), 25)>: <for(ln <- sections[section]){><ln><}> (<cn>)");
+       }
+   }
+}
+
+/*
+ * Create a new course
+ */
+
+public void createNewCourse(ConceptName rootConcept){
+  root = catenate(courseDir, rootConcept);
+  mkDirectory(root);
+  cpFile = catenate(root, "<rootConcept>.concept");
+  writeFile(cpFile,  mkConceptTemplate(rootConcept));
+  compileCourse(rootConcept, "regenerate");
+}
+
+// Some older maintenance tasks, generalize or throw away.
 
 public void deleteCategories(ConceptName rootConcept){
    courseFiles = getCourseFiles(rootConcept);
@@ -93,3 +137,4 @@ public void reorder(ConceptName rootConcept){
       writeFile(file, combine(newConcept));
     }
 }
+

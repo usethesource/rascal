@@ -148,10 +148,10 @@ public list[str] getPathNames(str path){
 
 public list[str] basenames(ConceptName cn){
   names = [base | /<base:[A-Za-z0-9\-\_]+>/ := cn];
-  n = size(names);
+  nn = size(names);
   // remove duplication due to main concept in directory e.g. C/C.concept
-  if(n >= 2 && names[n-1] == names[n-2])
-     	names = head(names, n-1);
+  if(nn >= 2 && names[nn-1] == names[nn-2])
+     	names = head(names, nn-1);
   return names;
 }
 

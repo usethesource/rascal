@@ -341,16 +341,16 @@ public set[str] getAnswers(str atype, str question){
 // Extract all the questions from the Questions section
 public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    int nquestions = 1;
-   n = size(qsection);
+   nq = size(qsection);
    questions = [];
    int i = 0;
-   while(i < n){
+   while(i < nq){
      //println("getQuestions: <qsection[i]>");
      switch(qsection[i]){
        case /^QText:<question:.*>$/: {
           i += 1;
           set[str] answers = {};
-          while(i < n && /^a:\s*<text:.*>/ := qsection[i]){
+          while(i < nq && /^a:\s*<text:.*>/ := qsection[i]){
             answers += text;
             i += 1;
           }
@@ -363,7 +363,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           i += 1;
           good_answers = [];
           bad_answers = [];
-          while(/^<prop:[gb]>:\s*<text:.*>/ := qsection[i] && i < n){
+          while(/^<prop:[gb]>:\s*<text:.*>/ := qsection[i] && i < nq){
             if(prop == "g")
                good_answers += text;
             else
@@ -578,9 +578,9 @@ public rel[str,str] getFullRefinements(list[str] names){
 
 // Compute the refinements induced by the path
 public rel[str,str] getBaseRefinements(list[str] names){
-   n = size(names);
-   if(n >= 2)
-      return {<names[i], names[i+1]> | int i <- [0 .. n-2]};
+   nn = size(names);
+   if(nn >= 2)
+      return {<names[i], names[i+1]> | int i <- [0 .. nn-2]};
    return {};
 }
 
@@ -669,9 +669,9 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
     if(!isEmpty(undefinedFullConcepts))
     	warnings += ["Undefined concepts: <undefinedFullConcepts>"];
     roots = top(baseRefinements);
-    if(size(roots) != 1)
+    if(size(roots) > 1)
         warnings += ["Root is not unique: <roots>"];
-    if(roots != {rootConcept})
+    if(roots != {} && roots != {rootConcept})
         warnings += ["Roots <roots> unequal to course root concept \"<rootConcept>\""];
     
     map[str, ConceptName] fullRelated = ();

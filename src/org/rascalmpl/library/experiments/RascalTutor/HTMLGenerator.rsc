@@ -524,6 +524,8 @@ private set[str]  searchTerms(list[str] lines){
 public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept){
    otherCourseFiles = crawl(catenate(courseDir, course), conceptExtension);
    lcToConcept = toLowerCase(toConcept);
+   if(lcToConcept[0] != "/")
+      lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
    options = for(file <- otherCourseFiles){
                  cn = getFullConceptName(file);
                  if(endsWith(toLowerCase(cn), lcToConcept))
