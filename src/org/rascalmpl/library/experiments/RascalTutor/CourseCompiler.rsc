@@ -142,7 +142,6 @@ public Concept compileConcept(loc file){
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(name, sections["Questions"]);
 	   
-	   if(regen){
 	      html_synopsis = section("Synopsis", markup(synopsisSection, conceptName)) +
 	                      section("Syntax", markup(syntaxSection, conceptName)) +
                           section("Types", markup(typesSection, conceptName)) +
@@ -156,10 +155,9 @@ public Concept compileConcept(loc file){
 	      warnings       = getAndClearWarnings();
 	      
 	      Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
-	   	  generate(C, html_synopsis, html_body);
+	      if(regen)
+	   	   generate(C, html_synopsis, html_body);
 	   	  return C;
-	   } else
-	   	return concept(conceptName, file, [], optDetails, [], searchTs, questions);
 
 	} catch NoSuchKey(e):
 	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
@@ -592,16 +590,10 @@ public Course compileCourse(ConceptName rootConcept, str flags){
       regenerate = true;
       
    concepts = ();
-    
+   navigationPanel = "";
+
    courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
    println("crawl returns: <courseFiles>");
-   navigationPanel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
-   navFile = catenate(courseDir, rootConcept + "/navigate.html");
-   println("crawlNavigation returns:\n<navigationPanel>");
-   try {
-	   writeFile(navFile, navigationPanel);
-   }
-   catch e: println("can not save file <navFile>"); // do nothing
 
    for(file <- courseFiles){
        cpt = compileConcept(file);
@@ -612,6 +604,21 @@ public Course compileCourse(ConceptName rootConcept, str flags){
    }
    C = validateCourse(rootConcept, concepts);
    baseConcepts = C.baseConcepts;
+   
+   
+   navFile = catenate(courseDir, rootConcept + "/navigate.html");
+   //navigationPanel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
+  // println("crawlNavigation returns:\n<navigationPanel>");
+   
+   navigationPanel = div("navPane", ul(crawlNavigation2(rootConcept, concepts, "")));
+   println("CrawlNavigation2: <navigationPanel>");
+   
+   try {
+	   writeFile(navFile, navigationPanel);
+   }
+   catch e: println("can not save file <navFile>"); // do nothing
+   
+   navigationPanel = "";
     
    // Generate global course data in JS file
    jsFile = catenate(courseDir, rootConcept + "/course.js");
@@ -756,6 +763,22 @@ public str crawlNavigation(loc dir, str suffix, str offset){
      return (dirConcept == "") ? "" : offset + li(dirConcept);
   
   return offset + li("<dirConcept>\n<offset>\<ul\><panel><offset>\</ul\>") + "\n";
+}
+
+public str crawlNavigation2(ConceptName rootConcept, map[ConceptName,Concept] conceptMap, str offset){
+  try {
+  println("crawl2: <rootConcept>, <children(conceptMap[rootConcept])>");
+  panel = "";
+  base = basename(rootConcept);
+  dirConcept = "\<a href=\"/Courses/<rootConcept>/<base>.html\"\><base>\</a\>";
+      	  
+  for(child <- children(conceptMap[rootConcept])){
+      r = crawlNavigation2(child, conceptMap, offset + "  ");
+      if(r != "")
+      	panel += offset + r;
+  }
+  return (panel == "") ? li(dirConcept) : offset + li("<dirConcept>\n<offset>\<ul\><panel><offset>\</ul\>") + "\n";
+  } catch: println("IGNORING: <rootConcept>"); return "";
 }
 
 
