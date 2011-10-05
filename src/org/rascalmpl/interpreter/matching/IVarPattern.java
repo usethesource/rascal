@@ -12,7 +12,6 @@
 package org.rascalmpl.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.env.Environment;
 
 /**
  * Marker interface to identify all variable related patterns

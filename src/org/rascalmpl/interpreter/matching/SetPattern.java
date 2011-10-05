@@ -37,7 +37,6 @@ public class SetPattern extends AbstractMatchingResult {
 	private ISet setSubject;					// Current subject	
 	@SuppressWarnings("unused")
 	private Type setSubjectType;				// Type of the subject
-	@SuppressWarnings("unused")
 	private Type setSubjectElementType;		    // Type of the elements of current subject
 
 	private ISet fixedSetElements;				// The fixed, non-variable elements in the pattern
