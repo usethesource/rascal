@@ -1,8 +1,3 @@
-var navigation_initialized = false;
-var rootConcept = "Test";
-
-$.setRootConcept = function (c){ rootConcept = c; };
-
 function report(m, s){
 /*
 if(s == null)
@@ -13,17 +8,16 @@ else
 }
 
 $(document).ready(function(){
- //alert("ready called");
- // if(true){ //navigation_loaded != true){
- // 	 $("#navPane").load("/Courses/" + rootConcept + "/navigate.html", 
- //                       null, function(a,b,c){report("navPane", $("#navPane").html()); initNavigation();});
- // }
+// alert("ready called");
  
- if(navigation_initialized != true){
-    initNavigation();
- } else {
+// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
+    
+ if($('#navPane #navItialized').length > 0){
     attachHandlers();
+ } else {
+    initNavigation();
  }
+// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
 function initNavigation(){
@@ -43,15 +37,20 @@ function initNavigation(){
 			"select_limit": 1
 		},
 		"plugins" : [
-			"themes", "html_data", "ui"
+			"themes", "html_data", "ui", "cookies"
 		],
 		"themes":  {
             "theme" : "default",
             "dots"  : true,
             "icons" : true
+        },
+        "cookies" : {
+            "auto_save" : true
+        
         }
     });
-    navigation_initialized = true;
+    $('<div id="navInitialized"></div>').insertAfter("#navPane");
+//    navigation_initialized = true;
     attachHandlers();
  //   alert("initNavigation ... done");
 }
@@ -81,7 +80,9 @@ var rbdata;
 
 function loadConceptURL(url){
 //alert("loadConceptURL: " + url);
+   //rbdata = $("#navPane").save_rollback();
    $("#conceptPane").load(url + " div#conceptPane", null, function (a,b,c) {finishLoad();});
+//   $("#navPane").jstree("open_all", -1);
 }
 
 function loadConcept(cn){
@@ -89,10 +90,11 @@ function loadConcept(cn){
   var url = "/Courses/" + cn  + "/" + basename(cn) + ".html div#conceptPane";
   report("loadConcept", url);
   $("#conceptPane").load(url, null, function (a,b,c) {finishLoad();});
+//  $("#navPane").jstree("open_all", -1);
 }
 
 function finishLoad(){
- //$.jstree.rollback(rbdata.rlbk);
+ $.jstree.rollback(rbdata);
  attachHandlers();
 }
 

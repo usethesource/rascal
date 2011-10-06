@@ -200,9 +200,9 @@ public void generate(Concept C, str html_synopsis, str html_body){
   	        tr(tdid("tdnav", navigationPanel) +
   	  
   	           tdid("tdconcept", div("conceptPane", 
-  	              section("Name", showConceptPath(cn)) + searchBox(cn) +
+  	              section("Name", show(cn,cn)) + searchBox(cn) +
   	              html_synopsis +
-  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><showConceptURL(ch)> &#032 <}>")) +
+  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><show(cn, ch)> &#032 <}>")) +
   	              html_body +
   	              editMenu(cn)
   	           ))
@@ -257,8 +257,6 @@ public str prelude(str courseName){
 public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptName,Concept] concepts){  
   return 
   "/* Generated code for course <courseName> */
-  '
-  '$.setRootConcept(\"<courseName>\");
   '
   'var baseConcepts = <mkJsArray(baseConcepts, "new Array()")>;
   '
@@ -751,7 +749,7 @@ public str crawlNavigation(loc dir, str suffix, str offset){
        if(endsWith(entry, dotSuffix)) {
           cn = getFullConceptName(sub);
           ename = substring(entry, 0, size(entry) - size(dotSuffix));
-      	  dirConcept = "\<a href=\"/Courses/<cn>/<ename>.html\"\><ename>\</a\>";
+      	  dirConcept = "\<a id=\"<cn>\" href=\"/Courses/<cn>/<ename>.html\"\><ename>\</a\>";
        }
        if(isDirectory(sub)) {
           panel += offset + crawlNavigation(sub, suffix, offset + "  ");
@@ -770,7 +768,7 @@ public str crawlNavigation2(ConceptName rootConcept, map[ConceptName,Concept] co
   println("crawl2: <rootConcept>, <children(conceptMap[rootConcept])>");
   panel = "";
   base = basename(rootConcept);
-  dirConcept = "\<a href=\"/Courses/<rootConcept>/<base>.html\"\><base>\</a\>";
+  dirConcept = "\<a id=\"<rootConcept>\" href=\"/Courses/<rootConcept>/<base>.html\"\><base>\</a\>";
       	  
   for(child <- children(conceptMap[rootConcept])){
       r = crawlNavigation2(child, conceptMap, offset + "  ");

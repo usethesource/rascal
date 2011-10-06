@@ -1,7 +1,5 @@
 /* Generated code for course Recipes */
 
-$.setRootConcept("Recipes");
-
 var baseConcepts = new Array("Basic","ColoredTrees","Factorial","Hello","Recipes");
 
 var conceptNames = new Array("Recipes","Recipes/Basic","Recipes/Basic/ColoredTrees","Recipes/Basic/Factorial","Recipes/Basic/Hello");
