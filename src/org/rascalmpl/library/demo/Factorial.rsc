@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+//START
 module demo::Factorial
 
 // The factorial function N! = N * (N-1) * (N-2) * ... * 1;
