@@ -38,6 +38,18 @@ Their meaning is as follows:
 * Before leaving the try catch statement $Statement_3$ is always executed (when present).
 
 Examples:
+Let's define a variant of the [head] function that returns the first element of a list,
+but throws an exception when the list is empty. Our variant will return `0` for an empty list:
+<screen>
+import List;
+int hd(list[int] x) { try return head(x); catch: return 0; }
+hd([1,2,3]);
+hd([]);
+// We can also be more specific and catch the `EmptyList` exception:
+int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
+hd2([]);
+</screen>
+
 
 Benefits:
 

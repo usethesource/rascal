@@ -18,11 +18,11 @@
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
-<ul><li><a href="/Courses/Recipes/Recipes.html">Recipes</a>
-<ul>  <li><a href="/Courses/Recipes/Basic/Basic.html">Basic</a>
-  <ul>  <li><a href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
-  <li><a href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
-  <li><a href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
+<ul><li><a id="Recipes" href="/Courses/Recipes/Recipes.html">Recipes</a>
+<ul>  <li><a id="Recipes/Basic" href="/Courses/Recipes/Basic/Basic.html">Basic</a>
+  <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
+  <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
+  <li><a id="Recipes/Basic/ColoredTrees" href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
   </ul></li>
 
 </ul></li>
@@ -83,23 +83,13 @@ Hello world, this is my first Rascal program
 ok
 </pre> <h1> Third version: hello in a module </h1>
  The summit of hello-engineering can be reached by placing all the above in a separate module:
-  <pre class="listing">@license{
-  Copyright (c) 2009-2011 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module demo::Hello
+  <pre class="listing">module demo::Hello
 
 import IO;
 
 public void hello() {
    println("Hello world, this is my first Rascal program");
 }
-
 </pre> Note that we added a public modifier to the definition of hello, since we want it to be visible outside the Hello module. Using this Hello module is now simple:
   <pre class="screen"><b>rascal></b>import demo::Hello;
 ok

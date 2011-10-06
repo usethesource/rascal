@@ -27,6 +27,17 @@ the subject term (or be a supertype of it). If no case matches, the switch acts 
 There is no fall through from one case to the next.
 
 Examples:
+Suppose we want to naively analyze a sentence and print the topic it is about:
+<screen>
+import IO;
+S = "Princess Leila sipped from her rum punch";
+switch(S){
+  case /Leila/: println("The topic is Starwars");
+  case /rum/:   println("The topic is Drunken man");
+  case /punch/: println("The topic is Kick Boxing");
+}
+</screen>
+From the printed message you can infer that the cases are tried in the order in which they occur.
 
 Benefits:
 

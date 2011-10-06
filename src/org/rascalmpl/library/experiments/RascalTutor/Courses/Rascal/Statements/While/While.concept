@@ -31,6 +31,11 @@ n = 3;
 while (n > 0) { append n * n; n -= 1; }
 </screen>
 
+Just to be sure, a [List/Comprehension] is the superior way to write this:
+<screen>
+[n * n | n <- [3 .. 1]];
+</screen>
+
 Benefits:
 
 Pitfalls:

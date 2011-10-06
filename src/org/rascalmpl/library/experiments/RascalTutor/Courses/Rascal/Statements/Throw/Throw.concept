@@ -21,6 +21,13 @@ If the exception is not caught, the execution of the Rascal program is terminate
 * The Rascal program may contain data declarations that extend the type `RuntimeException`.
 
 Examples:
+Here is a a variant of string concatenation for ball haters:
+<screen>
+str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
+conc("fairy", "tale");
+conc("foot", "ball");
+</screen>
+
 
 Benefits:
 

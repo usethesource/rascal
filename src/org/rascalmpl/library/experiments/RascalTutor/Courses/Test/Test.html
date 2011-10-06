@@ -58,7 +58,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Test/Test.html">Test</a>
+<span class="sectionHead">Name</span> <a href="javascript:show('Test','Test')">Test</a>
 </div>
 
 <div id="searchBox">
@@ -96,18 +96,29 @@
 <br/>
 
  Text in Figure:
- <warning>Static Error: std:///vis/Render.rsc:37,0: Can not link method org.rascalmpl.library.vis.FigureLibrary because: class not foundStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">render(text("DEF"));
+ <pre class="listing">render(text("DEF"));
 </pre> gives: <img class="TutorImg"  title="t1" alt="t1" src="/Courses/Test/t1.png">
  <br/>
 <br/>
 
  -----
   <table><col align="right" /><col align="center" /><tr><th align="right"> ABC  </th><th align="center"> DEF     </th></tr><tr><td align="right">  1   </td><td align="center">  22222  </td></tr></table> The Figure xxx
- <warning>Static Error: std:///vis/Render.rsc:37,0: Can not link method org.rascalmpl.library.vis.FigureLibrary because: class not foundStatic Error: prompt:///:1,0: Undeclared variable, function or constructor: renderSave</warning><pre class="listing">A = box(size(100), lineColor("black"), lineWidth(2), fillColor("green"));
+ <pre class="listing">A = box(size(100), lineColor("black"), lineWidth(2), fillColor("green"));
 B = ellipse(size(100), lineColor("black"), lineWidth(1), fillColor("yellow"));
 render(hcat( [A, B, A], gap(10)));
 </pre> will be displayed as
   <table><col align="center" /><col align="center" /><tr><th align="center">  xx </th><th align="center"> yy </th></tr><tr><td align="center"> <img class="TutorImg"  title="Box 1" alt="Box 1" src="/Courses/Test/box1.png"> </td><td align="center"> zzz </td></tr></table>
+</div>
+
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="listing">module demo::Hello
+
+import IO;
+
+public void hello() {
+   println("Hello world, this is my first Rascal program");
+}
+</pre>
 </div>
 <span class="sectionHead">Questions</span> <br/>
 
@@ -126,8 +137,8 @@ render(hcat( [A, B, A], gap(10)));
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="14">
-The type of <tt>14</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-10">
+The type of <tt>-10</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -156,8 +167,8 @@ The type of <tt>14</tt> is <textarea rows="1" cols="30" name="answer" class="ans
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="-20">
-<pre class="prequestion">2 * -20 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-12">
+<pre class="prequestion">2 * -12 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

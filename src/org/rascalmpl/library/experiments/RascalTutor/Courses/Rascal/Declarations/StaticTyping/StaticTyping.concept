@@ -42,6 +42,20 @@ The Rascal type system has various advanced features that are described separate
   a function may need a type as argument value, [ReifiedTypes] make this possible.
 
 Examples:
+Here are some simple examples of correct and incorrect typing:
+<screen>
+// We can assign an integer value to an integer variable:
+int i = 3;
+// But assigning a string value gives an error:
+int j = "abc";
+// The `num` type accepts integer and real values:
+num n = i;
+n = 3.14;
+// A variable of type `value` accepts all possible values:
+value v = true;
+v = "abc";
+v = [1, 2, 3];
+</screen>
 
 Benefits:
 
