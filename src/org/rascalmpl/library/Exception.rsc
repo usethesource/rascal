@@ -9,6 +9,7 @@
 @contributor{Jeroen van den Bos - Jeroen.van.den.Bos@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+//START
 module Exception
 
 /*
