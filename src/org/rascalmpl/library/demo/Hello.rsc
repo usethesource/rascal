@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+//START
 module demo::Hello
 
 import IO;
@@ -14,4 +15,3 @@ import IO;
 public void hello() {
    println("Hello world, this is my first Rascal program");
 }
-
