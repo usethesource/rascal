@@ -155,7 +155,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
       loc L = |std:///|[path = name];
       try {
       	codeLines = readFileLines(L);
-      	return < markupListing(codeLines), skipOneNL(lines, i+1, n) >;
+      	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;
       } catch: {
             msg = "File <name> not found.";
             addWarning(msg);
@@ -355,6 +355,18 @@ private str getImgOpts(str txt, str alt){
   }
   //println("getImgOpts(<txt>) returns <opts>");
   return opts + " title=\"<alt>\"";
+}
+
+// Remove the start of the file until (and including) a %%START%% marker
+// This is intended to strip licenses and contributor listings.
+
+list[str] stripLicense(list[str] lines){
+ 
+  for(int i <- index(lines)){
+    if(/\/\/START/ := lines[i])
+      return slice(lines, i + 1, size(lines) - (i + 1));
+  }
+   return lines;
 }
 
 // Do the markup for listings
