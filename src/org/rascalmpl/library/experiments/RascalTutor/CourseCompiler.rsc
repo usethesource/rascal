@@ -627,18 +627,18 @@ public Course compileCourse(ConceptName rootConcept, str flags){
    catch e: println("can not save file <jsFile>"); // do nothing
    
    warnings = C.warnings;
-   continue = "\<p\>Continue with course <showConceptURL(C.root)>\<p\>";
+   continueWith = "\<p\>Continue with course <showConceptURL(C.root)>\<p\>";
    
    warn_html = "";
    if(size(warnings) == 0){
      warn_html = html(head(title("No warnings in course <C.root>") + prelude(C.root)),
-                      body(h1("No warnings in course <C.root>") + continue));
+                      body(h1("No warnings in course <C.root>") + continueWith));
    } else {
      warn_html = html(head(title("Warnings in course <C.root>") + prelude(C.root)),
-                      body(continue +
+                      body(continueWith +
                            h1("<size(warnings)> warning(s) found in course <C.root>:") +
                            ul("<for(w <- warnings){><li(w)><}>") +
-                           continue
+                           continueWith
                      ));
    }
    
