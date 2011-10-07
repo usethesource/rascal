@@ -574,7 +574,8 @@ public Symbol getSymbol(Sym sym, bool isLex) {
     case (Sym) `(<Sym first> <Sym+ rest>)` :
         return seq([getSymbol(first, isLex)] + [\layouts("LAYOUTLIST"), getSymbol(e, isLex) | e <- rest]);
         
-        
+    case (Sym) `(<Sym first> | <Sym second>)` :
+         return alt({getSymbol(first, isLex), getSymbol(second, isLex)});
     default: throw "missed a case <sym>";  
   }
 }
