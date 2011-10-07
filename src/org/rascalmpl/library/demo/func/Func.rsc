@@ -26,7 +26,7 @@ syntax Exp = let: "let" {Binding ","}* "in" Exp "end"
            ) 
            > left (
                left add: Exp "+" Exp 
-             | left min: Exp "-" Exp
+             | left sub: Exp "-" Exp
            )
            >
            non-assoc (
