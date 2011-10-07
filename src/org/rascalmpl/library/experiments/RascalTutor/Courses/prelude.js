@@ -57,7 +57,9 @@ function initNavigation(){
 		// After a leaf open / close we retrieve the new width of the navPane
 		// and set the navInitialized just a bit wider
 		$('#navInitialized').width(0); // first reset the below div to to make the navPane the largest again
-		$('#navInitialized').width($('#navPane').width() + 5);
+		// since the browser does not apply the width directly we have to update
+		// the navInitialized width using a callback
+		setTimeout(function() { $('#navInitialized').width($('#navPane').width() + 5); }, 0);
 	});
 //    navigation_initialized = true;
     attachHandlers();
