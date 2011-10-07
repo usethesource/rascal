@@ -296,10 +296,10 @@ private str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
     
-    case /^\[<concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(conceptPath, concept); }
+    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(conceptPath, concept, short == "$"); }
     
-    case /^\[<course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
-         {insert showOtherCourse(conceptPath, course, concept); }
+    case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
+         {insert showOtherCourse(conceptPath, course, concept, short == "$"); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -533,7 +533,12 @@ private set[str]  searchTerms(list[str] lines){
     return terms;
 }
 
-public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept){
+public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept, bool short){
+   if(toConcept == course){
+      if(exists(catenate(courseDir, course)))
+         return"\<a href=\"/Courses/<course>/<course>.html\"\><course>\</a\>";
+      return "??unknown course <course>??";
+   } 
    otherCourseFiles = crawl(catenate(courseDir, course), conceptExtension);
    lcToConcept = toLowerCase(toConcept);
    if(lcToConcept[0] != "/")
@@ -543,12 +548,17 @@ public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptN
                  if(endsWith(toLowerCase(cn), lcToConcept))
                     append cn;
              }
-   if(size(options) == 1)
-      return  "\<a href=\"/Courses/<options[0]>/<toConcept>.html\"\><course>:<toConcept>\</a\>";       
-   if(size(options) == 0)
+   if(size(options) == 1){
+      txt = "<course>:" + (short ? "<basename(toConcept)>" : "<toConcept>");
+      return  "\<a href=\"/Courses/<options[0]>/<toConcept>.html\"\><txt>\</a\>";  
+   }     
+   if(size(options) == 0){
      addWarning("Reference to unknown concept in other course: <course>:<toConcept>");
-   if(size(options) > 1)
+     return "??unknown: <course>:<toConcept>??";
+   }
+   if(size(options) > 1){
      addWarning("Ambiguous reference to concept in other course: <course>:<toConcept>Resolve with one of <for(opt <- options){>\t<opt> <}>");
-   return "??<course>:<toConcept>??";
+     return "??ambiguous: <course>:<toConcept>??";
+   }
 }
 

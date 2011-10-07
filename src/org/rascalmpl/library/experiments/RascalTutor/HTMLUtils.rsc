@@ -199,7 +199,12 @@ public str showConceptPath(ConceptName cn){
 // HTML to show a concept
 
 public str show(ConceptName fromConcept, ConceptName toConcept){
-  return "\<a href=\"javascript:show(\'<fromConcept>\',\'<toConcept>\')\"\><basename(toConcept)>\</a\>";
+  return show(fromConcept, toConcept, true);
+}
+
+public str show(ConceptName fromConcept, ConceptName toConcept, bool short){
+  name = short ? basename(toConcept) : toConcept;
+  return "\<a href=\"javascript:show(\'<fromConcept>\',\'<toConcept>\')\"\><name>\</a\>";
 }
 
 
