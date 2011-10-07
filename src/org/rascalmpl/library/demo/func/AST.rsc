@@ -1,4 +1,4 @@
-module AST
+module demo::func::AST
 
 data Prog = prog(list[Func] funcs);
 data Func = func(str name, list[str] formals, Exp body);
@@ -15,7 +15,7 @@ data Exp = let(list[Binding] bindings, Exp exp)
          | mul(Exp lhs, Exp rhs)
          | div(Exp lhs, Exp rhs)
          | add(Exp lhs, Exp rhs)
-         | min(Exp lhs, Exp rhs)
+         | sub(Exp lhs, Exp rhs)
          | gt(Exp lhs, Exp rhs)
          | lt(Exp lhs, Exp rhs)
          | geq(Exp lhs, Exp rhs)
