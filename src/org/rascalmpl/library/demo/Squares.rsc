@@ -7,15 +7,16 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+//START
 module demo::Squares
 
-import IO;
+import IO;                                   /*1*/
 
 // Print a table of squares
 
 public void squares(int N){
-  println("Table of squares from 1 to <N>");
+  println("Table of squares from 1 to <N>"); /*2*/
   for(int I <- [1 .. N])
-      println("<I> squared = <I * I>"); 
+      println("<I> squared = <I * I>");      /*3*/
 }
 
