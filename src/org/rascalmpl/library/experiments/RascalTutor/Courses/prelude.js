@@ -22,8 +22,8 @@ function initNavigation() {
 
     //alert("initNavigation");
 
-    $("#navPane").bind("select_node.jstree", function (event, data) {
-        var url = $(data.args[0]).attr("href");
+    $("#navPane").bind("select_node.jstree", function (evt, dt) {
+        var url = $(dt.args[0]).attr("href");
         loadConceptURL(url);
         return false;
     }).jstree({
@@ -89,7 +89,7 @@ var rbdata;
 function loadConceptURL(url) {
     //alert("loadConceptURL: " + url);
     //rbdata = $("#navPane").save_rollback();
-    $("#conceptPane").load(url + " div#conceptPane", null, function (a, b, c) {
+    $("#conceptPane").load(url + " div#conceptPane", null, function () {
         finishLoad();
     });
     //   $("#navPane").jstree("open_all", -1);
@@ -99,7 +99,7 @@ function loadConcept(cn) {
     //rbdata = $("#navPane").get_rollback();
     var url = "/Courses/" + cn + "/" + basename(cn) + ".html div#conceptPane";
     report("loadConcept", url);
-    $("#conceptPane").load(url, null, function (a, b, c) {
+    $("#conceptPane").load(url, null, function () {
         finishLoad();
     });
     //  $("#navPane").jstree("open_all", -1);
@@ -123,7 +123,7 @@ function show(fromConcept, toConcept) {
     }
     backarrow = back(fromConcept, toConcept);
 
-    var options = new Array();
+    var options = [];
     for (var i = 0; i < conceptNames.length; i++) {
         if (endsWith(conceptNames[i], '/' + toConcept)) options.push(conceptNames[i]);
     }
@@ -169,9 +169,8 @@ function searchSuggest() {
 			$('#popups').html("");
             $('#searchForm').submit();
 		} else { */
-        $('#popups').children().each(function () {
-            $(this).click(makeChoice);
-        }); /*}*/
+        $('#popups').children().click(makeChoice);
+        /*}*/
     }
 }
 
@@ -183,7 +182,7 @@ function handleSearch(evt) {
     var concept = $('input[name=concept]').val();
 
     //alert('term = "' + term + '"; concept = ' + concept + '; ' + conceptNames);
-    var results = new Array();
+    var results = []; 
     for (var i = 0; i < conceptNames.length; i++) {
         var conceptName = conceptNames[i];
         if (match(conceptName, lcterm)) {
