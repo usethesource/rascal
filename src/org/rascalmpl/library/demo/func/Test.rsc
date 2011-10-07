@@ -57,3 +57,12 @@ public str fact3 = "swap(a, b) =
 					    swap(&x, &y);
 					    y
 					  end";
+					  
+					  
+public test bool evalFact0() = eval0("fact", [10], load(fact0)) == 3628800;
+public test bool evalFact1() = eval1("fact", [10], load(fact1)) == 3628800;
+public test bool evalFact2() = eval2("fact", [10], load(fact2)) == <("n":3628800),3628800>;
+public test bool evalFact3() = eval3("fact", [10], load(fact3)) == <[10],3628800>;
+
+
+
