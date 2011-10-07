@@ -138,23 +138,6 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 
 	@Override
-	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
-	
-		if (annoType == null) {
-			throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
-		}
-	
-		IValue annoValue = ((IConstructor) getValue()).getAnnotation(annoName);
-		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), null);
-		}
-		// TODO: applyRules?
-		return makeResult(annoType, annoValue, ctx);
-	}
-	
-
-	@Override
 	protected <U extends IValue> Result<U> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}

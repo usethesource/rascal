@@ -23,6 +23,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
@@ -126,6 +128,22 @@ public class ConstructorResult extends NodeResult {
 			i++;
 		}
 		return 0;
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
+		Type annoType = env.getAnnotationType(getType(), annoName);
+	
+		if (annoType == null) {
+			throw new UndeclaredAnnotationError(annoName, getType(), ctx.getCurrentAST());
+		}
+	
+		IValue annoValue = getValue().getAnnotation(annoName);
+		if (annoValue == null) {
+			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), null);
+		}
+		// TODO: applyRules?
+		return makeResult(annoType, annoValue, ctx);
 	}
 	
 }
