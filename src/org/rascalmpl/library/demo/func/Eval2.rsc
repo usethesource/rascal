@@ -5,7 +5,6 @@ module demo::func::Eval2
 import demo::func::AST;
 
 import List;
-import IO;
 
 alias Env = map[str, int];
 alias PEnv = map[str, Func];

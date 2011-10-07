@@ -6,8 +6,6 @@ import demo::func::AST;
 
 
 import List;
-import IO;
-
 
 alias Address = int;
 alias Mem = list[int];
@@ -34,8 +32,6 @@ public Result eval3(str main, list[int] args, Prog prog) {
   f = penv[main];
   mem = [];
   <mem, env> = bind(f.formals, args, mem); 
-  println("env = <env>");
-  println("mem = <mem>");
   return eval3(f.body, env, penv, mem);
 }
 
