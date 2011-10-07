@@ -50,6 +50,15 @@ function initNavigation(){
         }
     });
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
+	$('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
+		// this is a  simple fix to work around a resizing issues caused 
+		// by the mouse-over on the longest leaf of the tree
+		// causing the width of the navPane to expand .
+		// After a leaf open / close we retrieve the new width of the navPane
+		// and set the navInitialized just a bit wider
+		$('#navInitialized').width(0); // first reset the below div to to make the navPane the largest again
+		$('#navInitialized').width($('#navPane').width() + 5);
+	});
 //    navigation_initialized = true;
     attachHandlers();
  //   alert("initNavigation ... done");
