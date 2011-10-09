@@ -62,7 +62,7 @@ public str edit(ConceptName cn, bool newConcept){
                div("conceptPane",
                  div("editArea",
                     "\<form method=\"POST\" action=\"/save\" id=\"editForm\"\>
-                    \<textarea rows=\"15\" cols=\"60\" name=\"newcontent\" id=\"editTextArea\"\><content>\</textarea\>
+                    \<textarea rows=\"15\" cols=\"60\" wrap=\"physical\" name=\"newcontent\" id=\"editTextArea\"\><content>\</textarea\>
                     \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\> \<br /\>
                     \<input type=\"hidden\" name=\"new\" value=\"<newConcept>\"\> \<br /\>
                     \<div id=\"editErrors\"\>errors\</div\>\n
@@ -108,7 +108,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      writeFile(file, combine(lines));
      
      try {
-       c = compileConcept(file);
+       c = compileAndGenerateConcept(file);
        updateParentDetails(c.fullName);
        return saveFeedback("", showConcept(c));
      } catch CourseError(e): {
@@ -122,7 +122,7 @@ public str save(ConceptName cn, str text, bool newConcept){
       writeFile(file, text);
       
       println("Parsing concept");
-      c = compileConcept(file);
+      c = compileAndGenerateConcept(file);
  
       return saveFeedback(showConcept(c), "");
     } catch ConceptError(e): {

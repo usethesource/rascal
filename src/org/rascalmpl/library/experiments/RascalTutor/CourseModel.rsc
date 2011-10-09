@@ -46,6 +46,8 @@ data Concept =
 			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
+			str html_synopsis,                      // HTML for synopsis sections
+			str html_body,                          // HTML for other sections
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			set[str] searchTerms,    				// Set of search terms
 			Questions questions                 	// List of Questions 
@@ -181,18 +183,32 @@ public loc conceptFile(str cn){
   return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
 }
 
-public bool writingAllowed(){
+/*public bool writingAllowed(){
     //svn = courseRoot[file = courseRoot.file + ".svn"];
     bool writingAllowed = exists(courseDirSVN);
     
     println("writingAllowed: svn = <courseDirSVN>, wa = <writingAllowed>");
     return writingAllowed;
 }
+*/
 
 set[str] exclude = {".svn"};
 
+map[loc, list[loc]] crawlCache = ();
+
+public void clearCrawlCache(loc dir){
+   crawlCache[dir] = [];
+}
+
 public list[loc] crawl(loc dir, str suffix){
-//  println("crawl: <dir>, <listEntries(dir)>");
+  if(!crawlCache[dir]? || crawlCache[dir] == [])
+     crawlCache[dir] = crawl1(dir, suffix);
+  
+  return crawlCache[dir];
+}
+
+public list[loc] crawl1(loc dir, str suffix){
+//  println("crawl1: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   dotSuffix = "." + suffix;
   for( str entry <- listEntries(dir) ){
@@ -204,7 +220,7 @@ public list[loc] crawl(loc dir, str suffix){
       	 //   touch(sub);
        }
        if(isDirectory(sub)) {
-          res += crawl(sub, suffix);
+          res += crawl1(sub, suffix);
       }
     }
   };
