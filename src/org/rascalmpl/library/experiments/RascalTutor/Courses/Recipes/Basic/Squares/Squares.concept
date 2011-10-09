@@ -1,0 +1,38 @@
+Name: Squares
+
+Synopsis: Print a list of squares
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+Examples:
+How can we print a list of squares? Here is a solution:
+<listing demo/Squares.rsc>
+
+At /*1*/ the [Rascal:IO] module is imported since we want to print things using `println`.
+
+[Rascal:String] interpolation is used here several times.
+In /*2*/ the value of `N` is inserted in the header message
+and in /*3*/ the values of `I` and `I * I` are inserted in each line that is printed.
+
+Here is how `square` can be used:
+<screen>
+import demo::Squares;
+squares(9);
+</screen>
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

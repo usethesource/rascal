@@ -9,7 +9,7 @@ Types:
 Function:
 
 Details:
-Hello Factorial ColoredTrees
+Hello Factorial Squares ColoredTrees
 
 Description:
 
@@ -20,7 +20,7 @@ Examples:
 Benefits:
 
 Pitfalls:
-These programs illustrate various features of Rascal rather than typical use cases of the language.
+These programs illustrate various features of Rascal; they are __not representative__ as use cases of the language.
 
 Questions:
 

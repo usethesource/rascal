@@ -11,6 +11,21 @@ Function:
 Details:
 
 Description:
+These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
+
+The following features will be covered:
+* Basic language features.
+* Common tasks.
+* Fact extraction.
+* Language definitions.
+* Syntax definitions.
+* Parsing.
+* Transformation.
+* Code generation.
+* IDE extensions.
+* Visualization.
+
+
 
 Examples:
 

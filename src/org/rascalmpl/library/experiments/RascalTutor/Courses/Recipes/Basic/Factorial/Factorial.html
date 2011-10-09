@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Recipes/course.js"></script>
 
@@ -22,9 +23,21 @@
 <ul>  <li><a id="Recipes/Basic" href="/Courses/Recipes/Basic/Basic.html">Basic</a>
   <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
   <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
+  <li><a id="Recipes/Basic/Squares" href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a></li>
   <li><a id="Recipes/Basic/ColoredTrees" href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
   </ul></li>
 
+  <li><a id="Recipes/Common" href="/Courses/Recipes/Common/Common.html">Common</a>
+  <ul>      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
+    <ul>    <li><a id="Recipes/Common/WordCount/CountInLine1" href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a></li>
+    <li><a id="Recipes/Common/WordCount/CountInLine2" href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a></li>
+    <li><a id="Recipes/Common/WordCount/CountInLine3" href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a></li>
+    <li><a id="Recipes/Common/WordCount/Jabberwocky" href="/Courses/Recipes/Common/WordCount/Jabberwocky/Jabberwocky.html">Jabberwocky</a></li>
+    </ul></li>
+
+  </ul></li>
+
+<li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a></li>
 </ul></li>
 
 </ul>
@@ -33,7 +46,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Recipes/Basic/Factorial','Recipes/Basic/Factorial')">Factorial</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Basic/Basic.html">Basic</a>/<a href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a>
 </div>
 
 <div id="searchBox">
@@ -51,15 +64,10 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::Factorial
-
-// The factorial function N! = N * (N-1) * (N-2) * ... * 1;
-
-public int fac(int N)
-{
-  return N &lt;= 0 ? 1 : N * fac(N - 1);
-}
-</pre> It uses a conditional statement to distinguish cases and here is how to use it:
+<span class="sectionHead">Examples</span>  The factorial of a number N is defined as <code>N * (N-1) * (N-2) * ... * 1</code>. Here is the Rascal version:
+ <pre class="listing">module demo::Factorial
+public int fac(int N) = N &lt;= 0 ? 1 : N * fac(N - 1);
+</pre> It uses a conditional expression to distinguish cases and here is how to use it:
  <pre class="screen"><b>rascal></b>import demo::Factorial;
 ok
 <b>rascal></b>fac(47);
@@ -68,12 +76,7 @@ int: 258623241511168180642964355153611979969197632389120000000000
 
 </div>
 
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  This example illustrates some ordinary programming features in Rascal. It does not highlight Rascal's specific strength.
-
-</div>
-
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Recipes/Basic/Factorial&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Basic/Factorial&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Basic/Factorial&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |

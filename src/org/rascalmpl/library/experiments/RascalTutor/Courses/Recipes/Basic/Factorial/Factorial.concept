@@ -13,9 +13,10 @@ Details:
 Description:
 
 Examples:
+The factorial of a number N is defined as `N * (N-1) * (N-2) * ... * 1`. Here is the Rascal version:
 <listing demo/Factorial.rsc>
 
-It uses a conditional statement to distinguish cases and here is how to use it:
+It uses a conditional expression to distinguish cases and here is how to use it:
 <screen>
 import demo::Factorial;
 fac(47);
@@ -26,7 +27,6 @@ Indeed, Rascal has arbitrary length integers.
 Benefits:
 
 Pitfalls:
-This example illustrates some ordinary programming features in Rascal. It does not highlight Rascal's specific strength.
 
 Questions:
 

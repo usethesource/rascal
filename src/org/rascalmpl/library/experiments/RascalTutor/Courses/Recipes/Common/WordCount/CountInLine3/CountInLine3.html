@@ -6,7 +6,7 @@
 
 
 <head>
-<title>Recipes/Basic</title>
+<title>Recipes/Common/WordCount/CountInLine3</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
@@ -46,34 +46,46 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Basic/Basic.html">Basic</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Common/Common.html">Common</a>/<a href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>/<a href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Recipes/Basic">
+    <input type="hidden" name="concept" value="Recipes/Common/WordCount/CountInLine3">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
 </div>
          
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Some basic, simple, examples of Rascal programs.
+<span class="sectionHead">Synopsis</span>  Count words in a line.
 
 </div>
 
-<div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a> &#032 <a href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a> &#032 <a href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a> &#032 <a href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a> &#032 
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Here is a clever, albeit rather dense, solution that illustrates several Rascal concepts.
+ <pre class="listing">module demo::WordCount::CountInLine3
+
+public int countInLine3(str S){
+  return (0 | it + 1 | /\w+/ := S);
+}
+</pre> We use a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Expressions/Reducer</a> that is a recipe to reduce the values produced by one or more generators
+   to a single value:
+ <ul><li> <code>0</code> is the initial value of the reducer</li>
+<li> The pattern match <code>/\w+/ := S</code> matches all words in <code>S</code>.</li>
+<li> Reduction is done by <code>it + 1</code>. In the latter <code>it</code> is a keyword that refers to the   value that has been reduced sofar. Effectively, the matches are reduced to a atch count.
+</li>
+</ul> Let's try it:
+ <pre class="screen"><b>rascal></b>import demo::WordCount::CountInLine3;
+ok
+<b>rascal></b>countInLine3(&quot;Jabberwocky by Lewis Carroll&quot;);
+int: 4
+</pre>
 </div>
 
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  These programs illustrate various features of Rascal; they are <b>not representative</b> as use cases of the language.
-
-</div>
-
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Basic&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Recipes/Basic&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/WordCount/CountInLine3&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Recipes/Common/WordCount/CountInLine3&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
