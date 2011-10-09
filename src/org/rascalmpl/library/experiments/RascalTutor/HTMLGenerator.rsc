@@ -294,12 +294,12 @@ private str markupRestLine(str line){
     
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
     
-    case /^\[<text:[^\]]*>\]\(<url:[^)]+>\)/ => link(url, text)
+    case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),]+>\)/ => link(url, text)
     
-    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert show(conceptPath, concept, short == "$"); }
+    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert referToConcept(rootname(conceptPath), concept, short == "$"); }
     
     case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
-         {insert showOtherCourse(conceptPath, course, concept, short == "$"); }
+         {insert referToConcept(course, concept, short == "$"); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -337,6 +337,7 @@ private str markupSubs(str txt){
 // HTML for an external link
 
 public str link(str url, str text){
+  println("link: <link>, <text>");
   return "\<a href=\"<url>\"\><(text=="")?url:text>\</a\>";
 }
 
@@ -533,24 +534,26 @@ private set[str]  searchTerms(list[str] lines){
     return terms;
 }
 
-public str showOtherCourse(ConceptName fromConcept, ConceptName course, ConceptName toConcept, bool short){
+// Refer to a concept in another course.
+
+public str referToConcept(ConceptName course, ConceptName toConcept, bool short){
    if(toConcept == course){
       if(exists(catenate(courseDir, course)))
          return"\<a href=\"/Courses/<course>/<course>.html\"\><course>\</a\>";
       return "??unknown course <course>??";
    } 
-   otherCourseFiles = crawl(catenate(courseDir, course), conceptExtension);
+   courseFiles = crawl(catenate(courseDir, course), conceptExtension);
    lcToConcept = toLowerCase(toConcept);
    if(lcToConcept[0] != "/")
       lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
-   options = for(file <- otherCourseFiles){
+   options = for(file <- courseFiles){
                  cn = getFullConceptName(file);
                  if(endsWith(toLowerCase(cn), lcToConcept))
                     append cn;
              }
    if(size(options) == 1){
-      txt = "<course>:" + (short ? "<basename(toConcept)>" : "<toConcept>");
-      return  "\<a href=\"/Courses/<options[0]>/<toConcept>.html\"\><txt>\</a\>";  
+      txt = ((rootname(options[0]) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
+      return  "\<a href=\"/Courses/<options[0]>/<basename(toConcept)>.html\"\><txt>\</a\>";  
    }     
    if(size(options) == 0){
      addWarning("Reference to unknown concept in other course: <course>:<toConcept>");
