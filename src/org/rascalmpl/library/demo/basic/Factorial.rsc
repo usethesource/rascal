@@ -8,10 +8,5 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::Hello
-
-import IO;
-
-public void hello() {
-   println("Hello world, this is my first Rascal program");
-}
+module demo::basic::Factorial
+public int fac(int N) = N <= 0 ? 1 : N * fac(N - 1);

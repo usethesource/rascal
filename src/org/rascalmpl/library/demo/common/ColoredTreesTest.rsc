@@ -7,18 +7,12 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-module demo::WordCount::CountInLine2
+module demo::common::ColoredTreesTest
 
-public int countInLine2(str S){
-  int count = 0;
-  
-  // \w matches any word character
-  // \W matches any non-word character
-  // <...> are groups and should appear at the top level.
-  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
-    count += 1; 
-    S = rest; 
-  }
-  return count;
-}
+// Tests
+
+public ColoredTree  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+
+public test bool t1() = cntRed(rb) == 2;
+public test bool t2() = addLeaves(rb) == 13;
+public test bool t3() = makeGreen(rb) == green(black(leaf(1),green(leaf(2),leaf(3))),black(leaf(3),leaf(4)));

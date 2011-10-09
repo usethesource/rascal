@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::WordCount::Jabberwocky
+module demo::common::WordCount::Jabberwocky
 
 public list[str] Jabberwocky = [
 	"Jabberwocky by Lewis Carroll",
