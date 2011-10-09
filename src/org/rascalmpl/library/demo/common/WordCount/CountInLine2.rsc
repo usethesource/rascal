@@ -8,8 +8,17 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::WordCount::CountInLine3
+module demo::common::WordCount::CountInLine2
 
-public int countInLine3(str S){
-  return (0 | it + 1 | /\w+/ := S);
+public int countInLine2(str S){
+  int count = 0;
+  
+  // \w matches any word character
+  // \W matches any non-word character
+  // <...> are groups and should appear at the top level.
+  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
+    count += 1; 
+    S = rest; 
+  }
+  return count;
 }

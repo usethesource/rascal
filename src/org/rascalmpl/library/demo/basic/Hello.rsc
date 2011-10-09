@@ -8,16 +8,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::WordCount::WordCount
+module demo::basic::Hello
 
-// wordCount takes a list of strings and a count function
-// that is applied to each line. The total number of words is returned
+import IO;
 
-public int wordCount(list[str] input, int (str s) countInLine)
-{
-  count = 0;
-  for(str line <- input){           /*1*/
-     count += countInLine(line);    /*2*/
-  }
-  return count;
+public void hello() {
+   println("Hello world, this is my first Rascal program");
 }

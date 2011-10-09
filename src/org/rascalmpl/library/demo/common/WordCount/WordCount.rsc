@@ -8,11 +8,16 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::Factorial
+module demo::common::WordCount::WordCount
 
-// The factorial function N! = N * (N-1) * (N-2) * ... * 1;
+// wordCount takes a list of strings and a count function
+// that is applied to each line. The total number of words is returned
 
-public int fac(int N)
+public int wordCount(list[str] input, int (str s) countInLine)
 {
-  return N <= 0 ? 1 : N * fac(N - 1);
+  count = 0;
+  for(str line <- input){           /*1*/
+     count += countInLine(line);    /*2*/
+  }
+  return count;
 }

@@ -8,52 +8,19 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module demo::StringTemplate
+//START
+module demo::common::StringTemplateTest
+
 
 import String;
 import IO;
-
-// Illustrating of template-based code generation
-
-// Capitalize the first character of a string
-
-public str capitalize(str s) {
-  return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
-}
-
-// Generate a class with given name and fields.
-
-public str genClass(str name, map[str,str] fields) {
-  return "
-    public class <name> {
-      <for (x <- fields) {>
-        private <fields[x]> <x>;
-        public void set<capitalize(x)>(<fields[x]> <x>) {
-          this.<x> = <x>;
-        }
-        public <fields[x]> get<capitalize(x)>() {
-          return <x>;
-        }
-      <}>
-    }
-";
-}
-
-// Example of use
+import demo::common::StringTemplate;
 
 private  map[str, str] fields = (
      "name" : "String",
      "age" : "Integer",
      "address" : "String"
   );
-  
-public void person(){
-	println(genClass("Person <fields>"));
-}
-
-
-
-
 
   // Beware, in the generated code each empty line contains 6 spaces!
   public test bool t1() =

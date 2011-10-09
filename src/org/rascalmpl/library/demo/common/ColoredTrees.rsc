@@ -7,7 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module demo::ColoredTrees
+//START
+module demo::common::ColoredTrees
 
 // Define ColoredTrees with red and black nodes and integer leaves
 

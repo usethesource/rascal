@@ -8,12 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::WordCount::CountInLine1
+module demo::common::WordCount::CountInLine3
 
-public int countInLine1(str S){
-  int count = 0;
-  for(/[a-zA-Z0-9_]+/ := S){
-       count += 1;
-  }
-  return count;
+public int countInLine3(str S){
+  return (0 | it + 1 | /\w+/ := S);
 }
