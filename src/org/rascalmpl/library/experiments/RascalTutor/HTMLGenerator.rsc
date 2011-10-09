@@ -338,7 +338,7 @@ private str markupSubs(str txt){
 
 public str link(str url, str text){
   println("link: <link>, <text>");
-  return "\<a href=\"<url>\"\><(text=="")?url:text>\</a\>";
+  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
 }
 
 // Get options for image
