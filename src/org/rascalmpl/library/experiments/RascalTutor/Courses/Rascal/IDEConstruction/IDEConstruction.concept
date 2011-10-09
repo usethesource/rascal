@@ -26,7 +26,7 @@ registerLanguage("The ABC language", "abc", abc);
 After this, your __current__ Eclipse instance will start editors for all files ending in `.abc` and parse them using the `abc` function. The editor will provide some default highlighting features.
 
 This is a start, now you can step-by-step extend the IDE for your language with additional features:
-  * [Outline]
+  * [IDEConstruction/Outline]
   * [Folding]
   * [DocumentationHover]
   * [Hyperlinking]

@@ -1,6 +1,6 @@
 Name: Match
 
-Synopsis: Match a [Pattern] against an [Expression].
+Synopsis: Match a pattern against an expression.
 
 Syntax:
 `$Pat$ := $Exp$`
@@ -8,7 +8,7 @@ Syntax:
 Types:
 | `$Pat$`   | `$Exp$` |`$Pat$ := $Exp$`|
 |:----------|:--------|:---------------|
-| [Patterns] | `value` | `bool`         |
+| [Patterns] | `value` | `bool`        |
 
 Function:
 

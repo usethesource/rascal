@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
@@ -18,624 +19,625 @@
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
-<ul><li><a href="/Courses/Rascal/Rascal.html">Rascal</a>
-<ul><li><a href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
-  <li><a href="/Courses/Rascal/InstallingAndRunning/InstallingAndRunning.html">InstallingAndRunning</a>
-  <ul>  <li><a href="/Courses/Rascal/InstallingAndRunning/Installing/Installing.html">Installing</a></li>
-      <li><a href="/Courses/Rascal/InstallingAndRunning/Running/Running.html">Running</a>
-    <ul>    <li><a href="/Courses/Rascal/InstallingAndRunning/Running/Help/Help.html">Help</a></li>
+<ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
+<ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
+  <li><a id="Rascal/InstallingAndRunning" href="/Courses/Rascal/InstallingAndRunning/InstallingAndRunning.html">InstallingAndRunning</a>
+  <ul>  <li><a id="Rascal/InstallingAndRunning/Installing" href="/Courses/Rascal/InstallingAndRunning/Installing/Installing.html">Installing</a></li>
+      <li><a id="Rascal/InstallingAndRunning/Running" href="/Courses/Rascal/InstallingAndRunning/Running/Running.html">Running</a>
+    <ul>    <li><a id="Rascal/InstallingAndRunning/Running/Help" href="/Courses/Rascal/InstallingAndRunning/Running/Help/Help.html">Help</a></li>
     </ul></li>
 
   </ul></li>
 
-  <li><a href="/Courses/Rascal/Concepts/Concepts.html">Concepts</a>
-  <ul>  <li><a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroCaseDistinction/IntroCaseDistinction.html">IntroCaseDistinction</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroComprehensions/IntroComprehensions.html">IntroComprehensions</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroControlStructures/IntroControlStructures.html">IntroControlStructures</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroDatatypes/IntroDatatypes.html">IntroDatatypes</a></li>
-      <li><a href="/Courses/Rascal/Concepts/IntroEnumerators/IntroEnumerators.html">IntroEnumerators</a>
-    <ul>    <li><a href="/Courses/Rascal/Concepts/IntroEnumerators/EquationSolving/EquationSolving.html">EquationSolving</a></li>
+  <li><a id="Rascal/Concepts" href="/Courses/Rascal/Concepts/Concepts.html">Concepts</a>
+  <ul>  <li><a id="Rascal/Concepts/IntroStaticTyping" href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a></li>
+  <li><a id="Rascal/Concepts/IntroCaseDistinction" href="/Courses/Rascal/Concepts/IntroCaseDistinction/IntroCaseDistinction.html">IntroCaseDistinction</a></li>
+  <li><a id="Rascal/Concepts/IntroComprehensions" href="/Courses/Rascal/Concepts/IntroComprehensions/IntroComprehensions.html">IntroComprehensions</a></li>
+  <li><a id="Rascal/Concepts/IntroControlStructures" href="/Courses/Rascal/Concepts/IntroControlStructures/IntroControlStructures.html">IntroControlStructures</a></li>
+  <li><a id="Rascal/Concepts/IntroDatatypes" href="/Courses/Rascal/Concepts/IntroDatatypes/IntroDatatypes.html">IntroDatatypes</a></li>
+      <li><a id="Rascal/Concepts/IntroEnumerators" href="/Courses/Rascal/Concepts/IntroEnumerators/IntroEnumerators.html">IntroEnumerators</a>
+    <ul>    <li><a id="Rascal/Concepts/IntroEnumerators/EquationSolving" href="/Courses/Rascal/Concepts/IntroEnumerators/EquationSolving/EquationSolving.html">EquationSolving</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Concepts/IntroFunctions/IntroFunctions.html">IntroFunctions</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroImmutableValues/IntroImmutableValues.html">IntroImmutableValues</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
-  <li><a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
+  <li><a id="Rascal/Concepts/IntroFunctions" href="/Courses/Rascal/Concepts/IntroFunctions/IntroFunctions.html">IntroFunctions</a></li>
+  <li><a id="Rascal/Concepts/IntroImmutableValues" href="/Courses/Rascal/Concepts/IntroImmutableValues/IntroImmutableValues.html">IntroImmutableValues</a></li>
+  <li><a id="Rascal/Concepts/IntroPatternMatching" href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a></li>
+  <li><a id="Rascal/Concepts/IntroRewriteRules" href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a></li>
+  <li><a id="Rascal/Concepts/IntroSyntaxDefinitionAndParsing" href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a></li>
+  <li><a id="Rascal/Concepts/IntroVisiting" href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a></li>
   </ul></li>
 
-  <li><a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
-  <ul>      <li><a href="/Courses/Rascal/Declarations/StaticTyping/StaticTyping.html">StaticTyping</a>
-    <ul>    <li><a href="/Courses/Rascal/Declarations/StaticTyping/ReifiedTypes/ReifiedTypes.html">ReifiedTypes</a></li>
-    <li><a href="/Courses/Rascal/Declarations/StaticTyping/TypeConstraints/TypeConstraints.html">TypeConstraints</a></li>
-    <li><a href="/Courses/Rascal/Declarations/StaticTyping/TypeParameters/TypeParameters.html">TypeParameters</a></li>
+  <li><a id="Rascal/Declarations" href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>
+  <ul>      <li><a id="Rascal/Declarations/StaticTyping" href="/Courses/Rascal/Declarations/StaticTyping/StaticTyping.html">StaticTyping</a>
+    <ul>    <li><a id="Rascal/Declarations/StaticTyping/ReifiedTypes" href="/Courses/Rascal/Declarations/StaticTyping/ReifiedTypes/ReifiedTypes.html">ReifiedTypes</a></li>
+    <li><a id="Rascal/Declarations/StaticTyping/TypeConstraints" href="/Courses/Rascal/Declarations/StaticTyping/TypeConstraints/TypeConstraints.html">TypeConstraints</a></li>
+    <li><a id="Rascal/Declarations/StaticTyping/TypeParameters" href="/Courses/Rascal/Declarations/StaticTyping/TypeParameters/TypeParameters.html">TypeParameters</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>
-    <ul>    <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a></li>
-          <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>
-      <ul>      <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity/Associativity.html">Associativity</a></li>
-      <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a></li>
+      <li><a id="Rascal/Declarations/SyntaxDefinition" href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>
+    <ul>    <li><a id="Rascal/Declarations/SyntaxDefinition/Symbols" href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a></li>
+          <li><a id="Rascal/Declarations/SyntaxDefinition/Disambiguation" href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>
+      <ul>      <li><a id="Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity" href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity/Associativity.html">Associativity</a></li>
+      <li><a id="Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority" href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a></li>
-    <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a></li>
-    <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a></li>
-    <li><a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
+    <li><a id="Rascal/Declarations/SyntaxDefinition/ParseTrees" href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a></li>
+    <li><a id="Rascal/Declarations/SyntaxDefinition/AmbiguityDetection" href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a></li>
+    <li><a id="Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis" href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a></li>
+    <li><a id="Rascal/Declarations/SyntaxDefinition/ConcreteSyntax" href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
-    <ul>    <li><a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
+      <li><a id="Rascal/Declarations/AlgebraicDataType" href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>
+    <ul>    <li><a id="Rascal/Declarations/AlgebraicDataType/Exception" href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
-      <li><a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
-    <ul>    <li><a href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
-    <li><a href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
+  <li><a id="Rascal/Declarations/Alias" href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a></li>
+      <li><a id="Rascal/Declarations/Annotation" href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>
+    <ul>    <li><a id="Rascal/Declarations/Annotation/Replacement" href="/Courses/Rascal/Declarations/Annotation/Replacement/Replacement.html">Replacement</a></li>
+    <li><a id="Rascal/Declarations/Annotation/Selection" href="/Courses/Rascal/Declarations/Annotation/Selection/Selection.html">Selection</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Import/Import.html">Import</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Module/Module.html">Module</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Program/Program.html">Program</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Rule/Rule.html">Rule</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Tag/Tag.html">Tag</a></li>
-  <li><a href="/Courses/Rascal/Declarations/Variable/Variable.html">Variable</a></li>
+  <li><a id="Rascal/Declarations/Function" href="/Courses/Rascal/Declarations/Function/Function.html">Function</a></li>
+  <li><a id="Rascal/Declarations/Import" href="/Courses/Rascal/Declarations/Import/Import.html">Import</a></li>
+  <li><a id="Rascal/Declarations/Module" href="/Courses/Rascal/Declarations/Module/Module.html">Module</a></li>
+  <li><a id="Rascal/Declarations/Program" href="/Courses/Rascal/Declarations/Program/Program.html">Program</a></li>
+  <li><a id="Rascal/Declarations/Rule" href="/Courses/Rascal/Declarations/Rule/Rule.html">Rule</a></li>
+  <li><a id="Rascal/Declarations/Tag" href="/Courses/Rascal/Declarations/Tag/Tag.html">Tag</a></li>
+  <li><a id="Rascal/Declarations/Variable" href="/Courses/Rascal/Declarations/Variable/Variable.html">Variable</a></li>
   </ul></li>
 
-  <li><a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
-  <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>
-    <ul>          <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/All/All.html">All</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/And/And.html">And</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Any/Any.html">Any</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/arbBool/arbBool.html">arbBool</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Equivalence/Equivalence.html">Equivalence</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/fromInt/fromInt.html">fromInt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/IfDefinedElse/IfDefinedElse.html">IfDefinedElse</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Implication/Implication.html">Implication</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">IsDefined</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Match/Match.html">Match</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Negation/Negation.html">Negation</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/NoMatch/NoMatch.html">NoMatch</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/Or/Or.html">Or</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/toInt/toInt.html">toInt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/toReal/toReal.html">toReal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Boolean/toString/toString.html">toString</a></li>
+  <li><a id="Rascal/Expressions" href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>
+  <ul>      <li><a id="Rascal/Expressions/Values" href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>
+    <ul>          <li><a id="Rascal/Expressions/Values/Boolean" href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Boolean/All" href="/Courses/Rascal/Expressions/Values/Boolean/All/All.html">All</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/And" href="/Courses/Rascal/Expressions/Values/Boolean/And/And.html">And</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Any" href="/Courses/Rascal/Expressions/Values/Boolean/Any/Any.html">Any</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/arbBool" href="/Courses/Rascal/Expressions/Values/Boolean/arbBool/arbBool.html">arbBool</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Equivalence" href="/Courses/Rascal/Expressions/Values/Boolean/Equivalence/Equivalence.html">Equivalence</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/fromInt" href="/Courses/Rascal/Expressions/Values/Boolean/fromInt/fromInt.html">fromInt</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/IfDefinedElse" href="/Courses/Rascal/Expressions/Values/Boolean/IfDefinedElse/IfDefinedElse.html">IfDefinedElse</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Implication" href="/Courses/Rascal/Expressions/Values/Boolean/Implication/Implication.html">Implication</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/IsDefined" href="/Courses/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">IsDefined</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Match" href="/Courses/Rascal/Expressions/Values/Boolean/Match/Match.html">Match</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Negation" href="/Courses/Rascal/Expressions/Values/Boolean/Negation/Negation.html">Negation</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/NoMatch" href="/Courses/Rascal/Expressions/Values/Boolean/NoMatch/NoMatch.html">NoMatch</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/Or" href="/Courses/Rascal/Expressions/Values/Boolean/Or/Or.html">Or</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/toInt" href="/Courses/Rascal/Expressions/Values/Boolean/toInt/toInt.html">toInt</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/toReal" href="/Courses/Rascal/Expressions/Values/Boolean/toReal/toReal.html">toReal</a></li>
+      <li><a id="Rascal/Expressions/Values/Boolean/toString" href="/Courses/Rascal/Expressions/Values/Boolean/toString/toString.html">toString</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Expressions/Values/Constructor/Constructor.html">Constructor</a></li>
-          <li><a href="/Courses/Rascal/Expressions/Values/DateTime/DateTime.html">DateTime</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/FieldSelection/FieldSelection.html">FieldSelection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/DateTime/NotEqual/NotEqual.html">NotEqual</a></li>
+    <li><a id="Rascal/Expressions/Values/Constructor" href="/Courses/Rascal/Expressions/Values/Constructor/Constructor.html">Constructor</a></li>
+          <li><a id="Rascal/Expressions/Values/DateTime" href="/Courses/Rascal/Expressions/Values/DateTime/DateTime.html">DateTime</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/DateTime/Equal" href="/Courses/Rascal/Expressions/Values/DateTime/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/FieldSelection" href="/Courses/Rascal/Expressions/Values/DateTime/FieldSelection/FieldSelection.html">FieldSelection</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/GreaterThan" href="/Courses/Rascal/Expressions/Values/DateTime/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/DateTime/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/LessThan" href="/Courses/Rascal/Expressions/Values/DateTime/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/DateTime/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/DateTime/NotEqual" href="/Courses/Rascal/Expressions/Values/DateTime/NotEqual/NotEqual.html">NotEqual</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a></li>
-          <li><a href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">Comprehension</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/delete/delete.html">delete</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Difference/Difference.html">Difference</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/domain/domain.html">domain</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/getOneFrom/getOneFrom.html">getOneFrom</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/head/head.html">head</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/in/in.html">in</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/index/index.html">index</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/insertAt/insertAt.html">insertAt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Intersection/Intersection.html">Intersection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/isEmpty/isEmpty.html">isEmpty</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/mapper/mapper.html">mapper</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/max/max.html">max</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/min/min.html">min</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/notin/notin.html">notin</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/permutations/permutations.html">permutations</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Product/Product.html">Product</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/reducer/reducer.html">reducer</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/reverse/reverse.html">reverse</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/size/size.html">size</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/slice/slice.html">slice</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/sort/sort.html">sort</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/Subscription/Subscription.html">Subscription</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/SuperList/SuperList.html">SuperList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/tail/tail.html">tail</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/takeOneFrom/takeOneFrom.html">takeOneFrom</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/toMap/toMap.html">toMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/toMapUnique/toMapUnique.html">toMapUnique</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/toSet/toSet.html">toSet</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/List/toString/toString.html">toString</a></li>
+    <li><a id="Rascal/Expressions/Values/Integer" href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a></li>
+          <li><a id="Rascal/Expressions/Values/List" href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/List/Comprehension" href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">Comprehension</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Concatenation" href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a></li>
+      <li><a id="Rascal/Expressions/Values/List/delete" href="/Courses/Rascal/Expressions/Values/List/delete/delete.html">delete</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Difference" href="/Courses/Rascal/Expressions/Values/List/Difference/Difference.html">Difference</a></li>
+      <li><a id="Rascal/Expressions/Values/List/domain" href="/Courses/Rascal/Expressions/Values/List/domain/domain.html">domain</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Equal" href="/Courses/Rascal/Expressions/Values/List/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/List/getOneFrom" href="/Courses/Rascal/Expressions/Values/List/getOneFrom/getOneFrom.html">getOneFrom</a></li>
+      <li><a id="Rascal/Expressions/Values/List/head" href="/Courses/Rascal/Expressions/Values/List/head/head.html">head</a></li>
+      <li><a id="Rascal/Expressions/Values/List/in" href="/Courses/Rascal/Expressions/Values/List/in/in.html">in</a></li>
+      <li><a id="Rascal/Expressions/Values/List/index" href="/Courses/Rascal/Expressions/Values/List/index/index.html">index</a></li>
+      <li><a id="Rascal/Expressions/Values/List/insertAt" href="/Courses/Rascal/Expressions/Values/List/insertAt/insertAt.html">insertAt</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Intersection" href="/Courses/Rascal/Expressions/Values/List/Intersection/Intersection.html">Intersection</a></li>
+      <li><a id="Rascal/Expressions/Values/List/isEmpty" href="/Courses/Rascal/Expressions/Values/List/isEmpty/isEmpty.html">isEmpty</a></li>
+      <li><a id="Rascal/Expressions/Values/List/mapper" href="/Courses/Rascal/Expressions/Values/List/mapper/mapper.html">mapper</a></li>
+      <li><a id="Rascal/Expressions/Values/List/max" href="/Courses/Rascal/Expressions/Values/List/max/max.html">max</a></li>
+      <li><a id="Rascal/Expressions/Values/List/min" href="/Courses/Rascal/Expressions/Values/List/min/min.html">min</a></li>
+      <li><a id="Rascal/Expressions/Values/List/NotEqual" href="/Courses/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/List/notin" href="/Courses/Rascal/Expressions/Values/List/notin/notin.html">notin</a></li>
+      <li><a id="Rascal/Expressions/Values/List/permutations" href="/Courses/Rascal/Expressions/Values/List/permutations/permutations.html">permutations</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Product" href="/Courses/Rascal/Expressions/Values/List/Product/Product.html">Product</a></li>
+      <li><a id="Rascal/Expressions/Values/List/reducer" href="/Courses/Rascal/Expressions/Values/List/reducer/reducer.html">reducer</a></li>
+      <li><a id="Rascal/Expressions/Values/List/reverse" href="/Courses/Rascal/Expressions/Values/List/reverse/reverse.html">reverse</a></li>
+      <li><a id="Rascal/Expressions/Values/List/size" href="/Courses/Rascal/Expressions/Values/List/size/size.html">size</a></li>
+      <li><a id="Rascal/Expressions/Values/List/slice" href="/Courses/Rascal/Expressions/Values/List/slice/slice.html">slice</a></li>
+      <li><a id="Rascal/Expressions/Values/List/sort" href="/Courses/Rascal/Expressions/Values/List/sort/sort.html">sort</a></li>
+      <li><a id="Rascal/Expressions/Values/List/StrictSubList" href="/Courses/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a></li>
+      <li><a id="Rascal/Expressions/Values/List/StrictSuperList" href="/Courses/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a></li>
+      <li><a id="Rascal/Expressions/Values/List/SubList" href="/Courses/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a></li>
+      <li><a id="Rascal/Expressions/Values/List/Subscription" href="/Courses/Rascal/Expressions/Values/List/Subscription/Subscription.html">Subscription</a></li>
+      <li><a id="Rascal/Expressions/Values/List/SuperList" href="/Courses/Rascal/Expressions/Values/List/SuperList/SuperList.html">SuperList</a></li>
+      <li><a id="Rascal/Expressions/Values/List/tail" href="/Courses/Rascal/Expressions/Values/List/tail/tail.html">tail</a></li>
+      <li><a id="Rascal/Expressions/Values/List/takeOneFrom" href="/Courses/Rascal/Expressions/Values/List/takeOneFrom/takeOneFrom.html">takeOneFrom</a></li>
+      <li><a id="Rascal/Expressions/Values/List/toMap" href="/Courses/Rascal/Expressions/Values/List/toMap/toMap.html">toMap</a></li>
+      <li><a id="Rascal/Expressions/Values/List/toMapUnique" href="/Courses/Rascal/Expressions/Values/List/toMapUnique/toMapUnique.html">toMapUnique</a></li>
+      <li><a id="Rascal/Expressions/Values/List/toSet" href="/Courses/Rascal/Expressions/Values/List/toSet/toSet.html">toSet</a></li>
+      <li><a id="Rascal/Expressions/Values/List/toString" href="/Courses/Rascal/Expressions/Values/List/toString/toString.html">toString</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Location/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/FieldSelection/FieldSelection.html">FieldSelection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a></li>
+          <li><a id="Rascal/Expressions/Values/Location" href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Location/Equal" href="/Courses/Rascal/Expressions/Values/Location/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/FieldSelection" href="/Courses/Rascal/Expressions/Values/Location/FieldSelection/FieldSelection.html">FieldSelection</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/GreaterThan" href="/Courses/Rascal/Expressions/Values/Location/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/Location/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/LessThan" href="/Courses/Rascal/Expressions/Values/Location/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Location/NotEqual" href="/Courses/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Map/Map.html">Map</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/domain/domain.html">domain</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/domainR/domainR.html">domainR</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/domainX/domainX.html">domainX</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/getOneFrom/getOneFrom.html">getOneFrom</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/in/in.html">in</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/Intersection/Intersection.html">Intersection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/invert/invert.html">invert</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/invertUnique/invertUnique.html">invertUnique</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/isEmpty/isEmpty.html">isEmpty</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/mapper/mapper.html">mapper</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/notin/notin.html">notin</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/range/range.html">range</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/rangeR/rangeR.html">rangeR</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/rangeX/rangeX.html">rangeX</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/size/size.html">size</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/StrictSubMap/StrictSubMap.html">StrictSubMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/StrictSuperMap/StrictSuperMap.html">StrictSuperMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/SubMap/SubMap.html">SubMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Subscription</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/SuperMap/SuperMap.html">SuperMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/toList/toList.html">toList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/toRel/toRel.html">toRel</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/toString/toString.html">toString</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Map/Union/Union.html">Union</a></li>
+          <li><a id="Rascal/Expressions/Values/Map" href="/Courses/Rascal/Expressions/Values/Map/Map.html">Map</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Map/Comprehension" href="/Courses/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Comprehension</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/Difference" href="/Courses/Rascal/Expressions/Values/Map/Difference/Difference.html">Difference</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/domain" href="/Courses/Rascal/Expressions/Values/Map/domain/domain.html">domain</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/domainR" href="/Courses/Rascal/Expressions/Values/Map/domainR/domainR.html">domainR</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/domainX" href="/Courses/Rascal/Expressions/Values/Map/domainX/domainX.html">domainX</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/Equal" href="/Courses/Rascal/Expressions/Values/Map/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/getOneFrom" href="/Courses/Rascal/Expressions/Values/Map/getOneFrom/getOneFrom.html">getOneFrom</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/in" href="/Courses/Rascal/Expressions/Values/Map/in/in.html">in</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/Intersection" href="/Courses/Rascal/Expressions/Values/Map/Intersection/Intersection.html">Intersection</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/invert" href="/Courses/Rascal/Expressions/Values/Map/invert/invert.html">invert</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/invertUnique" href="/Courses/Rascal/Expressions/Values/Map/invertUnique/invertUnique.html">invertUnique</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/isEmpty" href="/Courses/Rascal/Expressions/Values/Map/isEmpty/isEmpty.html">isEmpty</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/mapper" href="/Courses/Rascal/Expressions/Values/Map/mapper/mapper.html">mapper</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/NotEqual" href="/Courses/Rascal/Expressions/Values/Map/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/notin" href="/Courses/Rascal/Expressions/Values/Map/notin/notin.html">notin</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/range" href="/Courses/Rascal/Expressions/Values/Map/range/range.html">range</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/rangeR" href="/Courses/Rascal/Expressions/Values/Map/rangeR/rangeR.html">rangeR</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/rangeX" href="/Courses/Rascal/Expressions/Values/Map/rangeX/rangeX.html">rangeX</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/size" href="/Courses/Rascal/Expressions/Values/Map/size/size.html">size</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/StrictSubMap" href="/Courses/Rascal/Expressions/Values/Map/StrictSubMap/StrictSubMap.html">StrictSubMap</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/StrictSuperMap" href="/Courses/Rascal/Expressions/Values/Map/StrictSuperMap/StrictSuperMap.html">StrictSuperMap</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/SubMap" href="/Courses/Rascal/Expressions/Values/Map/SubMap/SubMap.html">SubMap</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/Subscription" href="/Courses/Rascal/Expressions/Values/Map/Subscription/Subscription.html">Subscription</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/SuperMap" href="/Courses/Rascal/Expressions/Values/Map/SuperMap/SuperMap.html">SuperMap</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/toList" href="/Courses/Rascal/Expressions/Values/Map/toList/toList.html">toList</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/toRel" href="/Courses/Rascal/Expressions/Values/Map/toRel/toRel.html">toRel</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/toString" href="/Courses/Rascal/Expressions/Values/Map/toString/toString.html">toString</a></li>
+      <li><a id="Rascal/Expressions/Values/Map/Union" href="/Courses/Rascal/Expressions/Values/Map/Union/Union.html">Union</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Node/Node.html">Node</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Node/arity/arity.html">arity</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/getAnnotations/getAnnotations.html">getAnnotations</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/getName/getName.html">getName</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/makeNode/makeNode.html">makeNode</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Node/setAnnotations/setAnnotations.html">setAnnotations</a></li>
+          <li><a id="Rascal/Expressions/Values/Node" href="/Courses/Rascal/Expressions/Values/Node/Node.html">Node</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Node/arity" href="/Courses/Rascal/Expressions/Values/Node/arity/arity.html">arity</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/Equal" href="/Courses/Rascal/Expressions/Values/Node/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/getAnnotations" href="/Courses/Rascal/Expressions/Values/Node/getAnnotations/getAnnotations.html">getAnnotations</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/getName" href="/Courses/Rascal/Expressions/Values/Node/getName/getName.html">getName</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/GreaterThan" href="/Courses/Rascal/Expressions/Values/Node/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/Node/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/LessThan" href="/Courses/Rascal/Expressions/Values/Node/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/Node/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/makeNode" href="/Courses/Rascal/Expressions/Values/Node/makeNode/makeNode.html">makeNode</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/NotEqual" href="/Courses/Rascal/Expressions/Values/Node/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Node/setAnnotations" href="/Courses/Rascal/Expressions/Values/Node/setAnnotations/setAnnotations.html">setAnnotations</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Number/abs/abs.html">abs</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Addition/Addition.html">Addition</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/arbInt/arbInt.html">arbInt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/arbReal/arbReal.html">arbReal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Conditional/Conditional.html">Conditional</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Division/Division.html">Division</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/max/max.html">max</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/min/min.html">min</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Multiplication/Multiplication.html">Multiplication</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Negation/Negation.html">Negation</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Remainder/Remainder.html">Remainder</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/Subtraction/Subtraction.html">Subtraction</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/toInt/toInt.html">toInt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/toReal/toReal.html">toReal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Number/toString/toString.html">toString</a></li>
+          <li><a id="Rascal/Expressions/Values/Number" href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Number/abs" href="/Courses/Rascal/Expressions/Values/Number/abs/abs.html">abs</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Addition" href="/Courses/Rascal/Expressions/Values/Number/Addition/Addition.html">Addition</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/arbInt" href="/Courses/Rascal/Expressions/Values/Number/arbInt/arbInt.html">arbInt</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/arbReal" href="/Courses/Rascal/Expressions/Values/Number/arbReal/arbReal.html">arbReal</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Conditional" href="/Courses/Rascal/Expressions/Values/Number/Conditional/Conditional.html">Conditional</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Division" href="/Courses/Rascal/Expressions/Values/Number/Division/Division.html">Division</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Equal" href="/Courses/Rascal/Expressions/Values/Number/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/GreaterThan" href="/Courses/Rascal/Expressions/Values/Number/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/Number/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/LessThan" href="/Courses/Rascal/Expressions/Values/Number/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/Number/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/max" href="/Courses/Rascal/Expressions/Values/Number/max/max.html">max</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/min" href="/Courses/Rascal/Expressions/Values/Number/min/min.html">min</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Multiplication" href="/Courses/Rascal/Expressions/Values/Number/Multiplication/Multiplication.html">Multiplication</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Negation" href="/Courses/Rascal/Expressions/Values/Number/Negation/Negation.html">Negation</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/NotEqual" href="/Courses/Rascal/Expressions/Values/Number/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Remainder" href="/Courses/Rascal/Expressions/Values/Number/Remainder/Remainder.html">Remainder</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/Subtraction" href="/Courses/Rascal/Expressions/Values/Number/Subtraction/Subtraction.html">Subtraction</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/toInt" href="/Courses/Rascal/Expressions/Values/Number/toInt/toInt.html">toInt</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/toReal" href="/Courses/Rascal/Expressions/Values/Number/toReal/toReal.html">toReal</a></li>
+      <li><a id="Rascal/Expressions/Values/Number/toString" href="/Courses/Rascal/Expressions/Values/Number/toString/toString.html">toString</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Expressions/Values/Range/Range.html">Range</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a></li>
-          <li><a href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Relation</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Relation/carrier/carrier.html">carrier</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/carrierR/carrierR.html">carrierR</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/carrierX/carrierX.html">carrierX</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/CarthesianProduct/CarthesianProduct.html">CarthesianProduct</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/complement/complement.html">complement</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/domain/domain.html">domain</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/domainR/domainR.html">domainR</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/domainX/domainX.html">domainX</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/FieldSelection/FieldSelection.html">FieldSelection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/ident/ident.html">ident</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">invert</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/Join/Join.html">Join</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">range</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/rangeR/rangeR.html">rangeR</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/rangeX/rangeX.html">rangeX</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ReflexiveTransitiveClosure</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Subscription</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">TransitiveClosure</a></li>
+    <li><a id="Rascal/Expressions/Values/Range" href="/Courses/Rascal/Expressions/Values/Range/Range.html">Range</a></li>
+    <li><a id="Rascal/Expressions/Values/Real" href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a></li>
+          <li><a id="Rascal/Expressions/Values/Relation" href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Relation</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Relation/carrier" href="/Courses/Rascal/Expressions/Values/Relation/carrier/carrier.html">carrier</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/carrierR" href="/Courses/Rascal/Expressions/Values/Relation/carrierR/carrierR.html">carrierR</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/carrierX" href="/Courses/Rascal/Expressions/Values/Relation/carrierX/carrierX.html">carrierX</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/CarthesianProduct" href="/Courses/Rascal/Expressions/Values/Relation/CarthesianProduct/CarthesianProduct.html">CarthesianProduct</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/complement" href="/Courses/Rascal/Expressions/Values/Relation/complement/complement.html">complement</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/Composition" href="/Courses/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/domain" href="/Courses/Rascal/Expressions/Values/Relation/domain/domain.html">domain</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/domainR" href="/Courses/Rascal/Expressions/Values/Relation/domainR/domainR.html">domainR</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/domainX" href="/Courses/Rascal/Expressions/Values/Relation/domainX/domainX.html">domainX</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/FieldSelection" href="/Courses/Rascal/Expressions/Values/Relation/FieldSelection/FieldSelection.html">FieldSelection</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/ident" href="/Courses/Rascal/Expressions/Values/Relation/ident/ident.html">ident</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/invert" href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">invert</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/Join" href="/Courses/Rascal/Expressions/Values/Relation/Join/Join.html">Join</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/range" href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">range</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/rangeR" href="/Courses/Rascal/Expressions/Values/Relation/rangeR/rangeR.html">rangeR</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/rangeX" href="/Courses/Rascal/Expressions/Values/Relation/rangeX/rangeX.html">rangeX</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure" href="/Courses/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ReflexiveTransitiveClosure</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/Subscription" href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Subscription</a></li>
+      <li><a id="Rascal/Expressions/Values/Relation/TransitiveClosure" href="/Courses/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">TransitiveClosure</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Comprehension</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/Difference/Difference.html">Difference</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/getOneFrom/getOneFrom.html">getOneFrom</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/in/in.html">in</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/isEmpty/isEmpty.html">isEmpty</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/mapper/mapper.html">mapper</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/max/max.html">max</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/min/min.html">min</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/notin/notin.html">notin</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/power/power.html">power</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/power1/power1.html">power1</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/Product/Product.html">Product</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/reducer/reducer.html">reducer</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">size</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/StrictSubSet/StrictSubSet.html">StrictSubSet</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/StrictSuperSet/StrictSuperSet.html">StrictSuperSet</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/SubSet/SubSet.html">SubSet</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/SuperSet/SuperSet.html">SuperSet</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/toList/toList.html">toList</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/toMap/toMap.html">toMap</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/toMapUnique/toMapUnique.html">toMapUnique</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/toString/toString.html">toString</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a></li>
+          <li><a id="Rascal/Expressions/Values/Set" href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Set/Comprehension" href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Comprehension</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/Difference" href="/Courses/Rascal/Expressions/Values/Set/Difference/Difference.html">Difference</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/Equal" href="/Courses/Rascal/Expressions/Values/Set/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/getOneFrom" href="/Courses/Rascal/Expressions/Values/Set/getOneFrom/getOneFrom.html">getOneFrom</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/in" href="/Courses/Rascal/Expressions/Values/Set/in/in.html">in</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/Intersection" href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/isEmpty" href="/Courses/Rascal/Expressions/Values/Set/isEmpty/isEmpty.html">isEmpty</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/mapper" href="/Courses/Rascal/Expressions/Values/Set/mapper/mapper.html">mapper</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/max" href="/Courses/Rascal/Expressions/Values/Set/max/max.html">max</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/min" href="/Courses/Rascal/Expressions/Values/Set/min/min.html">min</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/NotEqual" href="/Courses/Rascal/Expressions/Values/Set/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/notin" href="/Courses/Rascal/Expressions/Values/Set/notin/notin.html">notin</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/power" href="/Courses/Rascal/Expressions/Values/Set/power/power.html">power</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/power1" href="/Courses/Rascal/Expressions/Values/Set/power1/power1.html">power1</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/Product" href="/Courses/Rascal/Expressions/Values/Set/Product/Product.html">Product</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/reducer" href="/Courses/Rascal/Expressions/Values/Set/reducer/reducer.html">reducer</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/size" href="/Courses/Rascal/Expressions/Values/Set/size/size.html">size</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/StrictSubSet" href="/Courses/Rascal/Expressions/Values/Set/StrictSubSet/StrictSubSet.html">StrictSubSet</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/StrictSuperSet" href="/Courses/Rascal/Expressions/Values/Set/StrictSuperSet/StrictSuperSet.html">StrictSuperSet</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/SubSet" href="/Courses/Rascal/Expressions/Values/Set/SubSet/SubSet.html">SubSet</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/SuperSet" href="/Courses/Rascal/Expressions/Values/Set/SuperSet/SuperSet.html">SuperSet</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/takeOneFrom" href="/Courses/Rascal/Expressions/Values/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/toList" href="/Courses/Rascal/Expressions/Values/Set/toList/toList.html">toList</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/toMap" href="/Courses/Rascal/Expressions/Values/Set/toMap/toMap.html">toMap</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/toMapUnique" href="/Courses/Rascal/Expressions/Values/Set/toMapUnique/toMapUnique.html">toMapUnique</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/toString" href="/Courses/Rascal/Expressions/Values/Set/toString/toString.html">toString</a></li>
+      <li><a id="Rascal/Expressions/Values/Set/Union" href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/String/center/center.html">center</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/charAt/charAt.html">charAt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/Concatenation/Concatenation.html">Concatenation</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/endsWith/endsWith.html">endsWith</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/isEmpty/isEmpty.html">isEmpty</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/left/left.html">left</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/reverse/reverse.html">reverse</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/right/right.html">right</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/size/size.html">size</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/startsWith/startsWith.html">startsWith</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/substring/substring.html">substring</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/toInt/toInt.html">toInt</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/toLowerCase/toLowerCase.html">toLowerCase</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/toReal/toReal.html">toReal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/String/toUpperCase/toUpperCase.html">toUpperCase</a></li>
+          <li><a id="Rascal/Expressions/Values/String" href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/String/center" href="/Courses/Rascal/Expressions/Values/String/center/center.html">center</a></li>
+      <li><a id="Rascal/Expressions/Values/String/charAt" href="/Courses/Rascal/Expressions/Values/String/charAt/charAt.html">charAt</a></li>
+      <li><a id="Rascal/Expressions/Values/String/Concatenation" href="/Courses/Rascal/Expressions/Values/String/Concatenation/Concatenation.html">Concatenation</a></li>
+      <li><a id="Rascal/Expressions/Values/String/endsWith" href="/Courses/Rascal/Expressions/Values/String/endsWith/endsWith.html">endsWith</a></li>
+      <li><a id="Rascal/Expressions/Values/String/Equal" href="/Courses/Rascal/Expressions/Values/String/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/String/GreaterThan" href="/Courses/Rascal/Expressions/Values/String/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/String/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/String/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/String/isEmpty" href="/Courses/Rascal/Expressions/Values/String/isEmpty/isEmpty.html">isEmpty</a></li>
+      <li><a id="Rascal/Expressions/Values/String/left" href="/Courses/Rascal/Expressions/Values/String/left/left.html">left</a></li>
+      <li><a id="Rascal/Expressions/Values/String/LessThan" href="/Courses/Rascal/Expressions/Values/String/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/String/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/String/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/String/NotEqual" href="/Courses/Rascal/Expressions/Values/String/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/String/reverse" href="/Courses/Rascal/Expressions/Values/String/reverse/reverse.html">reverse</a></li>
+      <li><a id="Rascal/Expressions/Values/String/right" href="/Courses/Rascal/Expressions/Values/String/right/right.html">right</a></li>
+      <li><a id="Rascal/Expressions/Values/String/size" href="/Courses/Rascal/Expressions/Values/String/size/size.html">size</a></li>
+      <li><a id="Rascal/Expressions/Values/String/startsWith" href="/Courses/Rascal/Expressions/Values/String/startsWith/startsWith.html">startsWith</a></li>
+      <li><a id="Rascal/Expressions/Values/String/substring" href="/Courses/Rascal/Expressions/Values/String/substring/substring.html">substring</a></li>
+      <li><a id="Rascal/Expressions/Values/String/toInt" href="/Courses/Rascal/Expressions/Values/String/toInt/toInt.html">toInt</a></li>
+      <li><a id="Rascal/Expressions/Values/String/toLowerCase" href="/Courses/Rascal/Expressions/Values/String/toLowerCase/toLowerCase.html">toLowerCase</a></li>
+      <li><a id="Rascal/Expressions/Values/String/toReal" href="/Courses/Rascal/Expressions/Values/String/toReal/toReal.html">toReal</a></li>
+      <li><a id="Rascal/Expressions/Values/String/toUpperCase" href="/Courses/Rascal/Expressions/Values/String/toUpperCase/toUpperCase.html">toUpperCase</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/Concatenation/Concatenation.html">Concatenation</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/FieldSelection/FieldSelection.html">FieldSelection</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/NotEqual/NotEqual.html">NotEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Subscription</a></li>
+          <li><a id="Rascal/Expressions/Values/Tuple" href="/Courses/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Tuple/Concatenation" href="/Courses/Rascal/Expressions/Values/Tuple/Concatenation/Concatenation.html">Concatenation</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/Equal" href="/Courses/Rascal/Expressions/Values/Tuple/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/FieldSelection" href="/Courses/Rascal/Expressions/Values/Tuple/FieldSelection/FieldSelection.html">FieldSelection</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/GreaterThan" href="/Courses/Rascal/Expressions/Values/Tuple/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/Tuple/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/LessThan" href="/Courses/Rascal/Expressions/Values/Tuple/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/Tuple/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/NotEqual" href="/Courses/Rascal/Expressions/Values/Tuple/NotEqual/NotEqual.html">NotEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Tuple/Subscription" href="/Courses/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Subscription</a></li>
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Expressions/Values/Value/Value.html">Value</a>
-      <ul>      <li><a href="/Courses/Rascal/Expressions/Values/Value/Conditional/Conditional.html">Conditional</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/Equal/Equal.html">Equal</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/GreaterThan/GreaterThan.html">GreaterThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/LessThan/LessThan.html">LessThan</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Values/Value/NotEqual/NotEqual.html">NotEqual</a></li>
+          <li><a id="Rascal/Expressions/Values/Value" href="/Courses/Rascal/Expressions/Values/Value/Value.html">Value</a>
+      <ul>      <li><a id="Rascal/Expressions/Values/Value/Conditional" href="/Courses/Rascal/Expressions/Values/Value/Conditional/Conditional.html">Conditional</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/Equal" href="/Courses/Rascal/Expressions/Values/Value/Equal/Equal.html">Equal</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/GreaterThan" href="/Courses/Rascal/Expressions/Values/Value/GreaterThan/GreaterThan.html">GreaterThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/GreaterThanOrEqual" href="/Courses/Rascal/Expressions/Values/Value/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/LessThan" href="/Courses/Rascal/Expressions/Values/Value/LessThan/LessThan.html">LessThan</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/LessThanOrEqual" href="/Courses/Rascal/Expressions/Values/Value/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a></li>
+      <li><a id="Rascal/Expressions/Values/Value/NotEqual" href="/Courses/Rascal/Expressions/Values/Value/NotEqual/NotEqual.html">NotEqual</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Expressions/Values/Void/Void.html">Void</a></li>
+    <li><a id="Rascal/Expressions/Values/Void" href="/Courses/Rascal/Expressions/Values/Void/Void.html">Void</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a>
-    <ul>    <li><a href="/Courses/Rascal/Expressions/Operators/FieldAssignment/FieldAssignment.html">FieldAssignment</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Operators/FieldProjection/FieldProjection.html">FieldProjection</a></li>
+      <li><a id="Rascal/Expressions/Operators" href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a>
+    <ul>    <li><a id="Rascal/Expressions/Operators/FieldAssignment" href="/Courses/Rascal/Expressions/Operators/FieldAssignment/FieldAssignment.html">FieldAssignment</a></li>
+    <li><a id="Rascal/Expressions/Operators/FieldProjection" href="/Courses/Rascal/Expressions/Operators/FieldProjection/FieldProjection.html">FieldProjection</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Expressions/Patterns/Patterns.html">Patterns</a>
-    <ul>    <li><a href="/Courses/Rascal/Expressions/Patterns/Abstract/Abstract.html">Abstract</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Patterns/Concrete/Concrete.html">Concrete</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Patterns/PatternWithAction/PatternWithAction.html">PatternWithAction</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Patterns/Regular/Regular.html">Regular</a></li>
+      <li><a id="Rascal/Expressions/Patterns" href="/Courses/Rascal/Expressions/Patterns/Patterns.html">Patterns</a>
+    <ul>    <li><a id="Rascal/Expressions/Patterns/Abstract" href="/Courses/Rascal/Expressions/Patterns/Abstract/Abstract.html">Abstract</a></li>
+    <li><a id="Rascal/Expressions/Patterns/Concrete" href="/Courses/Rascal/Expressions/Patterns/Concrete/Concrete.html">Concrete</a></li>
+    <li><a id="Rascal/Expressions/Patterns/PatternWithAction" href="/Courses/Rascal/Expressions/Patterns/PatternWithAction/PatternWithAction.html">PatternWithAction</a></li>
+    <li><a id="Rascal/Expressions/Patterns/Regular" href="/Courses/Rascal/Expressions/Patterns/Regular/Regular.html">Regular</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Expressions/Call/Call.html">Call</a></li>
-      <li><a href="/Courses/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>
-    <ul>    <li><a href="/Courses/Rascal/Expressions/Comprehensions/Enumerator/Enumerator.html">Enumerator</a></li>
-    <li><a href="/Courses/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a></li>
+  <li><a id="Rascal/Expressions/Call" href="/Courses/Rascal/Expressions/Call/Call.html">Call</a></li>
+      <li><a id="Rascal/Expressions/Comprehensions" href="/Courses/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>
+    <ul>    <li><a id="Rascal/Expressions/Comprehensions/Enumerator" href="/Courses/Rascal/Expressions/Comprehensions/Enumerator/Enumerator.html">Enumerator</a></li>
+    <li><a id="Rascal/Expressions/Comprehensions/Filter" href="/Courses/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Expressions/StatementAsExpression/StatementAsExpression.html">StatementAsExpression</a></li>
-  <li><a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a></li>
+  <li><a id="Rascal/Expressions/Reducer" href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Reducer</a></li>
+  <li><a id="Rascal/Expressions/StatementAsExpression" href="/Courses/Rascal/Expressions/StatementAsExpression/StatementAsExpression.html">StatementAsExpression</a></li>
+  <li><a id="Rascal/Expressions/Visit" href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a></li>
   </ul></li>
 
-  <li><a href="/Courses/Rascal/Statements/Statements.html">Statements</a>
-  <ul>  <li><a href="/Courses/Rascal/Statements/Append/Append.html">Append</a></li>
-  <li><a href="/Courses/Rascal/Statements/Assert/Assert.html">Assert</a></li>
-  <li><a href="/Courses/Rascal/Statements/Assignment/Assignment.html">Assignment</a></li>
-  <li><a href="/Courses/Rascal/Statements/Block/Block.html">Block</a></li>
-  <li><a href="/Courses/Rascal/Statements/Do/Do.html">Do</a></li>
-  <li><a href="/Courses/Rascal/Statements/Fail/Fail.html">Fail</a></li>
-  <li><a href="/Courses/Rascal/Statements/For/For.html">For</a></li>
-  <li><a href="/Courses/Rascal/Statements/If/If.html">If</a></li>
-  <li><a href="/Courses/Rascal/Statements/Insert/Insert.html">Insert</a></li>
-  <li><a href="/Courses/Rascal/Statements/Return/Return.html">Return</a></li>
-  <li><a href="/Courses/Rascal/Statements/Solve/Solve.html">Solve</a></li>
-  <li><a href="/Courses/Rascal/Statements/Switch/Switch.html">Switch</a></li>
-  <li><a href="/Courses/Rascal/Statements/Test/Test.html">Test</a></li>
-  <li><a href="/Courses/Rascal/Statements/Throw/Throw.html">Throw</a></li>
-  <li><a href="/Courses/Rascal/Statements/TryCatch/TryCatch.html">TryCatch</a></li>
-  <li><a href="/Courses/Rascal/Statements/While/While.html">While</a></li>
+  <li><a id="Rascal/Statements" href="/Courses/Rascal/Statements/Statements.html">Statements</a>
+  <ul>  <li><a id="Rascal/Statements/Append" href="/Courses/Rascal/Statements/Append/Append.html">Append</a></li>
+  <li><a id="Rascal/Statements/Assert" href="/Courses/Rascal/Statements/Assert/Assert.html">Assert</a></li>
+  <li><a id="Rascal/Statements/Assignment" href="/Courses/Rascal/Statements/Assignment/Assignment.html">Assignment</a></li>
+  <li><a id="Rascal/Statements/Block" href="/Courses/Rascal/Statements/Block/Block.html">Block</a></li>
+  <li><a id="Rascal/Statements/Do" href="/Courses/Rascal/Statements/Do/Do.html">Do</a></li>
+  <li><a id="Rascal/Statements/Fail" href="/Courses/Rascal/Statements/Fail/Fail.html">Fail</a></li>
+  <li><a id="Rascal/Statements/For" href="/Courses/Rascal/Statements/For/For.html">For</a></li>
+  <li><a id="Rascal/Statements/If" href="/Courses/Rascal/Statements/If/If.html">If</a></li>
+  <li><a id="Rascal/Statements/Insert" href="/Courses/Rascal/Statements/Insert/Insert.html">Insert</a></li>
+  <li><a id="Rascal/Statements/Return" href="/Courses/Rascal/Statements/Return/Return.html">Return</a></li>
+  <li><a id="Rascal/Statements/Solve" href="/Courses/Rascal/Statements/Solve/Solve.html">Solve</a></li>
+  <li><a id="Rascal/Statements/Switch" href="/Courses/Rascal/Statements/Switch/Switch.html">Switch</a></li>
+  <li><a id="Rascal/Statements/Test" href="/Courses/Rascal/Statements/Test/Test.html">Test</a></li>
+  <li><a id="Rascal/Statements/Throw" href="/Courses/Rascal/Statements/Throw/Throw.html">Throw</a></li>
+  <li><a id="Rascal/Statements/TryCatch" href="/Courses/Rascal/Statements/TryCatch/TryCatch.html">TryCatch</a></li>
+  <li><a id="Rascal/Statements/While" href="/Courses/Rascal/Statements/While/While.html">While</a></li>
   </ul></li>
 
-  <li><a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>
-  <ul>      <li><a href="/Courses/Rascal/Libraries/Benchmark/Benchmark.html">Benchmark</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Benchmark/cpuTime/cpuTime.html">cpuTime</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Benchmark/systemTime/systemTime.html">systemTime</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Benchmark/userTime/userTime.html">userTime</a></li>
+  <li><a id="Rascal/Libraries" href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>
+  <ul>      <li><a id="Rascal/Libraries/Benchmark" href="/Courses/Rascal/Libraries/Benchmark/Benchmark.html">Benchmark</a>
+    <ul>    <li><a id="Rascal/Libraries/Benchmark/cpuTime" href="/Courses/Rascal/Libraries/Benchmark/cpuTime/cpuTime.html">cpuTime</a></li>
+    <li><a id="Rascal/Libraries/Benchmark/systemTime" href="/Courses/Rascal/Libraries/Benchmark/systemTime/systemTime.html">systemTime</a></li>
+    <li><a id="Rascal/Libraries/Benchmark/userTime" href="/Courses/Rascal/Libraries/Benchmark/userTime/userTime.html">userTime</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Graph/Graph.html">Graph</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Graph/bottom/bottom.html">bottom</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/predecessors/predecessors.html">predecessors</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/reach/reach.html">reach</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/reachR/reachR.html">reachR</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/reachX/reachX.html">reachX</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/successors/successors.html">successors</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Graph/top/top.html">top</a></li>
+      <li><a id="Rascal/Libraries/Graph" href="/Courses/Rascal/Libraries/Graph/Graph.html">Graph</a>
+    <ul>    <li><a id="Rascal/Libraries/Graph/bottom" href="/Courses/Rascal/Libraries/Graph/bottom/bottom.html">bottom</a></li>
+    <li><a id="Rascal/Libraries/Graph/predecessors" href="/Courses/Rascal/Libraries/Graph/predecessors/predecessors.html">predecessors</a></li>
+    <li><a id="Rascal/Libraries/Graph/reach" href="/Courses/Rascal/Libraries/Graph/reach/reach.html">reach</a></li>
+    <li><a id="Rascal/Libraries/Graph/reachR" href="/Courses/Rascal/Libraries/Graph/reachR/reachR.html">reachR</a></li>
+    <li><a id="Rascal/Libraries/Graph/reachX" href="/Courses/Rascal/Libraries/Graph/reachX/reachX.html">reachX</a></li>
+    <li><a id="Rascal/Libraries/Graph/shortestPathPair" href="/Courses/Rascal/Libraries/Graph/shortestPathPair/shortestPathPair.html">shortestPathPair</a></li>
+    <li><a id="Rascal/Libraries/Graph/successors" href="/Courses/Rascal/Libraries/Graph/successors/successors.html">successors</a></li>
+    <li><a id="Rascal/Libraries/Graph/top" href="/Courses/Rascal/Libraries/Graph/top/top.html">top</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Libraries/IDE/IDE.html">IDE</a></li>
-      <li><a href="/Courses/Rascal/Libraries/IO/IO.html">IO</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/IO/appendToFile/appendToFile.html">appendToFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/exists/exists.html">exists</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/isDirectory/isDirectory.html">isDirectory</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/isFile/isFile.html">isFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/lastModified/lastModified.html">lastModified</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">listEntries</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/mkDirectory/mkDirectory.html">mkDirectory</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/print/print.html">print</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/println/println.html">println</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/readFile/readFile.html">readFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/readFileBytes/readFileBytes.html">readFileBytes</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/readFileLines/readFileLines.html">readFileLines</a></li>
-    <li><a href="/Courses/Rascal/Libraries/IO/writeFile/writeFile.html">writeFile</a></li>
+  <li><a id="Rascal/Libraries/IDE" href="/Courses/Rascal/Libraries/IDE/IDE.html">IDE</a></li>
+      <li><a id="Rascal/Libraries/IO" href="/Courses/Rascal/Libraries/IO/IO.html">IO</a>
+    <ul>    <li><a id="Rascal/Libraries/IO/appendToFile" href="/Courses/Rascal/Libraries/IO/appendToFile/appendToFile.html">appendToFile</a></li>
+    <li><a id="Rascal/Libraries/IO/exists" href="/Courses/Rascal/Libraries/IO/exists/exists.html">exists</a></li>
+    <li><a id="Rascal/Libraries/IO/isDirectory" href="/Courses/Rascal/Libraries/IO/isDirectory/isDirectory.html">isDirectory</a></li>
+    <li><a id="Rascal/Libraries/IO/isFile" href="/Courses/Rascal/Libraries/IO/isFile/isFile.html">isFile</a></li>
+    <li><a id="Rascal/Libraries/IO/lastModified" href="/Courses/Rascal/Libraries/IO/lastModified/lastModified.html">lastModified</a></li>
+    <li><a id="Rascal/Libraries/IO/listEntries" href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">listEntries</a></li>
+    <li><a id="Rascal/Libraries/IO/mkDirectory" href="/Courses/Rascal/Libraries/IO/mkDirectory/mkDirectory.html">mkDirectory</a></li>
+    <li><a id="Rascal/Libraries/IO/print" href="/Courses/Rascal/Libraries/IO/print/print.html">print</a></li>
+    <li><a id="Rascal/Libraries/IO/println" href="/Courses/Rascal/Libraries/IO/println/println.html">println</a></li>
+    <li><a id="Rascal/Libraries/IO/readFile" href="/Courses/Rascal/Libraries/IO/readFile/readFile.html">readFile</a></li>
+    <li><a id="Rascal/Libraries/IO/readFileBytes" href="/Courses/Rascal/Libraries/IO/readFileBytes/readFileBytes.html">readFileBytes</a></li>
+    <li><a id="Rascal/Libraries/IO/readFileLines" href="/Courses/Rascal/Libraries/IO/readFileLines/readFileLines.html">readFileLines</a></li>
+    <li><a id="Rascal/Libraries/IO/writeFile" href="/Courses/Rascal/Libraries/IO/writeFile/writeFile.html">writeFile</a></li>
     </ul></li>
 
-  <li><a href="/Courses/Rascal/Libraries/Java/Java.html">Java</a></li>
-      <li><a href="/Courses/Rascal/Libraries/JDT/JDT.html">JDT</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/JDT/extractClass/extractClass.html">extractClass</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/extractProject/extractProject.html">extractProject</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/extractResource/extractResource.html">extractResource</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/extractResources/extractResources.html">extractResources</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a></li>
-    <li><a href="/Courses/Rascal/Libraries/JDT/matchLocations/matchLocations.html">matchLocations</a></li>
+  <li><a id="Rascal/Libraries/Java" href="/Courses/Rascal/Libraries/Java/Java.html">Java</a></li>
+      <li><a id="Rascal/Libraries/JDT" href="/Courses/Rascal/Libraries/JDT/JDT.html">JDT</a>
+    <ul>    <li><a id="Rascal/Libraries/JDT/extractClass" href="/Courses/Rascal/Libraries/JDT/extractClass/extractClass.html">extractClass</a></li>
+    <li><a id="Rascal/Libraries/JDT/extractFactsTransitive" href="/Courses/Rascal/Libraries/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a></li>
+    <li><a id="Rascal/Libraries/JDT/extractProject" href="/Courses/Rascal/Libraries/JDT/extractProject/extractProject.html">extractProject</a></li>
+    <li><a id="Rascal/Libraries/JDT/extractResource" href="/Courses/Rascal/Libraries/JDT/extractResource/extractResource.html">extractResource</a></li>
+    <li><a id="Rascal/Libraries/JDT/extractResources" href="/Courses/Rascal/Libraries/JDT/extractResources/extractResources.html">extractResources</a></li>
+    <li><a id="Rascal/Libraries/JDT/isOnBuildPath" href="/Courses/Rascal/Libraries/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a></li>
+    <li><a id="Rascal/Libraries/JDT/matchLocations" href="/Courses/Rascal/Libraries/JDT/matchLocations/matchLocations.html">matchLocations</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/LabeledGraph/LabeledGraph.html">LabeledGraph</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/bottom/bottom.html">bottom</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/predecessors/predecessors.html">predecessors</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/reach/reach.html">reach</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/reachR/reachR.html">reachR</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/reachX/reachX.html">reachX</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/shortestPathPair/shortestPathPair.html">shortestPathPair</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/successors/successors.html">successors</a></li>
-    <li><a href="/Courses/Rascal/Libraries/LabeledGraph/top/top.html">top</a></li>
+      <li><a id="Rascal/Libraries/LabeledGraph" href="/Courses/Rascal/Libraries/LabeledGraph/LabeledGraph.html">LabeledGraph</a>
+    <ul>    <li><a id="Rascal/Libraries/LabeledGraph/bottom" href="/Courses/Rascal/Libraries/LabeledGraph/bottom/bottom.html">bottom</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/predecessors" href="/Courses/Rascal/Libraries/LabeledGraph/predecessors/predecessors.html">predecessors</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/reach" href="/Courses/Rascal/Libraries/LabeledGraph/reach/reach.html">reach</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/reachR" href="/Courses/Rascal/Libraries/LabeledGraph/reachR/reachR.html">reachR</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/reachX" href="/Courses/Rascal/Libraries/LabeledGraph/reachX/reachX.html">reachX</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/shortestPathPair" href="/Courses/Rascal/Libraries/LabeledGraph/shortestPathPair/shortestPathPair.html">shortestPathPair</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/successors" href="/Courses/Rascal/Libraries/LabeledGraph/successors/successors.html">successors</a></li>
+    <li><a id="Rascal/Libraries/LabeledGraph/top" href="/Courses/Rascal/Libraries/LabeledGraph/top/top.html">top</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Message/error/error.html">error</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Message/info/info.html">info</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Message/warning/warning.html">warning</a></li>
+      <li><a id="Rascal/Libraries/Message" href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>
+    <ul>    <li><a id="Rascal/Libraries/Message/error" href="/Courses/Rascal/Libraries/Message/error/error.html">error</a></li>
+    <li><a id="Rascal/Libraries/Message/info" href="/Courses/Rascal/Libraries/Message/info/info.html">info</a></li>
+    <li><a id="Rascal/Libraries/Message/warning" href="/Courses/Rascal/Libraries/Message/warning/warning.html">warning</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a></li>
-    <li><a href="/Courses/Rascal/Libraries/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a></li>
-    <li><a href="/Courses/Rascal/Libraries/PriorityQueue/insertElement/insertElement.html">insertElement</a></li>
-    <li><a href="/Courses/Rascal/Libraries/PriorityQueue/isEmpty/isEmpty.html">isEmpty</a></li>
-    <li><a href="/Courses/Rascal/Libraries/PriorityQueue/mkPriorityQueue/mkPriorityQueue.html">mkPriorityQueue</a></li>
+      <li><a id="Rascal/Libraries/PriorityQueue" href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a>
+    <ul>    <li><a id="Rascal/Libraries/PriorityQueue/extractMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a></li>
+    <li><a id="Rascal/Libraries/PriorityQueue/findMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a></li>
+    <li><a id="Rascal/Libraries/PriorityQueue/insertElement" href="/Courses/Rascal/Libraries/PriorityQueue/insertElement/insertElement.html">insertElement</a></li>
+    <li><a id="Rascal/Libraries/PriorityQueue/isEmpty" href="/Courses/Rascal/Libraries/PriorityQueue/isEmpty/isEmpty.html">isEmpty</a></li>
+    <li><a id="Rascal/Libraries/PriorityQueue/mkPriorityQueue" href="/Courses/Rascal/Libraries/PriorityQueue/mkPriorityQueue/mkPriorityQueue.html">mkPriorityQueue</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Resources/Resources.html">Resources</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Resources/dependencies/dependencies.html">dependencies</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Resources/getProject/getProject.html">getProject</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Resources/projects/projects.html">projects</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Resources/references/references.html">references</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Resources/root/root.html">root</a></li>
+      <li><a id="Rascal/Libraries/Resources" href="/Courses/Rascal/Libraries/Resources/Resources.html">Resources</a>
+    <ul>    <li><a id="Rascal/Libraries/Resources/dependencies" href="/Courses/Rascal/Libraries/Resources/dependencies/dependencies.html">dependencies</a></li>
+    <li><a id="Rascal/Libraries/Resources/getProject" href="/Courses/Rascal/Libraries/Resources/getProject/getProject.html">getProject</a></li>
+    <li><a id="Rascal/Libraries/Resources/projects" href="/Courses/Rascal/Libraries/Resources/projects/projects.html">projects</a></li>
+    <li><a id="Rascal/Libraries/Resources/references" href="/Courses/Rascal/Libraries/Resources/references/references.html">references</a></li>
+    <li><a id="Rascal/Libraries/Resources/root" href="/Courses/Rascal/Libraries/Resources/root/root.html">root</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/RSF/RSF.html">RSF</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/RSF/readRSF/readRSF.html">readRSF</a></li>
+      <li><a id="Rascal/Libraries/RSF" href="/Courses/Rascal/Libraries/RSF/RSF.html">RSF</a>
+    <ul>    <li><a id="Rascal/Libraries/RSF/readRSF" href="/Courses/Rascal/Libraries/RSF/readRSF/readRSF.html">readRSF</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Scripting/Scripting.html">Scripting</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Scripting/eval/eval.html">eval</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Scripting/evalType/evalType.html">evalType</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Scripting/shell/shell.html">shell</a></li>
+      <li><a id="Rascal/Libraries/Scripting" href="/Courses/Rascal/Libraries/Scripting/Scripting.html">Scripting</a>
+    <ul>    <li><a id="Rascal/Libraries/Scripting/eval" href="/Courses/Rascal/Libraries/Scripting/eval/eval.html">eval</a></li>
+    <li><a id="Rascal/Libraries/Scripting/evalType" href="/Courses/Rascal/Libraries/Scripting/evalType/evalType.html">evalType</a></li>
+    <li><a id="Rascal/Libraries/Scripting/shell" href="/Courses/Rascal/Libraries/Scripting/shell/shell.html">shell</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Tree/Tree.html">Tree</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/Tree/parse/parse.html">parse</a></li>
-    <li><a href="/Courses/Rascal/Libraries/Tree/unparse/unparse.html">unparse</a></li>
+      <li><a id="Rascal/Libraries/Tree" href="/Courses/Rascal/Libraries/Tree/Tree.html">Tree</a>
+    <ul>    <li><a id="Rascal/Libraries/Tree/parse" href="/Courses/Rascal/Libraries/Tree/parse/parse.html">parse</a></li>
+    <li><a id="Rascal/Libraries/Tree/unparse" href="/Courses/Rascal/Libraries/Tree/unparse/unparse.html">unparse</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a>
-    <ul>    <li><a href="/Courses/Rascal/Libraries/ValueIO/readBinaryValueFile/readBinaryValueFile.html">readBinaryValueFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/ValueIO/readTextValueFile/readTextValueFile.html">readTextValueFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/ValueIO/readTextValueString/readTextValueString.html">readTextValueString</a></li>
-    <li><a href="/Courses/Rascal/Libraries/ValueIO/writeBinaryValueFile/writeBinaryValueFile.html">writeBinaryValueFile</a></li>
-    <li><a href="/Courses/Rascal/Libraries/ValueIO/writeTextValueFile/writeTextValueFile.html">writeTextValueFile</a></li>
+      <li><a id="Rascal/Libraries/ValueIO" href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a>
+    <ul>    <li><a id="Rascal/Libraries/ValueIO/readBinaryValueFile" href="/Courses/Rascal/Libraries/ValueIO/readBinaryValueFile/readBinaryValueFile.html">readBinaryValueFile</a></li>
+    <li><a id="Rascal/Libraries/ValueIO/readTextValueFile" href="/Courses/Rascal/Libraries/ValueIO/readTextValueFile/readTextValueFile.html">readTextValueFile</a></li>
+    <li><a id="Rascal/Libraries/ValueIO/readTextValueString" href="/Courses/Rascal/Libraries/ValueIO/readTextValueString/readTextValueString.html">readTextValueString</a></li>
+    <li><a id="Rascal/Libraries/ValueIO/writeBinaryValueFile" href="/Courses/Rascal/Libraries/ValueIO/writeBinaryValueFile/writeBinaryValueFile.html">writeBinaryValueFile</a></li>
+    <li><a id="Rascal/Libraries/ValueIO/writeTextValueFile" href="/Courses/Rascal/Libraries/ValueIO/writeTextValueFile/writeTextValueFile.html">writeTextValueFile</a></li>
     </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a>
-    <ul>          <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figure.html">Figure</a>
-      <ul>      <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Angles/Angles.html">Angles</a></li>
-              <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/ColorModel.html">ColorModel</a>
-        <ul>        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/arbColor/arbColor.html">arbColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/color/color.html">color</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorNames/colorNames.html">colorNames</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorScale/colorScale.html">colorScale</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorSteps/colorSteps.html">colorSteps</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/gray/gray.html">gray</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/interpolateColor/interpolateColor.html">interpolateColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/palette/palette.html">palette</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/rgb/rgb.html">rgb</a></li>
+      <li><a id="Rascal/Libraries/Vis" href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a>
+    <ul>          <li><a id="Rascal/Libraries/Vis/Figure" href="/Courses/Rascal/Libraries/Vis/Figure/Figure.html">Figure</a>
+      <ul>      <li><a id="Rascal/Libraries/Vis/Figure/Angles" href="/Courses/Rascal/Libraries/Vis/Figure/Angles/Angles.html">Angles</a></li>
+              <li><a id="Rascal/Libraries/Vis/Figure/ColorModel" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/ColorModel.html">ColorModel</a>
+        <ul>        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/arbColor" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/arbColor/arbColor.html">arbColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/color" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/color/color.html">color</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/colorNames" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorNames/colorNames.html">colorNames</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/colorScale" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorScale/colorScale.html">colorScale</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/colorSteps" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorSteps/colorSteps.html">colorSteps</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/gray" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/gray/gray.html">gray</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/interpolateColor" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/interpolateColor/interpolateColor.html">interpolateColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/palette" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/palette/palette.html">palette</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/ColorModel/rgb" href="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/rgb/rgb.html">rgb</a></li>
         </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Vis/Figure/CompositionModel/CompositionModel.html">CompositionModel</a></li>
-              <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/Figures.html">Figures</a>
-        <ul>        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/box/box.html">box</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/button/button.html">button</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/checkbox/checkbox.html">checkbox</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/choice/choice.html">choice</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/combo/combo.html">combo</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/computeFigure/computeFigure.html">computeFigure</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/edge/edge.html">edge</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/ellipse/ellipse.html">ellipse</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/fswitch/fswitch.html">fswitch</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/graph.html">graph</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/grid/grid.html">grid</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hcat/hcat.html">hcat</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscreen/hscreen.html">hscreen</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscrollable/hscrollable.html">hscrollable</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hvcat/hvcat.html">hvcat</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/LineDecoration/LineDecoration.html">LineDecoration</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/outline/outline.html">outline</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/overlay/overlay.html">overlay</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/pack/pack.html">pack</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/rotate/rotate.html">rotate</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scale/scale.html">scale</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scaleSlider/scaleSlider.html">scaleSlider</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scrollable/scrollable.html">scrollable</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/space/space.html">space</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/text/text.html">text</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/textfield/textfield.html">textfield</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/tree/tree.html">tree</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/treemap/treemap.html">treemap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vcat/vcat.html">vcat</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscreen/vscreen.html">vscreen</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscrollable/vscrollable.html">vscrollable</a></li>
+      <li><a id="Rascal/Libraries/Vis/Figure/CompositionModel" href="/Courses/Rascal/Libraries/Vis/Figure/CompositionModel/CompositionModel.html">CompositionModel</a></li>
+              <li><a id="Rascal/Libraries/Vis/Figure/Figures" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/Figures.html">Figures</a>
+        <ul>        <li><a id="Rascal/Libraries/Vis/Figure/Figures/box" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/box/box.html">box</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/button" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/button/button.html">button</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/checkbox" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/checkbox/checkbox.html">checkbox</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/choice" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/choice/choice.html">choice</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/combo" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/combo/combo.html">combo</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/computeFigure" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/computeFigure/computeFigure.html">computeFigure</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/edge" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/edge/edge.html">edge</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/ellipse" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/ellipse/ellipse.html">ellipse</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/fswitch" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/fswitch/fswitch.html">fswitch</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/graph" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/graph.html">graph</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/grid" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/grid/grid.html">grid</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/hcat" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hcat/hcat.html">hcat</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/hscreen" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscreen/hscreen.html">hscreen</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/hscrollable" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscrollable/hscrollable.html">hscrollable</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/hvcat" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hvcat/hvcat.html">hvcat</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/LineDecoration" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/LineDecoration/LineDecoration.html">LineDecoration</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/outline" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/outline/outline.html">outline</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/overlay" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/overlay/overlay.html">overlay</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/pack" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/pack/pack.html">pack</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/rotate" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/rotate/rotate.html">rotate</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/scale" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scale/scale.html">scale</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/scaleSlider" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scaleSlider/scaleSlider.html">scaleSlider</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/scrollable" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/scrollable/scrollable.html">scrollable</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/space" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/space/space.html">space</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/text" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/text/text.html">text</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/textfield" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/textfield/textfield.html">textfield</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/tree" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/tree/tree.html">tree</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/treemap" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/treemap/treemap.html">treemap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/vcat" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vcat/vcat.html">vcat</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/vscreen" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscreen/vscreen.html">vscreen</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Figures/vscrollable" href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscrollable/vscrollable.html">vscrollable</a></li>
         </ul></li>
 
-      <li><a href="/Courses/Rascal/Libraries/Vis/Figure/InteractionModel/InteractionModel.html">InteractionModel</a></li>
-      <li><a href="/Courses/Rascal/Libraries/Vis/Figure/KeyModifier/KeyModifier.html">KeyModifier</a></li>
-              <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/Properties.html">Properties</a>
-        <ul>        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/align/align.html">align</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/area/area.html">area</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/aspectRatio/aspectRatio.html">aspectRatio</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/bottom/bottom.html">bottom</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/center/center.html">center</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/connect/connect.html">connect</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/endGap/endGap.html">endGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fillColor/fillColor.html">fillColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/font/font.html">font</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontColor/fontColor.html">fontColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontNames/fontNames.html">fontNames</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontSize/fontSize.html">fontSize</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fromArrow/fromArrow.html">fromArrow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/gap/gap.html">gap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/grow/grow.html">grow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/halign/halign.html">halign</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hcenter/hcenter.html">hcenter</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hconnect/hconnect.html">hconnect</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/height/height.html">height</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hendGap/hendGap.html">hendGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.html">hgap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgrow/hgrow.html">hgrow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hint/hint.html">hint</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hresizable/hresizable.html">hresizable</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hshadowPos/hshadowPos.html">hshadowPos</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hshrink/hshrink.html">hshrink</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hsize/hsize.html">hsize</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hstartGap/hstartGap.html">hstartGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/ialign/ialign.html">ialign</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/id/id.html">id</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/justify/justify.html">justify</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/KeySym/KeySym.html">KeySym</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/label/label.html">label</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/layer/layer.html">layer</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/left/left.html">left</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineColor/lineColor.html">lineColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineStyle/lineStyle.html">lineStyle</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineWidth/lineWidth.html">lineWidth</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/manhattan/manhattan.html">manhattan</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/mouseOver.html">mouseOver</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onClick/onClick.html">onClick</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyDown/onKeyDown.html">onKeyDown</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyUp/onKeyUp.html">onKeyUp</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseDown/onMouseDown.html">onMouseDown</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseEnter/onMouseEnter.html">onMouseEnter</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseExit/onMouseExit.html">onMouseExit</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseMove/onMouseMove.html">onMouseMove</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseUp/onMouseUp.html">onMouseUp</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/project/project.html">project</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/resizable/resizable.html">resizable</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/right/right.html">right</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadow/shadow.html">shadow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowColor/shadowColor.html">shadowColor</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowPos/shadowPos.html">shadowPos</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeClosed/shapeClosed.html">shapeClosed</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeConnected/shapeConnected.html">shapeConnected</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeCurved/shapeCurved.html">shapeCurved</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shrink/shrink.html">shrink</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/size/size.html">size</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/startGap/startGap.html">startGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/std/std.html">std</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/textAngle/textAngle.html">textAngle</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/timer/timer.html">timer</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/toArrow/toArrow.html">toArrow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/top/top.html">top</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/valign/valign.html">valign</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vcenter/vcenter.html">vcenter</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vconnect/vconnect.html">vconnect</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vendGap/vendGap.html">vendGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vgap/vgap.html">vgap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vgrow/vgrow.html">vgrow</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vresizable/vresizable.html">vresizable</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshadowPos/vshadowPos.html">vshadowPos</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshrink/vshrink.html">vshrink</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vsize/vsize.html">vsize</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vstartGap/vstartGap.html">vstartGap</a></li>
-        <li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/width/width.html">width</a></li>
+      <li><a id="Rascal/Libraries/Vis/Figure/InteractionModel" href="/Courses/Rascal/Libraries/Vis/Figure/InteractionModel/InteractionModel.html">InteractionModel</a></li>
+      <li><a id="Rascal/Libraries/Vis/Figure/KeyModifier" href="/Courses/Rascal/Libraries/Vis/Figure/KeyModifier/KeyModifier.html">KeyModifier</a></li>
+              <li><a id="Rascal/Libraries/Vis/Figure/Properties" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/Properties.html">Properties</a>
+        <ul>        <li><a id="Rascal/Libraries/Vis/Figure/Properties/align" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/align/align.html">align</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/area" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/area/area.html">area</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/aspectRatio" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/aspectRatio/aspectRatio.html">aspectRatio</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/bottom" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/bottom/bottom.html">bottom</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/center" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/center/center.html">center</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/connect" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/connect/connect.html">connect</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/endGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/endGap/endGap.html">endGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/fillColor" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fillColor/fillColor.html">fillColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/font" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/font/font.html">font</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/fontColor" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontColor/fontColor.html">fontColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/fontNames" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontNames/fontNames.html">fontNames</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/fontSize" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fontSize/fontSize.html">fontSize</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/fromArrow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/fromArrow/fromArrow.html">fromArrow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/gap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/gap/gap.html">gap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/grow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/grow/grow.html">grow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/halign" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/halign/halign.html">halign</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hcenter" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hcenter/hcenter.html">hcenter</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hconnect" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hconnect/hconnect.html">hconnect</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/height" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/height/height.html">height</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hendGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hendGap/hendGap.html">hendGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hgap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.html">hgap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hgrow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgrow/hgrow.html">hgrow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hint" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hint/hint.html">hint</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hresizable" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hresizable/hresizable.html">hresizable</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hshadowPos" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hshadowPos/hshadowPos.html">hshadowPos</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hshrink" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hshrink/hshrink.html">hshrink</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hsize" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hsize/hsize.html">hsize</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/hstartGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hstartGap/hstartGap.html">hstartGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/ialign" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/ialign/ialign.html">ialign</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/id" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/id/id.html">id</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/justify" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/justify/justify.html">justify</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/KeySym" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/KeySym/KeySym.html">KeySym</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/label" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/label/label.html">label</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/layer" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/layer/layer.html">layer</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/left" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/left/left.html">left</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/lineColor" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineColor/lineColor.html">lineColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/lineStyle" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineStyle/lineStyle.html">lineStyle</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/lineWidth" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineWidth/lineWidth.html">lineWidth</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/manhattan" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/manhattan/manhattan.html">manhattan</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/mouseOver" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/mouseOver.html">mouseOver</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onClick" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onClick/onClick.html">onClick</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onKeyDown" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyDown/onKeyDown.html">onKeyDown</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onKeyUp" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyUp/onKeyUp.html">onKeyUp</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onMouseDown" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseDown/onMouseDown.html">onMouseDown</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onMouseEnter" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseEnter/onMouseEnter.html">onMouseEnter</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onMouseExit" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseExit/onMouseExit.html">onMouseExit</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onMouseMove" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseMove/onMouseMove.html">onMouseMove</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/onMouseUp" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseUp/onMouseUp.html">onMouseUp</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/orientation" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/project" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/project/project.html">project</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/resizable" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/resizable/resizable.html">resizable</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/right" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/right/right.html">right</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shadow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadow/shadow.html">shadow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shadowColor" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowColor/shadowColor.html">shadowColor</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shadowPos" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shadowPos/shadowPos.html">shadowPos</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shapeClosed" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeClosed/shapeClosed.html">shapeClosed</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shapeConnected" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeConnected/shapeConnected.html">shapeConnected</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shapeCurved" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeCurved/shapeCurved.html">shapeCurved</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/shrink" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shrink/shrink.html">shrink</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/size" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/size/size.html">size</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/startGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/startGap/startGap.html">startGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/std" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/std/std.html">std</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/textAngle" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/textAngle/textAngle.html">textAngle</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/timer" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/timer/timer.html">timer</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/toArrow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/toArrow/toArrow.html">toArrow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/top" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/top/top.html">top</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/valign" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/valign/valign.html">valign</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vcenter" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vcenter/vcenter.html">vcenter</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vconnect" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vconnect/vconnect.html">vconnect</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vendGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vendGap/vendGap.html">vendGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vgap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vgap/vgap.html">vgap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vgrow" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vgrow/vgrow.html">vgrow</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vresizable" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vresizable/vresizable.html">vresizable</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vshadowPos" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshadowPos/vshadowPos.html">vshadowPos</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vshrink" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vshrink/vshrink.html">vshrink</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vsize" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vsize/vsize.html">vsize</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/vstartGap" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/vstartGap/vstartGap.html">vstartGap</a></li>
+        <li><a id="Rascal/Libraries/Vis/Figure/Properties/width" href="/Courses/Rascal/Libraries/Vis/Figure/Properties/width/width.html">width</a></li>
         </ul></li>
 
       </ul></li>
 
-          <li><a href="/Courses/Rascal/Libraries/Vis/Render/Render.html">Render</a>
-      <ul>      <li><a href="/Courses/Rascal/Libraries/Vis/Render/render/render.html">render</a></li>
-      <li><a href="/Courses/Rascal/Libraries/Vis/Render/renderSave/renderSave.html">renderSave</a></li>
+          <li><a id="Rascal/Libraries/Vis/Render" href="/Courses/Rascal/Libraries/Vis/Render/Render.html">Render</a>
+      <ul>      <li><a id="Rascal/Libraries/Vis/Render/render" href="/Courses/Rascal/Libraries/Vis/Render/render/render.html">render</a></li>
+      <li><a id="Rascal/Libraries/Vis/Render/renderSave" href="/Courses/Rascal/Libraries/Vis/Render/renderSave/renderSave.html">renderSave</a></li>
       </ul></li>
 
-    <li><a href="/Courses/Rascal/Libraries/Vis/TestVis/TestVis.html">TestVis</a></li>
+    <li><a id="Rascal/Libraries/Vis/TestVis" href="/Courses/Rascal/Libraries/Vis/TestVis/TestVis.html">TestVis</a></li>
     </ul></li>
 
   </ul></li>
 
-  <li><a href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a>
-  <ul>  <li><a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a></li>
-  <li><a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a></li>
+  <li><a id="Rascal/IDEConstruction" href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a>
+  <ul>  <li><a id="Rascal/IDEConstruction/DocumentationHover" href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a></li>
+  <li><a id="Rascal/IDEConstruction/ErrorMarking" href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a></li>
+  <li><a id="Rascal/IDEConstruction/Folding" href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a></li>
+  <li><a id="Rascal/IDEConstruction/Hyperlinking" href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a></li>
+  <li><a id="Rascal/IDEConstruction/IMP" href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a></li>
+  <li><a id="Rascal/IDEConstruction/Menus" href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a></li>
+  <li><a id="Rascal/IDEConstruction/Outline" href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a></li>
+  <li><a id="Rascal/IDEConstruction/Plugin" href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a></li>
   </ul></li>
 
 </ul></li>
@@ -646,7 +648,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/hgap','Rascal/Libraries/Vis/Figure/Properties/hgap')">hgap</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Vis/Vis.html">Vis</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Figure.html">Figure</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/Properties.html">Properties</a>/<a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.html">hgap</a>
 </div>
 
 <div id="searchBox">
@@ -670,11 +672,11 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Set the minimal horizontal gap between figures.
- See <a href="javascript:show('Rascal/Libraries/Vis/Figure/Properties/hgap','gap')">gap</a>.
+ See <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/gap/gap.html">gap</a>.
 
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/hgap&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/hgap&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/hgap&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

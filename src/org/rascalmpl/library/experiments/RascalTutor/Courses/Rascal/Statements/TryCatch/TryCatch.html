@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
@@ -357,6 +358,7 @@
     <li><a id="Rascal/Expressions/Comprehensions/Filter" href="/Courses/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a></li>
     </ul></li>
 
+  <li><a id="Rascal/Expressions/Reducer" href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Reducer</a></li>
   <li><a id="Rascal/Expressions/StatementAsExpression" href="/Courses/Rascal/Expressions/StatementAsExpression/StatementAsExpression.html">StatementAsExpression</a></li>
   <li><a id="Rascal/Expressions/Visit" href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a></li>
   </ul></li>
@@ -646,7 +648,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Rascal/Statements/TryCatch','Rascal/Statements/TryCatch')">TryCatch</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/TryCatch/TryCatch.html">TryCatch</a>
 </div>
 
 <div id="searchBox">
@@ -675,9 +677,9 @@ finally: <i>Statement</i><sub>3</sub>;
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  A try catch statement has as purpose to catch any <a href="javascript:show('Rascal/Statements/TryCatch','Exception')">Exception</a>s that are raised during the execution of <code><i>Statement</i><sub>1</sub></code>.
+<span class="sectionHead">Description</span>  A try catch statement has as purpose to catch any <a href="/Courses/Rascal/Declarations/AlgebraicDataType/Exception/Exception.html">Exception</a>s that are raised during the execution of <code><i>Statement</i><sub>1</sub></code>.
  These exceptions may caused by:
-  <ul><li> The execution of an explicit <a href="javascript:show('Rascal/Statements/TryCatch','Throw')">Throw</a> statement.</li>
+  <ul><li> The execution of an explicit <a href="/Courses/Rascal/Statements/Throw/Throw.html">Throw</a> statement.</li>
 <li> The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.</li>
 </ul> Note that all elements of the try catch statement are optional but that at least one has to be present. 
  Their meaning is as follows:
@@ -688,7 +690,7 @@ finally: <i>Statement</i><sub>3</sub>;
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Let's define a variant of the <a href="javascript:show('Rascal/Statements/TryCatch','head')">head</a> function that returns the first element of a list,
+<span class="sectionHead">Examples</span>  Let's define a variant of the <a href="/Courses/Rascal/Expressions/Values/List/head/head.html">head</a> function that returns the first element of a list,
  but throws an exception when the list is empty. Our variant will return <code>0</code> for an empty list:
  <pre class="screen"><b>rascal></b>import List;
 ok
@@ -708,7 +710,7 @@ int: 0
 </pre>
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Statements/TryCatch&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/TryCatch&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/TryCatch&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

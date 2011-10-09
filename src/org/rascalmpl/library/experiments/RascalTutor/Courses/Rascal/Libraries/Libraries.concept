@@ -13,7 +13,7 @@ Details:
 Description:
 The libraries provide the following functionality:
 * [Benchmark]: Functions for time measurement and benchmarking.
-* [Graph]: A `Graph` datatype with associated functions.
+* [$Libraries/Graph]: A `Graph` datatype with associated functions.
 * [IDE]: Provides access to the Eclipse IMP services to instantiate an IDE for any language you define in Rascal.
 * [IO]: Functions for reading/writing values from/to files.
 * [Java]: An `Entity` datatype for representing facts about Java programs.

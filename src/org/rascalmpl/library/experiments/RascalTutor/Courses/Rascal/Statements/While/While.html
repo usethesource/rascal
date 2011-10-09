@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
@@ -357,6 +358,7 @@
     <li><a id="Rascal/Expressions/Comprehensions/Filter" href="/Courses/Rascal/Expressions/Comprehensions/Filter/Filter.html">Filter</a></li>
     </ul></li>
 
+  <li><a id="Rascal/Expressions/Reducer" href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Reducer</a></li>
   <li><a id="Rascal/Expressions/StatementAsExpression" href="/Courses/Rascal/Expressions/StatementAsExpression/StatementAsExpression.html">StatementAsExpression</a></li>
   <li><a id="Rascal/Expressions/Visit" href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a></li>
   </ul></li>
@@ -646,7 +648,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Rascal/Statements/While','Rascal/Statements/While')">While</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/While/While.html">While</a>
 </div>
 
 <div id="searchBox">
@@ -672,12 +674,12 @@
 <span class="sectionHead">Description</span>  The Boolean expression <code><i>Exp</i></code> is evaluated repeatedly and <code><i>Statement</i></code> is executed when the test is true. 
  Execution ends the first time that the test yields false. 
  The test <code><i>Exp</i></code> is executed from scratch in each repetition and only the first <code>true</code> value (if any) is used.
- This is relevant when <code><i>Exp</i></code> contains a <a href="javascript:show('Rascal/Statements/While','Match')">Match</a> or <a href="javascript:show('Rascal/Statements/While','NoMatch')">NoMatch</a> operator.
+ This is relevant when <code><i>Exp</i></code> contains a <a href="/Courses/Rascal/Expressions/Values/Boolean/Match/Match.html">Match</a> or <a href="/Courses/Rascal/Expressions/Values/Boolean/NoMatch/NoMatch.html">NoMatch</a> operator.
  <br/>
 <br/>
 
  By default, the value of a while statement is the empty list. In general, the value of a while statement 
- consists of all values contributed by <a href="javascript:show('Rascal/Statements/While','Append')">Append</a> statements that are executed during the repeated execution 
+ consists of all values contributed by <a href="/Courses/Rascal/Statements/Append/Append.html">Append</a> statements that are executed during the repeated execution 
  of its body <code><i>Statement</i></code>.
 
 </div>
@@ -699,13 +701,13 @@ list[void]: []
 int: 3
 <b>rascal></b>while (n &gt; 0) { append n * n; n -= 1; }
 list[int]: [9,4,1]
-</pre> Just to be sure, a <a href="javascript:show('Rascal/Statements/While','List/Comprehension')">Comprehension</a> is the superior way to write this:
+</pre> Just to be sure, a <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a> is the superior way to write this:
  <pre class="screen"><b>rascal></b>[n * n | n &lt;- [3 .. 1]];
 list[int]: [9,4,1]
 </pre>
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Rascal/Statements/While&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/While&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/While&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
