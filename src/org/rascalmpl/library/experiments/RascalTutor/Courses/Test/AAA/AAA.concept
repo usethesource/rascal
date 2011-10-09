@@ -6,7 +6,7 @@ Syntax:
 A + B
 
 Types:
-xxx
+xxx yyy zzz ppp qqq rrr
 
 Function:
 
@@ -15,14 +15,25 @@ Details:
 Description:
 xxx  < xx  [WRONGLINK]
 
-External link: [Rascal:union].
-<warning>Hier is een warning in AAA</warning>
+Goede external link: [Rascal:if].
 
-En hier een error:
-<screen>
-1;
-2/0;
-</screen>
+Goede external link: [Rascal:Rascal].
+
+
+
+Goede external link: [Rascal:List/Comprehension].
+
+Goede external link (short): [$Rascal:List/Comprehension].
+
+Ambigue external link: [$Rascal:Comprehension].
+
+Onbekende external link: [$Rascal:Zap].
+
+
+aa dsf sefwef wefweffwe wefwefwef wefwfwefwefwef weeweewffwwefwef wefef ffffweefe  efefe       effffffffffffff xxx xxxx  xx xx xx xx xx xx xx xx x  x xx xxefgfffffffffffffffffffffffffffffffff
+
+
+<warning>Hier is een warning in AAA</warning>
 
 Examples:
 abc def ghi jkl

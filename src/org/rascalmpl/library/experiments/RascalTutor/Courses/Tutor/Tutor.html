@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Tutor/course.js"></script>
 
@@ -75,7 +76,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Tutor','Tutor')">Tutor</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Tutor/Tutor.html">Tutor</a>
 </div>
 
 <div id="searchBox">
@@ -93,13 +94,13 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="javascript:show('Tutor','Tutor/Authoring')">Authoring</a> &#032 <a href="javascript:show('Tutor','Tutor/Concept')">Concept</a> &#032 <a href="javascript:show('Tutor','Tutor/Markup')">Markup</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Tutor/Authoring/Authoring.html">Authoring</a> &#032 <a href="/Courses/Tutor/Concept/Concept.html">Concept</a> &#032 <a href="/Courses/Tutor/Markup/Markup.html">Markup</a> &#032 
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  The RascalTutor is an interactive <a href="javascript:show('Tutor','Authoring')">Authoring</a> and learning environment intended to create and follow interactive courses related to the Rascal language.
+<span class="sectionHead">Description</span>  The RascalTutor is an interactive <a href="/Courses/Tutor/Authoring/Authoring.html">Authoring</a> and learning environment intended to create and follow interactive courses related to the Rascal language.
  It is based on the following principles and ideas:
- <ul><li> The basic notion is a <a href="javascript:show('Tutor','Concept')">Concept</a>. Each concept has a <i>name</i> and contains a fixed set of subsections that describe it.</li>
+ <ul><li> The basic notion is a <a href="/Courses/Tutor/Concept/Concept.html">Concept</a>. Each concept has a <i>name</i> and contains a fixed set of subsections that describe it.</li>
 <li> A course is a <i>concept tree</i>:   The central subject of the course is the root of the concept tree, and all subtrees further explain their parent concept.
 </li>
 </ul> A <i>student</i> using a course can:
@@ -109,7 +110,7 @@
 <li> Follow links to other concepts.</li>
 <li> Perform any exercises that are available.</li>
 </ul> An <i>author</i> of a course can:
- <ul><li> Edit a concept directly using a wiki-like form of <a href="javascript:show('Tutor','Markup')">Markup</a> that makes it easy to create good looking concept pages.</li>
+ <ul><li> Edit a concept directly using a wiki-like form of <a href="/Courses/Tutor/Markup/Markup.html">Markup</a> that makes it easy to create good looking concept pages.</li>
 <li> Add code examples that are actually executed when the concept is turned into an HTML page.</li>
 <li> Add interactive exercises.</li>
 <li> Save a concept after editing: this will recompile that concept only.</li>
@@ -119,7 +120,7 @@
 </ul>
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Tutor&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Tutor&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor&flags=regenerate"><b>Recompile Course</b></a>] |

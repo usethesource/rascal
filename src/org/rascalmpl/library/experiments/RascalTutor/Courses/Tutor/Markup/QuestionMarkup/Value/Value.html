@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Tutor/course.js"></script>
 
@@ -75,7 +76,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Tutor/Markup/QuestionMarkup/Value','Tutor/Markup/QuestionMarkup/Value')">Value</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Tutor/Tutor.html">Tutor</a>/<a href="/Courses/Tutor/Markup/Markup.html">Markup</a>/<a href="/Courses/Tutor/Markup/QuestionMarkup/QuestionMarkup.html">QuestionMarkup</a>/<a href="/Courses/Tutor/Markup/QuestionMarkup/Value/Value.html">Value</a>
 </div>
 
 <div id="searchBox">
@@ -100,7 +101,7 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  A value question presents a Rascal expression and poses a question about its value.
- The desired type of the expression is given by a <a href="javascript:show('Tutor/Markup/QuestionMarkup/Value','TypeDescriptor')">TypeDescriptor</a>.
+ The desired type of the expression is given by a <a href="/Courses/Tutor/Markup/QuestionMarkup/TypeDescriptor/TypeDescriptor.html">TypeDescriptor</a>.
  <br/>
 <br/>
 
@@ -155,6 +156,8 @@
  <code>test: find(text) == ["moi", "Mousa", "polutropon"];</code><br>
 
 </div>
+
+<div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
 <div id="1" class="question">
@@ -172,9 +175,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{-16, 9, -13, 12}">
-<input type="hidden" name="B" value="{-1, -13, -20, -13}">
-<pre class="prequestion">{-16, 9, -13, 12} + {-1, -13, -20, -13} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-16, -4, -6, -13}">
+<input type="hidden" name="B" value="{4, -18}">
+<pre class="prequestion">{-16, -4, -6, -13} + {4, -18} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -202,8 +205,8 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[6, 1]">
-<pre class="prequestion">size([6, 1]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[-16, 3, -10, 15]">
+<pre class="prequestion">size([-16, 3, -10, 15]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -231,9 +234,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{-3, 11, 17, -19}">
-<input type="hidden" name="B" value="{-9, -5, 7, 6}">
-<pre class="prequestion">{-3, 11, 17, -19} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-3,-19,11,-5,7,-9,6,17}</pre>
+<input type="hidden" name="A" value="{&quot;Ailyn Vel&quot;, &quot;Sesame&quot;, &quot;Emperor Palpatine&quot;, &quot;Darth Sidious&quot;, &quot;Curry&quot;}">
+<input type="hidden" name="B" value="{&quot;Dill&quot;, &quot;G&quot;, &quot;R2-D2&quot;}">
+<pre class="prequestion">{&quot;Ailyn Vel&quot;, &quot;Sesame&quot;, &quot;Emperor Palpatine&quot;, &quot;Darth Sidious&quot;, &quot;Curry&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;R2-D2&quot;,&quot;Darth Sidious&quot;,&quot;Sesame&quot;,&quot;G&quot;,&quot;Curry&quot;,&quot;Ailyn Vel&quot;,&quot;Dill&quot;,&quot;Emperor Palpatine&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -282,7 +285,9 @@ public list[str] find(list[str] text){
 
 </div>
  
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=false"><b>Edit</b></a>] | 
+</div>
+
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor&flags=regenerate"><b>Recompile Course</b></a>] |

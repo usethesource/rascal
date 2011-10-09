@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Tutor/course.js"></script>
 
@@ -75,7 +76,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="javascript:show('Tutor/Markup/StructureMarkup/figure','Tutor/Markup/StructureMarkup/figure')">figure</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Tutor/Tutor.html">Tutor</a>/<a href="/Courses/Tutor/Markup/Markup.html">Markup</a>/<a href="/Courses/Tutor/Markup/StructureMarkup/StructureMarkup.html">StructureMarkup</a>/<a href="/Courses/Tutor/Markup/StructureMarkup/figure/figure.html">figure</a>
 </div>
 
 <div id="searchBox">
@@ -101,7 +102,7 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  With figure markup it is possible to execute visualizations and to include their output in the text.
  <code><i>FileName</i></code> is the name of the file to which the visualization will be saved.
- It can later be inserted as <a href="javascript:show('Tutor/Markup/StructureMarkup/figure','image')">image</a>.
+ It can later be inserted as <a href="/Courses/Tutor/Markup/InlineMarkup/Image/image.html">image</a>.
  Optionally, <code><i>Width</i></code> and <code><i>Height</i></code> can be given that define the size of the resulting figure.
  By default, the minimal size of the figue is used.
  <br/>
@@ -141,7 +142,7 @@ import vis::Render;
 </ul>
 </div>
 
-<div id="editMenu"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a>[<a id="editAction" href="/edit?concept=Tutor/Markup/StructureMarkup/figure&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor/Markup/StructureMarkup/figure&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Tutor/Markup/StructureMarkup/figure&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor&flags=regenerate"><b>Recompile Course</b></a>] |

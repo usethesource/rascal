@@ -24,10 +24,6 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 import Scripting;
 
-private bool deployedMode = !writingAllowed();
-
-bool editingAllowed = true;
-
 public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>
        '
@@ -113,7 +109,13 @@ public str combine(list[str] lines){
 
 // ------------------------ compile a concept ---------------------------------------
 
-public Concept compileConcept(loc file){
+public Concept compileAndGenerateConcept(loc file){
+   C = compileConcept(file, true);
+   generate(C);
+   return C;
+}
+
+public Concept compileConcept(loc file, bool regenerate){
    html_file = file[extension = htmlExtension];
    regen = regenerate || (!exists(html_file) || lastModified(file) > lastModified(html_file));
    
@@ -150,14 +152,11 @@ public Concept compileConcept(loc file){
   	                      section("Examples", markup(sections["Examples"], conceptName)) +
   	                      section("Benefits", markup(sections["Benefits"], conceptName)) +
   	                      section("Pitfalls", markup(sections["Pitfalls"], conceptName)) +
-  	                      ((isEmpty(questions)) ? "" : "<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>");
+  	                      ((isEmpty(questions)) ? "" : div("questions","<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"));
   	      related        = getAndClearRelated();
 	      warnings       = getAndClearWarnings();
 	      
-	      Concept C = concept(conceptName, file, warnings, optDetails, related, searchTs, questions);
-	      if(regen)
-	   	   generate(C, html_synopsis, html_body);
-	   	  return C;
+	      return concept(conceptName, file, warnings, optDetails, html_synopsis, html_body, related, searchTs, questions);
 
 	} catch NoSuchKey(e):
 	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
@@ -172,7 +171,7 @@ public str showConcept(Concept C){
    return readFile(html_file);
 }
 
-public void generate(Concept C, str html_synopsis, str html_body){
+public void generate(Concept C){
    cn = C.fullName;
    childs = children(C);
    questions = C.questions;
@@ -184,26 +183,20 @@ public void generate(Concept C, str html_synopsis, str html_body){
       warnings += "\</ul\>";
       warnings = section("Warnings", warnings);
    }
-   navFile = catenate(courseDir, rootname(cn) + "/navigate.html");
-   if(navigationPanel == ""){
-      try {
-	     navigationPanel = readFile(navFile);
-      }
-      catch e: println("can not read file <navFile>"); // do nothing
-   }
+  
    html_code = html(
   	head(title(cn) + prelude(rootname(cn))),
   	body(
   	"\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
   	  //warnings +
   	  table("container",
-  	        tr(tdid("tdnav", navigationPanel) +
+  	        tr(tdid("tdnav", getNavigationPanel(rootname(cn))) +
   	  
   	           tdid("tdconcept", div("conceptPane", 
-  	              section("Name", show(cn,cn)) + searchBox(cn) +
-  	              html_synopsis +
-  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><show(cn, ch)> &#032 <}>")) +
-  	              html_body +
+  	              section("Name", showConceptPath(cn)) + searchBox(cn) +
+  	              C.html_synopsis +
+  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><show(cn, ch, true)> &#032 <}>")) +
+  	              C.html_body +
   	              editMenu(cn)
   	           ))
   	       ))
@@ -227,7 +220,7 @@ public void generate(Concept C, str html_synopsis, str html_body){
    }
 }
 
-// Update de details section for the parent node pn of cn
+// Update the details section for the parent node pn of cn
 // (needed when a new child has been edit via edit/new):
 // - Recompute the details for parent pn
 // - Use them to replace the details section in pn.html
@@ -239,7 +232,7 @@ public void updateParentDetails(ConceptName cn){
      return;
   file = conceptFile(pn);
   println("updateParentDetails: file = <file>");
-  pconcept = compileConcept(file);     
+  pconcept = compileAndGenerateConcept(file);     
 }
 
 // Generate prelude of web page
@@ -249,6 +242,7 @@ public str prelude(str courseName){
   		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
   		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.cookie.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
+         '\<script type=\"text/javascript\" src=\"/Courses/globals.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
          ;
@@ -295,15 +289,13 @@ public str searchBox(ConceptName cn){
 public str editMenu(ConceptName cn){
   warnings = "/Courses/<rootname(cn)>/warnings.html";
  
-  return "\n\<div id=\"editMenu\"\>" +
-         "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
-          (editingAllowed ?
+  return "\n\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
+         "\<div id=\"editMenu\"\>" +
               "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
                [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New Subconcept\</b\>\</a\>] |
                [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>\"\>\<b\>Compile Course\</b\>\</a\>] |
                [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>&flags=regenerate\"\>\<b\>Recompile Course\</b\>\</a\>] |
                [\<a id=\"warnAction\" href=\"<warnings>\"\>\<b\>Warnings\</b\>\</a\>]"
-              : "")
           +
             "\</div\>\n";
 }
@@ -580,54 +572,42 @@ public rel[str,str] getBaseRefinements(list[str] names){
    return {};
 }
 
-str navigationPanel = "";
-bool regenerate = false;
-
 public Course compileCourse(ConceptName rootConcept, str flags){
-   if(/regenerate/ := flags)
-      regenerate = true;
+   regenerate = (/regenerate/ := flags);
       
    concepts = ();
-   navigationPanel = "";
+   clearPanelCache(rootConcept);
+   clearCrawlCache(catenate(courseDir, rootConcept));
 
    courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
-   println("crawl returns: <courseFiles>");
 
    for(file <- courseFiles){
-       cpt = compileConcept(file);
+       cpt = compileConcept(file, regenerate);
        fullName = getFullConceptName(file);
        if(concepts[fullName]?)
        	  println("Double declaration for <fullName>");
        concepts[fullName] = cpt;      	 
    }
    C = validateCourse(rootConcept, concepts);
-   baseConcepts = C.baseConcepts;
+  
+   navigationPanel = makeNavigationPanel(rootConcept, concepts, "");
    
-   
-   navFile = catenate(courseDir, rootConcept + "/navigate.html");
-   //navigationPanel = div("navPane", ul(crawlNavigation(catenate(courseDir, rootConcept), conceptExtension, "")));
-  // println("crawlNavigation returns:\n<navigationPanel>");
-   
-   navigationPanel = div("navPane", ul(crawlNavigation2(rootConcept, concepts, "")));
-   println("CrawlNavigation2: <navigationPanel>");
-   
-   try {
-	   writeFile(navFile, navigationPanel);
+   if(regenerate){
+   	  for(ConceptName cn <- concepts){
+          generate(concepts[cn]);
+      }
    }
-   catch e: println("can not save file <navFile>"); // do nothing
-   
-   navigationPanel = "";
     
    // Generate global course data in JS file
    jsFile = catenate(courseDir, rootConcept + "/course.js");
   
    try {
-	   writeFile(jsFile, jsCoursePrelude(rootConcept, baseConcepts, concepts));
+	   writeFile(jsFile, jsCoursePrelude(rootConcept, C.baseConcepts, concepts));
    }
    catch e: println("can not save file <jsFile>"); // do nothing
    
    warnings = C.warnings;
-   continueWith = "\<p\>Continue with course <showConceptURL(C.root)>\<p\>";
+   continueWith = p("Continue with course <showConceptURL(C.root)>");
    
    warn_html = "";
    if(size(warnings) == 0){
@@ -735,43 +715,35 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
    return course(rootConcept, warnings, conceptMap, refinements, sort(toList(allBaseConcepts + searchTerms1)), fullRelated);
 }
 
-set[str] exclude = {".svn"};
+map[ConceptName, str] panelCache = ();
 
-public str crawlNavigation(loc dir, str suffix, str offset){
-  println("crawlNavigation: <dir>, <listEntries(dir)>");
- 
-  dotSuffix = "." + suffix;
-  dirConcept = "";
-  panel = "";
-  for( str entry <- listEntries(dir) ){
-    if(entry notin exclude){                       // TODO: TEMP
-       loc sub = catenate(dir, entry);
-       if(endsWith(entry, dotSuffix)) {
-          cn = getFullConceptName(sub);
-          ename = substring(entry, 0, size(entry) - size(dotSuffix));
-      	  dirConcept = "\<a id=\"<cn>\" href=\"/Courses/<cn>/<ename>.html\"\><ename>\</a\>";
-       }
-       if(isDirectory(sub)) {
-          panel += offset + crawlNavigation(sub, suffix, offset + "  ");
-       }
-    }
-  };
-  
-  if(panel == "")
-     return (dirConcept == "") ? "" : offset + li(dirConcept);
-  
-  return offset + li("<dirConcept>\n<offset>\<ul\><panel><offset>\</ul\>") + "\n";
+public void clearPanelCache(ConceptName rootConcept){
+   panelCache[rootConcept] = "";
 }
 
-public str crawlNavigation2(ConceptName rootConcept, map[ConceptName,Concept] conceptMap, str offset){
+public str makeNavigationPanel(ConceptName rootConcept, map[ConceptName,Concept] concepts, str offset){
+   panelCache[rootConcept] = navigationPanel = div("navPane", ul(makeNavigationPanel1(rootConcept, concepts, "")));
+   
+   navFile = catenate(courseDir, rootConcept + "/navigate.html");
+   
+   try {
+       println("Writing panel: <navigationPanel>");
+	   writeFile(navFile, navigationPanel);
+   }
+   catch e: println("can not save file <navFile>"); // do nothing
+   
+  return navigationPanel;
+}
+
+public str makeNavigationPanel1(ConceptName rootConcept, map[ConceptName,Concept] concepts, str offset){
   try {
-  println("crawl2: <rootConcept>, <children(conceptMap[rootConcept])>");
+  println("crawl2: <rootConcept>, <children(concepts[rootConcept])>");
   panel = "";
   base = basename(rootConcept);
   dirConcept = "\<a id=\"<rootConcept>\" href=\"/Courses/<rootConcept>/<base>.html\"\><base>\</a\>";
       	  
-  for(child <- children(conceptMap[rootConcept])){
-      r = crawlNavigation2(child, conceptMap, offset + "  ");
+  for(child <- children(concepts[rootConcept])){
+      r = makeNavigationPanel1(child, concepts, offset + "  ");
       if(r != "")
       	panel += offset + r;
   }
@@ -779,6 +751,16 @@ public str crawlNavigation2(ConceptName rootConcept, map[ConceptName,Concept] co
   } catch: println("IGNORING: <rootConcept>"); return "";
 }
 
+public str getNavigationPanel(ConceptName rootConcept){
+  if(!panelCache[rootConcept]? || panelCache[rootConcept] == ""){
+      try {
+         navFile = catenate(courseDir, rootname(rootConcept) + "/navigate.html");
+	     panelCache[rootConcept] = readFile(navFile);
+      }
+      catch e: println("can not read file <navFile>"); // do nothing
+  }
+  return panelCache[rootConcept];
+}
 
 // --------------------------------- Question Presentation ---------------------------
 
