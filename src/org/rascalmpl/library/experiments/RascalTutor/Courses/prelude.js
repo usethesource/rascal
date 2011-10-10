@@ -11,21 +11,12 @@ newStyleAutoComplete = true;
 
 $(document).ready(function () {
 	if (newStyleAutoComplete) {
-		if(document.createStyleSheet) {
-		  document.createStyleSheet('/Courses/jquery.autocomplete.css');
-		}
-		else {
-		  var styles = "@import url(' /Courses/jquery.autocomplete.css ');";
-		  var newSS=document.createElement('link');
-		  newSS.rel='stylesheet';
-		  newSS.href='data:text/css,'+escape(styles);
-		  document.getElementsByTagName("head")[0].appendChild(newSS);
-		}
 		var oHead = document.getElementsByTagName('HEAD').item(0);
-		var oScript= document.createElement("script");
-		oScript.type = "text/javascript";
-		oScript.src="/Courses/jquery.autocomplete.js";
-		oHead.appendChild( oScript);
+		var oStyle = document.createElement("link");
+		oStyle.type="test/css";
+		oStyle.rel='stylesheet';
+		oStyle.href='/Courses/jquery.autocomplete.css';
+		oHead.appendChild(oStyle);
 	}
     // alert("ready called");
     // alert("1: navigation_initialized = " + ($('#navInitialized').val()));
@@ -89,7 +80,8 @@ function attachHandlers() {
 	if (newStyleAutoComplete) {
 		$('#searchField').autocomplete({
 			data : baseConcepts,
-			onItemSelect: function () { $('#searchForm').submit(); }  // could also change the handleSearch method to support a non event calling it..
+			onItemSelect: function () { $('#searchForm').submit(); },  // could also change the handleSearch method to support a non event calling it..
+			selectFirst : true
 		});
 	}
 	else {
