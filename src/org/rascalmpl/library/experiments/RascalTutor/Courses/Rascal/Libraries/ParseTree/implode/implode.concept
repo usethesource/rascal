@@ -1,0 +1,138 @@
+Name: implode
+
+Synopsis: Implode a parse tree according to a given ADT.
+
+Syntax:
+
+Types:
+
+Function: `&T<:node implode(type[&T<:node] t, Tree tree);`
+
+Details:
+
+Description:
+
+Given a grammar for a language, its sentences can be parsed and the result is a parse tree
+(or more precisely a value of type `Tree`). For many applications this is sufficient
+and the results are achieved by traversing and matching them using concrete patterns.
+
+In other cases, the further processing of parse trees is better done in a more abstract form.
+The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
+data type that is used to represent programs in the language in an _abstract_ form.
+Abstract syntax has the following properties:
+* It is "abstract" in the sense that it does not contain textual details such as parentheses,
+  layout, and the like.
+* While a language has one grammar (also known as, _concrete syntax_) it may have several abstract syntaxes
+  for different purposes: type analysis, code generation, etc.
+
+
+The function `implode` bridges the gap between parse tree and abstract syntax tree.
+Given a parse tree and the type of an ADT it traverses them simultaneously and constructs
+an abstract syntax tree (a value of the given ADT type) as follows:
+
+# Literals, layout and empty (i.e. ()) nodes are skipped.
+
+# Regular */+ lists are imploded to `list`s or `set`s depending on what is 
+  expected in the ADT.
+
+# Ambiguities are imploded to `set`s.
+
+# If a tree's production has no label and a single AST (i.e. non-layout, non-literal) argument
+  (for instance, an injection), the tree node is skipped, and implosion continues 
+  with the lone argument. The same applies to bracket productions, even if they
+  are labeled.
+
+# If a tree's production has no label, but more than one argument, the tree is imploded 
+  to a tuple (provided this conforms to the ADT).
+
+# Optionals are imploded to booleans if this is expected in the ADT.
+  This also works for optional literals, as shown in the example below.
+
+# An optional is imploded to a list with zero or one argument, iff a list
+  type is expected.
+
+# If the argument of an optional tree has a production with no label, containing
+  a single list, then this list is spliced into the optional list.
+
+# For trees with (cons-)labeled productions, the corresponding constructor
+  in the ADT corresponding to the non-terminal of the production is found in
+  order to make the AST.
+
+# Unlabeled lexicals are imploded to str, int, real, bool depending on the expected type in
+  the ADT. To implode lexical into types other than str, the PDB parse functions for 
+  integers and doubles are used. Boolean lexicals should match "true" or "false". 
+  NB: lexicals are imploded this way, even if they are ambiguous.
+
+# If a lexical tree has a cons label, the tree imploded to a constructor with that name
+  and a single string-valued argument containing the tree's yield.
+
+
+An `IllegalArgument` exception is thrown if during implosion a tree is encountered that cannot be
+imploded to the expected type in the ADT. As explained above, this function assumes that the
+ADT type names correspond to syntax non-terminal names, and constructor names correspond 
+to production labels. Labels of production arguments do not have to match with labels
+ in ADT constructors.
+
+Finally, source location annotations are propagated as annotations on constructor ASTs. 
+To access them, the user is required to explicitly declare a location annotation on all
+ADTs used in implosion. In other words, for every ADT type `T`, add:
+
+<listing>
+anno loc T@location;
+</listing>
+
+Examples:
+
+==Example for rule 5==
+Given the grammar
+<listing>
+syntax IDTYPE = Id ":" Type;
+syntax Decls = decls: "declare" {IDTYPE ","}* ";";
+</listing>
+    
+`Decls` will be imploded as:
+<listing>
+data Decls = decls(list[tuple[str,Type]]);
+</listing>
+(assuming Id is a lexical non-terminal).   
+
+==Example for rule 6==
+Given the grammar
+<listing>
+syntax Formal = formal: "VAR"? {Id ","}+ ":" Type;
+</listing>
+The corresponding ADT could be:
+<listing>
+data Formal = formal(bool, list[str], Type);
+</listing>
+
+==Example for rule 8==
+Given the grammar
+<listing>
+syntax Tag = "[" {Modifier ","}* "]";
+syntax Decl = decl: Tag? Signature Body;
+</listing>
+In this case, a `Decl` is imploded into the following ADT:
+<listing>
+data Decl = decl(list[Modifier], Signature, Body);  
+</listing>
+
+==Example for rule 9==
+Given the grammar
+<listing>
+syntax Exp = left add: Exp "+" Exp;
+</listing>
+Can be imploded into:
+<listing>
+data Exp = add(Exp, Exp);
+</listing>
+
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

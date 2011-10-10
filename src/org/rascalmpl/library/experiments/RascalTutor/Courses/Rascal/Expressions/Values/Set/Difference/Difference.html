@@ -446,6 +446,12 @@
     <li><a id="Rascal/Libraries/Message/warning" href="/Courses/Rascal/Libraries/Message/warning/warning.html">warning</a></li>
     </ul></li>
 
+      <li><a id="Rascal/Libraries/ParseTree" href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a>
+    <ul>    <li><a id="Rascal/Libraries/ParseTree/implode" href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">implode</a></li>
+    <li><a id="Rascal/Libraries/ParseTree/parse" href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a></li>
+    <li><a id="Rascal/Libraries/ParseTree/unparse" href="/Courses/Rascal/Libraries/ParseTree/unparse/unparse.html">unparse</a></li>
+    </ul></li>
+
       <li><a id="Rascal/Libraries/PriorityQueue" href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a>
     <ul>    <li><a id="Rascal/Libraries/PriorityQueue/extractMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a></li>
     <li><a id="Rascal/Libraries/PriorityQueue/findMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a></li>
@@ -470,11 +476,6 @@
     <ul>    <li><a id="Rascal/Libraries/Scripting/eval" href="/Courses/Rascal/Libraries/Scripting/eval/eval.html">eval</a></li>
     <li><a id="Rascal/Libraries/Scripting/evalType" href="/Courses/Rascal/Libraries/Scripting/evalType/evalType.html">evalType</a></li>
     <li><a id="Rascal/Libraries/Scripting/shell" href="/Courses/Rascal/Libraries/Scripting/shell/shell.html">shell</a></li>
-    </ul></li>
-
-      <li><a id="Rascal/Libraries/Tree" href="/Courses/Rascal/Libraries/Tree/Tree.html">Tree</a>
-    <ul>    <li><a id="Rascal/Libraries/Tree/parse" href="/Courses/Rascal/Libraries/Tree/parse/parse.html">parse</a></li>
-    <li><a id="Rascal/Libraries/Tree/unparse" href="/Courses/Rascal/Libraries/Tree/unparse/unparse.html">unparse</a></li>
     </ul></li>
 
       <li><a id="Rascal/Libraries/ValueIO" href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a>
@@ -746,9 +747,9 @@ set[int]: {4,3,2,1}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Difference">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{&quot;Barkley the Dog&quot;, &quot;Basil&quot;, &quot;K&quot;, &quot;Grover&quot;, &quot;Two-Headed Monster&quot;}">
-<input type="hidden" name="B" value="{&quot;Oregano&quot;, &quot;Vanilla&quot;, &quot;Grapefruit&quot;, &quot;Ernie&quot;, &quot;C-3PO&quot;}">
-The type of <tt>{&quot;Barkley the Dog&quot;, &quot;Basil&quot;, &quot;K&quot;, &quot;Grover&quot;, &quot;Two-Headed Monster&quot;} + {&quot;Oregano&quot;, &quot;Vanilla&quot;, &quot;Grapefruit&quot;, &quot;Ernie&quot;, &quot;C-3PO&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;Pomegranate&quot;}">
+<input type="hidden" name="B" value="{&quot;Melon&quot;, &quot;Parsley&quot;, &quot;Sy Snootles&quot;, &quot;Sy Snootles&quot;, &quot;Mumford the Magician&quot;}">
+The type of <tt>{&quot;Pomegranate&quot;} + {&quot;Melon&quot;, &quot;Parsley&quot;, &quot;Sy Snootles&quot;, &quot;Sy Snootles&quot;, &quot;Mumford the Magician&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -777,9 +778,9 @@ The type of <tt>{&quot;Barkley the Dog&quot;, &quot;Basil&quot;, &quot;K&quot;, 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Difference">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
-<input type="hidden" name="A" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
-The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)} - {|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;O&quot;, &quot;Melon&quot;, &quot;Raspberry&quot;}">
+<input type="hidden" name="A" value="{&quot;O&quot;, &quot;Melon&quot;, &quot;Raspberry&quot;}">
+The type of <tt>{&quot;O&quot;, &quot;Melon&quot;, &quot;Raspberry&quot;} - {&quot;O&quot;, &quot;Melon&quot;, &quot;Raspberry&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -808,9 +809,9 @@ The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |fi
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Difference">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{&quot;L&quot;, &quot;Han Solo&quot;, &quot;Jar Jar Binks&quot;}">
-<input type="hidden" name="B" value="{&quot;Mandarin&quot;, &quot;Lychee&quot;, &quot;Coconut&quot;, &quot;Orange&quot;}">
-<pre class="prequestion">{&quot;L&quot;, &quot;Han Solo&quot;, &quot;Jar Jar Binks&quot;} - {&quot;Mandarin&quot;, &quot;Lychee&quot;, &quot;Coconut&quot;, &quot;Orange&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{19.31768494060257600, -11, -1, -12.350814387997806000, 12.88838394227294800}">
+<input type="hidden" name="B" value="{-8.242781603109490400, -8}">
+<pre class="prequestion">{19.31768494060257600, -11, -1, -12.350814387997806000, 12.88838394227294800} - {-8.242781603109490400, -8} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

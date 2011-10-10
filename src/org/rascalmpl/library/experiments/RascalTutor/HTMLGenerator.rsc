@@ -439,7 +439,7 @@ private str markupScreen(list[str] lines){
    if(!generating)
       return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
-   result_lines = shell(stripped_code, 5000);
+   result_lines = shell(stripped_code, 25000);
    
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);

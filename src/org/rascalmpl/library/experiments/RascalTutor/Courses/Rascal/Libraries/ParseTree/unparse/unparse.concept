@@ -1,0 +1,24 @@
+Name: unparse
+
+Synopsis: Yield the string of characters that form the leafs of a given parse tree.
+
+Syntax:
+
+Types:
+
+Function:
+`str unparse(Tree tree)`
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

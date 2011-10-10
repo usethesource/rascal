@@ -446,6 +446,12 @@
     <li><a id="Rascal/Libraries/Message/warning" href="/Courses/Rascal/Libraries/Message/warning/warning.html">warning</a></li>
     </ul></li>
 
+      <li><a id="Rascal/Libraries/ParseTree" href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a>
+    <ul>    <li><a id="Rascal/Libraries/ParseTree/implode" href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">implode</a></li>
+    <li><a id="Rascal/Libraries/ParseTree/parse" href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a></li>
+    <li><a id="Rascal/Libraries/ParseTree/unparse" href="/Courses/Rascal/Libraries/ParseTree/unparse/unparse.html">unparse</a></li>
+    </ul></li>
+
       <li><a id="Rascal/Libraries/PriorityQueue" href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a>
     <ul>    <li><a id="Rascal/Libraries/PriorityQueue/extractMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a></li>
     <li><a id="Rascal/Libraries/PriorityQueue/findMinimum" href="/Courses/Rascal/Libraries/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a></li>
@@ -470,11 +476,6 @@
     <ul>    <li><a id="Rascal/Libraries/Scripting/eval" href="/Courses/Rascal/Libraries/Scripting/eval/eval.html">eval</a></li>
     <li><a id="Rascal/Libraries/Scripting/evalType" href="/Courses/Rascal/Libraries/Scripting/evalType/evalType.html">evalType</a></li>
     <li><a id="Rascal/Libraries/Scripting/shell" href="/Courses/Rascal/Libraries/Scripting/shell/shell.html">shell</a></li>
-    </ul></li>
-
-      <li><a id="Rascal/Libraries/Tree" href="/Courses/Rascal/Libraries/Tree/Tree.html">Tree</a>
-    <ul>    <li><a id="Rascal/Libraries/Tree/parse" href="/Courses/Rascal/Libraries/Tree/parse/parse.html">parse</a></li>
-    <li><a id="Rascal/Libraries/Tree/unparse" href="/Courses/Rascal/Libraries/Tree/unparse/unparse.html">unparse</a></li>
     </ul></li>
 
       <li><a id="Rascal/Libraries/ValueIO" href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a>
@@ -715,9 +716,9 @@ list[tuple[int,int]]: [
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="[16, -8, 17, 6, 11]">
-<input type="hidden" name="B" value="[18, 15, 5]">
-The type of <tt>[16, -8, 17, 6, 11] * [18, 15, 5]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[&quot;Y&quot;]">
+<input type="hidden" name="B" value="[&quot;Fig&quot;, &quot;L&quot;]">
+The type of <tt>[&quot;Y&quot;] * [&quot;Fig&quot;, &quot;L&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -746,9 +747,9 @@ The type of <tt>[16, -8, 17, 6, 11] * [18, 15, 5]</tt> is <textarea rows="1" col
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[&quot;Nutmeg&quot;, &quot;Gooseberry&quot;, &quot;Barkley the Dog&quot;, &quot;Darth Vader&quot;]">
-<input type="hidden" name="B" value="[&quot;Coconut&quot;, &quot;Fig&quot;, &quot;Isolder&quot;, &quot;Grape&quot;, &quot;Lavender&quot;]">
-The type of <tt>[&quot;Nutmeg&quot;, &quot;Gooseberry&quot;, &quot;Barkley the Dog&quot;, &quot;Darth Vader&quot;] * [&quot;Coconut&quot;, &quot;Fig&quot;, &quot;Isolder&quot;, &quot;Grape&quot;, &quot;Lavender&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]">
+<input type="hidden" name="B" value="[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]">
+The type of <tt>[|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)] * [|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -777,9 +778,9 @@ The type of <tt>[&quot;Nutmeg&quot;, &quot;Gooseberry&quot;, &quot;Barkley the D
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="[1.18280787006924800, 17.1841240070827600, -12.838048380415494400, 11.27510873337673600, 0.4349039148347600]">
-<input type="hidden" name="B" value="[4.80703372860304800]">
-<pre class="prequestion">[1.18280787006924800, 17.1841240070827600, -12.838048380415494400, 11.27510873337673600, 0.4349039148347600] * [4.80703372860304800] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[12.17993483514790400, 15.86982183197721600, -19.4615261625028113200, 13.48159120157158000]">
+<input type="hidden" name="B" value="[-12.987210107245914400, 13.62088311353923600, 0.93282302710374400, -12.4087266059495200]">
+<pre class="prequestion">[12.17993483514790400, 15.86982183197721600, -19.4615261625028113200, 13.48159120157158000] * [-12.987210107245914400, 13.62088311353923600, 0.93282302710374400, -12.4087266059495200] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
