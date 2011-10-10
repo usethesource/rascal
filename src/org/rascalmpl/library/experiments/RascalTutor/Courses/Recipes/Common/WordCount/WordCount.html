@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Recipes/course.js"></script>
@@ -24,11 +25,14 @@
   <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
   <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
   <li><a id="Recipes/Basic/Squares" href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a></li>
-  <li><a id="Recipes/Basic/ColoredTrees" href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
   </ul></li>
 
   <li><a id="Recipes/Common" href="/Courses/Recipes/Common/Common.html">Common</a>
-  <ul>      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
+  <ul>  <li><a id="Recipes/Common/CallAnalysis" href="/Courses/Recipes/Common/CallAnalysis/CallAnalysis.html">CallAnalysis</a></li>
+  <li><a id="Recipes/Common/CallLifting" href="/Courses/Recipes/Common/CallLifting/CallLifting.html">CallLifting</a></li>
+  <li><a id="Recipes/Common/ColoredTrees" href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
+  <li><a id="Recipes/Common/StringTemplate" href="/Courses/Recipes/Common/StringTemplate/StringTemplate.html">StringTemplate</a></li>
+      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
     <ul>    <li><a id="Recipes/Common/WordCount/CountInLine1" href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine2" href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine3" href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a></li>
@@ -58,6 +62,11 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Counting words in strings.
+
+</div>
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a> &#032 <a href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a> &#032 <a href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a> &#032 <a href="/Courses/Recipes/Common/WordCount/Jabberwocky/Jabberwocky.html">Jabberwocky</a> &#032 
 </div>
@@ -79,7 +88,7 @@
  <br/>
 <br/>
 
-  <pre class="listing">module demo::WordCount::WordCount
+  <pre class="listing">module demo::common::WordCount::WordCount
 
 // wordCount takes a list of strings and a count function
 // that is applied to each line. The total number of words is returned
@@ -87,8 +96,8 @@
 public int wordCount(list[str] input, int (str s) countInLine)
 {
   count = 0;
-  for(str line &lt;- input){           <img src="images/1.png">
-     count += countInLine(line);    <img src="images/2.png">
+  for(str line &lt;- input){           <img src="/images/1.png">
+     count += countInLine(line);    <img src="/images/2.png">
   }
   return count;
 }
@@ -98,15 +107,15 @@ public int wordCount(list[str] input, int (str s) countInLine)
 <br/>
 
  Let's now do some experiments using the <a href="/Courses/Recipes/Common/WordCount/Jabberwocky/Jabberwocky.html">Jabberwocky</a> poem by Lewis Carrol as input.
-  <pre class="screen"><b>rascal></b>import demo::WordCount::WordCount;
+  <pre class="screen"><b>rascal></b>import demo::common::WordCount::WordCount;
 ok
-<b>rascal></b>import demo::WordCount::CountInLine1;
+<b>rascal></b>import demo::common::WordCount::CountInLine1;
 ok
-<b>rascal></b>import demo::WordCount::CountInLine2;
+<b>rascal></b>import demo::common::WordCount::CountInLine2;
 ok
-<b>rascal></b>import demo::WordCount::CountInLine3;
+<b>rascal></b>import demo::common::WordCount::CountInLine3;
 ok
-<b>rascal></b>import demo::WordCount::Jabberwocky;
+<b>rascal></b>import demo::common::WordCount::Jabberwocky;
 ok
 <b>rascal></b>wordCount(Jabberwocky, countInLine1);
 int: 216

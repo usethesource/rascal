@@ -6,11 +6,12 @@
 
 
 <head>
-<title>Recipes/Basic/ColoredTrees</title>
+<title>Recipes/Common/ColoredTrees</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Recipes/course.js"></script>
@@ -24,11 +25,14 @@
   <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
   <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
   <li><a id="Recipes/Basic/Squares" href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a></li>
-  <li><a id="Recipes/Basic/ColoredTrees" href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
   </ul></li>
 
   <li><a id="Recipes/Common" href="/Courses/Recipes/Common/Common.html">Common</a>
-  <ul>      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
+  <ul>  <li><a id="Recipes/Common/CallAnalysis" href="/Courses/Recipes/Common/CallAnalysis/CallAnalysis.html">CallAnalysis</a></li>
+  <li><a id="Recipes/Common/CallLifting" href="/Courses/Recipes/Common/CallLifting/CallLifting.html">CallLifting</a></li>
+  <li><a id="Recipes/Common/ColoredTrees" href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
+  <li><a id="Recipes/Common/StringTemplate" href="/Courses/Recipes/Common/StringTemplate/StringTemplate.html">StringTemplate</a></li>
+      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
     <ul>    <li><a id="Recipes/Common/WordCount/CountInLine1" href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine2" href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine3" href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a></li>
@@ -46,13 +50,13 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Basic/Basic.html">Basic</a>/<a href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Common/Common.html">Common</a>/<a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
-    <input type="hidden" name="concept" value="Recipes/Basic/ColoredTrees">
+    <input type="hidden" name="concept" value="Recipes/Common/ColoredTrees">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -75,11 +79,11 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The definition of ColoredTrees is as follows:
- <pre class="listing">module demo::ColoredTrees
+ <pre class="listing">module demo::common::ColoredTrees
 
 // Define ColoredTrees with red and black nodes and integer leaves
 
-data ColoredTree = leaf(int N)      <img src="images/1.png">
+data ColoredTree = leaf(int N)      <img src="/images/1.png">
                  | red(ColoredTree left, ColoredTree right) 
                  | black(ColoredTree left, ColoredTree right);
           
@@ -88,7 +92,7 @@ data ColoredTree = leaf(int N)      <img src="images/1.png">
 public int cntRed(ColoredTree t){
    int c = 0;
    visit(t) {
-     case red(_,_): c = c + 1;      <img src="images/2.png">
+     case red(_,_): c = c + 1;      <img src="/images/2.png">
    };
    return c;
 }
@@ -98,20 +102,20 @@ public int cntRed(ColoredTree t){
 public int addLeaves(ColoredTree t){
    int c = 0;
    visit(t) {
-     case leaf(int N): c = c + N;   <img src="images/3.png">
+     case leaf(int N): c = c + N;   <img src="/images/3.png">
    };
    return c;
 }
 
 // Add green nodes to ColoredTree
 
-data ColoredTree = green(ColoredTree left, ColoredTree right); <img src="images/4.png">
+data ColoredTree = green(ColoredTree left, ColoredTree right); <img src="/images/4.png">
 
 // Transform red nodes into green nodes
 
 public ColoredTree makeGreen(ColoredTree t){
    return visit(t) {
-     case red(l, r) => green(l, r)   <img src="images/5.png">
+     case red(l, r) => green(l, r)   <img src="/images/5.png">
    };
 }
 </pre> First (<img src="/images/1.png">) we define the data type of <code>ColoredTrees</code> with constructors
@@ -125,7 +129,7 @@ public ColoredTree makeGreen(ColoredTree t){
 <br/>
 
  We can now explore ColoredTrees:
- <pre class="screen"><b>rascal></b>import demo::ColoredTrees;
+ <pre class="screen"><b>rascal></b>import demo::common::ColoredTrees;
 ok
 <b>rascal></b>rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 ColoredTree: red(
@@ -177,8 +181,8 @@ ColoredTree: green(
 
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Basic/ColoredTrees&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Recipes/Basic/ColoredTrees&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/ColoredTrees&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Recipes/Common/ColoredTrees&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>

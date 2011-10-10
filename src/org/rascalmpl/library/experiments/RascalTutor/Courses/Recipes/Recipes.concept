@@ -12,6 +12,11 @@ Details:
 
 Description:
 These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
+It consists of the following parts:
+* [Basic]: _hello world_-like examples.
+* [Common]: common taks you may encounter in practice.
+* [Languages]: definitions of some simple languages.
+
 
 The following features will be covered:
 * Basic language features.

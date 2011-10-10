@@ -1,6 +1,6 @@
 Name: Basic
 
-Synopsis: Some basic, simple, examples of Rascal programs.
+Synopsis: Some basic, _hello world_-like, examples of Rascal programs.
 
 Syntax:
 
@@ -9,7 +9,7 @@ Types:
 Function:
 
 Details:
-Hello Factorial Squares ColoredTrees
+Hello Factorial Squares
 
 Description:
 

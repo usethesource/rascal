@@ -13,12 +13,14 @@ Details:
 Description:
 
 Examples:
-The factorial of a number N is defined as `N * (N-1) * (N-2) * ... * 1`. Here is the Rascal version:
-<listing demo/Factorial.rsc>
+The [factorial](http://en.wikipedia.org/wiki/Factorial)
+of a number N is defined as `N * (N-1) * (N-2) * ... * 1`.
+Here is the Rascal version:
+<listing demo/basic/Factorial.rsc>
 
 It uses a conditional expression to distinguish cases and here is how to use it:
 <screen>
-import demo::Factorial;
+import demo::basic::Factorial;
 fac(47);
 </screen>
 

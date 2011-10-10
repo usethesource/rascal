@@ -20,7 +20,7 @@ Our trees can have red and black nodes and we want to perform the following oper
 
 Examples:
 The definition of ColoredTrees is as follows:
-<listing demo/ColoredTrees.rsc>
+<listing demo/common/ColoredTrees.rsc>
 
 First (/*1*/) we define the data type of `ColoredTrees` with constructors
 `leaf`, `red` and `black`.
@@ -32,7 +32,7 @@ In /*4*/ `coloredTrees` are extended with a new constructor `green`.
 
 We can now explore ColoredTrees:
 <screen>
-import demo::ColoredTrees;
+import demo::common::ColoredTrees;
 rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 // Count the red nodes in `rb`:
 cntRed(rb);

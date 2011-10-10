@@ -14,7 +14,7 @@ Description:
 
 Examples:
 A slighly more involved manner of using regular matching in a loop.
-<listing demo/WordCount/CountInLine2.rsc>
+<listing demo/common/WordCount/CountInLine2.rsc>
 
 The pattern `/^\W*<word:\w+><rest:.*$>/` can be understood as follows:
 * The `^` makes it _anchored_, only matches at the begin of the substring `S`.
@@ -29,7 +29,7 @@ removes the first word from `S` and counts it.
 
 Here is `countInLine2 in action:
 <screen>
-import demo::WordCount::CountInLine2;
+import demo::common::WordCount::CountInLine2;
 countInLine2("Jabberwocky by Lewis Carroll");
 </screen>
 

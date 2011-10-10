@@ -14,7 +14,7 @@ Description:
 
 Examples:
 How can we print a list of squares? Here is a solution:
-<listing demo/Squares.rsc>
+<listing demo/basic/Squares.rsc>
 
 At /*1*/ the [Rascal:IO] module is imported since we want to print things using `println`.
 
@@ -24,7 +24,7 @@ and in /*3*/ the values of `I` and `I * I` are inserted in each line that is pri
 
 Here is how `square` can be used:
 <screen>
-import demo::Squares;
+import demo::basic::Squares;
 squares(9);
 </screen>
 

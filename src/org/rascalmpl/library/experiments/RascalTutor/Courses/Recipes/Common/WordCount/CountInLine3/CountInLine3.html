@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Recipes/course.js"></script>
@@ -24,11 +25,14 @@
   <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
   <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
   <li><a id="Recipes/Basic/Squares" href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a></li>
-  <li><a id="Recipes/Basic/ColoredTrees" href="/Courses/Recipes/Basic/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
   </ul></li>
 
   <li><a id="Recipes/Common" href="/Courses/Recipes/Common/Common.html">Common</a>
-  <ul>      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
+  <ul>  <li><a id="Recipes/Common/CallAnalysis" href="/Courses/Recipes/Common/CallAnalysis/CallAnalysis.html">CallAnalysis</a></li>
+  <li><a id="Recipes/Common/CallLifting" href="/Courses/Recipes/Common/CallLifting/CallLifting.html">CallLifting</a></li>
+  <li><a id="Recipes/Common/ColoredTrees" href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
+  <li><a id="Recipes/Common/StringTemplate" href="/Courses/Recipes/Common/StringTemplate/StringTemplate.html">StringTemplate</a></li>
+      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
     <ul>    <li><a id="Recipes/Common/WordCount/CountInLine1" href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine2" href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a></li>
     <li><a id="Recipes/Common/WordCount/CountInLine3" href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a></li>
@@ -65,19 +69,19 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is a clever, albeit rather dense, solution that illustrates several Rascal concepts.
- <pre class="listing">module demo::WordCount::CountInLine3
+ <pre class="listing">module demo::common::WordCount::CountInLine3
 
 public int countInLine3(str S){
   return (0 | it + 1 | /\w+/ := S);
 }
-</pre> We use a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Expressions/Reducer</a> that is a recipe to reduce the values produced by one or more generators
+</pre> We use a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Reducer</a> that is a recipe to reduce the values produced by one or more generators
    to a single value:
  <ul><li> <code>0</code> is the initial value of the reducer</li>
 <li> The pattern match <code>/\w+/ := S</code> matches all words in <code>S</code>.</li>
 <li> Reduction is done by <code>it + 1</code>. In the latter <code>it</code> is a keyword that refers to the   value that has been reduced sofar. Effectively, the matches are reduced to a atch count.
 </li>
 </ul> Let's try it:
- <pre class="screen"><b>rascal></b>import demo::WordCount::CountInLine3;
+ <pre class="screen"><b>rascal></b>import demo::common::WordCount::CountInLine3;
 ok
 <b>rascal></b>countInLine3(&quot;Jabberwocky by Lewis Carroll&quot;);
 int: 4

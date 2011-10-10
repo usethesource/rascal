@@ -1,6 +1,6 @@
 Name: WordCount
 
-Synopsis:
+Synopsis: Counting words in strings.
 
 Syntax:
 
@@ -31,7 +31,7 @@ We split the problem in two parts:
 The main task of `wordCount` is to loop over all lines and to add the word counts per line.
 
 
-<listing demo/WordCount/WordCount.rsc>
+<listing demo/common/WordCount/WordCount.rsc>
 
 At /*1*/ an [Rascal:Enumerator] is used to generated all the lines in the list of lines.
 At /*2*/ the argument function `countInLine` is applied to count the number of words in each line.
@@ -39,11 +39,11 @@ At /*2*/ the argument function `countInLine` is applied to count the number of w
 Let's now do some experiments using the [Jabberwocky] poem by Lewis Carrol as input.
 
 <screen>
-import demo::WordCount::WordCount;
-import demo::WordCount::CountInLine1;
-import demo::WordCount::CountInLine2;
-import demo::WordCount::CountInLine3;
-import demo::WordCount::Jabberwocky;
+import demo::common::WordCount::WordCount;
+import demo::common::WordCount::CountInLine1;
+import demo::common::WordCount::CountInLine2;
+import demo::common::WordCount::CountInLine3;
+import demo::common::WordCount::Jabberwocky;
 wordCount(Jabberwocky, countInLine1);
 wordCount(Jabberwocky, countInLine2);
 wordCount(Jabberwocky, countInLine3);

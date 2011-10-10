@@ -1,6 +1,6 @@
 Name: Jabberwocky
 
-Synopsis:
+Synopsis: Lewis Carroll's well-known poem.
 
 Syntax:
 
@@ -13,7 +13,7 @@ Details:
 Description:
 
 Examples:
-<listing demo/WordCount/Jabberwocky.rsc>
+<listing demo/common/WordCount/Jabberwocky.rsc>
 
 Benefits:
 
