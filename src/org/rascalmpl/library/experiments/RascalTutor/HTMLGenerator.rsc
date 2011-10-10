@@ -388,7 +388,7 @@ private str markupCode(str text){
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
-    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"/images/<dig>.png\"\>"
   };
 }
 
