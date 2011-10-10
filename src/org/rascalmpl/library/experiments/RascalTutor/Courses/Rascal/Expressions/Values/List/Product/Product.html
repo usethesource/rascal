@@ -11,13 +11,14 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
 <ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
@@ -653,7 +654,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -702,11 +703,11 @@ list[tuple[int,int]]: [
 <div id="1" class="question">
 <b>Question 1. </b>
 <span id="1good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="1bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback1" class="answerFeedback"></span>
@@ -714,9 +715,9 @@ list[tuple[int,int]]: [
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="[&quot;Garlic&quot;]">
-<input type="hidden" name="B" value="[&quot;Forgetful Jones&quot;, &quot;Date&quot;]">
-The type of <tt>[&quot;Garlic&quot;] * [&quot;Forgetful Jones&quot;, &quot;Date&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[16, -8, 17, 6, 11]">
+<input type="hidden" name="B" value="[18, 15, 5]">
+The type of <tt>[16, -8, 17, 6, 11] * [18, 15, 5]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -733,11 +734,11 @@ The type of <tt>[&quot;Garlic&quot;] * [&quot;Forgetful Jones&quot;, &quot;Date&
 <div id="2" class="question">
 <b>Question 2. </b>
 <span id="2good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="2bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback2" class="answerFeedback"></span>
@@ -745,9 +746,9 @@ The type of <tt>[&quot;Garlic&quot;] * [&quot;Forgetful Jones&quot;, &quot;Date&
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[true, true]">
-<input type="hidden" name="B" value="[false, true, false, true, false]">
-The type of <tt>[true, true] * [false, true, false, true, false]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[&quot;Nutmeg&quot;, &quot;Gooseberry&quot;, &quot;Barkley the Dog&quot;, &quot;Darth Vader&quot;]">
+<input type="hidden" name="B" value="[&quot;Coconut&quot;, &quot;Fig&quot;, &quot;Isolder&quot;, &quot;Grape&quot;, &quot;Lavender&quot;]">
+The type of <tt>[&quot;Nutmeg&quot;, &quot;Gooseberry&quot;, &quot;Barkley the Dog&quot;, &quot;Darth Vader&quot;] * [&quot;Coconut&quot;, &quot;Fig&quot;, &quot;Isolder&quot;, &quot;Grape&quot;, &quot;Lavender&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -764,11 +765,11 @@ The type of <tt>[true, true] * [false, true, false, true, false]</tt> is <textar
 <div id="3" class="question">
 <b>Question 3. </b>
 <span id="3good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="3bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback3" class="answerFeedback"></span>
@@ -776,9 +777,9 @@ The type of <tt>[true, true] * [false, true, false, true, false]</tt> is <textar
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Product">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="[-20]">
-<input type="hidden" name="B" value="[-13, -18.9169134239556502400, 9, -15.528527246908106000, -6.65453748222453200]">
-<pre class="prequestion">[-20] * [-13, -18.9169134239556502400, 9, -15.528527246908106000, -6.65453748222453200] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[1.18280787006924800, 17.1841240070827600, -12.838048380415494400, 11.27510873337673600, 0.4349039148347600]">
+<input type="hidden" name="B" value="[4.80703372860304800]">
+<pre class="prequestion">[1.18280787006924800, 17.1841240070827600, -12.838048380415494400, 11.27510873337673600, 0.4349039148347600] * [4.80703372860304800] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -793,7 +794,7 @@ The type of <tt>[true, true] * [false, true, false, true, false]</tt> is <textar
  
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/Product&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/Product&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/List/Product&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

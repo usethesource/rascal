@@ -11,13 +11,14 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
 <ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
@@ -653,7 +654,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Subtraction">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -697,11 +698,11 @@ real: -1.5
 <div id="1" class="question">
 <b>Question 1. </b>
 <span id="1good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="1bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback1" class="answerFeedback"></span>
@@ -709,9 +710,9 @@ real: -1.5
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Subtraction">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="1">
+<input type="hidden" name="A" value="18">
 <input type="hidden" name="B" value="-1">
-The type of <tt>1 - -1</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+The type of <tt>18 - -1</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -728,11 +729,11 @@ The type of <tt>1 - -1</tt> is <textarea rows="1" cols="30" name="answer" class=
 <div id="2" class="question">
 <b>Question 2. </b>
 <span id="2good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="2bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback2" class="answerFeedback"></span>
@@ -740,9 +741,9 @@ The type of <tt>1 - -1</tt> is <textarea rows="1" cols="30" name="answer" class=
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Subtraction">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="16">
-<input type="hidden" name="B" value="-19.2474797174037926000">
-The type of <tt>16 - -19.2474797174037926000</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="18">
+<input type="hidden" name="B" value="-8.469195519143353200">
+The type of <tt>18 - -8.469195519143353200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -759,11 +760,11 @@ The type of <tt>16 - -19.2474797174037926000</tt> is <textarea rows="1" cols="30
 <div id="3" class="question">
 <b>Question 3. </b>
 <span id="3good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="3bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback3" class="answerFeedback"></span>
@@ -771,9 +772,9 @@ The type of <tt>16 - -19.2474797174037926000</tt> is <textarea rows="1" cols="30
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Subtraction">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="7.81479137510126000">
-<input type="hidden" name="B" value="-9">
-The type of <tt>7.81479137510126000 - -9</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="14.7022087894326400">
+<input type="hidden" name="B" value="15">
+The type of <tt>14.7022087894326400 - 15</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -790,11 +791,11 @@ The type of <tt>7.81479137510126000 - -9</tt> is <textarea rows="1" cols="30" na
 <div id="4" class="question">
 <b>Question 4. </b>
 <span id="4good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="4bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback4" class="answerFeedback"></span>
@@ -802,9 +803,9 @@ The type of <tt>7.81479137510126000 - -9</tt> is <textarea rows="1" cols="30" na
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Subtraction">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="15.68981040156288800">
-<input type="hidden" name="B" value="-5.88282632531210400">
-<pre class="prequestion">15.68981040156288800 - -5.88282632531210400 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-15.291007878867075600">
+<input type="hidden" name="B" value="4.29137656360297200">
+<pre class="prequestion">-15.291007878867075600 - 4.29137656360297200 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -819,7 +820,7 @@ The type of <tt>7.81479137510126000 - -9</tt> is <textarea rows="1" cols="30" na
  
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/Subtraction&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/Subtraction&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Number/Subtraction&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

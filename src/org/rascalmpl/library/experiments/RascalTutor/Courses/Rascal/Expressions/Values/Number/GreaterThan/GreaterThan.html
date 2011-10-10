@@ -11,13 +11,14 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
 <ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
@@ -653,7 +654,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -697,11 +698,11 @@ bool: false
 <div id="1" class="question">
 <b>Question 1. </b>
 <span id="1good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="1bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback1" class="answerFeedback"></span>
@@ -709,9 +710,9 @@ bool: false
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="-9">
-<input type="hidden" name="B" value="-17">
-The type of <tt>-9 &gt; -17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="8">
+<input type="hidden" name="B" value="17">
+The type of <tt>8 &gt; 17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -728,11 +729,11 @@ The type of <tt>-9 &gt; -17</tt> is <textarea rows="1" cols="30" name="answer" c
 <div id="2" class="question">
 <b>Question 2. </b>
 <span id="2good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="2bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback2" class="answerFeedback"></span>
@@ -740,9 +741,9 @@ The type of <tt>-9 &gt; -17</tt> is <textarea rows="1" cols="30" name="answer" c
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="-17.8111692049468706000">
-<input type="hidden" name="B" value="-2.41147421524922400">
-The type of <tt>-17.8111692049468706000 &gt; -2.41147421524922400</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-9.34889889475883200">
+<input type="hidden" name="B" value="18.37224262662119600">
+The type of <tt>-9.34889889475883200 &gt; 18.37224262662119600</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -759,11 +760,11 @@ The type of <tt>-17.8111692049468706000 &gt; -2.41147421524922400</tt> is <texta
 <div id="3" class="question">
 <b>Question 3. </b>
 <span id="3good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="3bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback3" class="answerFeedback"></span>
@@ -771,9 +772,9 @@ The type of <tt>-17.8111692049468706000 &gt; -2.41147421524922400</tt> is <texta
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="-15.532685050702030800">
-<input type="hidden" name="B" value="12.73663942366972800">
-The type of <tt>-15.532685050702030800 &gt; 12.73663942366972800</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="9">
+<input type="hidden" name="B" value="-3">
+The type of <tt>9 &gt; -3</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -790,11 +791,11 @@ The type of <tt>-15.532685050702030800 &gt; 12.73663942366972800</tt> is <textar
 <div id="4" class="question">
 <b>Question 4. </b>
 <span id="4good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="4bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback4" class="answerFeedback"></span>
@@ -802,9 +803,9 @@ The type of <tt>-15.532685050702030800 &gt; 12.73663942366972800</tt> is <textar
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="-7">
-<input type="hidden" name="B" value="-2.021722786369810800">
-The type of <tt>-7 &gt; -2.021722786369810800</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="19">
+<input type="hidden" name="B" value="12.455881654471600">
+The type of <tt>19 &gt; 12.455881654471600</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -821,11 +822,11 @@ The type of <tt>-7 &gt; -2.021722786369810800</tt> is <textarea rows="1" cols="3
 <div id="5" class="question">
 <b>Question 5. </b>
 <span id="5good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="5bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback5" class="answerFeedback"></span>
@@ -833,9 +834,9 @@ The type of <tt>-7 &gt; -2.021722786369810800</tt> is <textarea rows="1" cols="3
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/GreaterThan">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="-2.09274121362767200">
-<input type="hidden" name="B" value="-20">
-<pre class="prequestion">-2.09274121362767200 &gt; -20 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="12.10945942637873600">
+<input type="hidden" name="B" value="-14.041925619062514000">
+<pre class="prequestion">12.10945942637873600 &gt; -14.041925619062514000 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -850,7 +851,7 @@ The type of <tt>-7 &gt; -2.021722786369810800</tt> is <textarea rows="1" cols="3
  
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/GreaterThan&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/GreaterThan&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Number/GreaterThan&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

@@ -5,6 +5,8 @@ Synopsis: Boolean values.
 Syntax:
 `true`, `false`
 
+Library functions: `import Boolean;`
+
 Types:
 `bool`
 

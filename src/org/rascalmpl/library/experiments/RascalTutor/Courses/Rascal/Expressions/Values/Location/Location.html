@@ -11,13 +11,14 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
 <ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
@@ -653,7 +654,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Rascal/Expressions/Values/Location">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -690,7 +691,7 @@
  <ul><li> Providing a uniform mechanism for accessing local or remote files. This is used in all IO-related library functions.</li>
 <li> If the optional part is present they serve as text coordinates in a specific local or remote source file.   This is very handy to associate a source code location which extracted facts.
 </li>
-</ul> URIs are explained in <a href="http://en.wikipedia.org/wiki/Uniform_Resource_Identifier">Uniform Resource Identifier</a>. From their original definition in RFC3986 we cite the following useful overview of an URI:
+</ul> URIs are explained in <a href="http://en.wikipedia.org/wiki/Uniform_Resource_Identifier">Uniform Resource Identifier<img src="/Courses/images/www-icon.png" with="20" height="20"></a>. From their original definition in RFC3986 we cite the following useful overview of an URI:
  <pre class="listing">
          foo://example.com:8042/over/there?name=ferret#nose
          \_/   \______________/\_________/ \_________/ \__/
@@ -728,7 +729,7 @@
 </pre>
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |

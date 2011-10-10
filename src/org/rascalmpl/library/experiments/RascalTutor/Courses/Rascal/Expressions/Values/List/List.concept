@@ -5,6 +5,8 @@ Synopsis: List values.
 Syntax:
 `[ $Exp_1$, $Exp_2$, ... ]`
 
+Library functions: `import List`;
+
 Types:
 |  `$Exp_1$` |  `$Exp_2$` |  ...  |  `[ $Exp_1$, $Exp_2$, ... ]`   |
 |:-----------|:-----------|:------|:-------------------------------|

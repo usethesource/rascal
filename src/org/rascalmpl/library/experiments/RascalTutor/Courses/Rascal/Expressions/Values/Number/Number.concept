@@ -3,6 +3,7 @@ Name: Number
 Synopsis: Numeric values.
 
 Syntax:
+Library functions: `import Number`;
 
 Types:
 `int`, `real`, `num`

@@ -5,6 +5,8 @@ Synopsis: Map values.
 Syntax:
 `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`
 
+Library functions: `import Map`;
+
 Types:
 | `$KeyExp_1$` | `$ValExp_1$` | `$KeyExp_2$` | `$ValExp_2$` | ... | `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`  |
 |:-------------|:-------------|:-------------|:-------------|:----|:-------------------------------------------------------------|

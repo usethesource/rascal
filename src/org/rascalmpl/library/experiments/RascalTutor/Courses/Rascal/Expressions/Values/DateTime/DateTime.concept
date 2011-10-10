@@ -7,6 +7,9 @@ Syntax:
 # `$` `$Time$`
 # `$` `$DateTime$`
 
+
+Library functions: `import DateTime;`
+
 Types:
 `datetime`
 

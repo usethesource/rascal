@@ -16,6 +16,9 @@ where $StringChar$ may be one of the following:
 
 * __String Interpolation__: `<$Exp$>`
 
+
+Library functions: `import String`;
+
 Types:
 `str`
 

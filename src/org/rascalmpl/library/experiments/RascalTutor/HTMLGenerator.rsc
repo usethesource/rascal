@@ -318,7 +318,7 @@ private str markupRestLine(str line){
     
     case /^\</ => "&lt;"
     
-    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"/Courses/images/<dig>.png\"\>"
     
     case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"/Courses/<conceptPath>/<file>\"\>"
     
@@ -338,7 +338,7 @@ private str markupSubs(str txt){
 
 public str link(str url, str text){
   println("link: <link>, <text>");
-  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
+  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/Courses/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
 }
 
 // Get options for image
@@ -388,7 +388,7 @@ private str markupCode(str text){
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
-    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
   };
 }
 

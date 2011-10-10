@@ -11,13 +11,14 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Rascal" href="/Courses/Rascal/Rascal.html">Rascal</a>
 <ul><li><a id="Rascal/Motivation" href="/Courses/Rascal/Motivation/Motivation.html">Motivation</a></li>
@@ -653,7 +654,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -696,11 +697,11 @@ list[int]: [1,2,3,4]
 <div id="1" class="question">
 <b>Question 1. </b>
 <span id="1good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="1bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback1" class="answerFeedback"></span>
@@ -732,11 +733,11 @@ list[int]: [1,2,3,4]
 <div id="2" class="question">
 <b>Question 2. </b>
 <span id="2good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="2bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback2" class="answerFeedback"></span>
@@ -744,9 +745,9 @@ list[int]: [1,2,3,4]
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[-16.760191432994191600, 18.78484684870950800, -1.074710739447382000, -5.69282382353263600, -17.32061162522888800]">
-<input type="hidden" name="B" value="[10.69028166076995600, 9.08343839028883200, 5.50964401444592800, -4.12194054592131200, 0.07910068630263600]">
-The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.074710739447382000, -5.69282382353263600, -17.32061162522888800] + [10.69028166076995600, 9.08343839028883200, 5.50964401444592800, -4.12194054592131200, 0.07910068630263600]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[15.22740760798206000, -7.929434555507293200, -8.90175806536701600, 15.8375443606099600]">
+<input type="hidden" name="B" value="[3.63962170929271600, -19.450429343428261600, -5.533991643924474000]">
+The type of <tt>[15.22740760798206000, -7.929434555507293200, -8.90175806536701600, 15.8375443606099600] + [3.63962170929271600, -19.450429343428261600, -5.533991643924474000]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -763,11 +764,11 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <div id="3" class="question">
 <b>Question 3. </b>
 <span id="3good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="3bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback3" class="answerFeedback"></span>
@@ -775,9 +776,9 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="[17, -13, -18, 9]">
-<input type="hidden" name="B" value="[-2, 11, -11, -10, 16]">
-<pre class="prequestion">[17, -13, -18, 9] + [-2, 11, -11, -10, 16] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[-17]">
+<input type="hidden" name="B" value="[-16]">
+<pre class="prequestion">[-17] + [-16] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -793,11 +794,11 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <div id="4" class="question">
 <b>Question 4. </b>
 <span id="4good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="4bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback4" class="answerFeedback"></span>
@@ -805,9 +806,9 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="[8, -10, 12, -12]">
-<input type="hidden" name="B" value="[-9, 0, -15, 17, 6]">
-<pre class="prequestion">[8, -10, 12, -12] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [8,-10,12,-12,-9,0,-15,17,6]</pre>
+<input type="hidden" name="A" value="[8, -12, -14]">
+<input type="hidden" name="B" value="[-5]">
+<pre class="prequestion">[8, -12, -14] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [8,-12,-14,-5]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -823,11 +824,11 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <div id="5" class="question">
 <b>Question 5. </b>
 <span id="5good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="5bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback5" class="answerFeedback"></span>
@@ -835,9 +836,9 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{5.53429391724618400}">
-<input type="hidden" name="B" value="{10.50354291012578400, -0.95417259473827600, 11.68381054784335600}">
-<pre class="prequestion">{5.53429391724618400} + {10.50354291012578400, -0.95417259473827600, 11.68381054784335600} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{5.56441836771998000}">
+<input type="hidden" name="B" value="{-6, 15, 19, 0.44654549470767200}">
+<pre class="prequestion">{5.56441836771998000} + {-6, 15, 19, 0.44654549470767200} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -852,7 +853,7 @@ The type of <tt>[-16.760191432994191600, 18.78484684870950800, -1.07471073944738
  
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/Concatenation&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/Concatenation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/List/Concatenation&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
