@@ -18,7 +18,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Recipes" href="/Courses/Recipes/Recipes.html">Recipes</a>
 <ul>  <li><a id="Recipes/Basic" href="/Courses/Recipes/Basic/Basic.html">Basic</a>
@@ -41,7 +41,14 @@
 
   </ul></li>
 
-<li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a></li>
+  <li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a>
+  <ul>      <li><a id="Recipes/Languages/Exp" href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a>
+    <ul>    <li><a id="Recipes/Languages/Exp/Abstract" href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Abstract</a></li>
+    <li><a id="Recipes/Languages/Exp/Concrete" href="/Courses/Recipes/Languages/Exp/Concrete/Concrete.html">Concrete</a></li>
+    </ul></li>
+
+  </ul></li>
+
 </ul></li>
 
 </ul>
@@ -55,7 +62,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Recipes/Common/StringTemplate">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -73,7 +80,7 @@
 <br/>
 
  Rascal provides string templates that rival what is provided in
- <a href="http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/ERB.html">Ruby<img src="/images/www-icon.png" with="20" height="20"></a>, <a href="http://www.php.net/">PHP<img src="/images/www-icon.png" with="20" height="20"></a> or <a href="http://www.stringtemplate.org/">ANTLR<img src="/images/www-icon.png" with="20" height="20"></a>.
+ <a href="http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/ERB.html">Ruby<img src="/Courses/images/www-icon.png" with="20" height="20"></a>, <a href="http://www.php.net/">PHP<img src="/Courses/images/www-icon.png" with="20" height="20"></a> or <a href="http://www.stringtemplate.org/">ANTLR<img src="/Courses/images/www-icon.png" with="20" height="20"></a>.
  They are fully described in <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>.
 
 </div>
@@ -93,13 +100,13 @@ import IO;
 
 // Capitalize the first character of a string
 
-public str capitalize(str s) {  <img src="/images/1.png">
+public str capitalize(str s) {  <img src="/Courses/images/1.png">
   return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
 }
 
 // Generate a class with given name and fields.
 
-public str genClass(str name, map[str,str] fields) { <img src="/images/2.png">
+public str genClass(str name, map[str,str] fields) { <img src="/Courses/images/2.png">
   return "
     'public class &lt;name> {
     '  &lt;for (x &lt;- fields) {>
@@ -114,11 +121,11 @@ public str genClass(str name, map[str,str] fields) { <img src="/images/2.png">
     '}
 ";
 }
-</pre> At <img src="/images/1.png"> an auxiliary function <code>capitalize</code> is defined to capitalize the first character of a string.
+</pre> At <img src="/Courses/images/1.png"> an auxiliary function <code>capitalize</code> is defined to capitalize the first character of a string.
  <br/>
 <br/>
 
- The heavy lifting is done at <img src="/images/2.png"> where <code>genClass</code> is defined that takes as arguments:
+ The heavy lifting is done at <img src="/Courses/images/2.png"> where <code>genClass</code> is defined that takes as arguments:
  <ul><li> the <code>name</code> of the class.</li>
 <li> a map <code>fields</code> that associates field names with their type (both string values).</li>
 </ul> Function <code>genClass</code> returns a string that contains several <i>string interpolations</i> delimited by <code>&lt;</code> and <code>></code>.
@@ -182,7 +189,7 @@ ok
 </ul>
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/StringTemplate&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/StringTemplate&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Common/StringTemplate&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |

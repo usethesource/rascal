@@ -18,7 +18,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Tutor" href="/Courses/Tutor/Tutor.html">Tutor</a>
 <ul><li><a id="Tutor/Authoring" href="/Courses/Tutor/Authoring/Authoring.html">Authoring</a></li>
@@ -82,7 +82,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -164,11 +164,11 @@
 <div id="1" class="question">
 <b>Question 1. </b>
 <span id="1good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="1bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback1" class="answerFeedback"></span>
@@ -176,9 +176,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{-7, 19}">
-<input type="hidden" name="B" value="{11}">
-<pre class="prequestion">{-7, 19} + {11} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{5, -12}">
+<input type="hidden" name="B" value="{-14, 18}">
+<pre class="prequestion">{5, -12} + {-14, 18} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -194,11 +194,11 @@
 <div id="2" class="question">
 <b>Question 2. </b>
 <span id="2good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="2bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback2" class="answerFeedback"></span>
@@ -206,8 +206,8 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[8, -2, 18]">
-<pre class="prequestion">size([8, -2, 18]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[-11, -1, -6, 7, 19]">
+<pre class="prequestion">size([-11, -1, -6, 7, 19]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -223,11 +223,11 @@
 <div id="3" class="question">
 <b>Question 3. </b>
 <span id="3good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="3bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback3" class="answerFeedback"></span>
@@ -235,9 +235,9 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Vanilla&quot;, &quot;Dill&quot;, &quot;Papaya&quot;}">
-<input type="hidden" name="B" value="{&quot;H&quot;}">
-<pre class="prequestion">{&quot;Vanilla&quot;, &quot;Dill&quot;, &quot;Papaya&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Vanilla&quot;,&quot;Papaya&quot;,&quot;H&quot;,&quot;Dill&quot;}</pre>
+<input type="hidden" name="A" value="{-10}">
+<input type="hidden" name="B" value="{-14, -15}">
+<pre class="prequestion">{-10} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-10,-14,-15}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -253,11 +253,11 @@
 <div id="4" class="question">
 <b>Question 4. </b>
 <span id="4good" class="answerStatus">
-<img height="25" width="25" src="/images/good.png"/>
+<img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
 <span id="4bad" class="answerStatus">
-<img height="25" width="25" src="/images/bad.png"/>
+<img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
 <span id="answerFeedback4" class="answerFeedback"></span>
@@ -288,7 +288,7 @@ public list[str] find(list[str] text){
  
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor&flags=regenerate"><b>Recompile Course</b></a>] |
