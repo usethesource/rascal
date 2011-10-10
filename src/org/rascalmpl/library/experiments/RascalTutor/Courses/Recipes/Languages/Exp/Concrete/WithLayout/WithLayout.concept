@@ -1,0 +1,68 @@
+Name: WithLayout
+
+Synopsis: Defines a concrete syntax for Exp with layout.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+In Rascal, the major difference between lexical syntax and concrete syntax is that:
+* Strings that are parsed according to the lexical syntax __cannot__ contain additional layout characters
+  such as spaces, new lines, and the like.
+* Strings that are parsed according to the concrete syntax __may__ contain layout characters between
+  each element, but this has to be defined explicitly by the grammar writer.
+
+
+Rascal provides two predefined non-terminal types for this:
+* `LAYOUT`: a single layout character.
+* `LAYOUTLIST`: a sequence of layout characters.
+
+
+To put it bluntly, Rascal inserts `LAYOUTLIST` between every element in a syntax rule and it is up to the grammar writer
+whether this can correspond to actual text.
+
+Examples:
+To elaborate this in an example, our original grammar will be transformed as follows:
+<listing>
+start syntax Exp =                         
+                   IntegerLiteral          
+                 | bracket "(" LAYOUTLIST Exp LAYOUTLIST ")"     
+                 > left Exp LAYOUTLIST "*" LAYOUTLIST Exp        
+                 > left Exp LAYOUTLIST "+" LAYOUTLIST Exp        
+                 ;
+</listing>
+To be precise, `LAYOUTLIST` will also be allowed before and after the start non-terminal.
+
+This process is automated by adding layout definitions for `LAYOUT` and `LAYOUTLIST` to our Exp grammar:
+<listing demo/languages/Exp/Concrete/WithLayout/Syntax.rsc>
+Notes:
+* /*1*/ declares `LAYOUT` as a character class of certain characters: from tab to newline, carriage return and space.
+* /*2*/ declares `LAYOUTLIST` as zero or more `LAYOUT`s provided that it is not followed by another `LAYOUT` character
+(this is called a _follow restriction_).
+
+
+Given this grammar including layout, we could reuse the evaluator for the case without layout,
+but to stress the difference we include a new version here (can you spot the difference?):
+<listing demo/languages/Exp/Concrete/WithLayout/Eval.rsc>
+
+To put this all to the test:
+<screen>
+import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import demo::languages::Exp::Concrete::WithLayout::Eval;
+eval("2 +  3");
+eval("2   +  3*4");
+eval("( 2+3 )* 4");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

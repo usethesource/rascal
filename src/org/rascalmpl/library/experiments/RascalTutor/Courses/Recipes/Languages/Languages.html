@@ -18,7 +18,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
 <div id="navPane">
 <ul><li><a id="Recipes" href="/Courses/Recipes/Recipes.html">Recipes</a>
 <ul>  <li><a id="Recipes/Basic" href="/Courses/Recipes/Basic/Basic.html">Basic</a>
@@ -41,7 +41,18 @@
 
   </ul></li>
 
-<li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a></li>
+  <li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a>
+  <ul>      <li><a id="Recipes/Languages/Exp" href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a>
+    <ul>    <li><a id="Recipes/Languages/Exp/Abstract" href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Abstract</a></li>
+          <li><a id="Recipes/Languages/Exp/Concrete" href="/Courses/Recipes/Languages/Exp/Concrete/Concrete.html">Concrete</a>
+      <ul>      <li><a id="Recipes/Languages/Exp/Concrete/NoLayout" href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">NoLayout</a></li>
+      <li><a id="Recipes/Languages/Exp/Concrete/WithLayout" href="/Courses/Recipes/Languages/Exp/Concrete/WithLayout/WithLayout.html">WithLayout</a></li>
+      </ul></li>
+
+    </ul></li>
+
+  </ul></li>
+
 </ul></li>
 
 </ul>
@@ -55,7 +66,7 @@
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
-    <img id="searchIcon" height="20" width="20" src="/images/magnify.png">
+    <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
     <input type="hidden" name="concept" value="Recipes/Languages">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
@@ -67,16 +78,20 @@
 
 </div>
 
+<div id="Details">
+<span class="sectionHead">Details</span> <a href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a> &#032 
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Examples of several languages and the implementation of tools like interpreters and compilers:
- <ul><li> Exp: a toy expression language. It illustrates define concrete and abstract syntax and how to use   concrete and abstract patterns to evaluate expressions.
+ <ul><li> <a href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a>: a toy expression language. It illustrates how to define concrete and abstract syntax and how to use   concrete and abstract patterns to evaluate expressions.
 </li>
 <li> Func: a tiny functional language.</li>
 <li> Oberon0: a scaled down version of the Oberon language</li>
 </ul>
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages&new=false"><b>Edit</b></a>] | 
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |

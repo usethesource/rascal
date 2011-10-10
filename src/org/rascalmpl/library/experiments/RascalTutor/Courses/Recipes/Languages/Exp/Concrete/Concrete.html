@@ -44,7 +44,11 @@
   <li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a>
   <ul>      <li><a id="Recipes/Languages/Exp" href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a>
     <ul>    <li><a id="Recipes/Languages/Exp/Abstract" href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Abstract</a></li>
-    <li><a id="Recipes/Languages/Exp/Concrete" href="/Courses/Recipes/Languages/Exp/Concrete/Concrete.html">Concrete</a></li>
+          <li><a id="Recipes/Languages/Exp/Concrete" href="/Courses/Recipes/Languages/Exp/Concrete/Concrete.html">Concrete</a>
+      <ul>      <li><a id="Recipes/Languages/Exp/Concrete/NoLayout" href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">NoLayout</a></li>
+      <li><a id="Recipes/Languages/Exp/Concrete/WithLayout" href="/Courses/Recipes/Languages/Exp/Concrete/WithLayout/WithLayout.html">WithLayout</a></li>
+      </ul></li>
+
     </ul></li>
 
   </ul></li>
@@ -70,31 +74,18 @@
 </div>
          
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  A version of Exp based on concrete syntax.
+<span class="sectionHead">Synopsis</span>  Various versions of Exp based on concrete syntax.
 
+</div>
+
+<div id="Details">
+<span class="sectionHead">Details</span> <a href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">NoLayout</a> &#032 <a href="/Courses/Recipes/Languages/Exp/Concrete/WithLayout/WithLayout.html">WithLayout</a> &#032 
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  We describe howto write a grammar for Exp and how to use it to implement an evaluator.
-
-</div>
-
-<div id="Examples">
-<span class="sectionHead">Examples</span>  Here is the grammar for Exp:
- <pre class="listing">module demo::languages::Exp::Concrete::Syntax
-    
-lexical IntegerLiteral = [0-9]+;           <img src="/Courses/images/1.png">
-
-start syntax Exp = IntegerLiteral          <img src="/Courses/images/2.png">
-                 | bracket "(" Exp ")"     <img src="/Courses/images/3.png">
-                 > left Exp "*" Exp        <img src="/Courses/images/4.png">
-                 > left Exp "+" Exp        <img src="/Courses/images/5.png">
-                 ;
-</pre> <ul><li> <img src="/Courses/images/1.png"> </li>
-<li> <img src="/Courses/images/2.png"> </li>
-<li> <img src="/Courses/images/3.png"> </li>
-<li> <img src="/Courses/images/4.png"> </li>
-<li> <img src="/Courses/images/5.png">  </li>
+<span class="sectionHead">Description</span>  We discuss several versions of Exp based on concrete syntax:
+ <ul><li> <a href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">NoLayout</a>: is the simplest version that does not consider layout symbols in expressions.</li>
+<li> <a href="/Courses/Recipes/Languages/Exp/Concrete/WithLayout/WithLayout.html">WithLayout</a>: adds layout information to Exp's synax definition.</li>
 </ul>
 </div>
 
