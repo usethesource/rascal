@@ -56,7 +56,7 @@ return "Name: <cn>
 public list[str] sectionKeywords = ["Name",  "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"];
 
-private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/images/rascal-tutor-small.png\"\>";
+private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
 
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
@@ -278,7 +278,7 @@ public str searchBox(ConceptName cn){
   return "
          '\<div id=\"searchBox\"\>
          '  \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
-         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"/images/magnify.png\"\>
+         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"/Courses/images/magnify.png\"\>
          '    \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
          '    \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
          '    \<div id=\"popups\"\>\</div\>
@@ -799,11 +799,11 @@ public str status(str id, str txt){
 }
 
 public str good(){
-  return "\<img height=\"25\" width=\"25\" src=\"/images/good.png\"/\>";
+  return "\<img height=\"25\" width=\"25\" src=\"/Courses/images/good.png\"/\>";
 }
 
 public str bad(){
-   return "\<img height=\"25\" width=\"25\" src=\"/images/bad.png\"/\>";
+   return "\<img height=\"25\" width=\"25\" src=\"/Courses/images/bad.png\"/\>";
 }
 
 public str status(QuestionName qid){
