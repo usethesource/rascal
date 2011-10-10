@@ -273,7 +273,7 @@ function makeConceptURL(fromConcept, toConcept) {
 }
 
 function back(fromConcept, toConcept) {
-    return '<a href="javascript:show(' + "'" + toConcept + "','" + fromConcept + "')" + '">' + '<img width="30" height="30" src="/images/back.png"></a>';
+    return '<a href="javascript:show(' + "'" + toConcept + "','" + fromConcept + "')" + '">' + '<img width="30" height="30" src="/Courses/images/back.png"></a>';
 }
 
 
@@ -373,7 +373,7 @@ function handleSave(evt) {
         var r = $('#replacement', data).text();
         //alert("c = " + c + "; e = " + e);
         if (e != "") {
-            $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"/images/bad.png\">Correct error: " + e);
+            $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"/Courses/images/bad.png\">Correct error: " + e);
             $('#editErrors').fadeIn(500);
         } else reload(r);
     });
