@@ -9,7 +9,7 @@ Any symbol can be labeled with field names that start with lowercase characters:
 Then, there are literal symbols and character classes, as in:
 * `"$stringliteral$"` for literal strings
 * `'$stringliteral$'` for case-insensitive literal strings
-* `[$range_1$ $range_2$ ...]` for character classes.
+* `[$range_1$ $range_2$ ... ]` for character classes.
 
 
 We have the following operations on character classes that can be composed arbitrarily:

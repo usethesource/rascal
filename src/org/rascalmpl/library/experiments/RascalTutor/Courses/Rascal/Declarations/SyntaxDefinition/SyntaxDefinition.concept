@@ -17,13 +17,13 @@ The start modifier can be put on any definition:
 
 
 Definitions can be labeled to give them a name:
-* `syntax $Nonterminal$ = $Name$ : $Symbol_1$ $Symbol_2$ ...;`
+* `syntax $Nonterminal$ = $Name$ : $Symbol_1$ $Symbol_2$ ... ;`
 
 
 Finally, alternative definitions for the same non-terminal can be grouped using associativity, priority or unordered combinators:
-* `syntax $Nonterminal$ = $Alternative_1$ > left { $Alternative_2$ | $Alternative_3$ | ... } | ...;`
-* `syntax $Nonterminal$ = $Alternative_1$ | $Alternative_2$ | $Alternative_3$ | ...;`  
-* `syntax $Nonterminal$ = $Alternative_1$ > $Alternative_2$ > $Alternative_3$ > ...;`
+* `syntax $Nonterminal$ = $Alternative_1$ > left { $Alternative_2$ | $Alternative_3$ | ... } | ... ;`
+* `syntax $Nonterminal$ = $Alternative_1$ | $Alternative_2$ | $Alternative_3$ | ... ;`  
+* `syntax $Nonterminal$ = $Alternative_1$ > $Alternative_2$ > $Alternative_3$ > ... ;`
 
 Types:
 

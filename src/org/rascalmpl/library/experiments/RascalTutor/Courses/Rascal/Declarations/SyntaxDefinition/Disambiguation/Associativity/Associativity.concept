@@ -4,7 +4,7 @@ Synopsis:
 
 Syntax:
    * `syntax $Exp$ = $Assoc$ $Label$ $Symbol_1$ $Symbol_2$ ...`
-   * `syntax $Exp$ = $Assoc$ ( $Alt_1$ | $Alt_2$ | ...)`
+   * `syntax $Exp$ = $Assoc$ ( $Alt_1$ | $Alt_2$ | ... )`
    * `syntax $Exp$ = $Assoc$ $Symbol_1$ $Symbol_2$ ...`
  
 

@@ -10,7 +10,7 @@ Syntax:
 ($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
 </listing>
 <listing>
-<$Type$ $Var$><br>
+<$Type$ $Var$>
 </listing>
 <listing>
 <$Var$>
