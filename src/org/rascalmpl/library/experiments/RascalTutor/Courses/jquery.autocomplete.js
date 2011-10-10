@@ -772,7 +772,7 @@
         remoteDataType: false,
         lineSeparator: '\n',
         cellSeparator: '|',
-        minChars: 2,
+        minChars: 1,
         maxItemsToShow: 10,
         delay: 400,
         useCache: true,
