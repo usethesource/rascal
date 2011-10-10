@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
@@ -667,6 +668,10 @@
 
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>{ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... }</code>
+ <br/>
+<br/>
+
+ Library functions: <code>import Set</code>;
 
 </div>
 
@@ -857,8 +862,8 @@ The type of <tt>{1, </tt><textarea rows="1" cols="30" name="answer" class="answe
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{$2020-10-03T09:33:31.621+0200, $2065-10-06T04:35:48.846+0200, $2022-01-03, $2083-06-03T16:58:18.727+0200, $2112-05-06T10:18:43.882+0200}">
-The type of <tt>{$2020-10-03T09:33:31.621+0200, $2065-10-06T04:35:48.846+0200, $2022-01-03, $2083-06-03T16:58:18.727+0200, $2112-05-06T10:18:43.882+0200}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-4, -1}">
+The type of <tt>{-4, -1}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -887,10 +892,10 @@ The type of <tt>{$2020-10-03T09:33:31.621+0200, $2065-10-06T04:35:48.846+0200, $
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="19">
-<input type="hidden" name="B" value="&quot;R&quot;">
-<input type="hidden" name="C" value="-4">
-The type of <tt>{19, &quot;R&quot;, -4}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-14">
+<input type="hidden" name="B" value="&quot;X&quot;">
+<input type="hidden" name="C" value="-19">
+The type of <tt>{-14, &quot;X&quot;, -19}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

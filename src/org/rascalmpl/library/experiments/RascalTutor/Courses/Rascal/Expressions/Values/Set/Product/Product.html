@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
@@ -713,9 +714,9 @@ rel[int, int]: {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{&quot;Zekk&quot;, &quot;Tibor&quot;, &quot;Blackberry&quot;}">
-<input type="hidden" name="B" value="{&quot;P&quot;, &quot;Two-Headed Monster&quot;, &quot;Papaya&quot;, &quot;Isolder&quot;, &quot;Count Von Count&quot;}">
-The type of <tt>{&quot;Zekk&quot;, &quot;Tibor&quot;, &quot;Blackberry&quot;} * {&quot;P&quot;, &quot;Two-Headed Monster&quot;, &quot;Papaya&quot;, &quot;Isolder&quot;, &quot;Count Von Count&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;I&quot;}">
+<input type="hidden" name="B" value="{&quot;O&quot;, &quot;Big Bird&quot;, &quot;Admiral Sarn&quot;}">
+The type of <tt>{&quot;I&quot;} * {&quot;O&quot;, &quot;Big Bird&quot;, &quot;Admiral Sarn&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -744,9 +745,9 @@ The type of <tt>{&quot;Zekk&quot;, &quot;Tibor&quot;, &quot;Blackberry&quot;} * 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
-<input type="hidden" name="B" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
-The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)} * {|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{false, false, false}">
+<input type="hidden" name="B" value="{false, false, false, true, false}">
+The type of <tt>{false, false, false} * {false, false, false, true, false}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -775,9 +776,9 @@ The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)} * {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{-10}">
-<input type="hidden" name="B" value="{-10, -7}">
-<pre class="prequestion">{-10} * {-10, -7} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{1, -16, 2, 10}">
+<input type="hidden" name="B" value="{-13, 15, 9}">
+<pre class="prequestion">{1, -16, 2, 10} * {-13, 15, 9} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

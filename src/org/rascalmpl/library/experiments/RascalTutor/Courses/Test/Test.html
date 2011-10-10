@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Test/course.js"></script>
@@ -107,14 +108,7 @@ render(hcat( [A, B, A], gap(10)));
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::Hello
-
-import IO;
-
-public void hello() {
-   println("Hello world, this is my first Rascal program");
-}
-</pre>
+<span class="sectionHead">Examples</span>  <warning>File demo/common/Hello.rsc not found.</warning>
 </div>
 
 <div id="questions">
@@ -135,8 +129,8 @@ public void hello() {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="11">
-The type of <tt>11</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-4">
+The type of <tt>-4</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -165,8 +159,8 @@ The type of <tt>11</tt> is <textarea rows="1" cols="30" name="answer" class="ans
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="18">
-<pre class="prequestion">2 * 18 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="16">
+<pre class="prequestion">2 * 16 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

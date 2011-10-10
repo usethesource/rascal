@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
@@ -705,9 +706,9 @@ bool: false
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Equal">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{&quot;W&quot;, &quot;Count Von Count&quot;, &quot;Prune&quot;, &quot;Celery&quot;, &quot;Boba Fett&quot;}">
-<input type="hidden" name="B" value="{&quot;Tibor&quot;, &quot;Peppermint&quot;, &quot;Cayenne&quot;, &quot;Cayenne&quot;}">
-The type of <tt>{&quot;W&quot;, &quot;Count Von Count&quot;, &quot;Prune&quot;, &quot;Celery&quot;, &quot;Boba Fett&quot;} == {&quot;Tibor&quot;, &quot;Peppermint&quot;, &quot;Cayenne&quot;, &quot;Cayenne&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{false, false, false, false, false}">
+<input type="hidden" name="B" value="{true, false, true}">
+The type of <tt>{false, false, false, false, false} == {true, false, true}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

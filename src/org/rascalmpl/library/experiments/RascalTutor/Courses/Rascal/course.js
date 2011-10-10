@@ -13,7 +13,7 @@ searchTerms["Rascal/Declarations/Import"] = new Array("import",";");
 
 searchTerms["Rascal/Libraries"] = null;
 
-searchTerms["Rascal/Expressions/Values/Boolean"] = new Array("false","bool","true");
+searchTerms["Rascal/Expressions/Values/Boolean"] = new Array("false","import","Boolean","bool",";","true");
 
 searchTerms["Rascal/Expressions/Values/Set/Equal"] = new Array("==","set","bool","[","]");
 
@@ -217,7 +217,7 @@ searchTerms["Rascal/Declarations/SyntaxDefinition/Disambiguation"] = null;
 
 searchTerms["Rascal/Libraries/Vis/Figure/ColorModel/colorSteps"] = null;
 
-searchTerms["Rascal/Expressions/Values/Map"] = new Array(")]","(",")","lub",":","[",",","map");
+searchTerms["Rascal/Expressions/Values/Map"] = new Array(")]","import","(",")","lub",":","[",",","map","Map");
 
 searchTerms["Rascal/Libraries/LabeledGraph/predecessors"] = null;
 
@@ -301,7 +301,7 @@ searchTerms["Rascal/Expressions/Values/Number/LessThan"] = new Array("bool","<",
 
 searchTerms["Rascal/Expressions/Values/Map/StrictSubMap"] = new Array("bool","[","<",",","map","]");
 
-searchTerms["Rascal/Expressions/Values/String"] = new Array("str","\"","r","b","...\"","t","\'","<","\\",">","n");
+searchTerms["Rascal/Expressions/Values/String"] = new Array("String","str","\"","r","b","...\"","t","import","\'","<","\\",">","n");
 
 searchTerms["Rascal/Libraries/Vis/Figure/Properties/shapeConnected"] = null;
 
@@ -421,7 +421,7 @@ searchTerms["Rascal/Libraries/Vis/Figure/Properties/label"] = null;
 
 searchTerms["Rascal/Expressions/Values/Map/Intersection"] = new Array("set",")]","&","(","lub","[","map",",","]");
 
-searchTerms["Rascal/Expressions/Values/Set"] = new Array("set","(",")","lub","{","[",",","}","]");
+searchTerms["Rascal/Expressions/Values/Set"] = new Array("set","Set","import","(",")","lub","{","[",",","}","]");
 
 searchTerms["Rascal/Libraries/Resources/root"] = null;
 
@@ -481,7 +481,7 @@ searchTerms["Rascal/Expressions/Values/Boolean/Or"] = new Array("||","bool");
 
 searchTerms["Rascal/Expressions/Values/Tuple/Concatenation"] = new Array("tuple","[","+",",","]",">");
 
-searchTerms["Rascal/Expressions/Values/Number"] = new Array("num","real","int");
+searchTerms["Rascal/Expressions/Values/Number"] = new Array("import","num","Number","real","int");
 
 searchTerms["Rascal/Expressions/Values"] = null;
 
@@ -555,7 +555,7 @@ searchTerms["Rascal/Libraries/ValueIO/readTextValueFile"] = null;
 
 searchTerms["Rascal/IDEConstruction"] = null;
 
-searchTerms["Rascal/Expressions/Values/Node"] = new Array("value","str","node","(",")",",");
+searchTerms["Rascal/Expressions/Values/Node"] = new Array("value","str","node","Node","import","(",")",",");
 
 searchTerms["Rascal/Expressions/Values/Set/toMapUnique"] = null;
 
@@ -685,7 +685,7 @@ searchTerms["Rascal/Expressions/Values/Number/Conditional"] = new Array("bool","
 
 searchTerms["Rascal/Expressions/Visit"] = new Array("case","default","Strategy","(",")",":","visit","{",";","}");
 
-searchTerms["Rascal/Expressions/Values/Real"] = null;
+searchTerms["Rascal/Expressions/Values/Real"] = new Array("import","Real","real");
 
 searchTerms["Rascal/Expressions/Values/Tuple/GreaterThanOrEqual"] = new Array("tuple","bool","[",",","]",">=");
 
@@ -693,7 +693,7 @@ searchTerms["Rascal/Declarations/SyntaxDefinition/ConcreteSyntax"] = null;
 
 searchTerms["Rascal/Libraries/Vis/Figure/ColorModel/colorScale"] = null;
 
-searchTerms["Rascal/Expressions/Values/DateTime"] = null;
+searchTerms["Rascal/Expressions/Values/DateTime"] = new Array("import","DateTime",";","datetime");
 
 searchTerms["Rascal/Libraries/Vis/Figure/Figures/hscrollable"] = null;
 
@@ -785,7 +785,7 @@ searchTerms["Rascal/Expressions/Comprehensions/Enumerator"] = null;
 
 searchTerms["Rascal/Libraries/IO/exists"] = null;
 
-searchTerms["Rascal/Expressions/Values/Integer"] = null;
+searchTerms["Rascal/Expressions/Values/Integer"] = new Array("import","Integer","int");
 
 searchTerms["Rascal/Expressions/Values/List/permutations"] = null;
 
@@ -973,7 +973,7 @@ searchTerms["Rascal/Declarations/SyntaxDefinition/Symbols"] = new Array("@",">>"
 
 searchTerms["Rascal/Declarations/Program"] = null;
 
-searchTerms["Rascal/Expressions/Values/List"] = new Array("set",")]","(","lub","[",",","]");
+searchTerms["Rascal/Expressions/Values/List"] = new Array("set",")]","import","(","lub","[",",","]","List");
 
 searchTerms["Rascal/Expressions/Values/String/GreaterThan"] = new Array("str","bool",">");
 

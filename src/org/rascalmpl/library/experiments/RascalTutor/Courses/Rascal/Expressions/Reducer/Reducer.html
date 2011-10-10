@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
+<script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Rascal/course.js"></script>
@@ -671,16 +672,16 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  A reducer resembles the <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">fold</a> function
+<span class="sectionHead">Description</span>  A reducer resembles the <a href="http://en.wikipedia.org/wiki/Fold_(higher-order_function)">fold<img src="/images/www-icon.png" with="20" height="20"></a> function
  found in most functional languages.
  <br/>
 <br/>
 
  A reducer is equivalent to the following code:
- <pre class="listing">it = <i>IntExp</i>; <img src="images/1.png">
-for(<i>Gen</i><sub>1</sub>, <i>Gen</i><sub>1</sub>, ... ) <img src="images/2.png">
-    it = <i>RedExp</i>; <img src="images/3.png">
-it; <img src="images/4.png">
+ <pre class="listing">it = <i>IntExp</i>; <img src="/images/1.png">
+for(<i>Gen</i><sub>1</sub>, <i>Gen</i><sub>1</sub>, ... ) <img src="/images/2.png">
+    it = <i>RedExp</i>; <img src="/images/3.png">
+it; <img src="/images/4.png">
 </pre> and is executed as follows:
  <ul><li> A fresh variable <code>it</code> is initialized with <code><i>IntExp</i></code> (<img src="/images/1.png">).</li>
 <li> A for loop iterates over all values produced by the generators (<img src="/images/2.png">).</li>

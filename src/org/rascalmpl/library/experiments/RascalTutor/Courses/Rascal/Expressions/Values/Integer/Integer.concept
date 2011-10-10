@@ -5,6 +5,8 @@ Synopsis: Integer values.
 Syntax:
 sequence of digits of arbitrary length.
 
+Library functions: `import Integer`;
+
 Types:
 `int`
 

@@ -11,6 +11,20 @@ Function:
 Details:
 
 Description:
+The libraries with functions for built-in datatypes are described elsewhere:
+* [Values/Boolean]
+* [Values/DateTime]
+* [Values/Integer]
+* [Values/List]
+* [Values/Map]
+* [Values/Node]
+* [Values/Number]
+* [Values/Real]
+* [Values/Relation]
+* [Values/Set]
+* [Values/String]
+
+
 The libraries provide the following functionality:
 * [Benchmark]: Functions for time measurement and benchmarking.
 * [$Libraries/Graph]: A `Graph` datatype with associated functions.
