@@ -7,21 +7,9 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module demo::Lift
+module demo::common::LiftTest
 
-// Given:
-// - a call relation between procedures
-// - a partOf relation between procedures and components
-// lift the call structure to the component level.
-// In other words: a call between two procedures will be lifted to
-// a call between the components to which each procedure belongs
-
-alias proc = str;
-alias comp = str ;
-
-public rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
-	return { <C1, C2> | <proc P1, proc P2> <- aCalls, <comp C1, comp C2> <- aPartOf[P1] * aPartOf[P2]};
-}
+import demo::common::Lift;
 
 // The following only for testing
 

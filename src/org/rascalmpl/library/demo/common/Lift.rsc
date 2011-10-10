@@ -7,22 +7,13 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module demo::Trans
+//START
+module demo::common::Lift
 
-// Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...
+alias proc = str;
+alias comp = str;
 
-public rel[int,int] trans(rel[int,int] R){
-
-  rel[int,int] T = R;
-	
-  solve (T) {
-    T = T + (T o R);
-  }
-
-  return T;
+public rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
+	return { <C1, C2> | <proc P1, proc P2> <- aCalls, <comp C1, comp C2> <- aPartOf[P1] * aPartOf[P2]};
 }
-
-// Tests
-
-public test bool t1() = trans({<1,2>, <2,3>, <3,4>}) == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
 
