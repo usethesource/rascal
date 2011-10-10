@@ -7,23 +7,22 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-module demo::Ackermann
+module demo::common::Trans
 
-// Ackermann's function: a standard example of a double recursive function.
-// See http://en.wikipedia.org/wiki/Ackermann_function
+// Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...
 
-public int ack(int m, int n)
-{
-	if(m == 0)
-		return n + 1;
-	else if(n == 0)
-		return ack(m - 1, 1);
-	else
-		return ack(m - 1, ack(m, n - 1));
+public rel[int,int] trans(rel[int,int] R){
+
+  rel[int,int] T = R;
+	
+  solve (T) {
+    T = T + (T o R);
+  }
+
+  return T;
 }
 
 // Tests
 
-public test bool t1() = ack(2,5) == 13;
-public test bool t2() = ack(3,4) == 125;
+public test bool t1() = trans({<1,2>, <2,3>, <3,4>}) == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
+

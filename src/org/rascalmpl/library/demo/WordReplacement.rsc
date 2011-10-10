@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module demo::WordReplacement
 

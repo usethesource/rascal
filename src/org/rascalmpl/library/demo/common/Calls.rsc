@@ -7,7 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module demo::Calls
+module demo::common::Calls
 
 import Set;
 import Relation;
