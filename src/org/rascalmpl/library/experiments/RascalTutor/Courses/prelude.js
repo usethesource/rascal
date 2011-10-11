@@ -10,11 +10,13 @@ else
 $(document).ready(function () {
 	// alert("ready called");
 	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
+	// first retrieve navpane
+	$('#navPanePlaceHolder').load(navigationPaneSource, function () {
 	if ($('#navPane #navItialized').length > 0) {
 		attachHandlers();
 	} else {
 		initNavigation();
-	}
+	}});
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 

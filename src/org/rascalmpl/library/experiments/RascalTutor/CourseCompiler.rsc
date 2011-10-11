@@ -762,7 +762,7 @@ public str getNavigationPanel(ConceptName rootConcept){
       }
       catch e: println("can not read file <navFile>"); // do nothing
   }
-  return panelCache[rootConcept];
+  return div("navPanePlaceHolder", "") +"\<script type=\"text/javascript\"\> var navigationPaneSource=\"/Courses/<rootname(rootConcept)>/navigate.html\"; \</script\>";// panelCache[rootConcept];
 }
 
 // --------------------------------- Question Presentation ---------------------------
