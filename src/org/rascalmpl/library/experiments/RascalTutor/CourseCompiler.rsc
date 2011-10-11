@@ -239,10 +239,12 @@ public void updateParentDetails(ConceptName cn){
 
 public str prelude(str courseName){ 
   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>
+  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/jquery.autocomplete.css\"/\>
   		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
   		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.cookie.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
           '\<script type=\"text/javascript\" src=\"/Courses/jquery.autocomplete.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"/Courses/jquery.history.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/globals.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
          '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
