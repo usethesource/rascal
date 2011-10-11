@@ -1,4 +1,4 @@
-module demo::languages::Exp::Concrete::WithLayout::Syntax
+module demo::lang::Exp::Concrete::WithLayout::Syntax
 
 lexical LAYOUT = [\t-\n\r\ ];                    /*1*/
 

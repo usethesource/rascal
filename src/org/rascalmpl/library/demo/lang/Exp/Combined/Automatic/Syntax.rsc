@@ -1,4 +1,4 @@
-module demo::languages::Exp::Combined::Automatic::Syntax
+module demo::lang::Exp::Combined::Automatic::Syntax
 
 lexical LAYOUT = [\t-\n\r\ ];                    
 

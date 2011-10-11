@@ -1,4 +1,4 @@
-module demo::languages::Exp::Concrete::NoLayout::Syntax
+module demo::lang::Exp::Concrete::NoLayout::Syntax
     
 lexical IntegerLiteral = [0-9]+;           /*1*/
 

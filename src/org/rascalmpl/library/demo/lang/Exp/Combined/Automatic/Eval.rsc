@@ -1,4 +1,4 @@
-module demo::languages::Exp::Combined::Automatic::Eval
+module demo::lang::Exp::Combined::Automatic::Eval
 
 import ParseTree;   
 
