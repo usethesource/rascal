@@ -38,13 +38,15 @@ The input:<br>
 `<listing demo/Hello.rsc>`
 
 will produce.
-<listing demo/Hello.rsc>
+<listing demo/basic/Hello.rsc>
 
 Compared with the source file, all lines before `//START` have been removed.
 
 Benefits:
 
 Pitfalls:
+Do not make the lines in a listing too long since they will not be wrapped.
+Not more than 60 characters is a rule of thumb.
 
 Questions:
 
