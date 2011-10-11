@@ -3,13 +3,20 @@ Name: Function
 Synopsis: Declare a function.
 
 Syntax:
-# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Statement$`
-# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Statement$`
-# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) throws $Exception_1$, $Exception_2$, ... $Statement$`
+# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ ) $Body$`
+# `$Modifiers$ $Type$ $Name$( $Type_1$ $Var_1$, ..., $Type_n$ $Var_n$ $Type_0$ $Name_0$... ) $Body$`
+# `$Modifiers$ $Type$ $Name$( $Pattern_1$, ..., $Pattern_n$) $Body$
+# `$Modifiers$ $Type$ $Name$( $Pattern_1$, ..., $Pattern_n$, $Type_0$ $Name_0$...) $Body$
 
 
-where `$Modifiers$` may be:
-* `("public" | "private")? ("java" | "test")?`
+where `$Body` is one of:
+* `{ $Statements$ }`
+* `throws $Exception_1$, $Exception_2$, ... { $Statements$ }`
+* ` = $Expression$;`
+
+
+and where `$Modifiers$` may be:
+* `("public" | "private")? ("java" | "test" | "default")?`
 
 Types:
 
@@ -32,14 +39,41 @@ The last parameter of a function may be followed by `...` and this has as effect
 that occur in a call to this function are collected as list value of the last formal parameter. 
 Inside the function body, the type of this parameter will therefore be `list[$Type_0$]`.
 
-=== Variant 3 ===
-The exceptions that can be thrown by a function can be (optionally) declared as shown in syntax variant 3 above. 
+=== Variant 3 and 4 ===
+
+All formal parameter of a function can be [Patterns]. There are some restrictions however:
+* [Patterns] in formal parameter positions may not refer to variables in the scope
+* [Patterns] in formal parameter positions may not introduce fresh variables without an explicit type. 
+* The last parameter, if followed by `...` can only be a normal typed parameters, not just any pattern.
+
+
+=== Body types ===
+
+* Functions with list of statements as bodies must eventually use `return` or `fail` on every control flow path. 
+* The declarations to `throw` an exception are documentation only
+* Single expressions can be bodies of functions, the return value is the value of the expression.
+
 
 === Parameterized types in function declaration ===
-The types that occur in function declarations may also contain [TypeParameters].
-In this way functions can be defined for arbitrary types. The type variable is bound at the moment the function is called.
 
-<warning> Pattern-directed invocation not yet described</warning>
+The types that occur in function declarations may also contain [TypeParameters].
+In this way functions can be defined for arbitrary types. The type variable is bound (statically) at by the types of the parameters given at location of the call. The result type must be used at least once in any of the parameters.
+
+=== Overloading ===
+ 
+Function definitions may be overloaded, i.e. a function with the same name may be defined twice and a function may redefine a constructor of an [AlgebraicDatatype] or a [SyntaxDefinition].
+
+There are some restrictions however:
+* Overloaded alternatives for the same function name but with different patterns must return the same type.
+* Overloaded alternatives for the same function name must have mutually exclusive patterns, unless one alternative is labeled `default` and the other is not. The patterns of formal parameters are mutually exclusive if for at least one parameter position:
+   ** They range over incomparable types, as in `int f(int a)` and `int f(real a)`, or
+   ** They range over different alternatives of an [AlgebraicDatatype], as in `int f(and(Bool a, Bool b))` and `int f(or(Bool a, Bool b))`
+   ** They range over different alternatives of a [SyntaxDefinition]
+   ** And note that deep matches using the `/` alternative are considered to be of type `value` and therefore overlap with all other patterns.
+* Overlapping patterns are allowed if the one alternative has the `default` modified while the other does not.
+* If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An [AlgebraicDatatype] or a [SyntaxDefinition] with the same name and return type counts as a `default` alternative.
+* `default` functions may not fail.
+
 
 === Modifiers ===
 The $Modifiers$ affect _visibility_ and _special behaviour_ of functions:
@@ -51,6 +85,8 @@ The $Modifiers$ affect _visibility_ and _special behaviour_ of functions:
   * `test` declares that this is a test function. A test function is a boolean function (currently) withou arguments. 
     It can be called as any other function. However, it can also be called automatically
     by the unit test framework, by typing `:test` at the command line, see [Help].
+  * `default` declares an alternative for an overloaded function that will only be tried after all non-default alternatives have been tried. Note that [AlgebraicDatatype]s and [SyntaxDefinition]s _implicitly_ define `default` functions that may be overloaded by normal [Function]s.
+
 
 Examples:
 <screen>
@@ -77,6 +113,31 @@ tuple[&T2, &T1] swap(tuple[&T1, &T2] TP) { return <TP[1], TP[0]>;}
 swap(<1, 2>);
 swap(<"wed", 3>);
 </screen>
+
+Here we use an overloaded definition with incomparable patterns:
+<screen>
+int f(int i) = 1;
+int f(real r) = 2;
+f(0);
+f(0.0);
+</screen>
+
+And we may use `default`, as in:
+<screen>
+int f(0) = 1;
+default int f(int n) = n * f(n - 1);
+f(0);
+f(2);
+</screen>
+
+In combination with an [AlgebraicDatatype], which defines `default` functions implicitly for every alternative, we can define canonicalization functions. The same holds for [SyntaxDefinition]s, see [Action]s.
+<screen>
+// This definition implies a default function for t(), f() and neg(B):
+data B = t() | f() | neg(B);
+// the following definition will remove any nested neg before it is even constructed:
+B neg(neg(B b)) = b;
+neg(t());
+neg(neg(f()));
 
 Benefits:
 
