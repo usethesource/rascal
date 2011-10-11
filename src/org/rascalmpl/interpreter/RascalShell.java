@@ -23,17 +23,21 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
@@ -234,15 +238,69 @@ public class RascalShell {
 		if (args[0].equals("-latex")) {
 			toLatex(args[1]);
 		}
+		else {
+			runModule(args);
+		}
 	}
 
-	private static void toLatex(String fileName) throws IOException {
+	private static void runModule(String args[]) {
+		String module = args[0];
+		if (module.endsWith(".rsc")) {
+			module = module.substring(0, module.length() - 4);
+		}
+		module = module.replaceAll("/", "::");
+		Evaluator evaluator = getDefaultEvaluator();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		TypeFactory tf = TypeFactory.getInstance();
+		IListWriter w = vf.listWriter(tf.stringType());
+		for (int i = 1; i < args.length; i++) {
+			w.append(vf.string(args[i]));
+		}
+		try {
+			evaluator.doImport(null, module);
+			IValue v = evaluator.call(null, "main", w.done());
+			if (v != null) {
+				System.out.println(v.toString());
+			}
+			return;
+		}
+		catch (ParseError pe) {
+			URI uri = pe.getLocation();
+			System.err.println("Parse error in " + uri + " from <" + (pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">");
+		}
+		catch (StaticError e) {
+			System.err.println("Static Error: " + e.getMessage());
+			e.printStackTrace(); // for debugging only
+		}
+		catch (Throw e) {
+			System.err.println("Uncaught Rascal Exception: " + e.getMessage());
+			String trace = e.getTrace();
+			if (trace != null) {
+				System.err.println(trace);
+			}
+		}
+		catch (ImplementationError e) {
+			e.printStackTrace();
+			System.err.println("ImplementationError: " + e.getMessage());
+		}
+		catch (Throwable e) {
+			System.err.println("Unexpected exception (generic Throwable): " + e.getMessage());
+			System.err.println(evaluator.getStackTrace());
+		}
+	}
+
+	private static Evaluator getDefaultEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+		return evaluator;
+	}
+	
+	private static void toLatex(String fileName) throws IOException {
+		Evaluator evaluator = getDefaultEvaluator();
 		evaluator.doImport(null, "lang::rascal::doc::ToLatex");
 		File file = new File(fileName);
 		String name = file.getName();
@@ -262,6 +320,7 @@ public class RascalShell {
 		
 		System.err.println("Formatting Rascal snippets in " + file + "; outputting to " + dest + "...");
 		System.err.flush();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		ISourceLocation loc = vf.sourceLocation(file.getAbsolutePath());
 		IString str = (IString) evaluator.call(null, "rascalDoc2Latex", loc);
 		FileWriter writer = new FileWriter(dest);
