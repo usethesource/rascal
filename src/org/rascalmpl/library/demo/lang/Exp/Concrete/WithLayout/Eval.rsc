@@ -1,5 +1,5 @@
-module demo::languages::Exp::Concrete::WithLayout::Eval
-import demo::languages::Exp::Concrete::WithLayout::Syntax;
+module demo::lang::Exp::Concrete::WithLayout::Eval
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 import String;
 import ParseTree;                                                 
