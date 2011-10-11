@@ -21,25 +21,25 @@ searchTerms["Tutor/Concept/Function"] = new Array("Function",":");
 
 searchTerms["Tutor/Markup/StructureMarkup/NamedParagraph"] = new Array("==","====","===");
 
-searchTerms["Tutor/Markup/QuestionMarkup/Choice"] = null;
-
 searchTerms["Tutor/Concept/Synopsis"] = new Array("Synopsis",":");
 
-searchTerms["Tutor/Markup/StructureMarkup/BulletLists"] = new Array("**","*","***");
+searchTerms["Tutor/Markup/QuestionMarkup/Choice"] = null;
 
-searchTerms["Tutor/Markup/StructureMarkup/NewParagraph"] = null;
+searchTerms["Tutor/Markup/StructureMarkup/BulletLists"] = new Array("**","*","***");
 
 searchTerms["Tutor/Markup/InlineMarkup/Italic"] = null;
 
 searchTerms["Tutor/Markup/InlineMarkup/Callout"] = null;
 
-searchTerms["Tutor/Markup/InlineMarkup"] = null;
+searchTerms["Tutor/Markup/StructureMarkup/NewParagraph"] = null;
 
-searchTerms["Tutor/Markup/StructureMarkup"] = null;
+searchTerms["Tutor/Markup/InlineMarkup"] = null;
 
 searchTerms["Tutor/Concept/Questions"] = new Array(":",",","Questions");
 
 searchTerms["Tutor/Markup/InlineMarkup/Code"] = null;
+
+searchTerms["Tutor/Markup/StructureMarkup"] = null;
 
 searchTerms["Tutor/Concept/Name"] = new Array(":","Name");
 
@@ -47,11 +47,11 @@ searchTerms["Tutor/Concept/Examples"] = new Array("Examples",":");
 
 searchTerms["Tutor/Markup/InlineMarkup/ExternalURL"] = new Array(")","[","](");
 
-searchTerms["Tutor/Markup/StructureMarkup/listing"] = new Array(">`","#","listing","`<");
+searchTerms["Tutor/Concept/Details"] = new Array("Details",":",",");
 
 searchTerms["Tutor/Markup/InlineMarkup/ReferenceToConcept"] = new Array(":","[","]");
 
-searchTerms["Tutor/Concept/Details"] = new Array("Details",":",",");
+searchTerms["Tutor/Markup/StructureMarkup/listing"] = new Array(">`","#","listing","`<");
 
 searchTerms["Tutor/Markup"] = null;
 
@@ -59,9 +59,9 @@ searchTerms["Tutor/Authoring"] = null;
 
 searchTerms["Tutor/Markup/QuestionMarkup/TypeDescriptor"] = new Array("loc","set","num","same","tuple","bool",",","int","...]","str","value","arb","void","[","datetime","map","]","real","list");
 
-searchTerms["Tutor/Concept/Description"] = new Array(":","Description");
-
 searchTerms["Tutor/Concept/Benefits"] = new Array(":","Benefits");
+
+searchTerms["Tutor/Concept/Description"] = new Array(":","Description");
 
 searchTerms["Tutor/Markup/InlineMarkup/Image"] = new Array(")","![","](","|");
 

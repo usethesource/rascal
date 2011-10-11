@@ -29,9 +29,9 @@ searchTerms["Recipes/Common/WordCount/CountInLine3"] = null;
 
 searchTerms["Recipes/Common/WordCount/CountInLine2"] = null;
 
-searchTerms["Recipes/Common/WordCount/CountInLine1"] = null;
-
 searchTerms["Recipes/Common/ColoredTrees"] = null;
+
+searchTerms["Recipes/Common/WordCount/CountInLine1"] = null;
 
 searchTerms["Recipes/Common/WordCount"] = null;
 
@@ -41,9 +41,9 @@ searchTerms["Recipes/Languages/Exp/Concrete/WithLayout"] = null;
 
 searchTerms["Recipes/Basic/Hello"] = null;
 
-searchTerms["Recipes"] = null;
-
 searchTerms["Recipes/Common/StringTemplate"] = null;
+
+searchTerms["Recipes"] = null;
 
 searchTerms["Recipes/Languages/Exp/Concrete/NoLayout"] = null;
 
