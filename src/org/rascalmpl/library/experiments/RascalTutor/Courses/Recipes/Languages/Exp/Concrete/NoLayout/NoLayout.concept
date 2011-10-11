@@ -48,8 +48,14 @@ Notes:
 * /*6*/ handles the case of parentheses.
 
 
+What remains, is to check that `eval` works as expected.
 <screen>
 import demo::languages::Exp::Concrete::NoLayout::Syntax;
+import ParseTree;
+// Just checking that `parse` returns a sort of parse tree:
+parse(#Exp, "2+3");
+// You will see such parse trees only once, unless you are a researcher in parsing ;-)
+// Here is a demonstration of `eval`:
 import demo::languages::Exp::Concrete::NoLayout::Eval;
 eval("2+3");
 eval("2+3*4");
