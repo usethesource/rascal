@@ -1,0 +1,47 @@
+Name: Automatic
+
+Synopsis: Use implode to translate an Exp parse tree to an abstract syntax tree.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+[Rascal:implode] is a function that automates the mapping between parse trees and abstract syntax trees.
+It takes two arguments:
+* The _reified_ type of the desired abstract syntax. (In Rascal, types can not be used freely as values.
+  A reified type, is a type that is wrapped in such a way that it can be passed as an argument to a function.)
+* The parse tree to be converted.
+
+
+`implode` is smart in trying to find a mapping, but it needs some guidance.
+A necessary step is therefore to label the rules in the grammar with the name of the 
+constructor to which it has to be mapped.
+
+Examples:
+Let's first label the syntax rules of the Exp grammar with constructor names:
+<listing demo/languages/Exp/Combined/Automatic/Syntax.rsc>
+
+Observe that at /*1*/, /*2*/ and /*3*/ these labels have been added.
+
+<screen>
+import demo::languages::Exp::Combined::Automatic::Syntax;
+import ParseTree;
+implode(#demo::languages::Exp::Abstract::Syntax::Exp, 
+        parse(#demo::languages::Exp::Combined::Automatic::Syntax::Exp, "2+3*4"));              
+
+import demo::languages::Exp::Combined::Automatic::Eval;
+eval("2+3*4");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

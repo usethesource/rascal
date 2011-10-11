@@ -1,0 +1,33 @@
+Name: Manual
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+Examples:
+
+<listing demo/languages/Exp/Combined/Manual/P2A.rsc>
+<screen>
+import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import demo::languages::Exp::Abstract::Syntax;
+import demo::languages::Exp::Combined::Manual::P2A;
+import ParseTree;
+parse(#demo::languages::Exp::Concrete::WithLayout::Syntax::Exp, "2+3");
+p2a("2+3");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
