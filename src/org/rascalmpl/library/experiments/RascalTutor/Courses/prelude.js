@@ -17,6 +17,11 @@ $(document).ready(function () {
 	} else {
 		initNavigation();
 	}});
+	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
+		// make sure any local links do not cause a actual page reload
+		e.preventDefault();
+		loadConceptURL($(this).attr('href'));
+	});
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
