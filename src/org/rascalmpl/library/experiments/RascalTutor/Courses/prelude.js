@@ -79,7 +79,6 @@ function initNavigation() {
         }
     });
 	$.History.bind(function(state) {
-		console.log(state);
         loadConceptURL(state);
 	});
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
