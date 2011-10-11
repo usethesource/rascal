@@ -1,0 +1,37 @@
+Name: ParseTree
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+Examples:
+<screen>
+import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import ParseTree;
+parse(#Exp, "1+2*3");
+</screen>
+<figure t1.png>
+import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import ParseTree;
+import vis::Figure;
+import vis::ParseTree;
+import vis::Render;
+render(visParsetree(parse(#Exp, "1+2*3")));
+</figure>
+![t1](t1.png)
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
