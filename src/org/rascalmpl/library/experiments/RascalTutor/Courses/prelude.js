@@ -6,7 +6,28 @@ else
    alert(m + ": " + s.substring(0, 200));
    */
 }
+function loadScript(url, callback){
 
+    var script = document.createElement("script")
+    script.type = "text/javascript";
+
+    if (script.readyState){  //IE
+        script.onreadystatechange = function(){
+            if (script.readyState == "loaded" ||
+                    script.readyState == "complete"){
+                script.onreadystatechange = null;
+                callback();
+            }
+        };
+    } else {  //Others
+        script.onload = function(){
+            callback();
+        };
+    }
+
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+}
 newStyleAutoComplete = true;
 
 $(document).ready(function () {
@@ -18,14 +39,16 @@ $(document).ready(function () {
 		oStyle.href='/Courses/jquery.autocomplete.css';
 		oHead.appendChild(oStyle);
 	}
-    // alert("ready called");
-    // alert("1: navigation_initialized = " + ($('#navInitialized').val()));
-    if ($('#navPane #navItialized').length > 0) {
-        attachHandlers();
-    } else {
-        initNavigation();
-    }
-    // alert("2: navigation_initialized = " + ($('#navInitialized').val()));
+	loadScript("/Courses/jquery.history.js", function () {
+		// alert("ready called");
+		// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
+		if ($('#navPane #navItialized').length > 0) {
+			attachHandlers();
+		} else {
+			initNavigation();
+		}
+		// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
+	});
 });
 
 function initNavigation() {
@@ -34,6 +57,7 @@ function initNavigation() {
 
     $("#navPane").bind("select_node.jstree", function (event, data) {
         var url = $(data.args[0]).attr("href");
+		$.History.go(url); // store history in url, such that the back button could work
         loadConceptURL(url);
         return false;
     }).jstree({
@@ -54,6 +78,10 @@ function initNavigation() {
 
         }
     });
+	$.History.bind(function(state) {
+		console.log(state);
+        loadConceptURL(state);
+	});
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
     $('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
         // this is a  simple fix to work around a resizing issues caused 
