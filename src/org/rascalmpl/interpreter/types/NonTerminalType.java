@@ -123,6 +123,10 @@ public class NonTerminalType extends ExternalType {
 			return SymbolAdapter.isEqual(otherSym, symbol);
 		}
 		
+		if (other.isAbstractDataType() || other.isConstructorType()) {
+			return false;
+		}
+		
 		if (other.isNodeType()) {
 			return true;
 		}
