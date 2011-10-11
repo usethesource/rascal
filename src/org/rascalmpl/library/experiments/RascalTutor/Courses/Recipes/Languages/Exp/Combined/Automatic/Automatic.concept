@@ -24,17 +24,17 @@ constructor to which it has to be mapped.
 
 Examples:
 Let's first label the syntax rules of the Exp grammar with constructor names:
-<listing demo/languages/Exp/Combined/Automatic/Syntax.rsc>
+<listing demo/lang/Exp/Combined/Automatic/Syntax.rsc>
 
 Observe that at /*1*/, /*2*/ and /*3*/ these labels have been added.
 
 <screen>
-import demo::languages::Exp::Combined::Automatic::Syntax;
+import demo::lang::Exp::Combined::Automatic::Syntax;
 import ParseTree;
-implode(#demo::languages::Exp::Abstract::Syntax::Exp, 
-        parse(#demo::languages::Exp::Combined::Automatic::Syntax::Exp, "2+3*4"));              
+implode(#demo::lang::Exp::Abstract::Syntax::Exp, 
+        parse(#demo::lang::Exp::Combined::Automatic::Syntax::Exp, "2+3*4"));              
 
-import demo::languages::Exp::Combined::Automatic::Eval;
+import demo::lang::Exp::Combined::Automatic::Eval;
 eval("2+3*4");
 </screen>
 

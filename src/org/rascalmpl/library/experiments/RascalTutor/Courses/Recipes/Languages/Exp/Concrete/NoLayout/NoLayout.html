@@ -52,7 +52,7 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is the grammar for Exp:
- <pre class="listing">module demo::languages::Exp::Concrete::NoLayout::Syntax
+ <pre class="listing">module demo::lang::Exp::Concrete::NoLayout::Syntax
     
 lexical IntegerLiteral = [0-9]+;           <img src="/Courses/images/1.png">
 
@@ -74,8 +74,8 @@ start syntax Exp =                         <img src="/Courses/images/2.png">
 <li> <img src="/Courses/images/6.png"> defines alternative #4: addition. The <code>></code> says again that the previous rule has a higher priorrity than the current one.         The keyword <code>left</code> marks this as a left-associative rule.
 </li>
 </ul> Now that the grammar is in place we want to use it to build an evaluator. Here is how:
- <pre class="listing">module demo::languages::Exp::Concrete::NoLayout::Eval
-import demo::languages::Exp::Concrete::NoLayout::Syntax;
+ <pre class="listing">module demo::lang::Exp::Concrete::NoLayout::Eval
+import demo::lang::Exp::Concrete::NoLayout::Syntax;
 
 import String;
 import ParseTree;                                                 <img src="/Courses/images/1.png">
@@ -100,9 +100,35 @@ public int eval((Exp)`(&lt;Exp e>)`) = eval(e);                      <img src="/
 </ul></li>
 <li> <img src="/Courses/images/4.png"> and <img src="/Courses/images/5.png"> handle the multiplication and addition cases.</li>
 <li> <img src="/Courses/images/6.png"> handles the case of parentheses.</li>
-</ul> <pre class="screen"><b>rascal></b>import demo::languages::Exp::Concrete::NoLayout::Syntax;
+</ul> What remains, is to check that <code>eval</code> works as expected.
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Syntax;
 ok
-<b>rascal></b>import demo::languages::Exp::Concrete::NoLayout::Eval;
+<b>rascal></b>import ParseTree;
+ok
+</pre>
+  Just checking that <code>parse</code> returns a sort of parse tree:
+
+<pre class="screen"><b>rascal></b>parse(#Exp, &quot;2+3&quot;);
+`2+3`
+Exp: appl(
+  prod(
+    sort(&quot;Exp&quot;),
+    [
+      sort(&quot;Exp&quot;),
+      layouts(&quot;$default$&quot;),
+      lit(&quot;+&quot;),
+      layouts(&quot;$default$&quot;),
+      sort(&quot;Exp&quot;)
+    ],
+    {assoc(left())}),
+  [
+    appl(
+      pr...
+</pre>
+  You will see such parse trees only once, unless you are a researcher in parsing ;-)
+  Here is a demonstration of <code>eval</code>:
+
+<pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Eval;
 ok
 <b>rascal></b>eval(&quot;2+3&quot;);
 int: 5

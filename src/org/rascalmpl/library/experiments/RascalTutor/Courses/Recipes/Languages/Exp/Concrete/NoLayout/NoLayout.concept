@@ -16,7 +16,7 @@ We describe howto write a grammar for Exp and how to use it to implement an eval
 
 Examples:
 Here is the grammar for Exp:
-<listing demo/languages/Exp/Concrete/NoLayout/Syntax.rsc>
+<listing demo/lang/Exp/Concrete/NoLayout/Syntax.rsc>
 Notes:
 * /*1*/ defines a lexical syntax rule for IntegerLiterals; they consist of one or more digits.
 * /*2*/ defines the alternatives for Exp. The keyword `start` means that this is a start symbol of the grammar.
@@ -31,7 +31,7 @@ Notes:
 
 
 Now that the grammar is in place we want to use it to build an evaluator. Here is how:
-<listing demo/languages/Exp/Concrete/NoLayout/Eval.rsc>
+<listing demo/lang/Exp/Concrete/NoLayout/Eval.rsc>
 Notes:
 * /*1*/ We import [Rascal:ParseTree] because we will need the `parse` function below.
 * /*2*/ The main function `eval` that evaluates an expression as string to an integer. It proceeds in two steps:
@@ -50,13 +50,13 @@ Notes:
 
 What remains, is to check that `eval` works as expected.
 <screen>
-import demo::languages::Exp::Concrete::NoLayout::Syntax;
+import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
 // Just checking that `parse` returns a sort of parse tree:
 parse(#Exp, "2+3");
 // You will see such parse trees only once, unless you are a researcher in parsing ;-)
 // Here is a demonstration of `eval`:
-import demo::languages::Exp::Concrete::NoLayout::Eval;
+import demo::lang::Exp::Concrete::NoLayout::Eval;
 eval("2+3");
 eval("2+3*4");
 eval("(2+3)*4");

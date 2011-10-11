@@ -8,10 +8,12 @@
 <head>
 <title>Recipes/Visualization/ParseTree</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
+<link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="/Courses/jquery.history.js"></script>
 <script type="text/javascript" src="/Courses/globals.js"></script>
 <script type="text/javascript" src="/Courses/prelude.js"></script>
 <script type="text/javascript" src="/Courses/Recipes/course.js"></script>
@@ -19,54 +21,10 @@
 </head>
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<div id="navPane">
-<ul><li><a id="Recipes" href="/Courses/Recipes/Recipes.html">Recipes</a>
-<ul>  <li><a id="Recipes/Basic" href="/Courses/Recipes/Basic/Basic.html">Basic</a>
-  <ul>  <li><a id="Recipes/Basic/Hello" href="/Courses/Recipes/Basic/Hello/Hello.html">Hello</a></li>
-  <li><a id="Recipes/Basic/Factorial" href="/Courses/Recipes/Basic/Factorial/Factorial.html">Factorial</a></li>
-  <li><a id="Recipes/Basic/Squares" href="/Courses/Recipes/Basic/Squares/Squares.html">Squares</a></li>
-  </ul></li>
+<div id="navPanePlaceHolder">
 
-  <li><a id="Recipes/Common" href="/Courses/Recipes/Common/Common.html">Common</a>
-  <ul>  <li><a id="Recipes/Common/CallAnalysis" href="/Courses/Recipes/Common/CallAnalysis/CallAnalysis.html">CallAnalysis</a></li>
-  <li><a id="Recipes/Common/CallLifting" href="/Courses/Recipes/Common/CallLifting/CallLifting.html">CallLifting</a></li>
-  <li><a id="Recipes/Common/ColoredTrees" href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a></li>
-  <li><a id="Recipes/Common/StringTemplate" href="/Courses/Recipes/Common/StringTemplate/StringTemplate.html">StringTemplate</a></li>
-      <li><a id="Recipes/Common/WordCount" href="/Courses/Recipes/Common/WordCount/WordCount.html">WordCount</a>
-    <ul>    <li><a id="Recipes/Common/WordCount/CountInLine1" href="/Courses/Recipes/Common/WordCount/CountInLine1/CountInLine1.html">CountInLine1</a></li>
-    <li><a id="Recipes/Common/WordCount/CountInLine2" href="/Courses/Recipes/Common/WordCount/CountInLine2/CountInLine2.html">CountInLine2</a></li>
-    <li><a id="Recipes/Common/WordCount/CountInLine3" href="/Courses/Recipes/Common/WordCount/CountInLine3/CountInLine3.html">CountInLine3</a></li>
-    <li><a id="Recipes/Common/WordCount/Jabberwocky" href="/Courses/Recipes/Common/WordCount/Jabberwocky/Jabberwocky.html">Jabberwocky</a></li>
-    </ul></li>
-
-  </ul></li>
-
-  <li><a id="Recipes/Languages" href="/Courses/Recipes/Languages/Languages.html">Languages</a>
-  <ul>      <li><a id="Recipes/Languages/Exp" href="/Courses/Recipes/Languages/Exp/Exp.html">Exp</a>
-    <ul>    <li><a id="Recipes/Languages/Exp/Abstract" href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Abstract</a></li>
-          <li><a id="Recipes/Languages/Exp/Combined" href="/Courses/Recipes/Languages/Exp/Combined/Combined.html">Combined</a>
-      <ul>      <li><a id="Recipes/Languages/Exp/Combined/Automatic" href="/Courses/Recipes/Languages/Exp/Combined/Automatic/Automatic.html">Automatic</a></li>
-      <li><a id="Recipes/Languages/Exp/Combined/Manual" href="/Courses/Recipes/Languages/Exp/Combined/Manual/Manual.html">Manual</a></li>
-      </ul></li>
-
-          <li><a id="Recipes/Languages/Exp/Concrete" href="/Courses/Recipes/Languages/Exp/Concrete/Concrete.html">Concrete</a>
-      <ul>      <li><a id="Recipes/Languages/Exp/Concrete/NoLayout" href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">NoLayout</a></li>
-      <li><a id="Recipes/Languages/Exp/Concrete/WithLayout" href="/Courses/Recipes/Languages/Exp/Concrete/WithLayout/WithLayout.html">WithLayout</a></li>
-      </ul></li>
-
-    </ul></li>
-
-  </ul></li>
-
-  <li><a id="Recipes/Visualization" href="/Courses/Recipes/Visualization/Visualization.html">Visualization</a>
-  <ul>  <li><a id="Recipes/Visualization/ParseTree" href="/Courses/Recipes/Visualization/ParseTree/ParseTree.html">ParseTree</a></li>
-  </ul></li>
-
-</ul></li>
-
-</ul>
 </div>
-</td><td id="tdconcept">
+<script type="text/javascript"> var navigationPaneSource="/Courses/Recipes/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
 
 <div id="Name">
@@ -82,8 +40,21 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Visualize a parse tree.
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  A parse tree is a (usually large) internal representation of  a parsed text.
+ In the rare situation that it is necessary to read or inspect a parse tree,
+ a visualization can be useful.
+
+</div>
+
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import demo::languages::Exp::Concrete::WithLayout::Syntax;
+<span class="sectionHead">Examples</span>  We embark on visualizing parse trees for the language Exp:
+ <pre class="screen"><b>rascal></b>import demo::languages::Exp::Concrete::WithLayout::Syntax;
 ok
 <b>rascal></b>import ParseTree;
 ok
@@ -103,14 +74,37 @@ Exp: appl(
   [
     appl(
       ...
-</pre> <pre class="listing">import demo::languages::Exp::Concrete::WithLayout::Syntax;
+</pre> As can be seen, even for such a trivial example, the details in the parse tree representation become sizeable.
+ <br/>
+<br/>
+
+ We can visualize it as follows:
+ <pre class="listing">import demo::languages::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 import vis::Figure;
 import vis::ParseTree;
 import vis::Render;
 render(visParsetree(parse(#Exp, "1+2*3")));
-</pre> <img class="TutorImg"  title="t1" alt="t1" src="/Courses/Recipes/Visualization/ParseTree/t1.png">
+</pre> With as result:
+ <img class="TutorImg"  title="t1" alt="t1" src="/Courses/Recipes/Visualization/ParseTree/t1.png">
+ <br/>
+<br/>
 
+ The figure is interactive (not available here):
+ <ul><li> Rectangles with blue text are terminal symbols.</li>
+<li> Little circles represent non-terminals: hovering over them shows the corresponding grammar rule.</li>
+<li> Little grey rectangles represent layout: hovering over them also shows the corresponding lexical rule.</li>
+</ul>
+</div>
+
+<div id="Benefits">
+<span class="sectionHead">Benefits</span>  <ul><li> A dense, structured, representation of a parse tree that provides extra information via interaction.</li>
+</ul>
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> This visualization does not scale to huge trees.</li>
+</ul>
 </div>
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Visualization/ParseTree&new=false"><b>Edit</b></a>] | 

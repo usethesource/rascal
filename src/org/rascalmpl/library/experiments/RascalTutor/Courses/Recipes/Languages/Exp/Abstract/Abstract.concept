@@ -21,7 +21,7 @@ Abstract syntax has the following properties:
 
 Examples:
 The abstract syntax for Exp looks like this:
-<listing demo/languages/Exp/Abstract/Syntax.rsc>
+<listing demo/lang/Exp/Abstract/Syntax.rsc>
 
 * /*1*/ defines integer constants, e.g., `con(123)`.
 * /*2*/ defines multiplication, e.g., `mul(con(2),con(3))`.
@@ -30,7 +30,7 @@ The abstract syntax for Exp looks like this:
 
 Given the abstract syntax for Exp, we can define an interpreter that evaluates
 expressions:
-<listing demo/languages/Exp/Abstract/Eval.rsc>
+<listing demo/lang/Exp/Abstract/Eval.rsc>
 
 Here we see Rascal's _pattern-directed invocation_ in action (see [Rascal:Function]).
 The essence is this: in other languages the formal parameters in a function declaration
@@ -55,8 +55,8 @@ In this example we use this mechanism to define separate functions for each case
 
 
 <screen>
-import demo::languages::Exp::Abstract::Syntax;
-import demo::languages::Exp::Abstract::Eval;
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Abstract::Eval;
 eval(mul(con(7), con(3)));
 eval(add(con(3), mul(con(4), con(5))));
 </screen>

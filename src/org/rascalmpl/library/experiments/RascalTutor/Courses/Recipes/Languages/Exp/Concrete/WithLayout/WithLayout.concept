@@ -39,7 +39,7 @@ start syntax Exp =
 To be precise, `LAYOUTLIST` will also be allowed before and after the start non-terminal.
 
 This process is automated by adding layout definitions for `LAYOUT` and `LAYOUTLIST` to our Exp grammar:
-<listing demo/languages/Exp/Concrete/WithLayout/Syntax.rsc>
+<listing demo/lang/Exp/Concrete/WithLayout/Syntax.rsc>
 Notes:
 * /*1*/ declares `LAYOUT` as a character class of certain characters: from tab to newline, carriage return and space.
 * /*2*/ declares `LAYOUTLIST` as zero or more `LAYOUT`s provided that it is not followed by another `LAYOUT` character
@@ -48,12 +48,14 @@ Notes:
 
 Given this grammar including layout, we could reuse the evaluator for the case without layout,
 but to stress the difference we include a new version here (can you spot the difference?):
-<listing demo/languages/Exp/Concrete/WithLayout/Eval.rsc>
+<listing demo/lang/Exp/Concrete/WithLayout/Eval.rsc>
+As a good observer, you will have noticed that we have used some spaces in the patterns for the `eval` function,
+since they or now allowed by the grammar.
 
 To put this all to the test:
 <screen>
-import demo::languages::Exp::Concrete::WithLayout::Syntax;
-import demo::languages::Exp::Concrete::WithLayout::Eval;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
+import demo::lang::Exp::Concrete::WithLayout::Eval;
 eval("2 +  3");
 eval("2   +  3*4");
 eval("( 2+3 )* 4");

@@ -58,7 +58,7 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The abstract syntax for Exp looks like this:
- <pre class="listing">module demo::languages::Exp::Abstract::Syntax
+ <pre class="listing">module demo::lang::Exp::Abstract::Syntax
 data Exp = con(int n)          <img src="/Courses/images/1.png">
          | mul(Exp e1, Exp e2) <img src="/Courses/images/2.png">
          | add(Exp e1, Exp e2) <img src="/Courses/images/3.png">
@@ -68,8 +68,8 @@ data Exp = con(int n)          <img src="/Courses/images/1.png">
 <li> <img src="/Courses/images/3.png"> defines addition, e.g., <code>add(con(2),con(3))</code>.</li>
 </ul> Given the abstract syntax for Exp, we can define an interpreter that evaluates
  expressions:
- <pre class="listing">module demo::languages::Exp::Abstract::Eval
-import demo::languages::Exp::Abstract::Syntax;
+ <pre class="listing">module demo::lang::Exp::Abstract::Eval
+import demo::lang::Exp::Abstract::Syntax;
 
 public int eval(con(int n)) = n;                            <img src="/Courses/images/1.png">
 public int eval(mul(Exp e1, Exp e2)) = eval(e1) * eval(e2); <img src="/Courses/images/2.png">
@@ -93,9 +93,9 @@ public int eval(add(Exp e1, Exp e2)) = eval(e1) + eval(e2); <img src="/Courses/i
 </li>
 <li> <img src="/Courses/images/3.png"> defines the case for evaluating addition: first evaluate the arguments <code>e1</code> and <code>e2</code>         and return the addition of their values.
 </li>
-</ul> <pre class="screen"><b>rascal></b>import demo::languages::Exp::Abstract::Syntax;
+</ul> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Abstract::Syntax;
 ok
-<b>rascal></b>import demo::languages::Exp::Abstract::Eval;
+<b>rascal></b>import demo::lang::Exp::Abstract::Eval;
 ok
 <b>rascal></b>eval(mul(con(7), con(3)));
 int: 21

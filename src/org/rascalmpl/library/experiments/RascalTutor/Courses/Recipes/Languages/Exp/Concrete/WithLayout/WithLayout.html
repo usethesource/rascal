@@ -72,7 +72,7 @@
 <br/>
 
  This process is automated by adding layout definitions for <code>LAYOUT</code> and <code>LAYOUTLIST</code> to our Exp grammar:
- <pre class="listing">module demo::languages::Exp::Concrete::WithLayout::Syntax
+ <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Syntax
 
 lexical LAYOUT = [\t-\n\r&nbsp;];                    <img src="/Courses/images/1.png">
 
@@ -92,8 +92,8 @@ start syntax Exp =
 </li>
 </ul> Given this grammar including layout, we could reuse the evaluator for the case without layout,
  but to stress the difference we include a new version here (can you spot the difference?):
- <pre class="listing">module demo::languages::Exp::Concrete::WithLayout::Eval
-import demo::languages::Exp::Concrete::WithLayout::Syntax;
+ <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Eval
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
 import String;
 import ParseTree;                                                 
@@ -104,10 +104,15 @@ public int eval((Exp)`&lt;IntegerLiteral l>`) = toInt("&lt;l>");
 public int eval((Exp)`&lt;Exp e1> * &lt;Exp e2>`) = eval(e1) * eval(e2);  
 public int eval((Exp)`&lt;Exp e1> + &lt;Exp e2>`) = eval(e1) + eval(e2); 
 public int eval((Exp)`( &lt;Exp e> )`) = eval(e);                    
-</pre> To put this all to the test:
- <pre class="screen"><b>rascal></b>import demo::languages::Exp::Concrete::WithLayout::Syntax;
+</pre> As a good observer, you will have noticed that we have used some spaces in the patterns for the <code>eval</code> function,
+ since they or now allowed by the grammar.
+ <br/>
+<br/>
+
+ To put this all to the test:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
-<b>rascal></b>import demo::languages::Exp::Concrete::WithLayout::Eval;
+<b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Eval;
 ok
 <b>rascal></b>eval(&quot;2 +  3&quot;);
 int: 5
