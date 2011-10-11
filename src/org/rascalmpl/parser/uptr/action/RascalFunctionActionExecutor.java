@@ -200,7 +200,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			
 			return function.call(types, actuals);
 		}catch(ArgumentsMismatchError e){
-			e.printStackTrace();
+//			e.printStackTrace();
 			return null;
 		}catch(Failure f){
 			return null;
