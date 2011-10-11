@@ -150,7 +150,7 @@ public class Tree extends Compose {
 	}
 	
 	boolean majorFlipped(){
-		return children.length > 1 && root.globalLocation.get(major) > children[2].globalLocation.get(major);
+		return children.length > 1 && root.globalLocation.get(major) > children[1].globalLocation.get(major);
 	}
 	
 	double getBottomRoot(){
