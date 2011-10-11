@@ -6,49 +6,16 @@ else
    alert(m + ": " + s.substring(0, 200));
    */
 }
-function loadScript(url, callback){
-
-    var script = document.createElement("script")
-    script.type = "text/javascript";
-
-    if (script.readyState){  //IE
-        script.onreadystatechange = function(){
-            if (script.readyState == "loaded" ||
-                    script.readyState == "complete"){
-                script.onreadystatechange = null;
-                callback();
-            }
-        };
-    } else {  //Others
-        script.onload = function(){
-            callback();
-        };
-    }
-
-    script.src = url;
-    document.getElementsByTagName("head")[0].appendChild(script);
-}
-newStyleAutoComplete = true;
 
 $(document).ready(function () {
-	if (newStyleAutoComplete) {
-		var oHead = document.getElementsByTagName('HEAD').item(0);
-		var oStyle = document.createElement("link");
-		oStyle.type="test/css";
-		oStyle.rel='stylesheet';
-		oStyle.href='/Courses/jquery.autocomplete.css';
-		oHead.appendChild(oStyle);
+	// alert("ready called");
+	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
+	if ($('#navPane #navItialized').length > 0) {
+		attachHandlers();
+	} else {
+		initNavigation();
 	}
-	loadScript("/Courses/jquery.history.js", function () {
-		// alert("ready called");
-		// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
-		if ($('#navPane #navItialized').length > 0) {
-			attachHandlers();
-		} else {
-			initNavigation();
-		}
-		// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
-	});
+	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
 function initNavigation() {
@@ -79,7 +46,7 @@ function initNavigation() {
         }
     });
 	$.History.bind(function(state) {
-        loadConceptURL(state);
+        loadConceptURL(state); // restore state after new page enter
 	});
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
     $('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
@@ -104,16 +71,11 @@ function attachHandlers() {
 
     report("attachHandlers", $("#navPane").html());
 
-	if (newStyleAutoComplete) {
-		$('#searchField').autocomplete({
-			data : baseConcepts,
-			onItemSelect: function () { $('#searchForm').submit(); },  // could also change the handleSearch method to support a non event calling it..
-			selectFirst : true
-		});
-	}
-	else {
-		$('#searchField').keyup(searchSuggest);
-	}
+	$('#searchField').autocomplete({
+		data : baseConcepts,
+		onItemSelect: function () { $('#searchForm').submit(); },  // could also change the handleSearch method to support a non event calling it..
+		selectFirst : true
+	});
 	$('#searchForm').submit(handleSearch);
 
     $('.answerForm').submit(handleAnswer);
@@ -193,34 +155,8 @@ function show(fromConcept, toConcept) {
 
 // ------------ Handler for suggestions for searchBox -------------------
 
-function searchSuggest() {
-    var str = $(this).val();
-
-    if (str != "") {
-        $('#popups').html("");
-        for (var i = 0; i < baseConcepts.length; i++) {
-            var thisConcept = baseConcepts[i];
-
-            if (thisConcept.toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                $('#popups').append('<div class="suggestions">' + thisConcept + '</div>');
-            }
-        }
-        var foundCt = $('#popups').children().length;
-        if (foundCt == 0) {
-            $(this).addClass("error");
-        }
-/*if (foundCt == 1) {
-			$(this).text($('#popups')[0]);
-			$('#popups').html("");
-            $('#searchForm').submit();
-		} else { */
-        $('#popups').children().click(makeChoice);
-        /*}*/
-    }
-}
-
 function handleSearch(evt) {
-    evt.preventDefault();
+	evt.preventDefault();
 
     var term = $('input#searchField').val();
     var lcterm = term.toLowerCase();
