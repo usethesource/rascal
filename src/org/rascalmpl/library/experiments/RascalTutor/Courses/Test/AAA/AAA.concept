@@ -6,13 +6,17 @@ Syntax:
 A + B
 
 Types:
-xxx yyy zzz ppp qqq rrr
+xxx yyy zzz ppp qqq rrr sss
 
 Function:
 
 Details:
 
 Description:
+
+<screen>
+xxx;
+</screen>
 xxx  < xx  [WRONGLINK]
 
 Goede external link: [Rascal:if].

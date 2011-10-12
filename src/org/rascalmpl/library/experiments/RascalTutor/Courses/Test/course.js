@@ -7,9 +7,9 @@ var conceptNames = new Array("Test","Test/AAA","Test/BBB","Test/BBB/BBB1","Test/
 var searchTerms = {};
 
 
-searchTerms["Test/Cat2/Cat21"] = null;
-
 searchTerms["Test/Cat1/Cat11"] = null;
+
+searchTerms["Test/Cat2/Cat21"] = null;
 
 searchTerms["Test/BBB/BBB3"] = null;
 
@@ -33,9 +33,9 @@ searchTerms["Test/Bla/Bla2"] = null;
 
 searchTerms["Test/Bla/Bla1"] = null;
 
-searchTerms["Test/BBB"] = null;
-
 searchTerms["Test/BBB/Cat1"] = null;
+
+searchTerms["Test/BBB"] = null;
 
 searchTerms["Test/AAA"] = null;
 
