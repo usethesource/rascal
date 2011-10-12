@@ -265,7 +265,7 @@ function makeChoice() {
 function handleAnswer(evt) {
     var formData = $(this).serialize();
     evt.preventDefault();
-    $.get("validate", formData, function processValidationResult(data, textStatus) {
+    $.get("/validate", formData, function processValidationResult(data, textStatus) {
 
         //alert("processValidationResult: " + data);
         var v = $('#validation', data).text();
@@ -297,7 +297,7 @@ function handleAnswer(evt) {
 function handleCheat(evt) {
     var formData = $(this).serialize();
     evt.preventDefault();
-    $.get("validate", formData, function processCheatResult(data, textStatus) {
+    $.get("/validate", formData, function processCheatResult(data, textStatus) {
         var c = $('#concept', data).text();
         var e = $('#exercise', data).text();
         var cheat = $('#feedback', data).text();
@@ -314,7 +314,7 @@ function handleAnother(evt) {
     //alert("handleAnother");
     var formData = $(this).serialize();
     evt.preventDefault();
-    $.get("validate", formData, function processAnotherResult(data, textStatus) {
+    $.get("/validate", formData, function processAnotherResult(data, textStatus) {
         //alert("processAnotherResult: " + data);
         var c = $('#concept', data).text();
         var e = $('#exercise', data).text();
@@ -342,7 +342,7 @@ function handleSave(evt) {
     var formData = $(this).serialize();
     report("handleSave", formData);
     evt.preventDefault();
-    $.get("save", formData, function processSaveFeedback(data, textStatus) {
+    $.get("/save", formData, function processSaveFeedback(data, textStatus) {
         var c = $('#concept', data).text();
         var e = $('#error', data).text();
         var r = $('#replacement', data).text();
