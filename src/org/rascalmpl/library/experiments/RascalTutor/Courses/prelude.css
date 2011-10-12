@@ -19,6 +19,10 @@ h2 {
     font-style: italic;
 }
 
+img { 
+	border: 0;
+}
+
 td#tdnav {
     vertical-align: top;
     width: 15%;
