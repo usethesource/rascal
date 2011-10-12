@@ -19,8 +19,10 @@ $(document).ready(function () {
 	}});
 	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
 		// make sure any local links do not cause a actual page reload
+		var url = $(this).attr('href');
 		e.preventDefault();
-		loadConceptURL($(this).attr('href'));
+		$.History.go(url);
+		loadConceptURL(url);
 	});
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
