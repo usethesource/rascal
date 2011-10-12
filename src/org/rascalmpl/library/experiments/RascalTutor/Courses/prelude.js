@@ -18,11 +18,13 @@ $(document).ready(function () {
 		initNavigation();
 	}});
 	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
-		// make sure any local links do not cause a actual page reload
-		var url = $(this).attr('href');
-		e.preventDefault();
-		$.History.go(url);
-		loadConceptURL(url);
+		if ($(this).id() != 'tutorAction' && $('#editMenu a').has(this).size == 0) {
+			// make sure any local links do not cause a actual page reload
+			var url = $(this).attr('href');
+			e.preventDefault();
+			$.History.go(url);
+			loadConceptURL(url);
+		}
 	});
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
