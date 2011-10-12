@@ -51,9 +51,9 @@ searchTerms["Recipes/Common/CallLifting"] = null;
 
 searchTerms["Recipes/Languages/Func/ConcreteSyntax"] = null;
 
-searchTerms["Recipes/Languages/Exp/Concrete"] = null;
-
 searchTerms["Recipes/Languages/Exp/Combined"] = null;
+
+searchTerms["Recipes/Languages/Exp/Concrete"] = null;
 
 searchTerms["Recipes/Common"] = null;
 

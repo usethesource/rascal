@@ -21,9 +21,7 @@
 </head>
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<div id="navPanePlaceHolder">
-
-</div>
+<a id="navPanePlaceHolder" href="/Courses/Tutor/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Courses/Tutor/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
 
@@ -77,10 +75,20 @@
 <br/>
 
  will produce.
- <warning>File demo/Hello.rsc not found.</warning> <br/>
-<br/>
+ <pre class="listing">module demo::basic::Hello
 
- Compared with the source file, all lines before <code>//START</code> have been removed.
+import IO;
+
+public void hello() {
+   println("Hello world, this is my first Rascal program");
+}
+</pre> Compared with the source file, all lines before <code>//START</code> have been removed.
+
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  Do not make the lines in a listing too long since they will not be wrapped.
+ Not more than 60 characters is a rule of thumb.
 
 </div>
 

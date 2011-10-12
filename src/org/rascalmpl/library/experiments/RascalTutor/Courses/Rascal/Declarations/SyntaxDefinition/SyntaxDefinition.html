@@ -21,9 +21,7 @@
 </head>
 <body>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<div id="navPanePlaceHolder">
-
-</div>
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
 <script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
 <div id="conceptPane">
 
@@ -63,11 +61,7 @@
 </div>
 
 <div id="Details">
-<<<<<<< .mine
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> &#032 
-=======
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 
->>>>>>> .r36506
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 
 </div>
 
 <div id="Description">
@@ -102,14 +96,16 @@
  <pre class="listing">// layout is lists of whitespace characters
 layout MyLayout = [\t\n&nbsp;\r\f]*;
 
-// identifiers are characters of lowercase alphabet letters, not immediately preceeded or followed by those (longest match)
+// identifiers are characters of lowercase alphabet letters, 
+// not immediately preceded or followed by those (longest match)
 // and not any of the reserved keywords
 lexical Identifier = [a-z] !&lt;&lt; [a-z]+ !>> [a-z] \&nbsp;MyKeywords;
 
 // this defines the reserved keywords used in the definition of Identifier
 keyword MyKeywords = "if" | "then" | "else" | "fi";
 
-// here\'s a recursive definition of expressions using priority and associativity groups.
+// here is a recursive definition of expressions 
+// using priority and associativity groups.
 syntax Expression 
   = id: Identifier id
   | null: "null"
