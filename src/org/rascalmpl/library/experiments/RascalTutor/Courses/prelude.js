@@ -57,13 +57,14 @@ function initNavigation() {
 	setTimeout(function() {
 		$('#navPane').jstree('open_node', $('#navPane a:first'));
 	}, 0);
-	var firstLoad =  true;
 	$.History.bind(function(state) {
-		if (firstLoad) {
-			firstLoad = false;
-        	loadConceptURL(state); // restore state after new page enter
+		console.log(state);
+		if (state == '') {
+			state = location.href;
 		}
+    	$("#conceptPane").load(state + " div#conceptPane", finishLoad);
 	});
+
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
     $('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
         // this is a  simple fix to work around a resizing issues caused 
@@ -115,7 +116,6 @@ var rbdata;
 
 function loadConceptURL(url) {
 	$.History.go(url); // store history in url, such that the back button could work
-    $("#conceptPane").load(url + " div#conceptPane", finishLoad);
 }
 
 function loadConcept(cn) {
