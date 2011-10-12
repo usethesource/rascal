@@ -392,6 +392,16 @@ private str markupCode(str text){
   };
 }
 
+private str lookForErrors(list[str] lines){
+   errors = "";
+   for(line <- lines)
+	   if(/.*[Ee]rror/ := line || /.*[Ee]xception/ := line || /.*cancelled/ := line || /.*[Tt]imeout/ := line)
+	       errors += line;
+   if(errors != "")
+      addWarning(errors);
+   return errors;
+}
+
 private str markupFigure(list[str] lines, int width, int height, str file){
   if(!generating)
      return "";
@@ -412,10 +422,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	              lines, 
 	              20000);
 	  println("**** shell output ****\n<out>");
-	  errors = "";
-	  for(line <- out)
-	     if(/.*[Ee]rror/ := line || /.*[Ee]xception/ := line || /.*cancelled/ := line)
-	       errors += line;
+	  errors = lookForErrors(out);
 	  println("errors = <errors>");
 	  // Restore original call for listing
 	  lines[n-1] = renderCall;
@@ -440,6 +447,7 @@ private str markupScreen(list[str] lines){
       return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
    result_lines = shell(stripped_code, 25000);
+   lookForErrors(result_lines);
    
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);
