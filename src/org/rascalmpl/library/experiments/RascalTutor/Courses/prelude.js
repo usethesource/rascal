@@ -22,7 +22,6 @@ $(document).ready(function () {
 			// make sure any local links do not cause a actual page reload
 			var url = $(this).attr('href');
 			e.preventDefault();
-			$.History.go(url);
 			loadConceptURL(url);
 		}
 	});
@@ -35,7 +34,6 @@ function initNavigation() {
 
     $("#navPane").bind("select_node.jstree", function (event, data) {
         var url = $(data.args[0]).attr("href");
-		$.History.go(url); // store history in url, such that the back button could work
         loadConceptURL(url);
         return false;
     }).jstree({
@@ -59,8 +57,13 @@ function initNavigation() {
 	setTimeout(function() {
 		$('#navPane').jstree('open_node', $('#navPane a:first'));
 	}, 0);
+	var firstLoad =  true;
 	$.History.bind(function(state) {
-        loadConceptURL(state); // restore state after new page enter
+		if (firstLoad) {
+			firstLoad = false;
+			console.log(state);
+        	loadConceptURL(state); // restore state after new page enter
+		}
 	});
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
     $('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
@@ -112,18 +115,14 @@ function attachHandlers() {
 var rbdata;
 
 function loadConceptURL(url) {
-    //alert("loadConceptURL: " + url);
-    //rbdata = $("#navPane").save_rollback();
-    $("#conceptPane").load(url + " div#conceptPane", null, finishLoad);
-    //   $("#navPane").jstree("open_all", -1);
+	$.History.go(url); // store history in url, such that the back button could work
+    $("#conceptPane").load(url + " div#conceptPane", finishLoad);
 }
 
 function loadConcept(cn) {
     //rbdata = $("#navPane").get_rollback();
-    var url = "/Courses/" + cn + "/" + basename(cn) + ".html div#conceptPane";
-    report("loadConcept", url);
-    $("#conceptPane").load(url, null, finishLoad);
-    //  $("#navPane").jstree("open_all", -1);
+    var url = "/Courses/" + cn + "/" + basename(cn) + ".html";
+	loadConceptURL(url);
 }
 
 function finishLoad() {
