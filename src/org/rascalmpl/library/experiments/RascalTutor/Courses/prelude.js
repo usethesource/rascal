@@ -340,9 +340,10 @@ function handleAnother(evt) {
 
 function handleSave(evt) {
     var formData = $(this).serialize();
+    var concept = $("input[name=concept]").val();
     report("handleSave", formData);
     evt.preventDefault();
-    $.get("/save", formData, function processSaveFeedback(data, textStatus) {
+    $.get("save", formData, function processSaveFeedback(data, textStatus) {
         var c = $('#concept', data).text();
         var e = $('#error', data).text();
         var r = $('#replacement', data).text();
@@ -350,7 +351,9 @@ function handleSave(evt) {
         if (e != "") {
             $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"/Courses/images/bad.png\">Correct error: " + e);
             $('#editErrors').fadeIn(500);
-        } else reload(r);
+        } else {
+            window.location = "/Courses/" + concept + "/" + basename(concept) + ".html";
+        }
     });
     return false;
 }
