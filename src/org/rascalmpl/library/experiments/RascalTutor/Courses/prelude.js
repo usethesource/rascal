@@ -18,7 +18,7 @@ $(document).ready(function () {
 		initNavigation();
 	}});
 	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
-		if ($(this).id() != 'tutorAction' && $('#editMenu a').has(this).size == 0) {
+		if ($(this).attr('id') != 'tutorAction' && ($(this).parent('#editMenu').size() == 0)) {
 			// make sure any local links do not cause a actual page reload
 			var url = $(this).attr('href');
 			e.preventDefault();
