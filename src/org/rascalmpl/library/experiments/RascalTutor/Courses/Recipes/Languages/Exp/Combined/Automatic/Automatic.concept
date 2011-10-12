@@ -28,6 +28,28 @@ Let's first label the syntax rules of the Exp grammar with constructor names:
 
 Observe that at /*1*/, /*2*/ and /*3*/ these labels have been added.
 
+It is good practice to introduce separate modules for parsing and for the conversion itself:
+* A `Parse` module defines a parse function and returns a parse tree. It imports only the concrete syntax.
+* A `Load` module defines a load function that first calls the above `parse` function and then applies `implode` to it.
+  This is the only module that imports both concrete and abstract syntax at the same time and is therefore the only place to be
+  concerned about name clashes. (If I mention `Exp`, do you know which one I mean?).
+
+
+Here is the `Parse` module for Exp:
+<listing demo/lang/Exp/Combined/Automatic/Parse.rsc>
+<screen>
+import demo::lang::Exp::Combined::Automatic::Parse;
+parse("2+2*3");
+</screen>
+
+<listing demo/lang/Exp/Combined/Automatic/Load.rsc>
+<screen>
+import demo::lang::Exp::Combined::Automatic::Load;
+load("2+2*3");
+</screen>
+
+
+
 <screen>
 import demo::lang::Exp::Combined::Automatic::Syntax;
 import ParseTree;
