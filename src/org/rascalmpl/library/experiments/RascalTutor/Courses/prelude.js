@@ -54,6 +54,9 @@ function initNavigation() {
 
         }
     });
+	setTimeout(function() {
+		$('#navPane').jstree('open_node', $('#navPane a:first'));
+	}, 0);
 	$.History.bind(function(state) {
         loadConceptURL(state); // restore state after new page enter
 	});
