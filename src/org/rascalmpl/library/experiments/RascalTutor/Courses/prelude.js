@@ -11,7 +11,7 @@ $(document).ready(function () {
 	// alert("ready called");
 	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
 	// first retrieve navpane
-	$('#navPanePlaceHolder').load(navigationPaneSource, function () {
+	$('#tdnav').load(navigationPaneSource + ' #navPane', function () {
 	if ($('#navPane #navItialized').length > 0) {
 		attachHandlers();
 	} else {

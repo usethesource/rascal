@@ -156,6 +156,21 @@ public str div(str id, str class, str txt){
 	return "\n\<div id=\"<id>\" class=\"<class>\"\>\n<txt>\n\</div\>\n";
 }
 
+public str a(str href, str txt) {
+	return "\n\<a href=\"<href>\" \><txt>\</a\>\n";
+}
+
+public str a(str id, str href, str txt) {
+	return "\n\<a id=\"<id>\" href=\"<href>\" \><txt>\</a\>\n";
+}
+
+
+public str a(str id, str class, str href, str txt) {
+	return "\n\<a id=\"<id>\" class=\"<class>\" href=\"<href>\" \><txt>\</a\>\n";
+}
+
+
+
 public str escapeForRascal(str input){
   return 
     visit(input){
