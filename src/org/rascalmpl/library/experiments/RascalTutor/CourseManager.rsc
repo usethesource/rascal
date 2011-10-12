@@ -59,6 +59,7 @@ public str edit(ConceptName cn, bool newConcept){
   }
   return html(head(title("Editing <cn>") + prelude(rootname(cn))),
               body(
+              div("navPanePlaceHolder", "") +"\<script type=\"text/javascript\"\> var navigationPaneSource=\"/Courses/<rootname(cn)>/navigate.html\"; \</script\>" +
                div("conceptPane",
                  div("editArea",
                     "\<form method=\"POST\" action=\"/save\" id=\"editForm\"\>
