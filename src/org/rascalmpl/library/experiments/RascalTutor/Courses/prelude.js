@@ -61,7 +61,6 @@ function initNavigation() {
 	$.History.bind(function(state) {
 		if (firstLoad) {
 			firstLoad = false;
-			console.log(state);
         	loadConceptURL(state); // restore state after new page enter
 		}
 	});
