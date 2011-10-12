@@ -72,6 +72,58 @@ start syntax Exp =
                  > left add: Exp "+" Exp        <img src="/Courses/images/3.png">   
                  ;
 </pre> Observe that at <img src="/Courses/images/1.png">, <img src="/Courses/images/2.png"> and <img src="/Courses/images/3.png"> these labels have been added.
+ <br/>
+<br/>
+
+ It is good practice to introduce separate modules for parsing and for the conversion itself:
+ <ul><li> A <code>Parse</code> module defines a parse function and returns a parse tree. It imports only the concrete syntax.</li>
+<li> A <code>Load</code> module defines a load function that first calls the above <code>parse</code> function and then applies <code>implode</code> to it.   This is the only module that imports both concrete and abstract syntax at the same time and is therefore the only place to be
+   concerned about name clashes. (If I mention <code>Exp</code>, do you know which one I mean?).
+</li>
+</ul> Here is the <code>Parse</code> module for Exp:
+ <pre class="listing">module demo::lang::Exp::Combined::Automatic::Parse
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
+
+import ParseTree;
+
+public Exp parse(str txt) = parse(#Exp, txt); 
+</pre> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Parse;
+ok
+<b>rascal></b>parse(&quot;2+2*3&quot;);
+`2+2*3`
+Exp: appl(
+  prod(
+    sort(&quot;Exp&quot;),
+    [
+      sort(&quot;Exp&quot;),
+      layouts(&quot;LAYOUTLIST&quot;),
+      lit(&quot;+&quot;),
+      layouts(&quot;LAYOUTLIST&quot;),
+      sort(&quot;Exp&quot;)
+    ],
+    {assoc(left())}),
+  [
+    appl(
+      ...
+</pre> <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
+import demo::lang::Exp::Combined::Syntax;
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Combined::Manual::Parse;
+
+import ParseTree;
+
+public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) = 
+        implode(#demo::lang::Exp::Abstract::Syntax::Exp, parse(txt)); 
+</pre> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
+Static Error: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:2,0: Could not lo&raquo;
+ad module demo::lang::Exp::Combined::Syntax: Module /demo::lang::Exp::Combined::&raquo;
+Syntax not found
+<b>rascal></b>load(&quot;2+2*3&quot;);
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: load&raquo;
+
+</pre> <br/>
+<br/>
+
   <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Syntax;
 ok
 <b>rascal></b>import ParseTree;
@@ -84,7 +136,9 @@ ax
 <b>rascal></b>
 cancelled
 <b>rascal></b>import demo::lang::Exp::Combined::Automatic::Eval;
-ok
+Static Error: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:2,0: Could not lo&raquo;
+ad module demo::lang::Exp::Combined::Syntax: Module /demo::lang::Exp::Combined::&raquo;
+Syntax not found
 <b>rascal></b>eval(&quot;2+3*4&quot;);
 Static Error: prompt:///:1,0: Undeclared variable, function or constructor: eval&raquo;
 
