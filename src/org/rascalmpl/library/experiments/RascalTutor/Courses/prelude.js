@@ -156,9 +156,11 @@ function loadConceptURL(url) {
 }
 
 function loadConcept(cn) {
-    //rbdata = $("#navPane").get_rollback();
-    var url = "/Courses/" + cn + "/" + basename(cn) + ".html";
-	loadConceptURL(url);
+	loadConceptURL(translateConceptToURL(cn));
+}
+
+function translateConceptToURL(concept) {
+	return "/Courses/" + concept + "/" + basename(concept) + ".html";
 }
 
 function finishLoad() {
@@ -389,7 +391,7 @@ function handleSave(evt) {
             $('#editErrors').html("<img height=\"25\" width=\"25\" src=\"/Courses/images/bad.png\">Correct error: " + e);
             $('#editErrors').fadeIn(500);
         } else {
-            window.location = "/Courses/" + concept + "/" + basename(concept) + ".html";
+            window.location = translateConceptToURL(concept); 
         }
     });
     return false;
