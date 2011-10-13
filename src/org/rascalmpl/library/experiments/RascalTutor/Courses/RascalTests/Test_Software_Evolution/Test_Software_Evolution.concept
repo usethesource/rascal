@@ -31,6 +31,8 @@ This assessment software is still experimental; please bear with us and take the
 * _Do not go to another page of the tutor since all your answers will be erased_ (precaution: record your answers yourself)
 * Always push the __Give answer__ button when you are ready (a newline in the text box will not work).
 
+__Be aware: in the web version, there are no questions visible: use the Eclipse version instead__
+
 Questions:
 
 QChoice: Sets can be used to represent a sequence of values when
@@ -84,7 +86,7 @@ text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
 public int count(list[str] text){
   n = 0;
   for(s <- text)
-    if(<?> <- s)
+    if(<?> := s)
       n +=1;
   return n;
 }
@@ -98,7 +100,7 @@ text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
 public list[str] find(list[str] text){
   return 
     for(s <- text)
-      if(/o/ <- s)
+      if(/o/ := s)
         <?>;
 }
 test: find(text) == ["moi", "Mousa", "polutropon"];
