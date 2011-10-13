@@ -29,7 +29,14 @@ $(document).ready(function () {
 			// make sure any local links do not cause a actual page reload
 			var url = $(this).attr('href');
 			e.preventDefault();
-			loadConceptURL(url);
+			var treeNode = $('#navPane a[href=' + url + ']');
+			if (treeNode) {
+				$('#navPane').jstree('deselect_all');
+				$('#navPane').jstree('select_node', treeNode);
+			}
+			else {
+				loadConceptURL(url);
+			}
 		}
 	});
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
