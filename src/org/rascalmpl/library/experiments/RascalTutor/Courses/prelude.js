@@ -45,15 +45,15 @@ $(document).ready(function () {
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
-var skipNextNodeClick = false;
+var skipNextNodeClick = 0;
 
 function initNavigation() {
 
     //alert("initNavigation");
 
     $("#navPane").bind("select_node.jstree", function (event, data) {
-		if (skipNextNodeClick) {
-			skipNextNodeClick = false;
+		if (skipNextNodeClick > 0) {
+			skipNextNodeClick -= 1;
 			return;
 		}
         var url = $(data.args[0]).attr("href");
@@ -91,7 +91,7 @@ function initNavigation() {
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
 				// we have to update the tree selection
 				$('#navPane').jstree('deselect_all');
-				skipNextNodeClick = true;
+				skipNextNodeClick += 1;
 				$('#navPane').jstree('select_node', treeNode);
 			}
 		});
