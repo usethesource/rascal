@@ -11,12 +11,19 @@ $(document).ready(function () {
 	// alert("ready called");
 	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
 	// first retrieve navpane
-	$('#tdnav').load(navigationPaneSource + ' #navPane', function () {
-	if ($('#navPane #navItialized').length > 0) {
-		attachHandlers();
-	} else {
-		initNavigation();
-	}});
+	if ($('#tdnav').length > 0) {
+		$('#tdnav').load(navigationPaneSource + ' #navPane', function () {
+			if ($('#navPane #navItialized').length > 0) {
+				attachHandlers();
+			} else {
+				initNavigation();
+			}
+		});
+	}
+	else {
+		$('#editErrors').hide();
+		$('#editForm').submit(handleSave);
+	}
 	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
 		if ($(this).attr('id') != 'tutorAction' && ($(this).parent('#editMenu').size() == 0)) {
 			// make sure any local links do not cause a actual page reload
@@ -127,8 +134,6 @@ function attachHandlers() {
     $('.answerStatus').hide();
     $('.answerFeedback').hide();
 
-    $('#editErrors').hide();
-    $('#editForm').submit(handleSave);
 
     if (enableEditing == false) $('#editMenu').hide();
     if (enableQuestions == false) $('#questions').hide();
