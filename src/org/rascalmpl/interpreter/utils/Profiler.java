@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -127,28 +128,31 @@ public class Profiler extends Thread {
         		maxURL = sz;
         	nTicks += e.getValue().getTicks();
         }
+        PrintWriter out = eval.getStdOut();
         String URLFormat = "%" + maxURL + "s";
-        System.err.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
-        System.err.printf(URLFormat + "%11s%8s%9s  %s\n", " Source File", "Lines", "Ticks", "%", "Source");
-    	
-        for(Map.Entry<AbstractAST, Count> e : sortedData){
-        	ISourceLocation L = e.getKey().getLocation();
-        	
-        	String uri = L.getURI().toString();
-        	String filePrefix = "file://";
-        	if(uri.startsWith(filePrefix))
-        		uri = uri.substring(filePrefix.length());
-        	
-        	int bgn = L.getBeginLine();
-        	int end = L.getEndLine();
-        	String range = (end==bgn) ? Integer.toString(bgn) : bgn + ".." + end;
-        	
-        	int ticks = e.getValue().getTicks();
-        	double perc = (ticks * 100.0)/nTicks;
-        	
-        	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
- 
-        	System.err.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", uri, range, ticks, perc, source);
+        synchronized(out){
+	        out.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
+	        out.printf(URLFormat + "%11s%8s%9s  %s\n", " Source File", "Lines", "Ticks", "%", "Source");
+	    	
+	        for(Map.Entry<AbstractAST, Count> e : sortedData){
+	        	ISourceLocation L = e.getKey().getLocation();
+	        	
+	        	String uri = L.getURI().toString();
+	        	String filePrefix = "file://";
+	        	if(uri.startsWith(filePrefix))
+	        		uri = uri.substring(filePrefix.length());
+	        	
+	        	int bgn = L.getBeginLine();
+	        	int end = L.getEndLine();
+	        	String range = (end==bgn) ? Integer.toString(bgn) : bgn + ".." + end;
+	        	
+	        	int ticks = e.getValue().getTicks();
+	        	double perc = (ticks * 100.0)/nTicks;
+	        	
+	        	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
+	 
+	        	out.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", uri, range, ticks, perc, source);
+	        }
         }
 	}
 
