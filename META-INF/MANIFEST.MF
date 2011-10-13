@@ -63,7 +63,7 @@ Export-Package: org.jdom,
  org.rascalmpl.values.locations,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors
-Require-Bundle: org.eclipse.imp.pdb.values,
+Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
  org.eclipse.swt
 Import-Package: javax.servlet,
  javax.servlet.http,
