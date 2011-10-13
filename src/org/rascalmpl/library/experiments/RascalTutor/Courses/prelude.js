@@ -110,16 +110,16 @@ var disqus_url = '';
 var disqusAdded = false;
 
 function attachDisqus(page) {
-	$("#conceptPane").after("<div id=\"disqus_thread\"></div>"); // insert disqus div
 	disqus_identifier = page;
 	disqus_url = "http://tutor.rascal-mpl.org" + page;
 	if (!disqusAdded) {
+		discussAdded= true;
+		$("#conceptPane").after("<div id=\"disqus_thread\"></div>"); // insert disqus div
 		(function() {
 			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
 			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 		})();
-		discussAdded= true;
 	}
 }
 
