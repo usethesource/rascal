@@ -38,8 +38,8 @@ There are four kinds of non-terminals that can be defined with slightly differen
 
 Each alternative of a syntax definition is defined by a list of [Symbol]s. Each of the [Symbol]s can be labeled or not.
 The alternative of a defined syntax type may be labeled or not as well. With the label additional operations are activated on the corresponding parse trees:
-* The `is` [Operator] is defined for labeled alternatives.
-* The `has` [Operator] is defined for labeled [Symbol]s in the right-hand side.
+* The `is` operator is defined for labeled alternatives (see [Operators]).
+* The `has` operator is defined for labeled [Symbol]s in the right-hand side (see [Operators]).
 * [Action] functions can be written to override the construction of a parse tree, using the label of an alternative as the function name
 * [implode] uses labeled alternatives to map to an [AlgebraicDataType]
 

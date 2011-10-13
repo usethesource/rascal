@@ -76,8 +76,8 @@
  Each alternative of a syntax definition is defined by a list of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s. Each of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s can be labeled or not.
  The alternative of a defined syntax type may be labeled or not as well. With the label additional operations are activated on the corresponding parse trees:
 </li>
-<li> The <code>is</code> ??unknown: Rascal:Operator?? is defined for labeled alternatives.</li>
-<li> The <code>has</code> ??unknown: Rascal:Operator?? is defined for labeled <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s in the right-hand side.</li>
+<li> The <code>is</code> operator is defined for labeled alternatives (see <a href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a>).</li>
+<li> The <code>has</code> operator is defined for labeled <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s in the right-hand side (see <a href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a>).</li>
 <li> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> functions can be written to override the construction of a parse tree, using the label of an alternative as the function name</li>
 <li> <a href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">implode</a> uses labeled alternatives to map to an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a></li>
 </ol> Alternatives can be combined in a single <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> using the <code>|</code>, <code>></code> and associativity combinators.
