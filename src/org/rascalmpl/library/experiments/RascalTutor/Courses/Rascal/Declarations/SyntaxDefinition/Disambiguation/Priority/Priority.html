@@ -39,12 +39,10 @@
 </div>
          
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> > <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub></code> is the basic syntax for priorities.
- <br/>
-<br/>
-
- Groups of equal priority are also allowed as in: <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> | <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub> | <i>alt</i><sub>4</sub></code>. See also <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity/Associativity.html">Associativity</a>.
-
+<span class="sectionHead">Syntax</span>  <ol><li> <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> > <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub></code> is the basic syntax for priorities.</li>
+<li> <code>syntax <i>Exp</i> = <i>alt</i><sub>1</sub> | <i>alt</i><sub>2</sub> > <i>alt</i><sub>3</sub> | <i>alt</i><sub>4</sub></code>, where the <code>|</code> signifies groups of equal priority</li>
+<li> <code>syntax <i>Exp</i> = <i>associativity</i> ( $alt_1 | ... ) > $alt_2</code>, where an associativity group denotes a group of equal priority</li>
+</ol>
 </div>
 
 <div id="Description">

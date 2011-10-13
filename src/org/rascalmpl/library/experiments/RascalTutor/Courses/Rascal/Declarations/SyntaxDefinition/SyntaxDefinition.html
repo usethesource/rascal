@@ -44,24 +44,22 @@
 </div>
 
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  There are four kinds of non-terminals you can define: <i>lexical</i>, <i>syntax</i>, <i>layout</i> and <i>keyword</i>. They all have the same syntax, but they differ in how they are processed by the parser generator and how parse trees defined by them are processed by pattern matching and expression evaluation.
-  <ul><li> <code>syntax <i>Nonterminal</i> = <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... ;</code></li>
-<li> <code>lexical <i>Nonterminal</i> = <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... ;</code></li>
-<li> <code>layout <i>Nonterminal</i> = <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... ;</code></li>
-<li> <code>keyword <i>Nonterminal</i> = <i>Terminal</i><sub>1</sub> | <i>Terminal</i><sub>2</sub> | &amp;;</code></li>
-</ul> The start modifier can be put on any definition:
- <ul><li> <code>start syntax <i>Nonterminal</i> = <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... ;</code></li>
-</ul> Definitions can be labeled to give them a name:
- <ul><li> <code>syntax <i>Nonterminal</i> = <i>Name</i> : <i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... ;</code></li>
-</ul> Finally, alternative definitions for the same non-terminal can be grouped using associativity, priority or unordered combinators:
- <ul><li> <code>syntax <i>Nonterminal</i> = <i>Alternative</i><sub>1</sub> > left { <i>Alternative</i><sub>2</sub> | <i>Alternative</i><sub>3</sub> | ... } | ... ;</code></li>
-<li> <code>syntax <i>Nonterminal</i> = <i>Alternative</i><sub>1</sub> | <i>Alternative</i><sub>2</sub> | <i>Alternative</i><sub>3</sub> | ... ;</code>  </li>
-<li> <code>syntax <i>Nonterminal</i> = <i>Alternative</i><sub>1</sub> > <i>Alternative</i><sub>2</sub> > <i>Alternative</i><sub>3</sub> > ... ;</code></li>
-</ul>
+<span class="sectionHead">Syntax</span>  <ol><li> <code><i>Start</i> syntax <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
+<li> <code>lexical <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
+<li> <code>layout <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
+<li> <code>keyword <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
+</ol> where <code><i>Start</i></code> is either <code>start</code> or nothing, and <code><i>Alternatives</i></code> are one of:
+ <ol><li> <code><i>Tags</i> <i>Associativity</i> <i>Symbols</i></code></li>
+<li> <code><i>Tags</i> <i>Associativity</i> <i>Name</i> : <i>Symbols</i></code></li>
+<li> <code><i>Associativity</i> ( <i>Alternatives</i> )</code></li>
+<li> <code><i>Alternatives</i><sub>1</sub> | <i>Alternatives</i><sub>2</sub></code>  </li>
+<li> <code><i>Alternatives</i><sub>1</sub> > <i>Alternatives</i><sub>2</sub></code>  </li>
+</ol> where <code><i>Associativity</i></code> is nothing, or one of <code>assoc</code>, <code>left</code>, <code>right</code> or <code>non-assoc</code>, and <code><i>Tags</i></code> are a possibly empty list of tags.
+
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> &#032 
 </div>
 
 <div id="Description">
@@ -70,12 +68,20 @@
 <br/>
 
  There are four kinds of non-terminals that can be defined with slightly different characteristics.
- <ul><li> <i>Syntax</i> non-terminals are general context-free non-terminals. This mean left-recursion, right-recursion, any of the regular expression <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> and all kinds of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> can be used to define it. It is important to note that in between the <code><i>Symbols</i></code> that define a syntax non-terminal the locally defined layout non-terminal will be interleaved. For example, if you define <code>layout ML = [&nbsp;]*;</code> and <code>syntax A = "a" "a"</code>, Rascal will <i>modify</i> the definition of A to <code>syntax A = "a" ML "a";</code> before generating a parser.</li>
+ <ol><li> <i>Syntax</i> non-terminals are general context-free non-terminals. This mean left-recursion, right-recursion, any of the regular expression ??unknown: Rascal:Symbols?? and all kinds of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> can be used to define it. It is important to note that in between the <code><i>Symbols</i></code> that define a syntax non-terminal the locally defined layout non-terminal will be interleaved. For example, if you define <code>layout ML = [&nbsp;]*;</code> and <code>syntax A = "a" "a"</code>, Rascal will <i>modify</i> the definition of A to <code>syntax A = "a" ML "a";</code> before generating a parser.</li>
 <li> <i>Lexical</i> non-terminals are just like <i>syntax</i> non-terminals, very much like <i>syntax</i> non-terminals. However, the definition of a lexical is <i>not</i> modified with interleaved layout non-terminals. And, the structure of lexicals is not traversed by the <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a> statement and equality is checked between lexicals by checking the characters (not its structure) for equality. </li>
 <li> <i>Layout</i> non-terminals are just like <i>syntax</i> non-terminals as well. However, they are used to preprocess all <i>syntax</i> definitons in the same module scope (see above).</li>
-<li> <i>Keyword</i> non-terminals are <i>not</i> like <i>syntax</i> non-terminals. These only allow definition of enumeration of literal symbols and single character classes. Keyword non-terminals play an important role in the semantics of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> where some disambiguation constructs require finite, non-empty enumeration of strings. The prime example is the definition of reserved keywords.</li>
-</ul> Note that alternative definitions are either separated by <code>|</code> or by <code>></code> or they are grouped as in <code><i>Associativity</i> { $Alternatives }</code>.
- The <code>></code> operator defines a partial order between production rules and the groups define the associativity rules between alternatives. These are two of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> constructs that you should read more about.
+<li> <i>Keyword</i> non-terminals are <i>not</i> like <i>syntax</i> non-terminals. These only allow definition of enumeration of literal symbols and single character classes. Keyword non-terminals play an important role in the semantics of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> where some disambiguation constructs require finite, non-empty enumeration of strings. The prime example is the definition of reserved keywords.<br/>
+<br/>
+ Each alternative of a syntax definition is defined by a list of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s. Each of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s can be labeled or not.
+ The alternative of a defined syntax type may be labeled or not as well. With the label additional operations are activated on the corresponding parse trees:
+</li>
+<li> The ??unknown: Rascal:Is?? operator is defined for labeled alternatives.</li>
+<li> The ??unknown: Rascal:Has?? operator is defined for labeled <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s in the right-hand side.</li>
+<li> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> functions can be written to override the construction of a parse tree, using the label of an alternative as the function name</li>
+<li> <a href="/Courses/Rascal/Libraries/ParseTree/implode/Implode.html">Implode</a> uses labeled alternatives to map to an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a></li>
+</ol> Alternatives can be combined in a single <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> using the <code>|</code>, <code>></code> and associativity combinators.
+ The latter two represent <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> constructs that you should read more about. The <code>|</code> is a short-hand for not having to repeat <code>syntax A =</code> for every alternative of <code>A</code>.
  <br/>
 <br/>
 
@@ -83,7 +89,10 @@
  <ul><li> you need to <a href="/Courses/Rascal/Libraries/ParseTree/implode/Implode.html">Implode</a> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a></li>
 <li> you need to use the <code>is</code> expression, as in <code>myStatement is ifThenElse</code> instead of using concrete pattern matching.</li>
 <li> you want to write ??unknown: Rascal:ParseActions?? that triggers on the construction of the alternative.</li>
-</ul> However, it is generally a good idea to name your rules even if you do not need them. Note that a name may be reused for different alternatives for a single non-terminal, provided that the lists of symbols for these "overloaded" alternatives use <i>different non-terminal symbols</i>. This implies that alternatives for lexicals generally do not use overloaded names because they are often defined only by regular expressions over terminal <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> (literals and character classes).
+</ul> However, it is generally a good idea to name your rules even if you do not need them. Note that a name may be reused for different alternatives for a single non-terminal, provided that the lists of symbols for these "overloaded" alternatives use <i>different non-terminal symbols</i>. This implies that alternatives for lexicals generally do not use overloaded names because they are often defined only by regular expressions over terminal ??unknown: Rascal:Symbols?? (literals and character classes).
+ <br/>
+<br/>
+
  <br/>
 <br/>
 

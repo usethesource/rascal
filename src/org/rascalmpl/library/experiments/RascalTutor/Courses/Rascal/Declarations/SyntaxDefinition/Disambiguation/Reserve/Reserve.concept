@@ -1,0 +1,28 @@
+Name: Reserve
+
+Synopsis: Reserve is a conditional [Symbol], constraining the set of strings that a symbol may produce.
+
+Syntax: 
+
+* `$Symbol$ \\ $constraint$`
+
+
+where a $constraint$ is any character class, a literal or a keyword non-terminal [Symbol].
+
+Types:
+
+Function:
+
+Details:
+
+Description: The parser will not accept a reserve symbol if the string accepted by it matches _exactly_ with the constraint. For example, `[a-z0-9]+ \ "if"` will accept all strings of alphanumeric characters, except for the word `if`.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

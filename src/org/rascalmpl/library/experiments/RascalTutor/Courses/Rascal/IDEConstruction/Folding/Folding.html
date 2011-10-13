@@ -38,6 +38,24 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  Editors may hide (fold) certain parts of a source text based on Folding annotations
+
+</div>
+
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <ol><li> <code>syntax <i>Name</i> = @foldable <i>Symbols</i>;</code></li>
+<li> <code>a@foldable = true</code></li>
+</ol>
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  There exist two ways of manipulating the folding behavior:
+ <ol><li> By statically tagging a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> with <code>@foldable</code> any source text that span a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> generated from this definition will be foldable</li>
+<li> By dynamically annotating a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> with the <code>foldable</code> annotation (set to <code>true</code>) a similar effect is obtained.</li>
+</ol>
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction/Folding&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction/Folding&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |

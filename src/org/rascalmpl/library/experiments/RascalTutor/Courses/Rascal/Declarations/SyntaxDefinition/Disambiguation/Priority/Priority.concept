@@ -3,9 +3,9 @@ Name: Priority
 Synopsis:
 
 Syntax:
-`syntax $Exp$ = $alt_1$ > $alt_2$ > $alt_3$` is the basic syntax for priorities.
-
-Groups of equal priority are also allowed as in: `syntax $Exp$ = $alt_1$ | $alt_2$ > $alt_3$ | $alt_4$`. See also [Associativity].
+# `syntax $Exp$ = $alt_1$ > $alt_2$ > $alt_3$` is the basic syntax for priorities.
+# `syntax $Exp$ = $alt_1$ | $alt_2$ > $alt_3$ | $alt_4$`, where the `|` signifies groups of equal priority
+# `syntax $Exp$ = $associativity$ ( $alt_1 | ... ) > $alt_2`, where an associativity group denotes a group of equal priority
 
 Types:
 

@@ -1,6 +1,6 @@
 Name: Menus
 
-Synopsis:
+Synopsis: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output
 
 Syntax:
 
@@ -8,9 +8,16 @@ Types:
 
 Function:
 
-Details:
+Details: 
 
-Description:
+Description: There exists an [AlgebraicDatatype] for contributions to the menus of the IDE. It is defined in the [IDE] library module. It can be used to map a menu structure to [Function]s that will be called when the menu item is selected.
+
+You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
+<screen>
+import util::IDE;
+import ParseTree;
+m1 = popup(menu("MyMenu", [action("Example item", void (Tree t, loc s) { println("<t> @ <s>");})]));
+registerContributions("myLanguage", {m1});
 
 Examples:
 

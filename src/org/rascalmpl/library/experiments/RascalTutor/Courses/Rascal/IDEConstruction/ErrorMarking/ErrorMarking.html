@@ -38,6 +38,30 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  visual and browsable error messages in the IDE
+
+</div>
+
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <ol><li> <code>t@message = <i>message</i>;</code></li>
+<li> <code>t@messages = <i>setOfMessages</i>l</code></li>
+</ol>
+</div>
+
+<div id="Details">
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/IDEConstruction/ErrorMarking/Message/Message.html">Message</a> &#032 
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Just after parsing and produce a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a>, an editor will collect all <code>message</code> annotations and use these to annotate the editor text and fill the error view of the IDE.
+ <br/>
+<br/>
+
+ If a <code>messages</code> annotation is encountered on a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> node, the messages will be registered as well, <i>but sub-trees will not be searched for further messages</i>.
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction/ErrorMarking&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction/ErrorMarking&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |

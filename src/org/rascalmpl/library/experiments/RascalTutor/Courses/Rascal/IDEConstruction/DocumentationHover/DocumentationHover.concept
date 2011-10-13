@@ -1,8 +1,8 @@
 Name: DocumentationHover
 
-Synopsis:
+Synopsis: IDE shows documentation strings by hovering over elements of the source text in the IDE
 
-Syntax:
+Syntax: `t@doc = $str$`
 
 Types:
 
@@ -10,7 +10,10 @@ Function:
 
 Details:
 
+
 Description:
+
+Any parse tree node will be queried by the IDE's editor while the user is hovering over the span of text that the tree covers. If a tree is annotated by the `doc` annotation, its value will be shown in a tooltip.
 
 Examples:
 

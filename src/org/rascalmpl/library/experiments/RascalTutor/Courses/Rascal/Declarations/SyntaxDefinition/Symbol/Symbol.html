@@ -6,7 +6,7 @@
 
 
 <head>
-<title>Rascal/Declarations/SyntaxDefinition/Symbols</title>
+<title>Rascal/Declarations/SyntaxDefinition/Symbol</title>
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -26,13 +26,13 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>
 </div>
 
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
-    <input type="hidden" name="concept" value="Rascal/Declarations/SyntaxDefinition/Symbols">
+    <input type="hidden" name="concept" value="Rascal/Declarations/SyntaxDefinition/Symbol">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -45,11 +45,8 @@
 
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  Nonterminal symbols are written using identifier names that <i>start with a capital</i>.
- Any symbol can be labeled with field names that start with lowercase characters: <code><i>Symbol</i> <i>fieldName</i></code>.
- <br/>
-<br/>
-
- Then, there are literal symbols and character classes, as in:
+  <ul><li> <code><i>Symbol</i> <i>fieldName</i></code>, any symbol can be labeled with field names that start with lowercase characters: .</li>
+</ul> Then, there are literal symbols and character classes, as in:
  <ul><li> <code>"<i>stringliteral</i>"</code> for literal strings</li>
 <li> <code>'<i>stringliteral</i>'</code> for case-insensitive literal strings</li>
 <li> <code>[<i>range</i><sub>1</sub> <i>range</i><sub>2</sub> ... ]</code> for character classes.</li>
@@ -59,7 +56,7 @@
 <li> `<code><i>Class</i><sub>1</sub></code> || <code><i>Class</i><sub>2</sub></code>, for class union</li>
 <li> `<code><i>Class</i><sub>1</sub></code> &amp;&amp; <code><i>Class</i><sub>2</sub></code>, for class intersection</li>
 <li> <code>($Class)</code>, as brackets</li>
-</ul> We can construct regular expressions over <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a>:
+</ul> We can construct regular expressions over ??unknown: Rascal:Symbols??:
  <ul><li> <code><i>Symbol</i>?</code> optional <code><i>Symbol</i></code></li>
 <li> <code><i>Symbol</i>+</code> non-empty list of <code><i>Symbol</i></code></li>
 <li> <code><i>Symbol</i>*</code> possibly empty list of <code><i>Symbol</i></code></li>
@@ -68,15 +65,15 @@
 <li> <code>(<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... )</code> embedded sequence of symbols </li>
 <li> <code>(<i>Symbol</i><sub>1</sub> | <i>Symbol</i><sub>2</sub> | ... )</code> embedded choice of alternative symbols</li>
 <li> <code>()</code> the anonymous non-terminal for the language with the empty string</li>
-</ul> Finally we can add inline conditions (??unknown: Rascal:Disambiguations??) to symbols that constrain their acceptability:
- <ul><li> <code><i>Symbol</i>\$</code>, <code><i>Symbol</i></code> ends at end of line or file</li>
+</ul> Finally we can add inline conditions (<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s) to symbols that constrain their acceptability:
+ <ul><li> <code><i>Symbol</i> $</code>, <code><i>Symbol</i></code> ends at end of line or file</li>
 <li> <code>^<i>Symbol</i></code>, <code><i>Symbol</i></code> starts at start of line</li>
 <li> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>, <code><i>Symbol</i></code> starts at certain column index</li>
 <li> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code></li>
-<li> `<code><i>Symbol</i><sub>1</sub></code> !>> <code><i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code></li>
+<li> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code></li>
 <li> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code></li>
 <li> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code></li>
-<li> <code><i>Symbol</i><sub>1</sub> &nbsp;<i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code></li>
+<li> <code><i>Symbol</i><sub>1</sub> \&nbsp;<i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code></li>
 </ul> Symbols can be composed arbitrarily.
 
 </div>
@@ -98,7 +95,7 @@
  Character classes have the samen escaping conventions as characters in a ??unknown: Rascal:StringLiterals??, but spaces and newlines are meaningless and have to be escaped and the <code>[</code> and <code>]</code> brackets need escaping. For example, one writes <code>[\[ \] &nbsp;\n]</code> for a class that includes the open and close square brackets and a space and a newline. Character classes support ranges as in <code>[a-zA-Z0-9]</code>. Please note about character classes that:
  <ul><li> the operations on character classes are executed before parser generation time. You will not find explicit representation of the these operations in <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>, but rather their net effect as resulting character classes. </li>
 <li> Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.</li>
-<li> Although all <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbols/Symbols.html">Symbols</a> are type constructors, the character class operators are not allowed in types.</li>
+<li> Although all ??unknown: Rascal:Symbols?? are type constructors, the character class operators are not allowed in types.</li>
 </ul> The other symbols either <i>generate</i> for you parts of the construction of a grammar, or they <i>constrain</i> the rules of the grammar to generate a smaller set of trees as ??unknown: Rascal:Disambiguations??.
  <br/>
 <br/>
@@ -114,8 +111,8 @@
 </ul>
 </div>
 
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbols&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbols&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>

@@ -1,10 +1,12 @@
-Name: Symbols
+Name: Symbol
 
 Synopsis: The symbols that can occur in a syntax definition.
 
 Syntax:
 Nonterminal symbols are written using identifier names that _start with a capital_.
-Any symbol can be labeled with field names that start with lowercase characters: `$Symbol$ $fieldName$`.
+
+* `$Symbol$ $fieldName$`, any symbol can be labeled with field names that start with lowercase characters: .
+
 
 Then, there are literal symbols and character classes, as in:
 * `"$stringliteral$"` for literal strings
@@ -31,15 +33,15 @@ We can construct regular expressions over [Symbols]:
 * `()` the anonymous non-terminal for the language with the empty string
 
 
-Finally we can add inline conditions ([Disambiguations]) to symbols that constrain their acceptability:
-* `$Symbol$\$`, $Symbol$ ends at end of line or file
+Finally we can add inline conditions ([Disambiguation]s) to symbols that constrain their acceptability:
+* `$Symbol$ $`, $Symbol$ ends at end of line or file
 * `^$Symbol$`, $Symbol$ starts at start of line
 * `$Symbol$ @ $ColumnIndex$`, $Symbol$ starts at certain column index
 * `$Symbol_1$ >> $Symbol_2$`, $Symbol_1$ must be (directly) followed by $Symbol_2$
-* `$Symbol_1$ !>> $Symbol_2$, $Symbol_1$ must _not_ be (directly) followed by $Symbol_2$
+* `$Symbol_1$ !>> $Symbol_2$`, $Symbol_1$ must _not_ be (directly) followed by $Symbol_2$
 * `$Symbol_1$ << $Symbol_2$`, $Symbol_2$ must be (directly) preceded by $Symbol_1$
 * `$Symbol_1$ !<< $Symbol_2$`, $Symbol_2$ must _not_ be (directly) preceded by $Symbol_1$
-* `$Symbol_1$ \ $Symbol_2$`, $Symbol_1$ must not be in the language defined by $Symbol_2$
+* `$Symbol_1$ \\ $Symbol_2$`, $Symbol_1$ must not be in the language defined by $Symbol_2$
 
 
 Symbols can be composed arbitrarily.

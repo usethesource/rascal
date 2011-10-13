@@ -38,6 +38,31 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  There exists an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a> for contributions to the menus of the IDE. It is defined in the <a href="/Courses/Rascal/Libraries/IDE/IDE.html">IDE</a> library module. It can be used to map a menu structure to <a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a>s that will be called when the menu item is selected.
+ <br/>
+<br/>
+
+ You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
+ <pre class="screen"><b>rascal></b>import util::IDE;
+ok
+<b>rascal></b>import ParseTree;
+ok
+<b>rascal></b>m1 = popup(menu(&quot;MyMenu&quot;, [action(&quot;Example item&quot;, void (Tree t, loc s) { println&raquo;
+(&quot;&lt;t&gt; @ &lt;s&gt;&quot;);})]));
+Contribution: popup(menu(
+    &quot;MyMenu&quot;,
+    [action(&quot;Example item&quot;,void (Tree, loc);)]))
+<b>rascal></b>registerContributions(&quot;myLanguage&quot;, {m1});
+ok
+</pre>
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction/Menus&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction/Menus&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |

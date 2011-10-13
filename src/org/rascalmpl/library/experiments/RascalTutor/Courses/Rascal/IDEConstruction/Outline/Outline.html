@@ -38,6 +38,35 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  To implement an outline, first make a function that maps a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> to anything of <code>node</code> or a sub-type of <code>node</code> (any <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a> or <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> will do).
+ <br/>
+<br/>
+
+ The structure of the outline tree that you make will be displayed directly by the outline view in the IDE. To provide labels to the nodes use the <code>label</code> annotation (type <code>str</code>). To make the node a hyperlink, use the <code>\loc</code> annotation.
+ <br/>
+<br/>
+
+ Then, register the outliner:
+ <pre class="screen"><b>rascal></b>import util::IDE;
+ok
+<b>rascal></b>syntax Program = &quot;main&quot;;
+ok
+<b>rascal></b>registerOutliner(&quot;myLanguage&quot;, node (Program t) { 
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n = &quot;myNode&quot;();
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n@\loc = t@\loc;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n@label = &quot;My node label&quot;;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return n;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;});
+ok
+</pre>
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction/Outline&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction/Outline&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
