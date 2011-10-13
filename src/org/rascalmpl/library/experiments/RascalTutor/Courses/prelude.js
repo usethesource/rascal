@@ -58,12 +58,18 @@ function initNavigation() {
 		$('#navPane').jstree('open_node', $('#navPane a:first'));
 	}, 0);
 	$.History.bind(function(state) {
-		console.log(state);
 		if (state == '') {
 			state = location.href;
 		}
-    	$("#conceptPane").load(state + " div#conceptPane", finishLoad);
+    	$("#conceptPane").load(state + " div#conceptPane", function() {
+			finishLoad();
+			attachDisqus(state);
+		});
 	});
+	if ($.History.getState() == '') {
+		// no initial state will fire, so we have to attach the Disqus manually
+		attachDisqus(window.location.pathname);
+	}
 
     $('<div id="navInitialized"></div>').insertAfter("#navPane");
     $('#navPane').bind("open_node.jstree close_node.jstree", function (e) {
@@ -82,6 +88,25 @@ function initNavigation() {
     //    navigation_initialized = true;
     attachHandlers();
     //   alert("initNavigation ... done");
+}
+
+var disqus_shortname = 'rascalmpltutor'; 
+var disqus_identifier = '';
+var disqus_url = '';
+var disqusAdded = false;
+
+function attachDisqus(page) {
+	$("#conceptPane").after("<div id=\"disqus_thread\"></div>"); // insert disqus div
+	disqus_identifier = page;
+	disqus_url = "http://tutor.rascal-mpl.org" + page;
+	if (!disqusAdded) {
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+		discussAdded= true;
+	}
 }
 
 function attachHandlers() {
