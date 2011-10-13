@@ -265,7 +265,7 @@ function match(conceptName, term) {
 }
 
 function showSearchResults(concept, results, term) {
-    backarrow = back(concept, concept);
+    backarrow = back(concept);
     if (results.length == 0) html_code = '<h1>No results found for "' + term + '"</h1>';
     else if (results.length == 1) {
         loadConcept(results[0]);
@@ -273,21 +273,22 @@ function showSearchResults(concept, results, term) {
     } else {
         html_code = '<h1>' + results.length + ' search results for "' + term + '"</h1>\n<ul>';
         for (var i = 0; i < results.length; i++) {
-            html_code += '<li>' + makeConceptURL(concept, results[i]) + '</li>\n';
+            html_code += '<li>' + makeConceptURL(results[i]) + '</li>\n';
         }
         html_code += '\n</ul>';
     }
     $('title').html('Search results for "' + term + '"');
     $('div#conceptPane').html(backarrow + html_code + backarrow);
+	$('#disqus_thread').remove();
 }
 
 
-function makeConceptURL(fromConcept, toConcept) {
-    return '<a href="javascript:show(' + "'" + fromConcept + "','" + toConcept + "')" + '">' + toConcept + '</a>';
+function makeConceptURL(toConcept) {
+    return '<a href="' +  translateConceptToURL(toConcept) +'">' + toConcept +'</a>';
 }
 
-function back(fromConcept, toConcept) {
-    return '<a href="javascript:show(' + "'" + toConcept + "','" + fromConcept + "')" + '">' + '<img width="30" height="30" src="/Courses/images/back.png"></a>';
+function back(fromConcept) {
+    return '<a href="' +  translateConceptToURL(fromConcept) +'"><img width="30" height="30" src="/Courses/images/back.png"></a>';
 }
 
 
