@@ -75,9 +75,9 @@
  that occur in a call to this function are collected as list value of the last formal parameter. 
  Inside the function body, the type of this parameter will therefore be <code>list[<i>Type</i><sub>0</sub>]</code>.
   <h2> Variant 3 and 4 </h2>
- All formal parameter of a function can be <a href="/Courses/Rascal/Expressions/Patterns/Patterns.html">Patterns</a>. There are some restrictions however:
- <ul><li> <a href="/Courses/Rascal/Expressions/Patterns/Patterns.html">Patterns</a> in formal parameter positions may not refer to variables in the scope</li>
-<li> <a href="/Courses/Rascal/Expressions/Patterns/Patterns.html">Patterns</a> in formal parameter positions may not introduce fresh variables without an explicit type. </li>
+ All formal parameter of a function can be <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a>. There are some restrictions however:
+ <ul><li> <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a> in formal parameter positions may not refer to variables in the scope</li>
+<li> <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a> in formal parameter positions may not introduce fresh variables without an explicit type. </li>
 <li> The last parameter, if followed by <code>...</code> can only be a normal typed parameters, not just any pattern.</li>
 </ul> <h2> Body types </h2>
  <ul><li> Functions with list of statements as bodies must eventually use <code>return</code> or <code>fail</code> on every control flow path. </li>
