@@ -61,9 +61,9 @@
  <code>Tree</code> is the universal parse tree data type in Rascal and can be used to represent parse trees for any language. 
  <ul><li> <code>Tree</code> is a subtype of the type <a href="/Courses/Rascal/Expressions/Values/Node/Node.html">Node</a>.</li>
 <li> All <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> types (non-terminals) are sub-types of <code>Tree</code></li>
-<li> All <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> expressions produce parse trees the types of which are non-terminals</li>
+<li> All <a href="/Courses/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> expressions produce parse trees the types of which are non-terminals</li>
 <li> Trees can be annotated in various ways, see <a href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a> features. Most importantly the <code>\loc</code> annotation always points to the source location of any (sub) parse tree.</li>
-</ul> Parse trees are usually analyzed and constructed using <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> expressions and patterns.
+</ul> Parse trees are usually analyzed and constructed using <a href="/Courses/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> expressions and patterns.
  <br/>
 <br/>
 
@@ -88,7 +88,7 @@
 
  You can analyze and manipulate parse trees in three ways:
  <ul><li> Directly on the <code>Tree</code> level, just like any other <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a></li>
-<li> Using <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
+<li> Using <a href="/Courses/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
 <li> Using <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s</li>
 </ul> The type of a parse tree is the symbol that it's production produces, i.e. <code>appl(prod(sort("A"),[],{}),[])</code> has type <code>A</code>. Ambiguity nodes 
  Each such a non-terminal type has <code>Tree</code> as its immediate super-type.
