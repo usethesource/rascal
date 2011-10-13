@@ -97,6 +97,14 @@ function initNavigation() {
 		});
 	});
 	if ($.History.getState() == '') {
+		setTimeout(function() {
+			var treeNode = $('#navPane a[href=' + window.location.pathname + ']');
+			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
+				$('#navPane').jstree('deselect_all');
+				skipNextNodeClick += 1;
+				$('#navPane').jstree('select_node', treeNode);
+			}
+		}, 5);
 		// no initial state will fire, so we have to attach the Disqus manually
 		attachDisqus(window.location.pathname);
 	}
