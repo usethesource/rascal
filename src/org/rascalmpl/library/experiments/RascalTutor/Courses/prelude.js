@@ -45,11 +45,17 @@ $(document).ready(function () {
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
+var skipNextNodeClick = false;
+
 function initNavigation() {
 
     //alert("initNavigation");
 
     $("#navPane").bind("select_node.jstree", function (event, data) {
+		if (skipNextNodeClick) {
+			skipNextNodeClick = false;
+			return;
+		}
         var url = $(data.args[0]).attr("href");
         loadConceptURL(url);
         return false;
@@ -81,6 +87,13 @@ function initNavigation() {
     	$("#conceptPane").load(state + " div#conceptPane", function() {
 			finishLoad();
 			attachDisqus(state);
+			var treeNode = $('#navPane a[href=' + state + ']');
+			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
+				// we have to update the tree selection
+				$('#navPane').jstree('deselect_all');
+				skipNextNodeClick = true;
+				$('#navPane').jstree('select_node', treeNode);
+			}
 		});
 	});
 	if ($.History.getState() == '') {
