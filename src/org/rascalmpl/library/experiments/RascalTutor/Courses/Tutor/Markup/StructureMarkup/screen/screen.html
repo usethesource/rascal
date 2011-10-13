@@ -45,7 +45,7 @@
 
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <br>
- <code>&lt;screen></code><br>
+ <code>&lt;screen <i>OptErrors</i>></code><br>
  <code><i>RascalCode</i></code><br>
  <code>&lt;\screen></code>
 
@@ -60,8 +60,17 @@
  The following is supported:
  <ul><li> Lines that start with <code>//</code> are formatted as ordinary text. This makes it possible to write a story with interspersed Rascal code.</li>
 <li> Comments in the code of the form <code>/*<i>Number</i>*/</code> are replaced by numbered markers such as <code><img src="/Courses/images/1.png"></code> that can be used in the text to   refer back to the code.
+<br/>
+<br/>
+ If any error messages are generated or exceptions are raised, they will be logged as warnings.
+ The precise set of words that triggers a warning is:
 </li>
-</ul>
+<li> <code>Exception</code>, <code>exception</code></li>
+<li> <code>Error</code>, <code>error</code></li>
+<li> <code>cancelled</code>.</li>
+<li> <code>Timeout</code>, <code>timeout</code>.</li>
+</ul> If the <code><i>OptErrors</i></code> is non-empty, it is assumed that the error is expected and it will not be logged.
+
 </div>
 
 <div id="Examples">
@@ -79,8 +88,9 @@ int: 3
 </div>
 
 <div id="Benefits">
-<span class="sectionHead">Benefits</span>  All code in a concept is actually executed before it is included in an HTML file.
-
+<span class="sectionHead">Benefits</span>  <ul><li> All code in a concept is actually executed before it is included in an HTML file.</li>
+<li> In the warnings, an overview is maintained of code fragments that produce unexpected errors.</li>
+</ul>
 </div>
 
 <div id="Pitfalls">
