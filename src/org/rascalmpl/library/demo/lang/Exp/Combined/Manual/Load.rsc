@@ -1,14 +1,17 @@
 module demo::lang::Exp::Combined::Manual::Load
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Combined::Manual::Parse;
 
-import ParseTree;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;  /*1*/
+import demo::lang::Exp::Abstract::Syntax;              /*2*/
+import demo::lang::Exp::Combined::Manual::Parse;       /*3*/
+import String;
 
-public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) = 
-        implode(#demo::lang::Exp::Abstract::Syntax, parse(#demo::lang::Exp::Concrete::WithLayout::Syntax::Exp, txt)); 
-        
-public Exp p2a((Exp)`<IntegerLiteral l>`) = con(toInt("<l>"));       
-public Exp p2a((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) = mul(p2a(e1), p2a(e2));  
-public Exp p2a((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) = add(p2a(e1), p2a(e2)); 
-public Exp p2a((Exp)`( <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e> )`) = p2a(e);                    
+public Exp load(str txt) = load(parse(txt));           /*4*/
+     
+public Exp load((Exp)`<IntegerLiteral l>`)             /*5*/
+       = con(toInt("<l>"));       
+public Exp load((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) 
+       = mul(load(e1), load(e2));  
+public Exp load((Exp)`<demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`)
+       = add(load(e1), load(e2)); 
+public Exp load((Exp)`( <demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e> )`) 
+       = load(e);                    
