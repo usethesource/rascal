@@ -10,9 +10,9 @@ Types:
 
 Function:
 
-Details: Message
+Details: 
 
-Description: Just after parsing and produce a [ParseTree], an editor will collect all `message` annotations and use these to annotate the editor text and fill the error view of the IDE.
+Description: Just after parsing and produce a [ParseTree], an editor will collect all [Message] annotations and use these to annotate the editor text and fill the error view of the IDE.
 
 If a `messages` annotation is encountered on a [ParseTree] node, the messages will be registered as well, _but sub-trees will not be searched for further messages_.
 

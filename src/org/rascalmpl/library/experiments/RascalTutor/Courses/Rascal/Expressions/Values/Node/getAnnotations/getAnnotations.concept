@@ -15,7 +15,7 @@ Description:
 
 
 Examples:
-<warning> anno declaration on node is broken </warning>
+
 <screen>
 import Node;
 // Declare a string-valued annotation on nodes, named color:

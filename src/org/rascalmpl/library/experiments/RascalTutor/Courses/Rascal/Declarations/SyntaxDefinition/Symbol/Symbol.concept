@@ -16,13 +16,13 @@ Then, there are literal symbols and character classes, as in:
 
 We have the following operations on character classes that can be composed arbitrarily:
 * `!$Class$`, for complement w.r.t the UTF8 universe of characters.
-* `$Class_1$ - $Class_2$, for class difference.
-* `$Class_1$ || $Class_2$, for class union
-* `$Class_1$ && $Class_2$, for class intersection
+* `$Class_1$ - $Class_2$`, for class difference.
+* `$Class_1$ || $Class_2$`, for class union
+* `$Class_1$ && $Class_2$`, for class intersection
 * `($Class)`, as brackets
 
 
-We can construct regular expressions over [Symbols]:
+We can construct regular expressions over [Symbol]s:
 * `$Symbol$?` optional $Symbol$
 * `$Symbol$+` non-empty list of $Symbol$
 * `$Symbol$*` possibly empty list of $Symbol$
@@ -58,13 +58,13 @@ The basic symbols are the non-terminal name and the labeled non-terminal name. T
 
 Then we have literals and character classes to define the _terminals_ of a grammar. When you use a literal such as `"begin"`, Rascal will produce a definition for it down to the character level before generating a parser: `syntax "begin" = [b][e][g][i][n];`. This effect will be visible in the [ParseTrees] produced by the parser. For case insensitive literals you will see a similar effect; the use of `'begin'` produces `syntax 'begin' = [bB][eE][gG][iI][nN]`.
 
-Character classes have the samen escaping conventions as characters in a [StringLiterals], but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets need escaping. For example, one writes `[\[ \] \ \n]` for a class that includes the open and close square brackets and a space and a newline. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
+Character classes have the samen escaping conventions as characters in a [String] literal, but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets need escaping. For example, one writes `[\[ \] \ \n]` for a class that includes the open and close square brackets and a space and a newline. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
 * the operations on character classes are executed before parser generation time. You will not find explicit representation of the these operations in [ParseTrees], but rather their net effect as resulting character classes. 
 * Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.
-* Although all [Symbols] are type constructors, the character class operators are not allowed in types.
+* Although all [Symbol]s are type constructors, the character class operators are not allowed in types.
 
 
-The other symbols either _generate_ for you parts of the construction of a grammar, or they _constrain_ the rules of the grammar to generate a smaller set of trees as [Disambiguations].
+The other symbols either _generate_ for you parts of the construction of a grammar, or they _constrain_ the rules of the grammar to generate a smaller set of trees as [Disambiguation]s.
 
 The _generative symbols_ are referred to as the _regular symbols_. These are like named non-terminals, except that they are defined implicitly and interpreted by the parser generator to produce a parser that can recognize a symbol optionally, iteratively, alternatively, sequentially, etc. You also need to know this about the regular symbols:
 * In [ParseTrees] you will find special nodes for the regular expression symbols that hide _how_ these were recognized. 
@@ -75,7 +75,7 @@ The _generative symbols_ are referred to as the _regular symbols_. These are lik
 
 The _constraint_ symbols are specially there to deal with the fact that Rascal does not generate a scanner. There are no a priori disambiguation rules such as prefer keywords or longest match. Instead, you should use the constraint symbols to define the effect of keyword reservation and longest match. 
 * It is important to note that these constraints work on a character-by-character level in the input stream. So, a follow constraint such as `A >> [a-z]` means that the character immediately following a recognized A must be in the range `[a-z]`.
-* Read more on the constraint symbols via [Disambiguations].
+* Read more on the constraint symbols via [Disambiguation]s.
 
 Examples:
 

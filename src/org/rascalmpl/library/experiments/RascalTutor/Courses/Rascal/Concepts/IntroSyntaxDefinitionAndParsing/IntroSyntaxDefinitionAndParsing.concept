@@ -41,10 +41,10 @@ syntax Exp
 </listing>
 
 Now you may parse and manipulate programs in this language:
-<screen>
+<listing>
 import MyLanguage;
 parse(#start[Program], "begin end");
-</screen>
+</listing>
 
 Benefits:
 

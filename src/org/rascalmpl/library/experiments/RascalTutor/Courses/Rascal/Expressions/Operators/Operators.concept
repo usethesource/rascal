@@ -29,6 +29,8 @@ All operators are summarized in the following table. They are listed from highes
                                                        [Relation/FieldSelection]</td>    <td>Select named field from structured value</td></tr>
 <tr><td>`$Exp_1$ [ $Name$ = $Exp_2$ ]`</td>        <td>[FieldAssignment]</td>            <td>Change value of named field of structured value</tr>
 <tr><td>`$Exp$ < $field_1$, ... >`</td>            <td>[FieldProjection]</td>            <td>Select fields from relation or structured value</td></tr>
+<tr><td>`$Exp$ is $Name$` </td> <td>[ParseTree], [ConcreteSyntax], [AlgebraicDatatype]</td><td> Returns true if and only if the constructor name of the value produced by $Exp$ is equal to $Name</td></tr>
+<tr><td>`$Exp$ has $Name$` </td> <td>[ParseTree], [ConcreteSyntax], [AlgebraicDatatype]</td><td> Returns true if and only if the constructor (node or parse tree) of the value produced by $Exp$ has any field labeled $Name</td></tr>
 <tr><td>`$Exp_1$ [ $Exp_2$ , $Exp_3$, .... ]`</td> <td>[List/Subscription],
                                                        [Map/Subscription], 
                                                        [Tuple/Subscription],

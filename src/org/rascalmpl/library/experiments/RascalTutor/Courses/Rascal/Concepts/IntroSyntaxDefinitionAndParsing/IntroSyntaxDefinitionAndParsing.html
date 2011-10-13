@@ -76,12 +76,8 @@ syntax Exp
   > left add: Exp lhs "+" Exp rhs
   ;
 </pre> Now you may parse and manipulate programs in this language:
- <pre class="screen"><b>rascal></b>import MyLanguage;
-Static Error: prompt:///:1,0: Could not load module MyLanguage: Module /MyLangua&raquo;
-ge not found
-<b>rascal></b>parse(#start[Program], &quot;begin end&quot;);
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: pars&raquo;
-e
+ <pre class="listing">import MyLanguage;
+parse(#start[Program], "begin end");
 </pre>
 </div>
 
