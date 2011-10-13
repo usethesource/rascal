@@ -17,7 +17,7 @@ Description:
 # Return a list consisting of the last `n` elements of `lst`.
 
 Examples:
-<screen>
+<screen errors>
 // All but first element:
 import List;
 tail([10,20,30]);

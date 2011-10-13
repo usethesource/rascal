@@ -15,7 +15,7 @@ Description:
 Converts string `s` to integer. Throws `IllegalArgument` when `s` cannot be converted.
 
 Examples:
-<screen>
+<screen errors>
 import String;
 toInt("2010");
 toInt("abc");

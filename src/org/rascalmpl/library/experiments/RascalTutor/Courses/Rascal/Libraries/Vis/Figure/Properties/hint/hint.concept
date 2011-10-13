@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the [graph] layout:
+Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the [$Figures/graph] layout:
 * `spring`: use force-directed spring layout (currently disabled).
 * `layered`: draw as a layered graph (the default).
 

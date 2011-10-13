@@ -87,19 +87,19 @@
  The types that occur in function declarations may also contain <a href="/Courses/Rascal/Declarations/StaticTyping/TypeParameters/TypeParameters.html">TypeParameters</a>.
  In this way functions can be defined for arbitrary types. The type variable is bound (statically) at by the types of the parameters given at location of the call. The result type must be used at least once in any of the parameters.
   <h2> Overloading </h2>
- Function definitions may be overloaded, i.e. a function with the same name may be defined twice and a function may redefine a constructor of an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a> or a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>.
+ Function definitions may be overloaded, i.e. a function with the same name may be defined twice and a function may redefine a constructor of an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> or a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>.
  <br/>
 <br/>
 
  There are some restrictions however:
  <ul><li> Overloaded alternatives for the same function name but with different patterns must return the same type.</li>
 <li> Overloaded alternatives for the same function name must have mutually exclusive patterns, unless one alternative is labeled <code>default</code> and the other is not. The patterns of formal parameters are mutually exclusive if for at least one parameter position: <ul><li> They range over incomparable types, as in <code>int f(int a)</code> and <code>int f(real a)</code>, or</li>
-<li> They range over different alternatives of an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a>, as in <code>int f(and(Bool a, Bool b))</code> and <code>int f(or(Bool a, Bool b))</code></li>
+<li> They range over different alternatives of an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>, as in <code>int f(and(Bool a, Bool b))</code> and <code>int f(or(Bool a, Bool b))</code></li>
 <li> They range over different alternatives of a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a></li>
 <li> And note that deep matches using the <code>/</code> alternative are considered to be of type <code>value</code> and therefore overlap with all other patterns.</li>
 </ul></li>
 <li> Overlapping patterns are allowed if the one alternative has the <code>default</code> modified while the other does not.</li>
-<li> If a function is fallible, it uses the <code>fail</code> statement to back-track to a different alternative, then there must be a <code>default</code> alternative defined which can handle the general case. An <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a> or a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> with the same name and return type counts as a <code>default</code> alternative.</li>
+<li> If a function is fallible, it uses the <code>fail</code> statement to back-track to a different alternative, then there must be a <code>default</code> alternative defined which can handle the general case. An <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> or a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> with the same name and return type counts as a <code>default</code> alternative.</li>
 <li> <code>default</code> functions may not fail.</li>
 </ul> <h2> Modifiers </h2>
  The <code><i>Modifiers</i></code> affect <i>visibility</i> and <i>special behaviour</i> of functions:
@@ -111,7 +111,7 @@
 <li> <code>test</code> declares that this is a test function. A test function is a boolean function (currently) withou arguments.      It can be called as any other function. However, it can also be called automatically
      by the unit test framework, by typing <code>:test</code> at the command line, see <a href="/Courses/Rascal/InstallingAndRunning/Running/Help/Help.html">Help</a>.
 </li>
-<li> <code>default</code> declares an alternative for an overloaded function that will only be tried after all non-default alternatives have been tried. Note that <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a>s and <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s <i>implicitly</i> define <code>default</code> functions that may be overloaded by normal <a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a>s.</li>
+<li> <code>default</code> declares an alternative for an overloaded function that will only be tried after all non-default alternatives have been tried. Note that <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>s and <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s <i>implicitly</i> define <code>default</code> functions that may be overloaded by normal <a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a>s.</li>
 </ul>
 </div>
 
@@ -178,7 +178,7 @@ int (int): int f(int);
 int: 1
 <b>rascal></b>f(2);
 int: 2
-</pre> In combination with an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDatatype.html">AlgebraicDatatype</a>, which defines <code>default</code> functions implicitly for every alternative, we can define canonicalization functions. The same holds for <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s, see <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s.
+</pre> In combination with an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>, which defines <code>default</code> functions implicitly for every alternative, we can define canonicalization functions. The same holds for <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s, see <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s.
  <pre class="screen"></pre>
   This definition implies a default function for t(), f() and neg(B):
 

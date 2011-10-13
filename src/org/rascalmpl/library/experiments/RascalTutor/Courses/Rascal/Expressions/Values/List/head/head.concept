@@ -17,7 +17,7 @@ Description:
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short.
 
 Examples:
-<screen>
+<screen errors>
 import List;
 // Get the first element:
 head([1, 2, 3]);

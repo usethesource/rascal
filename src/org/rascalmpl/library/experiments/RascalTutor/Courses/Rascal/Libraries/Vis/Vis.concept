@@ -15,7 +15,7 @@ The Rascal visualisation libraries provide a compositional visualization framewo
 consists of:
 
 * The library [Figure] that defines the basic visualization infrastructure.
-* The library [Render] that defines the rendering of figures to a screen or file.
+* The library [$Vis/Render] that defines the rendering of figures to a screen or file.
 
 Examples:
 

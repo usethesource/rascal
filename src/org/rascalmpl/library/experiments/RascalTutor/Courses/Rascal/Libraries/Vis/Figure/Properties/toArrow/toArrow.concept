@@ -12,7 +12,7 @@ FProperty toArrow(Figure f)
 Details:
 
 Description:
-Add an arrow to the destination of a [graph] edge. 
+Add an arrow to the destination of a [$Figures/graph] edge. 
 The arrow is an arbitrary figure `f` and its upper side wille be used as the
 point of the arrow. The figure is appropriately rotated depending on the orientation of the edge.
 

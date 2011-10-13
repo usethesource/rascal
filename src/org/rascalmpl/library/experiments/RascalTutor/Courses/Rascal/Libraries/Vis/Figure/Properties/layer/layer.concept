@@ -1,6 +1,6 @@
 Name: layer
 
-Synopsis: A layer in a [graph].
+Synopsis: A layer in a [$Figures/graph].
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Introduces a named layer in a [graph]. All nodes with the same layer name are placed in the same layer.
+Introduces a named layer in a [$Figures/graph]. All nodes with the same layer name are placed in the same layer.
 
 Examples:
 <figure l1.png>

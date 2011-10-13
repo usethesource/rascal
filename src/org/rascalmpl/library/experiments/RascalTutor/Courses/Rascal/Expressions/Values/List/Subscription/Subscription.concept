@@ -20,7 +20,7 @@ The value of $Exp_2$ should be greater or equal 0 and less than the number of el
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
 Examples:
-<screen>
+<screen errors>
 // Introduce a list, assign it to L and retrieve the element with index 1:
 L = [10, 20, 30];
 L[1];

@@ -27,7 +27,7 @@ Benefits:
 
 Pitfalls:
 Remainder is only defined on integers:
-<screen>
+<screen errors>
 13.5 % 6
 </screen>
 

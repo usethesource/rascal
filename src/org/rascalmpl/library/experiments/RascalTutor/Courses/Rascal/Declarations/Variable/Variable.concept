@@ -47,7 +47,7 @@ Rascal provides local type inference, which allows the implicit declaration of v
 * All uses of an implicitly declared variable must be compatible with its implicit type.
 
 Examples:
-<screen>
+<screen errors>
 // Two explicit variable declarations:
 int max = 100;
 min = 0;

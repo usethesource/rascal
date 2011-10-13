@@ -13,7 +13,7 @@ Details:
 
 Description:
 Assign the identity `name` to the current figure. Identities are used in
-various compositions like [graph] and [treemap].
+various compositions like [Figures/graph] and [treemap].
 
 Examples:
 

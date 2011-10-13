@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Adds figure `f` as label to an [edge] in a [graph].
+Adds figure `f` as label to an [edge] in a [$Figures/graph].
 
 Examples:
 <figure l1.png>

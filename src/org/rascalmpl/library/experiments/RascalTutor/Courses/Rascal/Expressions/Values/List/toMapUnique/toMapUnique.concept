@@ -15,7 +15,7 @@ Description:
 Convert a list of tuples to a map; result must be a map.
 
 Examples:
-<screen>
+<screen errors>
 import List;
 toMapUnique([<1,10>, <2, 20>, <3, 30>]);
 //Let's explore an error case:
