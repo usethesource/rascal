@@ -76,7 +76,7 @@ function initNavigation() {
 	}, 0);
 	$.History.bind(function(state) {
 		if (state == '') {
-			state = location.href;
+			state = window.location.pathname;
 		}
     	$("#conceptPane").load(state + " div#conceptPane", function() {
 			finishLoad();
