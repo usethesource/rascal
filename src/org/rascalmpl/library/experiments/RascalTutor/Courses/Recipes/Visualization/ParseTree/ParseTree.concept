@@ -18,7 +18,7 @@ a visualization can be useful.
 Examples:
 We embark on visualizing parse trees for the language Exp:
 <screen>
-import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 parse(#Exp, "1+2*3");
 </screen>
@@ -26,7 +26,7 @@ As can be seen, even for such a trivial example, the details in the parse tree r
 
 We can visualize it as follows:
 <figure t1.png 100x100>
-import demo::languages::Exp::Concrete::WithLayout::Syntax;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 import vis::Figure;
 import vis::ParseTree;

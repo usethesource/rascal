@@ -52,20 +52,32 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  We embark on visualizing parse trees for the language Exp:
- <pre class="screen"><b>rascal></b>import demo::languages::Exp::Concrete::WithLayout::Syntax;
-Static Error: prompt:///:1,0: Could not load module demo::languages::Exp::Concre&raquo;
-te::WithLayout::Syntax: Module /demo::languages::Exp::Concrete::WithLayout::Synt&raquo;
-ax not found
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
+ok
 <b>rascal></b>import ParseTree;
 ok
 <b>rascal></b>parse(#Exp, &quot;1+2*3&quot;);
-Static Error: prompt:///:1,7: Undeclared type: Exp
+`1+2*3`
+Exp: appl(
+  prod(
+    sort(&quot;Exp&quot;),
+    [
+      sort(&quot;Exp&quot;),
+      layouts(&quot;LAYOUTLIST&quot;),
+      lit(&quot;+&quot;),
+      layouts(&quot;LAYOUTLIST&quot;),
+      sort(&quot;Exp&quot;)
+    ],
+    {assoc(left())}),
+  [
+    appl(
+      ...
 </pre> As can be seen, even for such a trivial example, the details in the parse tree representation become sizeable.
  <br/>
 <br/>
 
  We can visualize it as follows:
- <warning>Static Error: prompt:///:1,0: Could not load module demo::languages::Exp::Concrete::WithLayout::Syntax: Module /demo::languages::Exp::Concrete::WithLayout::Syntax not foundStatic Error: prompt:///:1,31: Undeclared type: Exp</warning><pre class="listing">import demo::languages::Exp::Concrete::WithLayout::Syntax;
+ <pre class="listing">import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 import vis::Figure;
 import vis::ParseTree;

@@ -11,6 +11,23 @@ Function:
 Details:
 
 Description:
+Interpreter Eval2 supports the following features of Func: 
+
+
+| Feature              | Eval2 |
+|:---------------------|-------|
+| function declaration | y     |
+| integer constant     | y     |
+| variable             | y     |
+| arithmetic operators | y     |
+| comparison operators | y     |
+| call                 | y     |
+| if                   | y     |
+| sequence             | y     |
+| assignment           | y     |
+| let                  | y     |
+| address operator     |       |
+| dereference operator |       |
 
 Examples:
 

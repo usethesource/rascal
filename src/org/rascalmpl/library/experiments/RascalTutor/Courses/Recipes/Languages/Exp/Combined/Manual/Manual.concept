@@ -1,6 +1,6 @@
 Name: Manual
 
-Synopsis:
+Synopsis: An Exp evaluator that uses a manually written conversion from parse tree to abstract syntaxt tree.
 
 Syntax:
 
@@ -14,14 +14,41 @@ Description:
 
 Examples:
 
-<listing demo/lang/Exp/Combined/Manual/P2A.rsc>
+First we define a `parse` function for Exp:
+
+<listing demo/lang/Exp/Combined/Manual/Parse.rsc>
+and test it:
 <screen>
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Combined::Manual::P2A;
-import ParseTree;
-parse(#demo::lang::Exp::Concrete::WithLayout::Syntax::Exp, "2+3");
-p2a("2+3");
+import demo::lang::Exp::Combined::Manual::Parse;
+parse("2+3");
+</screen>
+
+Next, we define a `load` function:
+<listing demo/lang/Exp/Combined/Manual/Load.rsc>
+Some comments:
+* /*1*/ We reuse the previously defined concrete syntax with layout.
+* /*2*/ We also reuse the previously defined abstract syntax.
+* /*3*/ Import the `Parse` module defined above.
+* /*4*/ The top level `load` function that converts a string to an abstract syntax tree.
+* /*5*/ The conversion from parse tree to abstract syntax tree start here. Note that we
+        explicitly use `demo::lang::Exp::Concrete::WithLayout::Syntax::Exp` in these
+        rules to distinguish from `demo::lang::Exp::Abstract::Syntax::Exp`.
+
+
+Let's try it:
+<screen>
+import demo::lang::Exp::Combined::Manual::Load;
+load("2+3");
+</screen>
+
+
+What remains is to write the interpreter using the above components:
+<listing demo/lang/Exp/Combined/Manual/Eval.rsc>
+
+Here is how it works:
+<screen>
+import demo::lang::Exp::Combined::Manual::Eval;
+eval("2+3");
 </screen>
 
 Benefits:

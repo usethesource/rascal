@@ -22,15 +22,14 @@ Let's try this on example `F0.func`:
 <listing demo/lang/Func/programs/F0.func>
 
 <screen>
-// First, we try the version with a string argument (note that we have to escape the `<` character since is used in Rascal for
-// string interpolation).
+// First, we try the version with a string argument:
 import demo::lang::Func::Parse;
 import demo::lang::Func::programs::F0;
 parse(F0);
 // This must be defined as success: we get the original program and its parse tree back.
 // Next, we try the same from a file. We use the scheme `std` that refers to files that reside in the Rascal library.
-// See [Rascal:location] for further details.
-parse(|std://demo/lang/Func/programs/F0.func|);
+// See [Rascal:location] for further details on other schemes.
+parse(|std:///demo/lang/Func/programs/F0.func|);
 </screen>
 
 Benefits:

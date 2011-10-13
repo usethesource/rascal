@@ -13,7 +13,12 @@ Details:
 Description:
 
 Examples:
+
+Here is the abstract syntax for Func:
 <listing demo/lang/Func/AST.rsc>
+
+Observe that the abstract syntax follows the structur of the [Func/ConcreteSyntax] but
+omits details such as operator priorities, parentheses, and the like.
 
 Benefits:
 

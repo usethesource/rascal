@@ -14,7 +14,7 @@ Description:
 To simplify later processing, Func programs are converted to an abstract syntax tree.
 
 Examples:
-The concrete syntax for Func is described in Func/ConcreteSyntax and its
+The concrete syntax for Func is described in [Func/ConcreteSyntax] and its
 abstract syntax in [Func/AbstractSyntax].
 Rather than manually writing conversion rules from Func parse trees to Func abstract syntax trees
 we use our secret weapon: [Rascal:implode] that performs the mapping for us.
@@ -42,8 +42,8 @@ import demo::lang::Func::programs::F0;
 load(F0);
 // We get the original program and its __abstract syntax tree__ of type `Prog` back.
 // In case of doubt, compare this with the result in [Func/Parse] where we did obtain a parse tree.
-// Next, we try the same from a file.
-load(|std://demo/lang/Func/programs/F0.func|);
+// Next, we try the same from a file:
+load(|std:///demo/lang/Func/programs/F0.func|);
 </screen>
 
 Benefits:

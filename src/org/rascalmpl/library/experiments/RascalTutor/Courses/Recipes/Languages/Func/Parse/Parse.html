@@ -65,8 +65,7 @@ public Prog parse(str s) = parse(#Prog, s);
              n * fact(n-1)
           end
 </pre> <pre class="screen"></pre>
-  First, we try the version with a string argument (note that we have to escape the <code>&lt;</code> character since is used in Rascal for
-  string interpolation).
+  First, we try the version with a string argument:
 
 <pre class="screen"><b>rascal></b>import demo::lang::Func::Parse;
 ok
@@ -93,13 +92,26 @@ Prog: appl(
 </pre>
   This must be defined as success: we get the original program and its parse tree back.
   Next, we try the same from a file. We use the scheme <code>std</code> that refers to files that reside in the Rascal library.
-  See <a href="/Courses/Rascal/Expressions/Values/Location/location.html">location</a> for further details.
+  See <a href="/Courses/Rascal/Expressions/Values/Location/location.html">location</a> for further details on other schemes.
 
-<pre class="screen"><b>rascal></b>parse(|std://demo/lang/Func/programs/F0.func|);
-Uncaught Rascal Exception: std:///demo/lang/Func/Parse.rsc:6,27: IO(&quot;std://demo/&raquo;
-lang/Func/programs/F0.func&quot;)
-    somewhere in: parse
-    somewhere in: $shell$
+<pre class="screen"><b>rascal></b>parse(|std:///demo/lang/Func/programs/F0.func|);
+`fact(n) = if n &lt;= 1 then
+             1 
+          else 
+             n * fact(n-1)
+          end`
+Prog: appl(
+  prod(
+    label(
+      &quot;prog&quot;,
+      sort(&quot;Prog&quot;)),
+    [\iter-star-seps(
+        sort(&quot;Func&quot;),
+        [layouts(&quot;LAYOUTLIST&quot;)])],
+    {}),
+  [appl(
+      regular(\iter-star-seps(
+         ...
 </pre>
 </div>
 

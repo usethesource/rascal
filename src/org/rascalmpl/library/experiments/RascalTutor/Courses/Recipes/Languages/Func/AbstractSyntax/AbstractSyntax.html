@@ -44,7 +44,8 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Func::AST
+<span class="sectionHead">Examples</span>  Here is the abstract syntax for Func:
+ <pre class="listing">module demo::lang::Func::AST
 
 data Prog = prog(list[Func] funcs);
 data Func = func(str name, list[str] formals, Exp body);
@@ -71,7 +72,9 @@ data Exp = let(list[Binding] bindings, Exp exp)
          | assign(Exp exp, Exp exp);
 
 data Binding = binding(str var, Exp exp);
-</pre>
+</pre> Observe that the abstract syntax follows the structur of the <a href="/Courses/Recipes/Languages/Func/ConcreteSyntax/ConcreteSyntax.html">Func/ConcreteSyntax</a> but
+ omits details such as operator priorities, parentheses, and the like.
+
 </div>
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/AbstractSyntax&new=false"><b>Edit</b></a>] | 

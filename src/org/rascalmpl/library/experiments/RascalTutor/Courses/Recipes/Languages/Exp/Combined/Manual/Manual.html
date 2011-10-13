@@ -38,29 +38,22 @@
   </form>
 </div>
          
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  An Exp evaluator that uses a manually written conversion from parse tree to abstract syntaxt tree.
+
+</div>
+
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Exp::Combined::P2A
+<span class="sectionHead">Examples</span>  First we define a <code>parse</code> function for Exp:
+  <pre class="listing">module demo::lang::Exp::Combined::Manual::Parse
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import demo::lang::Exp::Abstract::Syntax;
-import String;
 import ParseTree;
 
-public Exp p2a(str txt) = p2a(parse(#demo::lang::Exp::Concrete::WithLayout::Syntax::Exp, txt)); 
-     
-public Exp p2a((Exp)`&lt;IntegerLiteral l>`) = con(toInt("&lt;l>"));       
-public Exp p2a((Exp)`&lt;Exp e1> * &lt;Exp e2>`) = mul(p2a(e1), p2a(e2));  
-public Exp p2a((Exp)`&lt;Exp e1> + &lt;Exp e2>`) = add(p2a(e1), p2a(e2)); 
-public Exp p2a((Exp)`( &lt;Exp e> )`) = p2a(e);                    
-</pre> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
+public Exp parse(str txt) = parse(#Exp, txt); 
+</pre> and test it:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Manual::Parse;
 ok
-<b>rascal></b>import demo::lang::Exp::Abstract::Syntax;
-ok
-<b>rascal></b>import demo::lang::Exp::Combined::Manual::P2A;
-Parse error in std:///demo/lang/Exp/Combined/Manual/P2A.rsc from &lt;9,20&gt; to &lt;9,20&raquo;
-&gt;
-<b>rascal></b>import ParseTree;
-ok
-<b>rascal></b>parse(#demo::lang::Exp::Concrete::WithLayout::Syntax::Exp, &quot;2+3&quot;);
+<b>rascal></b>parse(&quot;2+3&quot;);
 `2+3`
 Exp: appl(
   prod(
@@ -76,8 +69,54 @@ Exp: appl(
   [
     appl(
       ...
-<b>rascal></b>p2a(&quot;2+3&quot;);
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: p2a
+</pre> Next, we define a <code>load</code> function:
+ <pre class="listing">module demo::lang::Exp::Combined::Manual::Load
+
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Combined::Manual::Parse;
+import String;
+
+public Exp load(str txt) = load(parse(txt));
+     
+public Exp load((Exp)`&lt;IntegerLiteral l>`) = con(toInt("&lt;l>"));       
+public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) 
+       = mul(load(e1), load(e2));  
+public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`)
+       = add(load(e1), load(e2)); 
+public Exp load((Exp)`( &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e> )`) 
+       = load(e);                    
+</pre> Some comments:
+ <ul><li> <img src="/Courses/images/1.png"> We reuse the previously defined concrete syntax with layout.</li>
+<li> <img src="/Courses/images/2.png"> We also reuse the previously defined abstract syntax.</li>
+<li> <img src="/Courses/images/3.png"> Import the <code>Parse</code> module defined above.</li>
+<li> <img src="/Courses/images/4.png"> The top level <code>load</code> function that converts a string to an abstract syntax tree.</li>
+<li> <img src="/Courses/images/5.png"> The conversion from parse tree to abstract syntax tree start here. Note that we         explicitly use <code>demo::lang::Exp::Concrete::WithLayout::Syntax::Exp</code> in these
+         rules to distinguish from <code>demo::lang::Exp::Abstract::Syntax::Exp</code>.
+</li>
+</ul> Let's try it:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Manual::Load;
+ok
+<b>rascal></b>load(&quot;2+3&quot;);
+Exp: add(
+  con(2),
+  con(3))
+</pre> <br/>
+<br/>
+
+ What remains is to write the interpreter using the above components:
+ <pre class="listing">module demo::lang::Exp::Combined::Manual::Eval
+
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Abstract::Eval;
+import demo::lang::Exp::Combined::Manual::Load;
+
+public int eval(str txt) = eval(load(txt));
+</pre> Here is how it works:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Manual::Eval;
+ok
+<b>rascal></b>eval(&quot;2+3&quot;);
+int: 5
 </pre>
 </div>
 
