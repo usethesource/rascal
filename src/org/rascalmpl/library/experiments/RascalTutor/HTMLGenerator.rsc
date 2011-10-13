@@ -139,7 +139,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     }
    
     // screen
-    case /^\<screen\>\s*<codeLines:.*>$/: {
+    case /^\<screen\s*<error:.*>\>\s*<codeLines:.*>$/: {
       i += 1;
       startLine = i;
       while((i < n) && /^\<\/screen\>/ !:= lines[i]){
@@ -147,7 +147,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
          i += 1;
       }
       end = i - startLine;
-      return <markupScreen(slice(lines, startLine, end)), skipOneNL(lines, i+1, n)>;
+      return <markupScreen(slice(lines, startLine, end), error != ""), skipOneNL(lines, i+1, n)>;
     }
     
     // listing from file
@@ -420,7 +420,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	  out = shell(["import vis::Figure;", 
 	               "import vis::Render;"] + 
 	              lines, 
-	              20000);
+	              50000);
 	  println("**** shell output ****\n<out>");
 	  errors = lookForErrors(out);
 	  println("errors = <errors>");
@@ -442,12 +442,13 @@ private str markupRascalPrompt(list[str] lines){
 
 // Do screen markup
 
-private str markupScreen(list[str] lines){
+private str markupScreen(list[str] lines, bool generatesError){
    if(!generating)
       return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
    result_lines = shell(stripped_code, 25000);
-   lookForErrors(result_lines);
+   if(!generatesError)
+   		lookForErrors(result_lines);
    
    int i = 0; int upbi = size(lines);
    int j = 0; int upbj = size(result_lines);
@@ -568,7 +569,7 @@ public str referToConcept(ConceptName course, ConceptName toConcept, bool short)
      return "??unknown: <course>:<toConcept>??";
    }
    if(size(options) > 1){
-     addWarning("Ambiguous reference to concept in other course: <course>:<toConcept>Resolve with one of <for(opt <- options){>\t<opt> <}>");
+     addWarning("Ambiguous reference to concept in other course: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<opt> <}>}");
      return "??ambiguous: <course>:<toConcept>??";
    }
 }
