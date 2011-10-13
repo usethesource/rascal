@@ -21,6 +21,9 @@ $(document).ready(function () {
 		});
 	}
 	else {
+		// edit page
+    	var concept = $("input[name=concept]").val();
+		attachDisqus(translateConceptToURL(concept));
 		$('#editErrors').hide();
 		$('#editForm').submit(handleSave);
 	}
