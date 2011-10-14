@@ -693,7 +693,7 @@ public Course validateCourse(ConceptName rootConcept, map[ConceptName,Concept] c
        
        for(d <- C.details){
            if((cname + "/" + d) notin refinements[cname]){
-              warnings += ["<showConceptPath(cname)>: non-existent detail \"<d>\""];
+              warnings += ["<showConceptPath(cname)>: non-existing detail \"<d>\""];
            }
        }
        //C.warnings = cwarnings;
