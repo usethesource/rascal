@@ -565,7 +565,7 @@ public str referToConcept(ConceptName course, ConceptName toConcept, bool short)
       return  "\<a href=\"/Courses/<options[0]>/<basename(toConcept)>.html\"\><txt>\</a\>";  
    }     
    if(size(options) == 0){
-     addWarning("Reference to unknown concept in other course: <course>:<toConcept>");
+     addWarning("Reference to unknown concept: <course>:<toConcept>");
      return "??unknown: <course>:<toConcept>??";
    }
    if(size(options) > 1){
