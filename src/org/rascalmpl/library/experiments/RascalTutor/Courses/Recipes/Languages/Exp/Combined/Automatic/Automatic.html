@@ -80,17 +80,18 @@ start syntax Exp =
 <li> A <code>Load</code> module defines a load function that first calls the above <code>parse</code> function and then applies <code>implode</code> to it.   This is the only module that imports both concrete and abstract syntax at the same time and is therefore the only place to be
    concerned about name clashes. (If I mention <code>Exp</code>, do you know which one I mean?).
 </li>
-</ul> Here is the <code>Parse</code> module for Exp:
+</ul> Here is the <code>Parse</code> module for Exp ...
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Parse
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
+import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 
 public Exp parse(str txt) = parse(#Exp, txt); 
-</pre> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Parse;
+</pre> ... and this is how it works:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Parse;
 ok
-<b>rascal></b>parse(&quot;2+2*3&quot;);
-`2+2*3`
+<b>rascal></b>parse(&quot;2+3*4&quot;);
+`2+3*4`
 Exp: appl(
   prod(
     sort(&quot;Exp&quot;),
@@ -105,18 +106,24 @@ Exp: appl(
   [
     appl(
       ...
-</pre> <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
-import demo::lang::Exp::Combined::Automatic::Syntax;
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Combined::Automatic::Parse;
+</pre> We can use <code>parse</code> to define <code>load</code>:
+ <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
 
+import demo::lang::Exp::Combined::Automatic::Syntax; <img src="/Courses/images/1.png">
+import demo::lang::Exp::Combined::Automatic::Parse;  <img src="/Courses/images/2.png">
+import demo::lang::Exp::Abstract::Syntax;            <img src="/Courses/images/3.png">
 import ParseTree;
 
 public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) = 
        implode(#demo::lang::Exp::Abstract::Syntax::Exp, parse(txt)); 
-</pre> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
+</pre> Notes:
+ <ul><li> <img src="/Courses/images/1.png"> We need the concrete syntax with labeled alternatives, as defined above.</li>
+<li> <img src="/Courses/images/2.png"> We also need the <code>parse</code> function, as defined above.</li>
+<li> <img src="/Courses/images/3.png"> We also need the abstract syntax as already defined earlier.</li>
+</ul> Let's try it:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
 ok
-<b>rascal></b>load(&quot;2+2*3&quot;);
+<b>rascal></b>load(&quot;2+3*4&quot;);
 Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:9,56&raquo;
 : IllegalArgument(appl(prod(sort(&quot;Exp&quot;),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;&raquo;
 +&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(sort(&quot;Exp&quot;),[&raquo;
@@ -134,7 +141,7 @@ er-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,
 &quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(&raquo;
 left())}),[appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;Int&raquo;
 egerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-c&raquo;
-lass([range(48,57)]))),[char(50)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|fil&raquo;
+lass([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|fil&raquo;
 e://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;&raquo;
 LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([ra&raquo;
 nge(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYO&raquo;
@@ -145,26 +152,21 @@ s([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(
 &quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1&raquo;
 ,4&gt;)],appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerL&raquo;
 iteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class(&raquo;
-[range(48,57)]))),[char(51)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-&raquo;
+[range(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-&raquo;
 |(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(2,3,&lt;1&raquo;
 ,2&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)])
     somewhere in: load
     somewhere in: $shell$
-</pre> <br/>
-<br/>
+</pre> Remains the definition of the <code>eval</code> function:
+ <pre class="listing">module demo::lang::Exp::Combined::Automatic::Eval
 
-  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Syntax;
-ok
-<b>rascal></b>import ParseTree;
-ok
-<b>rascal></b>implode(#demo::lang::Exp::Abstract::Syntax::Exp, 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;        parse(#demo::lang::Exp::Combined::Automatic::Syntax::Exp, &quot;2+3*4&quot;&raquo;
-));              
-Static Error: prompt:///:1,9: Undeclared module: demo::lang::Exp::Abstract::Synt&raquo;
-ax
-<b>rascal></b>
-cancelled
-<b>rascal></b>import demo::lang::Exp::Combined::Automatic::Eval;
+import demo::lang::Exp::Abstract::Syntax;
+import demo::lang::Exp::Abstract::Eval;
+import demo::lang::Exp::Combined::Automatic::Load;
+
+public int eval(str txt) = eval(load(txt));
+</pre> Here is the end result:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Eval;
 ok
 <b>rascal></b>eval(&quot;2+3*4&quot;);
 Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:9,56&raquo;

@@ -36,27 +36,33 @@ It is good practice to introduce separate modules for parsing and for the conver
   concerned about name clashes. (If I mention `Exp`, do you know which one I mean?).
 
 
-Here is the `Parse` module for Exp:
+Here is the `Parse` module for Exp ...
 <listing demo/lang/Exp/Combined/Automatic/Parse.rsc>
+... and this is how it works:
 <screen>
 import demo::lang::Exp::Combined::Automatic::Parse;
-parse("2+2*3");
+parse("2+3*4");
 </screen>
 
+We can use `parse` to define `load`:
 <listing demo/lang/Exp/Combined/Automatic/Load.rsc>
+Notes:
+* /*1*/ We need the concrete syntax with labeled alternatives, as defined above.
+* /*2*/ We also need the `parse` function, as defined above.
+* /*3*/ We also need the abstract syntax as already defined earlier.
+
+
+Let's try it:
 <screen>
 import demo::lang::Exp::Combined::Automatic::Load;
-load("2+2*3");
+load("2+3*4");
 </screen>
 
+Remains the definition of the `eval` function:
+<listing demo/lang/Exp/Combined/Automatic/Eval.rsc>
 
-
+Here is the end result:
 <screen>
-import demo::lang::Exp::Combined::Automatic::Syntax;
-import ParseTree;
-implode(#demo::lang::Exp::Abstract::Syntax::Exp, 
-        parse(#demo::lang::Exp::Combined::Automatic::Syntax::Exp, "2+3*4"));              
-
 import demo::lang::Exp::Combined::Automatic::Eval;
 eval("2+3*4");
 </screen>

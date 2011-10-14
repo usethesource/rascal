@@ -24,14 +24,32 @@ Interpreter Eval3 supports the following features of Func:
 | comparison operators | y     |
 | call                 | y     |
 | if                   | y     |
+| let                  | y     |
 | sequence             | y     |
 | assignment           | y     |
-| let                  | y     |
-| address operator     | y     |
-| dereference operator | y     |
+| __address operator__ | y     |
+| __dereference operator__ | y     |
+
+
+
+The main additions are the address and dereference operators.
 
 Examples:
 <listing demo/lang/Func/Eval3.rsc>
+
+
+We apply `eval3` to example `F3`:
+<listing demo/lang/Func/programs/F3.func>
+
+Let's try this.
+<screen>
+import demo::lang::Func::Load;
+import demo::lang::Func::Eval3;
+import demo::lang::Func::programs::F3;
+eval3("fact", [10], load(F3));
+</screen>
+
+
 
 Benefits:
 

@@ -43,9 +43,9 @@ that implement increasingly complex features:
 | comparison operators | y     | y     | y     | y     |
 | call                 | y     | y     | y     | y     |
 | if                   | y     | y     | y     | y     |
+| let                  |       | y     | y     | y     |
 | sequence             |       |       | y     | y     |
 | assignment           |       |       | y     | y     |
-| let                  |       |       | y     | y     |
 | address operator     |       |       |       | y     |
 | dereference operator |       |       |       | y     |
 
@@ -61,7 +61,7 @@ that use more and more features of the Func language:
 `F3.func`:
 <listing demo/lang/Func/programs/F3.func>
 
-For conveneince, we use two versions of these examples for each $F_i$:
+For convenience, we use two versions of these examples for each $F_i$:
 * A file $F_i$`.func` that contains the code as shown above.
 * A file $F_i$`.rsc` a Rascal file that declares a string variable $F_i$ with the same content.
 

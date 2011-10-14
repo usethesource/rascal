@@ -43,36 +43,40 @@
  <br/>
 <br/>
 
-  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval3 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> sequence             </td><td align="center"> y     </td></tr><tr><td align="left"> assignment           </td><td align="center"> y     </td></tr><tr><td align="left"> let                  </td><td align="center"> y     </td></tr><tr><td align="left"> address operator     </td><td align="center"> y     </td></tr><tr><td align="left"> dereference operator </td><td align="center"> y     </td></tr></table>
+  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval3 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> let                  </td><td align="center"> y     </td></tr><tr><td align="left"> sequence             </td><td align="center"> y     </td></tr><tr><td align="left"> assignment           </td><td align="center"> y     </td></tr><tr><td align="left"> <b>address operator</b> </td><td align="center"> y     </td></tr><tr><td align="left"> <b>dereference operator</b> </td><td align="center"> y     </td></tr></table> <br/>
+<br/>
+
+ The main additions are the address and dereference operators.
+
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::func::Eval3
+<span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Func::Eval3
 
 // pointers into the stack
 
-import demo::func::AST;
-
+import demo::lang::Func::AST;
 
 import List;
 
-alias Address = int;
-alias Mem = list[int];
 alias Env = map[str, Address];
 alias PEnv = map[str, Func];
 
 alias Result = tuple[Mem, int];
 
-public Address push(Mem mem) {
+alias Address = int;    <img src="/Courses/images/1.png">
+alias Mem = list[int];  <img src="/Courses/images/2.png">
+
+public Address push(Mem mem) {                      <img src="/Courses/images/3.png">
   return size(mem);
 }
 
-public tuple[Mem, Address] alloc(Mem mem, int v) {
+public tuple[Mem, Address] alloc(Mem mem, int v) {  <img src="/Courses/images/4.png">
   mem += [v];
   return &lt;mem, size(mem) - 1>;
 }
 
-public Mem pop(Mem mem, Address scope) {
+public Mem pop(Mem mem, Address scope) {           <img src="/Courses/images/5.png">
   return slice(mem, 0, scope);
 }
 
@@ -163,9 +167,9 @@ public Result eval3(call(str name, list[Exp] args), Env env, PEnv penv, Mem mem)
    return &lt;pop(mem, scope), v>; 
 }
     
-public Result eval3(address(str var), Env env, PEnv penv, Mem mem) = &lt;mem, env[var]>;
+public Result eval3(address(str var), Env env, PEnv penv, Mem mem) = &lt;mem, env[var]>; <img src="/Courses/images/6.png">
   
-public Result eval3(deref(Exp exp), Env env, PEnv penv, Mem mem) {
+public Result eval3(deref(Exp exp), Env env, PEnv penv, Mem mem) { <img src="/Courses/images/7.png">
   &lt;mem, v> = eval3(exp, env, penv, mem);
   return &lt;mem, mem[v]>; 
 }
@@ -186,13 +190,13 @@ public Result eval3(seq(Exp lhs, Exp rhs), Env env, PEnv penv, Mem mem) {
   return eval3(rhs, env, penv, mem);
 }
 
-public Result eval3(assign(var(str name), Exp e), Env env, PEnv penv, Mem mem) {
+public Result eval3(assign(var(str name), Exp e), Env env, PEnv penv, Mem mem) {  <img src="/Courses/images/7.png">
   &lt;mem, v> = eval3(e, env, penv, mem);
   mem[env[name]] = v;
   return &lt;mem, v>;
 }
 
-public Result eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem mem) {
+public Result eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem mem) { <img src="/Courses/images/8.png">
   &lt;mem, addr> = eval3(lvalue, env, penv, mem);
   &lt;mem, v> = eval3(e, env, penv, mem);
   mem[addr] = v;
@@ -201,6 +205,39 @@ public Result eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem me
 
 
 
+</pre> <br/>
+<br/>
+
+ We apply <code>eval3</code> to example <code>F3</code>:
+ <pre class="listing">swap(a, b) =
+          let 
+	        temp = *a
+	      in
+            *a := *b;
+	        *b := temp
+	      end
+
+fact(n) = let
+	        x = 1,
+	        y = 0
+	      in
+	        if n &lt;= 1 then 
+	           x := 1
+	        else 
+	           x := n * fact(n-1)
+	        end;
+	        swap(&amp;x, &amp;y);
+	        y
+	      end
+</pre> Let's try this.
+ <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+ok
+<b>rascal></b>import demo::lang::Func::Eval3;
+ok
+<b>rascal></b>import demo::lang::Func::programs::F3;
+ok
+<b>rascal></b>eval3(&quot;fact&quot;, [10], load(F3));
+Result: &lt;[10],3628800&gt;
 </pre>
 </div>
 

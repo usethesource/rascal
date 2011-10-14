@@ -43,22 +43,26 @@
  <br/>
 <br/>
 
-  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval2 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> sequence             </td><td align="center"> y     </td></tr><tr><td align="left"> assignment           </td><td align="center"> y     </td></tr><tr><td align="left"> let                  </td><td align="center"> y     </td></tr><tr><td align="left"> address operator     </td><td align="center">       </td></tr><tr><td align="left"> dereference operator </td><td align="center">       </td></tr></table>
+  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval2 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> <b>let</b>              </td><td align="center"> y     </td></tr><tr><td align="left"> <b>sequence</b>         </td><td align="center"> y     </td></tr><tr><td align="left"> <b>assignment</b>       </td><td align="center"> y     </td></tr><tr><td align="left"> address operator     </td><td align="center">       </td></tr><tr><td align="left"> dereference operator </td><td align="center">       </td></tr></table> <br/>
+<br/>
+
+ The main additions are local side effects and the sequence operator.
+
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module demo::func::Eval2
+<span class="sectionHead">Examples</span>  <pre class="listing">module demo::lang::Func::Eval2
 
 // local side effects, returning env
 
-import demo::func::AST;
+import demo::lang::Func::AST;
 
 import List;
 
 alias Env = map[str, int];
 alias PEnv = map[str, Func];
 
-alias Result = tuple[Env, int];
+alias Result = tuple[Env, int];  <img src="/Courses/images/1.png">
 
 public Result eval2(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f &lt;- prog.funcs );
@@ -71,7 +75,7 @@ public Result eval2(nat(int nat), Env env, PEnv penv) = &lt;env, nat>;
  
 public Result eval2(var(str name), Env env, PEnv penv) = &lt;env, env[name]>;       
        
-public Result eval2(mul(Exp lhs, Exp rhs), Env env, PEnv penv) {
+public Result eval2(mul(Exp lhs, Exp rhs), Env env, PEnv penv) {  <img src="/Courses/images/2.png">
   &lt;env, x> = eval2(lhs, env, penv);
   &lt;env, y> = eval2(rhs, env, penv);
   return &lt;env, x * y>;
@@ -141,19 +145,45 @@ public Result eval2(let(list[Binding] bindings, Exp exp), Env env, PEnv penv)  {
    return eval2(exp, env, penv);
 } 
     
-public Result eval2(seq(Exp lhs, Exp rhs), Env env, PEnv penv)  {
-  &lt;env, _> = eval2(lhs, env, penv);
-  return eval2(rhs, env, penv);
-}
-    
-public Result eval2(assign(var(str name), Exp exp), Env env, PEnv penv)  {
+public Result eval2(assign(var(str name), Exp exp), Env env, PEnv penv)  { <img src="/Courses/images/3.png">
   &lt;env, v> = eval2(exp, env, penv);
   env[name] = v;
   return &lt;env, v>;
 }
 
+public Result eval2(seq(Exp lhs, Exp rhs), Env env, PEnv penv)  {  <img src="/Courses/images/4.png">
+  &lt;env, _> = eval2(lhs, env, penv);
+  return eval2(rhs, env, penv);
+}
 
 
+
+</pre> <ul><li> At <img src="/Courses/images/1.png"> the alias <code>Result</code> is introduced: a pair of an environment and an integer value.   All evaluator functions are changed from returning an integer (the result of evaluation) to
+   <code>Result</code> (the result of evaluation <i>and</i> the local side effects).
+</li>
+<li> The effect of this change can be seen in all functions. For instance, when evaluating   multiplication (<img src="/Courses/images/2.png">), the environment produced by the left operand ahs to be passed as 
+   argument to the right operand of the multiplication. This is needed, to propagate any side effects
+   caused by the left operand to propagate to the right one.
+</li>
+<li> Assignment is implemented at <img src="/Courses/images/3.png">.</li>
+<li> Sequencing is implemented at <img src="/Courses/images/4.png">. Observe that that the value of the left operand is ignored and that   the value of the right operand is returned.
+</li>
+</ul> We apply <code>eval2</code> to example <code>F2</code>:
+ <pre class="listing">fact(n) = if n &lt;= 1 then 
+             n := 1
+	      else 
+	         n := n * fact(n-1)
+	      end;
+	      n
+</pre> Let's try this.
+ <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+ok
+<b>rascal></b>import demo::lang::Func::Eval2;
+ok
+<b>rascal></b>import demo::lang::Func::programs::F2;
+ok
+<b>rascal></b>eval2(&quot;fact&quot;, [10], load(F2));
+Result: &lt;(&quot;n&quot;:3628800),3628800&gt;
 </pre>
 </div>
 

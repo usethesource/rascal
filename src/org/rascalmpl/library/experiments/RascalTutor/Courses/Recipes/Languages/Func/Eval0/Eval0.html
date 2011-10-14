@@ -48,7 +48,7 @@
  <br/>
 <br/>
 
-  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval0 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> sequence             </td><td align="center">       </td></tr><tr><td align="left"> assignment           </td><td align="center">       </td></tr><tr><td align="left"> let                  </td><td align="center">       </td></tr><tr><td align="left"> address operator     </td><td align="center">       </td></tr><tr><td align="left"> dereference operator </td><td align="center">       </td></tr></table>
+  <table><col align="left" /><col align="center" /><tr><th align="left"> Feature              </th><th align="center"> Eval0 </th></tr><tr><td align="left"> function declaration </td><td align="center"> y     </td></tr><tr><td align="left"> integer constant     </td><td align="center"> y     </td></tr><tr><td align="left"> variable             </td><td align="center"> y     </td></tr><tr><td align="left"> arithmetic operators </td><td align="center"> y     </td></tr><tr><td align="left"> comparison operators </td><td align="center"> y     </td></tr><tr><td align="left"> call                 </td><td align="center"> y     </td></tr><tr><td align="left"> if                   </td><td align="center"> y     </td></tr><tr><td align="left"> let                  </td><td align="center">       </td></tr><tr><td align="left"> sequence             </td><td align="center">       </td></tr><tr><td align="left"> assignment           </td><td align="center">       </td></tr><tr><td align="left"> address operator     </td><td align="center">       </td></tr><tr><td align="left"> dereference operator </td><td align="center">       </td></tr></table>
 </div>
 
 <div id="Examples">
@@ -113,8 +113,13 @@ public int eval0(call(str name, list[Exp] args), PEnv penv) =  <img src="/Course
 <li> A substitution is made in the body of the called function, replacing formal parameters by actual values.</li>
 <li> The result of this substitution is evaluated.</li>
 </ul></li>
-</ul> Let's try this.
- <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+</ul> Let's try this on example <code>F0</code>:
+ <pre class="listing">fact(n) = if n &lt;= 1 then
+             1 
+          else 
+             n * fact(n-1)
+          end
+</pre> <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
 ok
 <b>rascal></b>import demo::lang::Func::Eval0;
 ok
