@@ -1,29 +1,29 @@
-module demo::func::Eval3
+module demo::lang::Func::Eval3
 
 // pointers into the stack
 
-import demo::func::AST;
-
+import demo::lang::Func::AST;
 
 import List;
 
-alias Address = int;
-alias Mem = list[int];
 alias Env = map[str, Address];
 alias PEnv = map[str, Func];
 
 alias Result = tuple[Mem, int];
 
-public Address push(Mem mem) {
+alias Address = int;    /*1*/
+alias Mem = list[int];  /*2*/
+
+public Address push(Mem mem) {                      /*3*/
   return size(mem);
 }
 
-public tuple[Mem, Address] alloc(Mem mem, int v) {
+public tuple[Mem, Address] alloc(Mem mem, int v) {  /*4*/
   mem += [v];
   return <mem, size(mem) - 1>;
 }
 
-public Mem pop(Mem mem, Address scope) {
+public Mem pop(Mem mem, Address scope) {           /*5*/
   return slice(mem, 0, scope);
 }
 
@@ -114,9 +114,9 @@ public Result eval3(call(str name, list[Exp] args), Env env, PEnv penv, Mem mem)
    return <pop(mem, scope), v>; 
 }
     
-public Result eval3(address(str var), Env env, PEnv penv, Mem mem) = <mem, env[var]>;
+public Result eval3(address(str var), Env env, PEnv penv, Mem mem) = <mem, env[var]>; /*6*/
   
-public Result eval3(deref(Exp exp), Env env, PEnv penv, Mem mem) {
+public Result eval3(deref(Exp exp), Env env, PEnv penv, Mem mem) { /*7*/
   <mem, v> = eval3(exp, env, penv, mem);
   return <mem, mem[v]>; 
 }
@@ -137,13 +137,13 @@ public Result eval3(seq(Exp lhs, Exp rhs), Env env, PEnv penv, Mem mem) {
   return eval3(rhs, env, penv, mem);
 }
 
-public Result eval3(assign(var(str name), Exp e), Env env, PEnv penv, Mem mem) {
+public Result eval3(assign(var(str name), Exp e), Env env, PEnv penv, Mem mem) {  /*7*/
   <mem, v> = eval3(e, env, penv, mem);
   mem[env[name]] = v;
   return <mem, v>;
 }
 
-public Result eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem mem) {
+public Result eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem mem) { /*8*/
   <mem, addr> = eval3(lvalue, env, penv, mem);
   <mem, v> = eval3(e, env, penv, mem);
   mem[addr] = v;
