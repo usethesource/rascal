@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-An edge connects nodes in [graph]s.
+An edge connects nodes in [$Figures/graph]s.
 The arguments `from` and `to` are node [id]s.
 
 Applicable properties are:
@@ -20,7 +20,7 @@ Applicable properties are:
 * [toArrow]
 
 Examples:
-See [graph].
+See [$Figures/graph].
 
 Benefits:
 

@@ -10,7 +10,7 @@ Function:
 
 Details: 
 
-Description: There exists an [AlgebraicDatatype] for contributions to the menus of the IDE. It is defined in the [IDE] library module. It can be used to map a menu structure to [Function]s that will be called when the menu item is selected.
+Description: There exists an [AlgebraicDataType] for contributions to the menus of the IDE. It is defined in the [IDE] library module. It can be used to map a menu structure to [Function]s that will be called when the menu item is selected.
 
 You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
 <screen>

@@ -15,7 +15,7 @@ Description:
 Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
 
 Examples:
-<screen>
+<screen errors>
 import String;
 toReal("2.5e-3");
 toReal("123");

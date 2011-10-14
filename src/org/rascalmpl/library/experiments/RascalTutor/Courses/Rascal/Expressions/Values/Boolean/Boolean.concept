@@ -20,7 +20,7 @@ The Booleans are represented by the type `bool` which has two values: `true` and
 The Boolean operators (to be more precise: operators with a value of type Boolean as result) have _short-circuit_ semantics. 
 This means that the operands are evaluated until the outcome of the operator is known.
 
-Most operator are self-explanatory except the match (:=) and no match (!:=) operators that are also the main reason to treat Boolean operator expressions separately. Although we describe patterns in full detail in the section called [Patterns], a preview is useful here. A pattern can
+Most operators are self-explanatory except the match (:=) and no match (!:=) operators that are also the main reason to treat Boolean operator expressions separately. Although we describe patterns in full detail in [Patterns], a preview is useful here. A pattern can
 
 * match (or not match) any arbitrary value (that we will call the _subject value_);
 
@@ -49,15 +49,16 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 * Boolean expressions: when a pattern match fails that is part of a Boolean expression, further solutions are tried in order to try to make the Boolean expression true.
 
-* Tests in for, while, do statements.
+* Tests in [For], [While], [Do] statements.
 
-* Tests in one and all expressions.
+* Tests in [Any] and [All] expressions.
 
-* Tests and enumerators in comprehensions.
+* Tests and [Enumerator]s in comprehensions.
 
-* Pattern matches in visit expression and switch statement.
+* Pattern matches in cases of a [Visit].
 
-* Pattern matches during rewriting.
+* Pattern matches in cases of a [Switch].
+
 
 Examples:
 Consider the following match of a list

@@ -4,11 +4,11 @@ Synopsis: Concrete syntax is a notation for patterns that match parse trees and 
 
 Syntax: 
 
-# <pre>($Non-terminal$) \`$sentence$\`</pre>
+# <pre>($Nonterminal$) \`$sentence$\`</pre>
 # <pre>\`$sentence$\`</pre>
 
 
-where each sentence is a string over the language generated from $Non-terminal$. This language is extended in the following way. Each non-terminal reachable `X` from $Non-terminal$ has an added alternative to allow nested Rascal [Pattern]s inside of concrete syntax fragments:
+where each sentence is a string over the language generated from `$Nonterminal$`. This language is extended in the following way. Each non-terminal reachable `X` from $Non-terminal$ has an added alternative to allow nested Rascal [Patterns] inside of concrete syntax fragments:
    * `syntax X = "<" Pattern p ">";`
 
 Types:

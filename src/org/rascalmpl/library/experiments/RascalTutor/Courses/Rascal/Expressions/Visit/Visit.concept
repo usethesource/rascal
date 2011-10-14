@@ -19,7 +19,7 @@ Function:
 Details:
 
 Description:
-Visiting the nodes in a tree is a very common task in the [EASY] domain. 
+Visiting the nodes in a tree is a very common task in the [EASY:EASY] domain. 
 In many cases (but certainly not all) the tree is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
 Computing metrics or refactoring are examples of tasks that require a tree visit. 

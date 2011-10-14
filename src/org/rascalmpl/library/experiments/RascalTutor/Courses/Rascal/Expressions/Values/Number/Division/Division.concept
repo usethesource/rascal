@@ -20,7 +20,7 @@ Description:
 Yields the result of dividing the value of $NumExp1$ by the value of $NumExp2$.
 
 Examples:
-<screen>
+<screen errors>
 12 / 3
 10 / 3
 12 / 3.0

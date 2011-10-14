@@ -24,7 +24,7 @@ that serves as a identifying message for this assertion.
 When $Exp_1$ evaluates to `false`, an `AssertionFailed` exception is thrown.
 
 Examples:
-<screen>
+<screen errors>
 assert 1==2 : "is never true";
 int div(int x, int y) {
   assert y != 0 : "y must be non-zero";

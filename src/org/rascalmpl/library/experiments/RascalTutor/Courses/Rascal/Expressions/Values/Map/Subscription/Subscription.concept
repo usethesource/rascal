@@ -19,7 +19,7 @@ Map subscription uses the value of $Exp_2$ as key in the map value of $Exp_1$ an
 If this key does not occur in the map, the exception `NoSuchKey` is thrown.
 
 Examples:
-<screen>
+<screen errors>
 // Introduce a map, assign it to `colors`, and retrieve the element with index `"trumps"`:
 colors = ("hearts":"red", "clover":"black", 
           "trumps":"black", "clubs":"red");

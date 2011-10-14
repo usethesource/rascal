@@ -33,7 +33,6 @@ we present four interpreters [Eval0], [Eval1], [Eval2] and [Eval2]
 that implement increasingly complex features:
 
 
-
 | Feature              | Eval0 | Eval1 | Eval2 | Eval3 |
 |:---------------------|-------|-------|-------|-------|
 | function declaration | y     | y     | y     | y     |

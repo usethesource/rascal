@@ -43,7 +43,7 @@ The Rascal type system has various advanced features that are described separate
 
 Examples:
 Here are some simple examples of correct and incorrect typing:
-<screen>
+<screen errors>
 // We can assign an integer value to an integer variable:
 int i = 3;
 // But assigning a string value gives an error:

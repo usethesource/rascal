@@ -75,7 +75,7 @@ See the more detailed description of each property for examples.
 The following table specifies which properties have an effect on which figures.
 
 <table>
-<tr><td>X 		<td>[box]  <td>[button]  <td>[checkbox] 	<td>[combo]  <td>[computeFigure] 	<td>[ellipse] <td>[fswitch] 	<td>[graph]  <td>[grid] <td>[hvcat] 	<td>[outline]  <td>[overlay]  <td>[pack]<td>[scaleSlider] <td>[scrollable]  <td>[space]  <td>[text]  <td>[textfield] 	<td>[tree]  
+<tr><td>X 		<td>[box]  <td>[button]  <td>[checkbox] 	<td>[combo]  <td>[computeFigure] 	<td>[ellipse] <td>[fswitch] 	<td>[$Figures/graph]  <td>[grid] <td>[hvcat] 	<td>[$Figures/outline]  <td>[overlay]  <td>[pack]<td>[scaleSlider] <td>[scrollable]  <td>[space]  <td>[text]  <td>[textfield] 	<td>[tree]  
 <tr><td>[align]2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
 <tr><td>[aspectRatio]	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> 		
 <tr><td>[connect]2D	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		

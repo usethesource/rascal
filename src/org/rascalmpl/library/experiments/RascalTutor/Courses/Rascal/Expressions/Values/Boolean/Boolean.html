@@ -71,7 +71,7 @@
  <br/>
 <br/>
 
- Most operator are self-explanatory except the match (:=) and no match (!:=) operators that are also the main reason to treat Boolean operator expressions separately. Although we describe patterns in full detail in the section called <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a>, a preview is useful here. A pattern can
+ Most operators are self-explanatory except the match (:=) and no match (!:=) operators that are also the main reason to treat Boolean operator expressions separately. Although we describe patterns in full detail in <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a>, a preview is useful here. A pattern can
   <ul><li> match (or not match) any arbitrary value (that we will call the <i>subject value</i>);</li>
 <li> during the match variables may be bound to subvalues of the subject value.</li>
 </ul> The <i>match</i> operator
@@ -88,11 +88,11 @@
 
  This behaviour is applicable in the context of all Rascal constructs where a pattern match determines the flow of control of the program, in particular:
   <ul><li> Boolean expressions: when a pattern match fails that is part of a Boolean expression, further solutions are tried in order to try to make the Boolean expression true.</li>
-<li> Tests in for, while, do statements.</li>
-<li> Tests in one and all expressions.</li>
-<li> Tests and enumerators in comprehensions.</li>
-<li> Pattern matches in visit expression and switch statement.</li>
-<li> Pattern matches during rewriting.</li>
+<li> Tests in <a href="/Courses/Rascal/Statements/For/For.html">For</a>, <a href="/Courses/Rascal/Statements/While/While.html">While</a>, <a href="/Courses/Rascal/Statements/Do/Do.html">Do</a> statements.</li>
+<li> Tests in <a href="/Courses/Rascal/Expressions/Values/Boolean/Any/Any.html">Any</a> and <a href="/Courses/Rascal/Expressions/Values/Boolean/All/All.html">All</a> expressions.</li>
+<li> Tests and <a href="/Courses/Rascal/Expressions/Comprehensions/Enumerator/Enumerator.html">Enumerator</a>s in comprehensions.</li>
+<li> Pattern matches in cases of a <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a>.</li>
+<li> Pattern matches in cases of a <a href="/Courses/Rascal/Statements/Switch/Switch.html">Switch</a>.</li>
 </ul>
 </div>
 

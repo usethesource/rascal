@@ -10,7 +10,7 @@ Function:
 
 Details:
 
-Description: To implement an outline, first make a function that maps a [ParseTree] to anything of `node` or a sub-type of `node` (any [AlgebraicDatatype] or [SyntaxDefinition] will do).
+Description: To implement an outline, first make a function that maps a [ParseTree] to anything of `node` or a sub-type of `node` (any [AlgebraicDataType] or [SyntaxDefinition] will do).
 
 The structure of the outline tree that you make will be displayed directly by the outline view in the IDE. To provide labels to the nodes use the `label` annotation (type `str`). To make the node a hyperlink, use the `\loc` annotation.
 
