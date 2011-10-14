@@ -1,15 +1,15 @@
-module demo::func::Eval2
+module demo::lang::Func::Eval2
 
 // local side effects, returning env
 
-import demo::func::AST;
+import demo::lang::Func::AST;
 
 import List;
 
 alias Env = map[str, int];
 alias PEnv = map[str, Func];
 
-alias Result = tuple[Env, int];
+alias Result = tuple[Env, int];  /*1*/
 
 public Result eval2(str main, list[int] args, Prog prog) {
   penv = ( f.name: f | f <- prog.funcs );
@@ -22,7 +22,7 @@ public Result eval2(nat(int nat), Env env, PEnv penv) = <env, nat>;
  
 public Result eval2(var(str name), Env env, PEnv penv) = <env, env[name]>;       
        
-public Result eval2(mul(Exp lhs, Exp rhs), Env env, PEnv penv) {
+public Result eval2(mul(Exp lhs, Exp rhs), Env env, PEnv penv) {  /*2*/
   <env, x> = eval2(lhs, env, penv);
   <env, y> = eval2(rhs, env, penv);
   return <env, x * y>;
@@ -92,15 +92,15 @@ public Result eval2(let(list[Binding] bindings, Exp exp), Env env, PEnv penv)  {
    return eval2(exp, env, penv);
 } 
     
-public Result eval2(seq(Exp lhs, Exp rhs), Env env, PEnv penv)  {
-  <env, _> = eval2(lhs, env, penv);
-  return eval2(rhs, env, penv);
-}
-    
-public Result eval2(assign(var(str name), Exp exp), Env env, PEnv penv)  {
+public Result eval2(assign(var(str name), Exp exp), Env env, PEnv penv)  { /*3*/
   <env, v> = eval2(exp, env, penv);
   env[name] = v;
   return <env, v>;
+}
+
+public Result eval2(seq(Exp lhs, Exp rhs), Env env, PEnv penv)  {  /*4*/
+  <env, _> = eval2(lhs, env, penv);
+  return eval2(rhs, env, penv);
 }
 
 

@@ -1,12 +1,12 @@
-module demo::func::Eval1
+module demo::lang::Func::Eval1
 
 // using env, allowing let
 
-import demo::func::AST;
+import demo::lang::Func::AST;
 
 import List;
 
-alias Env = map[str, int];
+alias Env = map[str, int];  /*1*/
 alias PEnv = map[str, Func];
 
 public int eval1(str main, list[int] args, Prog prog) {
@@ -19,7 +19,7 @@ public int eval1(str main, list[int] args, Prog prog) {
 
 public int eval1(nat(int nat), Env env, PEnv penv)  = nat;
 
-public int eval1(var(str n), Env env, PEnv penv)  = env[n];
+public int eval1(var(str n), Env env, PEnv penv)  = env[n]; /*2*/
 
 public int eval1(mul(Exp lhs, Exp rhs), Env env, PEnv penv) = eval1(lhs, env, penv) * eval1(rhs, env, penv);
     
@@ -37,7 +37,8 @@ public int eval1(geq(Exp lhs, Exp rhs), Env env, PEnv penv) = eval1(lhs, env, pe
     
 public int eval1(leq(Exp lhs, Exp rhs), Env env, PEnv penv) = eval1(lhs, env, penv) <= eval1(rhs, env, penv) ? 1 : 0;
   
-public int eval1(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv) = (eval1(cond, env, penv) != 0) ? eval1(then, env, penv) : eval1(otherwise, env, penv);
+public int eval1(cond(Exp cond, Exp then, Exp otherwise), Env env, PEnv penv) =             
+      (eval1(cond, env, penv) != 0) ? eval1(then, env, penv) : eval1(otherwise, env, penv);
                  
 public int eval1(call(str name, list[Exp] args), Env env, PEnv penv) {
    f = penv[name];
@@ -45,7 +46,7 @@ public int eval1(call(str name, list[Exp] args), Env env, PEnv penv) {
    return eval1(f.body, env, penv);
 }
          
-public int eval1(let(list[Binding] bindings, Exp exp), Env env, PEnv penv) {
+public int eval1(let(list[Binding] bindings, Exp exp), Env env, PEnv penv) { /*3*/
    env += ( b.var : eval1(b.exp, env, penv) | b <- bindings );  
    return eval1(exp, env, penv);  
 }
