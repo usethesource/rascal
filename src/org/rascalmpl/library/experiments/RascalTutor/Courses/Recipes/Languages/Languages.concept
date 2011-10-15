@@ -15,7 +15,7 @@ Description:
 Examples of several languages and the implementation of tools like interpreters and compilers:
 * [Exp]: a toy expression language. It illustrates how to define concrete and abstract syntax and how to use
   concrete and abstract patterns to evaluate expressions.
-* Func: a tiny functional language.
+* [Func]: a tiny functional language.
 * Oberon0: a scaled down version of the Oberon language
 
 

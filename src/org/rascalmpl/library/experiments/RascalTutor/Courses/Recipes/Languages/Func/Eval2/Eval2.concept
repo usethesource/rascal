@@ -23,7 +23,7 @@ Interpreter Eval2 supports the following features of Func:
 | comparison operators | y     |
 | call                 | y     |
 | if                   | y     |
-| __let__              | y     |
+| let                  | y     |
 | __sequence__         | y     |
 | __assignment__       | y     |
 | address operator     |       |

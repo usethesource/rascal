@@ -83,7 +83,7 @@ start syntax Exp =
 </ul> Here is the <code>Parse</code> module for Exp ...
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Parse
 
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
+import demo::lang::Exp::Combined::Automatic::Syntax;
 import ParseTree;
 
 public Exp parse(str txt) = parse(#Exp, txt); 
@@ -94,7 +94,9 @@ ok
 `2+3*4`
 Exp: appl(
   prod(
-    sort(&quot;Exp&quot;),
+    label(
+      &quot;add&quot;,
+      sort(&quot;Exp&quot;)),
     [
       sort(&quot;Exp&quot;),
       layouts(&quot;LAYOUTLIST&quot;),
@@ -102,61 +104,36 @@ Exp: appl(
       layouts(&quot;LAYOUTLIST&quot;),
       sort(&quot;Exp&quot;)
     ],
-    {assoc(left())}),
-  [
-    appl(
-      ...
+    {assoc(left...
 </pre> We can use <code>parse</code> to define <code>load</code>:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
 
-import demo::lang::Exp::Combined::Automatic::Syntax; <img src="/Courses/images/1.png">
-import demo::lang::Exp::Combined::Automatic::Parse;  <img src="/Courses/images/2.png">
-import demo::lang::Exp::Abstract::Syntax;            <img src="/Courses/images/3.png">
-import ParseTree;
+import demo::lang::Exp::Combined::Automatic::Parse;  <img src="/Courses/images/1.png">
+import demo::lang::Exp::Abstract::Syntax;            <img src="/Courses/images/2.png">
+import ParseTree;                                    <img src="/Courses/images/3.png">
 
 public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) = 
        implode(#demo::lang::Exp::Abstract::Syntax::Exp, parse(txt)); 
 </pre> Notes:
- <ul><li> <img src="/Courses/images/1.png"> We need the concrete syntax with labeled alternatives, as defined above.</li>
-<li> <img src="/Courses/images/2.png"> We also need the <code>parse</code> function, as defined above.</li>
-<li> <img src="/Courses/images/3.png"> We also need the abstract syntax as already defined earlier.</li>
+ <ul><li> <img src="/Courses/images/1.png"> We also need the <code>parse</code> function, as defined above.</li>
+<li> <img src="/Courses/images/2.png"> We also need the abstract syntax as already defined earlier in <a href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Exp/Abstract</a>.</li>
+<li> <img src="/Courses/images/3.png"> We need <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> since it provides the <a href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">implode</a> function.</li>
 </ul> Let's try it:
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
 ok
 <b>rascal></b>load(&quot;2+3*4&quot;);
-Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:9,56&raquo;
-: IllegalArgument(appl(prod(sort(&quot;Exp&quot;),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;&raquo;
-+&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(sort(&quot;Exp&quot;),[&raquo;
-lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([r&raquo;
-ange(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])&raquo;
-[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|f&raquo;
-ile://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-st&raquo;
-ar(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32&raquo;
-)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&lt;1,&raquo;
-1&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([&raquo;
-range(43,43)])],{}),[char(43)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\it&raquo;
-er-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(&raquo;
-32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,&raquo;
-0,&lt;1,2&gt;,&lt;1,2&gt;)]])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(sort(&quot;Exp&quot;),[sort(&raquo;
-&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(&raquo;
-left())}),[appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;Int&raquo;
-egerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-c&raquo;
-lass([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|fil&raquo;
-e://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;&raquo;
-LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([ra&raquo;
-nge(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYO&raquo;
-UT&quot;))),[])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]&raquo;
-,appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layo&raquo;
-uts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-clas&raquo;
-s([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&raquo;
-&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1&raquo;
-,4&gt;)],appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerL&raquo;
-iteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class(&raquo;
-[range(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-&raquo;
-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(2,3,&lt;1&raquo;
-,2&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)])
-    somewhere in: load
-    somewhere in: $shell$
+Exp: add(
+  con(2)[
+    @location=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)
+  ],
+  mul(
+    con(3)[
+      @location=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)
+    ],
+    con(4)[
+      @location=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)
+    ])[
+ ...
 </pre> Remains the definition of the <code>eval</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Eval
 
@@ -169,40 +146,7 @@ public int eval(str txt) = eval(load(txt));
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Eval;
 ok
 <b>rascal></b>eval(&quot;2+3*4&quot;);
-Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:9,56&raquo;
-: IllegalArgument(appl(prod(sort(&quot;Exp&quot;),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;&raquo;
-+&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(sort(&quot;Exp&quot;),[&raquo;
-lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([r&raquo;
-ange(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])&raquo;
-[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|f&raquo;
-ile://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-st&raquo;
-ar(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32&raquo;
-)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&lt;1,&raquo;
-1&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([&raquo;
-range(43,43)])],{}),[char(43)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\it&raquo;
-er-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(&raquo;
-32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,&raquo;
-0,&lt;1,2&gt;,&lt;1,2&gt;)]])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(sort(&quot;Exp&quot;),[sort(&raquo;
-&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(&raquo;
-left())}),[appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;Int&raquo;
-egerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-c&raquo;
-lass([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|fil&raquo;
-e://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;&raquo;
-LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([ra&raquo;
-nge(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYO&raquo;
-UT&quot;))),[])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]&raquo;
-,appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layo&raquo;
-uts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-clas&raquo;
-s([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&raquo;
-&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1&raquo;
-,4&gt;)],appl(prod(sort(&quot;Exp&quot;),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerL&raquo;
-iteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class(&raquo;
-[range(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-&raquo;
-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(2,3,&lt;1&raquo;
-,2&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)])
-    somewhere in: load
-    somewhere in: eval
-    somewhere in: $shell$
+int: 14
 </pre>
 </div>
 

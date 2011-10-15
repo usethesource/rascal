@@ -21,7 +21,6 @@ How can we bridge this gap? We discuss two approaches:
 * [Manual]: a transformation is written manually to convert parse trees to abstract syntax trees.
 * [Automatic]: the library function [Rascal:implode] is used to automate this transformation.
 
-<warning>Work in progress</warning>
 
 Examples:
 

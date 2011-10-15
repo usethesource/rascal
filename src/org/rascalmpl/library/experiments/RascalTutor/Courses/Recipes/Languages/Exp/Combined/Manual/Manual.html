@@ -72,14 +72,15 @@ Exp: appl(
 </pre> Next, we define a <code>load</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Manual::Load
 
-import demo::lang::Exp::Concrete::WithLayout::Syntax;
-import demo::lang::Exp::Abstract::Syntax;
-import demo::lang::Exp::Combined::Manual::Parse;
+import demo::lang::Exp::Concrete::WithLayout::Syntax;  <img src="/Courses/images/1.png">
+import demo::lang::Exp::Abstract::Syntax;              <img src="/Courses/images/2.png">
+import demo::lang::Exp::Combined::Manual::Parse;       <img src="/Courses/images/3.png">
 import String;
 
-public Exp load(str txt) = load(parse(txt));
+public Exp load(str txt) = load(parse(txt));           <img src="/Courses/images/4.png">
      
-public Exp load((Exp)`&lt;IntegerLiteral l>`) = con(toInt("&lt;l>"));       
+public Exp load((Exp)`&lt;IntegerLiteral l>`)             <img src="/Courses/images/5.png">
+       = con(toInt("&lt;l>"));       
 public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> * &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`) 
        = mul(load(e1), load(e2));  
 public Exp load((Exp)`&lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e1> + &lt;demo::lang::Exp::Concrete::WithLayout::Syntax::Exp e2>`)
