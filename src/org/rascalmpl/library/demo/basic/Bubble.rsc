@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
-module demo::Bubble
+module demo::basic::Bubble
 
 import List;
 import IO;
@@ -39,27 +39,14 @@ public list[int] sort2(list[int] Numbers){
        }
      default: return Numbers;
    }
-  
 }
 
-// sort3: uses list matching and visit
+// sort3: uses list matching and while
 
 public list[int] sort3(list[int] Numbers){
-  return innermost visit(Numbers){
-    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
-       if(P > Q){
-          insert Nums1 + [Q, P] + Nums2;
-       } else {
-          fail;
-       }
-    };
+  while([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3] := Numbers && P > Q)
+        Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
+  return Numbers;
+
 }
-
-// Tests
-
-public list[int] unsorted = [10,9,8,7,6,5,4,3,2,1];
-public list[int] sorted = [1,2,3,4,5,6,7,8,9,10];   
-public test bool t1() = sort1(unsorted) == sorted;
-public test bool t2() = sort2(unsorted) == sorted;
-public test bool t3() = sort3(unsorted) == sorted;
 
