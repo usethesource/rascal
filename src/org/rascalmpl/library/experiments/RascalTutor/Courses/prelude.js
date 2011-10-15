@@ -81,7 +81,7 @@ function initNavigation() {
 		$('#navPane').jstree('open_node', $('#navPane a:first'));
 	}, 0);
 	$.History.bind(function(state) {
-		if (state == '') {
+		if (state == '' || state[0] != '/') {
 			state = window.location.pathname;
 		}
     	$("#conceptPane").load(state + " div#conceptPane", function() {
@@ -96,7 +96,7 @@ function initNavigation() {
 			}
 		});
 	});
-	if ($.History.getState() == '') {
+	if (window.location.hash == '') {
 		setTimeout(function() {
 			var treeNode = $('#navPane a[href=' + window.location.pathname + ']');
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
