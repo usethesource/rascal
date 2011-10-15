@@ -183,7 +183,7 @@ public class ParseTree {
 				return values.string(yield);
 			}
 			
-			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Unrecognized lexical constructor");
+			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
 		}
 		
 		if (TreeAdapter.isList(tree)) {
@@ -231,7 +231,7 @@ public class ParseTree {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSetType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and " + type);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type);
 			}
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter(elementType);
@@ -335,13 +335,13 @@ public class ParseTree {
 	
 	private static IConstructor checkPreconditions(IConstructor start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required and not " + reified);
+		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required and not " + nt);
+			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required instead of  " + nt);
 		}
 		
 		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
