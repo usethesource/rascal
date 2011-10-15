@@ -177,18 +177,18 @@ public class ParseTree {
 				if (yield.equals("false")) {
 					return values.bool(false);
 				}
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "bool type does not match with " + yield);
 			}
 			if (type.isStringType()) {
 				return values.string(yield);
 			}
 			
-			throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Unrecognized lexical constructor");
 		}
 		
 		if (TreeAdapter.isList(tree)) {
 			if (!type.isListType() && !splicing) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type);
 			}
 			Type elementType = splicing ? type : type.getElementType();
 			IListWriter w = values.listWriter(elementType);
@@ -208,7 +208,7 @@ public class ParseTree {
 		
 		if (TreeAdapter.isOpt(tree)) {
 			if (!type.isListType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type);
 			}
 			Type elementType = type.getElementType();
 			IListWriter w = values.listWriter(elementType);
@@ -231,7 +231,7 @@ public class ParseTree {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSetType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and " + type);
 			}
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter(elementType);
@@ -271,7 +271,7 @@ public class ParseTree {
 				
 				// make a tuple
 				if (!type.isTupleType()) {
-					throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type);
 				}
 				
 				if (length != type.getArity()) {
@@ -284,7 +284,7 @@ public class ParseTree {
 			
 			// make a constructor
 			if (!type.isAbstractDataType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor should match with abstract data type and not with " + type);
 			}
 
 			Type cons = findConstructor(type, constructorName, length, store);
@@ -296,7 +296,7 @@ public class ParseTree {
 			
 		}
 		
-		throw RuntimeExceptionFactory.illegalArgument(tree, null, null);
+		throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type);
 	}
 
 	private java.lang.String unescapedConsName(IConstructor tree) {
@@ -335,13 +335,13 @@ public class ParseTree {
 	
 	private static IConstructor checkPreconditions(IConstructor start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, null, null);
+		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required and not " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required and not " + nt);
 		}
 		
 		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
