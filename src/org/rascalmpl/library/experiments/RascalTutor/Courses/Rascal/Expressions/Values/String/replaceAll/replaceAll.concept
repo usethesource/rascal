@@ -1,0 +1,33 @@
+Name: replaceAll
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function: `str replaceAll(str subject, str find, str replacement)`
+
+Details:
+
+Description:
+Return a copy of `subject` in which all occurrences of `find` (if any) have been replaced by `replacement`.
+Also see [replaceFirst] and [replaceLast].
+
+Examples:
+<screen>
+import String;
+replaceAll("abracadabra", "a", "A");
+replaceAll("abracadabra", "ra", "RARA");
+replaceAll("abracadabra", "cra", "CRA");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
+
+Questions:
+
+       

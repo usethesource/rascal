@@ -59,8 +59,7 @@
 
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Consider the following datatype <code>CTree</code> and assign a CTree value to variable <code>T</code>:
- <pre class="screen"><b>rascal></b>data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTre&raquo;
-e right);
+ <pre class="screen"><b>rascal></b>data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTree right);
 ok
 <b>rascal></b>CTree T = red(green(leaf(1), red(leaf(2), leaf(3))), red(leaf(4), leaf(5)));
 CTree: red(

@@ -52,9 +52,8 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import vis::Figure;
 ok
 <b>rascal></b>colorNames();
-list[str]: [&quot;aliceblue&quot;,&quot;antiquewhite&quot;,&quot;aqua&quot;,&quot;aquamarine&quot;,&quot;azure&quot;,&quot;beige&quot;,&quot;bisq&raquo;
-ue&quot;,&quot;black&quot;,&quot;blanchedalmond&quot;,&quot;blue&quot;,&quot;blueviolet&quot;,&quot;brown&quot;,&quot;burlywood&quot;,&quot;cadetblue&quot;&raquo;
-,&quot;chartreuse&quot;,&quot;chocolate&quot;,&quot;coral&quot;,&quot;cornflowerblu...
+list[str]: [&quot;aliceblue&quot;,&quot;antiquewhite&quot;,&quot;aqua&quot;,&quot;aquamarine&quot;,&quot;azure&quot;,&quot;beige&quot;,&quot;bisque&quot;,&quot;black&quot;,&quot;blanchedalmond&quot;,&quot;&raquo;
+blue&quot;,&quot;blueviolet&quot;,&quot;brown&quot;,&quot;burlywood&quot;,&quot;cadetblue&quot;,&quot;chartreuse&quot;,&quot;chocolate&quot;,&quot;coral&quot;,&quot;cornflowerblu...
 </pre> This functions can be used to create color tables.
  <pre class="listing">boxes = [ box([size(10, 10), fillColor(c)]) | c &lt;- colorNames() ];
 render(hvcat(boxes, width(500), left()));

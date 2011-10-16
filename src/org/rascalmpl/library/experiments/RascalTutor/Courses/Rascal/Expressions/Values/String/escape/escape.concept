@@ -1,0 +1,33 @@
+Name: escape
+
+Synopsis: Replace single characters in a string.
+
+Syntax:
+
+Types:
+
+Function:
+`str escape(str subject, map[str,str] replacements)`
+
+Details:
+
+Description:
+Return a copy of subject in which each single character key in replacements
+has been replaced by its associated value.
+
+Examples:
+<screen>
+import String;
+import IO;
+escape("abracadabra", ("a" : "AA", "c" : "C"));
+L = escape("\"Good Morning\", he said", ("\"": "\\\""));
+println(L);
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

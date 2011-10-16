@@ -27,7 +27,7 @@ Function:
 Details:
 
 Description:
-<warning>Library functions replaceAll, replaceFirst, replaceLast not yet included (reconsider) </warning>
+
 The string values are represented by the type `str` and consist of character 
 sequences surrounded by double quotes, e.g., `"a"` or `"a\nlong\nstring"`.
 Strings may span more than one line.
