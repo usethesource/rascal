@@ -1,0 +1,41 @@
+Name: BottlesOfBeer
+
+Synopsis: A Rascal version of a generator for the _99 Bottles of Beer_ song.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+Programs that generate the lyrics for the song _99 Bottles of Beer_ are a popular way to compare programming languages.
+At [99-bottles-of-beer.net](http://99-bottles-of-beer.net/) you can find versions in nearly 1500 different languages
+and the lyrics can be found [here](http://99-bottles-of-beer.net/lyrics.html).
+
+Examples:
+Here is our version:
+<listing demo/basic/Bottles.rsc>
+
+We use an auxiliary function `bottles` (/*1*/) that returns the word "bottle" adjusted for the actual number of bottles that is available.
+The main function is `sing` (/*2*/) that iterates over the numbers 99 downto 1 (as described by the range `[99 .. 1]`)
+and prints appriopriate lyrics. Observe how the value  of the `bottles` function is interpolated severtal times in the string.
+
+
+Here is the result:
+
+<screen>
+import demo::basic::Bottles;
+sing();
+</screen>
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

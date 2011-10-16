@@ -62,7 +62,7 @@
 <br/>
 
  <img class="TutorImg" width="300px"  title="calls" alt="calls" src="/Courses/Recipes/Common/CallAnalysis/calls.png">
-  <pre class="screen"></pre>
+  
   Rascal supports basic data types like integers and strings which are sufficient to formulate and answer the questions at hand. However, we
   can gain readability by introducing separately named types for the items we are describing. 
   First, we introduce therefore a new type <code>Proc</code> (an alias for strings) to denote procedures:
@@ -80,8 +80,7 @@ ok
 <b>rascal></b>import Graph;
 ok
 <b>rascal></b>rel[Proc, Proc] Calls = {&lt;&quot;a&quot;, &quot;b&quot;&gt;, &lt;&quot;b&quot;, &quot;c&quot;&gt;, &lt;&quot;b&quot;, &quot;d&quot;&gt;, &lt;&quot;d&quot;, &quot;c&quot;&gt;, 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;                         &lt;&quot;d&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;g&quot;&gt;, &lt;&quot;g&quot;, &quot;e&quot;&gt;};&raquo;
-
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                         &lt;&quot;d&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;g&quot;&gt;, &lt;&quot;g&quot;, &quot;e&quot;&gt;};
 rel[Proc, Proc]: {
   &lt;&quot;a&quot;,&quot;b&quot;&gt;,
   &lt;&quot;b&quot;,&quot;c&quot;&gt;,
@@ -203,7 +202,7 @@ set[str]: {&quot;e&quot;}
   At each iteration the current value of the reducer (<code>it</code>) is intersected (<code>&amp;</code>) with the procedures called directly or indirectly
   from that entry point (<code>(Calls+)[p]</code>).
 
-<pre class="screen"></pre>
+
 </div>
 
 <div id="Benefits">

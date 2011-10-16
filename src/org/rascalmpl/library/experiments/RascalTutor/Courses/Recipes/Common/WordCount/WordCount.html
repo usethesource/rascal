@@ -107,15 +107,14 @@ int: 216
  If you are into one-liners, we can include everything you learned from the example
  in the following alternative <code>wordCount2</code> function:
 
-<pre class="screen"><b>rascal></b>int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str l&raquo;
-ine &lt;- lines);
+<pre class="screen"><b>rascal></b>int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line &lt;- lines);
 int (list[str]): int wordCount2(list[str]);
 <b>rascal></b>wordCount2(Jabberwocky);
 int: 216
 </pre>
  Explain what is going on in this function.
 
-<pre class="screen"></pre>
+
 </div>
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/WordCount&new=false"><b>Edit</b></a>] | 
