@@ -256,6 +256,82 @@ public class String {
 	  return values.string(s.getValue().toUpperCase());
 	}
 	
+	private boolean match(char[] subject, int i, char [] pattern){
+		if(i + pattern.length > subject.length)
+			return false;
+		for(int k = 0; k < pattern.length; k++){
+			if(subject[i] != pattern[k])
+				return false;
+			i++;
+		}
+		return true;
+	}
+	
+	public IValue replaceAll(IString str, IString find, IString replacement){
+		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
+		char [] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		char [] replChars = replacement.getValue().toCharArray();
+		
+		int i = 0;
+		boolean matched = false;
+		while(i < input.length){
+			if(match(input,i,findChars)){
+				matched = true;
+				b.append(replChars);
+				i += findChars.length;
+			} else {
+				b.append(input[i]);
+				i++;
+			}
+		}
+		return (!matched) ? str : values.string(b.toString());
+	}
+	
+	public IValue replaceFirst(IString str, IString find, IString replacement){
+		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
+		char [] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		char [] replChars = replacement.getValue().toCharArray();
+		
+		int i = 0;
+		boolean matched = false;
+		while(i < input.length){
+			if(!matched && match(input,i,findChars)){
+				matched = true;
+				b.append(replChars);
+				i += findChars.length;
+				
+			} else {
+				b.append(input[i]);
+				i++;
+			}
+		}
+		return (!matched) ? str : values.string(b.toString());
+	}
+	
+	public IValue replaceLast(IString str, IString find, IString replacement){
+		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
+		char [] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		char [] replChars = replacement.getValue().toCharArray();
+		
+		int i = input.length - findChars.length;
+		while(i >= 0){
+			if(match(input,i,findChars)){
+				for(int j = 0; j < i; j++)
+					b.append(input[j]);
+				b.append(replChars);
+				for(int j = i + findChars.length; j < input.length; j++)
+					b.append(input[j]);
+				return values.string(b.toString());
+			}
+			i--;
+		}
+		return str;
+	}
+	
+	
 	public IValue escape(IString str, IMap substitutions) {
 		StringBuilder b = new StringBuilder(str.getValue().length() * 2); 
 		char[] input = str.getValue().toCharArray();
@@ -269,7 +345,6 @@ public class String {
 				b.append(c);
 			}
 		}
-		
 		return values.string(b.toString());
 	}
 }
