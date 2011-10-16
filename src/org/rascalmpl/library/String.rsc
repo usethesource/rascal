@@ -65,14 +65,27 @@ public str left(str s, int n, str pad)
   return format(s, "left", n, pad);
 }
 
-@doc{Replace all occurences of "find" in "input" by "replacement"}
+@doc{Replace all occurrences of "find" in "input" by "replacement"}
+@javaClass{org.rascalmpl.library.String}
+public java str replaceAll(str input, str find, str replacement);
+
+@doc{Replace the first occurrence of "find" in "input" by "replacement"}
+@javaClass{org.rascalmpl.library.String}
+public java str replaceFirst(str input, str find, str replacement);
+
+@doc{Replace the last occurrence of "find" in "input" by "replacement"}
+@javaClass{org.rascalmpl.library.String}
+public java str replaceLast(str input, str find, str replacement);
+
+/*
+@doc{Replace all occurrences of "find" in "input" by "replacement"}
 public str replaceAll(str input, str find, str replacement) {
 	return visit (input) { 
-	  case /<find>/ => "<replacement>"
+	  case find => "<replacement>"
 	}	
 }
 
-@doc{Replace the first occurence of "find" in "input" by "replacement"}
+@doc{Replace the first occurrence of "find" in "input" by "replacement"}
 public str replaceFirst(str input, str find, str replacement) {
 	if(/^<pre:.*?><find><post:.*>$/ := input) {	
 		return "<pre><replacement><post>";
@@ -82,7 +95,7 @@ public str replaceFirst(str input, str find, str replacement) {
 }
 
 
-@doc{Replace the last occurence of "find" in "input" by "replacement"}
+@doc{Replace the last occurrence of "find" in "input" by "replacement"}
 public str replaceLast(str input, str find, str replacement) {
 	if(/^<pre:.*><find><post:.*?>$/ := input) {	
 		return "<pre><replacement><post>";
@@ -90,6 +103,7 @@ public str replaceLast(str input, str find, str replacement) {
 	
 	return input;
 }
+*/
 
 @doc{Right align s in string of length n using spaces}
 public str right(str s, int n)
