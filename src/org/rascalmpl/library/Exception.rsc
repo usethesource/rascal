@@ -25,6 +25,7 @@ data RuntimeException =
     | AssertionFailed() 
     | AssertionFailed(str label)
     | NoSuchElement(value v)
+    | IllegalArgument(value v, str message)
     | IllegalArgument(value v)
     | IllegalArgument()
     | IO(str message)
