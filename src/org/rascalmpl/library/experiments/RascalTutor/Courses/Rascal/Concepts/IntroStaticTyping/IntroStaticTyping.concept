@@ -11,8 +11,9 @@ Function:
 Details:
 
 Description:
-Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the figure.
 ![Type Lattice](type-lattice.png|right|400px)
+
+Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the figure.
 
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
 is included in all other types and the type `value` is the _largest_ type that includes all other types. 
@@ -22,6 +23,7 @@ Syntax trees for specific languages are all subtypes of `Tree`. As a result, syn
 * in a generic fashion as `Tree` and,
 * in a specific fashion as a more precisely typed syntax tree. 
 Finally, each `alias` is structurally equivalent to one or more specific other types.
+
 
 Rascal does not provide an explicit casting mechanism, but pattern matching can play that role.
 
