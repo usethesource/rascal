@@ -83,7 +83,7 @@
  <tr><th align="left">Operator</th>	<th align="left">Description</th></tr>
  <tr><td><code>x</code></td>               <td>The single character <code>x</code> as long as it is not a punctuation character with a 
                                                          special meaning in the regular expression syntax</td></tr>
- <tr><td><code>\p</code></td>              <td>The punctuation character <code>p</code></td></tr>
+ <tr><td><code>\p</code></td>              <td>The punctuation character <code>p</code>, this includes <code>!</code>, <code>"</code>, <code>#</code>, <code>$</code>, <code>%</code>, <code>&amp;</code>, <code>'</code>, <code>(</code>, <code>)</code>, <code>*</code>, <code>+</code>, <code>,</code>, <code>-</code>, <code>.</code>, <code>/</code>, <code>:</code>, <code>;</code>, <code>&lt;</code>, <code>=</code>, <code>></code>, <code>?</code>, <code>@</code>, <code>[</code>, <code>\</code>, <code>]</code>, <code>^</code>, <code>_</code>, <code>{</code>, <code>|</code>, <code>}</code>, and <code>~</code>.</td></tr>
  <tr><td><code>\\</code></td>              <td>The backslah character</td></tr>
  <tr><td><code>\n</code></td>              <td> Newline character</td></tr>
  <tr><td><code>\t</code></td>               <td> Tab character</td></tr>
@@ -173,6 +173,11 @@ bool: false
 <b>rascal></b>/a.c/s := &quot;a\nc&quot;;
 bool: true
 <b>rascal></b>/(?s)a.c/ := &quot;a\nc&quot;;
+bool: true
+</pre> Here are examples, how to escape punctuation characters in regular expressions:
+ <pre class="screen"><b>rascal></b>/a\/b/ := &quot;a/b&quot;;
+bool: true
+<b>rascal></b>/a\+b/ := &quot;a+b&quot;;
 bool: true
 </pre>
 </div>

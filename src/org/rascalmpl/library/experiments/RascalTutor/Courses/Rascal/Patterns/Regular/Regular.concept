@@ -51,7 +51,7 @@ For convenience, we summarize the most frequently used constructs in regular exp
 <tr><th align="left">Operator</th>	<th align="left">Description</th></tr>
 <tr><td>`x`</td>               <td>The single character `x` as long as it is not a punctuation character with a 
                                                         special meaning in the regular expression syntax</td></tr>
-<tr><td>`\p`</td>              <td>The punctuation character `p`</td></tr>
+<tr><td>`\p`</td>              <td>The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, and `~`.</td></tr>
 <tr><td>`\\`</td>              <td>The backslah character</td></tr>
 <tr><td>`\n`</td>              <td> Newline character</td></tr>
 <tr><td>`\t`</td>               <td> Tab character</td></tr>
@@ -145,6 +145,12 @@ Single-line mode:
 /a.c/ := "a\nc";
 /a.c/s := "a\nc";
 /(?s)a.c/ := "a\nc";
+</screen>
+
+Here are examples, how to escape punctuation characters in regular expressions:
+<screen>
+/a\/b/ := "a/b";
+/a\+b/ := "a+b";
 </screen>
 
 Benefits:
