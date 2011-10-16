@@ -29,6 +29,7 @@ The value of an if-then-else statement is the value of the statement that was ex
 Examples:
 <screen>
 if( 3 > 2 ) 30; else 40;
+x = if( 3 > 2 ) 30; else 40;
 if( 3 > 2 ) 30;
 // An if-then statement yields `void`  when its test is false
 // (demonstrated by the __ok__ that is printed by the Rascal system):
