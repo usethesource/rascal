@@ -294,7 +294,7 @@ private str markupRestLine(str line){
     
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
     
-    case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),]+>\)/ => link(url, text)
+    case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),~]+>\)/ => link(url, text)
     
     case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert referToConcept(rootname(conceptPath), concept, short == "$"); }
     
@@ -467,11 +467,11 @@ private str markupScreen(list[str] lines, bool generatesError){
            codeLines += "\</pre\>\n<markup(slice(lines, startLine, i - startLine))>\n<pre_open>";
          }
          if(i <upbi) {
-         	codeLines += b(prompt) + limitWidth(lines[i], 80) + "\n";
+         	codeLines += b(prompt) + limitWidth(lines[i], 110) + "\n";
          	i += 1; j += 1;
          }
          while(j < upbj && !startsWith(result_lines[j], prompt)){
-           codeLines += limitWidth(result_lines[j], 80) + "\n";
+           codeLines += limitWidth(result_lines[j], 110) + "\n";
            if(i < upbi && startsWith(result_lines[j], continuation)){
               i += 1;
              }
@@ -489,6 +489,7 @@ private str markupScreen(list[str] lines, bool generatesError){
 
    }
    codeLines += "\</pre\>";
+   codeLines = replaceAll(codeLines, "\<pre class=\"screen\"\>\</pre\>", "");
    return codeLines;
 }
 

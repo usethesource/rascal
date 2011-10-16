@@ -105,7 +105,7 @@ str: &quot;\&quot;Good Morning, Dr. Watson\&quot;, said Holmes&quot;
 ok
 </pre>
   As you see the quotes inside the string are not escaped and the result is not a legal string.
-  So what can we do? We escape all dangerous characters in the string before printing it using the ??unknown: Rascal:escape?? function.
+  So what can we do? We escape all dangerous characters in the string before printing it using the <a href="/Courses/Rascal/Expressions/Values/String/escape/escape.html">escape</a> function.
   It takes a string and a map of characters to be escaped and returns a result in which all escaping has been carried out.
   Be aware that in the map, also escaping is needed!
   We want to say: escape <code>"</code> and replace it by <code>\"</code>, but since both <code>"</code> and <code>\</code> have to be escaped themselves.
