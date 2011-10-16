@@ -100,7 +100,7 @@ public class Scripting {
 				}
 			    result = result.concat("\n*** Rascal killed after timeout ***\n");
 			}
-			java.lang.String lines[] = result.split("[\r\n]+");
+			java.lang.String lines[] = result.split("[\r\n]");
 			IListWriter w = values.listWriter(types.stringType());
 			for(java.lang.String line : lines)
 				w.append(values.string(line));
