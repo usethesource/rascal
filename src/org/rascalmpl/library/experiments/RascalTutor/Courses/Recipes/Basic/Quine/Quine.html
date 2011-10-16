@@ -108,7 +108,7 @@ ok
   So what can we do? We escape all dangerous characters in the string before printing it using the <a href="/Courses/Rascal/Expressions/Values/String/escape/escape.html">escape</a> function.
   It takes a string and a map of characters to be escaped and returns a result in which all escaping has been carried out.
   Be aware that in the map, also escaping is needed!
-  We want to say: escape <code>"</code> and replace it by <code>\"</code>, but since both <code>"</code> and <code>\</code> have to be escaped themselves.
+  We want to say: escape <code>"</code> and replace it by <code>\"</code>, but since both <code>"</code> and <code>\</code> have to be escaped themselves
   we have to say: escape <code>"\""</code> and replace it by <code>"\\\""</code>. The effect is as follows:
 
 <pre class="screen"><b>rascal></b>import String;
