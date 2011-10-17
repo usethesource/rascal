@@ -42,8 +42,59 @@ $(document).ready(function () {
 			}
 		}
 	});
+	$('<div id="simpleLightboxContent" style="display:none;position:fixed; background:#fff; padding:10px; border: 1px solid #ccc; z-index:1001"> <img src="#" /></div>')
+		.insertAfter('#container');
+	$('<div id="simpleLightboxBackground" style="display:none; background:#000; filter:alpha(opacity=80); opacity:0.8; position:absolute; left:0; top:0; min-width:100%; min-height:100%; z-index:1000"> </div>')
+		.insertAfter("#simpleLightboxContent")
+		.click(hideLightbox);
+	$(window).resize(function() {
+		if ($("#simpleLightboxContent").is(':visible')) {
+			$("#simpleLightboxContent").center();
+		}
+
+	});
+	
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
+
+jQuery.fn.center = function () {
+    this.css("position","absolute");
+    this.css("top", (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop() + "px");
+    this.css("left", (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft() + "px");
+    return this;
+}
+
+function addLightboxToImages() {
+	$('#tdconcept img').each(function () {
+		if (this.id == 'leftIcon') return;
+		var img = this; 
+		$("<img/>") // Make in memory copy of image to avoid css issues
+			.attr("src", $(img).attr("src"))
+			.load(function() {
+				if (img.width != this.width || img.height != this.height ) {
+					// attach zoom hover
+					$(img)
+						.css('cursor', 'pointer')
+						.click(function () {
+							showLightbox();
+							$('#simpleLightboxContent img').attr('src', $(img).attr('src'))
+								.css('cursor', 'pointer')
+								.load(function() { $('#simpleLightboxContent').center(); } )
+								.click(hideLightbox);
+						});
+				}
+			});
+	});
+}
+
+function showLightbox() {
+	$('#simpleLightboxBackground').show();
+	$('#simpleLightboxContent').show();
+}
+function hideLightbox() {
+	$('#simpleLightboxBackground').hide();
+	$('#simpleLightboxContent').hide();
+}
 
 var skipNextNodeClick = 0;
 
@@ -162,6 +213,7 @@ function attachHandlers() {
     $('.answerStatus').hide();
     $('.answerFeedback').hide();
 
+	addLightboxToImages();
 
     if (enableEditing == false) $('#editMenu').hide();
     if (enableQuestions == false) $('#questions').hide();
