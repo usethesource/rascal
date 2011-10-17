@@ -77,6 +77,14 @@ public java str replaceFirst(str input, str find, str replacement);
 @javaClass{org.rascalmpl.library.String}
 public java str replaceLast(str input, str find, str replacement);
 
+@doc{Does string "input" contain the substring "find"?}
+@javaClass{org.rascalmpl.library.String}
+public java bool contains(str input, str find);
+
+@doc{Find all occurrences of "find" in "input".}
+@javaClass{org.rascalmpl.library.String}
+public java list[int] findAll(str input, str find);
+
 /*
 @doc{Replace all occurrences of "find" in "input" by "replacement"}
 public str replaceAll(str input, str find, str replacement) {
