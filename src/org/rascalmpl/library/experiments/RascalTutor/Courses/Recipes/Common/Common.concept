@@ -14,6 +14,7 @@ Description:
 * [CallAnalysis]: Analyzing the call structure of an application.
 * [CallLifting]: Lift procedure calls to component calls.
 * [ColoredTrees]: Computations on binary trees.
+* [CountConstructors]: Generic function that can count constructors in a value of any algebraic data type.
 * [StringTemplate]: Using string templates to generate code.
 * [WordCount]: Counting words in strings.
 
