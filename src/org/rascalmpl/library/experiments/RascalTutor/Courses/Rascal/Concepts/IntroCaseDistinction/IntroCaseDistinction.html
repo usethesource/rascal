@@ -59,13 +59,33 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Here is an example where we take a program <code>P</code> and distinguish two cases for while and if statement:
- <pre class="listing">switch (P){
-case whileStat(_, _):
-     println("A while statement");
-case ifStat(_, _, _):
-     println("An if statement");
-}
+<span class="sectionHead">Examples</span>  We use the <a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a> datatype as example and use a switch to
+ distinguish between red and black nodes:
+ <pre class="screen"><b>rascal></b>data ColoredTree = leaf(int N)      
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 | red(ColoredTree left, ColoredTree right) 
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 | black(ColoredTree left, ColoredTree right);
+ok
+<b>rascal></b>ColoredTree CT 
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;       = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+ColoredTree: red(
+  black(
+    leaf(1),
+    red(
+      leaf(2),
+      leaf(3))),
+  black(
+    leaf(3),
+    leaf(4)))
+<b>rascal></b>import IO;
+ok
+<b>rascal></b>switch (CT){
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;case red(_, _):
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;     println(&quot;A red root node&quot;);
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;case black(_, _):
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;     black(&quot;A black rood node&quot;);
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+A red root node
+ok
 </pre>
 </div>
 

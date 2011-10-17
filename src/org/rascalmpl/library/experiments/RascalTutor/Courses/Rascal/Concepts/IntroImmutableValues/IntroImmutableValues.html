@@ -52,6 +52,40 @@
 
 </div>
 
+<div id="Examples">
+<span class="sectionHead">Examples</span>  First we, create a list value and assign it to two variables <code>L</code> and <code>M</code>.
+ <pre class="screen"><b>rascal></b>L = [1, 2, 3];
+list[int]: [1,2,3]
+<b>rascal></b>M = L;
+list[int]: [1,2,3]
+</pre>
+  Next we assign a new value to the first element of the list. The effect is that a new list value <code>[10, 2, 3]</code> is constructed.
+
+<pre class="screen"><b>rascal></b>L[0] = 10;
+list[int]: [10,2,3]
+</pre>
+  L is now associated with this new value:
+
+<pre class="screen"><b>rascal></b>L;
+list[int]: [10,2,3]
+</pre>
+  But <code>M</code> is still associated with the original, unmodified, value.
+
+<pre class="screen"><b>rascal></b>M;
+list[int]: [1,2,3]
+</pre>
+</div>
+
+<div id="Benefits">
+<span class="sectionHead">Benefits</span>  <ul><li> Unmutable values contribute to referential transparence.</li>
+</ul>
+</div>
+
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> Unmutable values maybe less efficient than mutable ones.</li>
+</ul>
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/IntroImmutableValues&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/IntroImmutableValues&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |

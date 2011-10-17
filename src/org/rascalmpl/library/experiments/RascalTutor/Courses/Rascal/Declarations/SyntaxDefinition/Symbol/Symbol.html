@@ -44,36 +44,37 @@
 </div>
 
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  Nonterminal symbols are written using identifier names that <i>start with a capital</i>.
-  <ul><li> <code><i>Symbol</i> <i>fieldName</i></code>, any symbol can be labeled with field names that start with lowercase characters: .</li>
-</ul> Then, there are literal symbols and character classes, as in:
- <ul><li> <code>"<i>stringliteral</i>"</code> for literal strings</li>
-<li> <code>'<i>stringliteral</i>'</code> for case-insensitive literal strings</li>
-<li> <code>[<i>range</i><sub>1</sub> <i>range</i><sub>2</sub> ... ]</code> for character classes.</li>
-</ul> We have the following operations on character classes that can be composed arbitrarily:
- <ul><li> <code>!<i>Class</i></code>, for complement w.r.t the UTF8 universe of characters.</li>
-<li> <code><i>Class</i><sub>1</sub> - <i>Class</i><sub>2</sub></code>, for class difference.</li>
-<li> <code><i>Class</i><sub>1</sub> || <i>Class</i><sub>2</sub></code>, for class union</li>
-<li> <code><i>Class</i><sub>1</sub> &amp;&amp; <i>Class</i><sub>2</sub></code>, for class intersection</li>
-<li> <code>($Class)</code>, as brackets</li>
-</ul> We can construct regular expressions over <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s:
- <ul><li> <code><i>Symbol</i>?</code> optional <code><i>Symbol</i></code></li>
-<li> <code><i>Symbol</i>+</code> non-empty list of <code><i>Symbol</i></code></li>
-<li> <code><i>Symbol</i>*</code> possibly empty list of <code><i>Symbol</i></code></li>
-<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code> non-empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code></li>
-<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code> possibly empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code></li>
-<li> <code>(<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... )</code> embedded sequence of symbols </li>
-<li> <code>(<i>Symbol</i><sub>1</sub> | <i>Symbol</i><sub>2</sub> | ... )</code> embedded choice of alternative symbols</li>
-<li> <code>()</code> the anonymous non-terminal for the language with the empty string</li>
-</ul> Finally we can add inline conditions (<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s) to symbols that constrain their acceptability:
- <ul><li> <code><i>Symbol</i> $</code>, <code><i>Symbol</i></code> ends at end of line or file</li>
-<li> <code>^<i>Symbol</i></code>, <code><i>Symbol</i></code> starts at start of line</li>
-<li> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>, <code><i>Symbol</i></code> starts at certain column index</li>
-<li> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code></li>
-<li> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code></li>
-<li> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code></li>
-<li> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code></li>
-<li> <code><i>Symbol</i><sub>1</sub> \&nbsp;<i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code></li>
+<span class="sectionHead">Syntax</span>  <br>
+ Nonterminal symbols are identifier names that <i>start with an uppercase letter</i>.
+  <ul><li> <code><i>Symbol</i> <i>fieldName</i></code>, any symbol can be labeled with a field name that <i>starts with a lowercase letter</i>.</li>
+</ul> The following literal symbols and character classes are defined:
+ <ul><li> <code>"<i>stringliteral</i>"</code>, a literal string.</li>
+<li> <code>'<i>stringliteral</i>'</code>, a case-insensitive literal string.</li>
+<li> <code>[<i>range</i><sub>1</sub> <i>range</i><sub>2</sub> ... ]</code>, a character class.</li>
+</ul> The following operations on character classes can be composed arbitrarily:
+ <ul><li> <code>!<i>Class</i></code>, complement of <code><i>Class</i></code> with respect to the UTF8 universe of characters.</li>
+<li> <code><i>Class</i><sub>1</sub> - <i>Class</i><sub>2</sub></code>, difference of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
+<li><code><i>Class</i><sub>1</sub> || <i>Class</i><sub>2</sub></code>, union of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
+<li> <code><i>Class</i><sub>1</sub> &amp;&amp; <i>Class</i><sub>2</sub></code>, intersection of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
+<li> <code>($Class)</code>, brackets for defining application order of class operators.</li>
+</ul> The following regular expressions can be constructed over <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s:
+ <ul><li> <code><i>Symbol</i>?</code>, optional <code><i>Symbol</i></code>.</li>
+<li> <code><i>Symbol</i>+</code>, a non-empty list of <code><i>Symbol</i></code>s.</li>
+<li> <code><i>Symbol</i>*</code> a possibly empty list of <code><i>Symbol</i></code>s.</li>
+<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code>, a non-empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>.</li>
+<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code> possibly empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>.</li>
+<li> <code>(<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... )</code> embedded sequence of symbols .</li>
+<li> <code>(<i>Symbol</i><sub>1</sub> | <i>Symbol</i><sub>2</sub> | ... )</code> embedded choice of alternative symbols.</li>
+<li> <code>()</code> the anonymous non-terminal for the language with the empty string.</li>
+</ul> Inline conditions (<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s) can be added to symbols to constrain their acceptability:
+ <ul><li> <code><i>Symbol</i> $</code>, <code><i>Symbol</i></code> ends at end of line or file.</li>
+<li> <code>^<i>Symbol</i></code>, <code><i>Symbol</i></code> starts at start of line.</li>
+<li> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>, <code><i>Symbol</i></code> starts at certain column index.</li>
+<li> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>.</li>
+<li> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>.</li>
+<li> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>.</li>
+<li> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>.</li>
+<li> <code><i>Symbol</i><sub>1</sub> \&nbsp;<i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code>.</li>
 </ul> Symbols can be composed arbitrarily.
 
 </div>
@@ -92,8 +93,8 @@
  <br/>
 <br/>
 
- Character classes have the samen escaping conventions as characters in a <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a> literal, but spaces and newlines are meaningless and have to be escaped and the <code>[</code> and <code>]</code> brackets need escaping. For example, one writes <code>[\[ \] &nbsp;\n]</code> for a class that includes the open and close square brackets and a space and a newline. Character classes support ranges as in <code>[a-zA-Z0-9]</code>. Please note about character classes that:
- <ul><li> the operations on character classes are executed before parser generation time. You will not find explicit representation of the these operations in <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>, but rather their net effect as resulting character classes. </li>
+ Character classes have the same escaping conventions as characters in a <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a> literal, but spaces and newlines are meaningless and have to be escaped and the <code>[</code> and <code>]</code> brackets need escaping. For example, one writes <code>[\[ \] &nbsp;\n]</code> for a class that includes the open and close square brackets and a space and a newline. Character classes support ranges as in <code>[a-zA-Z0-9]</code>. Please note about character classes that:
+ <ul><li> the operations on character classes are executed before parser generation time. You will not find explicit representation of these operations in <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>, but rather their net effect as resulting character classes. </li>
 <li> Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.</li>
 <li> Although all <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s are type constructors, the character class operators are not allowed in types.</li>
 </ul> The other symbols either <i>generate</i> for you parts of the construction of a grammar, or they <i>constrain</i> the rules of the grammar to generate a smaller set of trees as <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s.
@@ -104,7 +105,7 @@
  <ul><li> In <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> you will find special nodes for the regular expression symbols that hide <i>how</i> these were recognized. </li>
 <li> <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a> using <a href="/Courses/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).</li>
 <li> Regular symbols are not allowed in <i>keyword</i> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s</li>
-<li> Depending on their occurence in a <i>lexical</i>, <i>syntax</i> or <i>layout</i> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> the semantics of regular symbols changes. In the <i>syntax</i> context, layout non-terminals will be woven into the regular symbol, but not in the <i>lexical</i> and <i>layout</i> contexts. For example, a <code><i>Symbol</i>*</code> in a <i>syntax</i> definition such as <code>syntax X = A*;</code> will be processed to <code>syntax X = </code>{A Layout}*<code>. Similarly, </code>syntax X = {A B}+;<code> will be processed to </code>syntax X = {A (Layout B Layout)}+;`. </li>
+<li> Depending on their occurrence in a <i>lexical</i>, <i>syntax</i> or <i>layout</i> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> the semantics of regular symbols changes. In the <i>syntax</i> context, layout non-terminals will be woven into the regular symbol, but not in the <i>lexical</i> and <i>layout</i> contexts. For example, a <code><i>Symbol</i>*</code> in a <i>syntax</i> definition such as <code>syntax X = A*;</code> will be processed to <code>syntax X = </code>{A Layout}*<code>. Similarly, </code>syntax X = {A B}+;<code> will be processed to </code>syntax X = {A (Layout B Layout)}+;`. </li>
 </ul> The <i>constraint</i> symbols are specially there to deal with the fact that Rascal does not generate a scanner. There are no a priori disambiguation rules such as prefer keywords or longest match. Instead, you should use the constraint symbols to define the effect of keyword reservation and longest match. 
  <ul><li> It is important to note that these constraints work on a character-by-character level in the input stream. So, a follow constraint such as <code>A >> [a-z]</code> means that the character immediately following a recognized A must be in the range <code>[a-z]</code>.</li>
 <li> Read more on the constraint symbols via <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s.</li>

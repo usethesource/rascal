@@ -66,7 +66,7 @@ set[int]: {9,36,81}
 </pre> i.e., the squares of the integers in the range <code>[ 1 .. 10 ]</code> that 
  are divisible by 3. A more intriguing example (that we do not give in full detail) is
   <pre class="listing">{name | /asgStat(Id name, _) &lt;- P}
-</pre> which traverses program <code>P</code> and constructs a set of all identifiers that occur on the left hand 
+</pre> which traverses program <code>P</code> (using the <i>descendant match</i> operator <code>/</code>, see <a href="/Courses/Rascal/Patterns/Abstract/Abstract.html">Patterns/Abstract</a>) and constructs a set of all identifiers that occur on the left hand 
  side of assignment statements in <code>P</code>.
 
 </div>

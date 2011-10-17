@@ -32,7 +32,7 @@ are divisible by 3. A more intriguing example (that we do not give in full detai
 <listing>
 {name | /asgStat(Id name, _) <- P}
 </listing>
-which traverses program `P` and constructs a set of all identifiers that occur on the left hand 
+which traverses program `P` (using the _descendant match_ operator `/`, see [Patterns/Abstract]) and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.
 
 Benefits:
