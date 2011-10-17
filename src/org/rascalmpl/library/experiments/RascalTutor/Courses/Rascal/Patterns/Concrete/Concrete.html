@@ -53,14 +53,14 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Suppose we want to manipulate text written in some hypothetical language LANG. 
- Then first the concrete syntax of LANG has to be defined by importing an SDF module that declares the non-terminals and syntax rules for LANG. 
+ Then first the concrete syntax of LANG has to be defined by importing a module that declares the non-terminals and syntax rules for LANG. 
  Next LANG programs have to be parsed. LANG programs made come from text files or they may be included in the Rascal program as literals. 
  In both cases the text is parsed according to the defined syntax and the result is a parse tree in the form of a value of type Tree. 
  Concrete patterns operate on these trees.
  <br/>
 <br/>
 
- A <i>concrete pattern</i> is a quoted concrete syntax fragment that may contain variables. The syntax that is used to parse the concrete pattern may come from any SDF module that has been imported in the module in which the concrete pattern occurs.
+ A <i>concrete pattern</i> is a quoted concrete syntax fragment that may contain variables. The syntax that is used to parse the concrete pattern may come from any module that has been imported in the module in which the concrete pattern occurs.
  <br/>
 <br/>
 
@@ -83,7 +83,7 @@
 <span class="sectionHead">Examples</span>  Examples (in a context where an appropriate concrete syntax has been defined):
   <ul><li> Quoted syntax pattern with two pattern variable declarations: <pre class="listing">` while &lt;EXP Exp> do &lt;{STATEMENT ";"}* Stats> od `
 </pre> Two observations can be made about this example:
- <ul><li>The non-terminals (sorts in SDF parlance) <code>EXP</code> and <code>{STATEMENT ";"}*</code> are declared in the imported SDF module and can be used  as types in the Rascal program.
+ <ul><li>The non-terminals <code>EXP</code> and <code>{STATEMENT ";"}*</code> are declared in the imported module and can be used  as types in the Rascal program.
 </li>
 <li> When this pattern is matched successfully against a subject, the variables <code>Exp</code> and <code>Stats</code> will be bound.</li>
 </ul></li>
