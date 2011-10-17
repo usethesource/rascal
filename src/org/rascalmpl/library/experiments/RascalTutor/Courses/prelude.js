@@ -27,21 +27,24 @@ $(document).ready(function () {
 		$('#editErrors').hide();
 		$('#editForm').submit(handleSave);
 	}
-	$('#tdconcept a[href*="/Courses/"]').live("click", function(e){
-		if ($(this).attr('id') != 'tutorAction' && ($(this).parent('#editMenu').size() == 0)) {
-			// make sure any local links do not cause a actual page reload
-			var url = $(this).attr('href');
-			e.preventDefault();
-			var treeNode = $('#navPane a[href=' + url + ']');
-			if (treeNode) {
-				$('#navPane').jstree('deselect_all');
-				$('#navPane').jstree('select_node', treeNode);
+	currentSubCourse = window.location.pathname.match(/\/Courses\/[^\/]+\//);
+	if (currentSubCourse.length > 0) {
+		$('#tdconcept a[href*="' + currentSubCourse + '"]').live("click", function(e){
+			if ($(this).attr('id') != 'tutorAction' && ($(this).parent('#editMenu').size() == 0)) {
+				// make sure any local links do not cause a actual page reload
+				var url = $(this).attr('href');
+				e.preventDefault();
+				var treeNode = $('#navPane a[href=' + url + ']');
+				if (treeNode) {
+					$('#navPane').jstree('deselect_all');
+					$('#navPane').jstree('select_node', treeNode);
+				}
+				else {
+					loadConceptURL(url);
+				}
 			}
-			else {
-				loadConceptURL(url);
-			}
-		}
-	});
+		});
+	}
 	$('<div id="simpleLightboxContent" style="display:none;position:fixed; background:#fff; padding:10px; border: 1px solid #ccc; z-index:1001"> <img src="#" /></div>')
 		.insertAfter('#container');
 	$('<div id="simpleLightboxBackground" style="display:none; background:#000; filter:alpha(opacity=80); opacity:0.8; position:absolute; left:0; top:0; min-width:100%; min-height:100%; z-index:1000"> </div>')
