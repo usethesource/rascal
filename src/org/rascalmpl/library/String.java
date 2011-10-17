@@ -19,14 +19,18 @@ import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.OriginValueFactory;
 
 public class String {
+	private static final TypeFactory types = TypeFactory.getInstance();
 	private final IValueFactory values;
 	
 	public String(IValueFactory values){
@@ -346,5 +350,22 @@ public class String {
 			}
 		}
 		return values.string(b.toString());
+	}
+	
+	public IValue contains(IString str, IString find){
+		return values.bool(str.getValue().indexOf(find.getValue()) >= 0);
+	}
+	
+	public IValue findAll(IString str, IString find){
+		char[] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		IListWriter w = values.listWriter(types.integerType());
+		
+		for(int i = 0; i <= input.length - findChars.length; i++){
+			if(match(input, i, findChars)){
+				w.append(values.integer(i));
+			}
+		}
+		return w.done();
 	}
 }
