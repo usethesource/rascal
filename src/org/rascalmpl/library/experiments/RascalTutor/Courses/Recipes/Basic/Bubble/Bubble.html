@@ -45,7 +45,7 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  <a href="http://en.wikipedia.org/wiki/Bubble_sort">Bubble sort<img src="/Courses/images/www-icon.png" with="20" height="20"></a> is a classical (albeit not the most efficient) technique to sort lists of values.
- We present here several styles to implement bubble sort.
+ We present here several styles to implement bubble sort. Also see <a href="/Courses/Rascal/Expressions/Values/List/sort/sort.html">sort</a> for a more efficient library function for sorting.
 
 </div>
 
@@ -89,6 +89,14 @@ public list[int] sort3(list[int] Numbers){
   while([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3] := Numbers &amp;&amp; P > Q)
         Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
   return Numbers;
+}
+
+// sort4: similar to sort3, but shorter.
+
+public list[int] sort4(list[int] Numbers){
+  while([Nums1*, P, Nums2*, Q, Nums3*] := Numbers &amp;&amp; P > Q)
+        Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
+  return Numbers;
 
 }
 
@@ -105,6 +113,11 @@ public list[int] sort3(list[int] Numbers){
  <br/>
 <br/>
 
+ <code>sort4</code> is identical to <code>sort3</code>, except that the shorter <code>*</code>-notation for list variables is used and that the type declaration for the
+ the non-list variables has been omitted.
+ <br/>
+<br/>
+
  Let's put them to the test:
  <pre class="screen"><b>rascal></b>import demo::basic::Bubble;
 ok
@@ -115,6 +128,8 @@ list[int]: [1,2,3,4,5,6,7,8,9]
 <b>rascal></b>sort2(L);
 list[int]: [1,2,3,4,5,6,7,8,9]
 <b>rascal></b>sort3(L);
+list[int]: [1,2,3,4,5,6,7,8,9]
+<b>rascal></b>sort4(L);
 list[int]: [1,2,3,4,5,6,7,8,9]
 </pre>
 </div>

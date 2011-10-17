@@ -12,7 +12,7 @@ Details:
 
 Description:
 [Bubble sort](http://en.wikipedia.org/wiki/Bubble_sort) is a classical (albeit not the most efficient) technique to sort lists of values.
-We present here several styles to implement bubble sort.
+We present here several styles to implement bubble sort. Also see [Rascal:sort] for a more efficient library function for sorting.
 
 Examples:
 <listing demo/basic/Bubble.rsc>
@@ -28,6 +28,9 @@ when a not-yet-sorted pair is encountered, the elements are exchanged, and `sort
 
 `sort3` also uses list matching but in a more declarative style: as long as there are unsorted elements in the list (possibly with intervening elements), exchange them.
 
+`sort4` is identical to `sort3`, except that the shorter `*`-notation for list variables is used and that the type declaration for the
+the non-list variables has been omitted.
+
 Let's put them to the test:
 <screen>
 import demo::basic::Bubble;
@@ -35,6 +38,7 @@ L = [9,8,7,6,5,4,3,2,1];
 sort1(L);
 sort2(L);
 sort3(L);
+sort4(L);
 </screen>
 
 
