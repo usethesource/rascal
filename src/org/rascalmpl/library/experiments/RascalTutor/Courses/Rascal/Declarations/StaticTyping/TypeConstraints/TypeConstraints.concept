@@ -17,7 +17,7 @@ This is expressed by a subtype constraint which expresses that
 actual types bound to $Name$ should be a subtype of $Type$. 
 
 Examples:
-Here is the definition of absolute value from the [Number] library:
+Here is the definition of the absolute value function `abs` from the [Number] library:
 <listing>
 public &T <: num abs(&T <: num N)
 {
@@ -42,9 +42,12 @@ This makes it possible to set annotations on any [AlgebraicDataType].
 <screen>
 import Node;
 nd = "f"(10, "abc");
+// First we apply `setAnnotations` to a node value:
 setAnnotations(nd, ("color" : "red", "size" : "large"));
+// Next, we introduce a new data type `Suite`:
 data Suite = hearts() | diamonds() | clubs() | spades();
 st = diamonds();
+// And apply `setAnnotations` to a value of type `Suite`:
 setAnnotations(st, ("player" : "Hossein", "gain" : "120"));
 </screen>
 

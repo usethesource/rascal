@@ -56,7 +56,7 @@
 </div>
 
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Here is the definition of absolute value from the <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a> library:
+<span class="sectionHead">Examples</span>  Here is the definition of the absolute value function <code>abs</code> from the <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a> library:
  <pre class="listing">public &amp;T &lt;: num abs(&amp;T &lt;: num N)
 {
 	return N >= 0 ? N : -N;
@@ -77,16 +77,25 @@ real: 3.5
 ok
 <b>rascal></b>nd = &quot;f&quot;(10, &quot;abc&quot;);
 node: f(10,&quot;abc&quot;)
-<b>rascal></b>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
+</pre>
+  First we apply <code>setAnnotations</code> to a node value:
+
+<pre class="screen"><b>rascal></b>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: f(10,&quot;abc&quot;)[
   @color=&quot;red&quot;,
   @size=&quot;large&quot;
 ]
-<b>rascal></b>data Suite = hearts() | diamonds() | clubs() | spades();
+</pre>
+  Next, we introduce a new data type <code>Suite</code>:
+
+<pre class="screen"><b>rascal></b>data Suite = hearts() | diamonds() | clubs() | spades();
 ok
 <b>rascal></b>st = diamonds();
 Suite: diamonds()
-<b>rascal></b>setAnnotations(st, (&quot;player&quot; : &quot;Hossein&quot;, &quot;gain&quot; : &quot;120&quot;));
+</pre>
+  And apply <code>setAnnotations</code> to a value of type <code>Suite</code>:
+
+<pre class="screen"><b>rascal></b>setAnnotations(st, (&quot;player&quot; : &quot;Hossein&quot;, &quot;gain&quot; : &quot;120&quot;));
 Suite: diamonds()[
   @gain=&quot;120&quot;,
   @player=&quot;Hossein&quot;
