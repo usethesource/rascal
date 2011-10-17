@@ -17,6 +17,36 @@ This is expressed by a subtype constraint which expresses that
 actual types bound to $Name$ should be a subtype of $Type$. 
 
 Examples:
+Here is the definition of absolute value from the [Number] library:
+<listing>
+public &T <: num abs(&T <: num N)
+{
+	return N >= 0 ? N : -N;
+}
+</listing>
+The argument `N` is constrained to be at most of type `num`.
+<screen>
+import Number;
+abs(-3);
+abs(-3.5);
+</screen>
+
+Here is an example from the [Node] library:
+<listing>
+&T <: node setAnnotations(&T <: node x, map[str, value] annotations);
+</listing>
+(we don't give the body of this function since it has been implemented in Java).
+`setAnnotations` takes a value of any type that is at most `node` and adds annotations to it.
+This makes it possible to set annotations on any [AlgebraicDataType].
+
+<screen>
+import Node;
+nd = "f"(10, "abc");
+setAnnotations(nd, ("color" : "red", "size" : "large"));
+data Suite = hearts() | diamonds() | clubs() | spades();
+st = diamonds();
+setAnnotations(st, ("player" : "Hossein", "gain" : "120"));
+</screen>
 
 Benefits:
 

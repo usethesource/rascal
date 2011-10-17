@@ -44,7 +44,7 @@
 </div>
 
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code># $Name</code>
+<span class="sectionHead">Syntax</span>  <code># <i>Name</i></code>
 
 </div>
 
@@ -78,7 +78,7 @@ PROGRAM parsePROGRAM(str s) { ... }
  <br/>
 <br/>
 
- Now we can write:
+ Now we can write (see <a href="/Courses/Rascal/Declarations/StaticTyping/TypeParameters/TypeParameters.html">TypeParameters</a> for a description of the <code>&amp;T</code> notation):
   <pre class="listing">&amp;T parse(type[&amp;T] start, str s) { ... }
 </pre> and use the parse by giving it a type as argument:
   <pre class="listing">parse(#EXP, "1+3");

@@ -55,6 +55,45 @@
 
 </div>
 
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Here is the definition of absolute value from the <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a> library:
+ <pre class="listing">public &amp;T &lt;: num abs(&amp;T &lt;: num N)
+{
+	return N >= 0 ? N : -N;
+}
+</pre> The argument <code>N</code> is constrained to be at most of type <code>num</code>.
+ <pre class="screen"><b>rascal></b>import Number;
+ok
+<b>rascal></b>abs(-3);
+int: 3
+<b>rascal></b>abs(-3.5);
+real: 3.5
+</pre> Here is an example from the <a href="/Courses/Rascal/Expressions/Values/Node/Node.html">Node</a> library:
+ <pre class="listing">&amp;T &lt;: node setAnnotations(&amp;T &lt;: node x, map[str, value] annotations);
+</pre> (we don't give the body of this function since it has been implemented in Java).
+ <code>setAnnotations</code> takes a value of any type that is at most <code>node</code> and adds annotations to it.
+ This makes it possible to set annotations on any <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>.
+  <pre class="screen"><b>rascal></b>import Node;
+ok
+<b>rascal></b>nd = &quot;f&quot;(10, &quot;abc&quot;);
+node: f(10,&quot;abc&quot;)
+<b>rascal></b>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
+node: f(10,&quot;abc&quot;)[
+  @color=&quot;red&quot;,
+  @size=&quot;large&quot;
+]
+<b>rascal></b>data Suite = hearts() | diamonds() | clubs() | spades();
+ok
+<b>rascal></b>st = diamonds();
+Suite: diamonds()
+<b>rascal></b>setAnnotations(st, (&quot;player&quot; : &quot;Hossein&quot;, &quot;gain&quot; : &quot;120&quot;));
+Suite: diamonds()[
+  @gain=&quot;120&quot;,
+  @player=&quot;Hossein&quot;
+]
+</pre>
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/StaticTyping/TypeConstraints&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
