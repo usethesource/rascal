@@ -47,6 +47,14 @@ public list[int] sort3(list[int] Numbers){
   while([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3] := Numbers && P > Q)
         Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
   return Numbers;
+}
+
+// sort4: similar to sort3, but shorter.
+
+public list[int] sort4(list[int] Numbers){
+  while([Nums1*, P, Nums2*, Q, Nums3*] := Numbers && P > Q)
+        Numbers = Nums1 + [Q] + Nums2 + [P] + Nums3;
+  return Numbers;
 
 }
 
