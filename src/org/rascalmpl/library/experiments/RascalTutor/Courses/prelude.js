@@ -190,7 +190,7 @@ function attachDisqus(page) {
 	$('#disqus_thread').remove();
 	disqus_identifier = page;
 	disqus_url = "http://tutor.rascal-mpl.org" + page;
-	$("#conceptPane").after("<div id=\"disqus_thread\"></div>"); // insert disqus div
+	$("#conceptPane").after("<div id=\"disqus_thread\" style=\"clear:both\"></div>"); // insert disqus div
 	(function() {
 		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 		dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
