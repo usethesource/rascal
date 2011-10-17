@@ -49,7 +49,7 @@ wordCount(Jabberwocky, countInLine2);
 wordCount(Jabberwocky, countInLine3);
 //It is satisfactory that the three ways of counting words all yield the same result.
 //
-//If you are into one-liners, we can include everything you learned from the example
+//If you are into one-liners, we can include everything you learned from this example
 //in the following alternative `wordCount2` function:
 int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
 wordCount2(Jabberwocky);

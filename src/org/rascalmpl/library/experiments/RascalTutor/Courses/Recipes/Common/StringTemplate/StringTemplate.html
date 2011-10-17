@@ -99,7 +99,9 @@ public str genClass(str name, map[str,str] fields) { <img src="/Courses/images/2
 <li> a map <code>fields</code> that associates field names with their type (both string values).</li>
 </ul> Function <code>genClass</code> returns a string that contains several <i>string interpolations</i> delimited by <code>&lt;</code> and <code>></code>.
  Let's discuss some of them:
- <ul><li> <code>public class &lt;name></code>: insert the desired class name in the result.</li>
+ <ul><li> In each line, only the text following <code>'</code> is contributed to the output. The text before (and including) <code>'</code> can be used to properly indent   the string.
+</li>
+<li> <code>public class &lt;name></code>: insert the desired class name in the result.</li>
 <li> <code>&lt;for x&lt;-fields){></code> ... <code>&lt;}></code>: loops over the fields and contributes the text produced by its body to the result.</li>
 <li> <code>private &lt;fields[x]> &lt;x>;</code>: finds for the current field <code>x</code> its type and produces an appropriate private field declaration.</li>
 <li> <code>public void set&lt;capitalize(x)>(&lt;fields[x]> &lt;x>)</code>: method header for the setter for field <code>x</code>.</li>

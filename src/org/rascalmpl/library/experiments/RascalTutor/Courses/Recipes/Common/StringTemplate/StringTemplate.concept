@@ -33,6 +33,8 @@ The heavy lifting is done at /*2*/ where `genClass` is defined that takes as arg
 
 Function `genClass` returns a string that contains several _string interpolations_ delimited by `<` and `>`.
 Let's discuss some of them:
+* In each line, only the text following `'` is contributed to the output. The text before (and including) `'` can be used to properly indent
+  the string.
 * `public class <name>`: insert the desired class name in the result.
 * `<for x<-fields){>` ... `<}>`: loops over the fields and contributes the text produced by its body to the result.
 * `private <fields[x]> <x>;`: finds for the current field `x` its type and produces an appropriate private field declaration.

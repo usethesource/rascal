@@ -31,6 +31,7 @@ Consider the following call graph (a box represents a procedure and an arrow rep
 
 ![calls](calls.png|300px)
 
+
 <screen>
 // Rascal supports basic data types like integers and strings which are sufficient to formulate and answer the questions at hand. However, we
 // can gain readability by introducing separately named types for the items we are describing. 
