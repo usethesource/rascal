@@ -140,6 +140,10 @@ function initNavigation() {
 		}
     	$("#conceptPane").load(state + " div#conceptPane", function() {
 			finishLoad();
+			newTitle = state.match(/\/Courses\/(.+)\/[^\/]+\.html/);// second group
+			if (newTitle.length == 2) {
+				$('title').html(newTitle[1]);
+			}
 			attachDisqus(state);
 			var treeNode = $('#navPane a[href=' + state + ']');
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
