@@ -43,7 +43,7 @@ Inside a quoted pattern arbitrary lexical tokens may occur. Quoted patterns may 
 <listing>
 ($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
 </listing>
-is a quoted pattern that is preceeded by an SDF symbol to define its desired syntactic type.
+is a quoted pattern that is preceeded by a nonterminal symbol to define its desired syntactic type.
 
 * A _typed variable pattern_
 <listing>
@@ -60,7 +60,7 @@ is a quoted pattern that is preceeded by an SDF symbol to define its desired syn
 Inside concrete syntax patterns, layout is ignored.
 
 Examples:
-Examples (in a context where an SDF module has been imported that defines the appropriate syntax):
+Examples (in a context where an appropriate concrete syntax has been defined):
 
 * Quoted syntax pattern with two pattern variable declarations:
 <listing>
@@ -81,6 +81,10 @@ as types in the Rascal program.
 <listing>
 STATEMENT ` while <Exp> do <Stats> od `
 </listing>
+
+
+
+A full example of concrete patterns can be found in [Recipes:Languages/Exp/Concrete/WithLayout].
 
 Benefits:
 
