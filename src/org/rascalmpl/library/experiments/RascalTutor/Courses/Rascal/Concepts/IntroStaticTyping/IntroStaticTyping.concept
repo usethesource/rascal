@@ -68,6 +68,9 @@ data Color = red(int level) | blue(int level);
 Color C = red(3);
 // Due to subtyping, we can also have:
 node ND = red(3);
+</screen>
+
+One example of the actual application of subtypes can be found in [Recipes:CountConstructors].
 
 Benefits:
 
