@@ -227,4 +227,59 @@ public class StringTests extends TestFramework {
 		prepare("import String;");
 		assertTrue(runTestInSameEvaluator("toReal(\"abc\") == 0;"));
 	}
+	
+	@Test
+	public void replaceAll(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("replaceAll(\"a\", \"a\", \"A\") == \"A\";"));
+		assertTrue(runTestInSameEvaluator("replaceAll(\"a\", \"x\", \"X\") == \"a\";"));
+		assertTrue(runTestInSameEvaluator("replaceAll(\"a\", \"aa\", \"A\") == \"a\";"));
+		
+		assertTrue(runTestInSameEvaluator("replaceAll(\"abracadabra\", \"a\", \"A\") == \"AbrAcAdAbrA\";"));
+		assertTrue(runTestInSameEvaluator("replaceAll(\"abracadabra\", \"a\", \"A\") == \"AbrAcAdAbrA\";"));
+		assertTrue(runTestInSameEvaluator("replaceAll(\"abracadabra\", \"a\", \"AA\") == \"AAbrAAcAAdAAbrAA\";"));
+		assertTrue(runTestInSameEvaluator("replaceAll(\"abracadabra\", \"ab\", \"AB\") == \"ABracadABra\";"));
+	}
+	
+	@Test
+	public void replaceFirst(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"a\", \"a\", \"A\") == \"A\";"));
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"a\", \"x\", \"X\") == \"a\";"));
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"a\", \"aa\", \"A\") == \"a\";"));
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"abracadabra\", \"a\", \"A\") == \"Abracadabra\";"));
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"abracadabra\", \"a\", \"AA\") == \"AAbracadabra\";"));
+		assertTrue(runTestInSameEvaluator("replaceFirst(\"abracadabra\", \"ab\", \"AB\") == \"ABracadabra\";"));
+	}
+	
+	@Test
+	public void replaceLast(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("replaceLast(\"a\", \"a\", \"A\") == \"A\";"));
+		assertTrue(runTestInSameEvaluator("replaceLast(\"a\", \"x\", \"X\") == \"a\";"));
+		assertTrue(runTestInSameEvaluator("replaceLast(\"a\", \"aa\", \"A\") == \"a\";"));
+		assertTrue(runTestInSameEvaluator("replaceLast(\"abracadabra\", \"a\", \"A\") == \"abracadabrA\";"));
+		assertTrue(runTestInSameEvaluator("replaceLast(\"abracadabra\", \"a\", \"AA\") == \"abracadabrAA\";"));
+		assertTrue(runTestInSameEvaluator("replaceLast(\"abracadabra\", \"ab\", \"AB\") == \"abracadABra\";"));
+	}
+	
+	@Test
+	public void contains(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("contains(\"abc\", \"a\");"));
+		assertTrue(runTestInSameEvaluator("contains(\"abc\", \"c\");"));
+		assertFalse(runTestInSameEvaluator("contains(\"abc\", \"x\");"));
+		assertFalse(runTestInSameEvaluator("contains(\"abc\", \"xyzpqr\");"));
+		assertTrue(runTestInSameEvaluator("contains(\"abracadabra\", \"bra\");"));
+	}
+	
+	@Test
+	public void findAll(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("findAll(\"abc\", \"a\") == [0];"));
+		assertTrue(runTestInSameEvaluator("findAll(\"abc\", \"c\") == [2];"));
+		assertTrue(runTestInSameEvaluator("findAll(\"abc\", \"x\") == [];"));
+		assertTrue(runTestInSameEvaluator("findAll(\"abc\", \"xyzpqr\") == [];"));
+		assertTrue(runTestInSameEvaluator("findAll(\"abracadabra\", \"bra\") == [1, 8];"));
+	}
 }
