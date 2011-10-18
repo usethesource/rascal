@@ -9,7 +9,7 @@ public void quine(){
 }
 
 str program = /*1*/
-"module Quine
+"module demo::basic::Quine
 
 import IO;
 import String;
