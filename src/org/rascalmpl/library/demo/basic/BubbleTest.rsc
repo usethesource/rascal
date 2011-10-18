@@ -10,7 +10,7 @@
 //START
 module demo::basic::BubbleTest
 
-import demo::Bubble;
+import demo::basic::Bubble;
 
 // Tests
 
