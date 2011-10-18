@@ -10,6 +10,7 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -39,13 +40,120 @@
 </div>
          
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a> &#032 <a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a> &#032 <a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a> &#032 <a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a> &#032 
 </div>
 
 <div id="Description">
 <span class="sectionHead">Description</span>  To instantiate an IDE for a language implemented using Rascal, follow the steps as shown in the following example:
   <pre class="screen"><b>rascal></b>import util::IDE;
-ok
+Unexpected exception (generic Throwable): Can not declare annotations on node
+    somewhere in: $shell$
+stacktrace: Can not declare annotations on node
+    at org.eclipse.imp.pdb.facts.type.TypeStore.declareAnnotation(TypeStore.java:575)
+    at org.rascalmpl.interpreter.env.ModuleEnvironment.declareAnnotation(ModuleEnvironment.java:503)
+    at org.rascalmpl.semantics.dynamic.Declaration$Annotation.interpret(Declaration.java:73)
+    at org.rascalmpl.semantics.dynamic.Toplevel$GivenVisibility.interpret(Toplevel.java:34)
+    at org.rascalmpl.semantics.dynamic.Module$Default.interpret(Module.java:135)
+    at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1323)
+    at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:112)
+    at org.rascalmpl.semantics.dynamic.Command$Import.interpret(Command.java:75)
+    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:811)
+    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:727)
+    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:701)
+    at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:194)
+    at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:119)
+    at org.rascalmpl.library.Scripting.shell(Scripting.java:85)
+    at sun.reflect.GeneratedMethodAccessor124.invoke(null:-1)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+    at java.lang.reflect.Method.invoke(Method.java:597)
+    at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:128)
+    at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:92)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2287)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:716)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1372)
+    at org.rascalmpl.semantics.dynamic.Statement$Switch$DefaultBlock.matchAndEval(Statement.java:872)
+    at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:938)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1183)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:413)
+    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
+    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
+    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
+    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:1050)
+    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:1043)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:415)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
+    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
+    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:621)
+    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
+    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
+    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:92)
+    at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:425)
+    at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:39)
+    at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
+    at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+    at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:527)
+    at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:423)
+    at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:223)
+    at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:930)
+    at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:358)
+    at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:183)
+    at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:866)
+    at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
+    at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:113)
+    at org.eclipse.jetty.server.Server.handle(Server.java:351)
+    at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:594)
+    at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:1041)
+    at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:549)
+    at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:211)
+    at org.eclipse.jetty.server.HttpConnection.handle(HttpConnection.java:424)
+    at org.eclipse.jetty.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:489)
+    at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:436)
+    at java.lang.Thread.run(Thread.java:662)
 <b>rascal></b>start syntax ABC = [a-z]+;
 ok
 <b>rascal></b>layout Whitespace = [\ \t\n]*;
@@ -55,7 +163,7 @@ ok
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
 start[ABC] (str, loc): start[ABC] abc(str, loc);
 <b>rascal></b>registerLanguage(&quot;The ABC language&quot;, &quot;abc&quot;, abc);
-ok
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: registerLanguage
 </pre>
   After this, your <b>current</b> Eclipse instance will start editors for all files ending in <code>.abc</code> and parse them using the <code>abc</code> function. The editor will provide some default highlighting features.
  <br/>
@@ -64,7 +172,7 @@ ok
   To add annotations to trees, just after parsing, you should register an 'annotator' function:
 
 <pre class="screen"><b>rascal></b>registerAnnotator(&quot;abc&quot;, Tree (Tree t) { return t[@doc=&quot;Hello!&quot;]; });
-ok
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: registerAnnotator
 </pre> Now you can step-by-step extend the IDE for your language with additional features:
  <ul><li> <a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a></li>
 <li> <a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a></li>

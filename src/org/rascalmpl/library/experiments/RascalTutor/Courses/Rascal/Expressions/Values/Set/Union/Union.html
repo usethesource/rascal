@@ -10,6 +10,7 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -121,9 +122,9 @@ set[int]: {4,3,2,1}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{-20, 16}">
-<input type="hidden" name="B" value="{8}">
-The type of <tt>{-20, 16} + {8}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-17, 13, -4, 11, -4}">
+<input type="hidden" name="B" value="{-14, -3, -6, 5}">
+The type of <tt>{-17, 13, -4, 11, -4} + {-14, -3, -6, 5}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -152,9 +153,9 @@ The type of <tt>{-20, 16} + {8}</tt> is <textarea rows="1" cols="30" name="answe
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Watermelon&quot;, &quot;Admiral Sarn&quot;, &quot;E-3PO&quot;, &quot;Jasmine&quot;}">
-<input type="hidden" name="B" value="{&quot;Curry&quot;}">
-<pre class="prequestion">{&quot;Watermelon&quot;, &quot;Admiral Sarn&quot;, &quot;E-3PO&quot;, &quot;Jasmine&quot;} + {&quot;Curry&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{&quot;Little Bird&quot;, &quot;Cookie Monster&quot;, &quot;Curry&quot;}">
+<input type="hidden" name="B" value="{&quot;Oregano&quot;}">
+<pre class="prequestion">{&quot;Little Bird&quot;, &quot;Cookie Monster&quot;, &quot;Curry&quot;} + {&quot;Oregano&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -182,9 +183,9 @@ The type of <tt>{-20, 16} + {8}</tt> is <textarea rows="1" cols="30" name="answe
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{&quot;Mandarin&quot;, &quot;Grover&quot;, &quot;Countess Von Backwards&quot;, &quot;Peppermint&quot;, &quot;Anakin Skywalker&quot;}">
-<input type="hidden" name="B" value="{&quot;L&quot;}">
-<pre class="prequestion">{&quot;Mandarin&quot;, &quot;Grover&quot;, &quot;Countess Von Backwards&quot;, &quot;Peppermint&quot;, &quot;Anakin Skywalker&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Grover&quot;,&quot;L&quot;,&quot;Countess Von Backwards&quot;,&quot;Peppermint&quot;,&quot;Anakin Skywalker&quot;,&quot;Mandarin&quot;}</pre>
+<input type="hidden" name="A" value="{19, -1, 13, -11}">
+<input type="hidden" name="B" value="{10, -3, 4}">
+<pre class="prequestion">{19, -1, 13, -11} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-1,-3,13,10,-11,4,19}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -212,9 +213,9 @@ The type of <tt>{-20, 16} + {8}</tt> is <textarea rows="1" cols="30" name="answe
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{16.50524260780763200, 18}">
-<input type="hidden" name="B" value="{0, 15.89856283740559200, 19}">
-<pre class="prequestion">{16.50524260780763200, 18} + {0, 15.89856283740559200, 19} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{&quot;Wasabi&quot;, &quot;Bert&quot;, &quot;X&quot;, &quot;Date&quot;, &quot;Papaya&quot;}">
+<input type="hidden" name="B" value="{&quot;Redcurrant&quot;, &quot;Anakin Skywalker&quot;, &quot;Forgetful Jones&quot;, &quot;E-3PO&quot;, &quot;Redcurrant&quot;}">
+<pre class="prequestion">{&quot;Wasabi&quot;, &quot;Bert&quot;, &quot;X&quot;, &quot;Date&quot;, &quot;Papaya&quot;} + {&quot;Redcurrant&quot;, &quot;Anakin Skywalker&quot;, &quot;Forgetful Jones&quot;, &quot;E-3PO&quot;, &quot;Redcurrant&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

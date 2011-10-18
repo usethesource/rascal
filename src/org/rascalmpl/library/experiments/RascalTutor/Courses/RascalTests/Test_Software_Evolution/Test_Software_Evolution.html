@@ -10,6 +10,7 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -150,8 +151,8 @@
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{2.74844610447399600, -0.649204671273970800}">
-The type of <tt>{2.74844610447399600, -0.649204671273970800}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;V&quot;, &quot;Cookie Monster&quot;}">
+The type of <tt>{&quot;V&quot;, &quot;Cookie Monster&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -180,8 +181,8 @@ The type of <tt>{2.74844610447399600, -0.649204671273970800}</tt> is <textarea r
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="[6, -19, 16]">
-The type of <tt>[6, -19, 16]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[-17, 19, -8, 3, 17]">
+The type of <tt>[-17, 19, -8, 3, 17]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -210,8 +211,8 @@ The type of <tt>[6, -19, 16]</tt> is <textarea rows="1" cols="30" name="answer" 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="(&quot;R2-D2&quot;: 11.67088835849367200, &quot;Celery&quot;: -19.308319030316294400)">
-The type of <tt>(&quot;R2-D2&quot;: 11.67088835849367200, &quot;Celery&quot;: -19.308319030316294400)</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="(&quot;Kiwifruit&quot;: &quot;Ernie&quot;, &quot;Count Von Count&quot;: &quot;Sage&quot;, &quot;Slimey the Worm&quot;: &quot;Forgetful Jones&quot;, &quot;Cayenne&quot;: &quot;Apple&quot;)">
+The type of <tt>(&quot;Kiwifruit&quot;: &quot;Ernie&quot;, &quot;Count Von Count&quot;: &quot;Sage&quot;, &quot;Slimey the Worm&quot;: &quot;Forgetful Jones&quot;, &quot;Cayenne&quot;: &quot;Apple&quot;)</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -240,8 +241,8 @@ The type of <tt>(&quot;R2-D2&quot;: 11.67088835849367200, &quot;Celery&quot;: -1
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="6">
-<input type="hidden" name="A" value="-9">
-The type of <tt>{-9, </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt> } </tt> is <tt>set[int]</tt><br/>
+<input type="hidden" name="A" value="19">
+The type of <tt>{19, </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt> } </tt> is <tt>set[int]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -270,8 +271,8 @@ The type of <tt>{-9, </tt><textarea rows="1" cols="30" name="answer" class="answ
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="7">
-<input type="hidden" name="A" value="&quot;Forgetful Jones&quot;">
-The type of <tt>(&quot;Forgetful Jones&quot;: </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt>)</tt> is <tt>map[str,int]</tt><br/>
+<input type="hidden" name="A" value="&quot;R2-D2&quot;">
+The type of <tt>(&quot;R2-D2&quot;: </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt>)</tt> is <tt>map[str,int]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -300,8 +301,8 @@ The type of <tt>(&quot;Forgetful Jones&quot;: </tt><textarea rows="1" cols="30" 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="8">
-<input type="hidden" name="A" value="{&quot;Orange&quot;, &quot;Z&quot;, &quot;Fig&quot;, &quot;Melon&quot;, &quot;T&quot;}">
-The type of <tt>{&quot;Orange&quot;, &quot;Z&quot;, &quot;Fig&quot;, &quot;Melon&quot;, &quot;T&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{0.26964908640640800, 3, -13.299274759679411600, -14, -12}">
+The type of <tt>{0.26964908640640800, 3, -13.299274759679411600, -14, -12}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -330,10 +331,10 @@ The type of <tt>{&quot;Orange&quot;, &quot;Z&quot;, &quot;Fig&quot;, &quot;Melon
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="9">
-<input type="hidden" name="A" value="-2">
-<input type="hidden" name="B" value="&quot;Mango&quot;">
-<input type="hidden" name="C" value="-20">
-The type of <tt>{-2, &quot;Mango&quot;, -20}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="1">
+<input type="hidden" name="B" value="&quot;Coriander&quot;">
+<input type="hidden" name="C" value="10">
+The type of <tt>{1, &quot;Coriander&quot;, 10}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -362,8 +363,8 @@ The type of <tt>{-2, &quot;Mango&quot;, -20}</tt> is <textarea rows="1" cols="30
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="10">
-<input type="hidden" name="A" value="{&lt;&quot;Kiwifruit&quot;, 13, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Kiwifruit&quot;, -1, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Pepper&quot;, 15, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Admiral Sarn&quot;, 10, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;D&quot;, 15, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;}">
-The type of <tt>{&lt;&quot;Kiwifruit&quot;, 13, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Kiwifruit&quot;, -1, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Pepper&quot;, 15, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Admiral Sarn&quot;, 10, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;D&quot;, 15, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&lt;&quot;Pumpkin&quot;, -18, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Z&quot;, 16, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Isolder&quot;, 18, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Guy Smiley&quot;, 10, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;}">
+The type of <tt>{&lt;&quot;Pumpkin&quot;, -18, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Z&quot;, 16, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Isolder&quot;, 18, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;, &lt;&quot;Guy Smiley&quot;, 10, |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)&gt;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -392,8 +393,8 @@ The type of <tt>{&lt;&quot;Kiwifruit&quot;, 13, |file:///home/paulk/pico.trm|(0,
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="RascalTests/Test_Software_Evolution">
 <input type="hidden" name="exercise" value="11">
-<input type="hidden" name="A" value="{&lt;10, 13&gt;, &lt;2, -3&gt;, &lt;17, -19&gt;, &lt;5, -11&gt;}">
-The type of <tt>{&lt;10, 13&gt;, &lt;2, -3&gt;, &lt;17, -19&gt;, &lt;5, -11&gt;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&lt;11, -14&gt;}">
+The type of <tt>{&lt;11, -14&gt;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

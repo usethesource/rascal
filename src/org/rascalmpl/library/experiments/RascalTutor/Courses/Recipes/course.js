@@ -19,9 +19,9 @@ searchTerms["Recipes/Languages/Func/AbstractSyntax"] = null;
 
 searchTerms["Recipes/Languages/Exp/Abstract"] = null;
 
-searchTerms["Recipes/Languages"] = null;
-
 searchTerms["Recipes/Common/WordCount/Jabberwocky"] = null;
+
+searchTerms["Recipes/Languages"] = null;
 
 searchTerms["Recipes/Common/WordCount/CountInLine3"] = null;
 
@@ -53,9 +53,9 @@ searchTerms["Recipes/Basic/Bubble"] = null;
 
 searchTerms["Recipes/Languages/Func/ConcreteSyntax"] = null;
 
-searchTerms["Recipes/Languages/Exp/Concrete"] = null;
-
 searchTerms["Recipes/Languages/Exp/Combined"] = null;
+
+searchTerms["Recipes/Languages/Exp/Concrete"] = null;
 
 searchTerms["Recipes/Common"] = null;
 

@@ -10,6 +10,7 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -122,9 +123,9 @@ list[int]: [1,2,3,4]
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[6.52257375234539200]">
-<input type="hidden" name="B" value="[-10.04434568927136800, 19.94399068668636400, -4.31126899047267200, 9.62027521412260800, -13.08145050547821600]">
-The type of <tt>[6.52257375234539200] + [-10.04434568927136800, 19.94399068668636400, -4.31126899047267200, 9.62027521412260800, -13.08145050547821600]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &quot;G&quot;]">
+<input type="hidden" name="B" value="[&quot;Bert&quot;, &quot;Big Bird&quot;]">
+The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &quot;G&quot;] + [&quot;Bert&quot;, &quot;Big Bird&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -153,9 +154,9 @@ The type of <tt>[6.52257375234539200] + [-10.04434568927136800, 19.9439906866863
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="[-9, -18, 2, -9, -18]">
-<input type="hidden" name="B" value="[18, -8, -14, 14, 15]">
-<pre class="prequestion">[-9, -18, 2, -9, -18] + [18, -8, -14, 14, 15] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[&quot;Cranberry&quot;, &quot;Little Bird&quot;]">
+<input type="hidden" name="B" value="[&quot;Luke Skywalker&quot;, &quot;Big Bird&quot;, &quot;Melon&quot;, &quot;Blueberry&quot;, &quot;Boba Fett&quot;]">
+<pre class="prequestion">[&quot;Cranberry&quot;, &quot;Little Bird&quot;] + [&quot;Luke Skywalker&quot;, &quot;Big Bird&quot;, &quot;Melon&quot;, &quot;Blueberry&quot;, &quot;Boba Fett&quot;] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -183,9 +184,9 @@ The type of <tt>[6.52257375234539200] + [-10.04434568927136800, 19.9439906866863
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="[&quot;Grover&quot;, &quot;Pepper&quot;, &quot;R&quot;, &quot;Sage&quot;, &quot;A&quot;]">
-<input type="hidden" name="B" value="[&quot;Lemon&quot;, &quot;Q&quot;, &quot;Jar Jar Binks&quot;, &quot;Nutmeg&quot;, &quot;F&quot;]">
-<pre class="prequestion">[&quot;Grover&quot;, &quot;Pepper&quot;, &quot;R&quot;, &quot;Sage&quot;, &quot;A&quot;] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [&quot;Grover&quot;,&quot;Pepper&quot;,&quot;R&quot;,&quot;Sage&quot;,&quot;A&quot;,&quot;Lemon&quot;,&quot;Q&quot;,&quot;Jar Jar Binks&quot;,&quot;Nutmeg&quot;,&quot;F&quot;]</pre>
+<input type="hidden" name="A" value="[&quot;Musterd&quot;, &quot;R&quot;, &quot;Pumpkin&quot;]">
+<input type="hidden" name="B" value="[&quot;J&quot;, &quot;Pomegranate&quot;, &quot;C-3PO&quot;, &quot;Hoots The Owl&quot;, &quot;Melon&quot;]">
+<pre class="prequestion">[&quot;Musterd&quot;, &quot;R&quot;, &quot;Pumpkin&quot;] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [&quot;Musterd&quot;,&quot;R&quot;,&quot;Pumpkin&quot;,&quot;J&quot;,&quot;Pomegranate&quot;,&quot;C-3PO&quot;,&quot;Hoots The Owl&quot;,&quot;Melon&quot;]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -213,9 +214,9 @@ The type of <tt>[6.52257375234539200] + [-10.04434568927136800, 19.9439906866863
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{13, -6, 18, -4}">
-<input type="hidden" name="B" value="{-9}">
-<pre class="prequestion">{13, -6, 18, -4} + {-9} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-7, -16.410732103192922000, 18.7689917922090800, -7.1344176429029600, 5.44466617835883200}">
+<input type="hidden" name="B" value="{13.33610551065695600, 1.27370324753926000, -3, -13, -16}">
+<pre class="prequestion">{-7, -16.410732103192922000, 18.7689917922090800, -7.1344176429029600, 5.44466617835883200} + {13.33610551065695600, 1.27370324753926000, -3, -13, -16} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

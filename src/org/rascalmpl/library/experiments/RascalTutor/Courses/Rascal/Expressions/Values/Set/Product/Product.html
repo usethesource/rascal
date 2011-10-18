@@ -10,6 +10,7 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -91,9 +92,9 @@ rel[int, int]: {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{&quot;L&quot;, &quot;F&quot;, &quot;Grapefruit&quot;}">
-<input type="hidden" name="B" value="{&quot;G&quot;, &quot;I&quot;, &quot;Cranberry&quot;, &quot;Mandarin&quot;}">
-The type of <tt>{&quot;L&quot;, &quot;F&quot;, &quot;Grapefruit&quot;} * {&quot;G&quot;, &quot;I&quot;, &quot;Cranberry&quot;, &quot;Mandarin&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;Apple&quot;}">
+<input type="hidden" name="B" value="{&quot;Coconut&quot;}">
+The type of <tt>{&quot;Apple&quot;} * {&quot;Coconut&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -122,9 +123,9 @@ The type of <tt>{&quot;L&quot;, &quot;F&quot;, &quot;Grapefruit&quot;} * {&quot;
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{true, false}">
-<input type="hidden" name="B" value="{false, true, true, true, false}">
-The type of <tt>{true, false} * {false, true, true, true, false}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-0.102548989055262400, 12.23369523045939200, -4.50653353347656400, -9.142526966090542800, -0.079510777518390000}">
+<input type="hidden" name="B" value="{-5.913508082927738800, -9.595131368039306800, 12.84748102001825200, 1.41034055874579600, 18.47504502706610400}">
+The type of <tt>{-0.102548989055262400, 12.23369523045939200, -4.50653353347656400, -9.142526966090542800, -0.079510777518390000} * {-5.913508082927738800, -9.595131368039306800, 12.84748102001825200, 1.41034055874579600, 18.47504502706610400}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -153,9 +154,9 @@ The type of <tt>{true, false} * {false, true, true, true, false}</tt> is <textar
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Product">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Parsley&quot;}">
-<input type="hidden" name="B" value="{&quot;Gooseberry&quot;, &quot;C&quot;, &quot;Bert&quot;}">
-<pre class="prequestion">{&quot;Parsley&quot;} * {&quot;Gooseberry&quot;, &quot;C&quot;, &quot;Bert&quot;} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{0}">
+<input type="hidden" name="B" value="{18, 12, -7, 14, -14}">
+<pre class="prequestion">{0} * {18, 12, -7, 14, -14} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
