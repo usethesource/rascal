@@ -321,6 +321,7 @@ function showSearchResults(concept, results, term) {
         }
         html_code += '\n</ul>';
     }
+	html_code = html_code + '<br /><a href="http://www.google.com/search?q=' + term +'+site%3Atutor.rascal-mpl.org"><img src="/Courses/images/google_icon.png" /> Use google to search for this term.</a><br />';
     $('title').html('Search results for "' + term + '"');
     $('div#conceptPane').html(backarrow + html_code + backarrow);
 	$('#disqus_thread').remove();
