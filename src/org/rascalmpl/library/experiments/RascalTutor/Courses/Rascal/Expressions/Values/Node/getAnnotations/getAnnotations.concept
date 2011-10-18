@@ -18,8 +18,9 @@ Examples:
 
 <screen>
 import Node;
-// Declare a string-valued annotation on nodes, named color:
+// Declare two string-valued annotation on nodes, named color, respectively, size:
 anno str node @ color;
+anno str node @ size;
 // Create a node with two annotations:
 N = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
 // and retrieve those annotations:

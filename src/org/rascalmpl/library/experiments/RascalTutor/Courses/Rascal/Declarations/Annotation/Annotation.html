@@ -10,7 +10,6 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -68,8 +67,8 @@
 <br/>
 
  The following constructs are provided for handling annotations:
-  <ul><li> <code><i>Val</i> @ <i>Anno</i></code>: is an expression that retrieves the value of annotation <code><i>Anno</i></code> of value <code><i>Val</i></code> (may be undefined!).</li>
-<li> <code><i>Val</i><sub>1</sub>[@<i>Anno</i> = <i>Val</i><sub>2</sub>]</code>: is an expression that sets the value of annotation <code><i>Anno</i></code> of the value <code><i>Val</i><sub>1</sub></code> to <code><i>Val</i><sub>2</sub></code>    and returns <code><i>Val</i><sub>1</sub></code> with the new annotation value as result.
+  <ul><li> <code><i>Val</i> @ <i>Anno</i></code>: is an expression that retrieves the value of annotation <code><i>Anno</i></code> of value <code><i>Val</i></code> (may be undefined!). See <a href="/Courses/Rascal/Expressions/Selection/Selection.html">Selection</a>.</li>
+<li> <code><i>Val</i><sub>1</sub>[@<i>Anno</i> = <i>Val</i><sub>2</sub>]</code>: is an expression that sets the value of annotation <code><i>Anno</i></code> of the value <code><i>Val</i><sub>1</sub></code> to <code><i>Val</i><sub>2</sub></code>    and returns <code><i>Val</i><sub>1</sub></code> with the new annotation value as result. See <a href="/Courses/Rascal/Expressions/Replacement/Replacement.html">Replacement</a>.
 </li>
 <li> <code><i>Var</i> @ <i>Anno</i> = <i>Val</i></code>: is an assignment statement that sets the value of annotation <code><i>Anno</i></code> of the value of variable <code><i>Var</i></code> to <code><i>Val</i></code>.</li>
 </ul>
@@ -89,6 +88,12 @@ ok
 ok
 <b>rascal></b>anno LayoutStrategy Graph @ strategy;
 ok
+<b>rascal></b>G = vertex(&quot;root&quot;, 0, 0);
+Graph: vertex(&quot;root&quot;,0,0)
+<b>rascal></b>G @ strategy = fisheye();
+Graph: vertex(&quot;root&quot;,0,0)[
+  @strategy=fisheye()
+]
 </pre>
 </div>
 

@@ -1,6 +1,6 @@
 Name: Selection
 
-Synopsis: Retrieve the value of an annotation.
+Synopsis: Retrieve the value of an [Annotation].
 
 Syntax:
 `$Expr$ @ $Name$`
@@ -16,8 +16,17 @@ Details:
 
 Description:
 Retrieves the value of annotation $Name$ of the value of $Exp$ (may be undefined!).
+Also see [Replacement] for replacing the value of an annotation.
 
 Examples:
+<screen>
+anno str node @ color;
+anno str node @ size;
+F = "fn"(123, "abc");
+F = F[@color="red"];
+F = F[@size="10"];
+F@color;
+</screen>
 
 Benefits:
 

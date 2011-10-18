@@ -10,7 +10,6 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -40,7 +39,7 @@
 </div>
          
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Retrieve the value of an annotation.
+<span class="sectionHead">Synopsis</span>  Retrieve the value of an <a href="/Courses/Rascal/Declarations/Annotation/Annotation.html">Annotation</a>.
 
 </div>
 
@@ -55,7 +54,29 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Retrieves the value of annotation <code><i>Name</i></code> of the value of <code><i>Exp</i></code> (may be undefined!).
+ Also see <a href="/Courses/Rascal/Expressions/Replacement/Replacement.html">Replacement</a> for replacing the value of an annotation.
 
+</div>
+
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>anno str node @ color;
+ok
+<b>rascal></b>anno str node @ size;
+ok
+<b>rascal></b>F = &quot;fn&quot;(123, &quot;abc&quot;);
+node: fn(123,&quot;abc&quot;)
+<b>rascal></b>F = F[@color=&quot;red&quot;];
+node: fn(123,&quot;abc&quot;)[
+  @color=&quot;red&quot;
+]
+<b>rascal></b>F = F[@size=&quot;10&quot;];
+node: fn(123,&quot;abc&quot;)[
+  @color=&quot;red&quot;,
+  @size=&quot;10&quot;
+]
+<b>rascal></b>F@color;
+str: &quot;red&quot;
+</pre>
 </div>
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Selection&new=false"><b>Edit</b></a>] | 

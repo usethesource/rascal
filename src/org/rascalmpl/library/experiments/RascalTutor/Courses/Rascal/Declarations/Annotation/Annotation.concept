@@ -28,10 +28,10 @@ Any value of any named type can be annotated and the type of these annotations c
 
 The following constructs are provided for handling annotations:
 
-* `$Val$ @ $Anno$`: is an expression that retrieves the value of annotation $Anno$ of value $Val$ (may be undefined!).
+* `$Val$ @ $Anno$`: is an expression that retrieves the value of annotation $Anno$ of value $Val$ (may be undefined!). See [Selection].
 
 * `$Val_1$[@$Anno$ = $Val_2$]`: is an expression that sets the value of annotation $Anno$ of the value $Val_1$ to $Val_2$
-   and returns $Val_1$ with the new annotation value as result.
+   and returns $Val_1$ with the new annotation value as result. See [Replacement].
 
 * `$Var$ @ $Anno$ = $Val$`: is an assignment statement that sets the value of annotation $Anno$ of the value of variable $Var$ to $Val$.
 
@@ -55,6 +55,8 @@ graph layout algorithm to apply to a particular graph, e.g.,
 data Graph = vertex(str name, int x, int y) | edge(str from, str to);
 data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
 anno LayoutStrategy Graph @ strategy;
+G = vertex("root", 0, 0);
+G @ strategy = fisheye();
 </screen>
 
 Benefits:

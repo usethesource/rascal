@@ -103,7 +103,6 @@ M["x"] ? 1 += 5;
 // 6. Annotation assignable:
 anno str FREQ@color;
 W @ color = "red";
-
 // 7. Constructor assignable:
 wf(S, I) = W;
 S;
