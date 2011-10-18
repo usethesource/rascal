@@ -48,11 +48,13 @@ The elements of a location value can be accessed and modified using the standard
 * `uri`: the URI of the location. Also subfields of the URI can be accessed:
 
   **`scheme`: the scheme (or protocol) to be used. Supported protocols are:
-     *** `http`: access remote file via the web.
-     *** `file`: access local file on the file system.
+     *** `http`: access a remote file via the web.
+     *** `file`: access a local file on the file system.
      *** `cwd`: access the current working directory (the directory from which Rascal was started).
      *** `home`: access the home directory of the user.
      *** `std`: access the Rascal standard library.
+     *** `project`: access a project in the current instance of Eclipse.
+     *** `tmp`: access the temporay file directory.
 
   **`authority`: the domain where the data are located.
 
@@ -82,6 +84,20 @@ Examples:
 Locations with specific position information should always be generated automatically but for the curious here is an example:
 <listing>
 |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)
+</listing>
+Note that this is equivalent to using the `home` scheme:
+<listing>
+|home://pico.trm|(0,1,<2,3>,<4,5>)
+</listing>
+
+Accessing a project with the name `org.eclipse.imp.pdb.values` in the currently running Eclipse is done as follows:
+<listing>
+|project://org.eclipse.imp.pdb.values|
+</listing>
+
+Reading the `demo/Hello.rsc` from the Rascal library can be done using:
+<listing>
+|std://demo/basic/Hello.rsc|
 </listing>
 
 Benefits:

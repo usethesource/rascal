@@ -10,7 +10,6 @@
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -61,7 +60,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Expressions/Values/Location/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/Equal/Equal.html">Equal</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/FieldSelection/FieldSelection.html">FieldSelection</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Expressions/Values/Location/Equal/Equal.html">Equal</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/FieldSelection/FieldSelection.html">FieldSelection</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Location/NotEqual/NotEqual.html">NotEqual</a> &#032 
 </div>
 
 <div id="Description">
@@ -79,11 +78,13 @@
          / &nbsp;/                        \
          urn:example:animal:ferret:nose
 </pre> The elements of a location value can be accessed and modified using the standard mechanism of field selection and field assignment. The corresponding field names are:
-  <ul><li> <code>uri</code>: the URI of the location. Also subfields of the URI can be accessed: <ul><li><code>scheme</code>: the scheme (or protocol) to be used. Supported protocols are: <ul><li> <code>http</code>: access remote file via the web.</li>
-<li> <code>file</code>: access local file on the file system.</li>
+  <ul><li> <code>uri</code>: the URI of the location. Also subfields of the URI can be accessed: <ul><li><code>scheme</code>: the scheme (or protocol) to be used. Supported protocols are: <ul><li> <code>http</code>: access a remote file via the web.</li>
+<li> <code>file</code>: access a local file on the file system.</li>
 <li> <code>cwd</code>: access the current working directory (the directory from which Rascal was started).</li>
 <li> <code>home</code>: access the home directory of the user.</li>
 <li> <code>std</code>: access the Rascal standard library.</li>
+<li> <code>project</code>: access a project in the current instance of Eclipse.</li>
+<li> <code>tmp</code>: access the temporay file directory.</li>
 </ul></li>
 <li><code>authority</code>: the domain where the data are located.</li>
 <li><code>host</code>: the host where the URI is hosted (part of authority).</li>
@@ -104,6 +105,12 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Locations with specific position information should always be generated automatically but for the curious here is an example:
  <pre class="listing">|file:///home/paulk/pico.trm|(0,1,&lt;2,3>,&lt;4,5>)
+</pre> Note that this is equivalent to using the <code>home</code> scheme:
+ <pre class="listing">|home://pico.trm|(0,1,&lt;2,3>,&lt;4,5>)
+</pre> Accessing a project with the name <code>org.eclipse.imp.pdb.values</code> in the currently running Eclipse is done as follows:
+ <pre class="listing">|project://org.eclipse.imp.pdb.values|
+</pre> Reading the <code>demo/Hello.rsc</code> from the Rascal library can be done using:
+ <pre class="listing">|std://demo/basic/Hello.rsc|
 </pre>
 </div>
 
