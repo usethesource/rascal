@@ -20,9 +20,10 @@ Here is our version:
 <listing demo/basic/Bottles.rsc>
 
 We use an auxiliary function `bottles` (/*1*/) that returns the word "bottle" adjusted for the actual number of bottles that is available.
+Observe how we use the patterns `0`, `1` and `int n` in the definition of three variants of this function.
+_Pattern-directed invocation_ (see [Rascal:Function]) will determine at the call site which function will be called.
 The main function is `sing` (/*2*/) that iterates over the numbers 99 downto 1 (as described by the range `[99 .. 1]`)
 and prints appriopriate lyrics. Observe how the value  of the `bottles` function is interpolated several times in the string.
-
 
 Here is the result:
 

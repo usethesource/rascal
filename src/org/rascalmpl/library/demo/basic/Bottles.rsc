@@ -2,13 +2,9 @@ module demo::basic::Bottles
 
 import IO;
 
-str bottles(int n) { /*1*/
-  switch(n){
-    case 0: return "no more bottles";
-    case 1: return "1 bottle";
-    default: return "<n> bottles";
-  }
-}
+str bottles(0)     = "no more bottles"; /*1*/
+str bottles(1)     = "1 bottle";
+str bottles(int n) = "<n> bottles";
 
 public void sing(){ /*2*/
   for(n <- [99 .. 1]){

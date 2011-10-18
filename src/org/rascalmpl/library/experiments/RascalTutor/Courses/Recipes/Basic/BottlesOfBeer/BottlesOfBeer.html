@@ -56,13 +56,9 @@
 
 import IO;
 
-str bottles(int n) { <img src="/Courses/images/1.png">
-  switch(n){
-    case 0: return "no more bottles";
-    case 1: return "1 bottle";
-    default: return "&lt;n> bottles";
-  }
-}
+str bottles(0)     = "no more bottles"; <img src="/Courses/images/1.png">
+str bottles(1)     = "1 bottle";
+str bottles(int n) = "&lt;n> bottles";
 
 public void sing(){ <img src="/Courses/images/2.png">
   for(n &lt;- [99 .. 1]){
@@ -73,11 +69,10 @@ public void sing(){ <img src="/Courses/images/2.png">
   println("Go to the store and buy some more, 99 bottles of beer on the wall.");
 }
 </pre> We use an auxiliary function <code>bottles</code> (<img src="/Courses/images/1.png">) that returns the word "bottle" adjusted for the actual number of bottles that is available.
+ Observe how we use the patterns <code>0</code>, <code>1</code> and <code>int n</code> in the definition of three variants of this function.
+ <i>Pattern-directed invocation</i> (see <a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a>) will determine at the call site which function will be called.
  The main function is <code>sing</code> (<img src="/Courses/images/2.png">) that iterates over the numbers 99 downto 1 (as described by the range <code>[99 .. 1]</code>)
  and prints appriopriate lyrics. Observe how the value  of the <code>bottles</code> function is interpolated several times in the string.
- <br/>
-<br/>
-
  <br/>
 <br/>
 
