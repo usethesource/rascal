@@ -19,13 +19,19 @@ $(document).ready(function () {
 				initNavigation();
 			}
 		});
+		addGoogleTracker();
 	}
-	else {
+	else if ($('#conceptPane').lenght > 0) {
 		// edit page
     	var concept = $("input[name=concept]").val();
 		attachDisqus(translateConceptToURL(concept));
 		$('#editErrors').hide();
 		$('#editForm').submit(handleSave);
+	}
+	else {
+		// on the main page
+		addGoogleTracker();
+		return;
 	}
 	currentSubCourse = window.location.pathname.match(/\/Courses\/[^\/]+\//);
 	if (currentSubCourse.length > 0) {
@@ -47,6 +53,27 @@ $(document).ready(function () {
 	}
 	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
+
+var _gaq = _gaq || [];
+
+function addGoogleTracker() {
+	_gaq.push(['_setAccount', 'UA-560596-6']);
+	if (window.hostname !== 'tutor.rascal-mpl.org') {
+		_gaq.push(['_setDomainName', 'tutor-eclipse.rascal-mpl.org']);
+	}
+	else {
+		_gaq.push(['_setDomainName', 'tutor.rascal-mpl.org']);
+	}
+	_gaq.push(['_setAllowLinker', true]);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+}
+
 
 function addLightboxToImages() {
 	$('#tdconcept img').each(function () {
@@ -102,7 +129,9 @@ function initNavigation() {
 		if (state == '' || state[0] != '/') {
 			state = window.location.pathname;
 		}
+
     	$("#conceptPane").load(state + " div#conceptPane", function() {
+			_gaq.push(['_trackPageview', state]);
 			finishLoad();
 			newTitle = state.match(/\/Courses\/(.+)\/[^\/]+\.html/);// second group
 			if (newTitle.length == 2) {
