@@ -8,7 +8,7 @@ Types:
 
 Function:
 # `&T<:Tree parse(type[&T<:Tree] start, str input)`
-# `public &T<:Tree parse(type[&T<:Tree] start, loc input)`
+# `&T<:Tree parse(type[&T<:Tree] start, loc input)`
 
 Details:
 
