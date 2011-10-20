@@ -57,7 +57,7 @@ $(document).ready(function () {
 var _gaq = _gaq || [];
 
 function addGoogleTracker() {
-	if (window.hostname !== 'tutor.rascal-mpl.org') {
+	if (window.location.hostname !== 'tutor.rascal-mpl.org') {
 		_gaq.push(['_setAccount', 'UA-560596-8']); // inside eclipse
 	}
 	else {
