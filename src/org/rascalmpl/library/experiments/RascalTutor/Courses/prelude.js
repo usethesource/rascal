@@ -57,12 +57,11 @@ $(document).ready(function () {
 var _gaq = _gaq || [];
 
 function addGoogleTracker() {
-	_gaq.push(['_setAccount', 'UA-560596-6']);
 	if (window.hostname !== 'tutor.rascal-mpl.org') {
-		_gaq.push(['_setDomainName', 'tutor-eclipse.rascal-mpl.org']);
+		_gaq.push(['_setAccount', 'UA-560596-8']); // inside eclipse
 	}
 	else {
-		_gaq.push(['_setDomainName', 'tutor.rascal-mpl.org']);
+		_gaq.push(['_setAccount', 'UA-560596-7']); // from website
 	}
 	_gaq.push(['_setAllowLinker', true]);
 	_gaq.push(['_trackPageview']);
