@@ -50,6 +50,11 @@ public class TutorDefaultHttpServlet extends DefaultServlet{
 		String rname = request.getRequestURI();
 		if(rname.equals("/"))
 			rname = "/Courses/index.html";
+		
+		// Send correct MIME Type to browser
+		String mime = getServletContext().getMimeType(rname);
+		response.setContentType(mime);
+		
 		String fname = "std:///experiments/RascalTutor" + rname;
 		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fname));
 		ServletOutputStream out = response.getOutputStream();
