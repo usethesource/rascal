@@ -63,6 +63,7 @@ function addGoogleTracker() {
 	else {
 		_gaq.push(['_setAccount', 'UA-560596-7']); // from website
 	}
+	_gaq.push(['_setDomainName', 'none']);
 	_gaq.push(['_setAllowLinker', true]);
 	_gaq.push(['_trackPageview']);
 
