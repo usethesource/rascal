@@ -8,7 +8,7 @@ else
 }
 
 $(document).ready(function () {
-	// alert("ready called");
+	//alert("ready called");
 	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
 	// first retrieve navpane
 	if ($('#tdnav').length > 0) {
@@ -21,7 +21,7 @@ $(document).ready(function () {
 		});
 		addGoogleTracker();
 	}
-	else if ($('#conceptPane').lenght > 0) {
+	else if ($('#conceptPane').length > 0) {
 		// edit page
     	var concept = $("input[name=concept]").val();
 		attachDisqus(translateConceptToURL(concept));
