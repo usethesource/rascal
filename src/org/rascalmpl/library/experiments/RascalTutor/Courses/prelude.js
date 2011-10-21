@@ -77,7 +77,7 @@ function addGoogleTracker() {
 
 function addLightboxToImages() {
 	$('#tdconcept img').each(function () {
-		if (this.id == 'leftIcon') return;
+		if (($(this).parent('a').length > 0)) return;
 		var img = this; 
 		$("<img/>") // Make in memory copy of image to avoid css issues
 			.attr("src", $(img).attr("src"))
