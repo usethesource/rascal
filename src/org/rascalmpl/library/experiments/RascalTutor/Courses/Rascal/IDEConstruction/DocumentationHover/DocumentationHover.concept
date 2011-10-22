@@ -1,6 +1,6 @@
 Name: DocumentationHover
 
-Synopsis: IDE shows documentation strings by hovering over elements of the source text in the IDE
+Synopsis: IDE shows documentation strings by hovering over elements of the source text in the IDE.
 
 Syntax: `t@doc = $str$`
 

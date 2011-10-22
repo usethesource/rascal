@@ -1,7 +1,7 @@
 Name: If
 
 Synopsis:
-Conditional statement
+Conditional statement.
 
 Syntax:
 * `if ( $Exp$ ) $Statement$;`

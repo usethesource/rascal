@@ -1,6 +1,6 @@
 Name: IDEConstruction
 
-Synopsis:
+Synopsis: Extend an IDE with interactive, language-specific, features.
 
 Syntax:
 
@@ -28,15 +28,9 @@ registerAnnotator("abc", Tree (Tree t) { return t[@doc="Hello!"]; });
 </screen>
 
 Now you can step-by-step extend the IDE for your language with additional features:
-  * [Folding]
-  * [DocumentationHover]
-  * [Hyperlinking]
-  * [ErrorMarking]
-  * [IDEConstruction/Outline]
-  * [Menus]
+<toc Rascal/IDEConstruction 1>
 
-
-To be able to reuse your IDE between runs of Eclipse, please read about [Plugin]s.
+To be able to reuse your IDE between runs of Eclipse, read about [Plugin]s.
 
 Examples:
 

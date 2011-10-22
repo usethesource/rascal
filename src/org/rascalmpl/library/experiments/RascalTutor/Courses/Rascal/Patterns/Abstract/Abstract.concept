@@ -1,6 +1,6 @@
 Name: Abstract
 
-Synopsis: The abstract patterns.
+Synopsis: Abstract patterns.
 
 Syntax:<br>
 `$Type$ $Var$`<br>

@@ -11,6 +11,10 @@ Function:
 Details:
 
 Description:
+
+The following patterns are available:
+<toc Rascal/Patterns 1>
+
 Patterns may be used in:
 
 * cases of a [Switch] or [Visit], 

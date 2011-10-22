@@ -1,6 +1,6 @@
 Name: Contents
 
-Synopsis:
+Synopsis: Table of Contents.
 
 Syntax:
 
@@ -11,6 +11,11 @@ Function:
 Details:
 
 Description:
+
+A top-level table of contents:
+<toc Rascal 1>
+
+A full table of contents:
 <toc Rascal>
 
 Examples:
