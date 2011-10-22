@@ -16,17 +16,18 @@ import String;
 import ToString;
 import IO;
 import List;
+import Map;
 import Scripting;
 
 // Collect related concepts that occur in links.
 
 private set[ConceptName] relatedConcepts = {};
 
-private bool generating = false;
-
-public void setGenerating(bool b){
-  generating = b;
-}
+//private bool generating = false;
+//
+//public void setGenerating(bool b){
+//  generating = b;
+//}
 
 private void addRelated(ConceptName cn){
   relatedConcepts += cn;
@@ -403,8 +404,8 @@ private str lookForErrors(list[str] lines){
 }
 
 private str markupFigure(list[str] lines, int width, int height, str file){
-  if(!generating)
-     return "";
+//  if(!generating)
+//     return "";
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
@@ -443,8 +444,8 @@ private str markupRascalPrompt(list[str] lines){
 // Do screen markup
 
 private str markupScreen(list[str] lines, bool generatesError){
-   if(!generating)
-      return "";
+//   if(!generating)
+//      return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
    result_lines = shell(stripped_code, 25000);
    if(!generatesError)
@@ -547,31 +548,36 @@ private set[str]  searchTerms(list[str] lines){
 // Refer to a concept in another course.
 
 public str referToConcept(ConceptName course, ConceptName toConcept, bool short){
-   if(toConcept == course){
-      if(exists(catenate(courseDir, course)))
-         return"\<a href=\"/Courses/<course>/<course>.html\"\><course>\</a\>";
-      return "??unknown course <course>??";
-   } 
-   courseFiles = crawl(catenate(courseDir, course), conceptExtension);
-   lcToConcept = toLowerCase(toConcept);
-   if(lcToConcept[0] != "/")
-      lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
-   options = for(file <- courseFiles){
-                 cn = getFullConceptName(file);
-                 if(endsWith(toLowerCase(cn), lcToConcept))
-                    append cn;
-             }
-   if(size(options) == 1){
-      txt = ((rootname(options[0]) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
-      return  "\<a href=\"/Courses/<options[0]>/<basename(toConcept)>.html\"\><txt>\</a\>";  
-   }     
-   if(size(options) == 0){
-     addWarning("Reference to unknown concept: <course>:<toConcept>");
-     return "??unknown: <course>:<toConcept>??";
+   if(!exists(catenate(courseDir, course))){
+       addWarning("Reference to unknown course: <course>:<toConcept>");
+       return "??unknown course in <course>:<toConcept>??";
    }
-   if(size(options) > 1){
-     addWarning("Ambiguous reference to concept in other course: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<opt> <}>}");
-     return "??ambiguous: <course>:<toConcept>??";
+   
+   if(course == toConcept)
+      return  "\<a href=\"/Courses/<course>/<course>.html\"\><course>\</a\>";  
+   else {
+      courseFiles = getCourseFiles(course);
+      lcToConcept = toLowerCase(toConcept);
+      if(lcToConcept[0] != "/")
+         lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
+      options = for(file <- courseFiles){
+                    cn = getFullConceptName(file);
+                    if(endsWith(toLowerCase(cn), lcToConcept))
+                       append file;
+                }
+      if(size(options) == 1){
+         cn = getFullConceptName(options[0]);
+         txt = ((rootname(cn) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
+         return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><txt>\</a\>";  
+      }     
+      if(size(options) == 0){
+         addWarning("Reference to unknown concept: <course>:<toConcept>");
+         return "??unknown: <course>:<toConcept>??";
+      }
+      if(size(options) > 1){
+         addWarning("Ambiguous reference to concept: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<getFullConceptName(opt)> <}>}");
+         return "??ambiguous: <course>:<toConcept>??";
+      }
    }
 }
 

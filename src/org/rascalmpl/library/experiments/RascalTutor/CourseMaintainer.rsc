@@ -18,9 +18,7 @@ import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
 
 
-public list[loc] getCourseFiles(ConceptName rootConcept){
-  return crawl(catenate(courseDir, rootConcept), conceptExtension);
-}
+
 
 /*
  * Compute statistics on section occurrence in a course
