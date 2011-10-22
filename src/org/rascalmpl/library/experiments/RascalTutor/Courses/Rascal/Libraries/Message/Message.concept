@@ -22,6 +22,10 @@ Messages can be used to communicate information about source texts.
 They can be interpreted by IDEs to display type errors and warnings, etc.
 `Message`s are, for instance, used as [AlgebraicDataType] annotations.
 
+Provides the following functions:
+<toc Rascal/Libraries/Message 1>
+
+
 Examples:
 
 Benefits:

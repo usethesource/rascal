@@ -17,6 +17,9 @@ Description:
 Priority queues maintain (priority, value) pairs in sorted order. They are implemented using a
 [Binomial Heap](http://en.wikipedia.org/wiki/Binomial_heap). Priority queue are, for instance, used to implement shortest path algorithms.
 
+Provides the following functions:
+<toc Rascal/Libraries/PriorityQueue 1>
+
 Examples:
 
 Benefits:

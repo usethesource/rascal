@@ -22,6 +22,9 @@ $RelName$ $Elem_1$ $Elem_2$
 </listing>
 where $RelName$ is the name of a relation and $Elem_1$ and $Elem_2$ are element values.
 
+Provides the following function:
+<toc Rascal/Libraries/RSF 1>
+
 Examples:
 <listing>
 call    main          printf  

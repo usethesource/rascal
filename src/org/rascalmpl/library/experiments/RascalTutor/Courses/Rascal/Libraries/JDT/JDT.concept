@@ -97,7 +97,8 @@ The access to facts about Java files proceeds in two steps:
   `EntityRel` is simply a short hand for any kind of relation between entities.
 
 
-This information can be extracted by various functions defined in this module.
+This information can be extracted by various functions defined in this module:
+<toc Rascal/Libraries/JDT 1>
 
 Examples:
 Here is an example function that extracts the sub-type relation from a given project:
