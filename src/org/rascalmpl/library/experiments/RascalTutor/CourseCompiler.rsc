@@ -24,89 +24,6 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 import Scripting;
 
-public str mkConceptTemplate(ConceptName cn){
-return "Name: <cn>
-       '
-       'Synopsis:
-       '
-       'Syntax:
-       '
-       'Types:
-       '
-       'Function:
-       '
-       'Details:
-       '
-       'Description:
-       '
-       'Examples:
-       '
-       'Benefits:
-       '
-       'Pitfalls:
-       '
-       'Questions:
-       '
-       ";
-}
-
-// Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
-// Questions is the last section and is treated special: it contains questions that are analyzed later
-
-public list[str] sectionKeywords = ["Name",  "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
-                                   "Examples", "Benefits", "Pitfalls", "Questions"];
-
-private str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
-
-public map[str,list[str]] getSections(list[str] script){
-  sections = ();
-  StartLine = 0;
-  currentSection = "";
-  for(int i <- index(script)){
-    if(/^<section:[A-Z][A-Za-z]*>:\s*<text:.*>/ := script[i] && section in sectionKeywords){
-      if(currentSection != ""){
-      	sections[currentSection] = trimLines(script, StartLine, i);
-      	//println("<currentSection> = <sections[currentSection]>");
-      }
-      if(/^\s*$/ := text)
-         StartLine = i + 1;       // no info following section header
-      else {
-        script[i] = text;    // remove the section header
-        StartLine = i;
-      } 
-      currentSection = section;
-    }
-  }
-  if(currentSection != ""){
-     sections[currentSection] = trimLines(script, StartLine, size(script));
-  }
-  return sections;
-}
-
-public list[str] trimLines(list[str] lines, int StartLine, int end){
-  //println("trimlines(<size(lines)>,StartLine=<StartLine>,end=<end>");
-  while(StartLine < end && /^\s*$/ := lines[StartLine])
-    StartLine += 1;
-  while(end > StartLine && /^\s*$/ := lines[end - 1])
-    end -= 1;
-  //println("slice(<StartLine>,<end-StartLine>)");
-  if(StartLine != end)
-  	return slice(lines, StartLine, end - StartLine);
-  return [];
-}
-
-public list[str] splitLines(str text){
- text = visit(text) { case /\r/ => "" };
- if(!endsWith(text, "\n"))
- 	text += "\n";
-   return for(/<line:.*>\n/ := text)
- 	          append line;
-}
-
-public str combine(list[str] lines){
-  return "<for(str s <- lines){><s>\n<}>";
-}
-
 // ------------------------ compile a concept ---------------------------------------
 
 // Compile the concept at location file.
@@ -329,20 +246,6 @@ public str editMenu(ConceptName cn){
                [\<a id=\"warnAction\" href=\"<warnings>\"\>\<b\>Warnings\</b\>\</a\>]"
           +
             "\</div\>\n";
-}
-
-public list[ConceptName] children(Concept c){
-  dir = catenate(courseDir, c.fullName);
-  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
-  res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
-  //println("children(<c.fullName>) =\> <res>");
-  return res;
-}
-
-// Extract list of names from a section (e.g. Details section)
-
-public list[str] getNames(list[str] lines){
-   return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
 }
 
 // Extract specific question type from Questions section

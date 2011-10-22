@@ -182,6 +182,132 @@ public loc conceptFile(str cn){
   return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
 }
 
+
+public str mkConceptTemplate(ConceptName cn){
+return "Name: <cn>
+       '
+       'Synopsis:
+       '
+       'Syntax:
+       '
+       'Types:
+       '
+       'Function:
+       '
+       'Details:
+       '
+       'Description:
+       '
+       'Examples:
+       '
+       'Benefits:
+       '
+       'Pitfalls:
+       '
+       'Questions:
+       '
+       ";
+}
+
+// Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
+// Questions is the last section and is treated special: it contains questions that are analyzed later
+
+public list[str] sectionKeywords = ["Name",  "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
+                                   "Examples", "Benefits", "Pitfalls", "Questions"];
+
+public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
+
+public map[str,list[str]] getSections(list[str] script){
+  sections = ();
+  StartLine = 0;
+  currentSection = "";
+  for(int i <- index(script)){
+    if(/^<section:[A-Z][A-Za-z]*>:\s*<text:.*>/ := script[i] && section in sectionKeywords){
+      if(currentSection != ""){
+      	sections[currentSection] = trimLines(script, StartLine, i);
+      	//println("<currentSection> = <sections[currentSection]>");
+      }
+      if(/^\s*$/ := text)
+         StartLine = i + 1;       // no info following section header
+      else {
+        script[i] = text;    // remove the section header
+        StartLine = i;
+      } 
+      currentSection = section;
+    }
+  }
+  if(currentSection != ""){
+     sections[currentSection] = trimLines(script, StartLine, size(script));
+  }
+  return sections;
+}
+
+public list[str] trimLines(list[str] lines, int StartLine, int end){
+  //println("trimlines(<size(lines)>,StartLine=<StartLine>,end=<end>");
+  while(StartLine < end && /^\s*$/ := lines[StartLine])
+    StartLine += 1;
+  while(end > StartLine && /^\s*$/ := lines[end - 1])
+    end -= 1;
+  //println("slice(<StartLine>,<end-StartLine>)");
+  if(StartLine != end)
+  	return slice(lines, StartLine, end - StartLine);
+  return [];
+}
+
+public list[str] splitLines(str text){
+ text = visit(text) { case /\r/ => "" };
+ if(!endsWith(text, "\n"))
+ 	text += "\n";
+   return for(/<line:.*>\n/ := text)
+ 	          append line;
+}
+
+public str combine(list[str] lines){
+  return "<for(str s <- lines){><s>\n<}>";
+}
+
+
+public list[ConceptName] children(Concept c){
+  dir = catenate(courseDir, c.fullName);
+  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
+  res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
+  //println("children(<c.fullName>) =\> <res>");
+  return res;
+}
+
+public list[ConceptName] children(loc file){
+  fullName = getFullConceptName(file);
+  cdetails = getDetails(file);
+  println("<file>, getDetails: <cdetails>");
+  dir = catenate(courseDir, fullName);
+  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
+  res =  [ fullName + "/" + entry | entry <- cdetails + (entries - cdetails)];
+  //println("children(<fullName>) =\> <res>");
+  return res;
+}
+
+public str getSynopsis(loc file){
+   try {
+     script = readFileLines(file);
+     sections = getSections(script);
+     return intercalate(" ", sections["Synopsis"] ? "");
+   } catch: return "";
+}
+
+// Extract list of names from a section (e.g. Details section)
+
+public list[str] getNames(list[str] lines){
+   return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
+}
+
+public list[str] getDetails(loc file){
+   try {
+     script = readFileLines(file);
+     sections = getSections(script);
+     return getNames(sections["Details"] ? []);
+   } catch: return [];
+}
+
 set[str] exclude = {".svn"};
 
 
