@@ -196,6 +196,12 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
       return < markupFigure(codeLines, width, height, file), skipOneNL(lines, i+1, n)  >;
     }
     
+    // table of contents
+    
+    case /^\<toc\s*<concept:[A-Za-z0-9\/]*>\s*<level:[0-9]*>/:{
+      return < markupToc(concept, level), skipOneNL(lines, i+1, n) >;
+    }
+    
     // warning
     case /^\<warning\><txt:.*>\<\/warning\><rest:.*>$/:{
       addWarning(txt);
@@ -500,7 +506,7 @@ public str limitWidth(str txt, int limit){
   return escapeForHtml(substring(txt, 0, limit)) + "&raquo;\n" + limitWidth(substring(txt, limit), limit);
 }
 
-// Extract serach terms from a code fragment
+// Extract search terms from a code fragment
 
 private set[str] searchTermsCode(str line){
   set[str] terms = {};
@@ -545,39 +551,69 @@ private set[str]  searchTerms(list[str] lines){
     return terms;
 }
 
-// Refer to a concept in another course.
+str markupToc(str conceptName, str slevel){
+    println("markupToc: <conceptName>, <slevel>");
+    
+    int level = (slevel != "") ? toInt(slevel) : 1000;
+    if(conceptName == "")
+       conceptName = conceptPath;
+    options = resolveConcept(rootname(conceptName), conceptName);
+    println("options = <options>");
+    if(size(options) != 1){
+      addWarning("Unkown or ambiguous concept in toc: <conceptName>");
+      return "??unknown or ambiguous in toc: <conceptName>??";
+    }
+    return markupToc1(options[0][extension= conceptExtension], level);
+}
+
+str markupToc1(loc cfile, int level){
+    println("markupToc1: <cfile>, <level>");
+    if(level <= 0)
+       return "";
+    res = "";
+    for(ch <- children(cfile)){
+        chfile = conceptFile(ch);
+        syn  = getSynopsis(chfile);
+        res += li("<referToConcept(rootname(ch), ch, true)>: <markupRestLine(syn)>") + markupToc1(chfile, level - 1);
+    }
+    return ul(res);
+}
+
+public list[loc] resolveConcept(ConceptName course, str toConcept){
+  println("resolveConcept: <course>, <toConcept>");
+  if(!exists(catenate(courseDir, course)))
+  	 return [];
+  if(course == toConcept)
+     return [catenate(courseDir, "<course>/<course>.html")];
+     
+   courseFiles = getCourseFiles(course);
+   lcToConcept = toLowerCase(toConcept);
+   if(lcToConcept[0] != "/" && rootname(toConcept) != course)
+      lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
+   return for(file <- courseFiles){
+              cn = getFullConceptName(file);
+              if(endsWith(toLowerCase(cn), lcToConcept))
+                 append file;
+          }
+}
+
+// Refer to a concept in a course.
 
 public str referToConcept(ConceptName course, ConceptName toConcept, bool short){
-   if(!exists(catenate(courseDir, course))){
-       addWarning("Reference to unknown course: <course>:<toConcept>");
-       return "??unknown course in <course>:<toConcept>??";
-   }
-   
-   if(course == toConcept)
-      return  "\<a href=\"/Courses/<course>/<course>.html\"\><course>\</a\>";  
-   else {
-      courseFiles = getCourseFiles(course);
-      lcToConcept = toLowerCase(toConcept);
-      if(lcToConcept[0] != "/")
-         lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
-      options = for(file <- courseFiles){
-                    cn = getFullConceptName(file);
-                    if(endsWith(toLowerCase(cn), lcToConcept))
-                       append file;
-                }
-      if(size(options) == 1){
-         cn = getFullConceptName(options[0]);
-         txt = ((rootname(cn) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
-         return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><txt>\</a\>";  
-      }     
-      if(size(options) == 0){
-         addWarning("Reference to unknown concept: <course>:<toConcept>");
-         return "??unknown: <course>:<toConcept>??";
-      }
-      if(size(options) > 1){
-         addWarning("Ambiguous reference to concept: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<getFullConceptName(opt)> <}>}");
-         return "??ambiguous: <course>:<toConcept>??";
-      }
-   }
+  options = resolveConcept(course, toConcept);
+  
+  if(size(options) == 1){
+     cn = getFullConceptName(options[0]);
+     txt = ((rootname(cn) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
+     return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><txt>\</a\>";  
+  }     
+  if(size(options) == 0){
+     addWarning("Reference to unknown course or concept: <course>:<toConcept>");
+     return "??unknown: <course>:<toConcept>??";
+  }
+  if(size(options) > 1){
+     addWarning("Ambiguous reference to concept: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<getFullConceptName(opt)> <}>}");
+     return "??ambiguous: <course>:<toConcept>??";
+  }
 }
 
