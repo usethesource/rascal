@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Concepts</title>
+
+<meta name="description" content="Rascal/Concepts:  Introduction to the main concepts of the Rascal language.">
+
+<meta name="keywords" content="Rascal/Concepts, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Concepts/Concepts.html">Concepts</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,14 +34,25 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Concepts/Concepts.html">Concepts</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Introduction to the main concepts of the Rascal language.
 
 </div>
 
+	                       
+                           
+                           
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a> &#032 <a href="/Courses/Rascal/Concepts/IntroCaseDistinction/IntroCaseDistinction.html">IntroCaseDistinction</a> &#032 <a href="/Courses/Rascal/Concepts/IntroControlStructures/IntroControlStructures.html">IntroControlStructures</a> &#032 <a href="/Courses/Rascal/Concepts/IntroEnumerators/IntroEnumerators.html">IntroEnumerators</a> &#032 <a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a> &#032 <a href="/Courses/Rascal/Concepts/IntroFunctions/IntroFunctions.html">IntroFunctions</a> &#032 <a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a> &#032 <a href="/Courses/Rascal/Concepts/IntroComprehensions/IntroComprehensions.html">IntroComprehensions</a> &#032 <a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a> &#032 <a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a> &#032 <a href="/Courses/Rascal/Concepts/IntroDatatypes/IntroDatatypes.html">IntroDatatypes</a> &#032 <a href="/Courses/Rascal/Concepts/IntroImmutableValues/IntroImmutableValues.html">IntroImmutableValues</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a> &#032 <a href="/Courses/Rascal/Concepts/IntroCaseDistinction/IntroCaseDistinction.html">IntroCaseDistinction</a> &#032 <a href="/Courses/Rascal/Concepts/IntroComprehensions/IntroComprehensions.html">IntroComprehensions</a> &#032 <a href="/Courses/Rascal/Concepts/IntroControlStructures/IntroControlStructures.html">IntroControlStructures</a> &#032 <a href="/Courses/Rascal/Concepts/IntroDatatypes/IntroDatatypes.html">IntroDatatypes</a> &#032 <a href="/Courses/Rascal/Concepts/IntroEnumerators/IntroEnumerators.html">IntroEnumerators</a> &#032 <a href="/Courses/Rascal/Concepts/IntroFunctions/IntroFunctions.html">IntroFunctions</a> &#032 <a href="/Courses/Rascal/Concepts/IntroImmutableValues/IntroImmutableValues.html">IntroImmutableValues</a> &#032 <a href="/Courses/Rascal/Concepts/IntroPatternMatching/IntroPatternMatching.html">IntroPatternMatching</a> &#032 <a href="/Courses/Rascal/Concepts/IntroRewriteRules/IntroRewriteRules.html">IntroRewriteRules</a> &#032 <a href="/Courses/Rascal/Concepts/IntroSyntaxDefinitionAndParsing/IntroSyntaxDefinitionAndParsing.html">IntroSyntaxDefinitionAndParsing</a> &#032 <a href="/Courses/Rascal/Concepts/IntroVisiting/IntroVisiting.html">IntroVisiting</a> &#032 
 </div>
 
 <div id="Description">
@@ -72,10 +79,13 @@
 </ul>
 </div>
 
+  	                       
+  	                       
+  	                       
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

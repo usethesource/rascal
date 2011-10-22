@@ -6,11 +6,3 @@ var conceptNames = new Array("SolutionStrategies","SolutionStrategies/Analysis",
 
 var searchTerms = {};
 
-
-searchTerms["SolutionStrategies/Synthesis"] = null;
-
-searchTerms["SolutionStrategies/Extraction"] = null;
-
-searchTerms["SolutionStrategies"] = null;
-
-searchTerms["SolutionStrategies/Analysis"] = null;

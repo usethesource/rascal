@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Declarations/SyntaxDefinition/ParseTrees</title>
+
+<meta name="description" content="Rascal/Declarations/SyntaxDefinition/ParseTrees:  The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from [SyntaxDefinition]s produce.">
+
+<meta name="keywords" content="Rascal/Declarations/SyntaxDefinition/ParseTrees, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,12 +34,23 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s produce.
 
 </div>
 
+	                       
+                           
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Below is the full definition of <code>Tree</code> and <code>Production</code> and <code>Symbol</code>. A parse tree is a nested tree structure of type <code>Tree</code>. 
  <ul><li> Most internal nodes are applications (<code>appl</code>) of a <code>Production</code> to a list of children <code>Tree</code> nodes. <code>Production</code> is the abstract representation of a <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> rule, which consists of a definition of an alternative for a <code>Symbol</code> by a list of <code>Symbols</code>.</li>
@@ -359,6 +366,7 @@ public default bool sameType(Symbol s, Symbol t) = false;
 </pre>
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="listing">// the following definition
 syntax A = "a";
@@ -375,10 +383,12 @@ test a() = parse(#A,"ab") == appl(prod(label("myA",lex("A")),[lit("a"),sort("bLa
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/ParseTrees&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/ParseTrees&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

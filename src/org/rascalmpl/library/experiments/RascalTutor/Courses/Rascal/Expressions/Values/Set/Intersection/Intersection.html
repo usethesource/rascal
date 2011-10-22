@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Expressions/Values/Set/Intersection</title>
+
+<meta name="description" content="Rascal/Expressions/Values/Set/Intersection:  Intersection of two sets.">
+
+<meta name="keywords" content="Rascal/Expressions/Values/Set/Intersection, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,32 +34,47 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Intersection of two sets.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> &amp; <i>Exp</i><sub>2</sub></code>
 
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>    </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>      </th><th align="left"> <code><i>Exp</i><sub>1</sub> &amp; <i>Exp</i><sub>2</sub></code>     </th></tr><tr><td align="left"> <code>set[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code>set[<i>T</i><sub>2</sub>]</code>   </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code> </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns the intersection of the two set values of <code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code>.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>{1, 2, 3, 4, 5} &amp; {4, 5, 6};
 set[int]: {5,4}
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -118,9 +129,9 @@ set[int]: {5,4}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{-7}">
-<input type="hidden" name="B" value="{1}">
-The type of <tt>{-7} &amp; {1}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;Thyme&quot;, &quot;J&quot;}">
+<input type="hidden" name="B" value="{&quot;Orange&quot;}">
+The type of <tt>{&quot;Thyme&quot;, &quot;J&quot;} &amp; {&quot;Orange&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -149,9 +160,9 @@ The type of <tt>{-7} &amp; {1}</tt> is <textarea rows="1" cols="30" name="answer
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{-18, -13}">
-<input type="hidden" name="B" value="{4, -7.41829636927704800, 8.14872865262728400}">
-The type of <tt>{-18, -13} &amp; {4, -7.41829636927704800, 8.14872865262728400}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-4, 8}">
+<input type="hidden" name="B" value="{-15, -2.906921044122414800}">
+The type of <tt>{-4, 8} &amp; {-15, -2.906921044122414800}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -180,9 +191,9 @@ The type of <tt>{-18, -13} &amp; {4, -7.41829636927704800, 8.14872865262728400}<
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Intersection">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{10.95114762408636400, 9.05666735513759200, 18.23225039129267200}">
-<input type="hidden" name="B" value="{-10.051574659971165200, -10.929848826833650400, 19.63397507746337200}">
-<pre class="prequestion">{10.95114762408636400, 9.05666735513759200, 18.23225039129267200} &amp; {-10.051574659971165200, -10.929848826833650400, 19.63397507746337200} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{17.38323126447085600, -14.418297501316881200, -11.62832866711135600, 12.19186615428726000}">
+<input type="hidden" name="B" value="{-19.7526621157627912800, 10.55311597373052800}">
+<pre class="prequestion">{17.38323126447085600, -14.418297501316881200, -11.62832866711135600, 12.19186615428726000} &amp; {-19.7526621157627912800, 10.55311597373052800} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -199,8 +210,7 @@ The type of <tt>{-18, -13} &amp; {4, -7.41829636927704800, 8.14872865262728400}<
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Set/Intersection&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Set/Intersection&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

@@ -20,13 +20,24 @@ The life cycle of a course consists of the following steps:
 
 Each concept page contains at the bottom a number of buttons to enable this authoring process:
 
-* __New subconcept__ creates a subconcept of the current concept.
+* __New subconcept__ creates a subconcept of the current concept. This will also update the [Details] of the current concept.
 * __Edit__ allows editing of the current concept. After saving the modified concept,
-a new HTML page will be generated for it. Observe that this does not regenerate the serach index.
-* __Compile Course__ compiles the concepts for which the generated HTML file is out of date and generates an index.
-* __Recompile Course__ compiles _all_ concepts and generates an index.
+a new HTML page will be generated for it.
+* __Recompile Course__ compiles _all_ concepts in the course.
 * __Warnings__ show a list of all warnings and error messages that were produced during the last (re)compilation of the
 whole course.
+
+
+After __New Subconcept__ and __Edit__ the following  course information is updated:
+* The navigation panel.
+* The search index.
+* The warnings.
+
+
+As a result, the Tutor is completely up-to-date after each edit operation or concept creation.
+
+In addition, __Recompile Course__ generates new HTML pages for all concepts before updating the above information.
+Recompilation is only necessary to verify that all `<screen>`s and `<figure>`s execute without generating warnings.
 
 Examples:
 

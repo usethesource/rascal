@@ -243,9 +243,10 @@ function finishLoad() {
 
 // ------------ Show a concept ------------------------------------------
 
+/*
 function show(fromConcept, toConcept) {
 
-    //alert('show: ' + fromConcept + ', ' + toConcept);
+    alert('show: ' + fromConcept + ', ' + toConcept);
     for (var i = 0; i < conceptNames.length; i++) {
         if (toConcept == conceptNames[i]) {
             loadConcept(toConcept);
@@ -276,6 +277,7 @@ function show(fromConcept, toConcept) {
 
     $('div#conceptPane').html(backarrow + html_code + backarrow);
 }
+*/
 
 // ------------ Handler for suggestions for searchBox -------------------
 
@@ -294,8 +296,15 @@ function handleSearch(evt) {
             results.push(conceptName);
         }
     }
+    
+    var concepts = searchTerms[term];
+    if(concepts != null){
+       //alert('concepts = ' + concepts);
+       for(var i = 0; i < concepts.length; i++)
+           results.push(concepts[i]);
+    }
 
-    //   alert("leave handleSearch: " + results);
+    //alert("leave handleSearch: " + results);
     showSearchResults(concept, results, term);
     return false;
 }
@@ -323,17 +332,6 @@ function match(conceptName, term) {
     if (startsWith(lcConceptName, term) || endsWith(lcConceptName, "/" + term) || lcConceptName.indexOf("/" + term) !== -1) {
         return true;
     }
-
-    terms = searchTerms[conceptName]
-    if (terms) {
-        for (var i = 0; i < terms.length; i++) {
-            //alert('terms[' + i + '] = ' + terms[i]);
-            if (term == terms[i]) {
-                return true;
-            }
-        }
-    }
-    //alert('match: ' + conceptName + ' and ' + term + ' ===> false');
     return false;
 }
 

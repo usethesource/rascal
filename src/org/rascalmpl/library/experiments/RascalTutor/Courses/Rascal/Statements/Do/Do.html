@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Statements/Do</title>
+
+<meta name="description" content="Rascal/Statements/Do:  Repeat statements while condition holds.">
+
+<meta name="keywords" content="Rascal/Statements/Do, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/Do/Do.html">Do</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,17 +34,28 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/Do/Do.html">Do</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Repeat statements while condition holds.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>do <i>Statement</i> while ( <i>Exp</i> );</code>
 
 </div>
 
+                           
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  <code><i>Statement</i></code> is executed repeatedly, as long as the Boolean expression <code><i>Exp</i></code> yields true. 
  Expression <code><i>Exp</i></code> is executed from scratch in each repetition and only the first true value (if any) is used.
@@ -61,6 +68,7 @@
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import IO;
 ok
@@ -81,10 +89,12 @@ list[int]: [9,4,1]
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Do&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Do&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

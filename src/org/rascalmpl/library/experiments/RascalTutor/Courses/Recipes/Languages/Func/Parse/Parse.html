@@ -7,6 +7,10 @@
 
 <head>
 <title>Recipes/Languages/Func/Parse</title>
+
+<meta name="description" content="Recipes/Languages/Func/Parse:  Parse a Func program from a string or a file.">
+
+<meta name="keywords" content="Recipes/Languages/Func/Parse, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Recipes/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Recipes/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Languages/Languages.html">Languages</a>/<a href="/Courses/Recipes/Languages/Func/Func.html">Func</a>/<a href="/Courses/Recipes/Languages/Func/Parse/Parse.html">Parse</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,18 +34,30 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Recipes/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Recipes/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Languages/Languages.html">Languages</a>/<a href="/Courses/Recipes/Languages/Func/Func.html">Func</a>/<a href="/Courses/Recipes/Languages/Func/Parse/Parse.html">Parse</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Parse a Func program from a string or a file.
 
 </div>
 
+	                       
+                           
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
  The work horse is the <a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a> function that is available in the <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">Libraries/ParseTree</a> library.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is how to parse Func programs from a string or file:
  <pre class="listing">module demo::lang::Func::Parse
@@ -93,7 +101,7 @@ Prog: appl(
 </pre>
   This must be defined as success: we get the original program and its parse tree back.
   Next, we try the same from a file. We use the scheme <code>std</code> that refers to files that reside in the Rascal library.
-  See <a href="/Courses/Rascal/Expressions/Values/Location/location.html">location</a> for further details on other schemes.
+  See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">location</a> for further details on other schemes.
 
 <pre class="screen"><b>rascal></b>parse(|std:///demo/lang/Func/programs/F0.func|);
 `fact(n) = if n &lt;= 1 then
@@ -116,10 +124,12 @@ Prog: appl(
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Parse&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Parse&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

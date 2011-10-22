@@ -7,42 +7,16 @@ var conceptNames = new Array("Test","Test/AAA","Test/BBB","Test/BBB/BBB1","Test/
 var searchTerms = {};
 
 
-searchTerms["Test/Cat2/Cat21"] = null;
+searchTerms["]"] = new Array("Test");
 
-searchTerms["Test/Cat1/Cat11"] = null;
+searchTerms[","] = new Array("Test");
 
-searchTerms["Test/BBB/BBB3"] = null;
+searchTerms["map"] = new Array("Test");
 
-searchTerms["Test/Bla"] = null;
+searchTerms["["] = new Array("Test");
 
-searchTerms["Test/BBB/BBB2"] = null;
+searchTerms["lub"] = new Array("Test");
 
-searchTerms["Test/Cat2"] = null;
+searchTerms["("] = new Array("Test");
 
-searchTerms["Test/BBB/BBB1"] = null;
-
-searchTerms["Test/Cat1"] = null;
-
-searchTerms["Test"] = new Array("),","(","lub","[",",","map","]");
-
-searchTerms["Test/Bla/Bla4"] = null;
-
-searchTerms["Test/Bla/Bla3"] = null;
-
-searchTerms["Test/Bla/Bla2"] = null;
-
-searchTerms["Test/Bla/Bla1"] = null;
-
-searchTerms["Test/LinkBreak"] = null;
-
-searchTerms["Test/BBB"] = null;
-
-searchTerms["Test/BBB/Cat1"] = null;
-
-searchTerms["Test/AAA"] = null;
-
-searchTerms["Test/Cat1/Cat13"] = null;
-
-searchTerms["Test/Cat2/Cat22"] = null;
-
-searchTerms["Test/Cat1/Cat12"] = null;
+searchTerms["),"] = new Array("Test");

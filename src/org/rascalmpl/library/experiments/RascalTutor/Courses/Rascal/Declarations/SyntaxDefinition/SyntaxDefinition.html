@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Declarations/SyntaxDefinition</title>
+
+<meta name="description" content="Rascal/Declarations/SyntaxDefinition:  Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.">
+
+<meta name="keywords" content="Rascal/Declarations/SyntaxDefinition, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,12 +34,21 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Declarations/Declarations.html">Declarations</a>/<a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ol><li> <code><i>Start</i> syntax <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
 <li> <code>lexical <i>Nonterminal</i> = <i>Alternatives</i>;</code></li>
@@ -59,8 +64,10 @@
 
 </div>
 
+                           
+                           
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a> &#032 <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a> &#032 
 </div>
 
 <div id="Description">
@@ -101,6 +108,7 @@
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The following example makes use of practically all of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> features, except parse actions.
  <pre class="listing">// layout is lists of whitespace characters
@@ -128,6 +136,7 @@ syntax Expression
 </pre>
 </div>
 
+  	                       
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> modular and composable</li>
 <li> no grammar normalization or grammar factoring necessary</li>
@@ -140,16 +149,17 @@ syntax Expression
 </ul>
 </div>
 
+  	                       
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> grammars may be ambiguous, so read about <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>, <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDetection/AmbiguityDetection.html">AmbiguityDetection</a> and <a href="/Courses/Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis/AmbiguityDiagnosis.html">AmbiguityDiagnosis</a></li>
 <li> static grammar checker is not implemented yet.</li>
 </ul>
 </div>
 
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

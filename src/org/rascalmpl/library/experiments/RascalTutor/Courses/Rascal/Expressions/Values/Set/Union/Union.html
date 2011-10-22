@@ -7,9 +7,14 @@
 
 <head>
 <title>Rascal/Expressions/Values/Set/Union</title>
+
+<meta name="description" content="Rascal/Expressions/Values/Set/Union:  Union of two set values.">
+
+<meta name="keywords" content="Rascal/Expressions/Values/Set/Union, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/Courses/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="/Courses/jquery.cookie.js"></script>
 <script type="text/javascript" src="/Courses/jquery.jstree.js"></script>
 <script type="text/javascript" src="/Courses/jquery.autocomplete.js"></script>
@@ -20,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -37,26 +34,38 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>/<a href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Union of two set values.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>
 
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>    </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>    </th><th align="left"> <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>      </th></tr><tr><td align="left"> <code>set[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code>set[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code>  </td></tr><tr><td align="left"> <code>set[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code><i>T</i><sub>2</sub></code>      </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code>  </td></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>      </td><td align="left">  <code>set[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>set[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code>  </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  If both <code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> have a set as value, the result is the union of these two set values. If one of <code><i>Exp</i><sub>1</sub></code> or <code><i>Exp</i><sub>2</sub></code> does not have a set as value, it is first converted to a set before the union is computed.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>{1, 2, 3} + {4, 5, 6};
 set[int]: {6,5,4,3,2,1}
@@ -67,6 +76,9 @@ set[int]: {4,3,2,1}
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -121,9 +133,9 @@ set[int]: {4,3,2,1}
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{7, 16}">
-<input type="hidden" name="B" value="{14, 17, -19}">
-The type of <tt>{7, 16} + {14, 17, -19}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{&quot;Lychee&quot;, &quot;Sage&quot;, &quot;D&quot;, &quot;Eggplant&quot;, &quot;Hoots The Owl&quot;}">
+<input type="hidden" name="B" value="{&quot;Peppermint&quot;}">
+The type of <tt>{&quot;Lychee&quot;, &quot;Sage&quot;, &quot;D&quot;, &quot;Eggplant&quot;, &quot;Hoots The Owl&quot;} + {&quot;Peppermint&quot;}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -152,9 +164,9 @@ The type of <tt>{7, 16} + {14, 17, -19}</tt> is <textarea rows="1" cols="30" nam
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{19.6490430450813600, -10.592063195171541600, -12.926893815980471200, 12.97182120446607600}">
-<input type="hidden" name="B" value="{5.83757661191223600, -7.515890290735929200}">
-<pre class="prequestion">{19.6490430450813600, -10.592063195171541600, -12.926893815980471200, 12.97182120446607600} + {5.83757661191223600, -7.515890290735929200} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-9.82415747086985600, -13.568240694572910400}">
+<input type="hidden" name="B" value="{-1.132725977708566400}">
+<pre class="prequestion">{-9.82415747086985600, -13.568240694572910400} + {-1.132725977708566400} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -182,9 +194,9 @@ The type of <tt>{7, 16} + {14, 17, -19}</tt> is <textarea rows="1" cols="30" nam
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="{13, 7, 7, 9, 14}">
-<input type="hidden" name="B" value="{-8, -6, -13}">
-<pre class="prequestion">{13, 7, 7, 9, 14} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {14,13,-6,9,-8,7,-13}</pre>
+<input type="hidden" name="A" value="{&quot;Vanilla&quot;, &quot;Thyme&quot;, &quot;R&quot;, &quot;Countess Von Backwards&quot;}">
+<input type="hidden" name="B" value="{&quot;Wasabi&quot;, &quot;U&quot;}">
+<pre class="prequestion">{&quot;Vanilla&quot;, &quot;Thyme&quot;, &quot;R&quot;, &quot;Countess Von Backwards&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Wasabi&quot;,&quot;Thyme&quot;,&quot;Countess Von Backwards&quot;,&quot;Vanilla&quot;,&quot;U&quot;,&quot;R&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -212,9 +224,9 @@ The type of <tt>{7, 16} + {14, 17, -19}</tt> is <textarea rows="1" cols="30" nam
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Set/Union">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{-16, 9}">
-<input type="hidden" name="B" value="{-4, -17, -18}">
-<pre class="prequestion">{-16, 9} + {-4, -17, -18} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{0.67297540583257600}">
+<input type="hidden" name="B" value="{12.55298790252870800, 16.79239726316899600, 5.45632185988730000}">
+<pre class="prequestion">{0.67297540583257600} + {12.55298790252870800, 16.79239726316899600, 5.45632185988730000} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -231,8 +243,7 @@ The type of <tt>{7, 16} + {14, 17, -19}</tt> is <textarea rows="1" cols="30" nam
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Set/Union&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Set/Union&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

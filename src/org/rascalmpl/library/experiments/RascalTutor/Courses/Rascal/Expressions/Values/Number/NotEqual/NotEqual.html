@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Expressions/Values/Number/NotEqual</title>
+
+<meta name="description" content="Rascal/Expressions/Values/Number/NotEqual:  Not equal operator on numeric values.">
+
+<meta name="keywords" content="Rascal/Expressions/Values/Number/NotEqual, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>/<a href="/Courses/Rascal/Expressions/Values/Number/NotEqual/NotEqual.html">NotEqual</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,26 +34,38 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>/<a href="/Courses/Rascal/Expressions/Values/Number/NotEqual/NotEqual.html">NotEqual</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Not equal operator on numeric values.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> != <i>Exp</i><sub>2</sub></code>
 
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>  </th><th align="left">  <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> <code><i>Exp</i><sub>1</sub> != <i>Exp</i><sub>2</sub></code>  </th></tr><tr><td align="left"> <code>int</code>      </td><td align="left">  <code>int</code>     </td><td align="left"> <code>bool</code>                </td></tr><tr><td align="left"> <code>int</code>      </td><td align="left">  <code>real</code>    </td><td align="left"> <code>bool</code>                </td></tr><tr><td align="left"> <code>real</code>     </td><td align="left">  <code>real</code>    </td><td align="left"> <code>bool</code>                </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of both arguments is numerically unequal, and <code>false</code> otherwise.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>12 != 13
 bool: true
@@ -74,6 +82,9 @@ bool: false
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -92,9 +103,9 @@ bool: false
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/NotEqual">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="8">
-<input type="hidden" name="B" value="18">
-The type of <tt>8 != 18</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="15">
+<input type="hidden" name="B" value="1">
+The type of <tt>15 != 1</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -123,9 +134,9 @@ The type of <tt>8 != 18</tt> is <textarea rows="1" cols="30" name="answer" class
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/NotEqual">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="7.62599782611869200">
-<input type="hidden" name="B" value="4.97978769683089600">
-The type of <tt>7.62599782611869200 != 4.97978769683089600</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="13.00353046223455600">
+<input type="hidden" name="B" value="-9.9742768336530800">
+The type of <tt>13.00353046223455600 != -9.9742768336530800</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,9 +165,9 @@ The type of <tt>7.62599782611869200 != 4.97978769683089600</tt> is <textarea row
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/NotEqual">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="4.82543412986198800">
-<input type="hidden" name="B" value="-0.18351305628440400">
-The type of <tt>4.82543412986198800 != -0.18351305628440400</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="16.61249399488187200">
+<input type="hidden" name="B" value="-10.032436415326411200">
+The type of <tt>16.61249399488187200 != -10.032436415326411200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -185,9 +196,9 @@ The type of <tt>4.82543412986198800 != -0.18351305628440400</tt> is <textarea ro
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/NotEqual">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="7.75091196698266400">
-<input type="hidden" name="B" value="-4">
-The type of <tt>7.75091196698266400 != -4</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-7">
+<input type="hidden" name="B" value="-16.234443451621394400">
+The type of <tt>-7 != -16.234443451621394400</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -216,9 +227,9 @@ The type of <tt>7.75091196698266400 != -4</tt> is <textarea rows="1" cols="30" n
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/NotEqual">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="-9.161910859924762400">
-<input type="hidden" name="B" value="5.20551212764821200">
-<pre class="prequestion">-9.161910859924762400 != 5.20551212764821200 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-6.269433645797377600">
+<input type="hidden" name="B" value="18.02371528973631600">
+<pre class="prequestion">-6.269433645797377600 != 18.02371528973631600 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -235,8 +246,7 @@ The type of <tt>7.75091196698266400 != -4</tt> is <textarea rows="1" cols="30" n
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/NotEqual&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Number/NotEqual&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

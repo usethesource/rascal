@@ -23,6 +23,25 @@ img {
 	border: 0;
 }
 
+td#tdlogo {
+    vertical-align: top;
+    width: 15%;
+    background-color: peach;
+    border-color: black;
+    border-left-width : 0;
+    border-right-width : 0;
+    border-top-width : 0;
+}
+
+td#tdsearch {
+    vertical-align: top;
+    background-color: peach;
+    border-color: black;
+    border-left-width : 0;
+    border-right-width : 0;
+    border-top-width : 0;
+}
+
 td#tdnav {
     vertical-align: top;
     width: 15%;

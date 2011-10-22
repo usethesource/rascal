@@ -7,7 +7,7 @@ Syntax:
 <br>
 `<screen $OptErrors$>`<br>
 $RascalCode$<br>
-`<\screen>`
+`</screen>`
 
 Types:
 

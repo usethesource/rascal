@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/IDEConstruction/Outline</title>
+
+<meta name="description" content="Rascal/IDEConstruction/Outline:  An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file">
+
+<meta name="keywords" content="Rascal/IDEConstruction/Outline, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a>/<a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,12 +34,23 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a>/<a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file
 
 </div>
 
+	                       
+                           
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  To implement an outline, first make a function that maps a <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> to anything of <code>node</code> or a sub-type of <code>node</code> (any <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> or <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> will do).
  <br/>
@@ -55,114 +62,7 @@
 
  Then, register the outliner:
  <pre class="screen"><b>rascal></b>import util::IDE;
-Unexpected exception (generic Throwable): Can not declare annotations on node
-    somewhere in: $shell$
-stacktrace: Can not declare annotations on node
-    at org.eclipse.imp.pdb.facts.type.TypeStore.declareAnnotation(TypeStore.java:575)
-    at org.rascalmpl.interpreter.env.ModuleEnvironment.declareAnnotation(ModuleEnvironment.java:503)
-    at org.rascalmpl.semantics.dynamic.Declaration$Annotation.interpret(Declaration.java:73)
-    at org.rascalmpl.semantics.dynamic.Toplevel$GivenVisibility.interpret(Toplevel.java:34)
-    at org.rascalmpl.semantics.dynamic.Module$Default.interpret(Module.java:135)
-    at org.rascalmpl.interpreter.Evaluator.evalRascalModule(Evaluator.java:1323)
-    at org.rascalmpl.semantics.dynamic.Import$Default.interpret(Import.java:112)
-    at org.rascalmpl.semantics.dynamic.Command$Import.interpret(Command.java:75)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:811)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:727)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:701)
-    at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:194)
-    at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:119)
-    at org.rascalmpl.library.Scripting.shell(Scripting.java:85)
-    at sun.reflect.GeneratedMethodAccessor124.invoke(null:-1)
-    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-    at java.lang.reflect.Method.invoke(Method.java:597)
-    at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:128)
-    at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:92)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2287)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:716)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1372)
-    at org.rascalmpl.semantics.dynamic.Statement$Switch$DefaultBlock.matchAndEval(Statement.java:872)
-    at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:938)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:1183)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:413)
-    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
-    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
-    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
-    at org.rascalmpl.semantics.dynamic.Expression$Addition.interpret(Expression.java:120)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:1050)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:1043)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:415)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:621)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:92)
-    at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:425)
-    at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:39)
-    at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
-    at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
-    at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:527)
-    at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:423)
-    at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:223)
-    at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:930)
-    at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:358)
-    at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:183)
-    at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:866)
-    at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
-    at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:113)
-    at org.eclipse.jetty.server.Server.handle(Server.java:351)
-    at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:594)
-    at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:1041)
-    at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:549)
-    at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:211)
-    at org.eclipse.jetty.server.HttpConnection.handle(HttpConnection.java:424)
-    at org.eclipse.jetty.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:489)
-    at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:436)
-    at java.lang.Thread.run(Thread.java:662)
+ok
 <b>rascal></b>syntax Program = &quot;main&quot;;
 ok
 <b>rascal></b>registerOutliner(&quot;myLanguage&quot;, node (Program t) { 
@@ -171,14 +71,17 @@ ok
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;  n@label = &quot;My node label&quot;;
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;  return n;
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;});
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: registerOutliner
+ok
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction/Outline&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction/Outline&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

@@ -7,6 +7,10 @@
 
 <head>
 <title>Recipes/Common/ColoredTrees</title>
+
+<meta name="description" content="Recipes/Common/ColoredTrees:  Computations on binary trees.">
+
+<meta name="keywords" content="Recipes/Common/ColoredTrees, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Recipes/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Recipes/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Common/Common.html">Common</a>/<a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,12 +34,23 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Recipes/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Recipes/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Recipes/Recipes.html">Recipes</a>/<a href="/Courses/Recipes/Common/Common.html">Common</a>/<a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">ColoredTrees</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Computations on binary trees.
 
 </div>
 
+	                       
+                           
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  We consider binary trees---trees with exactly two children---that have integers as their leaves. 
  Our trees can have red and black nodes and we want to perform the following operations on them:
@@ -54,6 +61,7 @@
 </ul>
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The definition of ColoredTrees is as follows:
  <pre class="listing">module demo::common::ColoredTrees
@@ -144,6 +152,7 @@ ColoredTree: green(
 </pre>
 </div>
 
+  	                       
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  This example illustrates the fully automatic visiting of the elements of a structured data type.
  Compare this with the traditional programming style in which a switch statement is used to determine
@@ -153,15 +162,16 @@ ColoredTree: green(
 
 </div>
 
+  	                       
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  The visit statement is based on a new paradigm one has to learn.
 
 </div>
 
+  	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Common/ColoredTrees&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Common/ColoredTrees&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Recipes"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Recipes&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

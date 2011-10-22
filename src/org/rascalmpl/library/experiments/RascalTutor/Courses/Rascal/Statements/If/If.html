@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Statements/If</title>
+
+<meta name="description" content="Rascal/Statements/If:  Conditional statement">
+
+<meta name="keywords" content="Rascal/Statements/If, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/If/If.html">If</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,22 +34,33 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Statements/Statements.html">Statements</a>/<a href="/Courses/Rascal/Statements/If/If.html">If</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Conditional statement
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <ul><li> <code>if ( <i>Exp</i> ) <i>Statement</i>;</code></li>
 <li> <code>if ( <i>Exp</i> ) <i>Statement</i><sub>1</sub> else <i>Statement</i><sub>2</sub>;</code></li>
 </ul>
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i></code> </th><th align="left"> <code>if ( <i>Exp</i> ) <i>Statement</i>;</code> </th></tr><tr><td align="left"> <code>bool</code>  </td><td align="left">  <code>void</code>                     </td></tr></table> <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i></code> </th><th align="left"> <code><i>Statement</i><sub>1</sub></code> </th><th align="left"> <code><i>Statement</i><sub>2</sub></code> </th><th align="left"> <code>if ( <i>Exp</i> ) <i>Statement</i><sub>1</sub> else <i>Statement</i><sub>2</sub>;</code> </th></tr><tr><td align="left"> <code>bool</code>  </td><td align="left">  <code><i>T</i><sub>1</sub></code>        </td><td align="left"> <code><i>T</i><sub>2</sub></code>         </td><td align="left"> <code>lub(<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>)</code>                              </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  The test <code><i>Exp</i></code> is evaluated and its outcome determines the statement to be executed: 
  <code><i>Statement</i><sub>1</sub></code> if <code><i>Exp</i></code> yields <code>true</code> and <code><i>Statement</i><sub>2</sub></code> otherwise. 
@@ -62,6 +69,7 @@
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>if( 3 &gt; 2 ) 30; else 40;
 int: 30
@@ -78,6 +86,9 @@ ok
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -96,9 +107,9 @@ ok
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Statements/If">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="16">
-<input type="hidden" name="B" value="9">
-The type of <tt>if( 16 &gt; 9 ) 10; else 20;</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-11">
+<input type="hidden" name="B" value="12">
+The type of <tt>if( -11 &gt; 12 ) 10; else 20;</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -127,11 +138,11 @@ The type of <tt>if( 16 &gt; 9 ) 10; else 20;</tt> is <textarea rows="1" cols="30
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Statements/If">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="19">
-<input type="hidden" name="B" value="6">
-<input type="hidden" name="C" value="&quot;Cumin&quot;">
-<input type="hidden" name="D" value="&quot;P&quot;">
-The type of <tt>if( 19 &gt; 6 ) &quot;Cumin&quot;; else &quot;P&quot;;</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="17">
+<input type="hidden" name="B" value="-2">
+<input type="hidden" name="C" value="&quot;Yoda&quot;">
+<input type="hidden" name="D" value="&quot;Basil&quot;">
+The type of <tt>if( 17 &gt; -2 ) &quot;Yoda&quot;; else &quot;Basil&quot;;</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -160,9 +171,9 @@ The type of <tt>if( 19 &gt; 6 ) &quot;Cumin&quot;; else &quot;P&quot;;</tt> is <
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Statements/If">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="-19">
-<input type="hidden" name="B" value="-9">
-<pre class="prequestion">if( -19 &gt; -9 ) 10; else 20; == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="9">
+<input type="hidden" name="B" value="14">
+<pre class="prequestion">if( 9 &gt; 14 ) 10; else 20; == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -179,8 +190,7 @@ The type of <tt>if( 19 &gt; 6 ) &quot;Cumin&quot;; else &quot;P&quot;;</tt> is <
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/If&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/If&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

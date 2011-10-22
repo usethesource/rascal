@@ -6,15 +6,3 @@ var conceptNames = new Array("EASY","EASY/Concurrency","EASY/Forensics","EASY/Mo
 
 var searchTerms = {};
 
-
-searchTerms["EASY/Security"] = null;
-
-searchTerms["EASY/Forensics"] = null;
-
-searchTerms["EASY/Concurrency"] = null;
-
-searchTerms["EASY/ModelDrivenEngineering"] = null;
-
-searchTerms["EASY"] = null;
-
-searchTerms["EASY/Renovation"] = null;

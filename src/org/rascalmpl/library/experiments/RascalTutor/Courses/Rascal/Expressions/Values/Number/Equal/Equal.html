@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Expressions/Values/Number/Equal</title>
+
+<meta name="description" content="Rascal/Expressions/Values/Number/Equal:  Equality operator on numeric values.">
+
+<meta name="keywords" content="Rascal/Expressions/Values/Number/Equal, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Equal/Equal.html">Equal</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,26 +34,38 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>/<a href="/Courses/Rascal/Expressions/Values/Number/Equal/Equal.html">Equal</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Equality operator on numeric values.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> == <i>Exp</i><sub>2</sub></code>
 
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>  </th><th align="left">  <code><i>Exp</i><sub>2</sub></code> </th><th align="left"> <code><i>Exp</i><sub>1</sub> == <i>Exp</i><sub>2</sub></code>  </th></tr><tr><td align="left"> <code>int</code>      </td><td align="left">  <code>int</code>     </td><td align="left"> <code>bool</code>                </td></tr><tr><td align="left"> <code>int</code>      </td><td align="left">  <code>real</code>    </td><td align="left"> <code>bool</code>                </td></tr><tr><td align="left"> <code>real</code>     </td><td align="left">  <code>real</code>    </td><td align="left"> <code>bool</code>                </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Yields <code>true</code> if the value of both arguments is numerically equal, and <code>false</code> otherwise.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>12 == 12
 bool: true
@@ -74,6 +82,9 @@ bool: false
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -92,9 +103,9 @@ bool: false
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="7">
-<input type="hidden" name="B" value="-7">
-The type of <tt>7 == -7</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-14">
+<input type="hidden" name="B" value="2">
+The type of <tt>-14 == 2</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -123,9 +134,9 @@ The type of <tt>7 == -7</tt> is <textarea rows="1" cols="30" name="answer" class
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="-10.112436219227203200">
-<input type="hidden" name="B" value="6.88237015152410000">
-The type of <tt>-10.112436219227203200 == 6.88237015152410000</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-19.012810954418615200">
+<input type="hidden" name="B" value="4.45815462124781200">
+The type of <tt>-19.012810954418615200 == 4.45815462124781200</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,9 +165,9 @@ The type of <tt>-10.112436219227203200 == 6.88237015152410000</tt> is <textarea 
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="-20">
-<input type="hidden" name="B" value="8">
-The type of <tt>-20 == 8</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="1">
+<input type="hidden" name="B" value="-17">
+The type of <tt>1 == -17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -185,9 +196,9 @@ The type of <tt>-20 == 8</tt> is <textarea rows="1" cols="30" name="answer" clas
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="4">
-<input type="hidden" name="B" value="10">
-The type of <tt>4 == 10</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-7.180598475063417600">
+<input type="hidden" name="B" value="-18.5120143337901366000">
+The type of <tt>-7.180598475063417600 == -18.5120143337901366000</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -216,9 +227,9 @@ The type of <tt>4 == 10</tt> is <textarea rows="1" cols="30" name="answer" class
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/Number/Equal">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="1.12310200811964800">
-<input type="hidden" name="B" value="-15.532344337229058000">
-<pre class="prequestion">1.12310200811964800 == -15.532344337229058000 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-18.229098206970029200">
+<input type="hidden" name="B" value="-3.1457478586847600">
+<pre class="prequestion">-18.229098206970029200 == -3.1457478586847600 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -235,8 +246,7 @@ The type of <tt>4 == 10</tt> is <textarea rows="1" cols="30" name="answer" class
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Number/Equal&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Number/Equal&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>

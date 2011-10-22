@@ -7,6 +7,10 @@
 
 <head>
 <title>Rascal/Expressions/Values/List/Concatenation</title>
+
+<meta name="description" content="Rascal/Expressions/Values/List/Concatenation:  Concatenate two lists.">
+
+<meta name="keywords" content="Rascal/Expressions/Values/List/Concatenation, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -21,15 +25,7 @@
 
 </head>
 <body>
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><table id="container"><tr><td id="tdnav">
-<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
-<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
-<div id="conceptPane">
-
-<div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>/<a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a>
-</div>
-
+<table id="container"><tr><td id="tdlogo"><a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a></td><td id="tdsearch">
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
@@ -38,27 +34,39 @@
     <div id="popups"></div>
   </form>
 </div>
-         
+         </td></tr><tr><td id="tdnav">
+<a id="navPanePlaceHolder" href="/Courses/Rascal/navigate.html" >Navigation</a>
+<script type="text/javascript"> var navigationPaneSource="/Courses/Rascal/navigate.html"; </script></td><td id="tdconcept">
+<div id="conceptPane">
+
+<div id="Name">
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>/<a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a>
+</div>
+
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Concatenate two lists.
 
 </div>
 
+	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>
 
 </div>
 
+                           
 <div id="Types">
 <span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code>     </th><th align="left">  <code><i>Exp</i><sub>2</sub></code>     </th><th align="left"> <code><i>Exp</i><sub>1</sub> + <i>Exp</i><sub>2</sub></code>      </th></tr><tr><td align="left"> <code>list[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code>list[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>list[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code> </td></tr><tr><td align="left"> <code>list[<i>T</i><sub>1</sub>]</code> </td><td align="left">  <code><i>T</i><sub>2</sub></code>       </td><td align="left"> <code>list[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code> </td></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>       </td><td align="left">  <code>list[<i>T</i><sub>2</sub>]</code> </td><td align="left"> <code>list[lub(<i>T</i><sub>1</sub>,<i>T</i><sub>2</sub>)]</code> </td></tr></table>
 </div>
 
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  If both <code><i>Exp</i><sub>1</sub></code> and <code><i>Exp</i><sub>2</sub></code> have a list as value, the result is the concatenation of these two list values.
  If one of <code><i>Exp</i><sub>1</sub></code> or <code><i>Exp</i><sub>2</sub></code> does not have a list as value, it is first converted to a list before the concatenation is computed.
 
 </div>
 
+  	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>[1, 2, 3] + [4, 5, 6];
 list[int]: [1,2,3,4,5,6]
@@ -69,6 +77,9 @@ list[int]: [1,2,3,4]
 </pre>
 </div>
 
+  	                       
+  	                       
+  	                       
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
@@ -123,9 +134,9 @@ list[int]: [1,2,3,4]
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &quot;G&quot;]">
-<input type="hidden" name="B" value="[&quot;Bert&quot;, &quot;Big Bird&quot;]">
-The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &quot;G&quot;] + [&quot;Bert&quot;, &quot;Big Bird&quot;]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="[2, 8, 6, 18]">
+<input type="hidden" name="B" value="[-17]">
+The type of <tt>[2, 8, 6, 18] + [-17]</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,9 +165,9 @@ The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &q
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="[&quot;Cranberry&quot;, &quot;Little Bird&quot;]">
-<input type="hidden" name="B" value="[&quot;Luke Skywalker&quot;, &quot;Big Bird&quot;, &quot;Melon&quot;, &quot;Blueberry&quot;, &quot;Boba Fett&quot;]">
-<pre class="prequestion">[&quot;Cranberry&quot;, &quot;Little Bird&quot;] + [&quot;Luke Skywalker&quot;, &quot;Big Bird&quot;, &quot;Melon&quot;, &quot;Blueberry&quot;, &quot;Boba Fett&quot;] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[12, -20, -3, 6]">
+<input type="hidden" name="B" value="[0]">
+<pre class="prequestion">[12, -20, -3, 6] + [0] == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -184,9 +195,9 @@ The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &q
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="4">
-<input type="hidden" name="A" value="[&quot;Musterd&quot;, &quot;R&quot;, &quot;Pumpkin&quot;]">
-<input type="hidden" name="B" value="[&quot;J&quot;, &quot;Pomegranate&quot;, &quot;C-3PO&quot;, &quot;Hoots The Owl&quot;, &quot;Melon&quot;]">
-<pre class="prequestion">[&quot;Musterd&quot;, &quot;R&quot;, &quot;Pumpkin&quot;] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [&quot;Musterd&quot;,&quot;R&quot;,&quot;Pumpkin&quot;,&quot;J&quot;,&quot;Pomegranate&quot;,&quot;C-3PO&quot;,&quot;Hoots The Owl&quot;,&quot;Melon&quot;]</pre>
+<input type="hidden" name="A" value="[-17, 16]">
+<input type="hidden" name="B" value="[9, 15, 5]">
+<pre class="prequestion">[-17, 16] + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == [-17,16,9,15,5]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -214,9 +225,9 @@ The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &q
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Rascal/Expressions/Values/List/Concatenation">
 <input type="hidden" name="exercise" value="5">
-<input type="hidden" name="A" value="{-7, -16.410732103192922000, 18.7689917922090800, -7.1344176429029600, 5.44466617835883200}">
-<input type="hidden" name="B" value="{13.33610551065695600, 1.27370324753926000, -3, -13, -16}">
-<pre class="prequestion">{-7, -16.410732103192922000, 18.7689917922090800, -7.1344176429029600, 5.44466617835883200} + {13.33610551065695600, 1.27370324753926000, -3, -13, -16} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-17, -17.81947438974044400, 19.13973982679877200}">
+<input type="hidden" name="B" value="{8, 8.21606028522131200}">
+<pre class="prequestion">{-17, -17.81947438974044400, 19.13973982679877200} + {8, 8.21606028522131200} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -233,8 +244,7 @@ The type of <tt>[&quot;Countess Von Backwards&quot;, &quot;Sy Snootles&quot;, &q
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List/Concatenation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/List/Concatenation&new=true"><b>New Subconcept</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal"><b>Compile Course</b></a>] |
-               [<a id="compileAction" href="/compile?name=Rascal&flags=regenerate"><b>Recompile Course</b></a>] |
+               [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 
 </div>
