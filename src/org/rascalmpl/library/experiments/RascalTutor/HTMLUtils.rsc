@@ -32,6 +32,10 @@ public str title(str txt) {
   return "\n\<title\><txt>\</title\>\n";
 }
 
+public str meta(str name, str content){
+   return "\n\<meta name=\"<name>\" content=\"<content>\"\>\n";
+}
+
 public str body(str txt) {
   return "\<body\>\n<txt>\n\</body\>";
 }

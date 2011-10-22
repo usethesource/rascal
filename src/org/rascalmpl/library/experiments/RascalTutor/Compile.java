@@ -31,12 +31,11 @@ public class Compile extends TutorHttpServlet {
 		
 		if(debug) System.err.println("Compile, doGet: " + request.getRequestURI());
 		String name = getStringParameter(request, "name");
-		String flags = getOptionalStringParameter(request, "flags");
 		PrintWriter out = response.getWriter();
 		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("compile", vf.string(name), vf.string(flags));
+			IValue result = evaluator.call("compile", vf.string(name));
 			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {

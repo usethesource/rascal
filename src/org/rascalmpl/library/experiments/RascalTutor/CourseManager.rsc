@@ -35,9 +35,9 @@ import Scripting;
 // Compile a concept
 // *** called from Compile servlet in RascalTutor
 
-public str compile(ConceptName rootConcept, str flags){
+public str compile(ConceptName rootConcept){
   if(rootConcept in listEntries(courseDir)){
-     crs = compileCourse(rootConcept, flags);
+     crs = compileCourse(rootConcept);
      return showConcept(crs.concepts[rootConcept]);
   } else
      throw "Course <rootConcept> not found";
@@ -83,23 +83,10 @@ public str save(ConceptName cn, str text, bool newConcept){
      if(/[^A-Za-z0-9]/ := cname)
        return saveFeedback("Name \"<cname>\" is not a proper concept name", "");
      fullName = cn + "/" + cname;
-
-     // Does the file for this concept already exist as main concept?
-     //file = directory[file = directory.file + "/" + fullName + conceptExtension];
-     //if(exists(file))
-     //	return saveFeedback("File <file> exists already", "");
      	
      // Does the file for this concept already exist as a subconcept?
      if(exists(catenate(courseDir, fullName)))
      	return saveFeedback("Concept <fullName> exists already", "");
-     
-     // Create proper directory if it does not yet exist
-     //dir = directory[file = directory.file + "/" + fullName];	
-     //if(!isDirectory(dir)){
-     //  println("Create dir <dir>");
-     //  if(!mkDirectory(dir))
-     //  	  return saveFeedback("Cannot create directory <dir>", "");
-     //}
      
      // We have now the proper file name for the new concept and process it
      file = courseDir + fullName + "<cname>.<conceptExtension>";
@@ -108,8 +95,7 @@ public str save(ConceptName cn, str text, bool newConcept){
      writeFile(file, combine(lines));
      
      try {
-       c = compileAndGenerateConcept(file);
-       updateParentDetails(c.fullName);
+       c = compileAndGenerateConcept(file, true);
        return saveFeedback("", showConcept(c));
      } catch CourseError(e): {
        return saveFeedback(e, "");
@@ -118,11 +104,10 @@ public str save(ConceptName cn, str text, bool newConcept){
     // Saving an existing concept
     try {
       file = conceptFile(cn);
-      println("saving to <file> modified concept file: <text>");
+      println("saving to <file> modified concept file.");
       writeFile(file, text);
-      
-      println("Parsing concept");
-      c = compileAndGenerateConcept(file);
+     
+      c = compileAndGenerateConcept(file, false);
  
       return saveFeedback(showConcept(c), "");
     } catch ConceptError(e): {

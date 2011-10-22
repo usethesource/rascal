@@ -12,6 +12,7 @@ module experiments::RascalTutor::CourseModel
 import Graph;
 import List;
 import IO;
+import ValueIO;
 import String;
 import Exception;
 
@@ -30,8 +31,7 @@ alias Questions = list[Question];
 // A Course captures all the information for the run-time execution of a course by the Tutor.
 
 data Course = 
-     course(//str title,                                // Title to be displayed
-			//loc directory,                            // Directory where source files reside
+     course(
 			ConceptName root,                         // Name of the root concept
 			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
@@ -46,8 +46,7 @@ data Concept =
 			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
-			str html_synopsis,                      // HTML for synopsis sections
-			str html_body,                          // HTML for other sections
+			//str html_synopsis,                      // HTML for synopsis sections
 			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			set[str] searchTerms,    				// Set of search terms
 			Questions questions                 	// List of Questions 
@@ -183,32 +182,39 @@ public loc conceptFile(str cn){
   return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
 }
 
-/*public bool writingAllowed(){
-    //svn = courseRoot[file = courseRoot.file + ".svn"];
-    bool writingAllowed = exists(courseDirSVN);
-    
-    println("writingAllowed: svn = <courseDirSVN>, wa = <writingAllowed>");
-    return writingAllowed;
-}
-*/
-
 set[str] exclude = {".svn"};
 
-map[loc, list[loc]] crawlCache = ();
 
-public void clearCrawlCache(loc dir){
-   crawlCache[dir] = [];
+map[str,Course] courseCache = ();
+
+public Course getCourse(str name){
+  if(courseCache[name]?)
+     return courseCache[name];
+  courseFile = catenate(courseDir, name + "/course.value");
+  if(exists(courseFile)){
+     theCourse = readTextValueFile(#Course, courseFile);
+     courseCache[name] = theCourse;
+     return theCourse;
+  }
+  throw ConceptError("No such course <name>");
+}
+
+public void updateCourse(Course c){
+  courseCache[c.root] = c;
+}
+
+public list[loc] getCourseFiles(ConceptName rootConcept){
+  try {
+   theCourse = getCourse(rootConcept);
+   return for(cn <- theCourse.concepts)
+              append theCourse.concepts[cn].file;
+  } catch: {
+     return crawl(catenate(courseDir, rootConcept), conceptExtension);
+  }
 }
 
 public list[loc] crawl(loc dir, str suffix){
-  if(!crawlCache[dir]? || crawlCache[dir] == [])
-     crawlCache[dir] = crawl1(dir, suffix);
-  
-  return crawlCache[dir];
-}
-
-public list[loc] crawl1(loc dir, str suffix){
-//  println("crawl1: <dir>, <listEntries(dir)>");
+//  println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   dotSuffix = "." + suffix;
   for( str entry <- listEntries(dir) ){
@@ -216,11 +222,9 @@ public list[loc] crawl1(loc dir, str suffix){
        loc sub = catenate(dir, entry);
        if(endsWith(entry, dotSuffix)) { 
       	  res += [sub]; 
-      	  //if(regenerate)
-      	 //   touch(sub);
        }
        if(isDirectory(sub)) {
-          res += crawl1(sub, suffix);
+          res += crawl(sub, suffix);
       }
     }
   };

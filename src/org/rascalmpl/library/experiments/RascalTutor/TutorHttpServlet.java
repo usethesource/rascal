@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.Evaluator;
 public class TutorHttpServlet extends HttpServlet {
 	protected Evaluator evaluator;
 	protected String resourceBase;
-	protected static boolean debug = true;
+	protected static boolean debug = false;
 	
 	@Override
 	public void init() throws ServletException {
