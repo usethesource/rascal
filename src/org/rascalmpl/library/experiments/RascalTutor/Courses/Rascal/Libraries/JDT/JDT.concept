@@ -1,8 +1,8 @@
 Name: JDT
 
-Synopsis:
+Synopsis: Datatypes for representing relations between parts of Java programs.
 
-Syntax: Datatypes for representing relations between parts of Java programs.
+Syntax: 
 
 Types:
 <listing>

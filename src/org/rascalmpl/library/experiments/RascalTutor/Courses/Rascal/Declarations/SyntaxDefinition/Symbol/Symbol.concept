@@ -20,7 +20,7 @@ The following operations on character classes can be composed arbitrarily:
 * `$Class_1$ - $Class_2$`, difference of character classes `$Class_1$` and `$Class_2$`.
 *`$Class_1$ || $Class_2$`, union of character classes `$Class_1$` and `$Class_2$`.
 * `$Class_1$ && $Class_2$`, intersection of character classes `$Class_1$` and `$Class_2$`.
-* `($Class)`, brackets for defining application order of class operators.
+* `($Class$)`, brackets for defining application order of class operators.
 
 
 The following regular expressions can be constructed over [Symbol]s:

@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/IO/print</title>
 
-<meta name="description" content="Rascal/Libraries/IO/print:  Print a list of values.">
+<meta name="description" content="Rascal/Libraries/IO/print:  Print a value without subsequent newline.">
 
 <meta name="keywords" content="Rascal/Libraries/IO/print, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Print a list of values.
+<span class="sectionHead">Synopsis</span>  Print a value without subsequent newline.
 
 </div>
 
@@ -52,41 +52,22 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>bool print(value V...)</code>
-
-</div>
-
-<div id="Description">
-<span class="sectionHead">Description</span>  Print a list of values on the output stream and always return <code>true</code>. 
+<span class="sectionHead">Function</span>  <code>void print(value V)</code>
 
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Note that the only difference with <a href="/Courses/Rascal/Libraries/IO/println/println.html">println</a> is that <code>true</code> is returned instead of <code>void</code>:
+<span class="sectionHead">Examples</span>  Note that the only difference with <a href="/Courses/Rascal/Libraries/IO/println/println.html">println</a> is that no newline is added after the value is printed
+ (note where the prompt <code>ok</code> appears):
  <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>print(&quot;Hello World&quot;);
 Hello Worldok
 </pre>
-  Introduce to variable and print their values:
-
-<pre class="screen"><b>rascal></b>S = &quot;Hello World&quot;;
-str: &quot;Hello World&quot;
-<b>rascal></b>L = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];
-list[str]: [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]
-<b>rascal></b>print(S, L);
-Static Error: prompt:///:1,0: The called signature: print(str, list[str]),
-does not match the declared signature:    print(value)
-</pre>
 </div>
 
   	                       
-<div id="Benefits">
-<span class="sectionHead">Benefits</span>  This function is handy when debugging complicated expressions.
-
-</div>
-
   	                       
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/IO/print&new=false"><b>Edit</b></a>] | 

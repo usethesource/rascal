@@ -1,6 +1,6 @@
-Name: BBB1
+Name: Contents
 
-Synopsis: This is BBB1.
+Synopsis: Table of Contents.
 
 Syntax:
 
@@ -12,6 +12,8 @@ Details:
 
 Description:
 
+<toc SolutionStrategies>
+
 Examples:
 
 Benefits:
@@ -20,3 +22,4 @@ Pitfalls:
 
 Questions:
 
+       

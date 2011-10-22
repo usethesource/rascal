@@ -1,6 +1,6 @@
-Name: BBB1
+Name: Contents
 
-Synopsis: This is BBB1.
+Synopsis:
 
 Syntax:
 
@@ -11,6 +11,7 @@ Function:
 Details:
 
 Description:
+<toc Rascal>
 
 Examples:
 
@@ -20,3 +21,4 @@ Pitfalls:
 
 Questions:
 
+       

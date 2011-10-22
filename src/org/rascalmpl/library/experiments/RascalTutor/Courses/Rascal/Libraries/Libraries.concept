@@ -12,35 +12,13 @@ Details:
 
 Description:
 The libraries with functions for built-in datatypes are described elsewhere:
-* [Values/Boolean]
-* [Values/DateTime]
-* [Values/Integer]
-* [Values/List]
-* [Values/Map]
-* [Values/Node]
-* [Values/Number]
-* [Values/Real]
-* [Values/Relation]
-* [Values/Set]
-* [Values/String]
 
+<toc Rascal/Expressions/Values 1>
 
-The libraries provide the following functionality:
-* [Benchmark]: Functions for time measurement and benchmarking.
-* [$Libraries/Graph]: A `Graph` datatype with associated functions.
-* [IDE]: Provides access to the Eclipse IMP services to instantiate an IDE for any language you define in Rascal.
-* [IO]: Functions for reading/writing values from/to files.
-* [Java]: An `Entity` datatype for representing facts about Java programs.
-* [JDT]: Datatypes for representing relations between parts of Java programs.
-* [LabeledGraph]: A `LabeledGraph` datatype with associated functions.
-* [Message]: A `Message` datatype that represents messages in the IDE.
-* [PriorityQueue]: A `PriorityQueue` datatype and associated functions.
-* [Resources]: A `Resource` datatype and related functions on Eclipse resources.
-* [RSF]: Functions for reading/writing the Rigi Standard Format (RSF).
-* [Scripting]: Functions for calling the Rascal shell and Rascal evaluator from Rascal programs.
-* [ParseTree]: Functions on parse trees.
-* [ValueIO]: Functions for reading and writing values in textual and binary format.
-* [Vis]: Functions for creating visualizations.
+The libraries described here provide the following additional functionality:
+
+<toc Rascal/Libraries 1>
+
 
 Examples:
 
