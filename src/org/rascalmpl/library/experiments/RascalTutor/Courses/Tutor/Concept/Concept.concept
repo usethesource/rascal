@@ -30,6 +30,7 @@ Syntax:
 Name and Synopsis are mandatory, the others are optional.
 It is recommended to give examples and questions.
 
+
 Types:
 
 Function:
@@ -42,6 +43,10 @@ A concept describes a separate entity (idea, artefact, function, rule) that is r
 It consists of 11 named sections that are described separately. 
 Each section starts with a keyword that should appear at the begin of a line.
 Only the `Name` section is mandatory.
+
+Here is a brief summary of the secions of a concept:
+<toc Tutor/Concept 1>
+
 
 Examples:
 
