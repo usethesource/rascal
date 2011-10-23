@@ -194,6 +194,10 @@ th { background-color: silver; }
     color: red;
 }
 
+.inlineError {
+    color: red;
+}
+
 .answerForm tt {
     background-color: lightgray;
     border:solid;
