@@ -33,7 +33,7 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 * An operator expression. The operator is applied to the arguments; the evaluation order of the arguments depends 
   on the operator. The result returned by the operator is used as value of the operator expression.  See [Operators].
 
-* [Comprehensions].
+* [$Expressions/Comprehensions].
 
 * A [Visit] expression.
 

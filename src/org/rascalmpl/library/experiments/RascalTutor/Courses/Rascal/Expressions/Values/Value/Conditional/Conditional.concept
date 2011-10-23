@@ -16,7 +16,7 @@ Details:
 
 Description:
 Yields the value of $Exp_2$ if the value of $Exp_1$ is `true` and the value of $Exp_3$ otherwise.
-The result type is the _least upper bound_ (also known as `lub`, see [StaticTyping]) of the types of $Exp_2$ and $Exp_3$.
+The result type is the _least upper bound_ (also known as `lub`, see [$Declarations/StaticTyping]) of the types of $Exp_2$ and $Exp_3$.
 
 Examples:
 <screen>

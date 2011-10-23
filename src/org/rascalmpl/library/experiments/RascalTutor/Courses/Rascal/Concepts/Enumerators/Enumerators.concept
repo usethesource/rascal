@@ -57,7 +57,7 @@ A more satisfying use is as follows:
 <screen>
 { x * x | int x <- {1, 3, 5, 7, 11 }};
 </screen>
-When used inside [Comprehensions], or [For], [Do], or [While] statement, all values of the generator will be produced and used.
+When used inside [$Expressions/Comprehensions], or [For], [Do], or [While] statement, all values of the generator will be produced and used.
 The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
 Here is a similar example:
 <screen>

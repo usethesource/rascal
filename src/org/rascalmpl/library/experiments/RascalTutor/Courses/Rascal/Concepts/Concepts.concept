@@ -9,7 +9,7 @@ Types:
 Function:
 
 Details:
-StaticTyping
+StaticTyping Datatypes ImmutableValues Comprehensions PatternMatching ControlStructures CaseDistinction Visiting Enumerators Functions SyntaxDefinitionAndParsing RewriteRules
 
 Description:
 Rascal has a statically checked type system that prevents type errors and uninitialized variables at runtime. 
