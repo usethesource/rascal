@@ -5,9 +5,7 @@ Synopsis: Assign a value to a variable.
 Syntax:
 `$Assignable$ $AssignmentOp$ $Exp$`
 
-
 where $AssignmentOp$ may be one of `=`, `+=`, `-=`, `*=`, `/=`, or `?=`.
-
 
 An $Assignable$ is one of the following:
 #  `$Var$`
@@ -30,14 +28,16 @@ The purpose of an assignment is to assign a new value to a simple variable or to
 The standard assignment operator is `=`. 
 The other assignment operators can be expressed as abbreviations for the standard assignment operator.
 
-| Assignment Operator     | Equivalent to                          |
-|:------------------------|:---------------------------------------|
-| `$Assignable$ += $Exp$` | `$Assignable$ = $Assignable$ + $Exp$` |
-| `$Assignable$ -= $Exp$` | `$Assignable$ = $Assignable$ - $Exp$`  |
-| `$Assignable$ *= $Exp$` | `$Assignable$ = $Assignable$ * $Exp$`  |
-| `$Assignable$ /= $Exp$` | `$Assignable$ = $Assignable$ / $Exp$`  |
-| `$Assignable$ &= $Exp$` | `$Assignable$ = $Assignable$ & $Exp$`  |
-| `$Assignable$ ?= $Exp$` | `$Assignable$ = $Assignable$ ? $Exp$`  |
+| Assignment Operator             | Equivalent to                          |
+|:--------------------------------|:---------------------------------------|
+| `$Assignable$ += $Exp$`         | `$Assignable$ = $Assignable$ + $Exp$`  |
+| `$Assignable$ -= $Exp$`         | `$Assignable$ = $Assignable$ - $Exp$`  |
+| `$Assignable$ *= $Exp$`         | `$Assignable$ = $Assignable$ * $Exp$`  |
+| `$Assignable$ /= $Exp$`         | `$Assignable$ = $Assignable$ / $Exp$`  |
+| `$Assignable$ &= $Exp$`         | `$Assignable$ = $Assignable$ & $Exp$`  |
+| `$Assignable$ ?= $Exp$`         | `$Assignable$ = $Assignable$ ? $Exp$`  |
+
+
 
 An assignable is either a single variable, (the base variable), optionally followed by subscriptions or field selections.
 The assignment statement always results in assigning a completely new value to the base variable. 
@@ -59,9 +59,9 @@ We distinguish the following forms of assignment:
   First the value $Exp$ is determined and should be a tuple of the form `<$V_1$, $V_2$, ..., $V_n$>`.
   Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
 
-# __IsDefined Assignable__ `$Assignable$ ? $Exp_1$ = $Exp_2$`:
-  First the value of $Exp_2$ is determined and if that is defined it is assigned to $Assignable$. 
-  Otherwise, the value of $Exp_1$ is assigned to $Assignable$.
+# __IsDefined Assignable__ `$Assignable$ ? $Exp_2$ = $Exp$`:
+  First the value of $Exp$ is determined and if that is defined it is assigned to $Assignable$. 
+  Otherwise, the value of $Exp_2$ is assigned to $Assignable$.
 
 # __Annotation assignable__ `$Assignable$ @ $Name$ = $Exp$`:
   The value $V$ of $Assignable$ is determined and should be of a type that has an annotation $Name$.
@@ -73,7 +73,7 @@ We distinguish the following forms of assignment:
   Next the assignments `$Assignable_i$ = $V_i$` are performed for 1 <= i <= n.
 
 Examples:
-<screen>
+<screen errors>
 // 1. Variable assignable:
 N = 3;
 N;
@@ -98,8 +98,14 @@ W.freq = 100000;
 A;
 B;
 C;
-// 5. isDefined assignable (recall that earlier we assigned a table value to $M$):
-M["x"] ? 1 += 5;
+// 5. isDefined assignable.
+// First we explore the `?=` assignment operator (recall that `N` already got a value above; `X` was never assigned a value):
+N ?= 5;
+X;
+X ?= 3;
+// Next consider, the isDefined assignable itself; recall that earlier we assigned a map value to $M$ and that 
+// it does not contain the key `"cef"` so essentially we try to increment a non-existing map entry:
+M["cef"] ? 0 += 1;
 // 6. Annotation assignable:
 anno str FREQ@color;
 W @ color = "red";

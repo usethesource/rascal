@@ -16,7 +16,19 @@ Details:
 
 Description:
 
+If no exception is generated during the evaluation of $Exp$, 
+the result is `true`. Otherwise, it is `false`.
+
 Examples:
+
+<screen>
+T = ("a" : 1, "b" : 2);
+T["b"]?
+T["c"]?
+L = [10, 20, 30];
+L[1]?
+L[5]?
+</screen>
 
 Benefits:
 

@@ -60,7 +60,29 @@
 </div>
 
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  If no exception is generated during the evaluation of <code><i>Exp</i></code>, 
+ the result is <code>true</code>. Otherwise, it is <code>false</code>.
+
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>T = (&quot;a&quot; : 1, &quot;b&quot; : 2);
+map[str, int]: (&quot;b&quot;:2,&quot;a&quot;:1)
+<b>rascal></b>T[&quot;b&quot;]?
+bool: true
+<b>rascal></b>T[&quot;c&quot;]?
+bool: false
+<b>rascal></b>L = [10, 20, 30];
+list[int]: [10,20,30]
+<b>rascal></b>L[1]?
+bool: true
+<b>rascal></b>L[5]?
+bool: false
+</pre>
+</div>
+
   	                       
   	                       
   	                       

@@ -54,13 +54,7 @@
  <br/>
 <br/>
 
- <br/>
-<br/>
-
  where <code><i>AssignmentOp</i></code> may be one of <code>=</code>, <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, or <code>?=</code>.
- <br/>
-<br/>
-
  <br/>
 <br/>
 
@@ -84,7 +78,10 @@
 
  The standard assignment operator is <code>=</code>. 
  The other assignment operators can be expressed as abbreviations for the standard assignment operator.
-  <table><col align="left" /><col align="left" /><tr><th align="left"> Assignment Operator     </th><th align="left"> Equivalent to                          </th></tr><tr><td align="left"> <code><i>Assignable</i> += <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> + <i>Exp</i></code> </td></tr><tr><td align="left"> <code><i>Assignable</i> -= <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> - <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> *= <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> * <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> /= <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> / <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> &amp;= <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> &amp; <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> ?= <i>Exp</i></code> </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> ? <i>Exp</i></code>  </td></tr></table> An assignable is either a single variable, (the base variable), optionally followed by subscriptions or field selections.
+  <table><col align="left" /><col align="left" /><tr><th align="left"> Assignment Operator             </th><th align="left"> Equivalent to                          </th></tr><tr><td align="left"> <code><i>Assignable</i> += <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> + <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> -= <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> - <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> *= <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> * <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> /= <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> / <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> &amp;= <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> &amp; <i>Exp</i></code>  </td></tr><tr><td align="left"> <code><i>Assignable</i> ?= <i>Exp</i></code>         </td><td align="left"> <code><i>Assignable</i> = <i>Assignable</i> ? <i>Exp</i></code>  </td></tr></table> <br/>
+<br/>
+
+ An assignable is either a single variable, (the base variable), optionally followed by subscriptions or field selections.
  The assignment statement always results in assigning a completely new value to the base variable. 
  We distinguish the following forms of assignment:
   <ol><li> <b>Variable assignable</b> <code><i>Var</i> = <i>Exp</i></code>:   The expression <code><i>Exp</i></code> is evaluated and its value is assigned to the base variable <code><i>Var</i></code>.
@@ -99,8 +96,8 @@
 <li> <b>Multiple assignable</b> <code>&lt; <i>Assignable</i><sub>1</sub>, <i>Assignable</i><sub>2</sub>, ..., <i>Assignable</i><sub>n</sub> > = <i>Exp</i></code>:   First the value <code><i>Exp</i></code> is determined and should be a tuple of the form <code>&lt;<i>V</i><sub>1</sub>, <i>V</i><sub>2</sub>, ..., <i>V</i><sub>n</sub>></code>.
    Next the assignments <code><i>Assignable</i><sub>i</sub> = <i>V</i><sub>i</sub></code> are performed for 1 &lt;= i &lt;= n.
 </li>
-<li> <b>IsDefined Assignable</b> <code><i>Assignable</i> ? <i>Exp</i><sub>1</sub> = <i>Exp</i><sub>2</sub></code>:   First the value of <code><i>Exp</i><sub>2</sub></code> is determined and if that is defined it is assigned to <code><i>Assignable</i></code>. 
-   Otherwise, the value of <code><i>Exp</i><sub>1</sub></code> is assigned to <code><i>Assignable</i></code>.
+<li> <b>IsDefined Assignable</b> <code><i>Assignable</i> ? <i>Exp</i><sub>2</sub> = <i>Exp</i></code>:   First the value of <code><i>Exp</i></code> is determined and if that is defined it is assigned to <code><i>Assignable</i></code>. 
+   Otherwise, the value of <code><i>Exp</i><sub>2</sub></code> is assigned to <code><i>Assignable</i></code>.
 </li>
 <li> <b>Annotation assignable</b> <code><i>Assignable</i> @ <i>Name</i> = <i>Exp</i></code>:   The value <code><i>V</i></code> of <code><i>Assignable</i></code> is determined and should be of a type that has an annotation <code><i>Name</i></code>.
    The value of that annotation is replaced in <code><i>V</i></code> by the value of <code><i>Exp</i></code> resulting in a new value <code><i>V</i></code>' that is assigned to <code><i>Assignable</i></code>.
@@ -170,10 +167,21 @@ real: 2.5
 <b>rascal></b>C;
 list[int]: [1,2,3]
 </pre>
-  5. isDefined assignable (recall that earlier we assigned a table value to <code><i>M</i></code>):
+  5. isDefined assignable.
+  First we explore the <code>?=</code> assignment operator (recall that <code>N</code> already got a value above; <code>X</code> was never assigned a value):
 
-<pre class="screen"><b>rascal></b>M[&quot;x&quot;] ? 1 += 5;
-map[str, int]: (&quot;x&quot;:6,&quot;def&quot;:3,&quot;abc&quot;:1)
+<pre class="screen"><b>rascal></b>N ?= 5;
+int: 3
+<b>rascal></b>X;
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: X
+<b>rascal></b>X ?= 3;
+int: 3
+</pre>
+  Next consider, the isDefined assignable itself; recall that earlier we assigned a map value to <code><i>M</i></code> and that 
+  it does not contain the key <code>"cef"</code> so essentially we try to increment a non-existing map entry:
+
+<pre class="screen"><b>rascal></b>M[&quot;cef&quot;] ? 0 += 1;
+map[str, int]: (&quot;def&quot;:3,&quot;cef&quot;:1,&quot;abc&quot;:1)
 </pre>
   6. Annotation assignable:
 
