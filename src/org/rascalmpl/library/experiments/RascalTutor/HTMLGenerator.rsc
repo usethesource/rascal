@@ -303,10 +303,10 @@ private str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),~]+>\)/ => link(url, text)
     
-    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert referToConcept(rootname(conceptPath), concept, short == "$"); }
+    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert refToUnresolvedConcept(rootname(conceptPath), concept, short == "$"); }
     
     case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
-         {insert referToConcept(course, concept, short == "$"); }
+         {insert refToUnresolvedConcept(course, concept, short == "$"); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -506,6 +506,8 @@ public str limitWidth(str txt, int limit){
   return escapeForHtml(substring(txt, 0, limit)) + "&raquo;\n" + limitWidth(substring(txt, limit), limit);
 }
 
+// ---- handle serach terms ----
+
 // Extract search terms from a code fragment
 
 private set[str] searchTermsCode(str line){
@@ -551,6 +553,8 @@ private set[str]  searchTerms(list[str] lines){
     return terms;
 }
 
+// ---- Table of contents (toc) ----
+
 str markupToc(str conceptName, str slevel){
     println("markupToc: <conceptName>, <slevel>");
     
@@ -567,39 +571,49 @@ str markupToc(str conceptName, str slevel){
 }
 
 str markupToc1(loc cfile, int level){
-    println("markupToc1: <cfile>, <level>");
+    //println("markupToc1: <cfile>, <level>");
     if(level <= 0)
        return "";
     res = "";
     for(ch <- children(cfile)){
         chfile = conceptFile(ch);
         syn  = getSynopsis(chfile);
-        res += li("<referToConcept(rootname(ch), ch, true)>: <markupRestLine(syn)>") + markupToc1(chfile, level - 1);
+        res += li("<refToResolvedConcept(ch, true)>: <markupRestLine(syn)>") + markupToc1(chfile, level - 1);
     }
     return ul(res);
 }
 
+// ---- Refer to a concept ----
+
+private map[tuple[str, str], list[loc]] resolveCache = ();
+
 public list[loc] resolveConcept(ConceptName course, str toConcept){
-  println("resolveConcept: <course>, <toConcept>");
+  try {
+      return resolveCache[<course, toConcept>];
+   } catch: ;
+   
+ // println("resolveConcept: <course>, <toConcept>");
   if(!exists(catenate(courseDir, course)))
   	 return [];
   if(course == toConcept)
      return [catenate(courseDir, "<course>/<course>.html")];
-     
+ 
    courseFiles = getCourseFiles(course);
    lcToConcept = toLowerCase(toConcept);
    if(lcToConcept[0] != "/" && rootname(toConcept) != course)
       lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
-   return for(file <- courseFiles){
-              cn = getFullConceptName(file);
-              if(endsWith(toLowerCase(cn), lcToConcept))
-                 append file;
-          }
+   options = for(file <- courseFiles){
+                 cn = getFullConceptName(file);
+                 if(endsWith(toLowerCase(cn), lcToConcept))
+                    append file;
+             };
+   resolveCache[<course, toConcept>] = options;
+   return options;
 }
 
-// Refer to a concept in a course.
+// Refer to a not yet resolved concept in a course.
 
-public str referToConcept(ConceptName course, ConceptName toConcept, bool short){
+public str refToUnresolvedConcept(ConceptName course, ConceptName toConcept, bool short){
   options = resolveConcept(course, toConcept);
   
   if(size(options) == 1){
@@ -609,11 +623,23 @@ public str referToConcept(ConceptName course, ConceptName toConcept, bool short)
   }     
   if(size(options) == 0){
      addWarning("Reference to unknown course or concept: <course>:<toConcept>");
-     return "??unknown: <course>:<toConcept>??";
+     return inlineError("unknown: <course>:<toConcept>");
   }
   if(size(options) > 1){
-     addWarning("Ambiguous reference to concept: <course>:<toConcept>; Resolve with one of {<for(opt <- options){>\t<getFullConceptName(opt)> <}>}");
-     return "??ambiguous: <course>:<toConcept>??";
+     addWarning("Ambiguous reference to concept: <course>:<toConcept>; 
+                'Resolve with one of {<intercalate(", ", [getFullConceptName(opt) | opt <- options])>}");
+     return inlineError("ambiguous: <course>:<toConcept>");
   }
+}
+
+// Refer to a resolved concept
+
+public str refToResolvedConcept(ConceptName toConcept){
+  return refToResolvedConcept(toConcept, false);
+}
+
+public str refToResolvedConcept(ConceptName toConcept, bool short){
+  name = short ? basename(toConcept) : toConcept;
+  return "\<a href=\"/Courses/<toConcept>/<basename(toConcept)>.html\"\><name>\</a\>";
 }
 

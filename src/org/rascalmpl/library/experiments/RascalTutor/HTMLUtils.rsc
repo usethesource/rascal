@@ -152,6 +152,10 @@ public str sectionHead(str txt){
   return "\<span class=\"sectionHead\"\><txt>\</span\>";
 }
 
+public str inlineError(str txt){
+  return "\<span class=\"inlineError\"\><txt>\</span\>";
+}
+
 public str div(str id, str txt){
 	return "\n\<div id=\"<id>\"\>\n<txt>\n\</div\>\n";
 }
@@ -217,17 +221,7 @@ public str showConceptPath(ConceptName cn){
   return "<for(int i <- [0 .. size(names)-1]){><(i==0)?"":"/"><showConceptURL(compose(names, 0, i))><}>";
 }
 
-// HTML to show a concept
 
-public str show(ConceptName fromConcept, ConceptName toConcept){
-  return show(fromConcept, toConcept, false);
-}
-
-public str show(ConceptName fromConcept, ConceptName toConcept, bool short){
-  name = short ? basename(toConcept) : toConcept;
-  return "\<a href=\"/Courses/<toConcept>/<basename(toConcept)>.html\"\><name>\</a\>";
-  //return "\<a href=\"javascript:show(\'<fromConcept>\',\'<toConcept>\')\"\><name>\</a\>";
-}
 
 
 

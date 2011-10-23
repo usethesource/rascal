@@ -35,10 +35,10 @@ data Course =
 			ConceptName root,                         // Name of the root concept
 			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
-			rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
-			list[str]  baseConcepts,                  // List of baseConcepts (e.g. names that occur on path of
+			//rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
+			list[str]  baseConcepts                  // List of baseConcepts (e.g. names that occur on path of
 			                                          // of some ConceptName)
-			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
+//			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
      );
 
 data Concept = 
@@ -47,7 +47,7 @@ data Concept =
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			//str html_synopsis,                      // HTML for synopsis sections
-			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
+//			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			set[str] searchTerms,    				// Set of search terms
 			Questions questions                 	// List of Questions 
 	);
@@ -310,7 +310,6 @@ public list[str] getDetails(loc file){
 
 set[str] exclude = {".svn"};
 
-
 map[str,Course] courseCache = ();
 
 public Course getCourse(str name){
@@ -327,16 +326,26 @@ public Course getCourse(str name){
 
 public void updateCourse(Course c){
   courseCache[c.root] = c;
+  courseFiles[c.root] = for(cn <- c.concepts)
+                            append c.concepts[cn].file;
 }
 
+map[str,list[loc]] courseFiles = ();
+
 public list[loc] getCourseFiles(ConceptName rootConcept){
+  if(courseFiles[rootConcept]?)
+     return courseFiles[rootConcept];
+  files = [];
   try {
    theCourse = getCourse(rootConcept);
-   return for(cn <- theCourse.concepts)
-              append theCourse.concepts[cn].file;
+   files = for(cn <- theCourse.concepts)
+               append theCourse.concepts[cn].file;
   } catch: {
-     return crawl(catenate(courseDir, rootConcept), conceptExtension);
+     files = crawl(catenate(courseDir, rootConcept), conceptExtension);
   }
+  
+  courseFiles[rootConcept] = files;
+  return files;
 }
 
 public list[loc] crawl(loc dir, str suffix){

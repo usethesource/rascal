@@ -30,6 +30,13 @@ import ValueIO;
 import IO;
 import Scripting;
 
+// Show a concept.
+
+public str showConcept(Concept C){
+   html_file = C.file[extension = htmlExtension];
+   return readFile(html_file);
+}
+
 // ------------------------------------ Compiling ------------------------------------------------
 
 // Compile a concept
