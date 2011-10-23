@@ -1,0 +1,48 @@
+Name: List
+
+Synopsis: List in abstract pattern.
+
+Syntax: `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+A list pattern matches a list value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that list in order. 
+Two special cases exist when one of the patterns $Pat_i$ is
+
+* a variable declaration pattern with a list type that is identical to the type of the list that is being matched.
+
+* a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a list type that is identical to the type of the list that is being matched.
+
+
+In both cases list matching is applied and the variable can match an arbitrary number of elements of the subject list.
+
+Examples:
+<screen>
+import IO;
+if([10, list[int] L, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, L = <L>");
+// Using a [MultiVariable] this can be abbreviated to:
+if([10, L*, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, L = <L>");
+// A list pattern may also be __non-linear__, i.e., it may contain uses of variables that were bound earlier in the pattern.
+// Here we see an example, where all pairs of equal elements in a list are printed:
+for([L1*, int N, L2*, N, L3*] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
+    println("N = <N>");
+// Here we print all ways in which a given list can be partitioned in two lists:
+for([L1*, L2*] := [10, 20, 30, 40, 50]) 
+    println("<L1> and <L2>");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

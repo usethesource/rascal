@@ -37,7 +37,7 @@ The constituents of a module are shown in the figure below.
 An [Import] declares other modules that are used by the current module.
 Following imports, a module may contain declarations (in arbitrary order) for:
 
-* [Variable]
+* [$Declarations/Variable]
 * [Function]
 * [AlgebraicDataType]
 * [Rule]

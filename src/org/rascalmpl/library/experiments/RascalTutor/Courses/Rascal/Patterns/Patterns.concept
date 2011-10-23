@@ -19,8 +19,8 @@ Patterns may be used in:
 
 * cases of a [Switch] or [Visit], 
 * on the left of the [Match] operator (`:=`),
-* on the left of and the [Enumerator] operator (`<-`), and
-* as formal parameters to [Function]s. 
+* on the left of the [Enumerator] operator (`<-`), and
+* as formal parameters of [Function]s. 
 
 
 Each pattern binds variables in a conditional scope. A case statement is such a scope, so are the conditions of if, for, and while and the generators of comprehensions.

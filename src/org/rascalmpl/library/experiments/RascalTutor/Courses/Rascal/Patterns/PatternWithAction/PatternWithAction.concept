@@ -29,13 +29,11 @@ However, when a fail statement is executed in $Statement$ all its side effects a
 $Pattern$ are tried. If no alternatives remain, PatternWithAction as a whole fails and subsequent cases of 
 the switch statement are tried.
 
-
 In [Visit] expressions, the form `$Pattern$ => $Exp$` describes subtree replacement: 
 the current subtree of the subject of the visit expression is replaced by the value of $Exp$. 
 The form `$Pattern$ : $Statement$` is as described for switch statements, with the addition that execution of an 
 [Insert] statement will replace the current subtree. After both succes or failure of the PatternWithAction, 
 the traversal of the subject continues.
-
 
 In rewrite rules, see [Rule], both forms are allowed. The form `$Pattern$ => $Exp$` behaves as described for visit expressions.
 The form `$Pattern$ : $Statement$` is as described for switch statement. If the PatternWithAction fails another

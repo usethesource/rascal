@@ -31,7 +31,7 @@ abs(-3);
 abs(-3.5);
 </screen>
 
-Here is an example from the [Node] library:
+Here is an example from the [$Values/Node] library:
 <listing>
 &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
 </listing>

@@ -51,77 +51,41 @@
 	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <br>
- <code><i>Type</i> <i>Var</i></code><br>
- <code><i>Var</i>*</code><br>
- <code><i>Var</i></code><br>
- <code>[ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> ]</code><br>
- <code>{ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> }</code><br>
- <code>&lt; <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> ></code><br>
- <code><i>Name</i> ( <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> )</code><br>
- <code>/ <i>Pat</i></code><br>
- <code><i>Var</i> : <i>Pat</i></code><br>
- <code><i>Type</i> <i>Var</i> : <i>Pat</i></code><br>
- <code>[<i>Type</i>] <i>Pat</i></code>
+ Literal:  <a href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>, <a href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a>, <a href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a>, <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>, <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>, <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>, or <a href="/Courses/Rascal/Expressions/Values/DateTime/DateTime.html">DateTime</a><br>
+ Variable declaration: <code><i>Type</i> <i>Var</i></code><br>
+ Multi-variable: <code><i>Var</i>*</code><br>
+ Variable: <code><i>Var</i></code><br>
+ List: <code>[ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> ]</code><br>
+ Set: <code>{ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> }</code><br>
+ Tuple: <code>&lt; <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> ></code><br>
+ Node: <code><i>Name</i> ( <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> )</code><br>
+ Descendant: <code>/ <i>Pat</i></code><br>
+ Labelled: <code><i>Var</i> : <i>Pat</i></code><br>
+ TypedLabelled: <code><i>Type</i> <i>Var</i> : <i>Pat</i></code><br>
+ TypeConstrained: <code>[<i>Type</i>] <i>Pat</i></code>
 
 </div>
 
                            
                            
+<div id="Details">
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Patterns/Abstract/Literal/Literal.html">Literal</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/VariableDeclaration/VariableDeclaration.html">VariableDeclaration</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Variable/Variable.html">Variable</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/List/List.html">List</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Set/Set.html">Set</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Tuple/Tuple.html">Tuple</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Node/Node.html">Node</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Descendant/Descendant.html">Descendant</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/Labelled/Labelled.html">Labelled</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/TypedLabelled/TypedLabelled.html">TypedLabelled</a> &#032 <a href="/Courses/Rascal/Patterns/Abstract/TypeConstrained/TypeConstrained.html">TypeConstrained</a> &#032 
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  An abstract pattern is recursively defined and may contain the following elements:
-  <ul><li> Literal of one of the basic types <a href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>, <a href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a>, <a href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a>, <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>, <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>, <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>, or <a href="/Courses/Rascal/Expressions/Values/DateTime/DateTime.html">DateTime</a>.  A literal pattern matches with a value that is identical to the literal.
-</li>
-<li> A <i>variable declaration pattern</i> <pre class="listing"><i>Type</i> <i>Var</i>
-</pre> A variable declaration introduces a new variable <code><i>Var</i></code> that matches any value of the given type <code><i>Type</i></code>.
- That value is assigned to <code><i>Var</i></code> when the whole match succeeds.
-</li>
-<li> A <i>multi-variable pattern</i> <pre class="listing"><i>Var</i>*
-</pre> A multi-variable is an abbreviation for a variable declaration pattern.
-  It can occur in a list pattern or set pattern and can match zero or more list or set elements.
-</li>
-<li> A <i>variable pattern</i> <pre class="listing"><i>Var</i>
-</pre> A variable pattern can act in two roles:
- <ul><li>If <code><i>Var</i></code> has already a defined value then it matches with that value.</li>
-<li> If <code><i>Var</i></code> has not been defined before (or it has been declared but not initialized) then it matches any value.      That value is assigned to <code><i>Var</i></code>. <warning>Explain scope.</warning>
-</li>
-</ul></li>
-<li> A <i>list pattern</i> <pre class="listing">[ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> ]
-</pre> A list pattern matches a list value, provided that <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code> match the elements of that list in order. 
- Two special cases exist when one of the patterns <code><i>Pat</i><sub>i</sub></code> is
- <ul><li> a variable declaration pattern with a list type that is identical to the type of the list that is being matched.</li>
-<li> a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a list type that is identical to the type of the list that is being matched.<br/>
-<br/>
- In both cases list matching is applied and the variable can match an arbitrary number of elements of the subject list.
-</li>
-</ul></li>
-<li> A <i>set pattern</i> <pre class="listing">{ <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> }
-</pre> A set pattern matches a set value, provided that <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code> match the elements of that set in any order. Completely analogous to list patterns, there are two special cases when one of the patterns <code><i>Pat</i><sub>i</sub></code> is
- <ul><li> a variable declaration pattern with a set type that is identical to the type of the set that is being matched.</li>
-<li> a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a set type that is identical to the type of the set that is being matched.<br/>
-<br/>
- In both cases set matching is applied and the variable can match an arbitrary number (in arbitrary order!) of elements of the subject set.
-</li>
-</ul></li>
-<li> A <i>tuple pattern</i> <pre class="listing">&lt; <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> >
-</pre> A tuple pattern matches a tuple value, provided that <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code>  match the elements of that tuple in order.
-</li>
-<li> A <i>node pattern</i> <pre class="listing"><i>Name</i> ( <i>Pat</i><sub>1</sub>, <i>Pat</i><sub>2</sub>, ..., <i>Pat</i><sub>n</sub> )
-</pre> A node pattern matches a node value or a datatype value, provided that <code><i>Name</i></code> matches with the constructor symbol of that value 
- and <code><i>Pat</i><sub>1</sub></code>, <code><i>Pat</i><sub>2</sub></code>, ..., <code><i>Pat</i><sub>n</sub></code>  match the children of that value in order.
-</li>
-<li> A <i>descendant pattern</i> <pre class="listing">/ <i>Pat</i>
-</pre> performs a deep match of the pattern <code><i>Pat</i></code>. In other words, it matches when any element of the subject at any depth matches <code><i>Pat</i></code>
-  and is used to match, for instance, tree nodes at an arbitrary distance from the root.
-</li>
-<li> A <i>labelled pattern</i> <pre class="listing"><i>Var</i> : <i>Pat</i>
-</pre> A labelled pattern matches the same values as <code><i>Pat</i></code>, but has as side-effect that the matched value is assigned to <code><i>Var</i></code>.
-</li>
-<li> A <i>typed, labelled, pattern</i> <pre class="listing"><i>Type</i> <i>Var</i> : <i>Pat</i>
-</pre> A typed, labelled, pattern matches when the subject value has type <code><i>Type</i></code> and <code><i>Pat</i></code> matches. The matched value is assigned to <code><i>Var</i></code>.
-</li>
-<li> A <i>type constrained pattern</i> <pre class="listing">[<i>Type</i>] <i>Pat</i>
-</pre> matches provided that the subject has type <code><i>Type</i></code> and <code><i>Pat</i></code> matches.
-</li>
+ <ul><li><a href="/Courses/Rascal/Patterns/Abstract/Literal/Literal.html">Literal</a>: Literal in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/VariableDeclaration/VariableDeclaration.html">VariableDeclaration</a>: Variable declaration in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a>: Multi-variable in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Variable/Variable.html">Variable</a>: Variable in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/List/List.html">List</a>: List in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Set/Set.html">Set</a>: Set in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Tuple/Tuple.html">Tuple</a>: Tuple in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Node/Node.html">Node</a>: Node in abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Descendant/Descendant.html">Descendant</a>: Deep match in an abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/Labelled/Labelled.html">Labelled</a>: Labelled abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/TypedLabelled/TypedLabelled.html">TypedLabelled</a>: Typed, labelled, abstract pattern.</li>
+<li><a href="/Courses/Rascal/Patterns/Abstract/TypeConstrained/TypeConstrained.html">TypeConstrained</a>: Type constrained abstract pattern.</li>
 </ul>
 </div>
 
@@ -129,7 +93,7 @@
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  Map patterns are not yet supported.
+<span class="sectionHead">Pitfalls</span>  Map patterns are not (yet?) supported.
 
 </div>
 

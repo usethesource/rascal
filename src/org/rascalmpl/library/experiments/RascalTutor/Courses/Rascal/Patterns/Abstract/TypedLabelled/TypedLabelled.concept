@@ -1,0 +1,25 @@
+Name: TypedLabelled
+
+Synopsis: Typed, labelled, abstract pattern.
+
+Syntax:`$Type$ $Var$ : $Pat$`<br>
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+A typed, labelled, pattern matches when the subject value has type $Type$ and $Pat$ matches. 
+The matched value is assigned to $Var$.
+
+Examples:
+<warning> add example</warning>
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

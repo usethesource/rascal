@@ -12,6 +12,9 @@ Details:
 
 Description:
 
+<warning>Rewrite rules are being phased out in favour of pattern-directed invocation that can achieve the same, see [Function]
+</warning>
+
 A rewrite rule is a recipe on how to simplify values. 
 Remember: ($a$ + $b$)$^2$ = $a^2$ + 2$ab$ + $b^2$? 
 A rewrite rule has a pattern as left-hand side (here: ($a$ + $b$)$^2$ and a replacement as 

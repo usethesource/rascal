@@ -1,0 +1,41 @@
+Name: MultiVariable
+
+Synopsis: Multi-variable in abstract pattern.
+
+Syntax:`$Var$*`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+A multi-variable is an abbreviation for a variable declaration pattern.
+It can occur in a list pattern or set pattern and can match zero or more list or set elements.
+
+Examples:
+<screen>
+import IO;
+// Using lists:
+if([10, N*, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeds, N == <N>");
+// the above is equivalent with:
+if([10, list[int] N, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeds, N == <N>");
+// Using sets:
+if({10, S*, 50} := {50, 40, 30, 30, 10})
+   println("Match succeeds, S == <S>");
+// the above is equivalent with:
+if({10, set[int] S, 50} := {50, 40, 30, 30, 10})
+   println("Match succeeds, S == <S>");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

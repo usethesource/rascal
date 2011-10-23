@@ -12,6 +12,8 @@ Function:
 Details:
 
 Description:
+<warning>Rewrite rules are being phased out in favour of pattern-directed invocation that can achieve the same, see [Function]
+</warning>
 Functions are the workhorses of Rascal. They can have any value as parameter or result and are explicitly called by the user. Also, functions are declared inside modules and their visibility can be controlled.
 
 Rewrite rules, on the other hand, operate only on nodes and [Declarations/AlgebraicDataType], they are implicitly applied when a 

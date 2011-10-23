@@ -22,7 +22,7 @@ Also see [isDefined] and [Assignment].
 
 Examples:
 This test can, for instance, be used to handle the case that a certain key value is not in a map:
-<screen>
+<screen errors>
 T = ("a" : 1, "b" : 2);
 // Trying to access the key `"c"` will result in an error:
 T["c"];

@@ -1,0 +1,30 @@
+Name: Tuple
+
+Synopsis: Tuple in abstract pattern.
+
+Syntax:`< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+A tuple pattern matches a tuple value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$  match the elements of that tuple in order.
+
+Examples:
+<screen>
+import IO;
+if(<A, B, C> := <13, false, "abc">)
+   println("A = <A>, B = <B>, C = <C>");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

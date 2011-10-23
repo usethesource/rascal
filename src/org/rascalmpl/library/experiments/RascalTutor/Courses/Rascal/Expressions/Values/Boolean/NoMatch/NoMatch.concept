@@ -6,9 +6,9 @@ Syntax:
 `$Pat$ !:= $Exp$`
 
 Types:
-| `$Pat$`  | `$Exp$` |`$Pat$ !:= $Exp$`|
-|:---------|:--------|:----------------|
-| Pattern  | `value` | `bool`          |
+| `$Pat$`     | `$Exp$` |`$Pat$ !:= $Exp$`|
+|:------------|:--------|:----------------|
+| [Patterns]  | `value` | `bool`          |
 
 Function:
 

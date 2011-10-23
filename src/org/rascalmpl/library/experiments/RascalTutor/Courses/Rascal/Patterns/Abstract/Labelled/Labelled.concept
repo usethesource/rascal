@@ -1,0 +1,35 @@
+Name: Labelled
+
+Synopsis: Labelled abstract pattern.
+
+Syntax:`$Var$ : $Pat$`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+A labelled pattern matches the same values as $Pat$, but has as side-effect that the matched value is assigned to $Var$.
+
+Examples:
+<screen>
+import IO;
+data ColoredTree = leaf(int N)
+                 | red(ColoredTree left, ColoredTree right) 
+                 | black(ColoredTree left, ColoredTree right);
+T = red(red(black(leaf(1), leaf(2)), black(leaf(3), leaf(4))), black(leaf(5), leaf(4)));
+for(/M:black(_,leaf(4)) := T)
+    println("Match <M>");
+</screen>
+We use an __anonymous variable__ `_` at a position where we don't care about the actual value that is matched.
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

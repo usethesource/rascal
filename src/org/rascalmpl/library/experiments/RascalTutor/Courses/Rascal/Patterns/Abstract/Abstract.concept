@@ -3,124 +3,35 @@ Name: Abstract
 Synopsis: Abstract patterns.
 
 Syntax:<br>
-`$Type$ $Var$`<br>
-`$Var$*`<br>
-`$Var$`<br>
-`[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`<br>
-`{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`<br>
-`< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`<br>
-`$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`<br>
-`/ $Pat$`<br>
-`$Var$ : $Pat$`<br>
-`$Type$ $Var$ : $Pat$`<br>
-`[$Type$] $Pat$`
+Literal:  [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime]<br>
+Variable declaration: `$Type$ $Var$`<br>
+Multi-variable: `$Var$*`<br>
+Variable: `$Var$`<br>
+List: `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`<br>
+Set: `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`<br>
+Tuple: `< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`<br>
+Node: `$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`<br>
+Descendant: `/ $Pat$`<br>
+Labelled: `$Var$ : $Pat$`<br>
+TypedLabelled: `$Type$ $Var$ : $Pat$`<br>
+TypeConstrained: `[$Type$] $Pat$`
 
 Types:
 
 Function:
 
-Details:
+Details: Literal VariableDeclaration MultiVariable Variable List Set Tuple Node Descendant Labelled TypedLabelled TypeConstrained
 
 Description:
 An abstract pattern is recursively defined and may contain the following elements:
-
-* Literal of one of the basic types [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime].
- A literal pattern matches with a value that is identical to the literal.
-
-* A _variable declaration pattern_
-<listing>
-$Type$ $Var$
-</listing>
-A variable declaration introduces a new variable $Var$ that matches any value of the given type $Type$.
-That value is assigned to $Var$ when the whole match succeeds.
-
-* A _multi-variable pattern_
-<listing>
-$Var$*
-</listing>
-A multi-variable is an abbreviation for a variable declaration pattern.
- It can occur in a list pattern or set pattern and can match zero or more list or set elements.
-
-* A _variable pattern_
-<listing>
-$Var$
-</listing>
-A variable pattern can act in two roles:
-
-**If $Var$ has already a defined value then it matches with that value.
-
-** If $Var$ has not been defined before (or it has been declared but not initialized) then it matches any value. 
-    That value is assigned to $Var$. <warning>Explain scope.</warning>
-
-* A _list pattern_
-<listing>
-[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]
-</listing>
-A list pattern matches a list value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that list in order. 
-Two special cases exist when one of the patterns $Pat_i$ is
-
-** a variable declaration pattern with a list type that is identical to the type of the list that is being matched.
-
-** a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a list type that is identical to the type of the list that is being matched.
-
-In both cases list matching is applied and the variable can match an arbitrary number of elements of the subject list.
-
-* A _set pattern_
-<listing>
-{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }
-</listing>
-A set pattern matches a set value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$ match the elements of that set in any order. Completely analogous to list patterns, there are two special cases when one of the patterns $Pat_i$ is
-
-** a variable declaration pattern with a set type that is identical to the type of the set that is being matched.
-
-** a variable pattern, where the variable has been declared, but not initialized, outside the pattern with a set type that is identical to the type of the set that is being matched.
-
-In both cases set matching is applied and the variable can match an arbitrary number (in arbitrary order!) of elements of the subject set.
-
-* A _tuple pattern_
-<listing>
-< $Pat_1$, $Pat_2$, ..., $Pat_n$ >
-</listing>
-A tuple pattern matches a tuple value, provided that $Pat_1$, $Pat_2$, ..., $Pat_n$  match the elements of that tuple in order.
-
-* A _node pattern_
-<listing>
-$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )
-</listing>
-A node pattern matches a node value or a datatype value, provided that $Name$ matches with the constructor symbol of that value 
-and $Pat_1$, $Pat_2$, ..., $Pat_n$  match the children of that value in order.
-
-* A _descendant pattern_
-<listing>
-/ $Pat$
-</listing>
-performs a deep match of the pattern $Pat$. In other words, it matches when any element of the subject at any depth matches $Pat$
- and is used to match, for instance, tree nodes at an arbitrary distance from the root.
-
-* A _labelled pattern_
-<listing>
-$Var$ : $Pat$
-</listing>
-A labelled pattern matches the same values as $Pat$, but has as side-effect that the matched value is assigned to $Var$.
-
-* A _typed, labelled, pattern_
-<listing>
-$Type$ $Var$ : $Pat$
-</listing>
-A typed, labelled, pattern matches when the subject value has type $Type$ and $Pat$ matches. The matched value is assigned to $Var$.
-
-* A _type constrained pattern_
-<listing>
-[$Type$] $Pat$
-</listing>
-matches provided that the subject has type $Type$ and $Pat$ matches.
+<toc Rascal/Patterns/Abstract 1>
 
 Examples:
 
 Benefits:
 
 Pitfalls:
-Map patterns are not yet supported.
+Map patterns are not (yet?) supported.
 
 Questions:
 

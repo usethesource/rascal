@@ -16,7 +16,7 @@ A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree
 represents the syntactic structure of a string according to some formal grammar. In a parse tree, the interior nodes are labeled by non-terminals of the grammar, while the leaf nodes are labeled by terminals of the grammar. 
 
 `Tree` is the universal parse tree data type in Rascal and can be used to represent parse trees for any language. 
-* `Tree` is a subtype of the type [Node].
+* `Tree` is a subtype of the type [$Values/Node].
 * All [SyntaxDefinition] types (non-terminals) are sub-types of `Tree`
 * All [ConcreteSyntax] expressions produce parse trees the types of which are non-terminals
 * Trees can be annotated in various ways, see [IDEConstruction] features. Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.

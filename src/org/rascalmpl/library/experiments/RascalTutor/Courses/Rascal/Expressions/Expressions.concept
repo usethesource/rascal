@@ -17,7 +17,7 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 * An elementary _literal value_, e.g. constants of the types [Boolean], [Integer], [Real], 
   [Number], [String], [Location] or [DateTime].
 
-* A _structured value_ for [List], [Set], [Map], [Tuple] or [Relation]. 
+* A _structured value_ for [$Values/List], [$Values/Set], [Map], [$Values/Tuple] or [Relation]. 
   The elements are first evaluated before the structured value is built.
 
 * A _variable_ that evaluates to its current value.

@@ -1,0 +1,26 @@
+Name: TypeConstrained
+
+Synopsis: Type constrained abstract pattern.
+
+Syntax:`[$Type$] $Pat$`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+A type constrained pattern
+matches provided that the subject has type $Type$ and $Pat$ matches.
+
+Examples:
+<warning> add example</warning>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

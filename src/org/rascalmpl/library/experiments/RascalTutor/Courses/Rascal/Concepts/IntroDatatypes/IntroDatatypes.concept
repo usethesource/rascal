@@ -17,12 +17,12 @@ Rascal provides a rich set of datatypes:
 * [String]s (`str`) that can act as templates with embedded expressions and statements. 
 * Source code [Location]s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
 * Date and time values ([DateTime], `datetime`).
-* [List] (`list`).
-* [Tuple] (`tuple`).
-* [Set] (`set`).
+* [$Values/List] (`list`).
+* [$Values/Tuple] (`tuple`).
+* [$Values/Set] (`set`).
 * [Map] (`map`) 
 * [Relation] (`rel`). 
-* Untyped tree structures ([Node], `node`).  
+* Untyped tree structures ([$Values/Node], `node`).  
 * User-defined algebraic datatypes ([Declarations/AlgebraicDataType], `data`) allow the introduction of problem-specific types and are a subtype of node. 
   This makes it possible to have typed
   and untyped views on the same data. 
