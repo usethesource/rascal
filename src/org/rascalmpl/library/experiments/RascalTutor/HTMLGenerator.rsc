@@ -19,34 +19,19 @@ import List;
 import Map;
 import Scripting;
 
-// Collect related concepts that occur in links.
-
-private set[ConceptName] relatedConcepts = {};
-
-//private bool generating = false;
-//
-//public void setGenerating(bool b){
-//  generating = b;
-//}
-
-private void addRelated(ConceptName cn){
-  relatedConcepts += cn;
-}
-
-public set[ConceptName] getAndClearRelated(){
-  r = relatedConcepts;
-  relatedConcepts = {};
-  return r;
-}
-
-// Allow for warnings in concepts
+// Maintain a list of warnings found for current concept;
 
 private list[str] warnings = [];
+
+// Get previous list of warnings and clear for next job.
+
 public list[str] getAndClearWarnings(){
   w = warnings;
   warnings = [];
   return w;
 }
+
+// Add a warning.
 
 private void addWarning(str txt){
   warnings += txt;
@@ -184,9 +169,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
         file = name;
         width = toInt(w);
         height = toInt(h);
-        println("h = <h>, w = <w>");
-      } else
-        println("NO MATCH");
+      }
       i += 1;
       codeLines = [];
       while((i < n) && /^\<\/figure\>/ !:= lines[i]){
@@ -303,7 +286,7 @@ private str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),~]+>\)/ => link(url, text)
     
-    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {addRelated(concept); insert refToUnresolvedConcept(rootname(conceptPath), concept, short == "$"); }
+    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {insert refToUnresolvedConcept(rootname(conceptPath), concept, short == "$"); }
     
     case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
          {insert refToUnresolvedConcept(course, concept, short == "$"); }
@@ -341,12 +324,7 @@ private str markupSubs(str txt){
   }
 }
 
-// HTML for an external link
 
-public str link(str url, str text){
-  println("link: <link>, <text>");
-  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/Courses/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
-}
 
 // Get options for image
 
@@ -410,8 +388,6 @@ private str lookForErrors(list[str] lines){
 }
 
 private str markupFigure(list[str] lines, int width, int height, str file){
-//  if(!generating)
-//     return "";
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
@@ -556,22 +532,19 @@ private set[str]  searchTerms(list[str] lines){
 // ---- Table of contents (toc) ----
 
 str markupToc(str conceptName, str slevel){
-    println("markupToc: <conceptName>, <slevel>");
     
     int level = (slevel != "") ? toInt(slevel) : 1000;
     if(conceptName == "")
        conceptName = conceptPath;
     options = resolveConcept(rootname(conceptName), conceptName);
-    println("options = <options>");
     if(size(options) != 1){
       addWarning("Unkown or ambiguous concept in toc: <conceptName>");
-      return "??unknown or ambiguous in toc: <conceptName>??";
+      return inlineError("unknown or ambiguous in toc: <conceptName>");
     }
-    return markupToc1(options[0][extension= conceptExtension], level);
+    return markupToc1(options[0][extension = conceptExtension], level);
 }
 
 str markupToc1(loc cfile, int level){
-    //println("markupToc1: <cfile>, <level>");
     if(level <= 0)
        return "";
     res = "";
@@ -641,5 +614,12 @@ public str refToResolvedConcept(ConceptName toConcept){
 public str refToResolvedConcept(ConceptName toConcept, bool short){
   name = short ? basename(toConcept) : toConcept;
   return "\<a href=\"/Courses/<toConcept>/<basename(toConcept)>.html\"\><name>\</a\>";
+}
+
+// Refer to an external link
+
+public str link(str url, str text){
+  println("link: <link>, <text>");
+  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/Courses/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
 }
 

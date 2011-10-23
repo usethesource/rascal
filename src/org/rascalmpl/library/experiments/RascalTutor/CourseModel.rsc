@@ -278,7 +278,7 @@ public list[ConceptName] children(Concept c){
 public list[ConceptName] children(loc file){
   fullName = getFullConceptName(file);
   cdetails = getDetails(file);
-  println("<file>, getDetails: <cdetails>");
+  //println("<file>, getDetails: <cdetails>");
   dir = catenate(courseDir, fullName);
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
   res =  [ fullName + "/" + entry | entry <- cdetails + (entries - cdetails)];

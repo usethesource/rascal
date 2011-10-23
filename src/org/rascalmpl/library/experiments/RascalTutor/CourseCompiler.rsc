@@ -109,13 +109,13 @@ public Course generateCourseControl(Course C){
    try {
       writeFile(warnFile, warn_html);
    }
-   catch e: println("can not save file <warnFile>"); // do nothing
+   catch e: println("cannot save file <warnFile>"); // do nothing
    
-    courseFile = catenate(courseDir, C.root + "/course.value");
+   courseFile = catenate(courseDir, C.root + "/course.value");
    try {
      writeTextValueFile(courseFile,C);
    }
-   catch e: println("can not save file <courseFile>"); // do nothing
+   catch e: println("cannot save file <courseFile>"); // do nothing
     
    println("<C.root>: generateCourseControl done");
    return C;
@@ -229,10 +229,9 @@ public Concept compileConcept(loc file){
   	                       <section("Benefits", markup(sections["Benefits"], conceptName))>
   	                       <section("Pitfalls", markup(sections["Pitfalls"], conceptName))>
   	                       <((isEmpty(questions)) ? "" : div("questions","<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"))>";
-  	   //related          = getAndClearRelated();
 	   warnings         = getAndClearWarnings();
 	      
-	   C =  concept(conceptName, file, warnings, optDetails, /*related, */searchTs, questions);
+	   C =  concept(conceptName, file, warnings, optDetails, searchTs, questions);
 	   println("<conceptName>: creating concept done.");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
 	   println("<conceptName>: generating HTML done.");
@@ -250,6 +249,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
    cn = C.fullName;
    childs = children(C);
    questions = C.questions;
+   /*
    warnings = "";
    if(size(C.warnings) > 0){
       warnings = "\<ul\>\n";
@@ -258,6 +258,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
       warnings += "\</ul\>";
       warnings = section("Warnings", warnings);
    }
+   */
   
    html_code = html(
   	head(title(cn) + 
