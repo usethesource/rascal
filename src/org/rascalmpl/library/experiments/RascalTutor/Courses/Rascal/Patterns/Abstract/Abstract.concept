@@ -3,18 +3,20 @@ Name: Abstract
 Synopsis: Abstract patterns.
 
 Syntax:<br>
-Literal:  [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime]<br>
-Variable declaration: `$Type$ $Var$`<br>
-Multi-variable: `$Var$*`<br>
-Variable: `$Var$`<br>
-List: `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`<br>
-Set: `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`<br>
-Tuple: `< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`<br>
-Node: `$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`<br>
-Descendant: `/ $Pat$`<br>
-Labelled: `$Var$ : $Pat$`<br>
-TypedLabelled: `$Type$ $Var$ : $Pat$`<br>
-TypeConstrained: `[$Type$] $Pat$`
+| Pattern              | Syntax                                                                      |
+|+---------------------|+----------------------------------------------------------------------------|
+| Literal              | [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime] |
+| Variable declaration | `$Type$ $Var$`                                                              |
+| Multi-variable       | `$Var$*`                                                                    |
+| Variable             | `$Var$`                                                                     |
+| List                 | `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`                                        |
+| Set                  | `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`                                        |
+| Tuple                | `< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`                                        |
+| Node                 | `$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`                                 |
+| Descendant           | `/ $Pat$`                                                                   |
+| Labelled             | `$Var$ : $Pat$`                                                             |
+| TypedLabelled        | `$Type$ $Var$ : $Pat$`                                                      |
+| TypeConstrained      |  `[$Type$] $Pat$`                                                           |
 
 Types:
 
