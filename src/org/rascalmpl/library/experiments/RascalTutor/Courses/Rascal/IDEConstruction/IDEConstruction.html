@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/IDEConstruction</title>
 
-<meta name="description" content="Rascal/IDEConstruction:  Extend an IDE with interactive, language-specific, features.">
+<meta name="description" content="Rascal/IDEConstruction:  Extend an IDE with interactive, language-specific, features (Eclipse only).">
 
 <meta name="keywords" content="Rascal/IDEConstruction, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,11 +44,16 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Extend an IDE with interactive, language-specific, features.
+<span class="sectionHead">Synopsis</span>  Extend an IDE with interactive, language-specific, features (Eclipse only).
 
 </div>
 
 	                       
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <code>import util::IDE;</code>
+
+</div>
+
                            
                            
 <div id="Details">
@@ -56,8 +61,35 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  To instantiate an IDE for a language implemented using Rascal, follow the steps as shown in the following example:
-  <pre class="screen"><b>rascal></b>import util::IDE;
+<span class="sectionHead">Description</span>  The IDE Meta-tooling Platform, <a href="http://www.eclipse.org/imp/">IMP<img src="/Courses/images/www-icon.png" with="20" height="20"></a> for short, is a collection of API and tools to support constructing IDEs for programming languages and domain specific languages. Using the IDE library, you can instantiate the services that IMP provides for any language implemented in Rascal.
+ <br/>
+<br/>
+
+ Rascal is also a part of the collection of IMP tools and (will be) hosted shortly on eclipse.org.
+ <br/>
+<br/>
+
+ To instantiate an IDE for a language implemented using Rascal, use the following steps:
+ <ul><li> Define the grammar for the language.</li>
+<li> Define a parse function for the language.</li>
+<li> Register the language.</li>
+</ul> Now you can step-by-step extend the IDE for your language with additional features:
+ <ul><li><a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a>: Show documentation strings by hovering over elements of the source text in the IDE.</li>
+<li><a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a>: Visual and browsable error messages in the IDE.</li>
+<li><a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a>: Editors may hide (fold) certain parts of a source text based on <code>foldable</code> annotations.</li>
+<li><a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a>: Hyperlinks in source code.</li>
+<li><a href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a>: </li>
+<li><a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output</li>
+<li><a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file</li>
+<li><a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>: </li>
+</ul> To be able to reuse your IDE between runs of Eclipse, read about <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>s.
+ To add annotations to trees, just after parsing, you should register an <code>annotator</code> function.
+
+</div>
+
+  	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::IDE;
 ok
 <b>rascal></b>start syntax ABC = [a-z]+;
 ok
@@ -78,20 +110,9 @@ ok
 
 <pre class="screen"><b>rascal></b>registerAnnotator(&quot;abc&quot;, Tree (Tree t) { return t[@doc=&quot;Hello!&quot;]; });
 ok
-</pre> Now you can step-by-step extend the IDE for your language with additional features:
- <ul><li><a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a>: IDE shows documentation strings by hovering over elements of the source text in the IDE.</li>
-<li><a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a>: visual and browsable error messages in the IDE</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a>: Editors may hide (fold) certain parts of a source text based on Folding annotations</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a>: Hyperlinks in source code</li>
-<li><a href="/Courses/Rascal/IDEConstruction/IMP/IMP.html">IMP</a>: The IDE Meta-tooling Platform (IMP) is an Eclipse incubation project that Rascal is a part of. </li>
-<li><a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>: </li>
-</ul> To be able to reuse your IDE between runs of Eclipse, read about <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>s.
-
+</pre>
 </div>
 
-  	                       
   	                       
   	                       
   	                       

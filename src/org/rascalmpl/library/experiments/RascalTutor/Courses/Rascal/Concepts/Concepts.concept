@@ -9,7 +9,7 @@ Types:
 Function:
 
 Details:
-IntroStaticTyping
+StaticTyping
 
 Description:
 Rascal has a statically checked type system that prevents type errors and uninitialized variables at runtime. 
@@ -29,6 +29,10 @@ Most language concepts are described separately but some features we just mentio
 * The visibility of entities declared in modules can be controlled using public/private modifiers.
 * Datastructures may have annotations that can be explicitly used and modified.
 * There is an extensive library for builtin datatypes, input/output, fact extraction from Java source code, visualization, and more.
+
+
+Here is a brief summary of the concepts to be discussed:
+<toc Rascal/Concepts 1>
 
 Examples:
 

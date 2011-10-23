@@ -26,7 +26,7 @@ What are the key distinguishing features of Rascal?
 * [Visit] to traverse and transform (models of) meta programs.
 * [SyntaxDefinition] to effectively produce parsers for programming languages and other formats.
 * [ConcreteSyntax] to analyse and transform source code using patterns in the programming language that is manipulated.
-* Rapid [IDEConstruction] using Eclipse [IMP].
+* Rapid [IDEConstruction] using Eclipse [IMP](http://www.eclipse.org/imp/).
 * Reusable aspects of meta programming in the [Libraries].
 
 Examples:

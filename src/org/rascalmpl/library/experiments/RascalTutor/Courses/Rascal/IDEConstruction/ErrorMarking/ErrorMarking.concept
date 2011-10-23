@@ -1,6 +1,6 @@
 Name: ErrorMarking
 
-Synopsis: visual and browsable error messages in the IDE
+Synopsis: Visual and browsable error messages in the IDE.
 
 Syntax:
 # `t@message = $message$;`

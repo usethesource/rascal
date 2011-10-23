@@ -1,0 +1,50 @@
+Name: RewriteRules
+
+Synopsis: Rewrite rules.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+<warning>Rewrite rules are being phased out in favour of pattern-directed invocation that can achieve the same, see [Function]
+</warning>
+
+A rewrite rule is a recipe on how to simplify values. 
+Remember: ($a$ + $b$)$^2$ = $a^2$ + 2$ab$ + $b^2$? 
+A rewrite rule has a pattern as left-hand side (here: ($a$ + $b$)$^2$ and a replacement as 
+right-hand side (here: $a^2$ + 2$ab$ + $b^2$). 
+Given a value and a set of rewrite rules the patterns are tried on every subpart of the value and replacements are made if a match is successful. This is repeated as long as some pattern matches.
+
+Rewrite rules are the only implicit control mechanism in the language and are used to maintain invariants 
+during computations.
+Since rewrite rules are activated automatically, one may always assume that expressions are in simplified form.
+
+Examples:
+In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
+to avoid intermediate results like `sum(product(num(1), x), product(num(0), y))` that can be simplified to `x`. 
+The following rules achieve this:
+<listing>
+rule simplify1 product(num(1), Expression e) => e;
+rule simplify2 product(Expression e, num(1)) => e;
+rule simplify3 product(num(0), Expression e) => num(0);
+rule simplify4 product(Expression e, num(0)) => num(0);
+rule simplify5 sum(num(0), Expression e)     => e;
+rule simplify6 sum(Expression e, num(0))     => e;
+</listing>
+Whenever a new value of type `Expression` is constructed during symbolic differentiation, these rules are _implicitly_ applied 
+to that expression and all its subexpressions and when a pattern at the left-hand side of a rule applies the matching subexpression is replaced by the right-hand side of the rule. This is repeated as long as any rule can be applied.
+
+Benefits:
+
+Pitfalls:
+Rewrite rules are _Turing complete_, in other words any computable function can be defined using rewrite rules, 
+including functions that do not terminate. This is a point of attention when using rewrite rules.
+
+Questions:
+

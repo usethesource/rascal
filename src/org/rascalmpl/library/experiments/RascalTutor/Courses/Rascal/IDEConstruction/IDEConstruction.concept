@@ -1,8 +1,8 @@
 Name: IDEConstruction
 
-Synopsis: Extend an IDE with interactive, language-specific, features.
+Synopsis: Extend an IDE with interactive, language-specific, features (Eclipse only).
 
-Syntax:
+Syntax: `import util::IDE;`
 
 Types:
 
@@ -11,7 +11,24 @@ Function:
 Details:
 
 Description:
-To instantiate an IDE for a language implemented using Rascal, follow the steps as shown in the following example:
+
+The IDE Meta-tooling Platform, [IMP](http://www.eclipse.org/imp/) for short, is a collection of API and tools to support constructing IDEs for programming languages and domain specific languages. Using the IDE library, you can instantiate the services that IMP provides for any language implemented in Rascal.
+
+Rascal is also a part of the collection of IMP tools and (will be) hosted shortly on eclipse.org.
+
+To instantiate an IDE for a language implemented using Rascal, use the following steps:
+* Define the grammar for the language.
+* Define a parse function for the language.
+* Register the language.
+
+
+Now you can step-by-step extend the IDE for your language with additional features:
+<toc Rascal/IDEConstruction 1>
+
+To be able to reuse your IDE between runs of Eclipse, read about [Plugin]s.
+To add annotations to trees, just after parsing, you should register an `annotator` function.
+
+Examples:
 
 <screen>
 import util::IDE;
@@ -27,12 +44,8 @@ registerLanguage("The ABC language", "abc", abc);
 registerAnnotator("abc", Tree (Tree t) { return t[@doc="Hello!"]; });
 </screen>
 
-Now you can step-by-step extend the IDE for your language with additional features:
-<toc Rascal/IDEConstruction 1>
 
-To be able to reuse your IDE between runs of Eclipse, read about [Plugin]s.
 
-Examples:
 
 Benefits:
 
