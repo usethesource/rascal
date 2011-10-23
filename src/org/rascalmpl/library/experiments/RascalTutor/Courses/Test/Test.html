@@ -78,8 +78,7 @@ stacktrace: / by zero
     at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:194)
     at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:119)
     at org.rascalmpl.library.Scripting.shell(Scripting.java:85)
-    at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
-    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+    at sun.reflect.GeneratedMethodAccessor133.invoke(null:-1)
     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
     at java.lang.reflect.Method.invoke(Method.java:597)
     at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:128)
@@ -231,8 +230,8 @@ public void hello() {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="6">
-The type of <tt>6</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="-15">
+The type of <tt>-15</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -261,8 +260,8 @@ The type of <tt>6</tt> is <textarea rows="1" cols="30" name="answer" class="answ
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="13">
-<pre class="prequestion">2 * 13 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-17">
+<pre class="prequestion">2 * -17 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

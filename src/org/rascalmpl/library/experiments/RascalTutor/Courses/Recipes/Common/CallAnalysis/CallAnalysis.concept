@@ -38,7 +38,7 @@ Consider the following call graph (a box represents a procedure and an arrow rep
 // First, we introduce therefore a new type `Proc` (an alias for strings) to denote procedures:
 alias Proc = str;
 // Next, we have to represent the call relation as a Rascal datatype, and the relation is the most appropriate for it.
-// As preparation, we also import the libraries [Rascal:Set], [Rascal:Relation] and [$Rascal:Libraries/Graph] that will come in handy.
+// As preparation, we also import the libraries [$Rascal:Values/Set], [$Rascal:Relation] and [$Rascal:Libraries/Graph] that will come in handy.
 import Set;
 import Relation;
 import Graph;
