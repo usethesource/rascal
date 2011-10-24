@@ -450,12 +450,21 @@ function handleAnother(evt) {
 
 // ------------ Handle "save" request while editing
 
+function showSaveOverlay() {
+	$('#waitingBack, #waitingMessage').show();
+}
+
+function hideSaveOverlay() {
+	$('#waitingBack, #waitingMessage').hide();
+}
 function handleSave(evt) {
     var formData = $(this).serialize();
     var concept = $("input[name=concept]").val();
     report("handleSave", formData);
     evt.preventDefault();
+	showSaveOverlay();
     $.get("save", formData, function processSaveFeedback(data, textStatus) {
+		hideSaveOverlay();
         var c = $('#concept', data).text();
         var e = $('#error', data).text();
         var r = $('#replacement', data).text();
