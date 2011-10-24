@@ -54,34 +54,34 @@
  Nonterminal symbols are identifier names that <i>start with an uppercase letter</i>.
   <ul><li> <code><i>Symbol</i> <i>fieldName</i></code>, any symbol can be labeled with a field name that <i>starts with a lowercase letter</i>.</li>
 </ul> The following literal symbols and character classes are defined:
- <ul><li> <code>"<i>stringliteral</i>"</code>, a literal string.</li>
-<li> <code>'<i>stringliteral</i>'</code>, a case-insensitive literal string.</li>
-<li> <code>[<i>range</i><sub>1</sub> <i>range</i><sub>2</sub> ... ]</code>, a character class.</li>
-</ul> The following operations on character classes can be composed arbitrarily:
- <ul><li> <code>!<i>Class</i></code>, complement of <code><i>Class</i></code> with respect to the UTF8 universe of characters.</li>
-<li> <code><i>Class</i><sub>1</sub> - <i>Class</i><sub>2</sub></code>, difference of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
-<li><code><i>Class</i><sub>1</sub> || <i>Class</i><sub>2</sub></code>, union of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
-<li> <code><i>Class</i><sub>1</sub> &amp;&amp; <i>Class</i><sub>2</sub></code>, intersection of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>.</li>
-<li> <code>(<i>Class</i>)</code>, brackets for defining application order of class operators.</li>
-</ul> The following regular expressions can be constructed over <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s:
- <ul><li> <code><i>Symbol</i>?</code>, optional <code><i>Symbol</i></code>.</li>
-<li> <code><i>Symbol</i>+</code>, a non-empty list of <code><i>Symbol</i></code>s.</li>
-<li> <code><i>Symbol</i>*</code> a possibly empty list of <code><i>Symbol</i></code>s.</li>
-<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code>, a non-empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>.</li>
-<li> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code> possibly empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>.</li>
-<li> <code>(<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... )</code> embedded sequence of symbols .</li>
-<li> <code>(<i>Symbol</i><sub>1</sub> | <i>Symbol</i><sub>2</sub> | ... )</code> embedded choice of alternative symbols.</li>
-<li> <code>()</code> the anonymous non-terminal for the language with the empty string.</li>
-</ul> Inline conditions (<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s) can be added to symbols to constrain their acceptability:
- <ul><li> <code><i>Symbol</i> $</code>, <code><i>Symbol</i></code> ends at end of line or file.</li>
-<li> <code>^<i>Symbol</i></code>, <code><i>Symbol</i></code> starts at start of line.</li>
-<li> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>, <code><i>Symbol</i></code> starts at certain column index.</li>
-<li> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>.</li>
-<li> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>.</li>
-<li> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>.</li>
-<li> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>.</li>
-<li> <code><i>Symbol</i><sub>1</sub> \&nbsp;<i>Symbol</i><sub>2</sub></code>, <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code>.</li>
-</ul> Symbols can be composed arbitrarily.
+ <br/>
+<br/>
+
+  <table><tr><th align="center"> Symbol                      </th><th align="center"> Description                     </th></tr><tr><td align="left"><code>"<i>stringliteral</i>"</code>          </td><td align="left"> Literal string                  </td></tr><tr><td align="left"><code>'<i>stringliteral</i>'</code>          </td><td align="left"> Case-insensitive literal string </td></tr><tr><td align="left"><code>[<i>range</i><sub>1</sub> <i>range</i><sub>2</sub> ... ]</code> </td><td align="left"> Character class                 </td></tr></table> <br/>
+<br/>
+
+ The following operations on character classes can be composed arbitrarily:
+ <br/>
+<br/>
+
+  <table><tr><th align="center"> Class                       </th><th align="center"> Description                                                             </th></tr><tr><td align="left"><code>!<i>Class</i></code>                   </td><td align="left"> Complement of <code><i>Class</i></code> with respect to the UTF8 universe of characters </td></tr><tr><td align="left"> <code><i>Class</i><sub>1</sub> - <i>Class</i><sub>2</sub></code>     </td><td align="left"> Difference of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>             </td></tr><tr><td align="left"> <code><i>Class</i><sub>1</sub> || <i>Class</i><sub>2</sub></code>    </td><td align="left"> Union of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>                  </td></tr><tr><td align="left"> <code><i>Class</i><sub>1</sub> &amp;&amp; <i>Class</i><sub>2</sub></code>    </td><td align="left"> Intersection of character classes <code><i>Class</i><sub>1</sub></code> and <code><i>Class</i><sub>2</sub></code>           </td></tr><tr><td align="left"> <code>(<i>Class</i>)</code>                 </td><td align="left"> Brackets for defining application order of class operators              </td></tr></table> <br/>
+<br/>
+
+ The following regular expressions can be constructed over <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s:
+ <br/>
+<br/>
+
+  <table><tr><th align="center"> Symbol                             </th><th align="center"> Description                                                         </th></tr><tr><td align="left"> <code><i>Symbol</i>?</code>                        </td><td align="left"> Optional <code><i>Symbol</i></code>                                                   </td></tr><tr><td align="left"> <code><i>Symbol</i>+</code>                        </td><td align="left"> Non-empty list of <code><i>Symbol</i></code>s                                         </td></tr><tr><td align="left"> <code><i>Symbol</i>*</code>                        </td><td align="left"> Possibly empty list of <code><i>Symbol</i></code>s.                                   </td></tr><tr><td align="left"> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code>         </td><td align="left"> Non-empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>                </td></tr><tr><td align="left"> <code>{<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub>}+</code>         </td><td align="left"> Possibly empty list of <code><i>Symbol</i><sub>1</sub></code> separated by <code><i>Symbol</i><sub>2</sub></code>.          </td></tr><tr><td align="left"> <code>(<i>Symbol</i><sub>1</sub> <i>Symbol</i><sub>2</sub> ... )</code>     </td><td align="left"> Embedded sequence of symbols                                        </td></tr><tr><td align="left"> <code>(<i>Symbol</i><sub>1</sub> | <i>Symbol</i><sub>2</sub> | ... )</code> </td><td align="left"> Embedded choice of alternative symbols                              </td></tr><tr><td align="left"> <code>()</code>                               </td><td align="left"> Tthe anonymous non-terminal for the language with the empty string  </td></tr></table> <br/>
+<br/>
+
+ Inline conditions (<a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>s) can be added to symbols to constrain their acceptability:
+ <br/>
+<br/>
+
+  <table><tr><th align="center"> Disambiguation                             </th><th align="center"> Description                                                         </th></tr><tr><td align="left"> <code><i>Symbol</i> $</code>                 </td><td align="left"> <code><i>Symbol</i></code> ends at end of line or end of file                           </td></tr><tr><td align="left"> <code>^<i>Symbol</i></code>                  </td><td align="left"> <code><i>Symbol</i></code> starts at begin of line                               </td></tr><tr><td align="left"> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>   </td><td align="left"> <code><i>Symbol</i></code> starts at certain column index.                       </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> \&nbsp;<i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code>   </td></tr></table> <br/>
+<br/>
+
+ Symbols can be composed arbitrarily.
 
 </div>
 

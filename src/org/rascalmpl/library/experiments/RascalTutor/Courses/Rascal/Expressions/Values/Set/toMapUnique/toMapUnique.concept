@@ -19,7 +19,7 @@ Examples:
 import Set;
 toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
 // Now explore an erroneous example:
-toMapUnique({<"a", 1>, <"b", 2>, <"c", 1>});
+toMapUnique({<"a", 1>, <"b", 2>, <"a", 10>});
 </screen>
 
 Benefits:

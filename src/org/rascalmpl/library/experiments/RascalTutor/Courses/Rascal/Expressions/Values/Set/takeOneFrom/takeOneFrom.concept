@@ -7,7 +7,7 @@ Syntax:
 Types:
 
 Function:
-`tuple[&T, set[&T]] takeOneFrom(set[&T] s)`
+`tuple[&T, set[&T]] takeOneFrom(set[&T] s) throws EmptySet`
 
 Details:
 

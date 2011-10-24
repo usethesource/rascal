@@ -10,39 +10,59 @@ Nonterminal symbols are identifier names that _start with an uppercase letter_.
 
 
 The following literal symbols and character classes are defined:
-* `"$stringliteral$"`, a literal string.
-* `'$stringliteral$'`, a case-insensitive literal string.
-* `[$range_1$ $range_2$ ... ]`, a character class.
+
+
+| Symbol                      | Description                     |
+|+----------------------------|+--------------------------------|
+|`"$stringliteral$"`          | Literal string                  |
+|`'$stringliteral$'`          | Case-insensitive literal string |
+|`[$range_1$ $range_2$ ... ]` | Character class                 |
+
 
 
 The following operations on character classes can be composed arbitrarily:
-* `!$Class$`, complement of `$Class$` with respect to the UTF8 universe of characters.
-* `$Class_1$ - $Class_2$`, difference of character classes `$Class_1$` and `$Class_2$`.
-*`$Class_1$ || $Class_2$`, union of character classes `$Class_1$` and `$Class_2$`.
-* `$Class_1$ && $Class_2$`, intersection of character classes `$Class_1$` and `$Class_2$`.
-* `($Class$)`, brackets for defining application order of class operators.
+
+
+| Class                       | Description                                                             |
+|+----------------------------|+------------------------------------------------------------------------|
+|`!$Class$`                   | Complement of `$Class$` with respect to the UTF8 universe of characters |
+| `$Class_1$ - $Class_2$`     | Difference of character classes `$Class_1$` and `$Class_2$`             |
+| `$Class_1$ || $Class_2$`    | Union of character classes `$Class_1$` and `$Class_2$`                  |
+| `$Class_1$ && $Class_2$`    | Intersection of character classes `$Class_1$` and `$Class_2$`           |
+| `($Class$)`                 | Brackets for defining application order of class operators              |
+
 
 
 The following regular expressions can be constructed over [Symbol]s:
-* `$Symbol$?`, optional $Symbol$.
-* `$Symbol$+`, a non-empty list of $Symbol$s.
-* `$Symbol$*` a possibly empty list of $Symbol$s.
-* `{$Symbol_1$ $Symbol_2$}+`, a non-empty list of $Symbol_1$ separated by $Symbol_2$.
-* `{$Symbol_1$ $Symbol_2$}+` possibly empty list of $Symbol_1$ separated by $Symbol_2$.
-* `($Symbol_1$ $Symbol_2$ ... )` embedded sequence of symbols .
-* `($Symbol_1$ | $Symbol_2$ | ... )` embedded choice of alternative symbols.
-* `()` the anonymous non-terminal for the language with the empty string.
+
+
+| Symbol                             | Description                                                         |
+|+-----------------------------------|+--------------------------------------------------------------------|
+| `$Symbol$?`                        | Optional $Symbol$                                                   |
+| `$Symbol$+`                        | Non-empty list of $Symbol$s                                         |
+| `$Symbol$*`                        | Possibly empty list of $Symbol$s.                                   |
+| `{$Symbol_1$ $Symbol_2$}+`         | Non-empty list of $Symbol_1$ separated by $Symbol_2$                |
+| `{$Symbol_1$ $Symbol_2$}+`         | Possibly empty list of $Symbol_1$ separated by $Symbol_2$.          |
+| `($Symbol_1$ $Symbol_2$ ... )`     | Embedded sequence of symbols                                        |
+| `($Symbol_1$ | $Symbol_2$ | ... )` | Embedded choice of alternative symbols                              |
+| `()`                               | Tthe anonymous non-terminal for the language with the empty string  |
+
 
 
 Inline conditions ([Disambiguation]s) can be added to symbols to constrain their acceptability:
-* `$Symbol$ $`, $Symbol$ ends at end of line or file.
-* `^$Symbol$`, $Symbol$ starts at start of line.
-* `$Symbol$ @ $ColumnIndex$`, $Symbol$ starts at certain column index.
-* `$Symbol_1$ >> $Symbol_2$`, $Symbol_1$ must be (directly) followed by $Symbol_2$.
-* `$Symbol_1$ !>> $Symbol_2$`, $Symbol_1$ must _not_ be (directly) followed by $Symbol_2$.
-* `$Symbol_1$ << $Symbol_2$`, $Symbol_2$ must be (directly) preceded by $Symbol_1$.
-* `$Symbol_1$ !<< $Symbol_2$`, $Symbol_2$ must _not_ be (directly) preceded by $Symbol_1$.
-* `$Symbol_1$ \\ $Symbol_2$`, $Symbol_1$ must not be in the language defined by $Symbol_2$.
+
+
+| Disambiguation                             | Description                                                         |
+|+-----------------------------|+---------------------------------------------------------------|
+| `$Symbol$ $`                 | $Symbol$ ends at end of line or end of file                           |
+| `^$Symbol$`                  | $Symbol$ starts at begin of line                               |
+| `$Symbol$ @ $ColumnIndex$`   | $Symbol$ starts at certain column index.                       |
+| `$Symbol_1$ >> $Symbol_2$`   | $Symbol_1$ must be (directly) followed by $Symbol_2$           |
+| `$Symbol_1$ !>> $Symbol_2$`  | $Symbol_1$ must _not_ be (directly) followed by $Symbol_2$     |
+| `$Symbol_1$ << $Symbol_2$`   | $Symbol_2$ must be (directly) preceded by $Symbol_1$           |
+| `$Symbol_1$ !<< $Symbol_2$`  | $Symbol_2$ must _not_ be (directly) preceded by $Symbol_1$     |
+| `$Symbol_1$ \\ $Symbol_2$`   | $Symbol_1$ must not be in the language defined by $Symbol_2$   |
+
 
 
 Symbols can be composed arbitrarily.

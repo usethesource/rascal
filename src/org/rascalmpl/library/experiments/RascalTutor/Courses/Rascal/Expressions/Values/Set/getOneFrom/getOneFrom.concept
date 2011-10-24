@@ -7,7 +7,7 @@ Syntax:
 Types:
 
 Function:
-`&T getOneFrom(set[&T] s) throws emptySet`
+`&T getOneFrom(set[&T] s) throws EmptySet`
 
 Details:
 
