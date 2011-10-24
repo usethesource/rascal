@@ -264,7 +264,7 @@ private str tableRow(str txt, list[str] alignments){
   entries = "";
   k = 0;
   visit(txt){
-      case /^\|<entry:[^\|]+>/: {entries += td(markupRestLine(entry), alignments[k] ? "left"); k += 1; insert "";}
+      case /^\|<entry:(`[^`]*`|[^\|`])+>/: {println("entry = <entry>"); entries += td(markupRestLine(entry), alignments[k] ? "left"); k += 1; insert "";}
   }
   return tr(entries);
 }
@@ -323,8 +323,6 @@ private str markupSubs(str txt){
     case /^\^<subsup:[A-Za-z0-9]+>/ => sup(subsup)   
   }
 }
-
-
 
 // Get options for image
 
