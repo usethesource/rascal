@@ -21,7 +21,11 @@ public class RunTimePropertyAdjuster implements IRunTimePropertyChanges, IFigure
 	public Object adoptPropertyVal(Properties prop, Object val) {
 		switch(prop){
 		case FONT_SIZE :  return Math.max(1,((Integer)val) + fontSizeOffset); 
-		case LINE_WIDTH : return Math.max(1,((Double)val) + lineWidthOffset); 
+		case LINE_WIDTH : 	if((Double)val == 0){ 
+			return 0;
+		} else {
+			return Math.max(0,((Double)val) + lineWidthOffset); 
+		}
 		default : return val;
 		}
 	}
