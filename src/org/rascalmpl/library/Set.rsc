@@ -11,7 +11,7 @@ module Set
 
 @doc{Pick a random element from a set}
 @javaClass{org.rascalmpl.library.Set}
-public java &T getOneFrom(set[&T] st);
+public java &T getOneFrom(set[&T] st) throws EmptySet;
 
 /*
 public &T getOneFrom(set[&T] s) {
@@ -101,7 +101,7 @@ public java int size(set[&T] st);
 
 @doc{Remove an arbitrary element from a set, returns the element and the modified set}
 @javaClass{org.rascalmpl.library.Set}
-public java tuple[&T, set[&T]] takeOneFrom(set[&T] st);
+public java tuple[&T, set[&T]] takeOneFrom(set[&T] st) throws EmptySet;
   
 @doc{Convert a set to a list}
 @javaClass{org.rascalmpl.library.Set}
