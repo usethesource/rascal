@@ -67,7 +67,9 @@ public str edit(ConceptName cn, bool newConcept){
   return html(head(title("Editing <cn>") + prelude(rootname(cn))),
               body(
                div("conceptPane",
-                 div("editArea",
+                 div("waitingBack", "OverlayBackground", "")
+                 + div("waitingMessage", "OverlayMessage", "Please hold while we try to recompile this concept.")
+                 + div("editArea",
                     "\<form method=\"POST\" action=\"/save\" id=\"editForm\"\>
                     \<textarea rows=\"15\" cols=\"60\" wrap=\"physical\" name=\"newcontent\" id=\"editTextArea\"\><content>\</textarea\>
                     \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\> \<br /\>
