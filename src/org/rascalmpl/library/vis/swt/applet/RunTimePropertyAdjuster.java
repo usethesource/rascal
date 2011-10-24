@@ -22,7 +22,7 @@ public class RunTimePropertyAdjuster implements IRunTimePropertyChanges, IFigure
 		switch(prop){
 		case FONT_SIZE :  return Math.max(1,((Integer)val) + fontSizeOffset); 
 		case LINE_WIDTH : 	if((Double)val == 0){ 
-			return 0;
+			return 0.0;
 		} else {
 			return Math.max(0,((Double)val) + lineWidthOffset); 
 		}
