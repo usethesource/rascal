@@ -34,7 +34,7 @@ $(document).ready(function () {
 		return;
 	}
 	currentSubCourse = window.location.pathname.match(/\/Courses\/[^\/]+\//);
-	if (currentSubCourse.length > 0) {
+	if (currentSubCourse && currentSubCourse.length > 0) {
 		$('#tdconcept a[href*="' + currentSubCourse + '"]').live("click", function(e){
 			if ($(this).attr('id') != 'tutorAction' && ($(this).parent('#editMenu').size() == 0)) {
 				// make sure any local links do not cause a actual page reload
