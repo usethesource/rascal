@@ -63,7 +63,7 @@ public class SetPattern extends AbstractMatchingResult {
 	private int currentVar;					    // The currently matched variable
     private boolean firstMatch;				    // First match of this pattern?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
@@ -416,7 +416,7 @@ public class SetPattern extends AbstractMatchingResult {
 		if(varPat[i] instanceof QualifiedNamePattern){
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
-			if(qualName.isAnonymous() || env.getVariable(name) == null){
+			if(isBinding[i] || qualName.isAnonymous() || env.getVariable(name) == null){
 				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
