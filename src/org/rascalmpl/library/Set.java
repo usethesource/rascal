@@ -142,21 +142,22 @@ public class Set {
 	}
 	
 	public IValue toMapUnique(IRelation st)
-	// @doc{toMapUnique -- convert a set of tuples to a map; values are unique}
+	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		Type tuple = st.getElementType();
 		Type resultType = types.mapType(tuple.getFieldType(0), tuple
 				.getFieldType(1));
 
 		IMapWriter w = resultType.writer(values);
-		HashSet<IValue> seenValues = new HashSet<IValue>();
+		HashSet<IValue> seenKeys = new HashSet<IValue>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
+			IValue key = t.get(0);
 			IValue val = t.get(1);
-			if(seenValues.contains(val)) 
-				throw RuntimeExceptionFactory.MultipleKey(val, null, null);
-			seenValues.add(val);
+			if(seenKeys.contains(key)) 
+				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+			seenKeys.add(key);
 			w.put(t.get(0), t.get(1));
 		}
 		return w.done();
