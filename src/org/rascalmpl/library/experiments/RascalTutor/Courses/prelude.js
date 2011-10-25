@@ -65,7 +65,7 @@ function addGoogleTracker() {
 	}
 	_gaq.push(['_setDomainName', 'none']);
 	_gaq.push(['_setAllowLinker', true]);
-	_gaq.push(['_trackPageview']);
+	//_gaq.push(['_trackPageview']);
 
 	(function() {
 		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -131,12 +131,12 @@ function initNavigation() {
 		}
 
     	$("#conceptPane").load(state + " div#conceptPane", function() {
-			_gaq.push(['_trackPageview', state]);
 			finishLoad();
 			newTitle = state.match(/\/Courses\/(.+)\/[^\/]+\.html/);// second group
 			if (newTitle.length == 2) {
 				$('title').html(newTitle[1]);
 			}
+			_gaq.push(['_trackPageview', state]);
 			attachDisqus(state);
 			var treeNode = $('#navPane a[href=' + state + ']');
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
