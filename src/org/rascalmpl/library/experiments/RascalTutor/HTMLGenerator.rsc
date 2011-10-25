@@ -286,10 +286,10 @@ private str markupRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),~]+>\)/ => link(url, text)
     
-    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {insert refToUnresolvedConcept(rootname(conceptPath), concept, short == "$"); }
+    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {insert refToUnresolvedConcept(rootname(conceptPath), rootname(conceptPath), concept, short == "$"); }
     
     case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/: 
-         {insert refToUnresolvedConcept(course, concept, short == "$"); }
+         {insert refToUnresolvedConcept(rootname(conceptPath), course, concept, short == "$"); }
     
     case /^\\<char:.>/ :         //TODO nested matching is broken, since wrong last match is used!
       if(char == "\\") 	    insert	"\\";
@@ -584,22 +584,25 @@ public list[loc] resolveConcept(ConceptName course, str toConcept){
 
 // Refer to a not yet resolved concept in a course.
 
-public str refToUnresolvedConcept(ConceptName course, ConceptName toConcept, bool short){
-  options = resolveConcept(course, toConcept);
+public str refToUnresolvedConcept(ConceptName fromCourse, ConceptName toCourse, ConceptName toConcept, bool short){
+  println("refToUnresolvedConcept: <fromCourse>, <toCourse>, <toConcept>, <short>");
+  options = resolveConcept(toCourse, toConcept);
   
   if(size(options) == 1){
      cn = getFullConceptName(options[0]);
-     txt = ((rootname(cn) == course) ? "" : "<course>:") + (short ? "<basename(toConcept)>" : "<toConcept>");
-     return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><txt>\</a\>";  
+     courseTxt = (fromCourse == toCourse) ? "" : ((toConcept == toCourse) ? "" : "<toCourse>:");
+     conceptTxt = short ? "<basename(toConcept)>" : "<toConcept>";
+     println("txt = <courseTxt><conceptTxt>");
+     return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><courseTxt><conceptTxt>\</a\>";  
   }     
   if(size(options) == 0){
-     addWarning("Reference to unknown course or concept: <course>:<toConcept>");
-     return inlineError("unknown: <course>:<toConcept>");
+     addWarning("Reference to unknown course or concept: <toCourse>:<toConcept>");
+     return inlineError("unknown: <toCourse>:<toConcept>");
   }
   if(size(options) > 1){
-     addWarning("Ambiguous reference to concept: <course>:<toConcept>; 
+     addWarning("Ambiguous reference to concept: <toCourse>:<toConcept>; 
                 'Resolve with one of {<intercalate(", ", [getFullConceptName(opt) | opt <- options])>}");
-     return inlineError("ambiguous: <course>:<toConcept>");
+     return inlineError("ambiguous: <toCourse>:<toConcept>");
   }
 }
 
