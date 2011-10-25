@@ -26,7 +26,7 @@ name in different parts of the concept hierarchy.
 
 The second form creates a link to a concept in another course.
 
-Each of these two forms may be preceeded by a `$` sign (mnemonic: _short_)and has as effect that only the most specific part of the conceptname is shown.
+Each of these two forms may be preceeded by a `$` sign (mnemonic: _short_) and has as effect that only the most specific part of the conceptname is shown.
 
 Examples:
 We can create a reference to the `InlineMarkup` concept in the current course in the following ways:

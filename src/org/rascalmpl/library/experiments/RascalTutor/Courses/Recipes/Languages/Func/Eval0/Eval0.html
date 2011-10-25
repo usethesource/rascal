@@ -114,7 +114,7 @@ public int eval0(call(str name, list[Exp] args), PEnv penv) =  <img src="/Course
 </pre> Some points to note:
  <ul><li> <code>PEnv</code> is used as an alias for a map from names to functions (<img src="/Courses/images/1.png">). Such maps are used to represent the function definitions in the program.</li>
 <li> The top level interpreter is <code>eval0</code> defined at <img src="/Courses/images/2.png">. It takes the name of the main function, a list of actual parameters, and the complete Func program. Binding of variables is done by substitution.</li>
-<li> The substitution function is defined at <img src="/Courses/images/3.png">. It takes an expression, a list of variables, and a list of integer values to be substituted for them. Note how a <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a> is used to find all the variables in the expression and to replace them.</li>
+<li> The substitution function is defined at <img src="/Courses/images/3.png">. It takes an expression, a list of variables, and a list of integer values to be substituted for them. Note how a <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Rascal:Visit</a> is used to find all the variables in the expression and to replace them.</li>
 <li> Starting at <img src="/Courses/images/4.png"> the versions of <code>eval0</code> for each implemented construct. They all have a <code>PEnv</code> argument that is needed   to resolve calls.
 </li>
 <li> At <img src="/Courses/images/5.png"> the if expression is defined: the then-branch is taken when the test evaluates to a non-zero integer.</li>

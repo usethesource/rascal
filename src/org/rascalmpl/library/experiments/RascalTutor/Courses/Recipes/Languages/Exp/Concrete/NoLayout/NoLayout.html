@@ -94,7 +94,7 @@ public int eval((Exp)`&lt;Exp e1>*&lt;Exp e2>`) = eval(e1) * eval(e2);  <img src
 public int eval((Exp)`&lt;Exp e1>+&lt;Exp e2>`) = eval(e1) + eval(e2);  <img src="/Courses/images/5.png">
 public int eval((Exp)`(&lt;Exp e>)`) = eval(e);                      <img src="/Courses/images/6.png">
 </pre> Notes:
- <ul><li> <img src="/Courses/images/1.png"> We import <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> because we will need the <code>parse</code> function below.</li>
+ <ul><li> <img src="/Courses/images/1.png"> We import <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">Rascal:ParseTree</a> because we will need the <code>parse</code> function below.</li>
 <li> <img src="/Courses/images/2.png"> The main function <code>eval</code> that evaluates an expression as string to an integer. It proceeds in two steps: <ul><li> <code>parse(#Exp, txt)</code> parses the given <code>txt</code> according to non-terminal <code>Exp</code> as defined by the grammar.      The result is a parse tree.
 </li>
 <li> This parse tree is given to another eval function that will reduce the tree to an integer.</li>

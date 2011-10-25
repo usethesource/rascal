@@ -57,7 +57,7 @@
  <br/>
 <br/>
 
- We exploit the subtype relation (see <a href="/Courses/Rascal/Concepts/IntroStaticTyping/IntroStaticTyping.html">IntroStaticTyping</a>) between <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>s and the type <a href="/Courses/Rascal/Expressions/Values/Node/Node.html">Node</a> to achieve this.
+ We exploit the subtype relation (see <a href="/Courses/Rascal/Concepts/StaticTyping/StaticTyping.html">Rascal:StaticTyping</a>) between <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">Rascal:AlgebraicDataType</a>s and the type <a href="/Courses/Rascal/Expressions/Values/Node/Node.html">Rascal:Node</a> to achieve this.
  <br/>
 <br/>
 
@@ -113,13 +113,13 @@ public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N),
  The function <code>count</code> is defined at <img src="/Courses/images/1.png">:
  <ul><li> <img src="/Courses/images/2.png"> introduces an empty map to maintain the frequencies.</li>
 <li> <img src="/Courses/images/3.png"> defines a visit of argument <code>N</code>; it traverses the complete value of <code>N</code>.</li>
-<li> <img src="/Courses/images/4.png"> defines the case that we encounter a node and we update its frequency count.   First the name of the constructor is retrieved (using <a href="/Courses/Rascal/Expressions/Values/Node/getName/getName.html">getName</a>) and then the
-   frequency is updated. The <a href="/Courses/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">IsDefined</a> operator is used to provide a default value of 0 when
+<li> <img src="/Courses/images/4.png"> defines the case that we encounter a node and we update its frequency count.   First the name of the constructor is retrieved (using <a href="/Courses/Rascal/Expressions/Values/Node/getName/getName.html">Rascal:getName</a>) and then the
+   frequency is updated. The <a href="/Courses/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">Rascal:IsDefined</a> operator is used to provide a default value of 0 when
    the name was not yet in the map.
 </li>
 <li> <img src="/Courses/images/5.png"> the map <code>freq</code> is returned as result.</li>
 </ul> A variant <code>countRelevant</code> is defined at <img src="/Courses/images/6.png">; it gets is an extra argument of relevant constructors
- names that is used to filter the map that is returned by <code>count</code> using <a href="/Courses/Rascal/Expressions/Values/Map/domainR/domainR.html">Map/domainR</a>.
+ names that is used to filter the map that is returned by <code>count</code> using <a href="/Courses/Rascal/Expressions/Values/Map/domainR/domainR.html">Rascal:domainR</a>.
  <pre class="screen"><b>rascal></b>import demo::common::CountConstructors;
 ok
 <b>rascal></b>count(CT);

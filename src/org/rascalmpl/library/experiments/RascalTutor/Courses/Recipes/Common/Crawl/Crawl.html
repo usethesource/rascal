@@ -85,15 +85,15 @@ public list[loc] crawl(loc dir, str suffix){ <img src="/Courses/images/2.png">
   return res;
 }
 </pre> We start with defining a helper function <code>catenate</code> (<img src="/Courses/images/1.png">) that concatenates a new file name to a location <code>basedir</code> that is assumed to be a directory.
- First a check is done (using <a href="/Courses/Rascal/Expressions/Values/String/endsWith/endsWith.html">endsWith</a>) whether the <code>uri</code> in <code>basedir</code> already ends with a slash character. If not, that is added.
- Next, the <code>basedir</code> is returned, with its <code>uri</code> replaced. See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a> for details.
+ First a check is done (using <a href="/Courses/Rascal/Expressions/Values/String/endsWith/endsWith.html">Rascal:endsWith</a>) whether the <code>uri</code> in <code>basedir</code> already ends with a slash character. If not, that is added.
+ Next, the <code>basedir</code> is returned, with its <code>uri</code> replaced. See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:Location</a> for details.
  <br/>
 <br/>
 
  Next, we define the actual <code>crawl</code> function (<img src="/Courses/images/2.png">). It takes two arguments:
  <ul><li> The directory <code>dir</code> where the crawl should start.</li>
 <li> The suffix of the files we are looking for.</li>
-</ul> The crawler now simply lists all entries in the current directory using <a href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">listEntries</a> and adds all files
+</ul> The crawler now simply lists all entries in the current directory using <a href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">Rascal:listEntries</a> and adds all files
  that end we the given suffix to the result. If an entry is itself a directory, it is crawled by a recursive call to crawl.
  <br/>
 <br/>
@@ -119,7 +119,7 @@ ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
 int: 3322
 </pre>
-  This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Reducer</a> expression.
+  This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>
 <br/>
 
@@ -139,12 +139,12 @@ rel[loc, int]: {
   &lt;|std://library/demo/common/LiftTest.rsc|,32&gt;,
   &lt;|std://library/demo/lang/...
 </pre>
-  Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">range</a> of <code>aux</code>:
+  Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
 
 <pre class="screen"><b>rascal></b>m = max(range(aux));
 int: 154
 </pre>
-  and now <a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">invert</a> <code>aux</code> and use <a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Subscription</a>  to find the tuples with the maximum value as first element.
+  and now <a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">Rascal:invert</a> <code>aux</code> and use <a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Rascal:Subscription</a>  to find the tuples with the maximum value as first element.
 
 <pre class="screen"><b>rascal></b>invert(aux)[m];
 set[loc]: {|std://library/demo/lang/Func/Eval3.rsc|}

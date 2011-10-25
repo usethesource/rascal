@@ -53,7 +53,7 @@
                            
 <div id="Description">
 <span class="sectionHead">Description</span>  Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
- The work horse is the <a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a> function that is available in the <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">Libraries/ParseTree</a> library.
+ The work horse is the <a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">Rascal:parse</a> function that is available in the <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">Rascal:Libraries/ParseTree</a> library.
 
 </div>
 
@@ -101,7 +101,7 @@ Prog: appl(
 </pre>
   This must be defined as success: we get the original program and its parse tree back.
   Next, we try the same from a file. We use the scheme <code>std</code> that refers to files that reside in the Rascal library.
-  See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">location</a> for further details on other schemes.
+  See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:location</a> for further details on other schemes.
 
 <pre class="screen"><b>rascal></b>parse(|std:///demo/lang/Func/programs/F0.func|);
 `fact(n) = if n &lt;= 1 then
