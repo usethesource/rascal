@@ -219,6 +219,13 @@ function attachHandlers() {
     if (enableQuestions == false) $('#questions').hide();
 
     report("attachHandlers ... done", $("#navPane").html());
+
+    $('pre').css('max-width', $(window).width() * 0.7)
+    .css('overflow-x', 'scroll');
+    $(window).resize(function() {
+        $('pre').css('max-width', $(window).width() * 0.7);
+    });
+    
     return false;
 }
 
