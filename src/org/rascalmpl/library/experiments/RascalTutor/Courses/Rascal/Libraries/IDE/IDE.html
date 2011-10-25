@@ -6,11 +6,11 @@
 
 
 <head>
-<title>Rascal/IDEConstruction</title>
+<title>Rascal/Libraries/IDE</title>
 
-<meta name="description" content="Rascal/IDEConstruction:  Extend an IDE with interactive, language-specific, features (Eclipse only).">
+<meta name="description" content="Rascal/Libraries/IDE:  Extend an IDE with interactive, language-specific, features (Eclipse only).">
 
-<meta name="keywords" content="Rascal/IDEConstruction, Rascal, meta-programming, software analysis, software transformation">
+<meta name="keywords" content="Rascal/Libraries/IDE, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
 <link type="text/css" rel="stylesheet" href="/Courses/jquery.autocomplete.css"/>
 <script type="text/javascript" src="/Courses/jquery-1.4.2.min.js"></script>
@@ -29,7 +29,7 @@
 <div id="searchBox">
   <form method="GET" id="searchForm" action="/search"> 
     <img id="searchIcon" height="20" width="20" src="/Courses/images/magnify.png">
-    <input type="hidden" name="concept" value="Rascal/IDEConstruction">
+    <input type="hidden" name="concept" value="Rascal/Libraries/IDE">
     <input type="text" id="searchField" name="term" autocomplete="off"><br />
     <div id="popups"></div>
   </form>
@@ -40,7 +40,7 @@
 <div id="conceptPane">
 
 <div id="Name">
-<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/IDEConstruction/IDEConstruction.html">IDEConstruction</a>
+<span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/IDE/IDE.html">IDE</a>
 </div>
 
 <div id="Synopsis">
@@ -57,7 +57,7 @@
                            
                            
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a> &#032 <a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a> &#032 <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/IDE/DocumentationHover/DocumentationHover.html">DocumentationHover</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/ErrorMarking/ErrorMarking.html">ErrorMarking</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/Folding/Folding.html">Folding</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/Hyperlinking/Hyperlinking.html">Hyperlinking</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/Menus/Menus.html">Menus</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/Outline/Outline.html">Outline</a> &#032 <a href="/Courses/Rascal/Libraries/IDE/Plugin/Plugin.html">Plugin</a> &#032 
 </div>
 
 <div id="Description">
@@ -74,14 +74,7 @@
 <li> Define a parse function for the language.</li>
 <li> Register the language.</li>
 </ul> Now you can step-by-step extend the IDE for your language with additional features:
- <ul><li><a href="/Courses/Rascal/IDEConstruction/DocumentationHover/DocumentationHover.html">DocumentationHover</a>: Show documentation strings by hovering over elements of the source text in the IDE.</li>
-<li><a href="/Courses/Rascal/IDEConstruction/ErrorMarking/ErrorMarking.html">ErrorMarking</a>: Visual and browsable error messages in the IDE.</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Folding/Folding.html">Folding</a>: Editors may hide (fold) certain parts of a source text based on <code>foldable</code> annotations.</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Hyperlinking/Hyperlinking.html">Hyperlinking</a>: Hyperlinks in source code.</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Menus/Menus.html">Menus</a>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Outline/Outline.html">Outline</a>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file</li>
-<li><a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>: </li>
-</ul> To be able to reuse your IDE between runs of Eclipse, read about <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>s.
+ <ul></ul> To be able to reuse your IDE between runs of Eclipse, read about <a href="/Courses/Rascal/IDEConstruction/Plugin/Plugin.html">Plugin</a>s.
  To add annotations to trees, just after parsing, you should register an <code>annotator</code> function.
 
 </div>
@@ -115,8 +108,8 @@ ok
   	                       
   	                       
   	                       
-<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/IDEConstruction&new=false"><b>Edit</b></a>] | 
-               [<a id="newAction" href="/edit?concept=Rascal/IDEConstruction&new=true"><b>New Subconcept</b></a>] |
+<a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/IDE&new=false"><b>Edit</b></a>] | 
+               [<a id="newAction" href="/edit?concept=Rascal/Libraries/IDE&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 

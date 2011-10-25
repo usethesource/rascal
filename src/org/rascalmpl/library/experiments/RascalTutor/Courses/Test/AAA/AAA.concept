@@ -13,6 +13,12 @@ Function:
 Details:
 
 Description:
+| Operator    | Description |
+|+------------|+------------|
+| `$A$ | $B$` | alternative |
+| `||`        | or          |
+
+ 
 
 <screen>
 xxx;

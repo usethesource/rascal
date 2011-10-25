@@ -9,9 +9,9 @@ var searchTerms = {};
 
 searchTerms["]"] = new Array("Test");
 
-searchTerms["map"] = new Array("Test");
-
 searchTerms[","] = new Array("Test");
+
+searchTerms["map"] = new Array("Test");
 
 searchTerms["["] = new Array("Test");
 
