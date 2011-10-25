@@ -54,46 +54,88 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  All source code analysis projects need to extract information directly from the source code. 
  There are two main approaches to this:
-  <ul><li> <i>Lexical information</i>: Use regular expressions to extract useful, but somewhat superficial, flat, information.     This can be achieved using regular expression patterns.
+  <ul><li> <i>Lexical information</i>: Use regular expressions to extract useful, but somewhat superficial, flat, information.     This can be achieved using regular expression patterns, see <a href="/Courses/Rascal/Patterns/Regular/Regular.html">Patterns/Regular</a>.
 </li>
-<li> <i>Structured information</i>: Use syntax analysis to extract the complete, nested, structure of the source code     in the form of a syntax tree.
+<li> <i>Structured information</i>: Use syntax analysis to extract the complete, nested, structure of the source code     in the form of a syntax tree. Rascal can directly manipulate the parse trees, but it also enables user-defined
+    mappings from parse tree to abstract syntax tree.
 </li>
 </ul> Using <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s you can define the syntax of any (programming) language. Then Rascal:
- <ul><li> will generate parsers</li>
-<li> will provide pattern matching and pattern construction in <a href="/Courses/Rascal/Expressions/ConcreteSyntax/ConcreteSyntax.html">ConcreteSyntax</a></li>
+ <ul><li> will generate the parser, and</li>
+<li> will provide pattern matching and pattern construction on parse trees and abstract syntax trees, see <a href="/Courses/Rascal/Patterns/Abstract/Abstract.html">Patterns/Abstract</a> and       <a href="/Courses/Rascal/Patterns/Concrete/Concrete.html">Patterns/Concrete</a>.
+</li>
 </ul>
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">module MyLanguage
+<span class="sectionHead">Examples</span>  Let's use the Exp language as example. It contains the following elements:
+ <ul><li> Integer constants, e.g., <code>123</code>.</li>
+<li> A multiplication operator, e.g., <code>3*4</code>.</li>
+<li> An addition operator, e.g., <code>3+4</code>.</li>
+<li> Multiplication is left-associative and has precedence over addition.</li>
+<li> Addition is left-associative.</li>
+<li> Parentheses can be used to override the precedence of the operators.</li>
+</ul> Here are some examples:
+ <ul><li> <code>123</code></li>
+<li> <code>2+3+4</code></li>
+<li> <code>2+3*4</code></li>
+<li> <code>(2+3)*4</code></li>
+</ul> The EXP language can be defined as follows:
+  <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Syntax
 
-layout MyLayout = [&nbsp;\t\n]*;
+lexical LAYOUT = [\t-\n\r&nbsp;];                    <img src="/Courses/images/1.png">
 
-lexical Id = [a-z]+;
+layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r&nbsp;] ;   <img src="/Courses/images/2.png">
+    
+lexical IntegerLiteral = [0-9]+;           
 
-start syntax Program = "begin" {Stat ";"}* stats "end";
+start syntax Exp =                         
+                   IntegerLiteral          
+                 | bracket "(" Exp ")"     
+                 > left Exp "*" Exp        
+                 > left Exp "+" Exp        
+                 ;
+</pre> Now you may parse and manipulate programs in the EXP language. Let's demonstrate parsing an expression:
+ <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
+ok
+<b>rascal></b>import ParseTree;
+ok
+<b>rascal></b>parse(#start[Exp], &quot;2+3*4&quot;);
+`2+3*4`
+start[Exp]: appl(
+  prod(
+    start(sort(&quot;Exp&quot;)),
+    [
+      layouts(&quot;LAYOUTLIST&quot;),
+      label(
+        &quot;top&quot;,
+        sort(&quot;Exp&quot;)),
+      layouts(&quot;LAYOUTLIST&quot;)
+    ],
+    {}),
+  [
+    appl(
+      prod(
+    ...
+</pre> First we import the syntax definition and the  <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a> module that provides the parsing functionality.
+ Finally, we parse <code>2+3*4</code> using the start symbol <code>Exp</code>.
+ <br/>
+<br/>
 
-syntax Stat
-  = assign: Id id "=" Exp exp
-  | if: "if" Exp cond "then" {Stat ";"}* "else" {Stat ";"}* "fi"
-  ;
+ Don't be worried, we are just showing the resulting parse tree here. It intended for programs and not for humans.
+ The points we want to make are:
+ <ul><li> Rascal grammars are relatively easy to read and write (unfortunately, writing grammars will never become simple).</li>
+<li> Parser generation is completely implicit.</li>
+<li> Given a syntax definition, it can be used immediately for parsing.</li>
+</ul> See <a href="/Courses/Recipes/Languages/Exp/Exp.html">Recipes:Exp</a> for a more extensive presentation of the EXP language and <a href="/Courses/Recipes/Languages/Languages.html">Recipes:Languages</a> for other language examples.
 
-syntax Exp
-  = ref: Id id
-  | left mul: Exp lhs "*" Exp rhs
-  > left add: Exp lhs "+" Exp rhs
-  ;
-</pre> Now you may parse and manipulate programs in this language:
- <pre class="listing">import MyLanguage;
-parse(#start[Program], "begin end");
-</pre>
 </div>
 
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> The <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> feature has recently been designed and implemented and is still going through some growing pains.</li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> The <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> feature has recently been designed and implemented and is still going through some growing pains. This includes both implementation and documentation.
+</li>
 </ul>
 </div>
 

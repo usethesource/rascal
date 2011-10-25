@@ -57,7 +57,11 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Returns a map with key and value inverted; result should be a map.
+<span class="sectionHead">Description</span>  Returns a map with key and value inverted; the result should be a map.
+ If the initial map contains duplicate values,
+ the <code>MultipleKey</code> exception is raised since
+ an attempt is made to create a map where more than one 
+ value would be associated with the same key.
  <br/>
 <br/>
 
