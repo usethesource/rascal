@@ -83,11 +83,17 @@ Match succeeded, S = {30,40,20}
 ok
 </pre>
   Here we see an example, where all possible splits of a set in two subsets are printed:
-   <warning>Example is broken</warning>
 
-<pre class="screen"><b>rascal></b>for({S1*, S2*} :={50, 40, 30, 20, 10})
+<pre class="screen"><b>rascal></b>for({S1*, S2*} :={30, 20, 10})
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;    println(&quot;&lt;S1&gt; and &lt;S2&gt;&quot;);
-{30,10,40,20,50} and {}
+{30,10,20} and {}
+{30,10} and {20}
+{30,20} and {10}
+{30} and {10,20}
+{10,20} and {30}
+{10} and {30,20}
+{20} and {30,10}
+{} and {30,10,20}
 list[void]: []
 </pre>
 </div>

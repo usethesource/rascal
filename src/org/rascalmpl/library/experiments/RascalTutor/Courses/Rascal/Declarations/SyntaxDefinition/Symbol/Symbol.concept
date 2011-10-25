@@ -6,7 +6,10 @@ Syntax:
 <br>
 Nonterminal symbols are identifier names that _start with an uppercase letter_.
 
-* `$Symbol$ $fieldName$`, any symbol can be labeled with a field name that _starts with a lowercase letter_.
+
+| Symbol                      | Description                     |
+|+----------------------------|+--------------------------------|
+| `$Symbol$ $fieldName$`      | Any symbol can be labeled with a field name that _starts with a lowercase letter_ |
 
 
 The following literal symbols and character classes are defined:

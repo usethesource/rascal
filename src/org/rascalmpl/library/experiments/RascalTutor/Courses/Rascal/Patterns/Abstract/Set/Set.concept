@@ -33,8 +33,7 @@ if({10, set[int] S, 50} := {50, 40, 30, 20, 10})
 if({10, S*, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, S = <S>");
 // Here we see an example, where all possible splits of a set in two subsets are printed:
-//  <warning>Example is broken</warning>
-for({S1*, S2*} :={50, 40, 30, 20, 10})
+for({S1*, S2*} :={30, 20, 10})
     println("<S1> and <S2>");
 </screen>
 
