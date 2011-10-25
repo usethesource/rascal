@@ -350,39 +350,11 @@ WARNING
         display: block;      
 }
 
-/* Overlay styling */
-.OverlayBackground
+#pleaseWaitMessage
 {
-	background: #fff;
-	filter: Alpha(Opacity=70);
-	opacity: 0.70;
-	-moz-opacity: 0.70;		
- 	position: fixed;
-	top:0;
-	left:0;
 	display: none;
-	width: 100%;
-	z-index:1000;
-	height: 100%;
+	
 }
-
-.OverlayMessage 
-{
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 50%;
-	margin-left: -25%;
-
-	border: 1px solid #ddd;
-	text-align: center;
-	color: #333;
-	padding: 0.8em 0.2em;
-	display: none;
-	background: #F7F7F7 url(images/loader-light.gif) no-repeat left center;
-	z-index:1001;
-}
-
 
 
 
