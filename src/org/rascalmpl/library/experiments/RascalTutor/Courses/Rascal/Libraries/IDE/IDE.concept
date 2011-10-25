@@ -23,7 +23,7 @@ To instantiate an IDE for a language implemented using Rascal, use the following
 
 
 Now you can step-by-step extend the IDE for your language with additional features:
-<toc Rascal/IDEConstruction 1>
+<toc Rascal/Libraries/IDE 1>
 
 To be able to reuse your IDE between runs of Eclipse, read about [Plugin]s.
 To add annotations to trees, just after parsing, you should register an `annotator` function.
