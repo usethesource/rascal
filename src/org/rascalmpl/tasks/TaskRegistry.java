@@ -7,13 +7,15 @@
  *
  * Contributors:
 
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
-*******************************************************************************/
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
+ *******************************************************************************/
 package org.rascalmpl.tasks;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -25,11 +27,12 @@ import org.rascalmpl.tasks.TaskRegistry;
 
 public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	private static final Map<ClassTriple,TaskRegistry<?,?,?>> schedulers =
-		new HashMap<ClassTriple,TaskRegistry<?,?,?>>();
-	private Map<K,ITask<K,N,V>> producers = new HashMap<K,ITask<K,N,V>>();
-	private Map<K, DepFactPolicy> depPolicies = new HashMap<K, DepFactPolicy>();
-	private Map<K, RefFactPolicy> refPolicies = new HashMap<K, RefFactPolicy>();
-	
+			new HashMap<ClassTriple,TaskRegistry<?,?,?>>();
+	protected Map<K,ITask<K,N,V>> producers = new HashMap<K,ITask<K,N,V>>();
+	protected Map<K, DepFactPolicy> depPolicies = new HashMap<K, DepFactPolicy>();
+	protected Map<K, RefFactPolicy> refPolicies = new HashMap<K, RefFactPolicy>();
+	protected Lock lock = new ReentrantLock();
+
 	@SuppressWarnings("unchecked")
 	public static <K,N,V> ITaskRegistry<K, N, V> getScheduler(Class<K> keyType, Class<N> name, Class<V> value) {
 		ClassTriple key = new ClassTriple(keyType, name, value);
@@ -48,84 +51,149 @@ public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 		ITask<K, N, V> producer = producers.get(key);
 		return producer;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, K, N)
 	 */
 	public boolean produce(IRascalMonitor monitor, ITransaction<K, N, V> tr, K key, N name) {
-		ITask<K, N, V> producer = getProducer(key, name);
+		ITask<K, N, V> producer = null;
+		lock.lock();
+		try {
+			producer = getProducer(key, name);
+		}
+		finally {
+			lock.unlock();
+		}
 		if(producer == null)
 			throw new ImplementationError("No registered fact producer for " + key.toString());
 		return producer.produce(monitor, tr, key, name);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#registerProducer(org.rascalmpl.tasks.ITask)
 	 */
 	public void registerProducer(ITask<K,N,V> producer) {
-		for(K key : producer.getKeys())
-			producers.put(key, producer);
+		lock.lock();
+		try {
+			for(K key : producer.getKeys())
+				producers.put(key, producer);
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#unregisterProducer(org.rascalmpl.tasks.ITask)
 	 */
 	public void unregisterProducer(ITask<K,N,V> producer) {
-		for(K key : producer.getKeys()) {
-			if(producers.get(key) == producer)
-				producers.remove(key);
+		lock.lock();
+		try {
+			for(K key : producer.getKeys()) {
+				if(producers.get(key) == producer)
+					producers.remove(key);
+			}
+		}
+		finally {
+			lock.unlock();
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setRefPolicy(K, org.rascalmpl.tasks.RefFactPolicy)
 	 */
 	public void setRefPolicy(K key, RefFactPolicy policy) {
-		refPolicies.put(key, policy);
+		lock.lock();
+		try {
+			refPolicies.put(key, policy);
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#setDepPolicy(K, org.rascalmpl.tasks.DepFactPolicy)
 	 */
 	public void setDepPolicy(K key, DepFactPolicy policy) {
-		depPolicies.put(key, policy);
+		lock.lock();
+		try {
+			depPolicies.put(key, policy);
+		}
+		finally {
+			lock.unlock();
+		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getDepPolicy(K)
 	 */
 	public DepFactPolicy getDepPolicy(K key) {
-		DepFactPolicy policy = depPolicies.get(key);
-		if(policy == null)
-			policy = DepFactPolicy.DEFAULT;
-		return policy;
+		lock.lock();
+		try {
+			DepFactPolicy policy = depPolicies.get(key);
+			if(policy == null)
+				policy = DepFactPolicy.DEFAULT;
+			return policy;
+		}
+		finally {
+			lock.unlock();
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getRefPolicy(K)
 	 */
 	public RefFactPolicy getRefPolicy(K key) {
-		RefFactPolicy policy = refPolicies.get(key);
-		if(policy == null)
-			policy = RefFactPolicy.DEFAULT;
-		return policy;
+		lock.lock();
+		try {
+			RefFactPolicy policy = refPolicies.get(key);
+			if(policy == null)
+				policy = RefFactPolicy.DEFAULT;
+			return policy;
+		}
+		finally {
+			lock.unlock();
+		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#getKeys()
 	 */
 	public Collection<K> getKeys() {
-		return producers.keySet();
+		lock.lock();
+		try {
+			return producers.keySet();
+		}
+		finally {
+			lock.unlock();
+		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#clear()
 	 */
 	public void clear() {
-		producers.clear();
-		schedulers.clear();
-		depPolicies.clear();
-		refPolicies.clear();
+		lock.lock();
+		try {
+			producers.clear();
+			schedulers.clear();
+			depPolicies.clear();
+			refPolicies.clear();
+		}
+		finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void lock() {
+		lock.lock();
+	}
+
+	@Override
+	public void unlock() {
+		lock.unlock();
 	}
 }
 
@@ -177,7 +245,4 @@ class ClassTriple {
 			return false;
 		return true;
 	}
-	
-	
-
 }

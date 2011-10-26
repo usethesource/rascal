@@ -8,7 +8,7 @@
  * Contributors:
 
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl - CWI/UiB
+ *   * Anya Helene Bagge - anya@ii.uib.no - CWI/UiB
 *******************************************************************************/
 package org.rascalmpl.test.library;
 

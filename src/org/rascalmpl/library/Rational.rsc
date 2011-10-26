@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@contributor{Anya Helene Bagge - A.H.S.Bagge@cwi.nl}
+@contributor{Anya Helene Bagge - anya@ii.uib.no}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Rational

@@ -44,7 +44,8 @@ private Edge arrow(str from, str to, str typ) {
 		return edge(to, from, toArrow());
 }
 private FProperty toArrow() {
-	return toArrow(shape([vertex(0,0), vertex(3,5), vertex(6,0)], shapeConnected(true)));
+	return toArrow(shapeDiamond(size(4)));
+//	return toArrow(shape([vertex(0,0), vertex(3,5), vertex(6,0)], shapeConnected(true)));
 }
 
 private FProperty fromArrow() {

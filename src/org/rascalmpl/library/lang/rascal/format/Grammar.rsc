@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)}
+@contributor{Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc {
   Convert the Rascal internal grammar representation format (Grammar) to 
