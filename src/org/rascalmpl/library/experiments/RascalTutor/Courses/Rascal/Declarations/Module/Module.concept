@@ -35,12 +35,13 @@ The constituents of a module are shown in the figure below.
 ![Module Parts](module-parts.png|right|500px)
 
 An [Import] declares other modules that are used by the current module.
-Following imports, a module may contain declarations (in arbitrary order) for:
+Following imports, a module may contain declarations (in arbitrary order, but a [SyntaxDefinition] can
+occur directly following the imports) for:
 
+* [SyntaxDefinition]
 * [$Declarations/Variable]
 * [Function]
 * [AlgebraicDataType]
-* [Rule]
 * [Alias]
 * [Annotation]
 * [Tag]
