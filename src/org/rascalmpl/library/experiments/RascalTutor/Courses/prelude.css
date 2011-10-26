@@ -290,6 +290,7 @@ pre
         border-bottom: solid #9b8c8b 1px;
         padding-left: 15px;
         padding-right: 10px;
+        overflow-x:auto;
 }
 
 

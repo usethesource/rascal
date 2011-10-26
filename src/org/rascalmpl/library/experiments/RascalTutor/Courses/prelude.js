@@ -222,8 +222,7 @@ function attachHandlers() {
 
     report("attachHandlers ... done", $("#navPane").html());
 
-    $('pre').css('max-width', $(window).width() * 0.7)
-    .css('overflow-x', 'scroll');
+    $('pre').css('max-width', $(window).width() * 0.7);
     $(window).resize(function() {
         $('pre').css('max-width', $(window).width() * 0.7);
     });
