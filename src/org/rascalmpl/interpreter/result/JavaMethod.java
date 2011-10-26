@@ -20,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -104,8 +106,8 @@ public class JavaMethod extends NamedFunction {
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
 		catch (Throw t) {
-			t.setTrace(ctx.getStackTrace());
-			t.setLocation(ctx.getCurrentAST().getLocation());
+		//	t.setTrace(ctx.getStackTrace());
+		//	t.setLocation(ctx.getCurrentAST().getLocation());
 			throw t;
 		}
 		finally {
@@ -137,8 +139,16 @@ public class JavaMethod extends NamedFunction {
 			
 			if (targetException instanceof Throw) {
 				Throw th = (Throw) targetException;
+				String trace = th.getTrace();
+				if(trace == null)
+					trace = "";
+				ISourceLocation loc = th.getLocation();
+				if(loc != null) {
+					trace = "\t" + loc.getURI().getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + "\n" + trace;
+				}
+				trace = trace + "\t" + "somewhere in: " + method.toString() + "\n";
 				((Throw) targetException).setLocation(eval.getCurrentAST().getLocation());
-				((Throw) targetException).setTrace(eval.getStackTrace());
+				((Throw) targetException).setTrace(trace + eval.getStackTrace());
 				throw th;
 			}
 			else if (targetException instanceof ImplementationError) {
