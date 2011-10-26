@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@contributor{Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)}
+@contributor{Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)}
 module util::tasks::Manager
 
 alias Task = bool (Transaction tr, type[&T] key, &N name);
@@ -20,6 +20,25 @@ public java void registerProducer(Task producer, set[value] keys);
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void unregisterProducer(Task producer);
 
+@doc{Lock the producer registry – use this before adding/removing a
+	set of related producers. Remember to enclose the critical section in
+	try \{ ... \} finally \{ unlockProducerRegistry(); \} }
+@javaClass{org.rascalmpl.library.util.tasks.Manager}
+private java void lockProducerRegistry();
+
+@javaClass{org.rascalmpl.library.util.tasks.Manager}
+private java void unlockProducerRegistry();
+
+public void registryTransaction(void() f) {
+	lockProducerRegistry();
+	try {
+		f();
+	}
+	catch "ATotallyFakeException": ;
+	finally {
+		unlockProducerRegistry();
+	}
+}
 alias Transaction = value;
 alias Fact = value;
 

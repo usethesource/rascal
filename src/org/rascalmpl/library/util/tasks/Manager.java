@@ -7,7 +7,7 @@
  *
  * Contributors:
 
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
 *******************************************************************************/
 package org.rascalmpl.library.util.tasks;
 
@@ -54,6 +54,15 @@ public class Manager {
 		this.vf = vf;
 		this.registry = PDBValueTaskRegistry.getRegistry();
 	}
+	
+	public void lockProducerRegistry() {
+		registry.lock();
+	}
+	
+	public void unlockProducerRegistry() {
+		registry.unlock();
+	}
+	
 	public IValue startTransaction(IEvaluatorContext ctx) {
 		if(base == null)
 			base = new Transaction(ctx.getStdErr());

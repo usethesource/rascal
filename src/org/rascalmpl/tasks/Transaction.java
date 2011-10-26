@@ -7,8 +7,8 @@
  *
  * Contributors:
 
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
-*******************************************************************************/
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
+ *******************************************************************************/
 package org.rascalmpl.tasks;
 
 import java.io.PrintWriter;
@@ -37,7 +37,7 @@ import org.rascalmpl.tasks.Transaction;
 import org.rascalmpl.tasks.facts.AbstractFact;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
-	IExpirationListener<IValue> {
+IExpirationListener<IValue> {
 	public static final Type TransactionType = new ExternalType() {};
 	private final Transaction parent;
 	private final boolean commitEnabled;
@@ -63,7 +63,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	public Transaction(Transaction parent, PrintWriter stderr, boolean commitEnabled) {
 		this(parent, null, stderr, commitEnabled);
 	}
-	
+
 	public Transaction(Transaction parent, INameFormatter format, PrintWriter stderr, boolean commitEnabled) {
 		this.parent = parent;
 		this.commitEnabled = commitEnabled;
@@ -99,42 +99,51 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	}*/
 	public IValue getFact(IRascalMonitor monitor, Type key, IValue name) {
 		IFact<IValue> fact = null;
-		synchronized (this) {
-			Key k = new Key(key, name);
-			fact = query(k);
+		try {
+			System.err.println("GetFact: " + formatKey(key, name));
+			boolean status = false;
+			synchronized (this) {
+				Key k = new Key(key, name);
+				fact = query(k);
 
-			if (fact != null) {
-				IValue value = fact.getValue();
-				if (value != null) {
-					deps.add(fact);
-					return value;
+				if (fact != null) {
+					IValue value = fact.getValue();
+					if (value != null) {
+						deps.add(fact);
+						return value;
+					}
 				}
+				monitor.startJob("Producing fact " + formatKey(key, name));
+				Transaction tr = new Transaction(this, stderr, true);
+				status = registry.produce(monitor, tr, key, name);
+				monitor.endJob(true);
+				fact = tr.map.get(k);
+				if (fact != null) {
+					tr.commit();
+					deps.add(fact);
+				}
+				//			else
+				//			tr.abandon();
 			}
-			monitor.startJob("Producing fact " + formatKey(key, name));
-			Transaction tr = new Transaction(this, stderr, true);
-			boolean status = registry.produce(monitor, tr, key, name);
-			monitor.endJob(true);
-			fact = tr.map.get(k);
-			if (fact != null) {
-				tr.commit();
-				deps.add(fact);
-			}
-			else
+			if (fact != null)
+				return fact.getValue();
+			else {
 				System.err.println("ERROR: failed to produce fact: " + formatKey(key, name)
 						+ "." + (status ? "" : " (producer was not authorative)"));
-//			else
-	//			tr.abandon();
-		}
-		if (fact != null)
-			return fact.getValue();
-		else
+
+			}
 			return null;
+		}
+		catch(RuntimeException t) {
+			t.printStackTrace();
+			throw t;
+		}
 	}
 
 	public IValue queryFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = query(k);
-		
+
 		if(fact != null)
 			return fact.getValue();
 		else
@@ -147,9 +156,9 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			return parent.query(k);
 		else
 			return fact;
-		
+
 	}
-	
+
 	public synchronized void removeFact(Type key, IValue name) {
 		Key k = new Key(key, name);
 		IFact<IValue> fact = map.get(k);
@@ -161,7 +170,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			removed.add(k);
 		}
 	}
-	
+
 	public synchronized void removeFact(IFact<IValue> fact) {
 		removeFact(((Key)fact.getKey()).type, ((Key)fact.getKey()).name);
 	}
@@ -179,7 +188,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	public synchronized IFact<IValue> setFact(Type key, IValue name, IFact<IValue> fact) {
 		Key k = new Key(key, name);
 		IFact<IValue> oldFact = map.get(k);
-		
+
 		if(oldFact == null) {
 			map.put(k, fact);
 			removed.remove(k);
@@ -191,7 +200,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		}
 
 		notifyListeners(key, fact, Change.CHANGED);
-			
+
 		return fact;
 	}
 
@@ -218,7 +227,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			stderr.print(formatKey(d.getKey()) + " ");
 		stderr.println();
 		stderr.flush();
-		*/
+		 */
 
 		return fact;
 	}
@@ -228,7 +237,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			s = s.substring(0, len) + "...";
 		return s;
 	}
-	
+
 	public void abandon() {
 		for(IFact<IValue> fact : map.values()) {
 			notifyListeners(((Key)fact.getKey()).type, fact, Change.REMOVED);
@@ -249,7 +258,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			}
 			Set<IDependencyListener> toNotify = new HashSet<IDependencyListener>();
 			Set<IDependencyListener> trSet= new HashSet<IDependencyListener>();
-			
+
 			for(Key k : map.keySet()) {
 				IFact<IValue> fact = parent.map.get(k);
 				IFact<IValue> trFact = map.get(k);
@@ -324,7 +333,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 		else
 			return key.toString();
 	}
-	
+
 	private String formatKey(Type key, IValue name) {
 		String n;
 		if(format == null && parent != null)
@@ -333,7 +342,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 			n = format.format(name);
 		else
 			n = name.toString();
-		
+
 		return key.getName() + "(" + n + ")";
 	}
 
@@ -344,7 +353,7 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 	public static Key makeKey(Type key, IValue name) {
 		return new Key(key, name);
 	}
-	
+
 	public ITuple getGraph() {
 		GraphBuilder g = new GraphBuilder(); 
 		for(Key k : map.keySet()) {
@@ -373,12 +382,12 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 class Key {
 	public final Type type;
 	public final IValue name;
-	
+
 	Key(Type type, IValue name) {
 		this.type = type;
 		this.name = name;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

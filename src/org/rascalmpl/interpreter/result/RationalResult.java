@@ -7,7 +7,7 @@
  *
  * Contributors:
  *
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl
+ *   * Anya Helene Bagge - anya@ii.uib.no
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI

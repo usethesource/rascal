@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Emilie Balland - (CWI)
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl

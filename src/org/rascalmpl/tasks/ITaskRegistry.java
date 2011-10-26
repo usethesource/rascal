@@ -7,7 +7,7 @@
  *
  * Contributors:
 
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
@@ -37,4 +37,14 @@ public interface ITaskRegistry<K, N, V> extends ITask<K, N, V> {
 	Collection<K> getKeys();
 
 	void clear();
+	
+	/**
+	 *  Lock the registry, prior to adding a series of related producers.
+	 */
+	void lock();
+	
+	/**
+	 *  Unlock the registry.
+	 */
+	void unlock();
 }

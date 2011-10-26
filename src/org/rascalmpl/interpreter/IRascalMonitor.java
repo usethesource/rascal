@@ -8,7 +8,7 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
+ *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
