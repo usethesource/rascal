@@ -269,3 +269,58 @@ public rel[&T,&T] toRel(list[&T] lst) {
 @doc{Convert a list to a string}
 @javaClass{org.rascalmpl.library.List}
 public java str toString(list[&T] lst);
+
+@doc{Return index of first occurence of elt in lst, or -1 if elt is not found.}
+public int indexOf(list[&T] lst, &T elt) {
+	for(i <- index(lst)) {
+		if(lst[i] == elt) return i;
+	}
+	return -1;
+}
+
+@doc{Return index of first occurence of elt in lst, or -1 if elt is not found.}
+public int lastIndexOf(list[&T] lst, &T elt) {
+	for(i <- reverse(index(lst))) {
+		if(lst[i] == elt) return i;
+	}
+	return -1;
+}
+
+@doc{Make a list of pairs from two lists of the same length.}
+public list[tuple[&T first, &U second]] zip(list[&T] a, list[&U] b) {
+	if(size(a) != size(b))
+		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");
+	return [<a[i], b[i]> | i <- index(a)];
+}
+
+@doc{Make a list of triples from three lists of the same length.}
+public list[tuple[&T first, &U second, &V third]] zip(list[&T] a, list[&U] b, list[&V] c) {
+	if(size(a) != size(b) || size(a) != size(c))
+		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
+	return [<a[i], b[i], c[i]> | i <- index(a)];
+}
+
+@doc{Make a pair of lists from a list of pairs.}
+public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) {
+	list[&T] ts = [];
+	list[&U] us = [];
+	for(<t,u> <- lst) {
+		ts += t;
+		us += u;
+	}
+	return <ts,us>;
+}
+
+@doc{Make a triple of lists from a list of triples.}
+public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) {
+	list[&T] ts = [];
+	list[&U] us = [];
+	list[&V] vs = [];
+	for(<t,u,v> <- lst) {
+		ts += t;
+		us += u;
+		vs += v;
+	}
+	return <ts,us,vs>;
+}
+
