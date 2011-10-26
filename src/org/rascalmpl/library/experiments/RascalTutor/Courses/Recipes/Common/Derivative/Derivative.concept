@@ -26,7 +26,7 @@ Examples:
 Our solution consists of the following parts:
 * Define a data type `Exp` to represent expressions (/*1*/).
 * Introduce an example expression `E` for later use (/*2*/).
-* Define the actual differentiation function `dd` (/*3*/). Observe that this definition depends on the use of patterns in function declarations.
+* Define the actual differentiation function `dd` (/*3*/). Observe that this definition depends on the use of patterns in function declarations, see [Rascal:Function].
 * Define simplification rules (/*4*/). Observe that a default rule is give for the case that no simplification applies (/*5*/).
 * Define the actual simplication function `simplify` that performs a bottom up traversal of the expression, application simplification
 rules on the the up.
