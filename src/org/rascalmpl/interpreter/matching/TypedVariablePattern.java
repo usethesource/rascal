@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -87,11 +88,12 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
 				IConstructor tree = (IConstructor)subject.getValue();
 
-				if (((NonTerminalType)declaredType).getSymbol().isEqual(TreeAdapter.getType(tree))) {
-					System.err.println(declaredType + " == " + TreeAdapter.getType(tree));
+				NonTerminalType nt = (NonTerminalType)declaredType;
+				if (nt.getSymbol().isEqual(TreeAdapter.getType(tree))) {
 					if(anonymous) { 
 						return true;
-					}				
+					}		
+					
 					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
 					return true;
 				}
