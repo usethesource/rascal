@@ -264,7 +264,7 @@ private str tableRow(str txt, list[str] alignments){
   entries = "";
   k = 0;
   visit(txt){
-      case /^\|<entry:(`[^`]*`|[^\|`])+>/: {println("entry = <entry>"); entries += td(markupRestLine(entry), alignments[k] ? "left"); k += 1; insert "";}
+      case /^\|<entry:(`[^`]*`|[^\|`])+>/: {entries += td(markupRestLine(entry), alignments[k] ? "left"); k += 1; insert "";}
   }
   return tr(entries);
 }
@@ -480,7 +480,7 @@ public str limitWidth(str txt, int limit){
   return escapeForHtml(substring(txt, 0, limit)) + "&raquo;\n" + limitWidth(substring(txt, limit), limit);
 }
 
-// ---- handle serach terms ----
+// ---- handle search terms ----
 
 // Extract search terms from a code fragment
 
@@ -585,14 +585,14 @@ public list[loc] resolveConcept(ConceptName course, str toConcept){
 // Refer to a not yet resolved concept in a course.
 
 public str refToUnresolvedConcept(ConceptName fromCourse, ConceptName toCourse, ConceptName toConcept, bool short){
-  println("refToUnresolvedConcept: <fromCourse>, <toCourse>, <toConcept>, <short>");
+  //println("refToUnresolvedConcept: <fromCourse>, <toCourse>, <toConcept>, <short>");
   options = resolveConcept(toCourse, toConcept);
   
   if(size(options) == 1){
      cn = getFullConceptName(options[0]);
      courseTxt = (fromCourse == toCourse) ? "" : ((toConcept == toCourse) ? "" : "<toCourse>:");
      conceptTxt = short ? "<basename(toConcept)>" : "<toConcept>";
-     println("txt = <courseTxt><conceptTxt>");
+     //println("txt = <courseTxt><conceptTxt>");
      return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><courseTxt><conceptTxt>\</a\>";  
   }     
   if(size(options) == 0){
@@ -620,7 +620,7 @@ public str refToResolvedConcept(ConceptName toConcept, bool short){
 // Refer to an external link
 
 public str link(str url, str text){
-  println("link: <link>, <text>");
+  //println("link: <link>, <text>");
   return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/Courses/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
 }
 

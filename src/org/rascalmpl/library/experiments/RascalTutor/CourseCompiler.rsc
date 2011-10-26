@@ -207,11 +207,26 @@ public Concept compileConcept(loc file){
    println("<conceptName>: getSections done.");
    
    try {
-	         
+	   local_warnings = [];
 	   if(name != basename(conceptName))
 	      throw ConceptError("Got concept name \"<name>\", but \"<basename(conceptName)>\" is required");
 	      
 	   optDetails      	= getNames(sections["Details"] ? []);
+	   println("optDetails = <optDetails>");
+	   remove_details = [];
+	   for(detailName <- optDetails){
+	       println("consider: <conceptFile("<conceptName>/<detailName>")>");
+	       if(!exists(conceptFile("<conceptName>/<detailName>"))){
+	         println("remove <detailName>");
+	         remove_details += [detailName];
+	       }
+	   }
+	         
+	   println("remove_details: <remove_details>");
+	   for(detailName <- remove_details){
+	       optDetails -= detailName;
+	       local_warnings += "non-existing detail <detailName>";
+	   }
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
 	   typesSection 	= sections["Types"] ? [];
@@ -229,7 +244,7 @@ public Concept compileConcept(loc file){
   	                       <section("Benefits", markup(sections["Benefits"], conceptName))>
   	                       <section("Pitfalls", markup(sections["Pitfalls"], conceptName))>
   	                       <((isEmpty(questions)) ? "" : div("questions","<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"))>";
-	   warnings         = getAndClearWarnings();
+	   warnings         = getAndClearWarnings() + local_warnings;
 	      
 	   C =  concept(conceptName, file, warnings, optDetails, searchTs, questions);
 	   println("<conceptName>: creating concept done.");

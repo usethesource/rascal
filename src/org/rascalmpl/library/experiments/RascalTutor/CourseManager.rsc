@@ -74,7 +74,7 @@ public str edit(ConceptName cn, bool newConcept){
                     \<input type=\"hidden\" name=\"new\" value=\"<newConcept>\"\> \<br /\>
                     \<div id=\"editErrors\"\>errors\</div\>\n
                     \<input type=\"submit\" id=\"saveButton\" value=\"Save\"\>
-                    \<div id=\"pleaseWaitMessage\"\>\<img src=\"/Courses/images/loader-light.gif\" width=\"16\" height=\"16\" /\> Processing the changes in concept <basename(cn)> and regenerating index and warnings for course <rootname(cn)>.\</div\>
+                    \<div id=\"pleaseWaitMessage\"\>\<img src=\"/Courses/images/loader-light.gif\" width=\"16\" height=\"16\" /\> Processing the changes in concept <i(basename(cn))> and regenerating index and warnings for course <i(rootname(cn))>.\</div\>
                     \</form\>"
                   ))
              ));
