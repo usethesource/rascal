@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 
 public class ConcreteSyntaxTests extends TestFramework {
 	
@@ -95,7 +96,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("`a b` := `a   b`;"));
 	}
 	
-	@Test(expected=Ambiguous.class)
+	@Test(expected=UnsupportedPatternError.class)
 	public void varAQuoted(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -217,26 +218,23 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void D3(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
-		assertFalse(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
+		assertTrue(runTestInSameEvaluator("(DS)`d d` := `d d`;"));
 	}
 
 	@Test
 	public void D4(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
-		assertFalse(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
+		assertTrue(runTestInSameEvaluator("`d d` := (DS)`d d`;"));
 	}
 
 	@Test
 	public void D5(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("(DS)`d d` := (DS)`d d`;"));
 	}
 
 	
-	@Test(expected=Ambiguous.class)
+	@Test(expected=UnsupportedPatternError.class)
 	public void Dvars(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -246,29 +244,18 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTyped(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{ D+ Xs := `d d` && Xs == `d d`; }"));
+		assertTrue(runTestInSameEvaluator("{ D+ Xs := (D+) `d d` && Xs == (D+) `d d`; }"));
 	}
-	
-	@Test
-	public void DvarsTypedInsert1(){
-		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{ D+ Xs := `d d` && Xs == `d d`; }"));
-	}
-
 	
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d`; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert3(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ (DS)`<D+ Xs>` := (DS)`d d`; }"));
 	}
 
@@ -281,10 +268,10 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
-	public void DvarsTypedInsert3Untyped(){
+	public void DvarsTypedInsert32(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := `d d`; }"));
+		assertTrue(runTestInSameEvaluator("{ `<D+ Xs>` := (D+) `d d`; }"));
 	}
 	
 	@Test
@@ -346,28 +333,24 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evars1(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ Xs := `e, e` && Xs == `e, e`;}"));
 	}
 	
 	@Test
 	public void Evar1Typed(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
-		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := `e, e` && Xs == `e, e`;}"));
+		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := ({E \",\"}+) `e, e` && Xs == ({E \",\"}+)  `e, e`;}"));
 	}
 	
 	@Test // (expected=AmbiguousConcretePattern.class)
 	public void Evars2(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertTrue(runTestInSameEvaluator("{ `e, <Xs>` := `e, e` && Xs == `e`;}"));
 	}
 	
 	@Test
 	public void NoStarSubjectToPlusVar(){
 		prepare("import GrammarABCDE;");
-		prepareMore("import ParseTree;");
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := ({E \",\"}*) ``;"));
 	}
 	
@@ -375,7 +358,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void plusListShouldNotMatchEmptyList() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
-		assertFalse(runTestInSameEvaluator("`e, <{E \",\"}+ Es>` := ({E \",\"}+) `e`;"));
+		assertFalse(runTestInSameEvaluator("({E \",\"}+) `e, <{E \",\"}+ Es>` := ({E \",\"}+) `e`;"));
 	}
 	
 	@Test

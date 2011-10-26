@@ -143,5 +143,12 @@ public class ScopeTests extends TestFramework {
 	public void varsInEnumeratorExpressionsShouldNotLeak(){
 		assertTrue(runTest("{int n <- [1,2]; n == 1;}"));
 	}
+	
+	@Test
+	public void formalsToGlobalsLeak() {
+		prepare("int x = 0;");
+		prepareMore("void f(int x) { x += 1; }");
+		assertTrue(runTestInSameEvaluator("{ f(1); x == 0; }"));
+	}
 
 }

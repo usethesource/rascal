@@ -55,6 +55,10 @@ private Symbol bt = layouts("$BACKTICKS");
 public set[Production] fromRascal(Grammar object) {
   return  { untypedQuotes(nont), typedQuotes(nont) | Symbol nont <- object.rules, isNonterminal(nont), !isRegular(nont)}
         + { typedQuotes(nont) | Symbol nont <- object.rules, isRegular(nont) }
+        + { typedQuotes(\iter-star(s)) | \iter(s) <- object.rules }
+        + { typedQuotes(\iter(s)) | \iter-star(s) <- object.rules }
+        + { typedQuotes(\iter-star-seps(s,l)) | \iter-seps(s, l) <- object.rules }
+        + { typedQuotes(\iter-seps(s,l)) | \iter-star-seps(s, l) <- object.rules } 
         + { literal(L) | Symbol nont <- object.rules, lit(L) <- symbolLiterals(nont) }
         ; 
 }
