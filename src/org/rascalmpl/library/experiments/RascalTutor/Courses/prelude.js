@@ -138,6 +138,7 @@ function initNavigation() {
 			}
 			_gaq.push(['_trackPageview', state]);
 			attachDisqus(state);
+			/*
 			var treeNode = $('#navPane a[href=' + state + ']');
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
 				// we have to update the tree selection
@@ -145,6 +146,7 @@ function initNavigation() {
 				skipNextNodeClick += 1;
 				$('#navPane').jstree('select_node', treeNode);
 			}
+			*/
 		});
 	});
 	if (window.location.hash == '') {
