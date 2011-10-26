@@ -101,7 +101,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
 			if (((IList)subject.getValue()).isEmpty()) {
-				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
+				IConstructor sym =declaredType.getSymbol();
 				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) {
 					return false;
 				}
@@ -118,7 +118,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		IConstructor subjectTree = (IConstructor) subject.getValue();
 		if (TreeAdapter.isList(subjectTree)) {
 			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
-				IConstructor sym = SymbolAdapter.getSymbol(declaredType.getSymbol());
+				IConstructor sym = declaredType.getSymbol();
 				if (SymbolAdapter.isIterPlus(sym)  || (SymbolAdapter.isIterPlusSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1) || (SymbolAdapter.isIterStarSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1)) {
 					return false;
 				}
