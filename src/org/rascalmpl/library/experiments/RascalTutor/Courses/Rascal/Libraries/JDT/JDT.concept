@@ -1,76 +1,37 @@
 Name: JDT
 
-Synopsis: Datatypes for representing relations between parts of Java programs.
+Synopsis: Datatypes for representing relations between parts of Java programs. See [Java] for the basic data model for Java artifacts. 
 
 Syntax: 
 
 Types:
-<listing>
-// Maps any ast at a certain location to a qualified name represented by an Entity
-public alias BindingRel = rel[loc, Entity];
 
-// A shorthand for any relationship between two Entities
-public alias EntityRel = rel[Entity from, Entity to];
+| Alias     | Type  | Description |
+|-----------+-------+-------------|
+| BindingRel | `rel[loc, Entity]` | Maps any artifact at a certain location to a (set of) qualified names represented by an Entity |
+| EntityRel | `rel[Entity from, Entity to]` | A shorthand for any relationship between two Entities |
+| EntitySet | `set[Entity]` | A short-hand for collections of entities |
+| ModifierRel | `rel[Entity entity, Modifier modifier]` | A short-hand for mappings from Entities to their declared Modifiers  |
 
-// A short-hand for collections of entities
-public alias EntitySet = set[Entity];
 
-// A short-hand for mappings from Entities to their declared Modifiers   
-public alias ModifierRel = rel[Entity entity, Modifier modifier];
-
-@// All type declarations and uses
-anno BindingRel Resource@types;        
-
-// All method declarations and uses
-anno BindingRel Resource@methods;      
-
-// All method declarations
-anno BindingRel Resource@methodDecls;
-
-// All constructor declarations
-anno BindingRel Resource@constructors; 
-
-// All field declarations and uses
-anno BindingRel Resource@fields;       
-
-// All field declarations
-anno BindingRel Resource@fieldDecls;
-
-// All local variable and method parameter declarations
-anno BindingRel Resource@variables;    
-
-// All package declarations
-anno BindingRel Resource@packages;     
-
-// All class declarations
-anno BindingRel Resource@classes;
-
-// All the modifiers that have been declared for each entity
-anno ModifierRel Resource@modifiers; 
-
-// Which types implement which interfaces
-anno EntityRel  Resource@implements;   
-
-// Which class extends which other classes
-anno EntityRel  Resource@extends;      
-
-// All declarations of top-level classes
-anno EntitySet  Resource@declaredTopTypes; 
-
-// All declarations of inner classes
-anno EntityRel  Resource@declaredSubTypes; 
-
-// Which class defines which methods
-anno EntityRel  Resource@declaredMethods;  
-
-// Which class defines which fields
-anno EntityRel  Resource@declaredFields;   
-
-// Which methods call which other methods, and which 
-// class initialization code calls which methods
-anno EntityRel  Resource@calls;
-</listing>
-
+| Annotation | Type | Description |
+|------------+------+-------------|
+| types | BindingRel | type declarations and uses |
+| methods | BindingRel | method declarations and uses |
+| methodDecls | BindingRel | method declarations |
+| constructors | BindingRel | constructor declarations |
+| fields | BindingRel | field declarations and uses |
+| fieldDecls | BindingRel | field declarations |
+| variables | BindingRel | local variable and method parameter declarations |
+| packages | BindinRel | package declarations |
+| classes | BindingRel | class declarations |
+| modifiers | ModifierRel | the modifiers for each entity |
+| implements | EntityRel | which types implement which interfaces |
+| extends | EntityRel | which class extend which other classes |
+| declaredTopTypes | EntitySet | declarations of top-level (not inner) classes |
+| declaredSubTypes | EntitySet | declarations of inner classes |
+| declaredMethods | EntityRel | which classes define which methods |
+| calls | EntityRel | which methods calls which other methods and which static initializers call which methods |
 
 
 Function:
@@ -103,13 +64,17 @@ This information can be extracted by various functions defined in this module:
 Examples:
 Here is an example function that extracts the sub-type relation from a given project:
 
-<listing>
-EntityRel getSubTypeInformation(loc project){
-  fm = extractProject(project);
-  return fm@extends + fm@implements + 
-         {class("Object") x top(fm@extends + fm@implements);
+<screen>
+import lang::java::jdt::Java;
+import lang::java::jdt::JDT;
+import Graph;
+
+public EntityRel getSubTypeInformation(loc project){
+fm = extractProject(project);
+return fm@extends + fm@implements
++ {entity([package("java"),package("lang"),class("Object")])} * top (fm@extends + fm@implements);
 }
-</listing>
+</screen>
 
 Benefits:
 

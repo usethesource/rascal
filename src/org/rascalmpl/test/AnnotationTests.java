@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 
 
 public class AnnotationTests extends TestFramework{
@@ -29,7 +30,7 @@ public class AnnotationTests extends TestFramework{
 		runTestInSameEvaluator("1 [@pos=3];");
 	}
 	
-	@Test(expected=UndeclaredAnnotationError.class)
+	@Test(expected=UnsupportedOperationError.class)
 	public void annotationNotAllowed2(){
 		runTest("1 @ pos;");
 	}

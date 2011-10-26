@@ -336,6 +336,7 @@ public class Environment {
 		return parent.getLocalVariableDefiningEnvironment(name);
 	}
 
+	
 	/**
 	 * Store a variable the scope that it is declared in, down to the 
 	 * module scope if needed.
@@ -352,6 +353,8 @@ public class Environment {
 			variableEnvironment.put(name, value);
 			//System.out.println("Inferred: " + name);
 			if (value != null) {
+				// this is a dangerous design decision, even typed declared variables will not be "inferred"
+				// it could lead to subtle bugs
 				value.setInferredType(true);
 			}
 		}
@@ -363,6 +366,13 @@ public class Environment {
 		}
 	}
 
+	public void declareAndStoreInferredInnerScopeVariable(String name, Result<IValue> value) {
+		declareVariable(value.getType(), name);
+		// this is dangerous to do and should be rethought, it could lead to variabled being inferred while they should not be.
+		value.setInferredType(true);
+		variableEnvironment.put(name, value);
+	}
+	
 	/**
 	 * Store a variable the scope that it is declared in, but not in the
 	 * module (root) scope. This should result in storing variables in either

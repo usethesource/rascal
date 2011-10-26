@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/JDT</title>
 
-<meta name="description" content="Rascal/Libraries/JDT:  Datatypes for representing relations between parts of Java programs.">
+<meta name="description" content="Rascal/Libraries/JDT:  Datatypes for representing relations between parts of Java programs. See [Java] for the basic data model for Java artifacts. ">
 
 <meta name="keywords" content="Rascal/Libraries/JDT, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,77 +44,14 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Datatypes for representing relations between parts of Java programs.
+<span class="sectionHead">Synopsis</span>  Datatypes for representing relations between parts of Java programs. See <a href="/Courses/Rascal/Libraries/Java/Java.html">Java</a> for the basic data model for Java artifacts. 
 
 </div>
 
 	                       
                            
 <div id="Types">
-<span class="sectionHead">Types</span>  <pre class="listing">// Maps any ast at a certain location to a qualified name represented by an Entity
-public alias BindingRel = rel[loc, Entity];
-
-// A shorthand for any relationship between two Entities
-public alias EntityRel = rel[Entity from, Entity to];
-
-// A short-hand for collections of entities
-public alias EntitySet = set[Entity];
-
-// A short-hand for mappings from Entities to their declared Modifiers   
-public alias ModifierRel = rel[Entity entity, Modifier modifier];
-
-@// All type declarations and uses
-anno BindingRel Resource@types;        
-
-// All method declarations and uses
-anno BindingRel Resource@methods;      
-
-// All method declarations
-anno BindingRel Resource@methodDecls;
-
-// All constructor declarations
-anno BindingRel Resource@constructors; 
-
-// All field declarations and uses
-anno BindingRel Resource@fields;       
-
-// All field declarations
-anno BindingRel Resource@fieldDecls;
-
-// All local variable and method parameter declarations
-anno BindingRel Resource@variables;    
-
-// All package declarations
-anno BindingRel Resource@packages;     
-
-// All class declarations
-anno BindingRel Resource@classes;
-
-// All the modifiers that have been declared for each entity
-anno ModifierRel Resource@modifiers; 
-
-// Which types implement which interfaces
-anno EntityRel  Resource@implements;   
-
-// Which class extends which other classes
-anno EntityRel  Resource@extends;      
-
-// All declarations of top-level classes
-anno EntitySet  Resource@declaredTopTypes; 
-
-// All declarations of inner classes
-anno EntityRel  Resource@declaredSubTypes; 
-
-// Which class defines which methods
-anno EntityRel  Resource@declaredMethods;  
-
-// Which class defines which fields
-anno EntityRel  Resource@declaredFields;   
-
-// Which methods call which other methods, and which 
-// class initialization code calls which methods
-anno EntityRel  Resource@calls;
-</pre>
+<span class="sectionHead">Types</span>  <table><col align="center" /><tr><th align="center"> Alias     </th><th align="center"> Type  </th><th align="center"> Description </th></tr><tr><td align="center"> BindingRel </td><td align="left"> <code>rel[loc, Entity]</code> </td><td align="left"> Maps any artifact at a certain location to a (set of) qualified names represented by an Entity </td></tr><tr><td align="center"> EntityRel </td><td align="left"> <code>rel[Entity from, Entity to]</code> </td><td align="left"> A shorthand for any relationship between two Entities </td></tr><tr><td align="center"> EntitySet </td><td align="left"> <code>set[Entity]</code> </td><td align="left"> A short-hand for collections of entities </td></tr><tr><td align="center"> ModifierRel </td><td align="left"> <code>rel[Entity entity, Modifier modifier]</code> </td><td align="left"> A short-hand for mappings from Entities to their declared Modifiers  </td></tr></table> <table><col align="center" /><tr><th align="center"> Annotation </th><th align="center"> Type </th><th align="center"> Description </th></tr><tr><td align="center"> types </td><td align="left"> BindingRel </td><td align="left"> type declarations and uses </td></tr><tr><td align="center"> methods </td><td align="left"> BindingRel </td><td align="left"> method declarations and uses </td></tr><tr><td align="center"> methodDecls </td><td align="left"> BindingRel </td><td align="left"> method declarations </td></tr><tr><td align="center"> constructors </td><td align="left"> BindingRel </td><td align="left"> constructor declarations </td></tr><tr><td align="center"> fields </td><td align="left"> BindingRel </td><td align="left"> field declarations and uses </td></tr><tr><td align="center"> fieldDecls </td><td align="left"> BindingRel </td><td align="left"> field declarations </td></tr><tr><td align="center"> variables </td><td align="left"> BindingRel </td><td align="left"> local variable and method parameter declarations </td></tr><tr><td align="center"> packages </td><td align="left"> BindinRel </td><td align="left"> package declarations </td></tr><tr><td align="center"> classes </td><td align="left"> BindingRel </td><td align="left"> class declarations </td></tr><tr><td align="center"> modifiers </td><td align="left"> ModifierRel </td><td align="left"> the modifiers for each entity </td></tr><tr><td align="center"> implements </td><td align="left"> EntityRel </td><td align="left"> which types implement which interfaces </td></tr><tr><td align="center"> extends </td><td align="left"> EntityRel </td><td align="left"> which class extend which other classes </td></tr><tr><td align="center"> declaredTopTypes </td><td align="left"> EntitySet </td><td align="left"> declarations of top-level (not inner) classes </td></tr><tr><td align="center"> declaredSubTypes </td><td align="left"> EntitySet </td><td align="left"> declarations of inner classes </td></tr><tr><td align="center"> declaredMethods </td><td align="left"> EntityRel </td><td align="left"> which classes define which methods </td></tr><tr><td align="center"> calls </td><td align="left"> EntityRel </td><td align="left"> which methods calls which other methods and which static initializers call which methods </td></tr></table>
 </div>
 
                            
@@ -150,11 +87,20 @@ anno EntityRel  Resource@calls;
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is an example function that extracts the sub-type relation from a given project:
-  <pre class="listing">EntityRel getSubTypeInformation(loc project){
-  fm = extractProject(project);
-  return fm@extends + fm@implements + 
-         {class("Object") x top(fm@extends + fm@implements);
-}
+  <pre class="screen"><b>rascal></b>import lang::java::jdt::Java;
+ok
+<b>rascal></b>import lang::java::jdt::JDT;
+ok
+<b>rascal></b>import Graph;
+ok
+<b>rascal></b>
+cancelled
+<b>rascal></b>public EntityRel getSubTypeInformation(loc project){
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;fm = extractProject(project);
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;return fm@extends + fm@implements
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;+ {entity([package(&quot;java&quot;),package(&quot;lang&quot;),class(&quot;Object&quot;)])} * top (fm@extends + fm@implements);
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+EntityRel (loc): EntityRel getSubTypeInformation(loc);
 </pre>
 </div>
 
