@@ -63,7 +63,7 @@ public class SetPattern extends AbstractMatchingResult {
 	private int currentVar;					    // The currently matched variable
     private boolean firstMatch;				    // First match of this pattern?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
@@ -336,16 +336,20 @@ public class SetPattern extends AbstractMatchingResult {
 					// can't throw type error: throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<IVarPattern> childVars = child.getVariables();
-				if(!childVars.isEmpty()){ 
+				if(!childVars.isEmpty()){
+					boolean varIntro = false;
 					for(IVarPattern vp : childVars){
+						if(debug) System.err.println("var =" + vp);
 						IVarPattern prev = allVars.get(vp.name());
-						if(prev == null || vp.isVarIntroducing())
+						boolean vpVarIntro = vp.isVarIntroducing();
+						varIntro = varIntro || vpVarIntro;
+						if(prev == null || vpVarIntro)
 							allVars.put(vp.name(), vp);
 					}
 					varName[nVar] = child.toString();
 					varPat[nVar] = child;
 					isSetVar[nVar] = false;
-					isBinding[nVar] = false;
+					isBinding[nVar] = varIntro;
 					nVar++;
 				} else {
 					// TODO: this should check for isConstant or something, which includes a check for anti patterns and deep patterns
