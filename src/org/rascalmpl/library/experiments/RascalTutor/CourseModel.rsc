@@ -52,9 +52,10 @@ data Concept =
 			Questions questions                 	// List of Questions 
 	);
         		
-data Question = choiceQuestion(QuestionName name, str descr, list[Choice] choices)
-              | textQuestion(QuestionName name, str descr, set[str] replies)
-              | tvQuestion(QuestionName name, TVkind kind, TVdetails details)
+data Question = choiceQuestion(ConceptName fullName, QuestionName name, str descr, list[Choice] choices)
+              | textQuestion(ConceptName fullName, QuestionName name, str descr, set[str] replies)
+              | tvQuestion(ConceptName fullName, QuestionName name, TVkind kind, TVdetails details)
+              
  // Some future possibilities:
               | commandQuestion(QuestionName name, str descr, list[str] setup, str expr, str validate)
               | funQuestion(QuestionName name, str descr, str fname, RascalType resultType, list[RascalType] argTypes, str reference)
