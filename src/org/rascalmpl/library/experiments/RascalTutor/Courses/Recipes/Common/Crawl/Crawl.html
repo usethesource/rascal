@@ -110,14 +110,14 @@ o/basic/Bubble.rsc|,|std://library/demo/basic/BubbleTest.rsc|,|std://library/dem
 <pre class="screen"><b>rascal></b>import List;
 ok
 <b>rascal></b>size(files);
-int: 86
+int: 87
 </pre>
   or to compute the total number of lines in these files:
 
 <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
-int: 3322
+int: 3358
 </pre>
   This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>

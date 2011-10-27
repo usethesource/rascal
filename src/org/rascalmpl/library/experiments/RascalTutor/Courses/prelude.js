@@ -249,44 +249,6 @@ function finishLoad() {
     attachHandlers();
 }
 
-// ------------ Show a concept ------------------------------------------
-
-/*
-function show(fromConcept, toConcept) {
-
-    alert('show: ' + fromConcept + ', ' + toConcept);
-    for (var i = 0; i < conceptNames.length; i++) {
-        if (toConcept == conceptNames[i]) {
-            loadConcept(toConcept);
-            return;
-        }
-    }
-    backarrow = back(fromConcept, toConcept);
-
-    var options = [];
-    for (var i = 0; i < conceptNames.length; i++) {
-        if (endsWith(conceptNames[i], '/' + toConcept)) options.push(conceptNames[i]);
-    }
-    if (options.length == 0) {
-        $('title').html('Unknown concept "' + toConcept + '"');
-        $('div#conceptPane').html(backarrow + '<h1>Concept "' + toConcept + '" does not exist, please add it or correct link!</h1>' + backarrow);
-        return;
-    }
-    if (options.length == 1) {
-        loadConcept(options[0]);
-        return;
-    }
-    $('title').html('Ambiguous concept "' + toConcept + '"');
-    html_code = '<h1>Concept "' + toConcept + '" is ambiguous, select one of (or disambiguate in source):</h1>\n<ul>';
-    for (var i = 0; i < options.length; i++) {
-        html_code += '<li>' + makeConceptURL(fromConcept, options[i]) + '</li>\n';
-    }
-    html_code += '\n</ul>';
-
-    $('div#conceptPane').html(backarrow + html_code + backarrow);
-}
-*/
-
 // ------------ Handler for suggestions for searchBox -------------------
 
 function handleSearch(evt) {
@@ -393,18 +355,25 @@ function handleAnswer(evt) {
         var e = $('#exercise', data).text();
         var fb = $('#feedback', data).text();
         //alert("v = " + v + "; c = " + c  + "; e = " + e + "; fb = " + fb);
-        $("#" + e + "bad").fadeOut(1000);
-        $("#" + e + "good").fadeOut(1000);
+        var sep = "_";
+        var c_e = c + sep + e;
+        var good = "#good" + sep + c_e;
+        var bad = "#bad" + sep + c_e;
+        
+        //alert("good = " + good + "; bad = " + bad);
+        $(good).fadeOut(1000);
+        $(bad).fadeOut(1000);
 
         if (v == "true") {
-            $("#" + e + "good").fadeIn();
+            $(good).fadeIn();
         } else {
-            $("#" + e + "bad").fadeIn();
+            $(bad).fadeIn();
         }
-        $("#answerFeedback" + e).fadeOut(1000, function () {
+        var afb = "#answerFeedback" + sep + c_e;
+        $(afb).fadeOut(1000, function () {
             if (fb != "") {
-                $("#answerFeedback" + e).html(fb);
-                $("#answerFeedback" + e).fadeIn(1000);
+                $(afb).html(fb);
+                $(afb).fadeIn(1000);
             }
         });
     });
@@ -421,8 +390,11 @@ function handleCheat(evt) {
         var c = $('#concept', data).text();
         var e = $('#exercise', data).text();
         var cheat = $('#feedback', data).text();
-        $("#answerFeedback" + e).html(cheat);
-        $("#answerFeedback" + e).fadeIn(1000);
+        var sep = "_";
+        var c_e = c + sep + e;
+        var afb = "#answerFeedback" + sep + c_e;
+        $(afb).html(cheat);
+        $(afb).fadeIn(1000);
     });
 
     return false;
@@ -440,15 +412,19 @@ function handleAnother(evt) {
         var e = $('#exercise', data).text();
         var another = $('#another', data).text();
         //alert("c = " + c  + "; e = " + e + "; another=" + another.substring(0,20));
-        $("#" + e).fadeOut(1000, function () {
-            $("#" + e).html(another);
-            $("#" + e + ' .answerStatus').hide();
-            $("#" + e + ' .answerFeedback').hide();
+        
+        var sep = "_";
+        var c_e = "#" + c + sep + e;
+        
+        $(c_e).fadeOut(1000, function () {
+            $(c_e).html(another);
+            $(c_e + ' .answerStatus').hide();
+            $(c_e + ' .answerFeedback').hide();
 
-            $("#" + e + ' .answerForm').submit(handleAnswer);
-            $("#" + e + ' .cheatForm').submit(handleCheat);
-            $("#" + e + ' .anotherForm').submit(handleAnother);
-            $("#" + e).show();
+            $(c_e + ' .answerForm').submit(handleAnswer);
+            $(c_e + ' .cheatForm').submit(handleCheat);
+            $(c_e + ' .anotherForm').submit(handleAnother);
+            $(c_e).show();
         });
 
     });

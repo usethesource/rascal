@@ -10,7 +10,7 @@ Types:
 
 Function:
 
-Details: Cat2
+Details: Cat2 NotThere
 
 Description:
 
@@ -59,6 +59,11 @@ Benefits:
 Pitfalls:
 
 Questions:
-QType: <A:int>
-QValue: 2 * <A:int>
+
+QText[A]: Dit is een vraag. Wat is het antwoord?
+a: antwoord
+
+QType[B]: <A:int>
+
+QValue[C]: 2 * <A:int>
 
