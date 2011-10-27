@@ -212,17 +212,15 @@ public Concept compileConcept(loc file){
 	      throw ConceptError("Got concept name \"<name>\", but \"<basename(conceptName)>\" is required");
 	      
 	   optDetails      	= getNames(sections["Details"] ? []);
-	   println("optDetails = <optDetails>");
+	   
+	   // Verify that all given details do exist
 	   remove_details = [];
 	   for(detailName <- optDetails){
-	       println("consider: <conceptFile("<conceptName>/<detailName>")>");
 	       if(!exists(conceptFile("<conceptName>/<detailName>"))){
-	         println("remove <detailName>");
 	         remove_details += [detailName];
 	       }
 	   }
 	         
-	   println("remove_details: <remove_details>");
 	   for(detailName <- remove_details){
 	       optDetails -= detailName;
 	       local_warnings += "non-existing detail <detailName>";
@@ -233,7 +231,7 @@ public Concept compileConcept(loc file){
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
-	   questions 		= getAllQuestions(name, sections["Questions"]);
+	   questions 		= getAllQuestions(conceptName, sections["Questions"]);
 	   
 	   html_synopsis    = "<section("Synopsis", markup(synopsisSection, conceptName))>
 	                       <section("Syntax", markup(syntaxSection, conceptName))>
@@ -402,7 +400,12 @@ public list[str] getQuestions(str qtype, str questions){
 
 public set[str] getAnswers(str atype, str question){
   return {text | /<atype>:\s*<text:.*>/ := question};
-}     
+}
+
+private str makeQname(str uname, int n){
+  return (uname == "") ? "<n>" : substring(uname, 1, size(uname)-1);
+}
+
 
 // Extract all the questions from the Questions section
 public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
@@ -413,23 +416,28 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    while(i < nq){
      //println("getQuestions: <qsection[i]>");
      switch(qsection[i]){
-       case /^QText:<question:.*>$/: {
+       case /^QText<uname:\[[A-Za-z0-9]+\]>?:\s*<question:.*>$/: {
+ 		  qname = makeQname(uname, nquestions);
+         
           i += 1;
           set[str] answers = {};
           while(i < nq && /^a:\s*<text:.*>/ := qsection[i]){
-            answers += text;
+            answers += toLowerCase(text);
             i += 1;
           }
           if(size(answers) == 0)
           	throw ConceptError("TextQuestion with no or malformed answers");
-          questions += textQuestion("<nquestions>", markup1([question], cname), answers);
+          
+          questions += textQuestion(cname, qname, markup([question], cname), answers);
           nquestions += 1;
        }
-       case /^QChoice:<question:.*>$/: {
+       case /^QChoice<uname:\[[A-Za-z0-9]+\]>?:<question:.*>$/: {
+          qname = makeQname(uname, nquestions);
+          println("qname = <qname>");
           i += 1;
           good_answers = [];
           bad_answers = [];
-          while(/^<prop:[gb]>:\s*<text:.*>/ := qsection[i] && i < nq){
+          while(i < nq && /^<prop:[gb]>:\s*<text:.*>/ := qsection[i]) {
             if(prop == "g")
                good_answers += text;
             else
@@ -438,21 +446,24 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           }
           if(size(good_answers) == 0 || size(bad_answers) == 0)
           	throw ConceptError("ChoiceQuestion with insufficient or malformed answers");
-          	
+         
+          println("<good_answers>, <bad_answers>");
           choices = [good(g) | str g <- good_answers] + [bad(b) | str b <- bad_answers];
       
-          questions += choiceQuestion("<nquestions>", markup([question], cname), choices);
+          questions += choiceQuestion(cname, qname, markup([question], cname), choices);
           nquestions += 1;
        }
  
-      case /^QValue:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(cname, valueOfExpr(), "<nquestions>", qsection, i, cnd);
+      case /^QValue<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
+           qname = makeQname(uname, nquestions);
+           <i, q> = getTvQuestion(cname, valueOfExpr(), qname, qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
       
-      case /^QType:\s*<cnd:.*>$/: {
-           <i, q> = getTvQuestion(cname, typeOfExpr(), "<nquestions>", qsection, i, cnd);
+      case /^QType<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
+           qname = makeQname(uname, nquestions);
+           <i, q> = getTvQuestion(cname, typeOfExpr(), qname, qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
@@ -469,7 +480,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    return questions;
 }
 
-public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str name, list[str] qsection, int i, str cnd){
+public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qname, list[str] qsection, int i, str cnd){
      n = size(qsection);
 	 if(cnd != "")
 	   qsection[i] = "test: <cnd>";
@@ -609,29 +620,29 @@ Type    +      +         +      0   ERROR
         -      -         -      0   ERROR    
 */
      if(holeInLst && holeInCnd)
-        throw ConceptError("Question <name> should have at most one hole");
+        throw ConceptError("Question <qname> should have at most one hole");
         
      if((lstBefore + lstAfter) == "" && holeInLst)
-        throw ConceptError("Question <name> has an empty listing with a hole");
+        throw ConceptError("Question <qname> has an empty listing with a hole");
         
      if((cndBefore + cndAfter) == "" && !(holeInLst))
-        throw ConceptError("Question <name> has no test");
+        throw ConceptError("Question <qname> has no test");
         
      if(kind == typeOfExpr() && holeInCnd && rtype == \void())
-           throw ConceptError("Type question <name> has condition with a hole and requires an expected type");
+           throw ConceptError("Type question <qname> has condition with a hole and requires an expected type");
      
      if(usedVars - definedVars != {})
-        throw ConceptError("Question <name>: undefined variables <usedVars - definedVars>");
+        throw ConceptError("Question <qname>: undefined variables <usedVars - definedVars>");
         
      if(definedVars - usedVars != {})
-        throw ConceptError("Question <name>: unused variables <definedVars - usedVars>");
+        throw ConceptError("Question <qname>: unused variables <definedVars - usedVars>");
         
      if(definedVars == {} && vars == [])
         try {
           vars = autoDeclare(cndBefore + cndAfter);
-        } catch: throw ConceptError("Question <name>: illegal type in test");
+        } catch: throw ConceptError("Question <qname>: illegal type in test");
 
-     return <i, tvQuestion(name, kind, details(markup([desc], cname), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
+     return <i, tvQuestion(cname, qname, kind, details(markup([desc], cname), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }
 
 
@@ -690,16 +701,16 @@ public str showQuestion(ConceptName cpid, Question q){
   qform = "";
   
   switch(q){
-    case choiceQuestion(qid, descr, choices): {
+    case choiceQuestion(cid,qid, descr, choices): {
       qdescr = descr;
       idx = [0 .. size(choices)-1];
       qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" name=\"answer\" value=\"<i>\"\><choices[i].description>\n<}>";
     }
-    case textQuestion(qid,descr,replies): {
+    case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;
       qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
     }
-    case tvQuestion(qid, qkind, qdetails): {
+    case tvQuestion(cid,qid, qkind, qdetails): {
       qdescr = qdetails.descr;
       setup  = qdetails.setup;
       lstBefore = qdetails.lstBefore;
@@ -771,13 +782,17 @@ public str showQuestion(ConceptName cpid, Question q){
     default:
       throw "Unimplemented question type: <q>";
   }
-  answerForm = answerFormBegin(cpid, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
+  
+  sep = "_";
+  cpid1 = replaceAll(cpid, "/", sep);
+  answerForm = answerFormBegin(cpid1, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
+  
 
-  return div(qid, "question",
-                  b(basename("Question " + qid + ". ")) + status(qid + "good", good()) + status(qid + "bad", bad()) +
-                  "\n\<span id=\"answerFeedback<qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
+  return div("<cpid1><sep><qid>", "question",
+                  b(basename("Question [" + qid + "]. ")) + status("good<sep><cpid1><sep><qid>", good()) + status("bad<sep><cpid1><sep><qid>", bad()) +
+                  "\n\<span id=\"answerFeedback<sep><cpid1><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
                   qdescr +  answerForm + 
-                  anotherQuestionForm(cpid, qid) + cheatForm(cpid, qid, qexpr) + br());
+                  anotherQuestionForm(cpid1, qid) + cheatForm(cpid1, qid, qexpr) + br());
 }
 
 public QuestionName lastQuestion = "";
@@ -793,6 +808,7 @@ public str trim (str txt){
 
 public Question getQuestion(ConceptName cid, QuestionName qid){
 
+  cid = replaceAll(cid, "_", "/");
   try {
   	quest_file = catenate(courseDir, cid + "/" + basename(cid))[extension = questExtension];
   	questions = readTextValueFile(#Questions, quest_file);

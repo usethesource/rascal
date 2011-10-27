@@ -154,7 +154,7 @@ public str validateAnswer(map[str,str] params){
 	   return showAnother(cpid, qid, q);
 	   
 	switch(q){
-      case choiceQuestion(qid,descr,choices): {
+      case choiceQuestion(cid,qid,descr,choices): {
         try {
            int c = toInt(answer);
            return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
@@ -162,10 +162,10 @@ public str validateAnswer(map[str,str] params){
            return wrongAnswer(cpid, qid);
       }
       
-      case textQuestion(qid,descr,replies):
-        return (answer in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+      case textQuestion(cid,qid,descr,replies):
+        return (toLowerCase(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
  
-      case tvQuestion(qid, qkind, qdetails): {
+      case tvQuestion(cid, qid, qkind, qdetails): {
         setup  = qdetails.setup;
         lstBefore = qdetails.lstBefore;
         lstAfter  = qdetails.lstAfter;
@@ -433,5 +433,7 @@ public str saveFeedback(str error, str replacement){
 }
 
 public str XMLResponses(map[str,str] values){
-    return "\<responses\><for(field <- values){>\<response id=\"<field>\"\><escapeForHtml(values[field])>\</response\><}>\</responses\>";
+    R = "\<responses\><for(field <- values){>\<response id=\"<field>\"\><escapeForHtml(values[field])>\</response\><}>\</responses\>";
+    println("R = <R>");
+    return R;
 }
