@@ -9,7 +9,7 @@ Types:
 
 Function:
 
-Details:
+Details: InlineMarkup StructureMarkup
 
 Description:
 The $MarkedText$ in each section of a concept is plain text.

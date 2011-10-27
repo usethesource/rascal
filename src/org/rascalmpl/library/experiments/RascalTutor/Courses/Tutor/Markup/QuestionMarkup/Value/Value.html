@@ -50,8 +50,8 @@
 
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <ul><li> <code>QValue: <i>Expr</i></code></li>
-<li> <code>QValue: <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
+<span class="sectionHead">Syntax</span>  <ul><li> <code>QValue <i>OptName</i>: <i>TypeDescriptor</i></code></li>
+<li> <code>QValue <i>OptName</i>: <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
 </ul>
 </div>
 
@@ -59,61 +59,79 @@
                            
 <div id="Description">
 <span class="sectionHead">Description</span>  A value question presents a Rascal expression and poses a question about its value.
+ <br/>
+<br/>
+
+ <code><i>OptName</i></code> is an optional name of the question (enclosed between <code>[</code> and <code>]</code>).
+ If <code><i>OptName</i></code> is missing, the question gets a unique number as name.
+ <br/>
+<br/>
+
  The desired type of the expression is given by a <a href="/Courses/Tutor/Markup/QuestionMarkup/TypeDescriptor/TypeDescriptor.html">TypeDescriptor</a>.
  <br/>
 <br/>
 
- The first form presents the value generated for the <code><i>TypeDescriptor</i></code> and asks about its type.
+ The first form presents the value generated for the <code><i>TypeDescriptor</i></code> and asks about its value.
  <br/>
 <br/>
 
  The second form allows more preparatory steps and also allows adding a listing to the question.
-
+ The following steps are defined:
+ <ul><li> <code>prep: <i>Cmd</i></code>: execute <code><i>Cmd</i></code> as preparatory step. Mostly used to import necessary libraries.</li>
+<li> <code>make: <i>Var</i> = <i>TypeDescriptor</i></code>: create a new variable and use <code><i>TypeDescriptor</i></code> to generate its value.</li>
+<li> <code>expr: <i>Var</i> = <i>Exp</i></code>: evaluate the Rascal expression <code><i>Exp</i></code> and assign its value to the new variable <code><i>Var</i></code>.</li>
+<li> <code>list: <i>Lines</i></code>: lines that will be displayed as a listing. The listing may contain a placeholder in the form of <code>&lt;?></code> and   ends where a new step begins.
+</li>
+<li> <code>test: <i>Exp</i><sub>1</sub> == <i>Exp</i><sub>2</sub></code>: the equality is ecvaluated as Rascal expression. The outcome determines the success or failure to answer this question.</li>
+<li> <code>hint: <i>Text</i></code>: a hint that will be shown when the user enters a wrong answer.</li>
+</ul> The following restrictions apply:
+ <ul><li> Each step starts at the beginning of a new line.</li>
+<li> Every <code><i>Exp</i></code> or <code><i>Cmd</i></code> or listing may contain one or more variable references of the form <code>&lt;<i>Var</i>></code>.</li>
+<li> Each variable reference <code>&lt;<i>Var</i>></code> is first replaced by the the value of <code><i>Var</i></code>. <code><i>Var</i></code> should have received a value in a preceeding   <code>make</code> or <code>expr</code> step.
+</li>
+<li> The listing, and the expressions in the test may contain at most one placeholder <code>&lt;?></code>.</li>
+</ul>
 </div>
 
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  See the effect of the following value questions in the Questions section below.
   <h4> Question 1 </h4>
- The following question can be paraphrased as: I give you a union of two sets of integers, what is its value?<br>
- <code>QValue: &lt;A:set[int]> + &lt;B:same[A]></code>
-  <h4> Question 2 </h4>
- The following question can be paraphrased as: What is the size of a given list of integers?<br>
- <code>QValue:</code><br>
- <code>prep: import List;</code><br>
- <code>test: size(&lt;A:list[int]>) == &lt;?></code><br>
- Note that the <code>List</code> module is imported as a preparatory step.
+ The following question can be paraphrased as: <i>I give you a union of two sets of integers, what is its value?</i>
+ <pre class="listing">QValue: &lt;A:set[int]> + &lt;B:same[A]>
+</pre> <h4> Question 2 </h4>
+ The following question can be paraphrased as: <i>What is the size of a given list of integers?</i>
+ <pre class="listing">QValue:
+prep: import List;
+test: size(&lt;A:list[int]>) == &lt;?>
+</pre> Note that the <code>List</code> module is imported as a preparatory step.
   <h4> Question 3 </h4>
  The following question can be paraphrased as: 
- I give you a union of integers or strings and an unknown set and the result of the union; what is the value of the unknown
- set?<br>
- <code>QValue:</code><br>
- <code>make: A = set[arb[int,str]]</code><br>
- <code>make: B = same[A]</code><br>
- <code>expr: C = &lt;A> + &lt;B></code><br>
- <code>hint: &lt;B></code><br>
- <code>test: &lt;A> + &lt;?> == &lt;C></code><br>
- <br/>
-<br/>
-
- Observe that we generate values for <code>A</code> and <code>B</code> and compute the value of <code>C</code>.
+ <i>I give you a union of integers or strings and an unknown set and the result of the union; what is the value of the unknown set?</i>
+ <pre class="listing">QValue:
+make: A = set[arb[int,str]]
+make: B = same[A]
+expr: C = &lt;A> + &lt;B>
+hint: &lt;B>
+test: &lt;A> + &lt;?> == &lt;C>
+</pre> Observe that we generate values for <code>A</code> and <code>B</code> and compute the value of <code>C</code>.
  The value of <code>B</code> is the answer we are looking for, and we replace it by <code>&lt;?></code> in the posed test.
  When the student gives a wrong answer, we show the value of <code>B</code> as hint.
   <h4> Question 3 </h4>
  The following question can be paraphrased as: 
- fill in the hole in the definition of funcion find to ensure that it returns all strings that contain "o".<br>
- <code>QValue:</code><br>
- <code>desc: Return the strings that contain "o".</code><br>
- <code>list:</code>
- <code>text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];</code><br>
- <code>public list[str] find(list[str] text){</code><br>
- <code>  return </code><br>
- <code>    for(s &lt;- text)</code><br>
- <code>      if(/o/ &lt;- s)</code><br>
- <code>        &lt;?>;</code><br>
- <code>}</code><br>
- <code>test: find(text) == ["moi", "Mousa", "polutropon"];</code><br>
-
+ <i>Fill in the hole in the definition of funcion find to ensure that it returns all strings that contain "o".</i>
+ <pre class="listing">QValue:
+desc: Return the strings that contain "o".
+list:
+text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
+public list[str] find(list[str] text){
+  return
+    for(s &lt;- text)
+      if(/o/ := s)
+        &lt;?>;
+}
+test: find(text) == ["moi", "Mousa", "polutropon"];
+</pre>
 </div>
 
   	                       
@@ -122,28 +140,28 @@
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
-<div id="1" class="question">
-<b>Question 1. </b>
-<span id="1good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Value_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Value_1" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="1bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Value_1" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback1" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_1" class="answerFeedback"></span>
  
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{7, -2}">
-<input type="hidden" name="B" value="{19, -11, -9, -9}">
-<pre class="prequestion">{7, -2} + {19, -11, -9, -9} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{3, -11, -2}">
+<input type="hidden" name="B" value="{2}">
+<pre class="prequestion">{3, -11, -2} + {2} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="1">
 <input type="hidden" name="another" value="yes">
 
@@ -152,27 +170,27 @@
 
 </div>
  
-<div id="2" class="question">
-<b>Question 2. </b>
-<span id="2good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Value_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Value_2" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="2bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Value_2" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback2" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_2" class="answerFeedback"></span>
  
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[16, 3]">
-<pre class="prequestion">size([16, 3]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[-9]">
+<pre class="prequestion">size([-9]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="2">
 <input type="hidden" name="another" value="yes">
 
@@ -181,28 +199,28 @@
 
 </div>
  
-<div id="3" class="question">
-<b>Question 3. </b>
-<span id="3good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Value_3" class="question">
+<b>Question [3]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Value_3" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="3bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Value_3" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback3" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_3" class="answerFeedback"></span>
  
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Big Bird&quot;, &quot;M&quot;, &quot;Lime&quot;}">
-<input type="hidden" name="B" value="{&quot;Apple&quot;, &quot;Countess Von Backwards&quot;, &quot;Anise&quot;, &quot;Isolder&quot;}">
-<pre class="prequestion">{&quot;Big Bird&quot;, &quot;M&quot;, &quot;Lime&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Anise&quot;,&quot;M&quot;,&quot;Countess Von Backwards&quot;,&quot;Isolder&quot;,&quot;Apple&quot;,&quot;Big Bird&quot;,&quot;Lime&quot;}</pre>
+<input type="hidden" name="A" value="{&quot;Anakin Skywalker&quot;, &quot;M&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Sesame&quot;, &quot;O&quot;}">
+<input type="hidden" name="B" value="{&quot;Curry&quot;}">
+<pre class="prequestion">{&quot;Anakin Skywalker&quot;, &quot;M&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Sesame&quot;, &quot;O&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;O&quot;,&quot;M&quot;,&quot;Sesame&quot;,&quot;Curry&quot;,&quot;Anakin Skywalker&quot;,&quot;Countess Darling Von Darling&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="3">
 <input type="hidden" name="another" value="yes">
 
@@ -211,34 +229,34 @@
 
 </div>
  
-<div id="4" class="question">
-<b>Question 4. </b>
-<span id="4good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Value_4" class="question">
+<b>Question [4]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Value_4" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="4bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Value_4" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback4" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_4" class="answerFeedback"></span>
  Return the strings that contain "o".
 
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="4">
 Fill in <pre class="prequestion">text = [&quot;andra&quot;, &quot;moi&quot;, &quot;ennepe&quot;, &quot;Mousa&quot;, &quot;polutropon&quot;];
 public list[str] find(list[str] text){
   return 
     for(s &lt;- text)
-      if(/o/ &lt;- s)
+      if(/o/ := s)
         <textarea rows="1" cols="30" name="answer" class="answerText"></textarea>;
 }
 </pre> and make the following true:<pre class="prequestion">find(text) == [&quot;moi&quot;, &quot;Mousa&quot;, &quot;polutropon&quot;];</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Value">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="4">
 <input type="hidden" name="another" value="yes">
 

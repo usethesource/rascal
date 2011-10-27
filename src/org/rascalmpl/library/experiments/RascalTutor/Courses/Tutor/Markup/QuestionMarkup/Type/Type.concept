@@ -4,8 +4,8 @@ Synopsis:
 A question about a Rascal type.
 
 Syntax:
-* `QType: $TypeDescriptor$`
-* `QType: $QSteps$ $Test$ $Listing$`
+* `QType $OptName$ : $TypeDescriptor$`
+* `QType $OptName$ : $QSteps$ $Test$ $Listing$`
 
 Types:
 
@@ -15,6 +15,10 @@ Details:
 
 Description:
 A type question presents a Rascal expressions and poses a question about its type.
+
+$OptName$ is an optional name of the question (enclosed between `[` and `]`).
+If $OptName$ is missing, the question gets a unique number as name.
+
 The desired type is given by a [TypeDescriptor].
 
 The first form presents the value generated for the $TypeDescriptor$ and asks about its type.
@@ -25,13 +29,17 @@ Examples:
 See the effect of the following type questions in the Questions section below.
 
 ===== Question 1 =====
-The following question can be paraphrased as: I give you an arbitrary set of integers, what is its type?<br>
-`QType: <A:set[int]>`
+The following question can be paraphrased as: _I give you an arbitrary set of integers, what is its type?_
+<listing>
+QType: <A:set[int]>
+</listing>
 
 ===== Question 2 =====
 
-The following question can be paraphrased as: I give you an addition of a set of integers, strings or reals and another set of the same type; what is the typeof the result?<br>
-`QType: <A:set[arb[int,str,real]]> + <B:same[A]>`
+The following question can be paraphrased as: _I give you an addition of a set of integers, strings or reals and another set of the same type; what is the type of the result?_
+<listing>
+QType: <A:set[arb[int,str,real]]> + <B:same[A]>
+</listing>
 
 Benefits:
 

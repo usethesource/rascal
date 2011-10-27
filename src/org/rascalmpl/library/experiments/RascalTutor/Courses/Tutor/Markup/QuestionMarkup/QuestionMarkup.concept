@@ -9,14 +9,17 @@ Types:
 
 Function:
 
-Details:
+Details: TypeDescriptor Text
 
 Description:
 The following types of questions are supported:
+* __Text__: a text question with a free format answer.
 * __Choice__: a multiple choice question.
 * __Type__: question about the _type_ of a Rascal expression.
 * __Value__: question about the _value_ of a Rascal expression.
 
+
+[Text] gives the question text and lists all possible good answers.
 
 [Choice] is a straightforward listing of good and bad answers.
 

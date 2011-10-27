@@ -50,8 +50,8 @@
 
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <ul><li> <code>QType: <i>TypeDescriptor</i></code></li>
-<li> <code>QType: <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
+<span class="sectionHead">Syntax</span>  <ul><li> <code>QType <i>OptName</i> : <i>TypeDescriptor</i></code></li>
+<li> <code>QType <i>OptName</i> : <i>QSteps</i> <i>Test</i> <i>Listing</i></code></li>
 </ul>
 </div>
 
@@ -59,6 +59,14 @@
                            
 <div id="Description">
 <span class="sectionHead">Description</span>  A type question presents a Rascal expressions and poses a question about its type.
+ <br/>
+<br/>
+
+ <code><i>OptName</i></code> is an optional name of the question (enclosed between <code>[</code> and <code>]</code>).
+ If <code><i>OptName</i></code> is missing, the question gets a unique number as name.
+ <br/>
+<br/>
+
  The desired type is given by a <a href="/Courses/Tutor/Markup/QuestionMarkup/TypeDescriptor/TypeDescriptor.html">TypeDescriptor</a>.
  <br/>
 <br/>
@@ -75,12 +83,12 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  See the effect of the following type questions in the Questions section below.
   <h4> Question 1 </h4>
- The following question can be paraphrased as: I give you an arbitrary set of integers, what is its type?<br>
- <code>QType: &lt;A:set[int]></code>
-  <h4> Question 2 </h4>
- The following question can be paraphrased as: I give you an addition of a set of integers, strings or reals and another set of the same type; what is the typeof the result?<br>
- <code>QType: &lt;A:set[arb[int,str,real]]> + &lt;B:same[A]></code>
-
+ The following question can be paraphrased as: <i>I give you an arbitrary set of integers, what is its type?</i>
+ <pre class="listing">QType: &lt;A:set[int]>
+</pre> <h4> Question 2 </h4>
+ The following question can be paraphrased as: <i>I give you an addition of a set of integers, strings or reals and another set of the same type; what is the type of the result?</i>
+ <pre class="listing">QType: &lt;A:set[arb[int,str,real]]> + &lt;B:same[A]>
+</pre>
 </div>
 
   	                       
@@ -89,28 +97,28 @@
 <div id="questions">
 <span class="sectionHead">Questions</span> <br/>
 
-<div id="1" class="question">
-<b>Question 1. </b>
-<span id="1good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Type_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Type_1" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="1bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Type_1" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback1" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Type_1" class="answerFeedback"></span>
  
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Type">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{-3, -18, -11}">
-The type of <tt>{-3, -18, -11}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-15, 7, 8, 10}">
+The type of <tt>{-15, 7, 8, 10}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Type">
 <input type="hidden" name="exercise" value="1">
 <input type="hidden" name="another" value="yes">
 
@@ -119,29 +127,29 @@ The type of <tt>{-3, -18, -11}</tt> is <textarea rows="1" cols="30" name="answer
 
 </div>
  
-<div id="2" class="question">
-<b>Question 2. </b>
-<span id="2good" class="answerStatus">
+<div id="Tutor_Markup_QuestionMarkup_Type_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Type_2" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/good.png"/>
 </span>
 
-<span id="2bad" class="answerStatus">
+<span id="bad_Tutor_Markup_QuestionMarkup_Type_2" class="answerStatus">
 <img height="25" width="25" src="/Courses/images/bad.png"/>
 </span>
 
-<span id="answerFeedback2" class="answerFeedback"></span>
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Type_2" class="answerFeedback"></span>
  
 <form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Type">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="{1, 10, -13, 7}">
-<input type="hidden" name="B" value="{14, 0, 6, 18, -17}">
-The type of <tt>{1, 10, -13, 7} + {14, 0, 6, 18, -17}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="{-9}">
+<input type="hidden" name="B" value="{2, 0, -13, -6}">
+The type of <tt>{-9} + {2, 0, -13, -6}</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Tutor/Markup/QuestionMarkup/Type">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Type">
 <input type="hidden" name="exercise" value="2">
 <input type="hidden" name="another" value="yes">
 

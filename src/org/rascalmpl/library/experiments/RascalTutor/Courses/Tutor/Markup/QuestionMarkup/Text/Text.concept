@@ -1,0 +1,45 @@
+Name: Text
+
+Synopsis: A text question with a free-format answer.
+
+Syntax:
+<listing>
+QText $OptName$: $Text$
+a: $Answer_1$
+a: $Answer_2$
+...
+</listing>
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+Presents a text questions consisting of $Text$.
+$OptName$ is an optional name of the question (enclosed between `[` and `]`).
+If $OptName$ is missing, the question gets a unique number as name.
+
+The user can give a free format answer, and that is accepted if it contains one of the given answers $answer_1$, $Answer_2$ as substring.
+
+Examples:
+The markup
+<listing>
+QText[Taller]: Which is taller, the Eiffel Tower or the Empire State Building?
+a: Empire
+</listing>
+Will generate question `Tall` in the questions section below.
+The answer is obvious: the [Empire State Building](http://en.wikipedia.org/wiki/Empire_State_Building) is 443.2 meters tall while the [Eifel Tower](http://en.wikipedia.org/wiki/Eiffel_Tower) is 324 meters tall.
+Any answer that contains `Empire` will be accepted.
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QText[Taller]: What is taller, the Eiffel Tower or the Empire State Building?
+a: Empire
+
+       

@@ -50,16 +50,83 @@
 
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>XChoice <i>MarkedText</i> <i>Options</i></code>
-
+<span class="sectionHead">Syntax</span>  <pre class="listing">QChoice<i>OptName</i>: <i>MarkedText</i> 
+<i>GoodOrBad</i><sub>1</sub>: <i>Choice</i><sub>1</sub>
+<i>GoodOrBad</i><sub>2</sub>: <i>Choice</i><sub>2</sub>
+...
+</pre>
 </div>
 
                            
                            
+<div id="Description">
+<span class="sectionHead">Description</span>  Asks a multiple-choice questions described by <code><i>MarkedText</i></code>.
+ <code><i>OptName</i></code> is an optional name of the question (enclosed between <code>[</code> and <code>]</code>).
+ If <code><i>OptName</i></code> is missing, the question gets a unique number as name.
+ <br/>
+<br/>
+
+ Each possible <code><i>Choice</i></code> is preceeded by a good (<code>g</code>) or bad (<code>b</code>) marker.
+
+</div>
+
+  	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="listing">QChoice[Faster]: Which means of transportation is faster:
+b: Apache Helicopter
+g: High-speed train
+b: Ferrari F430
+</pre> will produce the question <code>Faster</code> in the questions section below.
+ <br/>
+<br/>
+
+ And, by the way, the <a href="http://en.wikipedia.org/wiki/High-speed_rail">High-speed train<img src="/Courses/images/www-icon.png" with="20" height="20"></a> wins with over 570 km/hour compared to
+ <a href="http://en.wikipedia.org/wiki/Ferrari_F430">Ferrari<img src="/Courses/images/www-icon.png" with="20" height="20"></a> (315 km/hour) and <a href="http://en.wikipedia.org/wiki/Boeing_AH-64_Apache">Apache<img src="/Courses/images/www-icon.png" with="20" height="20"></a> (293 km/hour).
+
+</div>
+
   	                       
   	                       
   	                       
-  	                       
+<div id="questions">
+<span class="sectionHead">Questions</span> <br/>
+
+<div id="Tutor_Markup_QuestionMarkup_Choice_Faster" class="question">
+<b>Question [Faster]. </b>
+<span id="good_Tutor_Markup_QuestionMarkup_Choice_Faster" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Tutor_Markup_QuestionMarkup_Choice_Faster" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Tutor_Markup_QuestionMarkup_Choice_Faster" class="answerFeedback"></span>
+  Which means of transportation is faster?
+
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Choice">
+<input type="hidden" name="exercise" value="Faster">
+<input type="radio" name="answer" value="0">High speed train
+<br/>
+<input type="radio" name="answer" value="1">Apache Helicopter
+<br/>
+<input type="radio" name="answer" value="2">Ferrari F430
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Choice">
+<input type="hidden" name="exercise" value="Faster">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Choice&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Choice&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Recompile Course</b></a>] |

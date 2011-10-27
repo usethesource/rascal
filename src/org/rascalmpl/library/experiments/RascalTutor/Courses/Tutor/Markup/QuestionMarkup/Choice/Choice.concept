@@ -4,7 +4,12 @@ Synopsis:
 Multiple-choice question.
 
 Syntax:
-`XChoice $MarkedText$ $Options$`
+<listing>
+QChoice$OptName$: $MarkedText$ 
+$GoodOrBad_1$: $Choice_1$
+$GoodOrBad_2$: $Choice_2$
+...
+</listing>
 
 Types:
 
@@ -13,16 +18,33 @@ Function:
 Details:
 
 Description:
+Asks a multiple-choice questions described by $MarkedText$.
+$OptName$ is an optional name of the question (enclosed between `[` and `]`).
+If $OptName$ is missing, the question gets a unique number as name.
+
+Each possible $Choice$ is preceeded by a good (`g`) or bad (`b`) marker.
 
 Examples:
+<listing>
+QChoice[Faster]: Which means of transportation is faster:
+b: Apache Helicopter
+g: High-speed train
+b: Ferrari F430
+</listing>
+will produce the question `Faster` in the questions section below.
+
+And, by the way, the [High-speed train](http://en.wikipedia.org/wiki/High-speed_rail) wins with over 570 km/hour compared to
+[Ferrari](http://en.wikipedia.org/wiki/Ferrari_F430) (315 km/hour) and [Apache](http://en.wikipedia.org/wiki/Boeing_AH-64_Apache) (293 km/hour).
 
 Benefits:
 
 Pitfalls:
 
 Questions:
-Qchoice: 
-b: xxxx.
-b: aaa.
-g: zzz.
+
+QChoice[Faster]: Which means of transportation is faster?
+b: Apache Helicopter
+g: High speed train
+b: Ferrari F430
+
 
