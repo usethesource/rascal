@@ -144,6 +144,8 @@ function initNavigation() {
 				skipNextNodeClick += 1;
 				$('#navPane').jstree('select_node', treeNode);
 			}
+			// make sure the new pre's are sized correctly
+			$('pre').css('max-width', $(window).width() * 0.7);
 		});
 	});
 	if (window.location.hash == '') {
