@@ -131,14 +131,12 @@ function initNavigation() {
 		}
 
     	$("#conceptPane").load(state + " div#conceptPane", function() {
-			finishLoad();
 			newTitle = state.match(/\/Courses\/(.+)\/[^\/]+\.html/);// second group
 			if (newTitle.length == 2) {
 				$('title').html(newTitle[1]);
 			}
 			_gaq.push(['_trackPageview', state]);
 			attachDisqus(state);
-			/*
 			var treeNode = $('#navPane a[href=' + state + ']');
 			if (treeNode && !($(treeNode).hasClass('jstree-clicked'))) {
 				// we have to update the tree selection
@@ -146,7 +144,6 @@ function initNavigation() {
 				skipNextNodeClick += 1;
 				$('#navPane').jstree('select_node', treeNode);
 			}
-			*/
 		});
 	});
 	if (window.location.hash == '') {
@@ -244,10 +241,6 @@ function translateConceptToURL(concept) {
 	return "/Courses/" + concept + "/" + basename(concept) + ".html";
 }
 
-function finishLoad() {
-    $.jstree.rollback(rbdata);
-    attachHandlers();
-}
 
 // ------------ Handler for suggestions for searchBox -------------------
 
