@@ -46,8 +46,6 @@ data Concept =
 			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
-			//str html_synopsis,                      // HTML for synopsis sections
-//			set[ConceptName] related,            	// Set of related concepts (abbreviated ConceptNames)
 			set[str] searchTerms,    				// Set of search terms
 			Questions questions                 	// List of Questions 
 	);
@@ -55,6 +53,7 @@ data Concept =
 data Question = choiceQuestion(ConceptName fullName, QuestionName name, str descr, list[Choice] choices)
               | textQuestion(ConceptName fullName, QuestionName name, str descr, set[str] replies)
               | tvQuestion(ConceptName fullName, QuestionName name, TVkind kind, TVdetails details)
+              | useQuestion(ConceptName fullName, QuestionName name, ConceptName useFullName, QuestionName useName)
               
  // Some future possibilities:
               | commandQuestion(QuestionName name, str descr, list[str] setup, str expr, str validate)

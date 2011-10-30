@@ -164,6 +164,7 @@ public str validateAnswer(map[str,str] params){
       
       case textQuestion(cid,qid,descr,replies):
         return (toLowerCase(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+        
  
       case tvQuestion(cid, qid, qkind, qdetails): {
         setup  = qdetails.setup;

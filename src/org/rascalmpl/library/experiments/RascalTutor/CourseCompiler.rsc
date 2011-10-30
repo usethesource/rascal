@@ -416,7 +416,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
    while(i < nq){
      //println("getQuestions: <qsection[i]>");
      switch(qsection[i]){
-       case /^QText<uname:\[[A-Za-z0-9]+\]>?:\s*<question:.*>$/: {
+       case /^[Qq][Tt]ext<uname:\[[A-Za-z0-9]+\]>?:\s*<question:.*>$/: {
  		  qname = makeQname(uname, nquestions);
          
           i += 1;
@@ -431,7 +431,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           questions += textQuestion(cname, qname, markup([question], cname), answers);
           nquestions += 1;
        }
-       case /^QChoice<uname:\[[A-Za-z0-9]+\]>?:<question:.*>$/: {
+       case /^[Qq][Cc]hoice<uname:\[[A-Za-z0-9]+\]>?:<question:.*>$/: {
           qname = makeQname(uname, nquestions);
           println("qname = <qname>");
           i += 1;
@@ -454,18 +454,40 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           nquestions += 1;
        }
  
-      case /^QValue<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
+      case /^[Qq][Vv]alue<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
            qname = makeQname(uname, nquestions);
            <i, q> = getTvQuestion(cname, valueOfExpr(), qname, qsection, i, cnd);
            questions += q;
            nquestions += 1;
       }
       
-      case /^QType<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
+      case /^[Qq][Tt]ype<uname:\[[A-Za-z0-9]+\]>?:\s*<cnd:.*>$/: {
            qname = makeQname(uname, nquestions);
            <i, q> = getTvQuestion(cname, typeOfExpr(), qname, qsection, i, cnd);
            questions += q;
            nquestions += 1;
+      }
+      
+      case /^[Qq][Uu]se<uname:\[[A-Za-z0-9]+\]>?:\s*<cpt:\S+>\s+<q:\S+>$/:{
+           qname = makeQname(uname, nquestions);
+           crs = basename(cname);
+           if(/<crs1:[A-Za-z]+>:<rst:.+>$/ := cpt){
+              crs = crs1;
+              cpt = rst;
+           }
+           options = resolveConcept(crs, cpt);
+           if(size(options) != 1)
+              addWarning("Unknown or ambiguous concept <cpt>");
+              
+           ucpid = getFullConceptName(options[0]);
+           try {
+                uq = getQuestion(ucpid, q);
+                uq.fullName = cname;
+                uq.name = qname;
+                questions += uq;
+                nquestions += 1;
+           } catch: addWarning("No question <q> in <ucpid>");
+           i += 1;
       }
       
       case /^\s*$/:
@@ -710,6 +732,7 @@ public str showQuestion(ConceptName cpid, Question q){
       qdescr = descr;
       qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
     }
+    
     case tvQuestion(cid,qid, qkind, qdetails): {
       qdescr = qdetails.descr;
       setup  = qdetails.setup;

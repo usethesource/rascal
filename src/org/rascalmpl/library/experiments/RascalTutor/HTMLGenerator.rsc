@@ -33,7 +33,7 @@ public list[str] getAndClearWarnings(){
 
 // Add a warning.
 
-private void addWarning(str txt){
+public void addWarning(str txt){
   warnings += txt;
 }
 
