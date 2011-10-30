@@ -4,7 +4,7 @@ Synopsis: Numeric range values.
 
 Syntax:
 * `[ $Exp_1$ .. $Exp_3$ ]`
-* `[ $Exp_1$, $Exp_2$, .. $Exp_3$ ]`
+* `[ $Exp_1$, $Exp_2$ .. $Exp_3$ ]`
 
 Types:
 
@@ -16,7 +16,7 @@ Description:
 Ranges are a shorthand for describing lists of integers from 
 $Exp_1$ up to and including $Exp_3$ with increments of 1.
 When $Exp_2$ is present and it is taken as the second element of the list
-and $Exp2$ - $Exp_2$ is used as increment for the subsequent list elements.
+and $Exp_2$ - $Exp_1$ is used as increment for the subsequent list elements.
 
 Examples:
 <screen>

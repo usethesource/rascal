@@ -6,32 +6,32 @@ Syntax:
 
 Types:
 
-| Alias     | Type  | Description |
-|-----------+-------+-------------|
-| BindingRel | `rel[loc, Entity]` | Maps any artifact at a certain location to a (set of) qualified names represented by an Entity |
-| EntityRel | `rel[Entity from, Entity to]` | A shorthand for any relationship between two Entities |
-| EntitySet | `set[Entity]` | A short-hand for collections of entities |
-| ModifierRel | `rel[Entity entity, Modifier modifier]` | A short-hand for mappings from Entities to their declared Modifiers  |
+| Alias         | Type                                    | Description                                                          |
+|:--------------|:----------------------------------------|:---------------------------------------------------------------------|
+| `BindingRel`  | `rel[loc, Entity]`                      | Maps any artifact at a certain location to a (set of) qualified names represented by an Entity |
+| `EntityRel`   | `rel[Entity from, Entity to]`           | A shorthand for any relationship between two Entities                |
+| `EntitySet`   | `set[Entity]`                           | A short-hand for collections of entities                             |
+| `ModifierRel` | `rel[Entity entity, Modifier modifier]` | A short-hand for mappings from Entities to their declared Modifiers  |
 
 
-| Annotation | Type | Description |
-|------------+------+-------------|
-| types | BindingRel | type declarations and uses |
-| methods | BindingRel | method declarations and uses |
-| methodDecls | BindingRel | method declarations |
-| constructors | BindingRel | constructor declarations |
-| fields | BindingRel | field declarations and uses |
-| fieldDecls | BindingRel | field declarations |
-| variables | BindingRel | local variable and method parameter declarations |
-| packages | BindinRel | package declarations |
-| classes | BindingRel | class declarations |
-| modifiers | ModifierRel | the modifiers for each entity |
-| implements | EntityRel | which types implement which interfaces |
-| extends | EntityRel | which class extend which other classes |
-| declaredTopTypes | EntitySet | declarations of top-level (not inner) classes |
-| declaredSubTypes | EntitySet | declarations of inner classes |
-| declaredMethods | EntityRel | which classes define which methods |
-| calls | EntityRel | which methods calls which other methods and which static initializers call which methods |
+| Annotation         | Type          | Description                                      |
+|:-------------------|:--------------|:-------------------------------------------------|
+| `types`            | `BindingRel`  | Type declarations and uses                       |
+| `methods`          | `BindingRel`  | Method declarations and uses                     |
+| `methodDecls`      | `BindingRel`  | Method declarations                              |
+| `constructors`     | `BindingRel`  | Constructor declarations                         |
+| `fields`           | `BindingRel`  | Field declarations and uses                      |
+| `fieldDecls`       | `BindingRel`  | Field declarations                               |
+| `variables`        | `BindingRel`  | Local variable and method parameter declarations |
+| `packages`         | `BindingRel`  | Package declarations                             |
+| `classes`          | `BindingRel`  | Class declarations                               |
+| `modifiers`        | `ModifierRel` | The modifiers for each entity                    |
+| `implements`       | `EntityRel`   | Which types implement which interfaces           |
+| `extends`          | `EntityRel`   | Which class extend which other classes           |
+| `declaredTopTypes` | `EntitySet`   | Declarations of top-level (not inner) classes    |
+| `declaredSubTypes` | `EntitySet`   | Declarations of inner classes                    |
+| `declaredMethods`  | `EntityRel`   | Which classes define which methods               |
+| `calls`            | `EntityRel`   | Which methods calls which other methods and which static initializers call which methods |
 
 
 Function:
@@ -68,7 +68,6 @@ Here is an example function that extracts the sub-type relation from a given pro
 import lang::java::jdt::Java;
 import lang::java::jdt::JDT;
 import Graph;
-
 public EntityRel getSubTypeInformation(loc project){
 fm = extractProject(project);
 return fm@extends + fm@implements
