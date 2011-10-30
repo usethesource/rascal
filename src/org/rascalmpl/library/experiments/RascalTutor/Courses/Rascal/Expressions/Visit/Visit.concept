@@ -92,7 +92,7 @@ Regular expression patterns match only values of type string.
 
 * For other structured types (list, set, map, tuple, rel), the elements of the structured type are visited and 
 matched against the cases. 
-When inserts are made, a new structured value is created. In these cases a stragegy does not have any effect.
+When inserts are made, a new structured value is created. In these cases a strategy does not have any effect.
 
 Examples:
 
