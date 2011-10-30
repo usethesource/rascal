@@ -98,14 +98,14 @@ o/basic/Bubble.rsc|,|std://library/demo/basic/BubbleTest.rsc|,|std://library/dem
 <pre class="screen"><b>rascal></b>import List;
 ok
 <b>rascal></b>size(files);
-int: 87
+int: 78
 </pre>
   or to compute the total number of lines in these files:
 
 <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
-int: 3351
+int: 2914
 </pre>
   This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>
@@ -123,9 +123,9 @@ ok
 <pre class="screen"><b>rascal></b>aux = {&lt;f, size(readFileLines(f))&gt; | loc f &lt;- files};
 rel[loc, int]: {
   &lt;|std://library/demo/lang/MissGrant/DesugarResetEvents.rsc|,8&gt;,
-  &lt;|std://library/demo/Rules/ConcreteBool.rsc|,37&gt;,
   &lt;|std://library/demo/common/LiftTest.rsc|,32&gt;,
-  &lt;|std://library/demo/lang/...
+  &lt;|std://library/demo/lang/Exp/Abstract/Syntax.rsc|,6&gt;,
+  &lt;|std://library/demo/...
 </pre>
   Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
 
