@@ -65,5 +65,7 @@ a: antwoord
 
 QType[B]: <A:int>
 
-QValue[C]: 2 * <A:int>
+QValue: 2 * <A:int>
+
+QUse: Test:AAA 1
 

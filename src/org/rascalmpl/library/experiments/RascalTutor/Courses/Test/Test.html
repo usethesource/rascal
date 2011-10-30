@@ -261,14 +261,72 @@ public void hello() {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="B">
-<input type="hidden" name="A" value="-17">
-The type of <tt>-17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="17">
+The type of <tt>17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="B">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Test_3" class="question">
+<b>Question [3]. </b>
+<span id="good_Test_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Test_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_3" class="answerFeedback"></span>
+ 
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Test">
+<input type="hidden" name="exercise" value="3">
+<input type="hidden" name="A" value="-12">
+<pre class="prequestion">2 * -12 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Test">
+<input type="hidden" name="exercise" value="3">
+<input type="hidden" name="another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Test_4" class="question">
+<b>Question [4]. </b>
+<span id="good_Test_4" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Test_4" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_4" class="answerFeedback"></span>
+ 
+<form method="GET" action="validate" class="answerForm">
+<input type="hidden" name="concept" value="Test">
+<input type="hidden" name="exercise" value="4">
+The type of <tt>{1, </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt> }</tt> is <tt>set[int]</tt><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm">
+<input type="hidden" name="concept" value="Test">
+<input type="hidden" name="exercise" value="4">
 <input type="hidden" name="another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
