@@ -1,0 +1,43 @@
+Name: WordReplacement
+
+Synopsis: Replace words in a string.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+Suppose you are a book editor and want to ensure that all chapter
+and section titles are properly capitalized. Here is how to do this. 
+
+Examples:
+<listing demo/common/WordReplacement.rsc>
+
+We start by introducing a helper function `capitalize` (/*1*/) that does the actual capitalization of a single word.
+See [Rascal:Patterns/Regular] for details about regular expression patterns.
+
+Next we give two versions of a capitalization functions for a sentence:
+* `capAll1` (/*2*/) uses a while loop to find subsequent words and to replace them by a capitalized version.
+* `capAll2` (/*3*/) uses a [Rascal:Visit] to visit all words in the sentence and replace them by a capitalized version.
+
+
+Here are some examples:
+
+<screen>
+import demo::common::WordReplacement;
+capitalize("rascal");
+capAll1("turn this into a capitalized title")
+capAll2("turn this into a capitalized title")
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

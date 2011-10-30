@@ -67,7 +67,7 @@ import String;
 public list[loc] crawl(loc dir, str suffix){
   res = [];
   for(str entry &lt;- listEntries(dir)){
-      loc sub = dir + entry;
+      loc sub = dir + entry;   <img src="/Courses/images/1.png">
       if(endsWith(entry, suffix)) { 
          res += [sub]; 
       }
@@ -118,7 +118,7 @@ ok
 <b>rascal></b>import Set;
 ok
 </pre>
-  Create a relation <code>aux</code> of <location, length> pairs:
+  Create a relation <code>aux</code> of <code>&lt;location, length></code> pairs:
 
 <pre class="screen"><b>rascal></b>aux = {&lt;f, size(readFileLines(f))&gt; | loc f &lt;- files};
 rel[loc, int]: {

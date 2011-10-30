@@ -44,7 +44,7 @@ import IO;
 // Finally, we can look for the largest files. First import some libraries we will need.
 import Relation;
 import Set;
-// Create a relation `aux` of <location, length> pairs:
+// Create a relation `aux` of `<location, length>` pairs:
 aux = {<f, size(readFileLines(f))> | loc f <- files};
 // Now determine the maximum length (using [$Rascal:Set/size]), by taking the maximum of the [$Rascal:Relation/range] of `aux`:
 m = max(range(aux));
