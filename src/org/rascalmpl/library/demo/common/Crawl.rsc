@@ -12,17 +12,10 @@ module demo::common::Crawl
 import IO;
 import String;
 
-public loc catenate(loc basedir, str entry){ /*1*/
-   baseuri = basedir.uri;
-   if(!endsWith(baseuri, "/"))
-   	  baseuri += "/";
-   return basedir[uri=baseuri + entry];
-}
-
-public list[loc] crawl(loc dir, str suffix){ /*2*/
+public list[loc] crawl(loc dir, str suffix){
   res = [];
   for(str entry <- listEntries(dir)){
-      loc sub = catenate(dir, entry);
+      loc sub = dir + entry;   /*1*/
       if(endsWith(entry, suffix)) { 
          res += [sub]; 
       }
