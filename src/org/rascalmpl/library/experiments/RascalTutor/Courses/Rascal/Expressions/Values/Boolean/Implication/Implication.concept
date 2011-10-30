@@ -27,6 +27,10 @@ The _implication_ operator on Boolean values defined as follows:
 Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `==>` operator, the result is `true` if `$Exp_1$` evaluates to `false`, otherwise `$Exp_2$` is evaluated to determine the result.
 
 Examples:
+<screen>
+false ==> true;
+</screen>
+
 
 Benefits:
 

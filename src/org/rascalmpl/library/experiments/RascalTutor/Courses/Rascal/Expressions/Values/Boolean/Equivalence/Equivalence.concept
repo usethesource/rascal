@@ -27,6 +27,9 @@ Description:
 Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. However, in the case of the `<==>` operator both operands have to be evaluated to determine the result.
 
 Examples:
+<screen>
+false <==> false;
+</screen>
 
 Benefits:
 
