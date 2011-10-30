@@ -19,17 +19,14 @@ Examples:
 
 <listing demo/common/Crawl.rsc>
 
-We start with defining a helper function `catenate` (/*1*/) that concatenates a new file name to a location `basedir` that is assumed to be a directory.
-First a check is done (using [Rascal:endsWith]) whether the `uri` in `basedir` already ends with a slash character. If not, that is added.
-Next, the `basedir` is returned, with its `uri` replaced. See [Rascal:Location] for details.
-
-Next, we define the actual `crawl` function (/*2*/). It takes two arguments:
+The `crawl` function takes two arguments:
 * The directory `dir` where the crawl should start.
 * The suffix of the files we are looking for.
 
 
-The crawler now simply lists all entries in the current directory using [Rascal:listEntries] and adds all files
+The crawler simply lists all entries in the current directory using [Rascal:listEntries] and adds all files
 that end we the given suffix to the result. If an entry is itself a directory, it is crawled by a recursive call to crawl.
+At /*1*/ we use concatenation on a location and a string; it automatically adds a `/` separator, see [Rascal:Location] for details.
 
 Let's now crawl the demo files used in this course:
 
