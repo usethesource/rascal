@@ -144,8 +144,7 @@ function initNavigation() {
 				skipNextNodeClick += 1;
 				$('#navPane').jstree('select_node', treeNode);
 			}
-			// make sure the new pre's are sized correctly
-			$('pre').css('max-width', $(window).width() * 0.7);
+			finishLoad();
 		});
 	});
 	if (window.location.hash == '') {
@@ -196,6 +195,24 @@ function attachDisqus(page) {
 	})();
 }
 
+function finishLoad() {
+
+    $('.answerForm').submit(handleAnswer);
+    $('.cheatForm').submit(handleCheat);
+    $('.anotherForm').submit(handleAnother);
+
+    $('.answerStatus').hide();
+    $('.answerFeedback').hide();
+
+    if (enableEditing == false) $('#editMenu').hide();
+    if (enableQuestions == false) $('#questions').hide();
+
+    $('pre').css('max-width', $(window).width() * 0.7);
+    $(window).resize(function() {
+        $('pre').css('max-width', $(window).width() * 0.7);
+    });
+}
+
 function attachHandlers() {
 
     report("attachHandlers", $("#navPane").html());
@@ -207,25 +224,12 @@ function attachHandlers() {
 	});
 	$('#searchForm').submit(handleSearch);
 
-    $('.answerForm').submit(handleAnswer);
-    $('.cheatForm').submit(handleCheat);
-    $('.anotherForm').submit(handleAnother);
-
-    $('.answerStatus').hide();
-    $('.answerFeedback').hide();
 
 	addLightboxToImages();
 
-    if (enableEditing == false) $('#editMenu').hide();
-    if (enableQuestions == false) $('#questions').hide();
-
     report("attachHandlers ... done", $("#navPane").html());
 
-    $('pre').css('max-width', $(window).width() * 0.7);
-    $(window).resize(function() {
-        $('pre').css('max-width', $(window).width() * 0.7);
-    });
-    
+	finishLoad();
     return false;
 }
 
