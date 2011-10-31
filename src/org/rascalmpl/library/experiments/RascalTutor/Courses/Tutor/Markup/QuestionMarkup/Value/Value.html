@@ -155,9 +155,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{3, -11, -2}">
-<input type="hidden" name="B" value="{2}">
-<pre class="prequestion">{3, -11, -2} + {2} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{15, -19}">
+<input type="hidden" name="B" value="{17, -20, -20, -8}">
+<pre class="prequestion">{15, -19} + {17, -20, -20, -8} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -185,8 +185,8 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[-9]">
-<pre class="prequestion">size([-9]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[17, -10, -12, 4]">
+<pre class="prequestion">size([17, -10, -12, 4]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -214,9 +214,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Anakin Skywalker&quot;, &quot;M&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Sesame&quot;, &quot;O&quot;}">
-<input type="hidden" name="B" value="{&quot;Curry&quot;}">
-<pre class="prequestion">{&quot;Anakin Skywalker&quot;, &quot;M&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Sesame&quot;, &quot;O&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;O&quot;,&quot;M&quot;,&quot;Sesame&quot;,&quot;Curry&quot;,&quot;Anakin Skywalker&quot;,&quot;Countess Darling Von Darling&quot;}</pre>
+<input type="hidden" name="A" value="{-15, 19, 17, -3, 3}">
+<input type="hidden" name="B" value="{-18}">
+<pre class="prequestion">{-15, 19, 17, -3, 3} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {-18,-3,3,19,17,-15}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
