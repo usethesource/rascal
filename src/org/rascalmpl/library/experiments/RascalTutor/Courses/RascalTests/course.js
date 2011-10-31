@@ -1,8 +1,8 @@
 /* Generated code for course RascalTests */
 
-var baseConcepts = new Array("RascalTests","Test_Software_Evolution");
+var baseConcepts = new Array("RascalTests","TestSoftwareEvolution");
 
-var conceptNames = new Array("RascalTests","RascalTests/Test_Software_Evolution");
+var conceptNames = new Array("RascalTests","RascalTests/TestSoftwareEvolution");
 
 var searchTerms = {};
 
