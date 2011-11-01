@@ -58,3 +58,19 @@ public list[int] sort4(list[int] Numbers){
 
 }
 
+// sort5: using recursion instead of iteration, and splicing instead of concat
+public list[int] sort5([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3]) {
+  if (P > Q) 
+    return sort5([Nums1,Q,Nums2,P,Nums3]); 
+  else 
+    fail sort5;
+}
+
+public default list[int] sort5(list[int] x) = x;
+
+// finally, sort 6 inlines the condition into a when:
+public list[int] sort6([list[int] Nums1, int P, list[int] Nums2, int Q, list[int] Nums3]) 
+  = sort6([Nums1,Q,Nums2,P,Nums3])
+  when P > Q; 
+
+public default list[int] sort6(list[int] x) = x;
