@@ -349,7 +349,7 @@ public list[loc] getCourseFiles(ConceptName rootConcept){
 }
 
 public list[loc] crawl(loc dir, str suffix){
-//  println("crawl: <dir>, <listEntries(dir)>");
+println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
   dotSuffix = "." + suffix;
   for( str entry <- listEntries(dir) ){
