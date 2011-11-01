@@ -438,6 +438,7 @@ private str markupScreen(list[str] lines, bool generatesError){
    inPre = true;
    prompt =       "rascal\>";
    continuation = "\>\>\>\>\>\>\>";
+   continuationHTML = "\<span class=\"continuation\"\><continuation>\</span\>";
    while(i < upbi && j < upbj){
    		 if(i < upbi && startsWith(lines[i], "//")){
            startLine = i;
@@ -452,7 +453,10 @@ private str markupScreen(list[str] lines, bool generatesError){
          	i += 1; j += 1;
          }
          while(j < upbj && !startsWith(result_lines[j], prompt)){
-           codeLines += limitWidth(result_lines[j], 110) + "\n";
+           //if(startsWith(result_lines[j], continuation))
+          //    codeLines += "\</pre\><continuationHTML><pre_open><limitWidth(replaceFirst(result_lines[j], continuation, ""), 110)>\n";
+          // else
+              codeLines += limitWidth(result_lines[j], 110) + "\n";
            if(i < upbi && startsWith(result_lines[j], continuation)){
               i += 1;
              }
