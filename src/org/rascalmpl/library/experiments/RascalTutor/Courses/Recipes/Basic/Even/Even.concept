@@ -60,8 +60,11 @@ list[int] even5(int max) {
 }
 even5(25);
 // And now we can just define even using an expression only:
-list[int] even6(int max) = [ i | i <- [0..max], i % 2 == 0];
+list[int] even6(int max) = [i | i <- [0..max], i % 2 == 0];
 even6(25);
+// Or, perhaps we like a set instead of a list:
+set[int] even7(int max) = {i | i <- [0..max], i % 2 == 0};
+even7(25);
 </screen>
 
 Examples:

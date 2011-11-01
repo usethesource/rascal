@@ -122,10 +122,17 @@ list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
 </pre>
   And now we can just define even using an expression only:
 
-<pre class="screen"><b>rascal></b>list[int] even6(int max) = [ i | i &lt;- [0..max], i % 2 == 0];
+<pre class="screen"><b>rascal></b>list[int] even6(int max) = [i | i &lt;- [0..max], i % 2 == 0];
 list[int] (int): list[int] even6(int);
 <b>rascal></b>even6(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
+</pre>
+  Or, perhaps we like a set instead of a list:
+
+<pre class="screen"><b>rascal></b>set[int] even7(int max) = {i | i &lt;- [0..max], i % 2 == 0};
+set[int] (int): set[int] even7(int);
+<b>rascal></b>even7(25);
+set[int]: {14,12,10,24,8,22,6,20,4,18,2,16,0}
 </pre>
 </div>
 
