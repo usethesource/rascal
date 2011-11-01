@@ -4,7 +4,7 @@ import IO;
 
 str bottles(0)     = "no more bottles"; /*1*/
 str bottles(1)     = "1 bottle";
-str bottles(int n) = "<n> bottles";
+default str bottles(int n) = "<n> bottles";
 
 public void sing(){ /*2*/
   for(n <- [99 .. 1]){
