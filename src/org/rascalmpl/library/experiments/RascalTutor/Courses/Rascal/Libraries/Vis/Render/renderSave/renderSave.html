@@ -52,8 +52,8 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li><code>void renderSave(loc file, Figure fig )</code></li>
-<li><code>void renderSave(loc file,  int width, int height, Figure fig)</code></li>
+<span class="sectionHead">Function</span>  <ol><li><code>void renderSave(Figure fig, loc file)</code></li>
+<li><code>void renderSave(Figure fig, int width, int height, loc file)</code></li>
 </ol>
 </div>
 
@@ -75,12 +75,12 @@
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ol><li> Only works inside Eclipse.</li>
-<li> Some figures have a minimal size of 0, for example: <code>box(ellipse())</code>. No part of the figure has an inherent minimal size greater than zero.  When using <code>renderSave</code> without specifing a size on such figures a image of size 0x0 (the minimal size) will be rendered. The sollution is then to specifify a width and height. <br/>
+<span class="sectionHead">Pitfalls</span>  <ul><li> Only works inside Eclipse.</li>
+<li> Some figures have a minimal size of 0, for example: <code>box(ellipse())</code>. No part of the figure has an inherent minimal size greater than zero.  When using <code>renderSave</code> without specifing a size on such figures a image of size 0x0 (the minimal size) will be rendered. The solution is then to specifify a width and height. <br/>
 <br/>
- Figures that do not have minimal size 0 are figure where a part of the figure has an inherent minimal size, such as a text element (the minimal size of the text element is the minimal size required to show it in the given fontSize). For example <code>box(box(text("jada"),grow(1.2)),grow(1.2))</code>
+ Figures that do not have minimal size 0 are figures where a part of the figure has an inherent minimal size, such as a text element (the minimal size of the text element is the minimal size required to show it in the given fontSize). For example <code>box(box(text("jada"),grow(1.2)),grow(1.2))</code>
 </li>
-</ol>
+</ul>
 </div>
 
   	                       
