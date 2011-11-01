@@ -57,13 +57,32 @@
  of a number N is defined as <code>N * (N-1) * (N-2) * ... * 1</code>.
  Here is the Rascal version:
  <pre class="listing">module demo::basic::Factorial
-public int fac(int N) = N &lt;= 0 ? 1 : N * fac(N - 1);
-</pre> It uses a conditional expression to distinguish cases and here is how to use it:
+
+public int fac(int N) = N &lt;= 0 ? 1 : N * fac(N - 1); <img src="/Courses/images/1.png">
+
+public int fac2(0) = 1; <img src="/Courses/images/2.png">
+public default int fac2(int N) = N * fac2(N - 1); <img src="/Courses/images/3.png">
+
+public int fac3(int N)  { <img src="/Courses/images/4.png">
+  if (N == 0) 
+    return 1;
+  return N * fac3(N - 1);
+}
+</pre> Implementation <img src="/Courses/images/1.png"> uses a conditional expression to distinguish cases and here is how to use it:
  <pre class="screen"><b>rascal></b>import demo::basic::Factorial;
 ok
 <b>rascal></b>fac(47);
 int: 258623241511168180642964355153611979969197632389120000000000
 </pre> Indeed, Rascal has arbitrary length integers.
+ <br/>
+<br/>
+
+ Definitions <img src="/Courses/images/2.png"> and <img src="/Courses/images/3.png"> do the same using pattern dispatch (<a href="/Courses/Rascal/Declarations/Function/Function.html">Rascal:Function</a>):
+ <pre class="screen"><b>rascal></b>import demo::basic::Factorial;
+ok
+<b>rascal></b>fac2(47);
+int: 258623241511168180642964355153611979969197632389120000000000
+</pre> Number <img src="/Courses/images/4.png"> is a more imperative implementation.
 
 </div>
 

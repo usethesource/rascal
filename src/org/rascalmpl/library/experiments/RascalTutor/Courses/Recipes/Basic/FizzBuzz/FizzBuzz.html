@@ -64,7 +64,7 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Here is one possible Rascal solution:
+<span class="sectionHead">Examples</span>  Here are a few possible Rascal solutions:
  <pre class="listing">module demo::basic::FizzBuzz
 
 import IO;
@@ -74,6 +74,25 @@ public void fizzbuzz() {
       fb = ((n % 3 == 0) ? "Fizz" : "") + ((n % 5 == 0) ? "Buzz" : "");
       println((fb == "") ?"&lt;n>" : fb);
    }
+}
+
+public void fizzbuzz2() {
+  for (n &lt;- [1..100]) 
+    switch(&lt;n % 3 == 0, n % 5 == 0>) {
+      case &lt;true,true>  : println("FizzBuzz");
+      case &lt;true,false> : println("Fizz");
+      case &lt;false,true> : println("Buzz");
+      default: println(n);
+    }
+}
+
+public void fizzbuzz3() {
+  for (n &lt;- [1..100]) {
+    if (n % 3 == 0) print("Fizz");
+    if (n % 5 == 0) print("Buzz");
+    else if (n % 3 != 0) print(n);
+    println("");
+  }
 }
 </pre> <pre class="screen"><b>rascal></b>import demo::basic::FizzBuzz;
 ok

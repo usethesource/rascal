@@ -20,7 +20,7 @@ Write a program that prints the numbers from 1 to 100. But for multiples of thre
 Surprisingly, many candidates fail to pass this test.
 Solutions to FizzBuzz in various languages are available [here](http://www.geekschool.org/programming/fizzbuzz/).
 Examples:
-Here is one possible Rascal solution:
+Here are a few possible Rascal solutions:
 <listing demo/basic/FizzBuzz.rsc>
 <screen>
 import demo::basic::FizzBuzz;
