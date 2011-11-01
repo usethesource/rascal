@@ -85,7 +85,7 @@
 </li>
 <li> <code>justTime</code>: returns the date component of a date or datetime value.</li>
 <li> <code>justDate</code>: retunrs the time component of a time or datetime value.</li>
-<li> <code>century</code>: returns the century of a year for date or datetime values.</li>
+<li> <code>century</code>: returns the century component of a year for date or datetime values.</li>
 </ul> The following fields provide access to the indvidual components of date, time and datetime values,
  and can be accessed using <a href="/Courses/Rascal/Expressions/Values/DateTime/FieldSelection/FieldSelection.html">DateTime/FieldSelection</a> and be assigned using <a href="/Courses/Rascal/Expressions/Values/DateTime/FieldSelection/FieldSelection.html">DateTime/FieldSelection</a>:
  <ul><li> <code>year</code></li>
@@ -133,6 +133,12 @@ int: 20
 
   	                       
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  In normal parlance, the year 2010 is in the 21th century.
+ The <code>century</code> field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
+
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/DateTime&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/DateTime&new=true"><b>New Subconcept</b></a>] |

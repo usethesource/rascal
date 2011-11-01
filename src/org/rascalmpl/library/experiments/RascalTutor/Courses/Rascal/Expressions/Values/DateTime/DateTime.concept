@@ -33,7 +33,7 @@ The following fields provide access to information about the value, but cannot b
   date or time value.
 * `justTime`: returns the date component of a date or datetime value.
 * `justDate`: retunrs the time component of a time or datetime value.
-* `century`: returns the century of a year for date or datetime values.
+* `century`: returns the century component of a year for date or datetime values.
 
 
 The following fields provide access to the indvidual components of date, time and datetime values,
@@ -83,6 +83,8 @@ DT.century;
 Benefits:
 
 Pitfalls:
+In normal parlance, the year 2010 is in the 21th century.
+The `century` field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
 
 Questions:
 
