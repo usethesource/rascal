@@ -367,7 +367,7 @@ private str markupListing(list[str] lines){
 private str markupCode(str text){
   return visit(text){
     case /^\</   => "&lt;"
-    case /^\\ /  => "&nbsp;"
+//    case /^\\ /  => "&nbsp;"
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
