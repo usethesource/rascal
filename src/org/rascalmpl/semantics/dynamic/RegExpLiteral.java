@@ -14,65 +14,52 @@
 package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 
 public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 
+	
 	static public class Lexical extends org.rascalmpl.ast.RegExpLiteral.Lexical {
 
 		public Lexical(IConstructor __param1, String __param2) {
 			super(__param1, __param2);
 		}
 
-		private String getValueAsString(String varName, IEvaluatorContext ctx) {
-			Environment env = ctx.getCurrentEnvt();
-			Result<IValue> res = env.getVariable(varName);
-			if (res != null && res.getValue() != null) {
-				if (res.getType().isStringType())
-					return ((IString) res.getValue()).getValue();
-
-				return res.getValue().toString();
-			}
-
-			throw new UninitializedVariableError(varName, ctx.getCurrentAST());
-		}
-
 		/*
 		 * Interpolate all occurrences of <X> by the value of X
 		 */
-		private String interpolate(String re, IEvaluatorContext ctx) {
+		private void interpolate(String re, List<InterpolationElement> elems, List<String> vars) {
 			Pattern replacePat = java.util.regex.Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)>");
 			Matcher m = replacePat.matcher(re);
-			StringBuffer result = new StringBuffer();
 			int start = 0;
 			while (m.find()) {
-				// TODO: escape special chars?
-				result.append(re.substring(start, m.start(0))).append(getValueAsString(m.group(1), ctx)); 
+				elems.add(new StaticInterpolationElement(addGroups(re.substring(start, m.start(0)), vars)));
+				elems.add(new NamedInterpolationElement(m.group(1)));
+				;
 				start = m.end(0);
 			}
-			result.append(re.substring(start, re.length()));
-
-			return result.toString();
+			elems.add(new StaticInterpolationElement(re.substring(start, re.length())));
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-
 			String subjectPat = this.getString();
+			List<InterpolationElement> resultRegExp = new LinkedList<InterpolationElement>();
 
 			if (subjectPat.charAt(0) != '/') {
 				throw new SyntaxError("Malformed Regular expression: "
@@ -92,11 +79,8 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 						this.getLocation());
 			}
 
-			// The resulting regexp that we are constructing
-			StringBuffer resultRegExp = new StringBuffer();
-
 			if (modifiers.length() > 0) {
-				resultRegExp.append("(?").append(modifiers).append(")");
+				resultRegExp.add(new StaticInterpolationElement("(?" + modifiers + ")"));
 			}
 
 			/*
@@ -137,7 +121,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 			while (m.find()) {
 				String varName = m.group(1);
 
-				resultRegExp.append(subjectPat.substring(start, m.start(0))); // add
+				resultRegExp.add(new StaticInterpolationElement(addGroups(subjectPat.substring(start, m.start(0)), patternVars))); // add
 				// regexp
 				// before
 				// <
@@ -150,30 +134,130 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 						throw new RedeclaredVariableError(varName, this);
 					}
 					patternVars.add(varName);
-					resultRegExp.append("(").append(
-							interpolate(m.group(2), eval)).append(")");
+					resultRegExp.add(new StaticInterpolationElement("("));
+					interpolate(m.group(2), resultRegExp, patternVars);
+					resultRegExp.add(new StaticInterpolationElement(")"));
 				} else { /* case (2): <X> */
 					int varIndex = patternVars.indexOf(varName);
 					if (varIndex >= 0) {
 						/* Generate reference to previous occurrence */
-						resultRegExp.append("(?:\\").append(1 + varIndex)
-								.append(")");
+						resultRegExp.add(new StaticInterpolationElement("(?:\\" + (1 + varIndex) + ")"));
 					} else {
-						resultRegExp.append(getValueAsString(varName, eval)); // TODO:
-						// escape
-						// special
-						// chars?
+						resultRegExp.add(new NamedInterpolationElement(varName));
 					}
 				}
 				start = m.end(0);
 			}
-			resultRegExp.append(subjectPat.substring(start, end));
-			return new RegExpPatternValue(eval, this, resultRegExp.toString(), patternVars);
+			
+			resultRegExp.add(new StaticInterpolationElement(addGroups(subjectPat.substring(start, end), patternVars)));
+			return new RegExpPatternValue(eval, this, resultRegExp, patternVars);
+		}
 
+		private String addGroups(String s, List<String> patternVars) {
+			int i = -1;
+			while ((i = s.indexOf("(", i + 1)) != -1) {
+				patternVars.add("_" + i);
+			}
+			return s;
 		}
 	}
 
 	public RegExpLiteral(IConstructor __param1) {
 		super(__param1);
 	}
+	
+	static public interface InterpolationElement {
+		String getString(IEvaluatorContext env);
+	}
+	
+	static public class NamedInterpolationElement implements InterpolationElement {
+		private final String name;
+
+		public NamedInterpolationElement(String name) {
+			this.name = name;
+		}
+		
+		private String escape(IValue val) {
+			String name;
+			if (val.getType().isStringType()) {
+				name = ((IString) val).getValue();
+			}
+			else {
+				name = val.toString();
+			}
+			StringBuilder b = new StringBuilder();
+			
+			for (int i = 0; i < name.length(); i++) {
+				char ch = name.charAt(i);
+				if ("^.|?*+()[\\".indexOf(ch) != -1) {
+					b.append('\\');
+				}
+				b.append(ch);
+			}
+			
+			return b.toString();
+		}
+
+		@Override
+		public String getString(IEvaluatorContext env) {
+			Result<IValue> variable = env.getCurrentEnvt().getVariable(name);
+			
+			if (variable == null) {
+				throw new UndeclaredVariableError(name, env.getCurrentAST());
+			}
+			
+			IValue value = variable.getValue();
+			if (value == null) {
+				throw new UninitializedVariableError(name, env.getCurrentAST());
+			}
+			
+			return escape(value);
+		}
+		
+		@Override
+		public String toString() {
+			return "(?" + name + ")";
+		}
+	}
+	
+	static public class StaticInterpolationElement implements InterpolationElement {
+		private String elem;
+
+		public StaticInterpolationElement(String elem) {
+			this.elem = removeRascalSpecificEscapes(elem);
+		}
+		
+		@Override
+		public String getString(IEvaluatorContext env) {
+			return elem;
+		}
+		
+		private String removeRascalSpecificEscapes(String s) {
+			StringBuilder b = new StringBuilder(s.length());
+			char[] chars = s.toCharArray();
+			
+			for (int i = 0; i < chars.length; i++) {
+				if (chars[i] == '\\' && i + 1 < chars.length) {
+					switch(chars[++i]) {
+					case '>' : b.append('>'); continue;
+					case '<' : b.append('<'); continue;
+					default: // leave the other escapes as-is
+						b.append('\\');
+						b.append(chars[i]);
+					}
+				}
+				else {
+					b.append(chars[i]);
+				}
+			}
+			
+			return b.toString();
+		}
+		
+		@Override
+		public String toString() {
+			return elem;
+		}
+	}
+	
 }

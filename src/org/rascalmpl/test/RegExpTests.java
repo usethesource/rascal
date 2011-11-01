@@ -71,8 +71,34 @@ public class RegExpTests extends TestFramework{
 	
 	@Test
 	public void nomatchWithLocalVariable(){
-		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" && x == \"123\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" || x == \"123\");}"));
 		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");  (x == \"123\");}"));
+	}
+	
+	@Test
+	public void repeatedInterpolation() {
+		assertTrue(runTest("{r = out:for (i <- [1,2,3]) for (/<i>/ := \"332211\") append out:i; r == [1,1,2,2,3,3]; }"));
+	}
+	
+	@Test 
+	public void interpolatingAndEscaped() {
+		assertFalse(runTest("{ x = \".\"; /<x>/ := \"a\";}"));
+		assertTrue(runTest("{ x = \".\"; /<x>/ := \".\";}"));
+		assertTrue(runTest("{ /.<x:bc>/ := \"abc\" && x == \"bc\";}"));
+		assertTrue(runTest("{ /^(a|b)*$/ := \"ababab\"; }"));
+		assertTrue(runTest("{ /(a|b)<x:cd>/ := \"acd\" && x == \"cd\"; }"));
+		assertFalse(runTest("{ /^(a|b)*$/ := \"abacbab\"; }"));
+		assertTrue(runTest("{ /(.)<x:bc>/ := \"abc\" && x == \"bc\";}"));
+		assertFalse(runTest("{ x = \"(\"; y = \")\"; /<x>.<y>/ := \"a\";}"));
+		assertTrue(runTest("{ x = \"(\"; y = \")\"; /<x>.<y>/ := \"(a)\";}"));
+	}
+	
+	@Test 
+	public void lotsofbrackets() {
+		assertTrue(runTest("/(<x:[a-z]+>)/ := \"abc\" && x == \"abc\""));
+		assertTrue(runTest("/((<x:[a-z]+>))/ := \"abc\" && x == \"abc\""));
+		assertTrue(runTest("/(<x:([a-z]+)>)/ := \"abc\" && x == \"abc\""));
+		assertTrue(runTest("/(<x:(([a-z])+)>)/ := \"abc\" && x == \"abc\""));
 	}
 	
 	@Test
@@ -118,7 +144,7 @@ public class RegExpTests extends TestFramework{
 	public void nomatchWithExternalModuleVariable(){
 		prepareModule("XX", "module XX public str x = \"abc\";");
 		runTestInSameEvaluator("import XX;");
-		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
+		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") || (x == \"abc\");"));
 		assertTrue(runTestInSameEvaluator("{(/<x:[a-z]+>/ !:= \"pqr\") ; (x == \"abc\");}"));
 	}
 	

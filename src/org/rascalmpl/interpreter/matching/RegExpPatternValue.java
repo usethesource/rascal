@@ -32,11 +32,13 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.semantics.dynamic.RegExpLiteral;
+import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
-	private String RegExpAsString;				// The regexp represented as string
+	private final List<InterpolationElement> regexp;
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
-
+	
 	private List<String> patternVars;			// The variables occurring in the regexp
 	private Matcher matcher;					// The actual regexp matcher
 	String subject;								// Subject string to be matched
@@ -47,38 +49,30 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	
+	
+	
 //	private static HashMap<String,Matcher> matcherCache = 
 //		new HashMap<String,Matcher>();
 	
-	public RegExpPatternValue(IEvaluatorContext ctx, AbstractAST x, String s, List<String> patternVars) {
+	public RegExpPatternValue(IEvaluatorContext ctx, AbstractAST x, java.util.List<RegExpLiteral.InterpolationElement> regexp, List<String> patternVars) {
 		super(ctx, x);
 		
-		RegExpAsString = removeRascalSpecificEscapes(s);
+		this.regexp = regexp;
 		this.patternVars = patternVars;
 		initialized = false;
 	}
 	
-	private String removeRascalSpecificEscapes(String s) {
-		StringBuilder b = new StringBuilder(s.length());
-		char[] chars = s.toCharArray();
+	private String interpolate(IEvaluatorContext env) {
+		StringBuilder b = new StringBuilder();
 		
-		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == '\\' && i + 1 < chars.length) {
-				switch(chars[++i]) {
-				case '>' : b.append('>'); continue;
-				case '<' : b.append('<'); continue;
-				default: // leave the other escapes as-is
-					b.append('\\');
-					b.append(chars[i]);
-				}
-			}
-			else {
-				b.append(chars[i]);
-			}
+		for (RegExpLiteral.InterpolationElement elem : regexp) {
+			b.append(elem.getString(env));
 		}
 		
 		return b.toString();
 	}
+	
+	
 
 	@Override
 	public Type getType(Environment ev, HashMap<String,IVarPattern> patternVars) {
@@ -97,6 +91,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		initialized = firstMatch = hasNext = true;
 	
 		try {
+			String RegExpAsString = interpolate(ctx);
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
 			throw new SyntaxError(e.getMessage(), ctx.getCurrentAST().getLocation());
@@ -172,7 +167,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	@Override
 	public String toString(){
-		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
+		return "RegExpPatternValue(" + regexp + ", " + patternVars + ")";
 	}
 
 	@Override
