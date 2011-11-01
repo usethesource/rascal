@@ -42,6 +42,7 @@ sort2(L);
 sort3(L);
 sort4(L);
 sort5(L);
+sort6(L);
 </screen>
 
 
