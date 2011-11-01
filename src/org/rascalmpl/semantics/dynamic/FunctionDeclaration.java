@@ -13,11 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionBody;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Signature;
@@ -31,6 +33,8 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
+import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.ASTBuilder;
 
 public abstract class FunctionDeclaration extends
 		org.rascalmpl.ast.FunctionDeclaration {
@@ -143,6 +147,46 @@ public abstract class FunctionDeclaration extends
 		}
 
 	}
+	
+	static public class Conditional extends
+	org.rascalmpl.ast.FunctionDeclaration.Conditional {
+
+		public Conditional(IConstructor node, Tags tags, Visibility visibility,
+				Signature signature, org.rascalmpl.ast.Expression expression, java.util.List<org.rascalmpl.ast.Expression> conditions) {
+			super(node, tags, visibility, signature, expression, conditions);
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			AbstractFunction lambda;
+			boolean varArgs = this.getSignature().getParameters().isVarArgs();
+
+			if (hasJavaModifier(this)) {
+				throw new JavaMethodLinkError(
+						"may not use java modifier with a function that has a body",
+						null, this, null);
+			}
+
+			IConstructor src = this.getTree();
+			AbstractAST ret = ASTBuilder.makeStat("Return", src, ASTBuilder.makeStat("Expression", src, getExpression()));
+			AbstractAST fail = ASTBuilder.makeStat("Fail", src, ASTBuilder.make("Target", "Labeled", src, getSignature().getName()));
+			AbstractAST ite = ASTBuilder.makeStat("IfThenElse", src, ASTBuilder.make("Label", "Empty", src), getConditions(), ret, fail);
+			List<AbstractAST> sl = Arrays.<AbstractAST>asList(ite);
+			AbstractAST body = ASTBuilder.make("FunctionBody", "Default", src, sl);
+			FunctionDeclaration.Default func = ASTBuilder.make("FunctionDeclaration", "Default", src, getTags(), getVisibility(), getSignature(), body);
+			
+			lambda = new RascalFunction(eval, func, varArgs, eval
+					.getCurrentEnvt(), eval.__getAccumulators());
+
+			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+
+			lambda.setPublic(this.getVisibility().isPublic());
+			return lambda;
+		}
+
+}
 
 	private static boolean hasJavaModifier(
 			org.rascalmpl.ast.FunctionDeclaration func) {
