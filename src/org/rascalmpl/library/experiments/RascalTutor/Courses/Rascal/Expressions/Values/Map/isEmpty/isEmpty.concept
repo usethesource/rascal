@@ -18,7 +18,7 @@ Examples:
 <screen>
 import Map;
 isEmpty(());
-isEmpty(("apple": 1, "pear": 2, "ananas": 3));
+isEmpty(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 
 Benefits:

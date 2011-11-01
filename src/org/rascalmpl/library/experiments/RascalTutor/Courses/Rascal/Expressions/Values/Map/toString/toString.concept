@@ -17,7 +17,7 @@ Description:
 Examples:
 <screen>
 import Map;
-toString(("apple": 1, "pear": 2, "ananas": 3));
+toString(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 
 Benefits:

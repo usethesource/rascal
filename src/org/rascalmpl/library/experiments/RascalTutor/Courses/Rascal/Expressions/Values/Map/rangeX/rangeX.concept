@@ -17,7 +17,7 @@ Returns the map restricted to pairs with values not in `S`.
 Examples:
 <screen>
 import Map;
-rangeX(("apple": 1, "pear": 2, "ananas": 3), {2, 3});
+rangeX(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 </screen>
 
 Benefits:

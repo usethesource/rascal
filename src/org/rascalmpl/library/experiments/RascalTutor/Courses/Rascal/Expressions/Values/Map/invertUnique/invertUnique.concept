@@ -23,8 +23,8 @@ Also see [Map/invert] and [Exception].
 Examples:
 <screen errors>
 import Map;
-invertUnique(("apple": 1, "pear": 2, "ananas": 3));
-invertUnique(("apple": 1, "pear": 2, "ananas": 1));
+invertUnique(("apple": 1, "pear": 2, "orange": 3));
+invertUnique(("apple": 1, "pear": 2, "orange": 1));
 </screen>
 
 Benefits:

@@ -20,7 +20,7 @@ The type of $Exp_1$ should be compatible with the key type $TK$ of $Exp_2$.
 
 Examples:
 <screen>
-"ananas" notin ("apple": 1, "pear": 2);
+"pineapple" notin ("apple": 1, "pear": 2);
 "pear" notin ("apple": 1, "pear": 2);
 </screen>
 

@@ -17,9 +17,9 @@ Returns an arbitrary key of map `M`.
 Examples:
 <screen>
 import Map;
-getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
-getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
-getOneFrom(("apple": 1, "pear": 2, "ananas": 3));
+getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
+getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
+getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 </screen>
 
 Benefits:

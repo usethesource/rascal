@@ -19,7 +19,7 @@ Examples:
 import Map;
 str prefix(str s) { return "X" + s; }
 int incr(int x) { return x + 1; }
-mapper(("apple": 1, "pear": 2, "ananas": 3), prefix, incr);
+mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
 </screen>
 
 Benefits:

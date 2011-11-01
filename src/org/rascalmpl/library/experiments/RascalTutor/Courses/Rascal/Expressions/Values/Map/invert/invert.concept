@@ -18,7 +18,7 @@ Also see [invertUnique].
 Examples:
 <screen>
 import Map;
-invert(("apple": 1, "pear": 2, "ananas": 1));
+invert(("apple": 1, "pear": 2, "orange": 1));
 </screen>
 
 Benefits:

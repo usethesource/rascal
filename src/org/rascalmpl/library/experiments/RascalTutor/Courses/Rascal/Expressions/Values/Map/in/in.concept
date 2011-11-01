@@ -21,7 +21,7 @@ The type of $Exp_1$ should be compatible with the key type $TK$ of $Exp_2$.
 Examples:
 <screen>
 "pear" in ("apple": 1, "pear": 2);
-"ananas" in ("apple": 1, "pear": 2);
+"pineapple" in ("apple": 1, "pear": 2);
 </screen>
 
 Benefits:

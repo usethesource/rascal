@@ -13,8 +13,8 @@ Details:
 
 Description:
 A descendant pattern
-performs a deep match of the pattern $Pat$. In other words, it matches when any element of the subject at any depth that matches $Pat$
- and is used to match, for instance, tree nodes at an arbitrary distance from the root.
+performs a deep match of the pattern $Pat$. In other words, it matches when any element of the subject at any depth
+that matches $Pat$ and is used to match, for instance, tree nodes at an arbitrary distance from the root.
 
 Examples:
 <screen>
