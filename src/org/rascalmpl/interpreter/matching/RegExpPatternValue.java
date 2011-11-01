@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
@@ -153,7 +154,13 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
 			}
 		}
-		return findMatch();
+		
+		try {
+			return findMatch();
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			throw new ImplementationError("Unexpected error in mapping to Java regex:" + interpolate(ctx), ctx.getCurrentAST().getLocation());
+		}
 	}
 	
 	@Override

@@ -127,6 +127,10 @@ public list[int] sort4(list[int] Numbers){
  <br/>
 <br/>
 
+ <code>sort5</code> uses tail recursion to reach a fixed point instead of a while loop. One alternative matches lists with out-of-order elements, while the default alternative returns the list if no out-of-order elements are found.
+ <br/>
+<br/>
+
  Let's put them to the test:
  <pre class="screen"><b>rascal></b>import demo::basic::Bubble;
 ok
@@ -140,6 +144,8 @@ list[int]: [1,2,3,4,5,6,7,8,9]
 list[int]: [1,2,3,4,5,6,7,8,9]
 <b>rascal></b>sort4(L);
 list[int]: [1,2,3,4,5,6,7,8,9]
+<b>rascal></b>sort5(L);
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: sort5
 </pre>
 </div>
 
