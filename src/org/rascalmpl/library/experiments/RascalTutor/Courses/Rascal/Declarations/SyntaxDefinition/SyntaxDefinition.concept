@@ -63,7 +63,7 @@ Examples:
 The following example makes use of practically all of the [SyntaxDefinition] features, except parse actions.
 <listing>
 // layout is lists of whitespace characters
-layout MyLayout = [\t\n\ \r\f]*;
+layout MyLayout = [\t\n\\ \r\f]*;
 
 // identifiers are characters of lowercase alphabet letters, 
 // not immediately preceded or followed by those (longest match)
@@ -82,7 +82,7 @@ syntax Expression
   > left ( add: Expression l "+" Expression r
          | sub: Expression l "-" Expression r
          )
-  | bracket: "(" Expression ")"
+  | bracket "(" Expression ")"
   ;
 </listing>
 

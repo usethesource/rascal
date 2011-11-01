@@ -112,7 +112,7 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  The following example makes use of practically all of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a> features, except parse actions.
  <pre class="listing">// layout is lists of whitespace characters
-layout MyLayout = [\t\n&nbsp;\r\f]*;
+layout MyLayout = [\t\n\&nbsp;\r\f]*;
 
 // identifiers are characters of lowercase alphabet letters, 
 // not immediately preceded or followed by those (longest match)
@@ -131,7 +131,7 @@ syntax Expression
   > left ( add: Expression l "+" Expression r
          | sub: Expression l "-" Expression r
          )
-  | bracket: "(" Expression ")"
+  | bracket "(" Expression ")"
   ;
 </pre>
 </div>
