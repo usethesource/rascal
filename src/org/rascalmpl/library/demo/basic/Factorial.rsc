@@ -9,4 +9,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
 module demo::basic::Factorial
-public int fac(int N) = N <= 0 ? 1 : N * fac(N - 1);
+
+public int fac(int N) = N <= 0 ? 1 : N * fac(N - 1); /*1*/
+
+public int fac2(0) = 1; /*2*/
+public default int fac2(int N) = N * fac2(N - 1); /*3*/
