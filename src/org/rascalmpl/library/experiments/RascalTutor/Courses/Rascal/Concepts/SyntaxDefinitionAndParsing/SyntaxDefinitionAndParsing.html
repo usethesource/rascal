@@ -83,9 +83,9 @@
 </ul> The EXP language can be defined as follows:
   <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Syntax
 
-lexical LAYOUT = [\t-\n\r&nbsp;];                    <img src="/Courses/images/1.png">
+lexical LAYOUT = [\t-\n\r\ ];                    <img src="/Courses/images/1.png">
 
-layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r&nbsp;] ;   <img src="/Courses/images/2.png">
+layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r\ ] ;   <img src="/Courses/images/2.png">
     
 lexical IntegerLiteral = [0-9]+;           
 

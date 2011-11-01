@@ -198,6 +198,10 @@ th { background-color: silver; }
     color: red;
 }
 
+.continuation {
+    color: lightgray;
+}
+
 .answerForm tt {
     background-color: lightgray;
     border:solid;

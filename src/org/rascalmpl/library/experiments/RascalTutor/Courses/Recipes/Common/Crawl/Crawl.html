@@ -105,7 +105,7 @@ int: 78
 <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
-int: 2914
+int: 2959
 </pre>
   This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>
@@ -122,10 +122,10 @@ ok
 
 <pre class="screen"><b>rascal></b>aux = {&lt;f, size(readFileLines(f))&gt; | loc f &lt;- files};
 rel[loc, int]: {
+  &lt;|std://library/demo/basic/Factorial.rsc|,22&gt;,
   &lt;|std://library/demo/lang/MissGrant/DesugarResetEvents.rsc|,8&gt;,
   &lt;|std://library/demo/common/LiftTest.rsc|,32&gt;,
-  &lt;|std://library/demo/lang/Exp/Abstract/Syntax.rsc|,6&gt;,
-  &lt;|std://library/demo/...
+  &lt;|std://library/demo/lang/Exp...
 </pre>
   Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
 

@@ -135,6 +135,8 @@ rter.java:108)
     at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:419)
     at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
     at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
+    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
+    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:415)
     at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
     at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
     at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
@@ -143,17 +145,14 @@ rter.java:108)
     at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:323)
     at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:191)
     at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:1050)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:1043)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:695)
-    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:653)
+    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:621)
     at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:229)
     at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:178)
     at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:126)
     at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:101)
     at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:92)
     at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:425)
-    at org.rascalmpl.library.experiments.RascalTutor.Save.doGet(Save.java:46)
+    at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:38)
     at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
     at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
     at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:527)
@@ -261,8 +260,8 @@ public void hello() {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="B">
-<input type="hidden" name="A" value="17">
-The type of <tt>17</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="12">
+The type of <tt>12</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -291,8 +290,8 @@ The type of <tt>17</tt> is <textarea rows="1" cols="30" name="answer" class="ans
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="-12">
-<pre class="prequestion">2 * -12 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-18">
+<pre class="prequestion">2 * -18 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">

@@ -68,9 +68,9 @@
 <span class="sectionHead">Examples</span>  Let's first label the syntax rules of the Exp grammar with constructor names:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Syntax
 
-lexical LAYOUT = [\t-\n\r&nbsp;];                    
+lexical LAYOUT = [\t-\n\r\ ];                    
 
-layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r&nbsp;] ;  
+layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r\ ] ;  
     
 lexical IntegerLiteral = [0-9]+;           
 

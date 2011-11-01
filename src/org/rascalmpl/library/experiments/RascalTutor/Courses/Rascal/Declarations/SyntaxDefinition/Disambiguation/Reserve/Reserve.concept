@@ -4,7 +4,7 @@ Synopsis: Reserve is a conditional [Symbol], constraining the set of strings tha
 
 Syntax: 
 
-* `$Symbol$ \\ $constraint$`
+* `$Symbol$ \ $constraint$`
 
 
 where a $constraint$ is any character class, a literal or a keyword non-terminal [Symbol].

@@ -50,7 +50,7 @@
 
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <ul><li> <code><i>Symbol</i> \&nbsp;<i>constraint</i></code></li>
+<span class="sectionHead">Syntax</span>  <ul><li> <code><i>Symbol</i> \ <i>constraint</i></code></li>
 </ul> where a <code><i>constraint</i></code> is any character class, a literal or a keyword non-terminal <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>.
 
 </div>
@@ -58,7 +58,7 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  The parser will not accept a reserve symbol if the string accepted by it matches <i>exactly</i> with the constraint. For example, <code>[a-z0-9]+ &nbsp;"if"</code> will accept all strings of alphanumeric characters, except for the word <code>if</code>.
+<span class="sectionHead">Description</span>  The parser will not accept a reserve symbol if the string accepted by it matches <i>exactly</i> with the constraint. For example, <code>[a-z0-9]+ \ "if"</code> will accept all strings of alphanumeric characters, except for the word <code>if</code>.
 
 </div>
 
