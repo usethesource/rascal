@@ -68,6 +68,27 @@
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  
+  Introduce a map of <code>fruits</code>:
+
+<pre class="screen"><b>rascal></b>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
+map[str, int]: (&quot;orange&quot;:35,&quot;apple&quot;:3,&quot;pear&quot;:1,&quot;berry&quot;:25,&quot;banana&quot;:0)
+<b>rascal></b>import String;
+ok
+</pre>
+  Use a map comprehension to filter fruits with a name of at most 5 characters:
+
+<pre class="screen"><b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, size(fruit) &lt;= 5);
+map[str, int]: (&quot;apple&quot;:3,&quot;berry&quot;:25,&quot;pear&quot;:1)
+</pre>
+  Use a map comprehension to filter fruits with an associated value larger than 10:
+
+<pre class="screen"><b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
+map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
+</pre>
+</div>
+
   	                       
   	                       
   	                       

@@ -46,6 +46,9 @@ Examples:
 // A set comprehension that constructs a relation:
 {<X, Y> | int X <- {1, 2, 3}, int Y <- {2, 3, 4}, X >= Y};
 {<Y, X> | <int X, int Y> <- {<1,10>, <2,20>}};
+// Introduce a map of `fruits` and use a map comprehension to filter fruits with an associated value larger than 10:
+fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
+(fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
 </screen>
 
 See [List/Comprehension], [Set/Comprehension], or [Map/Comprehension] for more examples.

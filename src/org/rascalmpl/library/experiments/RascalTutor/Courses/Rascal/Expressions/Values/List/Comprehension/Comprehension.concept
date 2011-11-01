@@ -19,6 +19,10 @@ A list comprehension consists of a number of contributing expressions $Exp_1$, $
 generators $Gen_1$, $Gen_2$, $Gen_3$, ... that are evaluated as described in [Expressions/Comprehensions].
 
 Examples:
+Computing a list of squares of the numbers from 0 to 10 that are divisible by 3:
+<screen>
+[n * n | int n <- [0 .. 10], n % 3 == 0];
+</screen>
 
 Benefits:
 
