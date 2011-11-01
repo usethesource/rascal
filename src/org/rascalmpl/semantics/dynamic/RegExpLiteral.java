@@ -156,7 +156,9 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		private String addGroups(String s, List<String> patternVars) {
 			int i = -1;
 			while ((i = s.indexOf("(", i + 1)) != -1) {
-				patternVars.add("_" + i);
+				if (i == 0 || s.charAt(i - 1) != '\\') {
+					patternVars.add("_" + i);
+				}
 			}
 			return s;
 		}
