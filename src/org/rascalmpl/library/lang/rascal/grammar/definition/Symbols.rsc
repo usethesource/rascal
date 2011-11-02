@@ -55,7 +55,7 @@ public Symbol sym2symbol(Sym sym) {
     case (Sym) `(<Sym first> <Sym+ sequence>)` : 
       return seq([sym2symbol(first)] + [sym2symbol(elem) | elem <- sequence]);
     case (Sym) `^ <Sym s>` : 
-      return conditional(sym2symbol(s), {\start-of-line()});
+      return conditional(sym2symbol(s), {\begin-of-line()});
     case (Sym) `<Sym s> $` : 
       return conditional(sym2symbol(s), {\end-of-line()});
     case (Sym) `<Sym s> @ <IntegerLiteral i>` : 
