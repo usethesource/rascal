@@ -25,7 +25,7 @@ public class AtStartOfLineRequirement implements IEnterFilter{
 	}
 	
 	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
-		return positionStore.startsLine(start);
+		return !positionStore.startsLine(start);
 	}
 	
 	public boolean isEqual(IEnterFilter otherEnterFilter){
