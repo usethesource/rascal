@@ -100,7 +100,7 @@ public class PositionStore{
 	}
 	
 	public boolean endsLine(int offset){
-		return (offset == endOfFile) || (isAtColumn(offset, 0));
+		return (offset == endOfFile) || (isAtColumn(offset+1, 0));
 	}
 	
 	public boolean isAtColumn(int offset, int column){
