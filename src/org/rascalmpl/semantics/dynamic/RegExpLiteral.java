@@ -156,13 +156,18 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		private String addGroups(String s, List<String> patternVars) {
 			int i = -1;
 			while ((i = s.indexOf("(", i + 1)) != -1) {
-				if (i == 0) {
+				if (i == 0) { // start of string
 					if (s.length() == 1 || s.charAt(i + 1) != '?') {
 						patternVars.add("_" + i);
 					}
 				}
-				else {
-					if (i == s.length() - 1 || (s.charAt(i - 1) != '\\' && s.charAt(i + 1) != '?')) {
+				else if (i == s.length() - 1) { // end of string
+					if (s.charAt(i - 1) != '\\') {
+						patternVars.add("_" + i);
+					}
+				}
+				else { // middle of string
+					if (s.charAt(i - 1) != '\\' && s.charAt(i + 1) != '?') {
 						patternVars.add("_" + i);
 					}
 				}
