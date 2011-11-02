@@ -93,6 +93,11 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{ x = \"(\"; y = \")\"; /<x>.<y>/ := \"(a)\";}"));
 	}
 	
+	@Test
+	public void literalBracket() {
+		assertTrue(runTest("/\\(/ := \"(\""));
+	}
+	
 	@Test 
 	public void lotsofbrackets() {
 		assertTrue(runTest("/(<x:[a-z]+>)/ := \"abc\" && x == \"abc\""));
