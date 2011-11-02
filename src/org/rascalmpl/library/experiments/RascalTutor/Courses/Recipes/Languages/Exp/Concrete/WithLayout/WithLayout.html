@@ -123,6 +123,11 @@ int: 20
 
   	                       
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> If the grammar for <code>Exp</code> would contain an optional symbol, as in <code>syntax Exp = Exp "+"? Exp</code>, then it would be ambiguous. Does a space in "1 1", belong to the <code>Whitespace</code> before or after the missing <code>+</code>? To disambiguate the <code>layout</code> definition should be changed to <code>layout Whitespace = [\ \t\n\r]* !>> [\ \t\n\r]</code>. That will make sure the space goes with the first Whitespace, because even an empty Whitespace list must never be followed immediately by a space.</li>
+</ul>
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/WithLayout&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Concrete/WithLayout&new=true"><b>New Subconcept</b></a>] |
