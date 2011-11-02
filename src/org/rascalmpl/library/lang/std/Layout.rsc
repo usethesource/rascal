@@ -12,7 +12,7 @@ extend lang::std::Whitespace;
 extend lang::std::Comment;
  
 layout Standard 
-  = WhitespaceOrComment*;
+  = WhitespaceOrComment* !>> [\ \t\n\f\r] !>> "//";
   
 syntax WhitespaceOrComment 
   = whitespace: Whitespace
