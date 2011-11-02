@@ -24,7 +24,7 @@ public class AtEndOfLineRequirement implements ICompletionFilter{
 	}
 	
 	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
-		return positionStore.endsLine(end);
+		return !positionStore.endsLine(end);
 	}
 	
 	public boolean isEqual(ICompletionFilter otherCompletionFilter){
