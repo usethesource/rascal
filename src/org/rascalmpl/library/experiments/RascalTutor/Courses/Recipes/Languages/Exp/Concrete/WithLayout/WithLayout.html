@@ -52,53 +52,30 @@
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  In Rascal, the major difference between lexical syntax and concrete syntax is that:
- <ul><li> Strings that are parsed according to the lexical syntax <b>cannot</b> contain additional layout characters   such as spaces, new lines, and the like.
+<span class="sectionHead">Description</span>  In Rascal, the major difference between lexical syntax and non-lexical syntax is that:
+ <ul><li> Strings that are parsed according to the lexical syntax <i>do not</i> contain additional layout characters   such as spaces, new lines, and source code comments.
 </li>
-<li> Strings that are parsed according to the concrete syntax <b>may</b> contain layout characters between   each element, but this has to be defined explicitly by the grammar writer.
+<li> Strings that are parsed according to the normal (non-lexical) syntax <b>can</b> contain layout characters between   each element. 
 </li>
-</ul> Rascal provides two predefined non-terminal types for this:
- <ul><li> <code>LAYOUT</code>: a single layout character.</li>
-<li> <code>LAYOUTLIST</code>: a sequence of layout characters.</li>
-</ul> To put it bluntly, Rascal inserts <code>LAYOUTLIST</code> between every element in a syntax rule and it is up to the grammar writer
- whether this can correspond to actual text.
-
-</div>
-
-  	                       
-<div id="Examples">
-<span class="sectionHead">Examples</span>  To elaborate this in an example, our original grammar will be transformed as follows:
- <pre class="listing">start syntax Exp =                         
-                   IntegerLiteral          
-                 | bracket "(" LAYOUTLIST Exp LAYOUTLIST ")"     
-                 > left Exp LAYOUTLIST "*" LAYOUTLIST Exp        
-                 > left Exp LAYOUTLIST "+" LAYOUTLIST Exp        
-                 ;
-</pre> To be precise, <code>LAYOUTLIST</code> will also be allowed before and after the start non-terminal.
- <br/>
-<br/>
-
- This process is automated by adding layout definitions for <code>LAYOUT</code> and <code>LAYOUTLIST</code> to our Exp grammar:
+<li> Which 'layout' (whitespace and/or source code comments) will be accepted has to be defined explicitly by the grammar writer.</li>
+</ul> The following example extends the grammar for <code>Exp</code> in <a href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">Exp/Concrete/NoLayout</a> with a layout definition:
  <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Syntax
 
-lexical LAYOUT = [\t-\n\r\ ];                    <img src="/Courses/images/1.png">
-
-layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r\ ] ;   <img src="/Courses/images/2.png">
+layout Whitespace = [\t-\n\r\ ]*; <img src="/Courses/images/1.png">
     
 lexical IntegerLiteral = [0-9]+;           
 
-start syntax Exp =                         
-                   IntegerLiteral          
-                 | bracket "(" Exp ")"     
-                 > left Exp "*" Exp        
-                 > left Exp "+" Exp        
-                 ;
-</pre> Notes:
- <ul><li> <img src="/Courses/images/1.png"> declares <code>LAYOUT</code> as a character class of certain characters: from tab to newline, carriage return and space.</li>
-<li> <img src="/Courses/images/2.png"> declares <code>LAYOUTLIST</code> as zero or more <code>LAYOUT</code>s provided that it is not followed by another <code>LAYOUT</code> character (this is called a <i>follow restriction</i>).
-</li>
-</ul> Given this grammar including layout, we could reuse the evaluator for the case without layout,
- but to stress the difference we include a new version here (can you spot the difference?):
+start syntax Exp 
+  = IntegerLiteral          
+  | bracket "(" Exp ")"     
+  > left Exp "*" Exp        
+  > left Exp "+" Exp        
+  ;
+</pre> Using the <code>layout</code> definition (<img src="/Courses/images/1.png">), we define that the <code>Whitespace</code> non-terminal is used <i>in between every symbol</i> of the <code>syntax</code> productions in the current module.
+ <br/>
+<br/>
+
+ And now we can use spaces in our definition of the eval function as well:
  <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Eval
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 
@@ -111,12 +88,26 @@ public int eval((Exp)`&lt;IntegerLiteral l>`) = toInt("&lt;l>");
 public int eval((Exp)`&lt;Exp e1> * &lt;Exp e2>`) = eval(e1) * eval(e2);  
 public int eval((Exp)`&lt;Exp e1> + &lt;Exp e2>`) = eval(e1) + eval(e2); 
 public int eval((Exp)`( &lt;Exp e> )`) = eval(e);                    
-</pre> As a good observer, you will have noticed that we have used some spaces in the patterns for the <code>eval</code> function,
- since they or now allowed by the grammar.
+</pre> Note that <a href="/Courses/Rascal/Concepts/PatternMatching/PatternMatching.html">Rascal:PatternMatching</a> will <i>ignore</i> all trees in layout positions, such that the parse tree of "1 + \n1" will match against <code>&lt;Exp e1> + &lt;Exp e2></code>. The same goes for equality on parse trees.
  <br/>
 <br/>
 
- To put this all to the test:
+ For the above example Rascal will insert the <code>Whitespace</code> non-terminal that is defined at <img src="/Courses/images/1.png"> between every element of the syntax rules for <code>Exp</code>. Moreover, for the start production (See <a href="/Courses/Recipes/Languages/Exp/Concrete/NoLayout/NoLayout.html">Exp/Concrete/NoLayout</a>) <code>Whitespace</code> will be added before and after the <code>Exp</code>.
+
+</div>
+
+  	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  The effect of the layout definition is that before parser generation the following grammar is derived for <code>Exp</code>:
+ <pre class="listing">syntax Exp 
+  = IntegerLiteral          
+  | bracket "(" Whitespace Exp Whitespace ")"     
+  > left Exp Whitespace "*" Whitespace Exp        
+  > left Exp Whitespace "+" Whitespace Exp        
+  ;
+
+syntax start[Exp] = Whitespace Exp top Whitespace;
+</pre> To put this all to the test:
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
 <b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Eval;

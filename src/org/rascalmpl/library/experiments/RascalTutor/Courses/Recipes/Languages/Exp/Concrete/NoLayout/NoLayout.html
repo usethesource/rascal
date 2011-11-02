@@ -63,12 +63,12 @@
     
 lexical IntegerLiteral = [0-9]+;           <img src="/Courses/images/1.png">
 
-start syntax Exp =                         <img src="/Courses/images/2.png">
-                   IntegerLiteral          <img src="/Courses/images/3.png">
-                 | bracket "(" Exp ")"     <img src="/Courses/images/4.png">
-                 > left Exp "*" Exp        <img src="/Courses/images/5.png">
-                 > left Exp "+" Exp        <img src="/Courses/images/6.png">
-                 ;
+start syntax Exp            <img src="/Courses/images/2.png">
+  = IntegerLiteral          <img src="/Courses/images/3.png">
+  | bracket "(" Exp ")"     <img src="/Courses/images/4.png">
+  > left Exp "*" Exp        <img src="/Courses/images/5.png">
+  > left Exp "+" Exp        <img src="/Courses/images/6.png">
+  ;
 </pre> Notes:
  <ul><li> <img src="/Courses/images/1.png"> defines a lexical syntax rule for IntegerLiterals; they consist of one or more digits.</li>
 <li> <img src="/Courses/images/2.png"> defines the alternatives for Exp. The keyword <code>start</code> means that this is a start symbol of the grammar.</li>
