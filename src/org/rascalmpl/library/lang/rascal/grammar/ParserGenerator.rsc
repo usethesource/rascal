@@ -474,7 +474,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       enters += ["new CharPrecedeRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
-      enters += ["new AtStartOfLineRequirement()" | \start-of-line() <- conds];
+      enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
       sym = sym.symbol;
       if (sym is label)
