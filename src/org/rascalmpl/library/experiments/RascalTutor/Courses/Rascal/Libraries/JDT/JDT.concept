@@ -70,15 +70,15 @@ import lang::java::jdt::JDT;
 import Graph;
 public EntityRel getSubTypeInformation(loc project){
 fm = extractProject(project);
-return fm@extends + fm@implements
-+ {entity([package("java"),package("lang"),class("Object")])} * top (fm@extends + fm@implements);
+return fm@extends + fm@implements;
 }
 </screen>
 
 Benefits:
 
 Pitfalls:
-This module is only available in the Eclipse version of Rascal.
+* This module is only available in the Eclipse version of Rascal.
+* Make sure the argument to getSubTypeInformation is a loc with scheme `project`, as in `|project://MyProject|`.
 
 Questions:
 

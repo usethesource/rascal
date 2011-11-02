@@ -95,8 +95,7 @@ ok
 ok
 <b>rascal></b>public EntityRel getSubTypeInformation(loc project){
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;fm = extractProject(project);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;return fm@extends + fm@implements
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;+ {entity([package(&quot;java&quot;),package(&quot;lang&quot;),class(&quot;Object&quot;)])} * top (fm@extends + fm@implements);
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;return fm@extends + fm@implements;
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
 EntityRel (loc): EntityRel getSubTypeInformation(loc);
 </pre>
@@ -105,8 +104,9 @@ EntityRel (loc): EntityRel getSubTypeInformation(loc);
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  This module is only available in the Eclipse version of Rascal.
-
+<span class="sectionHead">Pitfalls</span>  <ul><li> This module is only available in the Eclipse version of Rascal.</li>
+<li> Make sure the argument to getSubTypeInformation is a loc with scheme <code>project</code>, as in <code>|project://MyProject|</code>.</li>
+</ul>
 </div>
 
   	                       
