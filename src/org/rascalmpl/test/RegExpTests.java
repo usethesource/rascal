@@ -101,6 +101,11 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("/(<x:(([a-z])+)>)/ := \"abc\" && x == \"abc\""));
 	}
 	
+	@Test 
+	public void nogrouplookaheadandbehind() {
+		assertTrue(runTest("/(?s)a.c/ := \"a\nc\""));
+	}
+	
 	@Test
 	public void InterpolateInPatternVarDecl(){
 		
