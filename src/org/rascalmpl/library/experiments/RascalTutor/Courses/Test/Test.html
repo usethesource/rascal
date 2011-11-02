@@ -78,8 +78,7 @@ stacktrace: / by zero
     at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:194)
     at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:119)
     at org.rascalmpl.library.Scripting.shell(Scripting.java:85)
-    at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
-    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+    at sun.reflect.GeneratedMethodAccessor140.invoke(null:-1)
     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
     at java.lang.reflect.Method.invoke(Method.java:597)
     at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:130)
@@ -260,8 +259,8 @@ public void hello() {
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="B">
-<input type="hidden" name="A" value="12">
-The type of <tt>12</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
+<input type="hidden" name="A" value="8">
+The type of <tt>8</tt> is <textarea rows="1" cols="30" name="answer" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -290,8 +289,8 @@ The type of <tt>12</tt> is <textarea rows="1" cols="30" name="answer" class="ans
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Test">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="-18">
-<pre class="prequestion">2 * -18 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="-8">
+<pre class="prequestion">2 * -8 == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -338,8 +337,8 @@ The type of <tt>{1, </tt><textarea rows="1" cols="30" name="answer" class="answe
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Test&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Test&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Test"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Test/warnings.html"><b>Warnings</b></a>]</div>
-
+               [<a id="warnAction" href="/Courses/Test/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+<span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
 </body>

@@ -155,9 +155,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="1">
-<input type="hidden" name="A" value="{-11, 2, -20, -8, 9}">
-<input type="hidden" name="B" value="{5, -5}">
-<pre class="prequestion">{-11, 2, -20, -8, 9} + {5, -5} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="{-15, -13}">
+<input type="hidden" name="B" value="{-9, 16, 15, 16}">
+<pre class="prequestion">{-15, -13} + {-9, 16, 15, 16} == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -185,8 +185,8 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="2">
-<input type="hidden" name="A" value="[2]">
-<pre class="prequestion">size([2]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
+<input type="hidden" name="A" value="[-9, -15, 15, -7]">
+<pre class="prequestion">size([-9, -15, 15, -7]) == <textarea rows="1" cols="30" name="answer" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -214,9 +214,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <form method="GET" action="validate" class="answerForm">
 <input type="hidden" name="concept" value="Tutor_Markup_QuestionMarkup_Value">
 <input type="hidden" name="exercise" value="3">
-<input type="hidden" name="A" value="{&quot;Guava&quot;}">
-<input type="hidden" name="B" value="{&quot;Bruno&quot;}">
-<pre class="prequestion">{&quot;Guava&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Guava&quot;,&quot;Bruno&quot;}</pre>
+<input type="hidden" name="A" value="{&quot;Redcurrant&quot;}">
+<input type="hidden" name="B" value="{&quot;S&quot;, &quot;Peppermint&quot;, &quot;Cardamon&quot;, &quot;Countess Von Backwards&quot;}">
+<pre class="prequestion">{&quot;Redcurrant&quot;} + <textarea rows="1" cols="30" name="answer" class="answerText"></textarea> == {&quot;Countess Von Backwards&quot;,&quot;Cardamon&quot;,&quot;Redcurrant&quot;,&quot;Peppermint&quot;,&quot;S&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm">
@@ -271,7 +271,7 @@ public list[str] find(list[str] text){
                [<a id="newAction" href="/edit?concept=Tutor/Markup/QuestionMarkup/Value&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Tutor"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Tutor/warnings.html"><b>Warnings</b></a>]</div>
-
+<span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
 </body>

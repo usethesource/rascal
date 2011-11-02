@@ -194,6 +194,11 @@ th { background-color: silver; }
     color: red;
 }
 
+.editMenuFooter {   
+    font-size: 90%;
+    font-family: italic;
+}
+
 .inlineError {
     color: red;
 }

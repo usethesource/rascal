@@ -25,9 +25,9 @@ searchTerms["screen"] = new Array("Tutor/Markup/StructureMarkup/screen");
 
 searchTerms["]("] = new Array("Tutor/Markup/InlineMarkup/ExternalURL","Tutor/Markup/InlineMarkup/Image");
 
-searchTerms["***"] = new Array("Tutor/Markup/StructureMarkup/BulletLists");
-
 searchTerms["bool"] = new Array("Tutor/Markup/QuestionMarkup/TypeDescriptor");
+
+searchTerms["***"] = new Array("Tutor/Markup/StructureMarkup/BulletLists");
 
 searchTerms["Examples"] = new Array("Tutor/Concept/Examples","Tutor/Concept");
 
@@ -85,7 +85,7 @@ searchTerms["Pitfalls"] = new Array("Tutor/Concept/Pitfalls","Tutor/Concept");
 
 searchTerms["<"] = new Array("Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/warning","Tutor/Markup/StructureMarkup/TableOfContents","Tutor/Markup/StructureMarkup/screen");
 
-searchTerms[":"] = new Array("Tutor/Markup/QuestionMarkup/Text","Tutor/Concept/Details","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Concept/Syntax","Tutor/Concept/Synopsis","Tutor/Markup/QuestionMarkup/Choice","Tutor/Concept/Function","Tutor/Concept/Examples","Tutor/Concept/Types","Tutor/Concept/Name","Tutor/Concept/Description","Tutor/Concept/Benefits","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/Value","Tutor/Concept");
+searchTerms[":"] = new Array("Tutor/Markup/QuestionMarkup/Text","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Concept/Details","Tutor/Concept/Syntax","Tutor/Markup/QuestionMarkup/Choice","Tutor/Concept/Synopsis","Tutor/Concept/Function","Tutor/Concept/Examples","Tutor/Concept/Types","Tutor/Concept/Name","Tutor/Concept/Description","Tutor/Concept/Benefits","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/Value","Tutor/Concept");
 
 searchTerms["Synopsis"] = new Array("Tutor/Concept/Synopsis","Tutor/Concept");
 
@@ -119,9 +119,9 @@ searchTerms["QValue"] = new Array("Tutor/Markup/QuestionMarkup/Value");
 
 searchTerms["QText"] = new Array("Tutor/Markup/QuestionMarkup/Text");
 
-searchTerms["list"] = new Array("Tutor/Markup/QuestionMarkup/TypeDescriptor");
-
 searchTerms["real"] = new Array("Tutor/Markup/QuestionMarkup/TypeDescriptor");
+
+searchTerms["list"] = new Array("Tutor/Markup/QuestionMarkup/TypeDescriptor");
 
 searchTerms["==="] = new Array("Tutor/Markup/StructureMarkup/NamedParagraph");
 

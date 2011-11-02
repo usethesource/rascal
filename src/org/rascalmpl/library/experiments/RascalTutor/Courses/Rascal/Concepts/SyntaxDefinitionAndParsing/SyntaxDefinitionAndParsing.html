@@ -83,18 +83,16 @@
 </ul> The EXP language can be defined as follows:
   <pre class="listing">module demo::lang::Exp::Concrete::WithLayout::Syntax
 
-lexical LAYOUT = [\t-\n\r\ ];                    <img src="/Courses/images/1.png">
-
-layout LAYOUTLIST = LAYOUT*  !>> [\t-\n\r\ ] ;   <img src="/Courses/images/2.png">
+layout Whitespace = [\t-\n\r\ ]*; <img src="/Courses/images/1.png">
     
 lexical IntegerLiteral = [0-9]+;           
 
-start syntax Exp =                         
-                   IntegerLiteral          
-                 | bracket "(" Exp ")"     
-                 > left Exp "*" Exp        
-                 > left Exp "+" Exp        
-                 ;
+start syntax Exp 
+  = IntegerLiteral          
+  | bracket "(" Exp ")"     
+  > left Exp "*" Exp        
+  > left Exp "+" Exp        
+  ;
 </pre> Now you may parse and manipulate programs in the EXP language. Let's demonstrate parsing an expression:
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
@@ -106,11 +104,11 @@ start[Exp]: appl(
   prod(
     start(sort(&quot;Exp&quot;)),
     [
-      layouts(&quot;LAYOUTLIST&quot;),
+      layouts(&quot;Whitespace&quot;),
       label(
         &quot;top&quot;,
         sort(&quot;Exp&quot;)),
-      layouts(&quot;LAYOUTLIST&quot;)
+      layouts(&quot;Whitespace&quot;)
     ],
     {}),
   [
@@ -144,7 +142,7 @@ start[Exp]: appl(
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/SyntaxDefinitionAndParsing&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
                [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
-
+<span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
 </body>
