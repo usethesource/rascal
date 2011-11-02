@@ -1198,10 +1198,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 								catch (ContinueException e) {
 									// try next assignment of generators!
 									if (!e.hasLabel() && getLabel().isEmpty()) { 
-										continue conditions;
+										continue loop;
 									}
 									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
-										continue conditions;
+										continue loop;
 									}
 
 									throw e;
