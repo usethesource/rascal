@@ -23,6 +23,7 @@ import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 
 /**
  * Text element.
@@ -37,6 +38,7 @@ public class Text extends Figure {
 	private double[] indents;
 	private PropertyValue<String> txt;
 	private BoundingBox minSizeUnrotated;
+	private double topY;
 
 
 	public Text(PropertyManager properties,PropertyValue<String> txt) {
@@ -68,11 +70,17 @@ public class Text extends Figure {
 			double r2 = Math.abs(Math.sin(angle));
 			minSize.setX(minSizeUnrotated.getX() * r1 + minSizeUnrotated.getY() * r2);
 			minSize.setY(minSizeUnrotated.getY() * r1 + minSizeUnrotated.getX() * r2);
-		resizable.set(false,false);
+		resizable.set(false,true);
 	}
-
-	@Override
-	public void resizeElement(Rectangle view) {}
+	
+	public void resizeElement(Rectangle view) {
+		double middleY = size.getY() / 2.0;
+		if(getTextAscent() > middleY){
+			topY = 0;
+		} else {
+			topY = middleY - getTextAscent();
+		}
+	}
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){

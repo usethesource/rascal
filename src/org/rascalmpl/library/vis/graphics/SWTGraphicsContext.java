@@ -486,5 +486,10 @@ public class SWTGraphicsContext implements GraphicsContext {
 		return translateY;
 	}
 
+	@Override
+	public Font getFont() {
+		return gc.getFont();
+	}
+
 	
 }

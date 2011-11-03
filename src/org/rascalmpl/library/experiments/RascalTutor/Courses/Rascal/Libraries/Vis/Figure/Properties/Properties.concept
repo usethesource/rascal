@@ -83,7 +83,9 @@ The following table specifies which properties have an effect on which figures.
 <tr><td>[fillColor]	<td> X		<td> X		<td> X			<td> X		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> X		<td> 		<td> X		   <td> 			<td> X		<td> 		<td> X			<td> 		
 <tr><td>[font]		<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
 <tr><td>[fontColor]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[fontBold]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
 <tr><td>[fontSize]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[fontItalic]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
 <tr><td>[gap]2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> X		<td> X		<td> 		<td> 		<td> X		<td> 		  <td> 			<td> X		<td> 		<td> 			<td> X		
 <tr><td>[grow]2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> 		
 <tr><td>[hint]		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> X		<td>		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		

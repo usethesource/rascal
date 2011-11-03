@@ -69,6 +69,7 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
+		widget.setFont(gc.getFont());
 		visibleSWTElements.add(this);
 		int rx = FigureMath.round(globalLocation.getX() + gc.getTranslateX());
 		int ry = FigureMath.round(globalLocation.getY() + gc.getTranslateY());

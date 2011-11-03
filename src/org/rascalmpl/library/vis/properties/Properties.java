@@ -55,6 +55,8 @@ public enum Properties {
 	HMAJOR				(Types.BOOL,    "hmajor",			false,				INTERNAL	),
 	HMIRROR				(Types.BOOL,	"hmirror",			false,				INTERNAL	),
 	VMIRROR				(Types.BOOL,	"vmirror",			false,				INTERNAL	),
+	FONT_ITALIC			(Types.BOOL,	"fontItalic",		false,				INTERNAL	),
+	FONT_BOLD			(Types.BOOL,	"fontBold",			false,				INTERNAL	),
 	
 	FILL_COLOR			(Types.COLOR,	"fillColor",		WHITE,				INTERNAL	),  
 	FONT_COLOR			(Types.COLOR,	"fontColor",		BLACK,				INTERNAL	),   
