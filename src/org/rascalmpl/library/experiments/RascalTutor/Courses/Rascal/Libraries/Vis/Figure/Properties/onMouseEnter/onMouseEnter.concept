@@ -23,7 +23,7 @@ b = box(fillColor(Color () { return c ? color("red") : color("green"); }),
 	,shrink(0.5));
 render(b);
 </figure>
-![onkeydown](onkeydown.png)
+![mouseenter](mouseenter.png)
 
 Benefits:
 

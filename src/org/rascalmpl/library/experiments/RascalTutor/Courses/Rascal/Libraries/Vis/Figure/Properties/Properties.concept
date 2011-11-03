@@ -82,6 +82,7 @@ The following table specifies which properties have an effect on which figures.
 <tr><td>[endGap]2D		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
 <tr><td>[fillColor]	<td> X		<td> X		<td> X			<td> X		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> X		<td> 		<td> X		   <td> 			<td> X		<td> 		<td> X			<td> 		
 <tr><td>[font]		<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td>[fontBaseLine]	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
 <tr><td>[fontColor]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
 <tr><td>[fontBold]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
 <tr><td>[fontSize]	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		

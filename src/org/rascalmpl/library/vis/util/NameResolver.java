@@ -3,6 +3,7 @@ package org.rascalmpl.library.vis.util;
 import static org.rascalmpl.library.vis.properties.Properties.ID;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -11,13 +12,13 @@ import org.rascalmpl.library.vis.figure.Figure;
 public class NameResolver {
 	
 	NameResolver parent;
-	HashMap<String, Figure> localFigures;
+	HashMap<String, Object> localFigures;
 	HashMap<String,NameResolver> children;
 	IEvaluatorContext ctx;
 	
 	public NameResolver(NameResolver parent, IEvaluatorContext ctx){
 		this.parent = parent;
-		localFigures = new HashMap<String, Figure>();
+		localFigures = new HashMap<String, Object>();
 		children = new HashMap<String, NameResolver>();
 	}
 	
@@ -32,7 +33,7 @@ public class NameResolver {
 		}
 	}
 	
-	public void register(String name, Figure fig){
+	public void register(String name, Object fig){
 		localFigures.put(name, fig);
 	}
 	
@@ -42,7 +43,7 @@ public class NameResolver {
 		return child;
 	}
 	
-	public Figure resolve(String path){
+	public Object resolve(String path){
 		if(path.startsWith("../")){
 			if(isRoot()){
 				throw RuntimeExceptionFactory.figureException("Could not resolve " + path + ":no such parent", ctx.getValueFactory().string(""), ctx.getCurrentAST(),
@@ -67,9 +68,26 @@ public class NameResolver {
 			} else if(!isRoot()){
 				return parent.resolve(path);
 			} else {
-				throw RuntimeExceptionFactory.figureException("Could not resolve " + path + " no such figure", ctx.getValueFactory().string(""), ctx.getCurrentAST(),
-						ctx.getStackTrace());
+				return null;
 			}
+		}
+	}
+	
+	public Figure resolveFigure(String path){
+		Object res = resolve(path);
+		if(res instanceof Figure){
+			return (Figure)res;
+		} else {
+			return null;
+		}
+	}
+	
+	public MaxFontAscent resolveMaxFontAscent(String path){
+		Object res = resolve(path);
+		if(res instanceof MaxFontAscent){
+			return (MaxFontAscent)res;
+		} else {
+			return null;
 		}
 	}
 	
