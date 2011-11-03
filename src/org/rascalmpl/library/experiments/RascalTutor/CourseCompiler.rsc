@@ -290,7 +290,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
   	              html_synopsis +
   	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><refToResolvedConcept(ch, true)> &#032 <}>")) +
   	              html_body +
-  	              editMenu(cn)
+  	              editMenu(C)
   	           ))
   	       ))
   	)
@@ -375,8 +375,15 @@ public str searchBox(ConceptName cn){
          ";
 }
 
-public str editMenu(ConceptName cn){
+public str editMenu(Concept C){
+  cn = C.fullName;
   warnings = "/Courses/<rootname(cn)>/warnings.html";
+  n = size(C.warnings);
+  msg = "";
+  if(n == 1)
+     msg = inlineError(" 1 warning in this concept");
+  if(n > 1)
+     msg = inlineError(" <n> warnings in this concept");
  
   return "\n\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
          "\<div id=\"editMenu\"\>" +
@@ -384,8 +391,10 @@ public str editMenu(ConceptName cn){
                [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New Subconcept\</b\>\</a\>] |
                [\<a id=\"compileAction\" href=\"/compile?name=<rootname(cn)>\"\>\<b\>Recompile Course\</b\>\</a\>] |
                [\<a id=\"warnAction\" href=\"<warnings>\"\>\<b\>Warnings\</b\>\</a\>]"
-          +
-            "\</div\>\n";
+          +    msg
+          + "\</div\>\n"
+          + "\<span class=\"editMenuFooter\"\>Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. "
+          + "For all other questions and remarks, visit \<a href=\"http://ask.rascal-mpl.org\"\>ask.rascal-mpl.org\</a\>. \</span\>";
 }
 
 // --------------------- compile questions ---------------------------------
