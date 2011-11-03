@@ -196,7 +196,7 @@ th { background-color: silver; }
 
 .editMenuFooter {   
     font-size: 90%;
-    font-family: italic;
+    font-style: italic;
 }
 
 .inlineError {
