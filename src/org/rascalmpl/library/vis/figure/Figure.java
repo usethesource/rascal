@@ -104,12 +104,15 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public final void registerIds(IFigureConstructionEnv env,NameResolver resolver){
 		resolver.register(this);
+		registerMore(env,resolver);
 		setChildren(env,resolver);
 		for(Figure child : children){
 			child.registerIds(env,resolver);
 		}
 	}
 	
+	void registerMore(IFigureConstructionEnv env, NameResolver resolver) {}
+
 	public void setChildren(IFigureConstructionEnv env, NameResolver resolver) {}
 	
 	public final void registerConverts(NameResolver resolver){
@@ -445,13 +448,13 @@ public abstract class Figure implements Comparable<Figure> {
 	public double getTextAscent(){
 		return SWTFontsAndColors.textAscent(
 				prop.getStr(FONT),
-				prop.getInt(FONT_SIZE));
+				prop.getInt(FONT_SIZE),FontStyle.getFontStyles(prop.getBool(FONT_BOLD), prop.getBool(FONT_ITALIC)));
 	}
 	
 	public double getTextDescent(){
 		return SWTFontsAndColors.textDescent(
 				prop.getStr(FONT),
-				prop.getInt(FONT_SIZE));
+				prop.getInt(FONT_SIZE),FontStyle.getFontStyles(prop.getBool(FONT_BOLD), prop.getBool(FONT_ITALIC)));
 	}
 	
 	public double getTextHeight(){
@@ -461,7 +464,7 @@ public abstract class Figure implements Comparable<Figure> {
 	public double getTextWidth(String s){
 		return SWTFontsAndColors.textWidth(s, 
 				prop.getStr(FONT),
-				prop.getInt(FONT_SIZE));
+				prop.getInt(FONT_SIZE),FontStyle.getFontStyles(prop.getBool(FONT_BOLD), prop.getBool(FONT_ITALIC)));
 	}
 	
 	

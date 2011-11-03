@@ -40,7 +40,7 @@ public class Projection extends LayoutProxy{
 	
 	@Override
 	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver){
-		Figure fig = resolver.resolve(projectOnId.getValue());
+		Figure fig = resolver.resolveFigure(projectOnId.getValue());
 		if(fig instanceof Screen){
 			Screen hs = (Screen)fig;
 			hs.registerProjection(this);

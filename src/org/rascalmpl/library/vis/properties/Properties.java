@@ -94,6 +94,7 @@ public enum Properties {
 	LINE_STYLE			(Types.STR,		"lineStyle",		"solid",			INTERNAL	),
 	HINT				(Types.STR,		"hint",				"",					INTERNAL	),	
 	ID					(Types.STR,		"id",				"",					EXTERNAL	),
+	FONT_BASELINE		(Types.STR,		"fontBaseline",		"",					INTERNAL	), 
 	LAYER				(Types.STR,		"layer",			"",					INTERNAL	),
 	FONT				(Types.STR,		"font",				"Helvetica",		INTERNAL	),
 	DIR					(Types.STR,		"dir",				"",					INTERNAL	),
