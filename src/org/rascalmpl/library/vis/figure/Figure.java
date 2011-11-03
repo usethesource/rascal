@@ -15,24 +15,7 @@ package org.rascalmpl.library.vis.figure;
 
 
 
-import static org.rascalmpl.library.vis.properties.Properties.ASPECT_RATIO;
-import static org.rascalmpl.library.vis.properties.Properties.FILL_COLOR;
-import static org.rascalmpl.library.vis.properties.Properties.FONT;
-import static org.rascalmpl.library.vis.properties.Properties.FONT_COLOR;
-import static org.rascalmpl.library.vis.properties.Properties.FONT_SIZE;
-import static org.rascalmpl.library.vis.properties.Properties.HALIGN;
-import static org.rascalmpl.library.vis.properties.Properties.HGROW;
-import static org.rascalmpl.library.vis.properties.Properties.HRESIZABLE;
-import static org.rascalmpl.library.vis.properties.Properties.HSHADOWPOS;
-import static org.rascalmpl.library.vis.properties.Properties.LINE_COLOR;
-import static org.rascalmpl.library.vis.properties.Properties.LINE_STYLE;
-import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
-import static org.rascalmpl.library.vis.properties.Properties.SHADOW;
-import static org.rascalmpl.library.vis.properties.Properties.SHADOW_COLOR;
-import static org.rascalmpl.library.vis.properties.Properties.VALIGN;
-import static org.rascalmpl.library.vis.properties.Properties.VGROW;
-import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
-import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
+import static org.rascalmpl.library.vis.properties.Properties.*;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SIZE;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.MIRROR;
@@ -139,7 +122,7 @@ public abstract class Figure implements Comparable<Figure> {
 	// init, compute registerNames, registerValues, bbox
 	/* First phase:
 	 * on down: 
-	 * initialize (computefigure, register controls and other stuff) *
+	 * initialize (computefigure, register controls and otAher stuff) *
 	 * setVisibleChildren *
 	 * registerNames
 	 * on up:
@@ -446,7 +429,6 @@ public abstract class Figure implements Comparable<Figure> {
 		gc.stroke(prop.getColor(LINE_COLOR));
 		gc.strokeWeight(prop.getReal(LINE_WIDTH));
 		gc.strokeStyle(prop.getStr(LINE_STYLE));
-		gc.textSize(prop.getInt(FONT_SIZE));
 		boolean shadow = prop.getBool(SHADOW);
 		gc.setShadow(shadow);
 		if (shadow) {
@@ -454,7 +436,9 @@ public abstract class Figure implements Comparable<Figure> {
 			gc.setShadowLeft(prop.getReal(HSHADOWPOS));
 			gc.setShadowTop(prop.getReal(VSHADOWPOS));
 		}
-		gc.setFont(prop.getStr(FONT), prop.getInt(FONT_SIZE), FontStyle.NORMAL);
+
+		gc.setFont(prop.getStr(FONT), prop.getInt(FONT_SIZE), 
+				FontStyle.getFontStyles(prop.getBool(FONT_BOLD), prop.getBool(FONT_ITALIC)));
 		gc.font(prop.getColor(FONT_COLOR));
 	}
 	

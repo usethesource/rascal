@@ -292,6 +292,9 @@ public class FigureFactory {
 			
 		case GRID:
 			Figure[][] elems = make2DList(env, c.get(0), properties, childPropsNext);
+			if(elems.length == 0){
+				return new Space(null, properties );
+			}
 			return new Grid( elems, properties);
 			
 						

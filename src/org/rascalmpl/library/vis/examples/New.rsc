@@ -56,8 +56,8 @@ public void graphgrow(int n){
 public void nominalKeyTest(){
 	render(
 		hcat(
-				[box(fillColor(convert(s,"type"))) | 
-				s <- ["Rascal","C++","Java"]] + [nk("Types","type")])
+				[box(fillColor(measure(s,"type"))) | 
+				s <- ["Rascal","C++","Java"]] + [palleteKey("Types","type")])
 				);
 }
 
