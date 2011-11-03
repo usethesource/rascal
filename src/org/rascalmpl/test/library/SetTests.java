@@ -159,7 +159,8 @@ public class SetTests extends TestFramework {
 	@Test(expected=Throw.class)
 	public void toMapUniqueError(){
 		prepare("import Set;");
-		assertTrue(runTestInSameEvaluator("{toMapUnique({<1,10>,<2,10>}) == (1:10);}"));
+		assertTrue(runTestInSameEvaluator("{toMapUnique({<1,10>,<1,20>}) == (1:20);}"));
+		
 	}
 
 	@Test

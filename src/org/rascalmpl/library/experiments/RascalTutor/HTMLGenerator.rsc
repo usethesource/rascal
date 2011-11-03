@@ -389,6 +389,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
+  println("HERE1");
   if(/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
  
@@ -409,7 +410,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	  lines[n-1] = renderCall;
   } else
     errors = "Last line should be a call to \"render\"";
-    
+  println("Here2"); 
   if(errors != ""){
     errors = "\<warning\>" + errors + "\</warning\>";
     addWarning(errors);

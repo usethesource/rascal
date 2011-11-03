@@ -50,9 +50,9 @@ public class Configuration {
 	}
 	
 	public static boolean getTracingProperty(){
-		String profiling = System.getProperty(TRACING_PROPERTY);
-		if(profiling != null){
-			return profiling.equals("true") ? true : false;
+		String tracing = System.getProperty(TRACING_PROPERTY);
+		if(tracing != null){
+			return tracing.equals("true") ? true : false;
 		}
 		System.setProperty(TRACING_PROPERTY, "false");
 		return false;
