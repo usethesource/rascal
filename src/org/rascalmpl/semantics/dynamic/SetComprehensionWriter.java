@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 public class SetComprehensionWriter extends ComprehensionWriter {
@@ -68,7 +69,11 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 							resExpr);
 				}
 
-				for (IValue val : ((ISet) this.rawElements[k].getValue())) {
+				Result<?> set = this.rawElements[k];
+				if (set.getType().isVoidType()) {
+					throw new NonVoidTypeRequired(resExpr);
+				}
+				for (IValue val : (ISet) set.getValue()) {
 					((ISetWriter) this.writer).insert(val);
 				}
 			} else {
