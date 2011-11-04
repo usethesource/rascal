@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 
 public class MapComprehensionWriter extends ComprehensionWriter {
 
@@ -20,6 +21,14 @@ public class MapComprehensionWriter extends ComprehensionWriter {
 	public void append() {
 		Result<IValue> r1 = this.resultExprs.get(0).interpret(this.ev);
 		Result<IValue> r2 = this.resultExprs.get(1).interpret(this.ev);
+		
+		if (r1.getType().isVoidType()) {
+			throw new NonVoidTypeRequired(resultExprs.get(0));
+		}
+		if (r2.getType().isVoidType()) {
+			throw new NonVoidTypeRequired(resultExprs.get(1));
+		}
+		
 		if (this.writer == null) {
 			this.elementType1 = r1.getType();
 			this.elementType2 = r2.getType();
