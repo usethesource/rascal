@@ -39,21 +39,33 @@ private list[Symbol] cistr2syms(str x) {
   } 
 }
 
-public str unescape(StringConstant s) {
-   if ([StringConstant] /\"<rest:.*>\"/ := s) {
-     return visit (rest) {
-       case /\\b/ => "\b"
-       case /\\f/ => "\f"
-       case /\\n/ => "\n"
-       case /\\t/ => "\t"
-       case /\\r/ => "\r"  
-       case /\\\"/ => "\""  
-       case /\\\'/ => "\'"
-       case /\\\\/ => "\\"
-       case /\\\</ => "\<"   
-       case /\\\>/ => "\>"    
-     };      
+public str unescape(CaseInsensitiveStringConstant s) {
+   if ([CaseInsensitiveStringConstant] /\'<rest:.*>\'/ := s) {
+     return unescape(rest);
    }
    throw "unexpected string format: <s>";
+}
+
+public str unescape(StringConstant s) {
+   if ([StringConstant] /\"<rest:.*>\"/ := s) {
+     return unescape(rest);
+   }
+   throw "unexpected string format: <s>";
+}
+
+
+public str unescape(str s) {
+  return visit (s) {
+    case /\\b/ => "\b"
+    case /\\f/ => "\f"
+    case /\\n/ => "\n"
+    case /\\t/ => "\t"
+    case /\\r/ => "\r"  
+    case /\\\"/ => "\""  
+    case /\\\'/ => "\'"
+    case /\\\\/ => "\\"
+    case /\\\</ => "\<"   
+    case /\\\>/ => "\>"    
+  };      
 }
 
