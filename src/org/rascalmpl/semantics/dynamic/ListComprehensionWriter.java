@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 public class ListComprehensionWriter extends ComprehensionWriter {
@@ -69,7 +70,11 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 							resExpr);
 				}
 
-				for (IValue val : ((IList) this.rawElements[k].getValue())) {
+				Result<?> list = this.rawElements[k];
+				if (list.getType().isVoidType()) {
+					throw new NonVoidTypeRequired(resExpr);
+				}
+				for (IValue val : (IList) list.getValue()) {
 					((IListWriter) this.writer).append(val);
 				}
 			} else {
