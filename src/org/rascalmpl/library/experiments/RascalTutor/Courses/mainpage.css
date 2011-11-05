@@ -125,8 +125,18 @@ body {
 .Direction {
 	display: inline-block;
 	float: left;
+	background-position-x:98%;
+	background-position-y:5%;
+	background-repeat: no-repeat;
 }
 
+.Direction.Intro {
+	background-image : url('images/pocketknife.png');
+}
+
+.Direction.Ask {
+	background-image : url('images/bubbles.png');
+}
 .Direction ul, .Direction a {
 	display: none;
 }
