@@ -1,0 +1,38 @@
+Name: AddSegment
+
+Synopsis: Locations can be concatenated with strings to add segments to the path component
+
+Syntax:
+`$Loc$ + $Str$`
+
+Types:
+| `$Loc$` | `$Str$` | `$Loc$ + $Str$` |
+|:----------|:----------|:--------------------|
+| `loc`     | `str`     | `loc`               |
+
+Function:
+
+Details:
+
+
+
+Description:
+
+Adds a segment to the path component of a location.
+This concatenation introduces a path separator (`/`) automatically.
+
+Examples:
+<screen>
+|tmp:///myDir| + "myFile";
+</screen>
+To get the original back, you can use the `parent` field:
+<screen>
+(|tmp:///myDir| + "myFile").parent
+</screen>
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
