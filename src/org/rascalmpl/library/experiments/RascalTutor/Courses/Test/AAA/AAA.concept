@@ -63,6 +63,8 @@ Benefits:
 Pitfalls:
 
 Questions:
+
+QType: <A:set[arb[int,str,real]]>
 QType: {1, <?> }
 type: set[int]
 hint: one or more integer values separated by commas

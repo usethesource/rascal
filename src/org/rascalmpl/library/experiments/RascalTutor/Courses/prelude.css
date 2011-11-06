@@ -256,6 +256,32 @@ textarea {
 
 }
 
+.examSubmit {
+  background-color: lightgray;
+  color: red;
+  font-size: 20pt;
+  float: center;
+}
+
+#studentInfo{
+   background-color: lightgray;
+   border-color: red;
+
+}
+
+textarea#studentName {
+    width : 80em;
+    height: 2em;
+}
+textarea#studentMail {
+    width : 80em;
+    height: 2em;
+ }
+textarea#studentNumber {
+    width : 80em;
+    height: 2em;
+ }
+
 .cheatSubmit, .anotherSubmit{
     font-size: 60%;
     color: black;

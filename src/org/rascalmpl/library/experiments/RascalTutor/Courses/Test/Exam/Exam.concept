@@ -1,0 +1,32 @@
+Name: Exam
+
+Options: exam
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QText[A]: Dit is een vraag. Wat is het antwoord?
+a: antwoord
+
+QType[B]: <A:int>
+
+QValue: 2 * <A:int>
+
+QUse: Test:AAA 1

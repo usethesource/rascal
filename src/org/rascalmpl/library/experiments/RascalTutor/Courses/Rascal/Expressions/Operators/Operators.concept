@@ -59,7 +59,8 @@ All operators are summarized in the following table. They are listed from highes
                                                        [Set/Union],
                                                        [Map/Union],
                                                        [Location/AddSegment] </td>                 <td>Add numbers; concatenate string, list or tuple; 
-                                                                                             union on set (inclduing relation), or map</td></tr>
+                                                                                             union on set (including relation), or map;
+concatenate location and string</td></tr>
 
 <tr><td>`$Exp_1$ - $Exp_2$`</td>                   <td>[Number/Subtraction],
                                                        [List/Difference],

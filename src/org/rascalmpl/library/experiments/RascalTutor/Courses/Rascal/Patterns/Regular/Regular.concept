@@ -52,13 +52,14 @@ For convenience, we summarize the most frequently used constructs in regular exp
 <tr><td>`x`</td>               <td>The single character `x` as long as it is not a punctuation character with a 
                                                         special meaning in the regular expression syntax</td></tr>
 <tr><td>`\p`</td>              <td>The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, and `~`.</td></tr>
-<tr><td>`\\`</td>              <td>The backslah character</td></tr>
+<tr><td>`\\`</td>              <td>The backslash character</td></tr>
 <tr><td>`\n`</td>              <td> Newline character</td></tr>
 <tr><td>`\t`</td>               <td> Tab character</td></tr>
 <tr><td>`[...]`</td>             <td> One of the characters between the brackets (also known as _character class_). 
                                                          Character ranges and set operations on character classes may be used.</td></tr>
 <tr><td>`[^...]`</td>           <td> Any one character not between the brackets.</td></tr>
 <tr><td>`[a-z0-9]`  </td>  <td> Character range: character between `a` and `z` or `0` and `9`.</td></tr>
+<tr><td>`.`</td>               <td> Any character except a line terminator. If single-line mode is set (using `(?s)` or modifier `s`), then it matches any character including line terminators.
 <tr><td>`\d`</td>              <td> Digit: `[0-9]`</td></tr>
 <tr><td>`\D`</td>              <td> Non-digit:` [^0-9]`</td></tr>
 <tr><td>`\s`</td>               <td> Whitespace</td></tr>

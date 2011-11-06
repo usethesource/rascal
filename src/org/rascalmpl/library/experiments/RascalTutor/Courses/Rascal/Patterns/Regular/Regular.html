@@ -92,13 +92,14 @@
  <tr><td><code>x</code></td>               <td>The single character <code>x</code> as long as it is not a punctuation character with a 
                                                          special meaning in the regular expression syntax</td></tr>
  <tr><td><code>\p</code></td>              <td>The punctuation character <code>p</code>, this includes <code>!</code>, <code>"</code>, <code>#</code>, <code>$</code>, <code>%</code>, <code>&amp;</code>, <code>'</code>, <code>(</code>, <code>)</code>, <code>*</code>, <code>+</code>, <code>,</code>, <code>-</code>, <code>.</code>, <code>/</code>, <code>:</code>, <code>;</code>, <code>&lt;</code>, <code>=</code>, <code>></code>, <code>?</code>, <code>@</code>, <code>[</code>, <code>\</code>, <code>]</code>, <code>^</code>, <code>_</code>, <code>{</code>, <code>|</code>, <code>}</code>, and <code>~</code>.</td></tr>
- <tr><td><code>\\</code></td>              <td>The backslah character</td></tr>
+ <tr><td><code>\\</code></td>              <td>The backslash character</td></tr>
  <tr><td><code>\n</code></td>              <td> Newline character</td></tr>
  <tr><td><code>\t</code></td>               <td> Tab character</td></tr>
  <tr><td><code>[...]</code></td>             <td> One of the characters between the brackets (also known as <i>character class</i>). 
                                                           Character ranges and set operations on character classes may be used.</td></tr>
  <tr><td><code>[^...]</code></td>           <td> Any one character not between the brackets.</td></tr>
  <tr><td><code>[a-z0-9]</code>  </td>  <td> Character range: character between <code>a</code> and <code>z</code> or <code>0</code> and <code>9</code>.</td></tr>
+ <tr><td><code>.</code></td>               <td> Any character except a line terminator. If single-line mode is set (using <code>(?s)</code> or modifier <code>s</code>), then it matches any character including line terminators.
  <tr><td><code>\d</code></td>              <td> Digit: <code>[0-9]</code></td></tr>
  <tr><td><code>\D</code></td>              <td> Non-digit:<code> [^0-9]</code></td></tr>
  <tr><td><code>\s</code></td>               <td> Whitespace</td></tr>

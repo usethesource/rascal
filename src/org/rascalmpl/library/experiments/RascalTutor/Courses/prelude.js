@@ -200,6 +200,8 @@ function finishLoad() {
     $('.answerForm').submit(handleAnswer);
     $('.cheatForm').submit(handleCheat);
     $('.anotherForm').submit(handleAnother);
+    
+    $('.examAnswerForm').submit(handleExam);
 
     $('.answerStatus').hide();
     $('.answerFeedback').hide();
@@ -353,13 +355,13 @@ function handleAnswer(evt) {
         var c = $('#concept', data).text();
         var e = $('#exercise', data).text();
         var fb = $('#feedback', data).text();
-        //alert("v = " + v + "; c = " + c  + "; e = " + e + "; fb = " + fb);
+        alert("v = " + v + "; c = " + c  + "; e = " + e + "; fb = " + fb);
         var sep = "_";
         var c_e = c + sep + e;
         var good = "#good" + sep + c_e;
         var bad = "#bad" + sep + c_e;
         
-        //alert("good = " + good + "; bad = " + bad);
+        alert("good = " + good + "; bad = " + bad);
         $(good).fadeOut(1000);
         $(bad).fadeOut(1000);
 
@@ -379,6 +381,21 @@ function handleAnswer(evt) {
 
     return false;
 }
+
+// ------------ Handler for answers to exercises
+
+function handleExam(evt) {
+    var formData = $(this).serialize();
+    evt.preventDefault();
+    $.get("/validateExam", formData, function processValidationResult(data, textStatus) {
+
+        alert("handleExam: " + data);
+        $().html(data);
+    });
+
+    return false;
+}
+
 
 // ------------ Handler for "cheat" requests
 
@@ -417,8 +434,8 @@ function handleAnother(evt) {
         
         $(c_e).fadeOut(1000, function () {
             $(c_e).html(another);
-            $(c_e + ' .answerStatus').hide();
-            $(c_e + ' .answerFeedback').hide();
+            $("#answerStatus" + sep + c_e).hide();
+            $("#answerFeedback" + sep + c_e).hide();
 
             $(c_e + ' .answerForm').submit(handleAnswer);
             $(c_e + ' .cheatForm').submit(handleCheat);

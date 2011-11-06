@@ -122,7 +122,11 @@ Static Error: prompt:///:1,0: Undeclared variable, function or constructor: xxx
   	                       
   	                       
 <div id="questions">
+
+<br/>
+
 <span class="sectionHead">Questions</span> <br/>
+
 
 <div id="Test_AAA_1" class="question">
 <b>Question [1]. </b>
@@ -136,23 +140,44 @@ Static Error: prompt:///:1,0: Undeclared variable, function or constructor: xxx
 
 <span id="answerFeedback_Test_AAA_1" class="answerFeedback"></span>
  
-<form method="GET" action="validate" class="answerForm">
-<input type="hidden" name="concept" value="Test_AAA">
-<input type="hidden" name="exercise" value="1">
-The type of <tt>{1, </tt><textarea rows="1" cols="30" name="answer" class="answerText"></textarea><tt> }</tt> is <tt>set[int]</tt><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test/AAA_1[A]" value="{16.88814380468600400, -1.355720491028314000, 8.17015223507272400}">
+The type of <tt>{16.88814380468600400, -1.355720491028314000, 8.17015223507272400}</tt> is <textarea rows="1" cols="30" name="Test/AAA_1[answer]" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm">
-<input type="hidden" name="concept" value="Test_AAA">
-<input type="hidden" name="exercise" value="1">
-<input type="hidden" name="another" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_AAA_1[another]" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
 
 </div>
  
+<div id="Test_AAA_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Test_AAA_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Test_AAA_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Test_AAA_2" class="answerFeedback"></span>
+ 
+<form method="GET" action="validate" class="answerForm">The type of <tt>{1, </tt><textarea rows="1" cols="30" name="Test/AAA_2[answer]" class="answerText"></textarea><tt> }</tt> is <tt>set[int]</tt><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_AAA_2[another]" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
 </div>
 
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Test/AAA&new=false"><b>Edit</b></a>] | 
