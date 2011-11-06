@@ -117,7 +117,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 			if (i != -1) {
 				path = path.substring(0, i);
-				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
+				return fieldUpdate("path", makeResult(getTypeFactory().stringType(), vf.string(path), ctx), store);
+//				return makeResult(getTypeFactory().stringType(), vf.string(path), ctx);
 			}
 			
 			throw RuntimeExceptionFactory.noParent(getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
