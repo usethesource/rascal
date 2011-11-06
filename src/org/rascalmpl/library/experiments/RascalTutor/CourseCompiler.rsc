@@ -225,6 +225,12 @@ public Concept compileConcept(loc file){
 	       optDetails -= detailName;
 	       local_warnings += "non-existing detail <detailName>";
 	   }
+	   
+	   optionsSection    = sections["Options"] ? [];
+	   
+	   isExam = false;
+	   if(size(optionsSection) > 0 && /exam/ := optionsSection[0])
+	      isExam = true;
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
 	   typesSection 	= sections["Types"] ? [];
@@ -241,7 +247,7 @@ public Concept compileConcept(loc file){
   	                       <section("Examples", markup(sections["Examples"], conceptName))>
   	                       <section("Benefits", markup(sections["Benefits"], conceptName))>
   	                       <section("Pitfalls", markup(sections["Pitfalls"], conceptName))>
-  	                       <((isEmpty(questions)) ? "" : div("questions","<sectionHead("Questions")> <br()><for(quest <- questions){><showQuestion(conceptName,quest)> <}>"))>";
+  	                       <showQuestionsSection(conceptName, questions)>";
 	   warnings         = getAndClearWarnings() + local_warnings;
 	      
 	   C =  concept(conceptName, file, warnings, optDetails, searchTs, questions);
@@ -262,16 +268,6 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
    cn = C.fullName;
    childs = children(C);
    questions = C.questions;
-   /*
-   warnings = "";
-   if(size(C.warnings) > 0){
-      warnings = "\<ul\>\n";
-      for(w <- C.warnings)
-          warnings += li(w);
-      warnings += "\</ul\>";
-      warnings = section("Warnings", warnings);
-   }
-   */
   
    html_code = html(
   	head(title(cn) + 
@@ -681,11 +677,15 @@ Type    +      +         +      0   ERROR
 
 // Present a Question
 
+bool isExam  = false;
+
+private str namePar(str q, str name) = "name=\"<q>[<name>]\"";
+
 private str answerFormBegin(ConceptName cpid, QuestionName qid, str formClass){
-	return "
-\<form method=\"GET\" action=\"validate\" class=\"<formClass>\"\>
-\<input type=\"hidden\" name=\"concept\" value=\"<cpid>\"\>
-\<input type=\"hidden\" name=\"exercise\" value=\"<qid>\"\>\n";
+    validate = isExam ? "validateExam" : "validate";
+    if(isExam)
+       return "";
+	return "\n\<form method=\"GET\" action=\"<validate>\" class=\"<formClass>\"\>";
 }
 
 private str answerFormEnd(str submitText, str submitClass){
@@ -695,16 +695,18 @@ private str answerFormEnd(str submitText, str submitClass){
 }
 
 private str anotherQuestionForm(ConceptName cpid, QuestionName qid){
+    cp_qid = "<cpid>_<qid>";
 	return answerFormBegin(cpid, qid, "anotherForm") + 
-	"\<input type=\"hidden\" name=\"another\" value=\"yes\"\>\n" +
+	"\<input type=\"hidden\" <namePar(cp_qid, "another")> value=\"yes\"\>\n" +
 	answerFormEnd("I want another question", "anotherSubmit");
 }
 
 private str cheatForm(ConceptName cpid, QuestionName qid, str expr){
+   cp_qid = "<cpid>_<qid>";
     return "";
 	return answerFormBegin(cpid, qid, "cheatForm") + 
-	       "\<input type=\"hidden\" name=\"expr\" value=\"<expr>\"\>\n" +
-           "\<input type=\"hidden\" name=\"cheat\" value=\"yes\"\>\n" +
+	       "\<input type=\"hidden\"  <namePar(cp_qid, "expr")> value=\"<expr>\"\>\n" +
+           "\<input type=\"hidden\"  <namePar(cp_qid, "cheat")> value=\"yes\"\>\n" +
            answerFormEnd("I am cheating today", "cheatSubmit");
 }
 
@@ -724,22 +726,46 @@ public str status(QuestionName qid){
   return (qid in goodAnswer) ? good() : ((qid in badAnswer) ? bad() : "");
 }
 
+private str showStudentId(){
+  return table("studentInfo",
+               tr(td("Your name") + td("\<textarea rows=\"1\" cols=\"30\" name=\"studentName\" id=\"studentName\"\>\</textarea\>")) +
+               tr(td("Your email address") +  td("\<textarea rows=\"1\" cols=\"30\" name=\"studentMail\" id=\"studentMail\"\>\</textarea\>")) +
+               tr(td("Your student number") + td("\<textarea rows=\"1\" cols=\"30\" name=\"studentNumber\" id=\"studentNumber\"\>\</textarea\>"))
+         );
+}
+
+public str showQuestionsSection(ConceptName conceptName, list[Question] questions){
+  if(size(questions) == 0)
+     return "";
+  student = isExam ? showStudentId() : "";
+  formBegin = isExam ? "\n\<form method=\"GET\" action=\"validateExam\" class=\"examAnswerForm\"\><br()>" : "";
+  submit = isExam ? answerFormEnd("Submit your answers", "examSubmit") : "";
+  return div("questions",
+             "<formBegin>
+             '<student><br()>
+             '<sectionHead("Questions")> <br()>
+             '<for(quest <- questions){><showQuestion(conceptName,quest)> <}><br()>
+             '<submit><br()>"
+             );
+}
+
 public str showQuestion(ConceptName cpid, Question q){
 //println("showQuestion: <cpid>, <q>");
   qid = q.name;
   qdescr = "";
   qexpr  = "";
   qform = "";
+  cq = "<cpid>_<qid>";
   
   switch(q){
     case choiceQuestion(cid,qid, descr, choices): {
       qdescr = descr;
       idx = [0 .. size(choices)-1];
-      qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" name=\"answer\" value=\"<i>\"\><choices[i].description>\n<}>";
+      qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" <namePar(cq,"answer")> value=\"<cq>[<i>]\"\><choices[i].description>\n<}>";
     }
     case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;
-      qform = "\<textarea rows=\"1\" cols=\"60\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
+      qform = "\<textarea rows=\"1\" cols=\"60\" <namePar(cq,"answer")> class=\"answerText\"\>\</textarea\>";
     }
     
     case tvQuestion(cid,qid, qkind, qdetails): {
@@ -778,9 +804,9 @@ public str showQuestion(ConceptName cpid, Question q){
       cndBefore = escapeForHtml(subst(cndBefore, env));
       cndAfter = escapeForHtml(subst(cndAfter, env));
       
-      qform = "<for(param <- generatedVars){>\<input type=\"hidden\" name=\"<param>\" value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
+      qform = "<for(param <- generatedVars){>\<input type=\"hidden\" <namePar(cq,param)> value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
       
-      qtextarea = "\<textarea rows=\"1\" cols=\"30\" name=\"answer\" class=\"answerText\"\>\</textarea\>";
+      qtextarea = "\<textarea rows=\"1\" cols=\"30\" <namePar(cq,"answer")> class=\"answerText\"\>\</textarea\>";
       
       if(lstBefore != "" || lstAfter != ""){  // A listing is present in the question
          if(holeInLst)
@@ -817,14 +843,18 @@ public str showQuestion(ConceptName cpid, Question q){
   
   sep = "_";
   cpid1 = replaceAll(cpid, "/", sep);
-  answerForm = answerFormBegin(cpid1, qid, "answerForm") + qform  + answerFormEnd("Give answer", "answerSubmit");
+  answerForm = answerFormBegin(cpid1, qid, "answerForm") + qform  + (!isExam ? answerFormEnd("Give answer", "answerSubmit") : "");
   
 
   return div("<cpid1><sep><qid>", "question",
-                  b(basename("Question [" + qid + "]. ")) + status("good<sep><cpid1><sep><qid>", good()) + status("bad<sep><cpid1><sep><qid>", bad()) +
-                  "\n\<span id=\"answerFeedback<sep><cpid1><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n" + 
-                  qdescr +  answerForm + 
-                  anotherQuestionForm(cpid1, qid) + cheatForm(cpid1, qid, qexpr) + br());
+                  b(basename("Question [" + qid + "]. ")) + 
+                  ((!isExam) ? (status("good<sep><cpid1><sep><qid>", good()) + status("bad<sep><cpid1><sep><qid>", bad()) +
+                                  "\n\<span id=\"answerFeedback<sep><cpid1><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n")
+                                : "") +
+                  qdescr + answerForm +
+                  ((!isExam) ? (anotherQuestionForm(cpid1, qid) + cheatForm(cpid1, qid, qexpr))
+                                : "") + 
+                  br());
 }
 
 public QuestionName lastQuestion = "";
