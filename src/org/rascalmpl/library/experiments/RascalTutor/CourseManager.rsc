@@ -27,6 +27,7 @@ import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::ValueGenerator;
 import experiments::RascalTutor::CourseCompiler;
 import ValueIO;
+
 import IO;
 import Scripting;
 
@@ -131,10 +132,78 @@ public str save(ConceptName cn, str text, bool newConcept){
 public set[QuestionName] goodAnswer = {};
 public set[QuestionName] badAnswer = {};
 
+str studentName = "";
+str studentMail = "";
+str studentNumber = "";
+
+private map[str,map[str,str]] questionParams(map[str,str] params){
+   paramMaps = ();
+   for(key <- params){
+      if(/^<cpt:[A-Za-z0-9\/_]+>_<qid:[A-Za-z0-9]+>\[<param:[^\]]+>\]$/ := key){
+           
+          println("key = <key>, cpt = <cpt>, qid = <qid>, param = <param>");
+          fullQid = "<cpt>_<qid>";
+          if(!(paramMaps[fullQid]?)){
+             paramMaps[fullQid] = ("concept": cpt, "exercise" : qid);
+          }
+          m = paramMaps[fullQid];
+          m[param] = params[key];
+          paramMaps[fullQid] = m;
+       } else {
+         switch(key){
+         case "studentName": studentName = params[key];
+         case "studentMail": studentMail = params[key];
+         case "studentNumber" : studentNumber = params[key];
+         default:
+              println("unrecognized key: <key>");
+         }
+       
+       }
+   }
+   println("paramMaps = <paramMaps>");
+   return paramMaps;
+}
+
+private bool isExam = false;
+
+public str validateExam(map[str,str] params){
+  isExam = true;
+  pm = questionParams(params);
+  println("pm = <pm>");
+  return validateAllAnswers(pm);
+}
+
 // Validate an answer, also handles the requests: "cheat" and "another"
 // *** called from servlet Edit in RascalTutor
 
 public str validateAnswer(map[str,str] params){
+  isExam = false;
+  pm = questionParams(params);
+  println("pm = <pm>");
+  qnames = domain(pm);
+  if(size(qnames) != 1)
+     throw "More than one answer";
+  qname = toList(qnames)[0];
+  return validateAnswer1(pm[qname]);
+}
+
+public str validateAllAnswers(map[str,map[str,str]] paramMaps){
+  int nquestions = 0;
+  int npass = 0;
+  response = "";
+  for(qid <- paramMaps){
+      nquestions += 1;
+      v = validateAnswer1(paramMaps[qid]);
+      if(v == "pass")
+         npass += 1;
+      response += li("<qid>: <v>");
+  }
+  response = h1("Exam Results for <studentName>") + ul(response) + br() + "Passed <npass> out of <nquestions>. \<br\>Final score: \<b\><npass * 10.0 / nquestions>\</b\>.";
+  return html(head(title("Exam results for <studentName>")), body(response));
+}
+
+public str validateAnswer1(map[str,str] params){
+
     ConceptName cpid = params["concept"];
     QuestionName qid = params["exercise"];
     
@@ -214,11 +283,13 @@ public str validateAnswer(map[str,str] params){
 	                 if(!endsWith(cndBefore, ";"))
 	                   cndBefore += ";";
 	                 computedAnswer = eval(setup + cndBefore);
-	                 if(!endsWith(answer, ";"))
-	                    answer += ";";
-	                 givenAnswer = eval(setup + answer);
-	                 if(computedAnswer == givenAnswer)
-	                   return correctAnswer(cpid, qid);
+	                 if(answer != ""){
+	                    if(!endsWith(answer, ";"))
+	                       answer += ";";
+	                    givenAnswer = eval(setup + answer);
+	                   if(computedAnswer == givenAnswer)
+	                      return correctAnswer(cpid, qid);     
+	                 }
 	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer>.");
 	               } 
 	            }
@@ -388,6 +459,7 @@ public list[str] positiveFeedback = [
 "You are making good progress!",
 "Well done!",
 "Yes!",
+"More kudos",
 "Correct!",
 "You are becoming a pro!",
 "You are becoming an expert!",
@@ -396,7 +468,18 @@ public list[str] positiveFeedback = [
 "Better and better!",
 "Another one down!",
 "You are earning a place in the top ten!",
-"Learning is fun, right?"
+"Learning is fun, right?",
+"Each drop of rain makes a hole in the stone.",
+"A first step of a great journey.",
+"It is the journey that counts.",
+"The whole moon and the entire sky are reflected in one dewdrop on the grass.",
+"There is no beginning to practice nor end to enlightenment; There is no beginning to enlightenment nor end to practice.",
+"A journey of a thousand miles begins with a single step.",
+"When you get to the top of the mountain, keep climbing.",
+"No snowflake ever falls in the wrong place.",
+"Sitting quietly, doing nothing, spring comes, and the grass grows by itself.",
+"To follow the path, look to the master, follow the master, walk with the master, see through the master, become the master.",
+"When you try to stay on the surface of the water, you sink; but when you try to sink, you float."
 ];
 
 public list[str] negativeFeedback = [
@@ -405,6 +488,7 @@ public list[str] negativeFeedback = [
 "Try another question!",
 "I know you can do better.",
 "Nope!",
+"Keep trying.",
 "I am suffering with you :-(",
 "Give it another try!",
 "With some more practice you will do better!",
@@ -412,21 +496,49 @@ public list[str] negativeFeedback = [
 "It is the journey that counts!",
 "Learning is fun, right?",
 "After climbing the hill, the view will be excellent.",
-"Hard work will be rewarded!"
+"Hard work will be rewarded!",
+"There\'s no meaning to a flower unless it blooms.",
+"Not the wind, not the flag; mind is moving.",
+"If you understand, things are just as they are; if you do not understand, things are just as they are.",
+"Knock on the sky and listen to the sound.",
+"The ten thousand questions are one question. If you cut through the one question, then the ten thousand questions disappear.",
+"To do a certain kind of thing, you have to be a certain kind of person.",
+"When the pupil is ready to learn, a teacher will appear.",
+"If the problem has a solution, worrying is pointless, in the end the problem will be solved. If the problem has no solution, there is no reason to worry, because it can\'t be solved.",
+"And the end of all our exploring will be to arrive where we started and know the place for the first time.",
+"It is better to practice a little than talk a lot.",
+"Water which is too pure has no fish.",
+"All of the significant battles are waged within the self.",
+"No snowflake ever falls in the wrong place.",
+"It takes a wise man to learn from his mistakes, but an even wiser man to learn from others.",
+"Only when you can be extremely pliable and soft can you be extremely hard and strong.",
+"Sitting quietly, doing nothing, spring comes, and the grass grows by itself.",
+"The obstacle is the path.",
+"To know and not do is not yet to know.",
+"The tighter you squeeze, the less you have.",
+"When you try to stay on the surface of the water, you sink; but when you try to sink, you float."
 ];
 
 public str correctAnswer(ConceptName cpid, QuestionName qid){
-    badAnswer -= qid;
-    goodAnswer += qid;
-    feedback = (arbInt(100) < 25) ? getOneFrom(positiveFeedback) : "";
-    return XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "true", "feedback" : feedback));
+    if(!isExam){
+    	cpid = replaceAll(cpid, "/", "_");
+    	badAnswer -= qid;
+    	goodAnswer += qid;
+    	feedback = (arbInt(100) < 25) ? getOneFrom(positiveFeedback) : "";
+    	return XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "true", "feedback" : feedback));
+    } else
+        return "pass";
 }
 
 public str wrongAnswer(ConceptName cpid, QuestionName qid, str explanation){
-    badAnswer += qid;
-    goodAnswer -= qid;
-    feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
-	return  XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
+    if(!isExam){
+       cpid = replaceAll(cpid, "/", "_");
+       badAnswer += qid;
+       goodAnswer -= qid;
+       feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
+	   return  XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
+	} else
+	   return "fail";
 }
 
 public str saveFeedback(str error, str replacement){

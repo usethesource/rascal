@@ -211,8 +211,10 @@ return "Name: <cn>
 
 // Get a section from the concept description. Each starts with a capitalized keyword,e,g, "Description".
 // Questions is the last section and is treated special: it contains questions that are analyzed later
+//
+// Options is a "meta-section" and may contain directives for the course compiler.
 
-public list[str] sectionKeywords = ["Name",  "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
+public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"];
 
 public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";

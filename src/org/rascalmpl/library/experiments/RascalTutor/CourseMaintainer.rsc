@@ -17,8 +17,28 @@ import Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
 
+// Compile a complete course
 
+public void compileCourse(ConceptName rootConcept){
+  if(rootConcept in listEntries(courseDir)){
+     compileCourse(rootConcept);
+  } else
+     throw "Course <rootConcept> not found";
+}
 
+// Compile one concept
+
+public void compileConcept(ConceptName cn){
+  file = conceptFile(cn);
+  compileAndGenerateConcept(file, false);
+}
+
+// Compile one concept as an exam
+
+public void compileConceptAsExam(ConceptName cn){
+  file = conceptFile(cn);
+  compileConceptAsExam(file);
+}
 
 /*
  * Compute statistics on section occurrence in a course

@@ -87,6 +87,7 @@ public class RascalTutor {
 		
 		context.addServlet(TutorDefaultHttpServlet.class, "/");
 		context.addServlet(Show.class, "/show");
+		context.addServlet(ValidateExam.class, "/validateExam");
 		context.addServlet(Validate.class, "/validate");
 		context.addServlet(Eval.class, "/eval");
 		context.addServlet(Edit.class, "/edit");
