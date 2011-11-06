@@ -71,19 +71,19 @@ N = 13;
 "N is <if(N < 10){> small <} else {> large (<N>)<}>";
 "before <for(x<-[1..5]){>a <x> b <}>after";
 // multi-line string
-"hello
+import IO;
+println("hello
 this
   is
-    new"
+    new")
 // multi-line string with margin:
 if (true)
-  "this is
-  'what
-  'margins
-  'are good for
-  ";
+  println("this is
+          'what
+          '  margins
+          'are good for
+          ");
 // auto indent:
-import IO;
 str genMethod(str n) = "int <n>() {
                        '  return 0;
                        '}";

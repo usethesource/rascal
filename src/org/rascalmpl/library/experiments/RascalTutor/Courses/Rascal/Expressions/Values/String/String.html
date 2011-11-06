@@ -126,27 +126,36 @@ str: &quot;before a 1 b a 2 b a 3 b a 4 b a 5 b after&quot;
 </pre>
   multi-line string
 
-<pre class="screen"><b>rascal></b>&quot;hello
+<pre class="screen"><b>rascal></b>import IO;
+ok
+<b>rascal></b>println(&quot;hello
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;this
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;  is
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    new&quot;
-str: &quot;hello\nthis\n  is\n    new&quot;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;    new&quot;)
+hello
+this
+  is
+    new
+ok
 </pre>
   multi-line string with margin:
 
 <pre class="screen"><b>rascal></b>if (true)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  &quot;this is
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'what
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'margins
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'are good for
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  &quot;;
-str: &quot;this is\nwhat\nmargins\nare good for\n  &quot;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  println(&quot;this is
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;          'what
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;          '  margins
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;          'are good for
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;          &quot;);
+this is
+what
+  margins
+are good for
+          
+ok
 </pre>
   auto indent:
 
-<pre class="screen"><b>rascal></b>import IO;
-ok
-<b>rascal></b>str genMethod(str n) = &quot;int &lt;n&gt;() {
+<pre class="screen"><b>rascal></b>str genMethod(str n) = &quot;int &lt;n&gt;() {
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '  return 0;
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '}&quot;;
 str (str): str genMethod(str);
