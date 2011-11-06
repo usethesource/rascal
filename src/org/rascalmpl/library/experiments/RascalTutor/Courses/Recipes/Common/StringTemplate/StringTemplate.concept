@@ -35,6 +35,7 @@ Function `genClass` returns a string that contains several _string interpolation
 Let's discuss some of them:
 * In each line, only the text following `'` is contributed to the output. The text before (and including) `'` can be used to properly indent
   the string.
+* The output of each interpolated call, like to `genMethod` is auto-indented.
 * `public class <name>`: insert the desired class name in the result.
 * `<for x<-fields){>` ... `<}>`: loops over the fields and contributes the text produced by its body to the result.
 * `private <fields[x]> <x>;`: finds for the current field `x` its type and produces an appropriate private field declaration.
@@ -56,6 +57,7 @@ println(genClass("Person", fields));
 
 Benefits:
 * String templates are ideal to generate arbitrary output. In particular, no grammar is needed to describe this output.
+* Auto-indent helps to be able to compose templates from reusable parts.
 
 Pitfalls:
 * Since no grammar is used to control output, errors in generated code can only be detected by a downstream processor such as a compiler for the generated code.
