@@ -39,7 +39,7 @@ The properties `width` and `height` are synonyms for `hsize`, respectively, `vsi
 Most properties have typed arguments but they come in several versions:
 
 * A version with an argument of type `int`, `real`, `num`, `str` or `Color`. The values of these arguments are computed when the property is constructed, i.e., when the Figure is constructed.
-* A version with _computed_ argument like `computeInt`, `computeReal`, `computeNum`, `computeStr` or `computeColor`. These are functions that
+* A version with _computed_ argument like `computedInt`, `computedReal`, `computedNum`, `computedStr` or `computedColor`. These are functions that
   return a value. These functions are called during the _rendering_ of the figure to which this property is attached. In this way, properties
   can be changed.
 

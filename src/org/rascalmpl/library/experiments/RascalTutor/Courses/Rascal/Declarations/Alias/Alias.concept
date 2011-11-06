@@ -13,7 +13,7 @@ Details:
 
 Description:
 Everything can be expressed using the elementary types and values that are provided by Rascal. 
-However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use o aliases is a good way to document your intentions. 
+However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use of aliases is a good way to document your intentions. 
 
 An alias declaration states that $Name$ can be used everywhere instead of the already defined type $Type$. 
 Both types are thus structurally equivalent. 
