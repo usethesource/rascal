@@ -15,7 +15,10 @@ Function:
 Details:
 
 Description:
+
 Concatenates the string values of $Exp_1$ and $Exp_2$.
+
+Note that to concatenate other types of values into a string, you can use [String] interpolation.
 
 Examples:
 <screen>

@@ -60,9 +60,12 @@
 <li> <code>\b</code>: backspace</li>
 <li> <warning>make list complete</warning></li>
 </ul></li>
-<li> <b>String Interpolation</b>: <code>&lt;<i>Exp</i>></code></li>
-</ul> Library functions: <code>import String</code>;
-
+<li> <b>String Interpolation</b>: <br/>
+<br/>
+ <table><tr><th align="center"> Form      </th><th align="center"> Description </th></tr><tr><td align="left"> <code>&lt;<i>Exp</i>></code> </td><td align="left"> Interpolate the value of the expression as a string</td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Conditional inclusion of <code><i>Text</i></code>, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code> </td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i><sub>1</sub> ... &lt;} else {>  ... <i>StringChars</i><sub>2</sub> ... &lt;}></code> </td><td align="left"> Conditional inclusion of either <code><i>StringChars</i><sub>1</sub></code> or <code><i>StringChars</i><sub>2</sub></code> </td></tr><tr><td align="left"> <code>&lt;for(<i>Exp</i>){>... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;while(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;do {>... <i>StringChars</i> ... &lt;} while (<i>Exp</i>)></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr></table></li>
+<li> <b>Multiline</b>_: <table><tr><th align="center"> Form </th><th align="center"> Description </th></tr><tr><td align="left"> <code><i>StringChars</i><sub>1</sub>\n <i>StringChars</i><sub>2</sub> </code> </td><td align="left"> Strings can be multi-line without an escape or continuation marker </td></tr><tr><td align="left"> <code><i>StringChars</i><sub>2</sub>\n '  <i>StringChars</i><sub>2</sub></code> </td><td align="left"> A margin character <code>'</code> indicates where the next line starts </td></tr></table> Library functions: <code>import String</code>;
+</li>
+</ul>
 </div>
 
                            
@@ -79,11 +82,14 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  The string values are represented by the type <code>str</code> and consist of character 
  sequences surrounded by double quotes, e.g., <code>"a"</code> or <code>"a\nlong\nstring"</code>.
- Strings may span more than one line.
  <br/>
 <br/>
 
- String literals support so-called <i>string interpolation</i>: 
+ <i>Multiline</i>: Strings may span more than one line. The margin character <code>'</code> indicates which part of a line will be ignored. This is useful for indenting a multi-line string with the source code that generates it.
+ <br/>
+<br/>
+
+ <i>Interpolation</i>:  String literals support so-called <i>string interpolation</i>: 
  inside string constants text between angle brackets (<code>&lt;</code> and <code>></code>) is first executed and then replaced by
   its string value.
  Various statements (if, for, while, do) also return a value and can be used in this way.
@@ -92,13 +98,7 @@
  <br/>
 <br/>
 
- Their forms are:
-  <ul><li> <code>&lt;if(<i>Exp</i>){> ... <i>Text</i> ... &lt;}></code></li>
-<li> <code>&lt;if(<i>Exp</i>){> ... <i>Text</i> ... &lt;} else {>  ... <i>Text</i> ... &lt;}></code></li>
-<li> <code>&lt;for(<i>Exp</i>){>... <i>Text</i> ... &lt;}></code></li>
-<li> <code>&lt;while(<i>Exp</i>){> ... <i>Text</i> ... &lt;}></code></li>
-<li> <code>&lt;do {>... <i>Text</i> ... &lt;} while (<i>Exp</i>)></code></li>
-</ul> Here <code><i>Text</i></code> is arbitrary text that may itself contain again contain interpolations.
+ <i>Auto-indent</i>: Expressions that get interpolated in a string will be auto-indented. This means that each line that results from the evaluation of the expression is prefixed with the indentation level of the position of the expression in the current string.
 
 </div>
 
@@ -123,6 +123,44 @@ str: &quot;N is  large &quot;
 str: &quot;N is  large (13)&quot;
 <b>rascal></b>&quot;before &lt;for(x&lt;-[1..5]){&gt;a &lt;x&gt; b &lt;}&gt;after&quot;;
 str: &quot;before a 1 b a 2 b a 3 b a 4 b a 5 b after&quot;
+</pre>
+  multi-line string
+
+<pre class="screen"><b>rascal></b>&quot;hello
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;this
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  is
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;    new&quot;
+str: &quot;hello\nthis\n  is\n    new&quot;
+</pre>
+  multi-line string with margin:
+
+<pre class="screen"><b>rascal></b>if (true)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  &quot;this is
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'what
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'margins
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  'are good for
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  &quot;;
+str: &quot;this is\nwhat\nmargins\nare good for\n  &quot;
+</pre>
+  auto indent:
+
+<pre class="screen"><b>rascal></b>import IO;
+ok
+<b>rascal></b>str genMethod(str n) = &quot;int &lt;n&gt;() {
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '  return 0;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '}&quot;;
+str (str): str genMethod(str);
+<b>rascal></b>str genClass() = &quot;class myClass {
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 '  &lt;genMethod(&quot;myMethod&quot;)&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 '}&quot;;
+str (): str genClass();
+<b>rascal></b>println(genClass());
+class myClass {
+  int myMethod() {
+    return 0;
+  }
+}
+ok
 </pre>
 </div>
 
