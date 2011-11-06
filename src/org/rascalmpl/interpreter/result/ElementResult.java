@@ -105,7 +105,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	protected <U extends IValue> Result<U> addList(ListResult s) {
 		return s.appendElement(this);
 	}
-
+	
 	@Override
 	protected <U extends IValue> Result<U> subtractList(ListResult s) {
 		return s.removeElement(this);
