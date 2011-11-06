@@ -113,7 +113,7 @@ public str htmlExtension = "html";
 public str questExtension = "quest";
 
 public str getFullConceptName(loc l){
-   if (/^.*Courses\/<name:.*$>/ := l.parent)  
+   if (/^.*Courses\/<name:.*$>/ := l.parent.path)  
      return name;
    throw "Concept not rooted in course path? <l> not in <courseDir.path>?";
 }
