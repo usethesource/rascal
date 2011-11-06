@@ -444,6 +444,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
-		return that.addSourceLocation(this);
+		return ResultFactory.makeResult(that.getType(), that.getValue().concat(getValueFactory().string(getValue().toString())), ctx);
 	}
 }
