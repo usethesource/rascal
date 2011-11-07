@@ -236,7 +236,6 @@ syntax Expression
 		        | LessThan       : Expression lhs "\<" !>> "-" Expression rhs 
 		        | GreaterThan    : Expression lhs "\>" Expression rhs 
 	            )
-	> left IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	> non-assoc ( Equals         : Expression lhs "==" Expression rhs
 	            | NonEquals      : Expression lhs "!=" Expression rhs 
 	            )
@@ -250,6 +249,7 @@ syntax Expression
 	            )
 	> left And: Expression lhs "&&" Expression rhs 
 	> left Or: Expression lhs "||" Expression rhs 
+	> right IfThenElse: Expression condition "?" Expression thenExp ":" Expression elseExp
 	; 
 
 syntax UserType
