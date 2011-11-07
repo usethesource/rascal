@@ -12,6 +12,7 @@ Types:
 | `EntityRel`   | `rel[Entity from, Entity to]`           | A shorthand for any relationship between two Entities                |
 | `EntitySet`   | `set[Entity]`                           | A short-hand for collections of entities                             |
 | `ModifierRel` | `rel[Entity entity, Modifier modifier]` | A short-hand for mappings from Entities to their declared Modifiers  |
+| `AstNodeRel`  | `rel[Entity method, AstNode body]`      | A short-hand for mapping method Entities to the AST's of their bodies |
 
 
 | Annotation         | Type          | Description                                      |
@@ -32,6 +33,7 @@ Types:
 | `declaredSubTypes` | `EntitySet`   | Declarations of inner classes                    |
 | `declaredMethods`  | `EntityRel`   | Which classes define which methods               |
 | `calls`            | `EntityRel`   | Which methods calls which other methods and which static initializers call which methods |
+| `methodBodies`     | `AstNodeRel` | The bodies of methods as abstract syntax trees, see [JavaADT] |
 
 
 Function:
@@ -75,10 +77,12 @@ return fm@extends + fm@implements;
 </screen>
 
 Benefits:
+* JDT gives access to a wealth of (well tested) information as provided by the Eclipse JDT.
 
 Pitfalls:
 * This module is only available in the Eclipse version of Rascal.
 * Make sure the argument to getSubTypeInformation is a loc with scheme `project`, as in `|project://MyProject|`.
+* The `methodBodies` annotation does give access to valuable information, but it is a flat (non-hierarchical) representation of Java syntax trees (AstNode). As future work we will provide a full syntax definition for Java and a typed definition of the AST format.
 
 Questions:
 
