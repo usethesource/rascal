@@ -17,6 +17,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -106,8 +107,6 @@ public class JavaMethod extends NamedFunction {
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
 		catch (Throw t) {
-		//	t.setTrace(ctx.getStackTrace());
-		//	t.setLocation(ctx.getCurrentAST().getLocation());
 			throw t;
 		}
 		finally {
@@ -163,11 +162,21 @@ public class JavaMethod extends NamedFunction {
 				targetException.printStackTrace();
 			}
 			
-			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
-			ByteArrayOutputStream trace = new ByteArrayOutputStream();
-			e.printStackTrace(new PrintWriter(trace));
-			String traceStr = trace.toString() + "\n" + eval.getStackTrace();
-			throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);
+			try {
+				String msg = targetException.getMessage() != null ? targetException.getMessage() : targetException.getClass().getName();
+				ByteArrayOutputStream trace = new ByteArrayOutputStream();
+			
+				for (StackTraceElement elem : targetException.getStackTrace()) {
+					if (elem.getMethodName().equals("invoke")) {
+						break;
+					}
+					trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
+				}
+				String traceStr = trace.toString() + "\n" + eval.getStackTrace();
+				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);
+			} catch (IOException e1) {
+				throw new ImplementationError("Could not create stack trace", e1);
+			}
 		}
 	}
 	
