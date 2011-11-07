@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -84,13 +85,21 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
 		
-		if(!subject.getValue().getType().isSubtypeOf(tf.stringType())) {
+		Type runType = subject.getValue().getType();
+		
+		if (runType.isSubtypeOf(tf.sourceLocationType())) {
+			this.subject = ((ISourceLocation) subject.getValue()).getURI().toString();
+		}
+		else if(runType.isSubtypeOf(tf.stringType())) {
+			this.subject = ((IString) subject.getValue()).getValue();
+		}
+		else {
 			hasNext = false;
 			return;
 		}
-		this.subject = ((IString) subject.getValue()).getValue();
+		
 		initialized = firstMatch = hasNext = true;
-	
+		
 		try {
 			String RegExpAsString = interpolate(ctx);
 			pat = Pattern.compile(RegExpAsString);
