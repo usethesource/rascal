@@ -119,7 +119,13 @@
  <tr><td><code>\b</code></td>              <td>	Word boundary: position between a word and a non-word character</td></tr>
  <tr><td><code>\B</code></td>              <td>	Non-word boundary: position that is a not a word boundary</td></tr>
  </table>
+ <br/>
+<br/>
 
+ Note that regular patterns can, besides <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>s also be used to match:
+ <ul><li> <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>: if a regular expression is tried against a <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a>, the URI part of the <code>loc</code> will be matches against the pattern.</li>
+<li> Lexical parse trees: if a regular expression is tried against a parse tree produced from a lexical <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>, the tree will first be unparsed and then matched against the lexical pattern.</li>
+</ul>
 </div>
 
   	                       
