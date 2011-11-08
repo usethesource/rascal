@@ -228,7 +228,7 @@ public str validateAnswer1(map[str,str] params){
            int c = toInt(answer);
            return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
         } catch:
-           return wrongAnswer(cpid, qid);
+           return wrongAnswer(cpid, qid, "");
       }
       
       case textQuestion(cid,qid,descr,replies):
