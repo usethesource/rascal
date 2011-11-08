@@ -27,7 +27,7 @@ import org.rascalmpl.interpreter.result.Result;
 @SuppressWarnings("serial")
 public class ValidateExam extends TutorHttpServlet {
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if(debug)System.err.println("ValidateExam, doGet: " + request);
 
