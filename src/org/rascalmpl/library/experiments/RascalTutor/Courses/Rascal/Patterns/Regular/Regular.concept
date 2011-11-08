@@ -80,8 +80,6 @@ For convenience, we summarize the most frequently used constructs in regular exp
 <tr><td>`\B`</td>              <td>	Non-word boundary: position that is a not a word boundary</td></tr>
 </table>
 
-Note that regular patterns can, besides [String]s also be used to match [Location]s: if a regular expression is tried against a [Location], the URI part of the `loc` will be matches against the pattern.
-
 Examples:
 Here are some examples of regular expression patterns.
 <listing>

@@ -87,10 +87,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		
 		Type runType = subject.getValue().getType();
 		
-		if (runType.isSubtypeOf(tf.sourceLocationType())) {
-			this.subject = ((ISourceLocation) subject.getValue()).getURI().toString();
-		}
-		else if(runType.isSubtypeOf(tf.stringType())) {
+		if(runType.isSubtypeOf(tf.stringType())) {
 			this.subject = ((IString) subject.getValue()).getValue();
 		}
 		else {
