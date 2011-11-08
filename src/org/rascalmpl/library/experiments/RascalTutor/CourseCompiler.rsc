@@ -728,9 +728,9 @@ public str status(QuestionName qid){
 
 private str showStudentId(){
   return table("studentInfo",
-               tr(td("Your name") + td("\<textarea rows=\"1\" cols=\"30\" name=\"studentName\" id=\"studentName\"\>\</textarea\>")) +
-               tr(td("Your email address") +  td("\<textarea rows=\"1\" cols=\"30\" name=\"studentMail\" id=\"studentMail\"\>\</textarea\>")) +
-               tr(td("Your student number") + td("\<textarea rows=\"1\" cols=\"30\" name=\"studentNumber\" id=\"studentNumber\"\>\</textarea\>"))
+               tr(td("Your name") +           td("\<input type=\"text\" size=\"30\" name=\"studentName\"   id=\"studentName\"\>")) +
+               tr(td("Your email address")  + td("\<input type=\"text\" size=\"30\" name=\"studentMail\"   id=\"studentMail\"\>")) +
+               tr(td("Your student number") + td("\<input type=\"text\" size=\"30\" name=\"studentNumber\" id=\"studentNumber\"\>"))
          );
 }
 
@@ -738,7 +738,7 @@ public str showQuestionsSection(ConceptName conceptName, list[Question] question
   if(size(questions) == 0)
      return "";
   student = isExam ? showStudentId() : "";
-  formBegin = isExam ? "\n\<form method=\"GET\" action=\"validateExam\" class=\"examAnswerForm\"\><br()>" : "";
+  formBegin = isExam ? "\n\<form method=\"POST\" action=\"validateExam\" class=\"examAnswerForm\"\><br()>" : "";
   submit = isExam ? answerFormEnd("Submit your answers", "examSubmit") : "";
   return div("questions",
              "<formBegin>
@@ -782,7 +782,7 @@ public str showQuestion(ConceptName cpid, Question q){
     }
     case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;
-      qform = "\<textarea rows=\"1\" cols=\"60\" <namePar(cq,"answer")> class=\"answerText\"\>\</textarea\>";
+      qform = "\<input type=\"text\" size=\"60\" <namePar(cq,"answer")> class=\"answerText\"\>";
     }
     
     case tvQuestion(cid,qid, qkind, qdetails): {
@@ -823,7 +823,7 @@ public str showQuestion(ConceptName cpid, Question q){
       
       qform = "<for(param <- generatedVars){>\<input type=\"hidden\" <namePar(cq,param)> value=\"<escapeForHtml(env[param].rval)>\"\>\n<}>";
       
-      qtextarea = "\<textarea rows=\"1\" cols=\"30\" <namePar(cq,"answer")> class=\"answerText\"\>\</textarea\>";
+      qtextarea = "\<input type=\"text\" size=\"30\" <namePar(cq,"answer")> class=\"answerText\"\>";
       
       if(lstBefore != "" || lstAfter != ""){  // A listing is present in the question
          if(holeInLst)

@@ -234,7 +234,7 @@ public void hello() {
  Dit is een vraag. Wat is het antwoord?
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><textarea rows="1" cols="60" name="Test_A[answer]" class="answerText"></textarea>
+<form method="GET" action="validate" class="answerForm"><input type="text" size="60" name="Test_A[answer]" class="answerText">
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_A[another]" value="yes">
@@ -257,8 +257,8 @@ public void hello() {
 <span id="answerFeedback_Test_B" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_B[A]" value="-8">
-The type of <tt>-8</tt> is <textarea rows="1" cols="30" name="Test_B[answer]" class="answerText"></textarea><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_B[A]" value="9">
+The type of <tt>9</tt> is <input type="text" size="30" name="Test_B[answer]" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -282,8 +282,8 @@ The type of <tt>-8</tt> is <textarea rows="1" cols="30" name="Test_B[answer]" cl
 <span id="answerFeedback_Test_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3[A]" value="-6">
-<pre class="prequestion">2 * -6 == <textarea rows="1" cols="30" name="Test_3[answer]" class="answerText"></textarea></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3[A]" value="-16">
+<pre class="prequestion">2 * -16 == <input type="text" size="30" name="Test_3[answer]" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_3[another]" value="yes">
@@ -306,8 +306,8 @@ The type of <tt>-8</tt> is <textarea rows="1" cols="30" name="Test_B[answer]" cl
 <span id="answerFeedback_Test_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4[A]" value="{-17}">
-The type of <tt>{-17}</tt> is <textarea rows="1" cols="30" name="Test_4[answer]" class="answerText"></textarea><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4[A]" value="{&quot;Cayenne&quot;, &quot;K&quot;, &quot;Eggplant&quot;}">
+The type of <tt>{&quot;Cayenne&quot;, &quot;K&quot;, &quot;Eggplant&quot;}</tt> is <input type="text" size="30" name="Test_4[answer]" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

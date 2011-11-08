@@ -387,7 +387,7 @@ function handleAnswer(evt) {
 function handleExam(evt) {
     var formData = $(this).serialize();
     evt.preventDefault();
-    $.get("/validateExam", formData, function processValidationResult(data, textStatus) {
+    $.post("/validateExam", formData, function processValidationResult(data, textStatus) {
 
         alert("handleExam: " + data);
         $().html(data);
