@@ -155,10 +155,11 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 </span>
 
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_1" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_1[A]" value="{-19, -6, -15, -10}">
-<input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_1[B]" value="{-4, -2}">
-<pre class="prequestion">{-19, -6, -15, -10} + {-4, -2} == <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_1[answer]" class="answerText"></textarea></pre>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_1[A]" value="{3, -13, 12, -14}">
+<input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_1[B]" value="{4, -9, 14}">
+<pre class="prequestion">{3, -13, 12, -14} + {4, -9, 14} == <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_1[answer]" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1[another]" value="yes">
@@ -179,9 +180,10 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 </span>
 
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_2" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_2[A]" value="[-8, -20, -17]">
-<pre class="prequestion">size([-8, -20, -17]) == <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_2[answer]" class="answerText"></textarea></pre>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_2[A]" value="[-17, -12, 14]">
+<pre class="prequestion">size([-17, -12, 14]) == <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_2[answer]" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_2[another]" value="yes">
@@ -202,10 +204,11 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 </span>
 
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_3" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_3[A]" value="{&quot;K&quot;}">
-<input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_3[B]" value="{&quot;O&quot;, &quot;Q&quot;}">
-<pre class="prequestion">{&quot;K&quot;} + <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_3[answer]" class="answerText"></textarea> == {&quot;O&quot;,&quot;K&quot;,&quot;Q&quot;}</pre>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_3[A]" value="{-16, 16, -15, -2, -10}">
+<input type="hidden" name="Tutor/Markup/QuestionMarkup/Value_3[B]" value="{-1, -18, 1}">
+<pre class="prequestion">{-16, 16, -15, -2, -10} + <textarea rows="1" cols="30" name="Tutor/Markup/QuestionMarkup/Value_3[answer]" class="answerText"></textarea> == {-1,-18,-2,-10,1,-15,16,-16}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3[another]" value="yes">
@@ -227,6 +230,7 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_4" class="answerFeedback"></span>
  Return the strings that contain "o".
+<br/>
 
 <form method="GET" action="validate" class="answerForm">Fill in <pre class="prequestion">text = [&quot;andra&quot;, &quot;moi&quot;, &quot;ennepe&quot;, &quot;Mousa&quot;, &quot;polutropon&quot;];
 public list[str] find(list[str] text){

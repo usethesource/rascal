@@ -155,12 +155,17 @@ set[value]: {
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_1" class="answerFeedback"></span>
   Sets can be used to represent a sequence of values when
+<br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" value="Rascal/Expressions/Values/Set_1[0]">The values have no duplicates and no order.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" value="Rascal/Expressions/Values/Set_1[1]">The values have duplicates.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" value="Rascal/Expressions/Values/Set_1[2]">The values are unordered.
+<form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" id="Rascal/Expressions/Values/Set_1_1" value="1">
+<label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" id="Rascal/Expressions/Values/Set_1_0" value="0">
+<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set_1[answer]" id="Rascal/Expressions/Values/Set_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -183,12 +188,17 @@ set[value]: {
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_2" class="answerFeedback"></span>
   The type of a set is determined by:
+<br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" value="Rascal/Expressions/Values/Set_2[0]">The upperbound of the type of all elements.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" value="Rascal/Expressions/Values/Set_2[1]">The type of the first element that was first added to the set.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" value="Rascal/Expressions/Values/Set_2[2]">The upperbound of the type of two arbitrary elements.
+<form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" id="Rascal/Expressions/Values/Set_2_0" value="0">
+<label for="Rascal/Expressions/Values/Set_2_0">The upperbound of the type of all elements.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" id="Rascal/Expressions/Values/Set_2_2" value="2">
+<label for="Rascal/Expressions/Values/Set_2_2">The upperbound of the type of two arbitrary elements.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set_2[answer]" id="Rascal/Expressions/Values/Set_2_1" value="1">
+<label for="Rascal/Expressions/Values/Set_2_1">The type of the first element that was first added to the set.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -210,7 +220,8 @@ set[value]: {
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_3" class="answerFeedback"></span>
- 
+ <br/>
+
 <form method="GET" action="validate" class="answerForm">The type of <tt>{1, </tt><textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set_3[answer]" class="answerText"></textarea><tt> }</tt> is <tt>set[int]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
@@ -233,9 +244,10 @@ set[value]: {
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set_4[A]" value="{false, true, true}">
-The type of <tt>{false, true, true}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set_4[answer]" class="answerText"></textarea><br/>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set_4[A]" value="{-18, -19, 11}">
+The type of <tt>{-18, -19, 11}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set_4[answer]" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -257,11 +269,12 @@ The type of <tt>{false, true, true}</tt> is <textarea rows="1" cols="30" name="R
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set_5[A]" value="9">
-<input type="hidden" name="Rascal/Expressions/Values/Set_5[B]" value="&quot;Y&quot;">
-<input type="hidden" name="Rascal/Expressions/Values/Set_5[C]" value="-8">
-The type of <tt>{9, &quot;Y&quot;, -8}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set_5[answer]" class="answerText"></textarea><br/>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set_5[A]" value="4">
+<input type="hidden" name="Rascal/Expressions/Values/Set_5[B]" value="&quot;Admiral Sarn&quot;">
+<input type="hidden" name="Rascal/Expressions/Values/Set_5[C]" value="14">
+The type of <tt>{4, &quot;Admiral Sarn&quot;, 14}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set_5[answer]" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

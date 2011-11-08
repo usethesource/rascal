@@ -100,14 +100,17 @@ set[int]: {4,3,2,1}
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_1" class="answerFeedback"></span>
   When you compute the difference of two sets, the number of elements in the result is always:
+<br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" value="Rascal/Expressions/Values/Set/Difference_1[0]">Smaller than or equal the number of elements in the first set.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" value="Rascal/Expressions/Values/Set/Difference_1[1]">Greater than the number of elements in both sets.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" value="Rascal/Expressions/Values/Set/Difference_1[2]">Greater than or equal the number of elements in the first set.
-<br/>
-<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" value="Rascal/Expressions/Values/Set/Difference_1[3]">Smaller than the number of elements in both sets.
+<form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" id="Rascal/Expressions/Values/Set/Difference_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set/Difference_1_2">Greater than or equal the number of elements in the first set.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" id="Rascal/Expressions/Values/Set/Difference_1_0" value="0">
+<label for="Rascal/Expressions/Values/Set/Difference_1_0">Smaller than or equal the number of elements in the first set.</label><br/>
+
+<input type="radio" name="Rascal/Expressions/Values/Set/Difference_1[answer]" id="Rascal/Expressions/Values/Set/Difference_1_1" value="1">
+<label for="Rascal/Expressions/Values/Set/Difference_1_1">Greater than the number of elements in both sets.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -129,10 +132,11 @@ set[int]: {4,3,2,1}
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_2" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_2[A]" value="{&quot;Isolder&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Lime&quot;, &quot;Peppermint&quot;, &quot;Mandarin&quot;}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_2[B]" value="{&quot;Strawberry&quot;, &quot;Jasmine&quot;, &quot;Ginger&quot;, &quot;Prince Charming&quot;, &quot;Isolder&quot;}">
-The type of <tt>{&quot;Isolder&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Lime&quot;, &quot;Peppermint&quot;, &quot;Mandarin&quot;} + {&quot;Strawberry&quot;, &quot;Jasmine&quot;, &quot;Ginger&quot;, &quot;Prince Charming&quot;, &quot;Isolder&quot;}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_2[answer]" class="answerText"></textarea><br/>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_2[A]" value="{-11, -18, -12}">
+<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_2[B]" value="{2, -2, 1, 7, -12}">
+The type of <tt>{-11, -18, -12} + {2, -2, 1, 7, -12}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_2[answer]" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -154,10 +158,11 @@ The type of <tt>{&quot;Isolder&quot;, &quot;Countess Darling Von Darling&quot;, 
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_3" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_3[A]" value="{$1994-04-04, $2050-08-06, $2082-11-03T00:37:18.429+0100, $2042-10-01}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_3[A]" value="{$1994-04-04, $2050-08-06, $2082-11-03T00:37:18.429+0100, $2042-10-01}">
-The type of <tt>{$1994-04-04, $2050-08-06, $2082-11-03T00:37:18.429+0100, $2042-10-01} - {$1994-04-04, $2050-08-06, $2082-11-03T00:37:18.429+0100, $2042-10-01}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_3[answer]" class="answerText"></textarea><br/>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_3[A]" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
+<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_3[A]" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
+The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)} - {|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_3[answer]" class="answerText"></textarea><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -179,10 +184,11 @@ The type of <tt>{$1994-04-04, $2050-08-06, $2082-11-03T00:37:18.429+0100, $2042-
 </span>
 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_4" class="answerFeedback"></span>
- 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_4[A]" value="{8.12724878250725200, -19.990926874798282675200}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_4[B]" value="{-1, -18, 2.34588080374032800, 4.96129763779956800}">
-<pre class="prequestion">{8.12724878250725200, -19.990926874798282675200} - {-1, -18, 2.34588080374032800, 4.96129763779956800} == <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_4[answer]" class="answerText"></textarea></pre>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Difference_4[A]" value="{4.60276257628226800, -17.21629642841454800}">
+<input type="hidden" name="Rascal/Expressions/Values/Set/Difference_4[B]" value="{0.41061406442274800}">
+<pre class="prequestion">{4.60276257628226800, -17.21629642841454800} - {0.41061406442274800} == <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Difference_4[answer]" class="answerText"></textarea></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4[another]" value="yes">
