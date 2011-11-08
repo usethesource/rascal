@@ -10,6 +10,7 @@
 module experiments::RascalTutor::CourseCompiler
 
 import experiments::RascalTutor::CourseModel;
+import Integer;
 import String;
 import Set;
 import List;
@@ -453,9 +454,8 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           	throw ConceptError("ChoiceQuestion with insufficient or malformed answers");
          
           println("<good_answers>, <bad_answers>");
-          choices = [good(g) | str g <- good_answers] + [bad(b) | str b <- bad_answers];
       
-          questions += choiceQuestion(cname, qname, markup([question], cname), choices);
+          questions += choiceQuestion(cname, qname, markup([question], cname), [good(q) | q <- good_answers] + [bad(q) | q <- bad_answers]);
           nquestions += 1;
        }
  
@@ -759,9 +759,26 @@ public str showQuestion(ConceptName cpid, Question q){
   
   switch(q){
     case choiceQuestion(cid,qid, descr, choices): {
-      qdescr = descr;
-      idx = [0 .. size(choices)-1];
-      qform = "<for(int i <- idx){><(i>0)?br():"">\<input type=\"radio\" <namePar(cq,"answer")> value=\"<cq>[<i>]\"\><choices[i].description>\n<}>";
+      qdescr = descr;     
+      avail = index(choices);
+      
+      idx = [];
+      bool oneGood = false;
+      while(!oneGood || size(idx) < 3){
+      	<k, avail> = takeOneFrom(avail);
+      	if(good(_) := choices[k]){
+      	   if(!oneGood){
+      	      oneGood = true;
+      	      idx = idx + [k];
+      	   }
+      	} else {
+      	   idx += [k];
+      	}
+      }
+      
+      qform = "<for(int i <- idx){>
+              '\<input type=\"radio\" <namePar(cq,"answer")> id=\"<cq>_<i>\" value=\"<i>\"\>
+              '\<label for=\"<cq>_<i>\"\><choices[i].description>\</label\><br()><}>";
     }
     case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;
@@ -851,7 +868,7 @@ public str showQuestion(ConceptName cpid, Question q){
                   ((!isExam) ? (status("good<sep><cpid1><sep><qid>", good()) + status("bad<sep><cpid1><sep><qid>", bad()) +
                                   "\n\<span id=\"answerFeedback<sep><cpid1><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n")
                                 : "") +
-                  qdescr + answerForm +
+                  qdescr + br() + answerForm +
                   ((!isExam) ? (anotherQuestionForm(cpid1, qid) + cheatForm(cpid1, qid, qexpr))
                                 : "") + 
                   br());
