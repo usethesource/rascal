@@ -125,6 +125,18 @@ Static Error: prompt:///:1,7: Expected int, but got str
 
   	                       
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> Local type inference for variables always uses the smallest possibe scope for a variable; this implies that   a variable introduced in an inner scope is not available outside that scope. Here is how things can go wrong:
+<br/>
+<br/>
+ <pre class="screen"><b>rascal></b>if( 4 &gt; 3){ x = &quot;abc&quot;; } else { x = &quot;def&quot;;}
+str: &quot;abc&quot;
+<b>rascal></b>x;
+Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
+</pre></li>
+</ul>
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/Variable&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/Variable&new=true"><b>New Subconcept</b></a>] |

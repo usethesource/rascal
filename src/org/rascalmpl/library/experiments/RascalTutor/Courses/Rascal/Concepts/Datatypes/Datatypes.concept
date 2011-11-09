@@ -76,6 +76,23 @@ data STAT = asgStat(Id name, EXP exp)
           ;
 </listing>
 
+Here are some examples how Rascal responds to values of the above built-in datatypes:
+<screen>
+true;
+101;
+3.14;
+"Rascal";
+|file:///etc/passwd|;
+$2101-09-05;
+[30, 20, 10];
+<"Rascal", 100000>;
+{"apples", "oranges", "bananas"};
+{<"apples", 10, 15>, <"oranges", 5, 7>, <"bananas", 9, 11>};
+("apples" : 100, "oranges": 150, "bananas": 75);
+"abc"(1, 2, 3);
+</screen>
+
+
 Benefits:
 
 Pitfalls:

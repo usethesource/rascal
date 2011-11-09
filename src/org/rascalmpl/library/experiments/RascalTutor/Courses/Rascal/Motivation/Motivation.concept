@@ -26,9 +26,10 @@ _Rascal is a domain specific programming language_. We emphasize programming her
 Examples:
 Typical applications of Rascal are:
 * Refactoring of Java source code.
+* Analyzing PHP code.
 * Searching for buffer overflows in C code.
 * Analyzing the version history of a large software project.
-* Implementing a _domain-specific language_ (DSL) for describing business processes.
+* Implementing a _domain-specific language_ (DSL) for describing games or business processes.
 
 
 All these cases involve a form of meta-programming: software programs (in a wide sense) are the objects-of-interest that are being analyzed, transformed or generated. The Rascal language is designed for meta-programming following the [EASY:EASY] paradigm. It can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.

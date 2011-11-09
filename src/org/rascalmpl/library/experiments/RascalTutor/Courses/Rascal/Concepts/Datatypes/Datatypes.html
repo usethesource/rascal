@@ -115,6 +115,35 @@
                            list[STAT] elsepart) 
           | whileStat(EXP exp, list[STAT] body)
           ;
+</pre> Here are some examples how Rascal responds to values of the above built-in datatypes:
+ <pre class="screen"><b>rascal></b>true;
+bool: true
+<b>rascal></b>101;
+int: 101
+<b>rascal></b>3.14;
+real: 3.14
+<b>rascal></b>&quot;Rascal&quot;;
+str: &quot;Rascal&quot;
+<b>rascal></b>|file:///etc/passwd|;
+loc: |file:///etc/passwd|
+<b>rascal></b>$2101-09-05;
+datetime: $2101-09-05
+<b>rascal></b>[30, 20, 10];
+list[int]: [30,20,10]
+<b>rascal></b>&lt;&quot;Rascal&quot;, 100000&gt;;
+tuple[str,int]: &lt;&quot;Rascal&quot;,100000&gt;
+<b>rascal></b>{&quot;apples&quot;, &quot;oranges&quot;, &quot;bananas&quot;};
+set[str]: {&quot;bananas&quot;,&quot;apples&quot;,&quot;oranges&quot;}
+<b>rascal></b>{&lt;&quot;apples&quot;, 10, 15&gt;, &lt;&quot;oranges&quot;, 5, 7&gt;, &lt;&quot;bananas&quot;, 9, 11&gt;};
+rel[str, int, int]: {
+  &lt;&quot;bananas&quot;,9,11&gt;,
+  &lt;&quot;oranges&quot;,5,7&gt;,
+  &lt;&quot;apples&quot;,10,15&gt;
+}
+<b>rascal></b>(&quot;apples&quot; : 100, &quot;oranges&quot;: 150, &quot;bananas&quot;: 75);
+map[str, int]: (&quot;bananas&quot;:75,&quot;apples&quot;:100,&quot;oranges&quot;:150)
+<b>rascal></b>&quot;abc&quot;(1, 2, 3);
+node: abc(1,2,3)
 </pre>
 </div>
 

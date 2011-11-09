@@ -1,6 +1,6 @@
 Name: RewriteRules
 
-Synopsis: Rewrite rules.
+Synopsis: Rewrite rules (deprecated)
 
 Syntax:
 
@@ -59,7 +59,7 @@ See [Recipes:derivative] for a full explantion of this example.
 Benefits:
 
 Pitfalls:
-Rascal does still have special syntax for rewrite rules, but this is being being __phased out__ in favour of pattern-directed invocation that can achieve the same, see [Function].
+Rascal does still have special syntax for rewrite rules, but this has been __deprecated__ in favour of pattern-directed invocation that can achieve the same, see [Function].
 
 The above example can be written ussing rule notation:
 
