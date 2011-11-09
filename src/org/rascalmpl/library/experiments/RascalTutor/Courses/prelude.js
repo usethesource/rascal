@@ -400,36 +400,30 @@ function validStudentNumber(number){
 
 function handleExam(evt) {
     var formData = $(this).serialize();
-    evt.preventDefault();
+    //evt.preventDefault();
 
     var studentName = $("#studentName").val();
     var studentMail = $("#studentMail").val();
     var studentNumber = $("#studentNumber").val();
     
+    var msgs = [];
     if(!validName(studentName)){
-        alert("Name too short");
-        return false;
+        msgs.push("Name too short");
     }
     
     if(!validEmail(studentMail)){
-        alert("Invalid email address");
-        return false;
+        msgs.push("Invalid email address");
     }
   
     if(!validStudentNumber(studentNumber)){
-        alert("Invalid student number");
+        msgs.push("Invalid student number");
+    }
+    if(msgs.length > 0){
+        alert(msgs.join("\n"));
         return false;
     }
-    alert("passed validations: " + formData);
 
-  
-    $.post("/validateExam", formData, function processValidationResult(data, textStatus) {
-
-        alert("handleExam: " + data);
-        $('div#conceptPane').html(data);
-    });
-
-    return false;
+    return true;
 }
 
 
