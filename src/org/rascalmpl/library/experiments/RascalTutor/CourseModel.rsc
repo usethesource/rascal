@@ -182,6 +182,14 @@ public loc conceptFile(str cn){
   return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
 }
 
+// Escape concept name for use as HTML id.
+
+public str escapeConcept(ConceptName cn) = replaceAll(cn, "/", "_");
+
+// Unescape concept name from use as HTML id.
+
+public str unescapeConcept(ConceptName cn) = replaceAll(cn, "_", "/");
+
 
 public str mkConceptTemplate(ConceptName cn){
 return "Name: <cn>
