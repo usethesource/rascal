@@ -234,10 +234,10 @@ public void hello() {
  Dit is een vraag. Wat is het antwoord?
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="text" size="60" name="Test_A[answer]" class="answerText">
+<form method="GET" action="validate" class="answerForm"><input type="text" size="60" name="Test_A:answer" class="answerText">
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_A[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_A:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -257,12 +257,12 @@ public void hello() {
 <span id="answerFeedback_Test_B" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_B[A]" value="9">
-The type of <tt>9</tt> is <input type="text" size="30" name="Test_B[answer]" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_B:A" value="0">
+The type of <tt>0</tt> is <input type="text" size="30" name="Test_B:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_B[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_B:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -282,11 +282,11 @@ The type of <tt>9</tt> is <input type="text" size="30" name="Test_B[answer]" cla
 <span id="answerFeedback_Test_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3[A]" value="-16">
-<pre class="prequestion">2 * -16 == <input type="text" size="30" name="Test_3[answer]" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3:A" value="7">
+<pre class="prequestion">2 * 7 == <input type="text" size="30" name="Test_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_3[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_3:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -306,12 +306,12 @@ The type of <tt>9</tt> is <input type="text" size="30" name="Test_B[answer]" cla
 <span id="answerFeedback_Test_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4[A]" value="{&quot;Cayenne&quot;, &quot;K&quot;, &quot;Eggplant&quot;}">
-The type of <tt>{&quot;Cayenne&quot;, &quot;K&quot;, &quot;Eggplant&quot;}</tt> is <input type="text" size="30" name="Test_4[answer]" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4:A" value="{&quot;Cinnamon&quot;, &quot;Grover&quot;}">
+The type of <tt>{&quot;Cinnamon&quot;, &quot;Grover&quot;}</tt> is <input type="text" size="30" name="Test_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_4[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_4:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>

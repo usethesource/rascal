@@ -97,18 +97,18 @@ set[int]: {5,4}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal/Expressions/Values/Set/Intersection_1[answer]" id="Rascal/Expressions/Values/Set/Intersection_1_1" value="1">
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set/Intersection_1_2">Greater than or equal the number of elements in both sets.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_1" value="1">
 <label for="Rascal/Expressions/Values/Set/Intersection_1_1">Greater than the number of elements in both sets.</label><br/>
 
-<input type="radio" name="Rascal/Expressions/Values/Set/Intersection_1[answer]" id="Rascal/Expressions/Values/Set/Intersection_1_0" value="0">
+<input type="radio" name="Rascal_Expressions_Values_Set_Intersection_1:answer" id="Rascal/Expressions/Values/Set/Intersection_1_0" value="0">
 <label for="Rascal/Expressions/Values/Set/Intersection_1_0">Smaller than or equal the number of elements in both sets.</label><br/>
-
-<input type="radio" name="Rascal/Expressions/Values/Set/Intersection_1[answer]" id="Rascal/Expressions/Values/Set/Intersection_1_3" value="3">
-<label for="Rascal/Expressions/Values/Set/Intersection_1_3">Smaller than the number of elements in both sets.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_1[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_1:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -128,13 +128,13 @@ set[int]: {5,4}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_2[A]" value="{&quot;Celery&quot;, &quot;Wasabi&quot;}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_2[B]" value="{&quot;Pomegranate&quot;}">
-The type of <tt>{&quot;Celery&quot;, &quot;Wasabi&quot;} &amp; {&quot;Pomegranate&quot;}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Intersection_2[answer]" class="answerText"></textarea><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:A" value="{-13, -2, -12}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:B" value="{-3}">
+The type of <tt>{-13, -2, -12} &amp; {-3}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_2:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -154,13 +154,13 @@ The type of <tt>{&quot;Celery&quot;, &quot;Wasabi&quot;} &amp; {&quot;Pomegranat
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_3[A]" value="{$2107-11-01, $2078-03-06, $2066-09-03T03:05:54.793+0200}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_3[B]" value="{$2024-09-03T20:37:42.125+0200, $1995-06-06, $2064-07-01}">
-The type of <tt>{$2107-11-01, $2078-03-06, $2066-09-03T03:05:54.793+0200} &amp; {$2024-09-03T20:37:42.125+0200, $1995-06-06, $2064-07-01}</tt> is <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Intersection_3[answer]" class="answerText"></textarea><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:A" value="{-9, -2}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:B" value="{1, -15, -17, 15, 16}">
+The type of <tt>{-9, -2} &amp; {1, -15, -17, 15, 16}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_3:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_3:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>
@@ -180,12 +180,12 @@ The type of <tt>{$2107-11-01, $2078-03-06, $2066-09-03T03:05:54.793+0200} &amp; 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Intersection_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_4[A]" value="{1.61340606698157600, -0.579960665873646800, 7.98122046789257200, -1.38140976741591600, 4.4910194663991200}">
-<input type="hidden" name="Rascal/Expressions/Values/Set/Intersection_4[B]" value="{2.04595038341330800}">
-<pre class="prequestion">{1.61340606698157600, -0.579960665873646800, 7.98122046789257200, -1.38140976741591600, 4.4910194663991200} &amp; {2.04595038341330800} == <textarea rows="1" cols="30" name="Rascal/Expressions/Values/Set/Intersection_4[answer]" class="answerText"></textarea></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:A" value="{11.61647813567122000, 17.38498438424491600, 5.84946714487915200, -14.901071388809441600}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:B" value="{0.79754799186628400, -15.974282381461910400}">
+<pre class="prequestion">{11.61647813567122000, 17.38498438424491600, 5.84946714487915200, -14.901071388809441600} &amp; {0.79754799186628400, -15.974282381461910400} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Intersection_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4[another]" value="yes">
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Intersection_4:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>

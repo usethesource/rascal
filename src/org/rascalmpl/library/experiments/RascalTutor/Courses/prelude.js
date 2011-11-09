@@ -384,13 +384,49 @@ function handleAnswer(evt) {
 
 // ------------ Handler for answers to exercises
 
+function validName(name){
+   return name.split(' ').join('').length > 3;
+}
+
+function validEmail(address){
+   var iat = address.indexOf('@') ;
+   var idot = address.lastIndexOf('.');
+   return iat >= 1 && idot > iat && idot < address.length - 1;
+}
+
+function validStudentNumber(number){
+   return number.length >= 5;
+}
+
 function handleExam(evt) {
     var formData = $(this).serialize();
     evt.preventDefault();
+
+    var studentName = $("#studentName").val();
+    var studentMail = $("#studentMail").val();
+    var studentNumber = $("#studentNumber").val();
+    
+    if(!validName(studentName)){
+        alert("Name too short");
+        return false;
+    }
+    
+    if(!validEmail(studentMail)){
+        alert("Invalid email address");
+        return false;
+    }
+  
+    if(!validStudentNumber(studentNumber)){
+        alert("Invalid student number");
+        return false;
+    }
+    alert("passed validations: " + formData);
+
+  
     $.post("/validateExam", formData, function processValidationResult(data, textStatus) {
 
         alert("handleExam: " + data);
-        $().html(data);
+        $('div#conceptPane').html(data);
     });
 
     return false;
