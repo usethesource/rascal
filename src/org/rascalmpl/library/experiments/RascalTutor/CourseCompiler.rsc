@@ -740,9 +740,11 @@ public str showQuestionsSection(ConceptName conceptName, list[Question] question
      return "";
   student = isExam ? showStudentId() : "";
   formBegin = isExam ? "\n\<form method=\"POST\" action=\"/validateExam\" class=\"examAnswerForm\"\><br()>" : "";
+  idField   = isExam ? "\<input type=\"hidden\" name=\"examName\" id=\"examName\" value=\"<escapeConcept(conceptName)>\"\>" : "";
   submit = isExam ? answerFormEnd("Submit your answers", "examSubmit") : "";
   return div("questions",
              "<formBegin>
+             '<idField>
              '<student><br()>
              '<sectionHead("Questions")> <br()>
              '<for(quest <- questions){><showQuestion(conceptName,quest)> <}><br()>
