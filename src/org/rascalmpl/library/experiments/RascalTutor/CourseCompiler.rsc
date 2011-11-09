@@ -276,20 +276,21 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
   	     meta("keywords", "<cn>, Rascal, meta-programming, software analysis, software transformation") +
   	     prelude(rootname(cn))),
   	body(
-  	  table("container",
-  	        tr(tdid("tdlogo", "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>") +
-  	           tdid("tdsearch", searchBox(cn))) +
-  	        
-  	        tr(tdid("tdnav", getNavigationPanel(rootname(cn))) +
-  	  
-  	           tdid("tdconcept", div("conceptPane", 
-  	              section("Name", showConceptPath(cn)) +
-  	              html_synopsis +
-  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><refToResolvedConcept(ch, true)> &#032 <}>")) +
-  	              html_body +
-  	              editMenu(C)
-  	           ))
-  	       ))
+  	  isExam ?  html_body
+  	         :  table("container",
+		  	        tr(tdid("tdlogo", "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>") +
+		  	           tdid("tdsearch", searchBox(cn))) +
+		  	        
+		  	        tr(tdid("tdnav", getNavigationPanel(rootname(cn))) +
+		  	  
+		  	           tdid("tdconcept", div("conceptPane", 
+		  	              section("Name", showConceptPath(cn)) +
+		  	              html_synopsis +
+		  	              ((isEmpty(childs)) ? "" : section("Details", "<for(ch <- childs){><refToResolvedConcept(ch, true)> &#032 <}>")) +
+		  	              html_body +
+		  	              editMenu(C)
+		  	           ))
+	  	       ))
   	)
    );
    
@@ -311,19 +312,24 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 
 // Generate prelude of web page
 
-public str prelude(str courseName){ 
-  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>
-  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/jquery.autocomplete.css\"/\>
-  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
-  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.colorbox-min.js\"\>\</script\>
-  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.cookie.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/jquery.autocomplete.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/jquery.history.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/globals.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
-         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
-         ;
+public str prelude(str courseName){
+  if(isExam)
+	   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"exam.css\"/\>
+	  		 '\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"exam.js\"\>\</script\>";
+  else
+	  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>
+	  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/jquery.autocomplete.css\"/\>
+	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.colorbox-min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.cookie.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.autocomplete.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.history.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/globals.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
+	         ;
 }
 
 public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptName,Concept] concepts){  
