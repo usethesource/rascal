@@ -679,7 +679,8 @@ Type    +      +         +      0   ERROR
 
 bool isExam  = false;
 
-private str namePar(str q, str name) = "name=\"<q>[<name>]\"";
+
+private str namePar(str q, str name) = "name=\"<escapeConcept(q)>:<name>\"";
 
 private str answerFormBegin(ConceptName cpid, QuestionName qid, str formClass){
     validate = isExam ? "validateExam" : "validate";
@@ -738,7 +739,7 @@ public str showQuestionsSection(ConceptName conceptName, list[Question] question
   if(size(questions) == 0)
      return "";
   student = isExam ? showStudentId() : "";
-  formBegin = isExam ? "\n\<form method=\"POST\" action=\"validateExam\" class=\"examAnswerForm\"\><br()>" : "";
+  formBegin = isExam ? "\n\<form method=\"POST\" action=\"/validateExam\" class=\"examAnswerForm\"\><br()>" : "";
   submit = isExam ? answerFormEnd("Submit your answers", "examSubmit") : "";
   return div("questions",
              "<formBegin>
@@ -859,17 +860,17 @@ public str showQuestion(ConceptName cpid, Question q){
   }
   
   sep = "_";
-  cpid1 = replaceAll(cpid, "/", sep);
-  answerForm = answerFormBegin(cpid1, qid, "answerForm") + qform  + (!isExam ? answerFormEnd("Give answer", "answerSubmit") : "");
+  ecpid = escapeConcept(cpid);
+  answerForm = answerFormBegin(ecpid, qid, "answerForm") + qform  + (!isExam ? answerFormEnd("Give answer", "answerSubmit") : "");
   
 
-  return div("<cpid1><sep><qid>", "question",
+  return div("<ecpid><sep><qid>", "question",
                   b(basename("Question [" + qid + "]. ")) + 
-                  ((!isExam) ? (status("good<sep><cpid1><sep><qid>", good()) + status("bad<sep><cpid1><sep><qid>", bad()) +
-                                  "\n\<span id=\"answerFeedback<sep><cpid1><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n")
+                  ((!isExam) ? (status("good<sep><ecpid><sep><qid>", good()) + status("bad<sep><ecpid><sep><qid>", bad()) +
+                                  "\n\<span id=\"answerFeedback<sep><ecpid><sep><qid>\" class=\"answerFeedback\"\>\</span\>\n")
                                 : "") +
                   qdescr + br() + answerForm +
-                  ((!isExam) ? (anotherQuestionForm(cpid1, qid) + cheatForm(cpid1, qid, qexpr))
+                  ((!isExam) ? (anotherQuestionForm(ecpid, qid) + cheatForm(ecpid, qid, qexpr))
                                 : "") + 
                   br());
 }
@@ -887,7 +888,7 @@ public str trim (str txt){
 
 public Question getQuestion(ConceptName cid, QuestionName qid){
 
-  cid = replaceAll(cid, "_", "/");
+  cid = unescapeConcept(cid);
   try {
   	quest_file = catenate(courseDir, cid + "/" + basename(cid))[extension = questExtension];
   	questions = readTextValueFile(#Questions, quest_file);

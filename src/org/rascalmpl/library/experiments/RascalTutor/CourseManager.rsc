@@ -15,6 +15,7 @@ module experiments::RascalTutor::CourseManager
 // - edit: edit a concept
 // - save: save a concept after editing
 // - validateAnswer: validates the answer to a specific question
+// - validateExam: validates a complete exam
 
 import List;
 import String;
@@ -139,7 +140,7 @@ str studentNumber = "";
 private map[str,map[str,str]] questionParams(map[str,str] params){
    paramMaps = ();
    for(key <- params){
-      if(/^<cpt:[A-Za-z0-9\/_]+>_<qid:[A-Za-z0-9]+>\[<param:[^\]]+>\]$/ := key){
+      if(/^<cpt:[A-Za-z0-9\/_]+>_<qid:[A-Za-z0-9]+>:<param:[^\]]+>$/ := key){
            
           println("key = <key>, cpt = <cpt>, qid = <qid>, param = <param>");
           fullQid = "<cpt>_<qid>";
@@ -165,6 +166,9 @@ private map[str,map[str,str]] questionParams(map[str,str] params){
 }
 
 private bool isExam = false;
+
+// Validate an exam.
+// *** called from servlet Edit in RascalTutor
 
 public str validateExam(map[str,str] params){
   isExam = true;
@@ -521,22 +525,22 @@ public list[str] negativeFeedback = [
 
 public str correctAnswer(ConceptName cpid, QuestionName qid){
     if(!isExam){
-    	cpid = replaceAll(cpid, "/", "_");
+    	ecpid = escapeConcept(cpid);
     	badAnswer -= qid;
     	goodAnswer += qid;
     	feedback = (arbInt(100) < 25) ? getOneFrom(positiveFeedback) : "";
-    	return XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "true", "feedback" : feedback));
+    	return XMLResponses(("concept" : ecpid, "exercise" : qid, "validation" : "true", "feedback" : feedback));
     } else
         return "pass";
 }
 
 public str wrongAnswer(ConceptName cpid, QuestionName qid, str explanation){
     if(!isExam){
-       cpid = replaceAll(cpid, "/", "_");
+       ecpid = escapeConcept(cpid);
        badAnswer += qid;
        goodAnswer -= qid;
        feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
-	   return  XMLResponses(("concept" : cpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
+	   return  XMLResponses(("concept" : ecpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
 	} else
 	   return "fail";
 }

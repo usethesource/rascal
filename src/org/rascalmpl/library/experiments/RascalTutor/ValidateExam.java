@@ -32,9 +32,7 @@ public class ValidateExam extends TutorHttpServlet {
 		if(debug)System.err.println("ValidateExam, doGet: " + request);
 
 		String pmap = getParametersAsMap(request);
-		//response.setContentType("text/plain; UTF-8");
-		response.setContentType("text/xml");
-		//response.setContentType("application/json");
+		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setCharacterEncoding("utf-8");
 		PrintWriter out = response.getWriter();
