@@ -1197,6 +1197,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return v;
 
 		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
 
 	}
 
