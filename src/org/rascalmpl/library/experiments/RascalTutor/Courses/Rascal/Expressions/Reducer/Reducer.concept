@@ -23,7 +23,8 @@ for($Gen_1$, $Gen_1$, ... ) /*2*/
 it; /*4*/
 </listing>
 and is executed as follows:
-* A fresh variable `it` is initialized with $IntExp$ (/*1*/).
+* A fresh variable `it` is initialized with $IntExp$ (/*1*/). 
+  We call the variable `it` since we use `it` to initialize the reducer, to make changes to `i`t, and to return `it` as result.
 * A for loop iterates over all values produced by the generators (/*2*/).
 * In the body of the loop, variable `it` is updated to reflect a new reduced value (/*3*/).
   Note that `it` itself and variables introduced in $Gen_1$, $Gen_1$, ... may occur in $RedExp$.
