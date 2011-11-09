@@ -335,6 +335,7 @@ public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptNa
           else
              searchIndex[trm] = {name};
   }
+  sortedSearchKeys = sort(toList(domain(searchIndex)));
   return
   "/* Generated code for course <courseName> */
   '
@@ -344,7 +345,7 @@ public str jsCoursePrelude(str courseName, list[str] baseConcepts, map[ConceptNa
   '
   'var searchTerms = {};
   '
-  '<for( trm <- searchIndex ){>
+  '<for( trm <- sortedSearchKeys ){>
   'searchTerms[\"<escapeForJavascript(trm)>\"] = <mkJsArray(toList(searchIndex[trm]), "null")>;
   '<}>"; 
 }

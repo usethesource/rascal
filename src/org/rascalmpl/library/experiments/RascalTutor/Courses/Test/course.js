@@ -7,16 +7,16 @@ var conceptNames = new Array("Test","Test/AAA","Test/BBB","Test/BBB/BBB1","Test/
 var searchTerms = {};
 
 
-searchTerms["]"] = new Array("Test");
+searchTerms["("] = new Array("Test");
 
-searchTerms["map"] = new Array("Test");
+searchTerms["),"] = new Array("Test");
 
 searchTerms[","] = new Array("Test");
 
 searchTerms["["] = new Array("Test");
 
+searchTerms["]"] = new Array("Test");
+
 searchTerms["lub"] = new Array("Test");
 
-searchTerms["("] = new Array("Test");
-
-searchTerms["),"] = new Array("Test");
+searchTerms["map"] = new Array("Test");
