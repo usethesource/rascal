@@ -65,7 +65,7 @@
 
  There are two variants as listed above:
   <ol><li> When the subject matches <code><i>Pattern</i></code>, the expression <code><i>Exp</i></code> is evaluated and the subject is replaced with the result.</li>
-<li> When the subject matches Pat, the Statement is executed.</li>
+<li> When the subject matches Pat, the Statement is executed. More statements can be executed by including them in a <a href="/Courses/Rascal/Statements/Block/Block.html">Block</a>.</li>
 </ol> In <a href="/Courses/Rascal/Statements/Switch/Switch.html">Switch</a> statements, only the form <code><i>Pattern</i> : <i>Statement</i></code> is allowed. 
  When the subject matches <code><i>Pattern</i></code>, the <code><i>Statement</i></code> is executed and the execution of the switch statement is complete. 
  However, when a fail statement is executed in <code><i>Statement</i></code> all its side effects are undone and further alternatives of
@@ -83,6 +83,19 @@
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Two examples of variant 1 (replacement):
+ <pre class="listing">case red(CTree l, CTree r) => red(r,l)
+case red(l, r) => green(l, r)
+</pre> Three examples of variant 2 (Statement):
+ <pre class="listing">case /Leila/: println("The topic is Starwars");
+case red(_, _):    println("A red root node");
+case red(_,_): c = c + 1; 
+</pre> The action may also be a <a href="/Courses/Rascal/Statements/Block/Block.html">Block</a>:
+ <pre class="listing">case red(_,_): { c = c + 1; println("c = &lt;c>"); }
+</pre>
+</div>
+
   	                       
   	                       
   	                       

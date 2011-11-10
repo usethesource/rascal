@@ -20,7 +20,7 @@ There are two variants as listed above:
 
 # When the subject matches $Pattern$, the expression $Exp$ is evaluated and the subject is replaced with the result.
 
-# When the subject matches Pat, the Statement is executed.
+# When the subject matches Pat, the Statement is executed. More statements can be executed by including them in a [Block].
 
 
 In [Switch] statements, only the form `$Pattern$ : $Statement$` is allowed. 
@@ -36,6 +36,21 @@ The form `$Pattern$ : $Statement$` is as described for switch statements, with t
 the traversal of the subject continues.
 
 Examples:
+Two examples of variant 1 (replacement):
+<listing>
+case red(CTree l, CTree r) => red(r,l)
+case red(l, r) => green(l, r)
+</listing>
+Three examples of variant 2 (Statement):
+<listing>
+case /Leila/: println("The topic is Starwars");
+case red(_, _):    println("A red root node");
+case red(_,_): c = c + 1; 
+</listing>
+The action may also be a [Block]:
+<listing>
+case red(_,_): { c = c + 1; println("c = <c>"); }
+</listing>
 
 Benefits:
 

@@ -3,7 +3,7 @@ Name: Block
 Synopsis: Group statements into a block.
 
 Syntax:
-`{ $Statement_1$ ... $Statement_n$ }`
+`{ $Statement_1$; ... ; $Statement_n$ }`
 
 Types:
 
