@@ -8,7 +8,7 @@ Types:
 
 Function:
 * `&T head(list[&T] lst) throws EmptyList`
-* `list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds(int index)`
+* `list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds(int index)`
 
 Details:
 
@@ -21,9 +21,11 @@ Examples:
 import List;
 // Get the first element:
 head([1, 2, 3]);
+// An exception is thrown when taking the head of an empty list:
 head([]);
 // Get the first n elements:
 head([1, 2, 3, 4], 2);
+// An exception is thrown when the second argument exceeds the length of the list:
 head([1, 2, 3, 5], 5);
 </screen>
 

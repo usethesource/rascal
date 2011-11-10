@@ -56,6 +56,13 @@ Here are some examples of enumerators:
 
 * `int N <- 17`, will only generate the value `17`.
 
+
+Here are examples of enumerators in action:
+<screen>
+[ N * N | int N <- [1, 2, 3, 4, 5] ];
+{<N, K> | <str K, int N> <- {<"a",10>, <"b",20>, <"c",30>}};
+</screen>
+
 Benefits:
 
 Pitfalls:

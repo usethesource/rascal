@@ -50,7 +50,7 @@
 
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>( <i>IntExp</i> | <i>RedExp</i> | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>1</sub>, ... )</code>
+<span class="sectionHead">Syntax</span>  <code>( <i>Exp</i> | <i>RedExp</i> | <i>Gen</i><sub>1</sub>, <i>Gen</i><sub>1</sub>, ... )</code>
 
 </div>
 
@@ -63,14 +63,14 @@
 <br/>
 
  A reducer is equivalent to the following code:
- <pre class="listing">it = <i>IntExp</i>; <img src="/Courses/images/1.png">
+ <pre class="listing">it = <i>Exp</i>; <img src="/Courses/images/1.png">
 for(<i>Gen</i><sub>1</sub>, <i>Gen</i><sub>1</sub>, ... ) <img src="/Courses/images/2.png">
     it = <i>RedExp</i>; <img src="/Courses/images/3.png">
 it; <img src="/Courses/images/4.png">
 </pre> and is executed as follows:
- <ul><li> A fresh variable <code>it</code> is initialized with <code><i>IntExp</i></code> (<img src="/Courses/images/1.png">).    We call the variable <code>it</code> since we use <code>it</code> to initialize the reducer, to make changes to <code>i</code>t, and to return <code>it</code> as result.
+ <ul><li> A fresh variable <code>it</code> is initialized with <code><i>Exp</i></code> (<img src="/Courses/images/1.png">).    We call the variable <code>it</code> since we use <code>it</code> to initialize the reducer, to make changes to <code>i</code>t, and to return <code>it</code> as result.
 </li>
-<li> A for loop iterates over all values produced by the generators (<img src="/Courses/images/2.png">).</li>
+<li> A for loop iterates over all values produced by the generators <code><i>Gen</i><sub>1</sub></code>, <code><i>Gen</i><sub>1</sub></code>, ... (<img src="/Courses/images/2.png">).</li>
 <li> In the body of the loop, variable <code>it</code> is updated to reflect a new reduced value (<img src="/Courses/images/3.png">).   Note that <code>it</code> itself and variables introduced in <code><i>Gen</i><sub>1</sub></code>, <code><i>Gen</i><sub>1</sub></code>, ... may occur in <code><i>RedExp</i></code>.
 </li>
 <li> The value of <code>it</code> is the result of the reducer.</li>

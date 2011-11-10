@@ -70,6 +70,32 @@
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Adding a filter to a comprehension, may restrict the values that are included in the result of the comprehension:
+ <pre class="screen"><b>rascal></b>[ X * X | int X &lt;- [1, 2, 3, 4, 5, 6] ];
+list[int]: [1,4,9,16,25,36]
+<b>rascal></b>[ X * X | int X &lt;- [1, 2, 3, 4, 5, 6], X % 3 == 0 ];
+list[int]: [9,36]
+</pre>
+  Filters can also be applied to values produced by several generators:
+
+<pre class="screen"><b>rascal></b>[&lt;X, Y&gt; | int X &lt;- [0 .. 10], int Y &lt;- [0 .. 10], X + Y == 10]
+list[tuple[int,int]]: [
+  &lt;0,10&gt;,
+  &lt;1,9&gt;,
+  &lt;2,8&gt;,
+  &lt;3,7&gt;,
+  &lt;4,6&gt;,
+  &lt;5,5&gt;,
+  &lt;6,4&gt;,
+  &lt;7,3&gt;,
+  &lt;8,2&gt;,
+  &lt;9,1&gt;,
+  &lt;10,0&gt;
+]
+</pre>
+</div>
+
   	                       
   	                       
   	                       

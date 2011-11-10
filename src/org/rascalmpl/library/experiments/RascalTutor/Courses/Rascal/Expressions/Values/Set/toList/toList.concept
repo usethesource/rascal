@@ -23,6 +23,7 @@ toList({1, 2, 3, 4});
 Benefits:
 
 Pitfalls:
+Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting list.
 
 Questions:
 

@@ -95,6 +95,26 @@ matched against the cases.
 When inserts are made, a new structured value is created. In these cases a strategy does not have any effect.
 
 Examples:
+Visit a value and increment a counter for pattern `leaf(int N)` matches:
+<listing>
+visit(t) {
+     case leaf(int N): c = c + N;   
+   };
+</listing>
+Replace all values that match the pattern `red(l, r)`:
+<listing>
+visit(t) {
+     case red(l, r) => green(l, r)   
+   };
+</listing>
+Do a bottom-up visit of an expression and apply the function `simp` to each subexpression:
+<listing>
+bottom-up visit(e){
+           case Exp e1 => simp(e1)
+         }
+</listing>
+
+More examples can, for instance, be found in [Recipes:ColoredTrees], [Recipes:WordReplacement], [Recipes:CountConstructors], and [Recipes:Derivative].
 
 Benefits:
 

@@ -15,9 +15,11 @@ Description:
 Returns a new list with the value of `elm` inserted at index position `n` of the old list.
 
 Examples:
-<screen>
+<screen errors>
 import List;
 insertAt([1,2,3], 1, 5);
+//An execption is thrown when the index position is outside the list:
+insertAt([1,2,3], 10, 5);
 </screen>
 
 Benefits:

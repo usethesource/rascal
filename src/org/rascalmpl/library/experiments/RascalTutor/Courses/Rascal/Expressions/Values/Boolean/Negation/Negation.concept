@@ -23,6 +23,9 @@ The _not_ operator on Boolean values defined as follows:
 | `false`  | `true`    |
 
 Examples:
+<screen>
+!true;
+</screen>
 
 Benefits:
 

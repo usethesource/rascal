@@ -68,6 +68,15 @@ ok
 <b>rascal></b>insertAt([1,2,3], 1, 5);
 list[int]: [1,5,2,3]
 </pre>
+ An execption is thrown when the index position is outside the list:
+
+<pre class="screen"><b>rascal></b>insertAt([1,2,3], 10, 5);
+Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(10)
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.List.insertAt(org.eclipse.imp.&raquo;
+pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.IndexOut&raquo;
+OfBoundsException
+    somewhere in: $shell$
+</pre>
 </div>
 
   	                       

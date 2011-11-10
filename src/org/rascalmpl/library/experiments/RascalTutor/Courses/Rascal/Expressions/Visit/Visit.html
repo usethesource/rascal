@@ -122,6 +122,23 @@ default: ...
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  Visit a value and increment a counter for pattern <code>leaf(int N)</code> matches:
+ <pre class="listing">visit(t) {
+     case leaf(int N): c = c + N;   
+   };
+</pre> Replace all values that match the pattern <code>red(l, r)</code>:
+ <pre class="listing">visit(t) {
+     case red(l, r) => green(l, r)   
+   };
+</pre> Do a bottom-up visit of an expression and apply the function <code>simp</code> to each subexpression:
+ <pre class="listing">bottom-up visit(e){
+           case Exp e1 => simp(e1)
+         }
+</pre> More examples can, for instance, be found in <a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">Recipes:ColoredTrees</a>, <a href="/Courses/Recipes/Common/WordReplacement/WordReplacement.html">Recipes:WordReplacement</a>, <a href="/Courses/Recipes/Common/CountConstructors/CountConstructors.html">Recipes:CountConstructors</a>, and <a href="/Courses/Recipes/Common/Derivative/Derivative.html">Recipes:Derivative</a>.
+
+</div>
+
   	                       
   	                       
   	                       

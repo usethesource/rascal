@@ -1,6 +1,6 @@
 Name: reducer
 
-Synopsis: Apply a function to successive elements of list and combine the results.
+Synopsis: Apply a function to successive elements of list and combine the results (__deprecated__).
 
 Syntax:
 
@@ -24,6 +24,7 @@ reducer([10, 20, 30, 40], add, 0);
 Benefits:
 
 Pitfalls:
+This function is __deprecated__, use a [$Expressions/Reducer] instead.
 
 Questions:
 

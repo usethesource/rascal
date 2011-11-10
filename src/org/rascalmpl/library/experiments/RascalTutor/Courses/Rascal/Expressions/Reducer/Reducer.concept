@@ -3,7 +3,7 @@ Name: Reducer
 Synopsis: Reduce generated values to a single value.
 
 Syntax:
-`( $IntExp$ | $RedExp$ | $Gen_1$, $Gen_1$, ... )`
+`( $Exp$ | $RedExp$ | $Gen_1$, $Gen_1$, ... )`
 
 Types:
 
@@ -17,15 +17,15 @@ found in most functional languages.
 
 A reducer is equivalent to the following code:
 <listing>
-it = $IntExp$; /*1*/
+it = $Exp$; /*1*/
 for($Gen_1$, $Gen_1$, ... ) /*2*/
     it = $RedExp$; /*3*/
 it; /*4*/
 </listing>
 and is executed as follows:
-* A fresh variable `it` is initialized with $IntExp$ (/*1*/). 
+* A fresh variable `it` is initialized with $Exp$ (/*1*/). 
   We call the variable `it` since we use `it` to initialize the reducer, to make changes to `i`t, and to return `it` as result.
-* A for loop iterates over all values produced by the generators (/*2*/).
+* A for loop iterates over all values produced by the generators `$Gen_1$`, `$Gen_1$`, ... (/*2*/).
 * In the body of the loop, variable `it` is updated to reflect a new reduced value (/*3*/).
   Note that `it` itself and variables introduced in $Gen_1$, $Gen_1$, ... may occur in $RedExp$.
 * The value of `it` is the result of the reducer.
