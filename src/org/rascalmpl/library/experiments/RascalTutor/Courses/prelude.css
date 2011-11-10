@@ -11,7 +11,7 @@ h1, th {
 
 h1 {
     font-size: 120%;
-    font-style: bold;
+    font-weight: bold;
 }
 
 h2 {
@@ -62,7 +62,7 @@ td#tdconcept {
 }
 
 table#container {
-    width: 100%
+    width: 100%;
     border: 1px solid #000;
 }
 
@@ -87,9 +87,9 @@ th { background-color: silver; }
 
 
 .sectionHead {
-    color:blck;
+    color:black;
     font-size: 120%;
-    font-style: bold;
+    font-weight: bold;
     text-shadow: silver 2px 2px 2px;
 }
 
@@ -100,7 +100,7 @@ th { background-color: silver; }
     position: relative;*/
 }
 
-#Warnings { padding: 0.5em 0em;5color: red; }
+#Warnings { padding: 0.5em 0em; color: red; }
 #Details { padding: 0.5em 0em; }
 #Synopsis{ padding: 0.5em 0em; }
 #Syntax{ padding: 0.5em 0em; }
@@ -173,7 +173,7 @@ th { background-color: silver; }
 #navigationMenu {
     top: 0.5em;
     right: 15em;
-    float right;
+    float: right;
     margin-right: 20px;
 
     position: absolute;
@@ -260,7 +260,7 @@ textarea {
   background-color: lightgray;
   color: red;
   font-size: 20pt;
-  float: center;
+  float: left;
 }
 
 #studentInfo{
