@@ -139,6 +139,7 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
   	                       
 <div id="questions">
 
+
 <br/>
 
 <span class="sectionHead">Questions</span> <br/>
@@ -157,9 +158,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1:A" value="{-16, -6, 16, 7, 4}">
-<input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1:B" value="{5, 14, 0, 7}">
-<pre class="prequestion">{-16, -6, 16, 7, 4} + {5, 14, 0, 7} == <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_1:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1:A" value="{-15}">
+<input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1:B" value="{15, 4, -20}">
+<pre class="prequestion">{-15} + {15, 4, -20} == <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_1:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_1:another" value="yes">
@@ -182,8 +183,8 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_2:A" value="[6]">
-<pre class="prequestion">size([6]) == <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_2:A" value="[19]">
+<pre class="prequestion">size([19]) == <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_2:another" value="yes">
@@ -206,9 +207,9 @@ test: find(text) == ["moi", "Mousa", "polutropon"];
 <span id="answerFeedback_Tutor_Markup_QuestionMarkup_Value_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3:A" value="{&quot;Hoots The Owl&quot;}">
-<input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3:B" value="{&quot;Boba Fett&quot;, &quot;Blackcurrant&quot;}">
-<pre class="prequestion">{&quot;Hoots The Owl&quot;} + <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_3:answer" class="answerText"> == {&quot;Hoots The Owl&quot;,&quot;Blackcurrant&quot;,&quot;Boba Fett&quot;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3:A" value="{13, -8}">
+<input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3:B" value="{9, 13}">
+<pre class="prequestion">{13, -8} + <input type="text" size="30" name="Tutor_Markup_QuestionMarkup_Value_3:answer" class="answerText"> == {13,9,-8}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Tutor_Markup_QuestionMarkup_Value_3:another" value="yes">

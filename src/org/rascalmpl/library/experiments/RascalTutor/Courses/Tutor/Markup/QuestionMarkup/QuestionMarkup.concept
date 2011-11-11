@@ -38,14 +38,16 @@ Given that the listing is optional, this template represents 5 different questio
 * `expr: $Var$ = $Expr$`: introduces a new variable $Var$ and assigns to it the result of evaluating $Expr$. $Expr$ may contain references to previously introduced variables using `<$Var$>`.
 * `type: $TypeDescriptor$`
 * `hint: $Text$`: a hint to be given to the student in response to a wrong answer. $Text$ may contain references to previously introduced variables.
-* `test: $Expr_1$ == $Expr_2$`: the equality that should hold. The expressions may contain references to variables. On side may contain a hole (`<?>`).
-* `list: $Text$`: a listing that runs until the next question or the end off the concept. It may contain a hole.
+* `test: $Expr_1$ == $Expr_2$`: the equality that should hold. The expressions may contain references to variables. One side may contain a hole (`<?>`).
+* `list: $Text$`: a listing that runs until the next question or the end of the concept. It may contain a hole.
 
 Examples:
 * `prep: import List;` imports the List module before executing the following steps.
 * `make: A = set[arb[int,str]]` introduces `A` and assigns it a value of the indicated type.
 * `make: B = same[A]` introduces `B` and assigns it a value of the same type as `A`.
 * `expr: C = <A> + <B>`: inserts the values of `A` and `B`, performs the addition, and assigns the result to `C`.
+* `type: set[int]`: the required type is `set[int]`.
+* `hint: One or more integers separated by comma's`.
 * `test: <A> + <?> == <C>`: the student has to replace `<?>` by an answwer that makes the equality true.
 
 Benefits:
