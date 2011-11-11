@@ -103,6 +103,8 @@ data Choice = good(str description)
             ;
             
 data Exception = ConceptError(str cause);
+
+data examResult = examResult(str studentName, str studentMail, str StudentNumber, map[str, str] evaluation, num score);
             
 alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             

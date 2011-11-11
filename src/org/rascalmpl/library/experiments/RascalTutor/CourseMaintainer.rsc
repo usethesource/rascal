@@ -12,10 +12,13 @@ module experiments::RascalTutor::CourseMaintainer
 
 import String;
 import List;
+import Set;
+import Map;
 import IO;
 import Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
+import experiments::RascalTutor::CourseManager;
 
 // Compile a complete course
 
@@ -38,6 +41,65 @@ public void compileConcept(ConceptName cn){
 public void compileConceptAsExam(ConceptName cn){
   file = conceptFile(cn);
   compileConceptAsExam(file);
+}
+
+loc resultDir = |file:///Users/paulklint/exam-results|;
+str resultExtension = ".examresults";
+str eol = "/|*|/";
+
+private map[str,str] processFile(loc file){
+   res = ();
+   for(line <- readFileLines(file)){
+      if(/<key:[^\t]+>\t<val:.+><eol>$/ := line){
+         println("key = <key>, val = <val>");
+         res[key] = val;
+      } else
+         throw "Unexpected line: <line>";
+   }
+   return res;
+}
+
+public list[examResult] processExams(loc resultDir){
+  seen = {};
+  return 
+	  for(str entry <- listEntries(resultDir))
+	      if(endsWith(entry, resultExtension)){
+	         res = validateExam(processFile(resultDir + entry));
+	         if(res.studentMail notin seen){
+	            seen += {res.studentMail};
+	            append res;
+	         }
+	       };
+}
+
+bool leq(str a, str b){
+    if(size(a) == size(b))
+       return a <= b;
+    return size(a) < size(b);
+}
+
+public void validateExams(){
+  scores = processExams(resultDir);
+  for(sc <- scores){
+      println("<sc.studentName>;<sc.score><for(q <- sc.evaluation){>;<sc.evaluation[q]><}>");
+  }
+  
+  for(sc <- scores){
+      println("mail -s \"Exam Results\" <sc.studentMail> \<\<--eod--");
+      println("Dear <sc.studentName>,
+              '
+              '<sc.score >= 6.0 ? "Congratulations you have passed the exam!" : "Unfortunately you did not pass this exam.">
+              'Your final score is <sc.score>.
+              '
+              'The scores for individual exercises are:
+              '<for(q <- sort(toList(domain(sc.evaluation)), leq)){><q>:\t<sc.evaluation[q]>\n<}>
+              '
+              'Best regards,
+              '
+              'The Rascal Team
+              ");
+      println("--eod--");
+  }
 }
 
 /*
@@ -110,7 +172,7 @@ public void createNewCourse(ConceptName rootConcept){
   mkDirectory(root);
   cpFile = catenate(root, "<rootConcept>.concept");
   writeFile(cpFile,  mkConceptTemplate(rootConcept));
-  compileCourse(rootConcept, "regenerate");
+  compileCourse(rootConcept);
 }
 
 // Some older maintenance tasks, generalize or throw away.
