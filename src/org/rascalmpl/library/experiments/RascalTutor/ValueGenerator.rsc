@@ -64,7 +64,7 @@ public RascalType parseType(str txt){
      case /^map\[<ets:.+>\]$/: {
      						types = parseTypeList(ets);
      						if(size(types) != 2)
-     							throw "map type should have to arguments: <txt>";
+     							throw "map type should have two arguments: <txt>";
      					    return \map(types[0], types[1]);
      					}
      					
@@ -104,6 +104,8 @@ public list[RascalType] parseTypeList(str txt){
       try {
          if(prefix != "")
          	prefix += ",";
+         	
+         println("parseTypeList: <prefix + et>");
          pt = parseType(prefix + et);
          append pt;
          prefix = "";

@@ -142,7 +142,7 @@ private map[str,map[str,str]] questionParams(map[str,str] params){
    for(key <- params){
       if(/^<cpt:[A-Za-z0-9\/_]+>_<qid:[A-Za-z0-9]+>:<param:[^\]]+>$/ := key){
            
-          println("key = <key>, cpt = <cpt>, qid = <qid>, param = <param>");
+          //println("key = <key>, cpt = <cpt>, qid = <qid>, param = <param>");
           fullQid = "<cpt>_<qid>";
           if(!(paramMaps[fullQid]?)){
              paramMaps[fullQid] = ("concept": cpt, "exercise" : qid);
@@ -168,13 +168,26 @@ private map[str,map[str,str]] questionParams(map[str,str] params){
 private bool isExam = false;
 
 // Validate an exam.
-// *** called from servlet Edit in RascalTutor
 
-public str validateExam(map[str,str] params){
+public examResult validateExam(map[str,str] params){
   isExam = true;
   pm = questionParams(params);
-  println("pm = <pm>");
+  //println("pm = <pm>");
   return validateAllAnswers(pm);
+}
+
+private examResult validateAllAnswers(map[str,map[str,str]] paramMaps){
+  int nquestions = 0;
+  int npass = 0;
+  res = ();
+  for(qid <- paramMaps){
+      nquestions += 1;
+      v = validateAnswer1(paramMaps[qid]);
+      if(v == "pass")
+         npass += 1;
+      res[qid] = v;
+  }
+  return examResult(studentName, studentMail, studentNumber, res, npass * 10.0 / nquestions);
 }
 
 // Validate an answer, also handles the requests: "cheat" and "another"
@@ -189,21 +202,6 @@ public str validateAnswer(map[str,str] params){
      throw "More than one answer";
   qname = toList(qnames)[0];
   return validateAnswer1(pm[qname]);
-}
-
-public str validateAllAnswers(map[str,map[str,str]] paramMaps){
-  int nquestions = 0;
-  int npass = 0;
-  response = "";
-  for(qid <- paramMaps){
-      nquestions += 1;
-      v = validateAnswer1(paramMaps[qid]);
-      if(v == "pass")
-         npass += 1;
-      response += li("<qid>: <v>");
-  }
-  response = h1("Exam Results for <studentName>") + ul(response) + br() + "Passed <npass> out of <nquestions>. \<br\>Final score: \<b\><npass * 10.0 / nquestions>\</b\>.";
-  return html(head(title("Exam results for <studentName>")), body(response));
 }
 
 public str validateAnswer1(map[str,str] params){

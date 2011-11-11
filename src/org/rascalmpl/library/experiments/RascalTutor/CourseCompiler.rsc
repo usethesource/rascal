@@ -276,7 +276,8 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
   	     meta("keywords", "<cn>, Rascal, meta-programming, software analysis, software transformation") +
   	     prelude(rootname(cn))),
   	body(
-  	  isExam ?  html_body
+  	  isExam ?  h1("Online Exam <basename(cn)>") + html_body
+  	  
   	         :  table("container",
 		  	        tr(tdid("tdlogo", "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>") +
 		  	           tdid("tdsearch", searchBox(cn))) +
@@ -551,7 +552,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	    case /^make:\s*<name:[A-Za-z0-9]+>\s*\=\s*<tp:.*>$/:
 	      { try { vars += <name, parseType(tp)>; }
 	        catch:
-	            throw ConceptError("Question <name>: type of generated variable <name> is incorrect");
+	            throw ConceptError("Question <qname>: type of generated variable <name> is incorrect");
 	        definedVars += name;	
 	        i += 1; 
 	      }
@@ -560,7 +561,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	      { auxVars += <name, expr>;
 	        u = uses(expr);
 	        if(u - definedVars != {})
-	           throw ConceptError("Question <name>: expr uses undefined variables: <u - definedVars>");
+	           throw ConceptError("Question <qname>: expr uses undefined variables: <u - definedVars>");
 	        definedVars += name;
 	        usedVars += u;
 	        i += 1; 
@@ -570,7 +571,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	        rtype = \void();
 			try { rtype = parseType(tp); }
 			catch:
-			     throw ConceptError("Question <name>: cannot parse type of expected type");
+			     throw ConceptError("Question <qname>: cannot parse type of expected type");
 	        usedVars += uses(rtype);
 	        i += 1; 
 		}
@@ -581,7 +582,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 		}
 		case /^test:\s*<e:.*>$/: {
 		   if(cndBefore + cndAfter != "")
-		      throw ConceptError("Question <name>: has already a test <cnd>");
+		      throw ConceptError("Question <qname>: has already a test <cnd>");
 		   if (/^<b:.*>\<\?\><a:.*>$/ := e){
 		     cndBefore = b;
 		     cndAfter = a;
