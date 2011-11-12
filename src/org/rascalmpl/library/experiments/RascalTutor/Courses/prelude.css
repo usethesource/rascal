@@ -26,7 +26,7 @@ img {
 td#tdlogo {
     vertical-align: top;
     width: 15%;
-    background-color: peach;
+    background-color: Snow;
     border-color: black;
     border-left-width : 0;
     border-right-width : 0;
@@ -35,7 +35,7 @@ td#tdlogo {
 
 td#tdsearch {
     vertical-align: top;
-    background-color: peach;
+    background-color: Snow;
     border-color: black;
     border-left-width : 0;
     border-right-width : 0;
@@ -45,7 +45,7 @@ td#tdsearch {
 td#tdnav {
     vertical-align: top;
     width: 15%;
-    background-color: peach;
+    background-color: Snow;
     border-color: black;
     border-left-width : 0;
     border-bottom-width : 0;
