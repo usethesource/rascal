@@ -17,6 +17,17 @@ Description:
 # System time in nanoseconds needed to execute the code `block`.
 
 Examples:
+We use the factorial function described in [Recipes:Factorial] as example:
+<screen>
+import Benchmark;
+import demo::basic::Factorial;
+// Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
+before = systemTime();
+fac(50);
+systemTime() - before;
+// The code to be measured can also be passed as a function parameter to `systemTime`:
+systemTime( void() { fac(50); } );
+</screen>
 
 Benefits:
 

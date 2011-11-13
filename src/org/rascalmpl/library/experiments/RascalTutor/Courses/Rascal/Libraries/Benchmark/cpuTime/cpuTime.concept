@@ -18,6 +18,18 @@ Description:
 
 Examples:
 
+We use the factorial function described in [Recipes:Factorial] as example:
+<screen>
+import Benchmark;
+import demo::basic::Factorial;
+// Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
+before = cpuTime();
+fac(50);
+cpuTime() - before;
+// The code to be measured can also be passed as a function parameter to `cpuTime`:
+cpuTime( void() { fac(50); } );
+</screen>
+
 Benefits:
 
 Pitfalls:
