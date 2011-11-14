@@ -80,7 +80,41 @@
 <br/>
 
  When variables of type set occur inside a set, their elements are automatically <i>spliced</i> into the surrounding set. This can be prevented by surrounding them with extra <code>{</code> and <code>}</code> brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
+ <br/>
+<br/>
 
+ The following functions are provided on sets:
+ <br/>
+<br/>
+
+ <ul><li><a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Comprehension</a>: A set comprehension generates a set value.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Difference/Difference.html">Difference</a>: The difference between two sets.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Equal/Equal.html">Equal</a>: Equal operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/getOneFrom/getOneFrom.html">getOneFrom</a>: Returns a random element from a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/in/in.html">in</a>: Membership test on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a>: Intersection of two sets.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/isEmpty/isEmpty.html">isEmpty</a>: Test whether a set is empty.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/mapper/mapper.html">mapper</a>: Apply a function to all set elements and return set of results.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/max/max.html">max</a>: Determine the largest element of a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/min/min.html">min</a>: Determine the smallest element of a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/notin/notin.html">notin</a>: Negated membership test on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/power/power.html">power</a>: Determine the powerset of a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/power1/power1.html">power1</a>: The powerset (excluding the empty set) of a set value.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Product/Product.html">Product</a>: The product of two set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/reducer/reducer.html">reducer</a>: Apply a function to successive elements of a set and combine the results (<b>deprecated</b>).</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">size</a>: Determine the number of elements in a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/StrictSubSet/StrictSubSet.html">StrictSubSet</a>: Strict subset operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/StrictSuperSet/StrictSuperSet.html">StrictSuperSet</a>: Strict superset operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/SubSet/SubSet.html">SubSet</a>: Subset operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/SuperSet/SuperSet.html">SuperSet</a>: Superset operator on set values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a>: Remove an arbitrary element from a set.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/toList/toList.html">toList</a>: Convert a set to a list.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/toMap/toMap.html">toMap</a>: Convert a set of tuples to a map.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/toMapUnique/toMapUnique.html">toMapUnique</a>: Convert a set of tuples to a map.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/toString/toString.html">toString</a>: Convert a set to a string.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a>: Union of two set values.</li>
+</ul>
 </div>
 
   	                       
@@ -138,6 +172,7 @@ set[value]: {
   	                       
 <div id="questions">
 
+
 <br/>
 
 <span class="sectionHead">Questions</span> <br/>
@@ -158,11 +193,11 @@ set[value]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
-<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
 <label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
 <label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
@@ -191,14 +226,14 @@ set[value]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="1">
+<label for="Rascal/Expressions/Values/Set_2_1">The type of the first element that was first added to the set.</label><br/>
+
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2">
 <label for="Rascal/Expressions/Values/Set_2_2">The upperbound of the type of two arbitrary elements.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_0" value="0">
 <label for="Rascal/Expressions/Values/Set_2_0">The upperbound of the type of all elements.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="1">
-<label for="Rascal/Expressions/Values/Set_2_1">The type of the first element that was first added to the set.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -246,8 +281,8 @@ set[value]: {
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{-17.097309605036636800, 0.1827342150765600, -5.09832111849986000, -1.54028328398960400}">
-The type of <tt>{-17.097309605036636800, 0.1827342150765600, -5.09832111849986000, -1.54028328398960400}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{true, true}">
+The type of <tt>{true, true}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -271,10 +306,10 @@ The type of <tt>{-17.097309605036636800, 0.1827342150765600, -5.0983211184998600
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-19">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Wasabi&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="13">
-The type of <tt>{-19, &quot;Wasabi&quot;, 13}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="1">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Papaya&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-5">
+The type of <tt>{1, &quot;Papaya&quot;, -5}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

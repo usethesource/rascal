@@ -24,7 +24,11 @@ A map is a set of key : value pairs and has the following properties:
 * A key can only occur once.
 
 
-Maps resemble functions rather than relations in the sense that only a single value can be associated with each key. 
+Maps resemble functions rather than relations in the sense that only a single value can be associated with each key.
+
+The following functions are provided for maps:
+
+<toc Rascal/Expressions/Values/Map 1> 
 
 Examples:
 <screen>

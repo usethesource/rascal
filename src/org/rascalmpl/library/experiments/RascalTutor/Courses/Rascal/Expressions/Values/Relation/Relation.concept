@@ -30,6 +30,10 @@ where the $E_ij$ are expressions that yield the desired element type $T_i$.
 
 Since relations are a form of set all operations on [$Values/Set]s are also applicable to relations.
 
+The following additional functions are provided for relations:
+<toc Rascal/Expressions/Values/Relation 1>
+
+
 Examples:
 <screen>
 {<1,10>, <2,20>, <3,30>}
