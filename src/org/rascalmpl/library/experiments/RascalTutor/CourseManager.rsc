@@ -169,25 +169,27 @@ private bool isExam = false;
 
 // Validate an exam.
 
-public examResult validateExam(map[str,str] params){
+public examResult validateExam(str timestamp, map[str,str] params){
   isExam = true;
   pm = questionParams(params);
   //println("pm = <pm>");
-  return validateAllAnswers(pm);
+  return validateAllAnswers(timestamp, pm);
 }
 
-private examResult validateAllAnswers(map[str,map[str,str]] paramMaps){
+private examResult validateAllAnswers(str timestamp, map[str,map[str,str]] paramMaps){
   int nquestions = 0;
   int npass = 0;
+  answers = ();
   res = ();
   for(qid <- paramMaps){
       nquestions += 1;
       v = validateAnswer1(paramMaps[qid]);
+      answers[qid] = trim(paramMaps[qid]["answer"]) ? "";
       if(v == "pass")
          npass += 1;
       res[qid] = v;
   }
-  return examResult(studentName, studentMail, studentNumber, res, npass * 10.0 / nquestions);
+  return examResult(studentName, studentMail, studentNumber, timestamp, answers, res, npass * 10.0 / nquestions);
 }
 
 // Validate an answer, also handles the requests: "cheat" and "another"
@@ -196,7 +198,7 @@ private examResult validateAllAnswers(map[str,map[str,str]] paramMaps){
 public str validateAnswer(map[str,str] params){
   isExam = false;
   pm = questionParams(params);
-  println("pm = <pm>");
+  //println("pm = <pm>");
   qnames = domain(pm);
   if(size(qnames) != 1)
      throw "More than one answer";
@@ -217,8 +219,8 @@ public str validateAnswer1(map[str,str] params){
 	lastQuestion = qid;
 	q = getQuestion(cpid, qid);
 	
-	println("Validate: <params>");
-	println("Validate: <q>");
+	//println("Validate: <params>");
+	//println("Validate: <q>");
 	if(cheat == "yes")
 	   return showCheat(cpid, qid, q, params);
 	if(another == "yes")
@@ -250,7 +252,7 @@ public str validateAnswer1(map[str,str] params){
         rtype = qdetails.rtype;
         hint = qdetails.hint;
         
-        println("qdetails = <qdetails>");
+        //println("qdetails = <qdetails>");
         
         VarEnv env = ();
         generatedVars = [];
@@ -261,7 +263,7 @@ public str validateAnswer1(map[str,str] params){
   
 	    for(<name, exp> <- auxVars){
           exp1 = subst(exp, env) + ";";
-          println("exp1 = <exp1>");
+          //println("exp1 = <exp1>");
           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
         }
         
@@ -274,14 +276,14 @@ public str validateAnswer1(map[str,str] params){
           case valueOfExpr(): {
 	        try {
 	            if(lstBefore + lstAfter == ""){
-	              println("YES!");
+	              //println("YES!");
 	              if(holeInCnd){
 	                 computedAnswer = eval(setup + (cndBefore + answer + cndAfter + ";"));
 	                 if(computedAnswer == true)
 	                   return correctAnswer(cpid, qid);
 	                 wrongAnswer(cpid, qid, hint);
 	              } else {
-	                 println("YES2");
+	                 //println("YES2");
 	                 if(!endsWith(cndBefore, ";"))
 	                   cndBefore += ";";
 	                 computedAnswer = eval(setup + cndBefore);
@@ -299,9 +301,9 @@ public str validateAnswer1(map[str,str] params){
 	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
 	                                                    : lstBefore + cndBefore + "==" + answer);
 	            
-	            println("Evaluating validate: <validate>");
+	            //println("Evaluating validate: <validate>");
 	            output =  shell(setup + validate);
-	            println("result is <output>");
+	            //println("result is <output>");
 	            
 	            a = size(output) -1;
 	            while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
@@ -333,14 +335,14 @@ public str validateAnswer1(map[str,str] params){
 	               errorMsg = "";
 	               if(holeInCnd){
 	                  validate = cndBefore + answer + cndAfter;
-	                  println("Evaluating validate: <validate>");
+	                  //println("Evaluating validate: <validate>");
 	                  answerType = evalType(setup + validate);
 	                  expectedType = toString(generateType(rtype, env));
 	               } else
 	                  expectedType = evalType(setup + cndBefore);
 	                  
-	               println("answerType is <answerType>");
-	               println("expectedType is <expectedType>");
+	               //println("answerType is <answerType>");
+	               //println("expectedType is <expectedType>");
 	               if(answerType == expectedType)
 	              		return correctAnswer(cpid, qid);
 	              errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
@@ -353,9 +355,9 @@ public str validateAnswer1(map[str,str] params){
 	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
 	                                                    : lstBefore + cndBefore);
 	            
-	              println("Evaluating validate: <validate>");
+	              //println("Evaluating validate: <validate>");
 	              output =  shell(setup + validate);
-	              println("result is <output>");
+	              //println("result is <output>");
 	              
 	              a = size(output) -1;
 	              while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
@@ -364,10 +366,10 @@ public str validateAnswer1(map[str,str] params){
 	              expectedType = toString(generateType(rtype, env));
 	              
 	              errors = [line | line <- output, /[Ee]rror/ := line];
-	              println("errors = <errors>");
+	              //println("errors = <errors>");
 	               
 	              if(size(errors) == 0 && /^<answerType:.*>:/ := output[a]){
-	                 println("answerType = <answerType>, expectedType = <expectedType>, answer = <answer>");
+	                 //println("answerType = <answerType>, expectedType = <expectedType>, answer = <answer>");
 	                 ok = ((holeInLst || holeInCnd) ? answerType : answer) == expectedType;
 	                 if(ok)
 	                    return correctAnswer(cpid, qid);

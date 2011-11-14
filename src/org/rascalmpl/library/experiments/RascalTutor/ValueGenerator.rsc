@@ -32,7 +32,7 @@ private list[RascalType] reducedBaseTypes = [\bool(), \int(minInt,maxInt), \real
 
 
 public RascalType parseType(str txt){
-   txt = replaceAll(txt, "[ \\n]", "");
+   txt = escape(txt, (" " : "", "\n" : "", "\t" : "", "\r" : ""));
    switch(txt){
      case /^bool$/:		return \bool();
      case /^int$/: 		return \int(minInt, maxInt);
