@@ -59,8 +59,14 @@
 
  How does Rascal differ from an OO language or an imperative language?
   <ul><li> Unlike OO languages, Rascal does not provide classes. Rascal has modules which can best be compared with a static class in Java.</li>
-<li> Objects in an OO language (class instances) can have mutable local state (i.e, each object can have instance variables that can be modified after object creation). In Rascal all values are immutable after creation. Sharing a value does not introduce a coupling like in OO,  simply because changes are only visible to the code that changes the values.
- Without mutability it is easy to combine stages of programs that perform different tasks.
+<li> Objects in an OO language (class instances) can have mutable local state (i.e, each object can have instance variables    that can be modified after object creation). In Rascal all values are immutable after creation. Sharing a value does 
+   not introduce a coupling like in OO, simply because changes are only visible to the code that changes the values.
+   Without mutability it is easy to combine stages of programs that perform different tasks.
+</li>
+<li> Rascal does provide a mechanism for introducing user-defined types.    An <i>Algebraic Data Type</i> introduces a new type and is defined by a number of <i>constructor functions</i> to construct 
+   values of that type. The constructed values are immutable. Although they are both called "constructors"
+   there is a big difference between constructors in OO languages and in Rascal. The former create mutable objects while the
+   latter create immutable values.
 </li>
 <li> Variables can, however, be associated with different immutable values during their lifetime. This is why we say that Rascal is a weakly imperative language. Rascal is, however, closer, to functional languages than to OO languages or imperative languages.
 </li>
