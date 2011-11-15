@@ -1,0 +1,1 @@
+[tvQuestion("Rascal/Expressions/Values/List/size","1",valueOfExpr(),details(" Create a list of the right size.\n",[],"import List;\nlist[str] text = ",";\n","size(text) == 3;","",true,false,[],[],void(),""))]

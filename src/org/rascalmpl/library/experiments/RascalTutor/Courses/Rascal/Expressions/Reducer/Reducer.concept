@@ -43,4 +43,18 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Return the set of largest words.
+list:
+import Number;
+import String;
+text = ["Quote", "from", "Steve", "Jobs", ":", "And", "one", "more", "thing"];
+public list[str] largest(list[str] text){
+  mx = ( 0 | max(it, size(s)) | s <- text );
+  return
+    for(s <- text)
+        if(<?>)
+           append s;
+}
+test: largest(text) == ["Quote", "Steve", "thing"];
        

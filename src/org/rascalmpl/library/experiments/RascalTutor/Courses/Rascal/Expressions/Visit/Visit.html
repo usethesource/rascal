@@ -142,6 +142,54 @@ default: ...
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Expressions_Visit_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Expressions_Visit_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Visit_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Visit_1" class="answerFeedback"></span>
+ Given a data type <code>ColoredTree</code>, complete the definition of the function <code>flipRedChildren</code> that exchanges the children of all red nodes.
+<br/>
+
+<form method="GET" action="validate" class="answerForm">Fill in <pre class="prequestion">data ColoredTree = leaf(int N)      
+                 | red(ColoredTree left, ColoredTree right) 
+                 | black(ColoredTree left, ColoredTree right);
+
+ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+
+public ColoredTree flipRedChildren(ColoredTree t){
+  return visit(t){
+     case red(l,r) =&gt; <input type="text" size="30" name="Rascal_Expressions_Visit_1:answer" class="answerText">
+  };
+}
+</pre> and make the following true:<pre class="prequestion">flipRedChildren(rb) == red( black(leaf(3), leaf(4)), black(leaf(1), red(leaf(3),leaf(2))));</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Visit_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Visit&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Visit&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

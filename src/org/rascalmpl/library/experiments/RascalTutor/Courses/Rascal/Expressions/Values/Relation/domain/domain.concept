@@ -27,3 +27,10 @@ Pitfalls:
 
 Questions:
 
+QChoice: Which statement about the domain and range function on a binary relation of type `rel[int,int]` is correct:
+g: Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple.
+g: Domain and range are only applicable to binary relations.
+b: Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple.
+b: Domain returns a set of the second element of each tuple in the relation and range returns a set of the first element of each tuple.
+b: Domain returns a list of the second element of each tuple in the relation and range returns a list of the first element of each tuple.
+b: Domain returns a set of the elements that occur in any tuple in the relation and range returns a list of those elements.

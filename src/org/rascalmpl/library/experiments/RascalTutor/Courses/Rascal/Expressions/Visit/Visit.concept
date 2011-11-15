@@ -122,3 +122,20 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Given a data type `ColoredTree`, complete the definition of the function `flipRedChildren` that exchanges the children of all red nodes.
+list:
+data ColoredTree = leaf(int N)      
+                 | red(ColoredTree left, ColoredTree right) 
+                 | black(ColoredTree left, ColoredTree right);
+
+ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+
+public ColoredTree flipRedChildren(ColoredTree t){
+  return visit(t){
+     case red(l,r) => <?>
+  };
+}
+test: flipRedChildren(rb) == red( black(leaf(3), leaf(4)), black(leaf(1), red(leaf(3),leaf(2))));
+
+

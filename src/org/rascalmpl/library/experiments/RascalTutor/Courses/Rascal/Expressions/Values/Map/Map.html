@@ -121,6 +121,86 @@ map[str, int]: (&quot;apple&quot;:3,&quot;pear&quot;:1,&quot;banana&quot;:0)
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Expressions_Values_Map_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Expressions_Values_Map_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Map_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Map_1" class="answerFeedback"></span>
+  A map maps keys to values. In a map:
+<br/>
+
+<form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_6" value="6">
+<label for="Rascal/Expressions/Values/Map_1_6">All keys are sorted.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_3" value="3">
+<label for="Rascal/Expressions/Values/Map_1_3">All keys should have the same type and all values should have the same type. The type of keys and values should be the same.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_5" value="5">
+<label for="Rascal/Expressions/Values/Map_1_5">All keys and values have to be unique.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Map_1:answer" id="Rascal/Expressions/Values/Map_1_1" value="1">
+<label for="Rascal/Expressions/Values/Map_1_1">All keys have the same type.</label><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Map_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Map_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Rascal_Expressions_Values_Map_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Map_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Map_2" class="answerFeedback"></span>
+ Complete this function that returns the set of keys with the smallest associated value.
+<br/>
+
+<form method="GET" action="validate" class="answerForm">Fill in <pre class="prequestion">import Map;
+import Set;
+inventory = (&quot;orange&quot; : 20, &quot;apple&quot; : 15, &quot;banana&quot; : 25, &quot;lemon&quot; : 15);
+public set[str] lowest(map[str,int] inv){
+    m = <input type="text" size="30" name="Rascal_Expressions_Values_Map_2:answer" class="answerText">; // Determine the minimal value in the map
+    return { s  | s &lt;- inv, inv[s] == m };
+}
+</pre> and make the following true:<pre class="prequestion">lowest(inventory) == {&quot;apple&quot;, &quot;lemon&quot;};</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Map_2:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Map&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Map&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

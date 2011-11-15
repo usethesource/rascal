@@ -1,0 +1,1 @@
+[choiceQuestion("Rascal/Expressions/Values/Tuple","1","  In a tuple:\n",[good("All elements may have different types."),good("The number of elements is not fixed."),good("The order of the elements is relevant."),bad("All elements should have the same type."),bad("The number of elements is fixed."),bad("The order of the elements is not relevant.")])]

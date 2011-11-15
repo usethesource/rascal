@@ -71,9 +71,12 @@ g: The values have no duplicates and no order.
 b: The values are unordered.
 
 QChoice: The type of a set is determined by:
-b: The type of the first element that was first added to the set.
-b: The upperbound of the type of two arbitrary elements.
-g: The upperbound of the type of all elements.
+g: The least upperbound of the type of all elements.
+g: The types of all the elements in the set.
+b: The type of the element that was first added to the set.
+b: The average of the type of the elements with the smallest and the largests type.
+b: The least upperbound of the type of two arbitrary elements.
+b: The type of two arbitrary elements.
 
 
 QType: {1, <?> }

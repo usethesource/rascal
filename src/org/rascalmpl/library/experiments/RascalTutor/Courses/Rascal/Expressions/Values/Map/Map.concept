@@ -40,4 +40,25 @@ Benefits:
 Pitfalls:
 
 Questions:
+QChoice: A map maps keys to values. In a map:
+g: All keys have to be unique.
+g: All keys have the same type.
+g: All keys should have the same type and all values should have the same type. The type of keys and values may be different.
+b: All keys should have the same type and all values should have the same type. The type of keys and values should be the same.
+b: All values have to be unique.
+b: All keys and values have to be unique.
+b: All keys are sorted.
+
+QValue:
+desc: Complete this function that returns the set of keys with the smallest associated value.
+list:
+import Map;
+import Set;
+inventory = ("orange" : 20, "apple" : 15, "banana" : 25, "lemon" : 15);
+public set[str] lowest(map[str,int] inv){
+    m = <?>; // Determine the minimal value in the map
+    return { s  | s <- inv, inv[s] == m };
+}
+test: lowest(inventory) == {"apple", "lemon"};
+
 

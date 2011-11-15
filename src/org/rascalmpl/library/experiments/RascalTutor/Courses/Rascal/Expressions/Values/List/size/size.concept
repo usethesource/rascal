@@ -26,3 +26,9 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Create a list of the right size.
+list:
+import List;
+list[str] text = <?>;
+test: size(text) == 3;

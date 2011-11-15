@@ -30,3 +30,9 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Return the strings that contain a given substring.
+list:
+text = ["An", "honest", "man", "is", "always", "a", "child"]; 
+public list[str] find(list[str] text, str contains) = [ s | s <- text, <?> ];
+test: find(text, "n") == ["An", "honest", "man"];

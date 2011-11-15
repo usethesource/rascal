@@ -49,3 +49,13 @@ Pitfalls:
 
 Questions:
 
+QChoice: A relation:
+g: Is a set of tuples.
+b: Is a list of tuples.
+b: Is a tuple of tuples.
+b: Has ordered elements.
+g: Has unordered elements.
+g: Can not contain duplicates.
+b: Can contain duplicates.
+b: Has a fixed length.
+
