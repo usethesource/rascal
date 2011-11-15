@@ -160,3 +160,16 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Return the strings that contain "o".
+list:
+text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
+public list[str] find(list[str] text){
+  return 
+    for(s <- text)
+      if(/o/ := s)
+        <?>;
+}
+test: find(text) == ["moi", "Mousa", "polutropon"];
+
+

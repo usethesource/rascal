@@ -32,3 +32,10 @@ list:
 import List;
 list[str] text = <?>;
 test: size(text) == 3;
+
+QValue:
+desc: Determine the number of elements in a list
+list:
+import List;
+text = ["abc", "def", "ghi"];
+test: <?>(text) == 3;

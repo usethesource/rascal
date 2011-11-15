@@ -188,8 +188,8 @@ list[value]: [
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="4">
-<label for="Rascal/Expressions/Values/List_1_4">The least upperbound of the type of two arbitrary elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="5">
+<label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="3">
 <label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
@@ -197,12 +197,43 @@ list[value]: [
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="2">
 <label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="1">
-<label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="4">
+<label for="Rascal/Expressions/Values/List_1_4">The least upperbound of the type of two arbitrary elements.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="0">
+<label for="Rascal/Expressions/Values/List_1_0">The least upperbound of the type of all elements.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_List_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Rascal_Expressions_Values_List_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_List_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_List_2" class="answerFeedback"></span>
+ Complete this function that tests that a list of words forms a palindrome. A palindrome is a word that is symmetrical 
+<br/>
+
+<form method="GET" action="validate" class="answerForm">Fill in <pre class="prequestion">import List;
+public bool isPalindrome(list[str] words){
+  return words == <input type="text" size="30" name="Rascal_Expressions_Values_List_2:answer" class="answerText">;
+}
+</pre> and make the following true:<pre class="prequestion">isPalindrome([&quot;a&quot;, &quot;b&quot;, &quot;b&quot;, &quot;a&quot;]) == true;</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_2:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>

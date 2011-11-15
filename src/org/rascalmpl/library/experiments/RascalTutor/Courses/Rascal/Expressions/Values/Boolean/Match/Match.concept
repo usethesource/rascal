@@ -29,3 +29,15 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Determine the number of strings that contain "a".
+list:
+text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
+public int count(list[str] text){
+  n = 0;
+  for(s <- text)
+    if(<?> := s)
+      n +=1;
+  return n;
+}
+test: count(text) == 2;

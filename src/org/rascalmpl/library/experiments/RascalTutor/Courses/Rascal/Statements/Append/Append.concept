@@ -27,3 +27,17 @@ Pitfalls:
 
 Questions:
 
+QValue:
+desc: Complete this function that finds duplicates in a list of strings
+list:
+text = ["the", "jaws", "that", "bite", "the", "claws", "that", "catch"];
+public list[str] duplicates(list[str] text){
+    m = {};
+    return 
+      for(s <- text)
+        if(<?>)
+           append s;
+        else
+           m += s;
+}
+test: duplicates(text) == ["the", "that"];
