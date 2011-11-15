@@ -53,3 +53,10 @@ Pitfalls:
 
 Questions:
 
+QChoice: The type of a list is determined by:
+g: The least upperbound of the type of all elements.
+g: The types of all the elements in the list.
+b: The type of the element that was first added to the list.
+b: The average of the type of the elements with the smallest and the largests type.
+b: The least upperbound of the type of two arbitrary elements.
+b: The type of two arbitrary elements.
