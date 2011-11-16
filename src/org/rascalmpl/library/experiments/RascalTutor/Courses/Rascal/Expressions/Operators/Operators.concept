@@ -55,6 +55,7 @@ All operators are summarized in the following table. They are listed from highes
 <tr><td>`$Exp_1$ + $Exp_2$`</td>	               <td>[Number/Addition],
                                                        [String/Concatenation],
                                                        [List/Concatenation],
+                                                       [List/Insert],[List/Append],
                                                        [Tuple/Concatenation],
                                                        [Set/Union],
                                                        [Map/Union],

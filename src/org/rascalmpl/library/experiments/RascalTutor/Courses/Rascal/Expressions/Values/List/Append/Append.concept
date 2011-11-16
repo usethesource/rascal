@@ -1,0 +1,33 @@
+Name: Append
+
+Synopsis: Append an element at the end of a list
+
+Syntax: `$Exp_1$ + $Exp_2$`
+
+Types:
+| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ + $Exp_2$`      |
+|:--------------|:---------------|:-------------------------|
+| `list[$T_1$]` |  `$T_2$`       | `list[lub($T_1$,$T_2$)]` |
+
+Function:
+
+Details:
+
+Description:
+
+The operator `+` appends an element at the end of a list.
+
+Examples:
+
+<screen>
+[] + 1;
+[1] + 2;
+
+Benefits:
+
+Pitfalls:
+* If both operands of `+` are a list, then it acts as [List/Concatenation]
+
+Questions:
+
+       
