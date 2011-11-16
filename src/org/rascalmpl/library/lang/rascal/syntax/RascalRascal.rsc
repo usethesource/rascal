@@ -220,10 +220,9 @@ syntax Expression
 	> left Composition: Expression lhs "o" Expression rhs 
 	> left ( Product: Expression lhs "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
-	       )
-	> left ( Modulo: Expression lhs "%" Expression rhs  
+	     | Modulo: Expression lhs "%" Expression rhs  
 		   | Division: Expression lhs "/" Expression rhs 
-	       )
+	     )
 	> left Intersection: Expression lhs "&" Expression rhs 
 	> left ( Addition   : Expression lhs "+" Expression rhs  
 		   | Subtraction: Expression lhs "-" Expression rhs 
