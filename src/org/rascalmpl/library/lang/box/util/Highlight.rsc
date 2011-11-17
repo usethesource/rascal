@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::box::util::Highlight
 
 import lang::box::util::Box;
@@ -19,13 +20,13 @@ anno str Tree@math;
 
 public Tree annotateMathOps(Tree tree, map[str, str] subst) {
 	return top-down-break visit (tree) {
-		case a:appl(prod(_, lit(str s), _), _) => a[@math=subst[s]] when subst[s]? && !((a@math)?)
+		case a:appl(prod(lit(str s), _, _), _) => a[@math=subst[s]] when subst[s]? && !((a@math)?)
 	}
 }
 
 public list[Box] highlight(Tree t) {
 	switch (t) {
-		case a:appl(prod(_, lit(str l), _), _): {
+		case a:appl(prod(lit(str l), _, _), _): {
 			if ((a@math)?) {
 				return [MATH(L(a@math))];
 			}
@@ -35,16 +36,16 @@ public list[Box] highlight(Tree t) {
 			return [L(l)];
 		} 
 
-		case appl(prod(_, layouts(_), _), as): 
+		case appl(prod(\layouts(_), _, _), as): 
 			return [ highlightLayout(a) | a <- as ];
 			
-		case a:appl(prod(_, _, attrs([_*, term(category("Constant")), _*])), _):
+		case a:appl(prod(_, _, {_*, \tag("category"("Constant"))}), _):
 			return [STRING(L(unparse(a)))];
 
-		case a:appl(prod(_, _, attrs([_*, term(category("Identifier")), _*])), _):
+		case a:appl(prod(_, _, {_*, \tag("category"("Identifier"))}), _):
 			return [VAR(L(unparse(a)))];
 			
-		case a:appl(prod(_, _, attrs([_*, \lex(), _*])), _):
+		case a:appl(prod(\lex(_), _, _), _):
 			return [L(unparse(a))];
 			
 		case appl(_, as):
@@ -65,7 +66,7 @@ public list[Box] highlight(Tree t) {
 
 private list[Box] highlightLayout(Tree t) {
 	switch (t) {
-		case a:appl(prod(_, _, attrs([_*, term(category("Comment")), _*])), _):
+		case a:appl(prod(_, _, {_*, \tag("category"("Comment"))}), _):
 			return [COMM(L(unparse(a)))];
 			
 		case appl(_, as):

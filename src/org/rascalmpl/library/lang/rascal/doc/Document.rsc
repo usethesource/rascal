@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::doc::Document
 
 import ParseTree;
@@ -28,12 +29,12 @@ syntax Water
 	= ...
 	;
 
-syntax Block
-	= lex Begin Content+ End
+lexical Block
+	= Begin Content+ End
 	;
 
-syntax Inline
-	= lex IBegin Content+ IEnd
+lexical Inline
+	= IBegin Content+ IEnd
 	;
 
 syntax Snippet

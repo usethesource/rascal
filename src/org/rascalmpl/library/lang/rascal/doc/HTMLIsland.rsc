@@ -7,48 +7,45 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::doc::HTMLIsland
 
 syntax Water
 	= Char
 	;
 
-syntax Char
-	= lex ![\<]
-	| lex WLT
+lexical Char
+	= ![\<]
+	| WLT
 	;
 
 syntax WLT
-	= [\<]
-	# "code class=\"rascal\""
-	# "span class=\"rascal\""
+	= [\<] !>> "code class=\"rascal\"" !>> "span class=\"rascal\""
 	;
 	
 
-syntax Content
-	= lex ![\<]+
+lexical Content
+	= ![\<]+
 	| LT
 	;
 
-syntax LT
-	= [\<]
-	# "/span\>"
-	# "/code\>"
+lexical LT
+	= [\<] !>> "/span\>" !>> "/code\>"
 	;
 	
-syntax Begin
-	= lex [\<] "code class=\"rascal\"" [\>]
+lexical Begin
+	= [\<] "code class=\"rascal\"" [\>]
 	;
 	
-syntax End
-	= lex [\<] "/code" [\>]
+lexical End
+	= [\<] "/code" [\>]
 	; 
 
-syntax IBegin
-	= lex [\<] "span class=\"rascal\"" [\>]
+lexical IBegin
+	= [\<] "span class=\"rascal\"" [\>]
 	;
 	
-syntax IEnd
-	= lex [\<] "/span" [\>]
+lexical IEnd
+	= [\<] "/span" [\>]
 	;
 	
