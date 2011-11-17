@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::doc::LatexIsland
 
 start syntax Document
@@ -18,22 +19,25 @@ start syntax Document
 syntax Snippet
 	= Content+ 
 	;
+
+lexical ContentLex
+	= ![\\{}]+
+	| [\\][{}]
+	;
 	
 syntax Content
-	= lex ![\\{}]+
-	| "{" Content* "}"
-	| lex [\\][{}]
-	| CBS
+	= "{" Content* "}"
+    | CBS
+	| ContentLex
 	;
 
 syntax CBS
-	= [\\]
-	# [{}]
+	= [\\] !>> [{}]
 	;
 
 
-syntax PreB
-	= lex Char* [\\] "begin{rascal}"
+lexical PreB
+	= Char* [\\] "begin{rascal}"
 	;
 	
 syntax TailB
@@ -42,16 +46,16 @@ syntax TailB
 	| PostB
 	;
 	
-syntax MidBI
-	= lex [\\] "end{rascal}" Char* [\\] "rascal{"
+lexical MidBI
+	= [\\] "end{rascal}" Char* [\\] "rascal{"
 	;
 
-syntax MidBB
-	= lex [\\] "end{rascal}" Char* [\\] "begin{rascal}"
+lexical MidBB
+	= [\\] "end{rascal}" Char* [\\] "begin{rascal}"
 	;
 
-syntax PreI
-	= lex Char* [\\] "rascal{"
+lexical PreI
+	= Char* [\\] "rascal{"
 	;	
 
 syntax TailI
@@ -60,37 +64,35 @@ syntax TailI
 	| PostI
 	;
 
-syntax MidII
-	= lex "}" Char* [\\] "rascal{"
+lexical MidII
+	= "}" Char* [\\] "rascal{"
 	;
 
-syntax MidIB
-	= lex "}" Char* [\\] "begin{rascal}"
+lexical MidIB
+	= "}" Char* [\\] "begin{rascal}"
 	;
 
 
 
-syntax PostB
-	= lex [\\] "end{rascal}" Char*
+lexical PostB
+	= [\\] "end{rascal}" Char*
 	;
 
-syntax PostI
-	= lex "}" Char*
+lexical PostI
+	= "}" Char*
 	;
 
-syntax Stuff
-	= lex Char*
+lexical Stuff
+	= Char*
 	;
 
 	
-syntax Char
-	= lex ![\\]
-	| lex BS
+lexical Char
+	= ![\\]
+	| BS
 	;
 
-syntax BS
-	= lex [\\]
-	# "begin{rascal}"
-	# "rascal{"
+lexical BS
+	= [\\] !>> "begin{rascal}" !>> "rascal{"
 	;
 

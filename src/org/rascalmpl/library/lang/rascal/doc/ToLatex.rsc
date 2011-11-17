@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module lang::rascal::doc::ToLatex
 
 import lang::box::util::Highlight;
@@ -70,7 +71,6 @@ private str escapeRascalString(str s) {
 
 private str rascalToLatex(str snip, loc l) {
 	try {
-		//println("parsing `<snip>`");
 		pt = parseCommands(snip, l);
 		//println("Annotating specials...");
 		//pt = annotateSpecials(pt);
@@ -89,11 +89,11 @@ private Tree annotateSpecials(Tree pt) {
 	return top-down-break visit (pt) {
 		
 		// tuples
-		case appl(p:prod([lit("\<"), _*, lit("\>")], _, _), [lt, a*, gt]) =>
+		case appl(p:prod(label("Tuple",_), [lit("\<"), _*, lit("\>")], _), [lt, a*, gt]) =>
 			appl(p, [lt[@math="\\langle"], a, gt[@math="\\rangle"]])
 
 		// multi variables			
-		case appl(p:prod([_*, lit("*")], _, _), [a*, star]) =>
+		case appl(p:prod(label("MultiVariable",_), [_*, lit("*")], _), [a*, star]) =>
 			appl(p, [a, star[@math="^{*}"]])  
 	}
 }
@@ -108,7 +108,7 @@ public str expand(list[Chunk] doc, loc l) {
 		switch (c) {
 			case inline(str s): result += "\\irascaldoc{<rascalToLatex(s, l)>}";
 			case block(str s):  result += "\\begin{rascaldoc}<rascalToLatex(s, l)>\\end{rascaldoc}";
-			case water(str s): 	result += s;
+			case water(str s):  result += s;
 		}
 	}
 	return result;
@@ -119,7 +119,7 @@ public list[Chunk] parseInlines(str s) {
 	// does not support \n in s
 	result = [];
 	int i = 0;
-	while (s != "", /^<pre:.*>\\rascal\{/ := s) {
+	while (s != "", /^<pre:.*>\\irascal\{/ := s) {
 		off = size(pre) + 8;
 		s = (off < size(s)) ? substring(s, off) : "";
 		result += [water(pre)];
@@ -154,11 +154,11 @@ public list[Chunk] myParse(str s) {
 	while (s != "", /^<line:.*>/ := s) {
 		off = size(line);
 		s = (off < size(s)) ? substring(s, off + 1) : "";
-		if (!inIsland, /^\\begin\{rascal\}$/ := line) {
+		if (!inIsland, /^\s*\\begin\{rascal\}$/ := line) {
 			inIsland = true;
 			ile.s = "";
 		}
-		else if (inIsland, /^\\end\{rascal\}$/ := line) {
+		else if (inIsland, /^\s*\\end\{rascal\}$/ := line) {
 			inIsland = false;
 			result += [ile];
 		}
