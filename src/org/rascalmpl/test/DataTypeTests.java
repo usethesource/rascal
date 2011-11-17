@@ -740,40 +740,206 @@ public class DataTypeTests extends TestFramework {
 		return runTestInSameEvaluator(S1 + "==" + S2);
 	}
 	
+	/*
+	 * Some nested set patterns to test backtracking behaviour.
+	 */
+	
 	@Test
-	public void testSet2()  {
+	public void testSet2(){
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
-		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) = INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 });");
+		
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, set[TYPESET] rest}), TYPESET t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"c\")}"));
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"a\")}"));
+		assertTrue(runTestInSameEvaluator("{INTERSECT({TYPESET t1, set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"b\"), SET(\"a\")}), SET(\"a\")}"));
+
+		assertTrue(auxTest("{ <t1, t2> | INTERSECT({TYPESET t1, set[TYPESET] t2}) :=  INTERSECT({SET(\"b\"), SET(\"a\")})}",
+						   "{ <SET(\"b\"),{SET(\"a\")}>, <SET(\"a\"),{SET(\"b\")}>	}"));
+		
+		assertTrue(auxTest("{<t1, rest, t2> | {INTERSECT({TYPESET t1, set[TYPESET] rest}),  t2} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
+				           "{ <SET(\"a\"),{SET(\"b\")},SET(\"b\")>, <SET(\"b\"),{SET(\"a\")},SET(\"b\")>}"));
+
+		assertTrue(auxTest("{<t1, rest> | {INTERSECT({TYPESET t1, set[TYPESET] rest}),  t1} :=  {INTERSECT({SET(\"a\"), SET(\"b\")}), SET(\"b\")}}",
+				           "{<SET(\"b\"),{SET(\"a\")}>}"));	
+	}
+	
+	/*
+	 * Anastassija's type constraint examples
+	 * Tests for "simp" version
+	 */
+	
+	private void simpTests(){
+	
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({  })), SET(\"s1\") }))",
+							"INTERSECT({ SUBTYPES(INTERSECT({  })), SET(\"s1\") })"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\")  })), SET(\"s2\") }))",
+		   	    			"INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\") })), SET(\"s2\") })"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\") }))",
+		        			"INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\") });"));
+
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") }))",
+               				"INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") });"));
+
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") }))",
+							"INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
+
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s70\"), SET(\"s4\")})), SET(\"s70\") }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({               SET(\"s4\")})), SET(\"s70\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s3\")) })), SET(\"s1\") }))",
+             				"INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SET(\"s1\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") }))",   
+            				"INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({                                    })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));	
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\")), SUBTYPES(SET(\"s2\")) })), SUBTYPES(SET(\"s2\")) }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))                        })), SUBTYPES(SET(\"s2\")) });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") }))",
+             				"INTERSECT({ SUBTYPES(INTERSECT({                                     SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\"), SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SET(\"s2\"), SET(\"s7\"), SET(\"s1\") }))",
+            				"INTERSECT({ SUBTYPES(INTERSECT({                           SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SET(\"s2\"), SET(\"s7\"), SET(\"s1\") });"));
+
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") }))",
+							"INTERSECT({ SUBTYPES(INTERSECT({                                                  SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") });"));
+
+	}
+	
+	private void funTests(){
+		
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({  })), SET(\"s1\") })",
+						   "INTERSECT({ SUBTYPES(INTERSECT({  })), SET(\"s1\") })"));
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\")  })), SET(\"s2\") })",
+			   	    	   "INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\") })), SET(\"s2\") })"));
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\") })",
+			        	   "INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\") });"));
+
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") })",
+	               		   "INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") });"));
+
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
+						   "INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
+
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") })",
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
+	            				"INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s70\"), SET(\"s4\")})), SET(\"s70\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({               SET(\"s4\")})), SET(\"s70\") });"));
-	
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({               SET(\"s4\")})), SET(\"s70\") });"));
+
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s3\")) })), SET(\"s1\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SET(\"s1\") });"));
+	             		   "INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SET(\"s1\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") })",   
-				           "INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({              SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({                                    })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));	
-	
-//		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\")), SUBTYPES(SET(\"s2\")) })), SUBTYPES(SET(\"s2\")) })",
-//				           "INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))                        })), SUBTYPES(SET(\"s2\")) });"));
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({                                    })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));	
 
-//		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") })",
-//				           "INTERSECT({ SUBTYPES(INTERSECT({                                     SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\")), SUBTYPES(SET(\"s2\")) })), SUBTYPES(SET(\"s2\")) })",
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))                        })), SUBTYPES(SET(\"s2\")) });"));
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") })",
+	             		   "INTERSECT({ SUBTYPES(INTERSECT({                                     SUBTYPES(SET(\"s3\")) })), SUBTYPES(SET(\"s2\")), SET(\"s1\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\"), SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SET(\"s2\"), SET(\"s7\"), SET(\"s1\") })",
-				           "INTERSECT({ SUBTYPES(INTERSECT({                           SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SET(\"s2\"), SET(\"s7\"), SET(\"s1\") });"));
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({                           SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SET(\"s2\"), SET(\"s7\"), SET(\"s1\") });"));
+
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") })",
+						   "INTERSECT({ SUBTYPES(INTERSECT({                                                  SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") });"));
+
+		}
 	
-//		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SUBTYPES(SET(\"s2\")), SET(\"s3\"), SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") })",
-//				           "INTERSECT({ SUBTYPES(INTERSECT({                                                  SET(\"s5\") })), SET(\"s6\"), SUBTYPES(SET(\"s2\")), SET(\"s7\"), SET(\"s1\"), SET(\"s3\") });"));
+	/*
+	 * Anastassija's type constraint examples
+	 * Version 1; with explicit simplification function, no non-linear constraints
+	 */
+	
+	@Test
+	public void testSet3()  {
+		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
+		
+		prepareMore("public TYPESET simp(TYPESET ts){" +
+			           "for(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), TYPESET tset1, set[TYPESET] rest1 }) := ts){" +
+			                "if(tset == tset1) return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset1, rest1 }));" +
+			                "else  fail;" +
+			           "}" +
+			           "return ts;" +
+		            "}");
+		simpTests();
+		}
+	
+	/*
+	 * Anastassija's type constraint examples
+	 * Version 2; with explicit simplification function, and non-linear constraints (tset)
+	 */
+	
+	@Test
+	public void testSet4()  {
+		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
+		
+		prepareMore("public TYPESET simp(TYPESET ts){" +
+			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) := ts){" +
+			                "return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 }));" +
+			           "}" +
+			           "return ts;" +
+		            "}");
+		
+		simpTests();
+	}
+	
+	/*
+	 * Anastassija's type constraint examples
+	 * Version 3; with explicit simplification function, non-linear constraints (tset) and nested simp call
+	 */
+	
+	@Test
+	public void testSet5()  {
+		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
+		
+		prepareMore("public TYPESET simp(TYPESET ts){" +
+			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) := ts){" +
+			                "return simp(INTERSECT({ SUBTYPES(simp(INTERSECT(rest))), tset, rest1 }));" +
+			           "}" +
+			           "return ts;" +
+		            "}");
+		
+		simpTests();
+	}
+
+
+	/*
+	 * Anastassija's type constraint examples
+	 * Version 4; with overloaded constructor INTERSECT , and non-linear constraints (tset)
+	 */
+	@Test
+	public void testSet6()  {
+		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
+		
+		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) = INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 });");
+
+		funTests();
 	}
 	
 	@Test
