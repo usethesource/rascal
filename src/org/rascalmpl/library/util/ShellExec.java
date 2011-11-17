@@ -138,13 +138,14 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 		try {
 			Process runningProcess = runningProcesses.get(processId);
-			IString toReturn = vf.string("");
+//			IString toReturn = vf.string("");
 			InputStreamReader isr = new InputStreamReader(runningProcess.getInputStream());
-			String line = "";
+			StringBuffer line = new StringBuffer();
 			while (isr.ready()) {
-				line = line + (char)isr.read();
+				line.append((char)isr.read());
+//				line = line + (char)isr.read();
 			}
-			return vf.string(line);
+			return vf.string(line.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
 		}
