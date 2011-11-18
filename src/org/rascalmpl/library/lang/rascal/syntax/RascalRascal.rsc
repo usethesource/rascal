@@ -580,7 +580,9 @@ syntax Bound
 	| Empty: ;
 
 keyword RascalKeywords
-	= "int"
+	= 
+	| "adt"
+	| "int"
 	| "break"
 	| "continue"
 	| "rat" 
