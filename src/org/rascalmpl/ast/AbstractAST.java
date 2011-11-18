@@ -154,11 +154,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public IMatchingResult getMatcher(IEvaluatorContext eval) {
-		if (matcher == null) {
-			// TODO: building a matcher should not require an evaluation context, yet it does (big change!)
-			matcher = buildMatcher(eval);
-		}
-		return matcher;
+		return buildMatcher(eval);
 	}
 
 	/**
