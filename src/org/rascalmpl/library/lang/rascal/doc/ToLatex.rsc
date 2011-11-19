@@ -120,7 +120,7 @@ public list[Chunk] parseInlines(str s) {
 	result = [];
 	int i = 0;
 	while (s != "", /^<pre:.*>\\irascal\{/ := s) {
-		off = size(pre) + 8;
+		off = size(pre) + 9;
 		s = (off < size(s)) ? substring(s, off) : "";
 		result += [water(pre)];
 		i = 0;
