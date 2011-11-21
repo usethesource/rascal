@@ -7,7 +7,7 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module demo::FactorialTest
+module demo::basic::FactorialTest
 
 import demo::basic::Factorial;
 

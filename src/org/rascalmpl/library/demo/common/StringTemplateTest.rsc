@@ -22,35 +22,29 @@ private  map[str, str] fields = (
      "address" : "String"
   );
 
-  // Beware, in the generated code each empty line contains 6 spaces!
-  public test bool t1() =
+public test bool t1() =
     genClass("Person", fields) ==
-              "
-    public class Person {
-      
-        private Integer age;
-        public void setAge(Integer age) {
-          this.age = age;
-        }
-        public Integer getAge() {
-          return age;
-        }
-      
-        private String name;
-        public void setName(String name) {
-          this.name = name;
-        }
-        public String getName() {
-          return name;
-        }
-      
-        private String address;
-        public void setAddress(String address) {
-          this.address = address;
-        }
-        public String getAddress() {
-          return address;
-        }
-      
-    }
-";
+    "public class Person {
+    '
+    '  private Integer age;
+    '  public void setAge(Integer age) {
+    '    this.age = age;
+    '  }
+    '  public Integer getAge() {
+    '    return age;
+    '  }
+    '  private String name;
+    '  public void setName(String name) {
+    '    this.name = name;
+    '  }
+    '  public String getName() {
+    '    return name;
+    '  }
+    '  private String address;
+    '  public void setAddress(String address) {
+    '    this.address = address;
+    '  }
+    '  public String getAddress() {
+    '    return address;
+    '  }
+    '}";

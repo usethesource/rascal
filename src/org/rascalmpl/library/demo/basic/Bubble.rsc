@@ -13,7 +13,7 @@ module demo::basic::Bubble
 import List;
 import IO;
 
-// Three variations on Bubble sort
+// Variations on Bubble sort
 
 // sort1: uses list indexing and a for-loop
 
