@@ -146,7 +146,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 	
 	@Override
 	public String toString(){
-		return name + "==" + subject;
+		return name.toString() /* + " => " + subject */;
 	}
 	
 	public boolean bindingInstance() {

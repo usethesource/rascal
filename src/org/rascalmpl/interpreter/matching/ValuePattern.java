@@ -51,4 +51,8 @@ public class ValuePattern extends AbstractMatchingResult {
 		hasNext = false;
 		return result;
 	}
+	@Override
+	public String toString(){
+		return val.toString();
+	}
 }
