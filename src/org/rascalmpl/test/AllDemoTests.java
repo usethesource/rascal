@@ -19,21 +19,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class AllDemoTests extends TestFramework {
-
-	@Test
-	public void AbstractBool() {
-		assertTrue(runRascalTests("import demo::Rules::AbstractBool;"));
-	}
-	
-	@Test
-	public void AbstractBoolVisit() {
-		assertTrue(runRascalTests("import demo::Rules::AbstractBoolVisit;"));
-	}
-	
-	@Test
-	public void AbstractInteger() {
-		assertTrue(runRascalTests("import demo::Rules::AbstractInteger;"));
-	}
 	
 	@Ignore @Test 
 	public void AbstractPicoAssembly(){
@@ -82,37 +67,22 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Ackermann() {
-		assertTrue(runRascalTests("import demo::Ackermann;"));
+		assertTrue(runRascalTests("import demo::basic::Ackermann;"));
 	}
 
 	@Test
 	public void Bubble() {
-		assertTrue(runRascalTests("import demo::Bubble;"));
+		assertTrue(runRascalTests("import demo::basic::BubbleTest;"));
 	}
 
 	@Test
 	public void Calls() {
-		assertTrue(runRascalTests("import demo::Calls;"));
-	}
-
-	@Ignore @Test
-	public void CarFDL() {
-		assertTrue(runRascalTests("import demo::CarFDL;"));
+		assertTrue(runRascalTests("import demo::common::Calls;"));
 	}
 	
 	@Test
 	public void ColoredTrees() {
-		assertTrue(runRascalTests("import demo::ColoredTrees;"));
-	}
-
-	@Test
-	public void ConcreteBool() {
-		assertTrue(runRascalTests("import demo::Rules::ConcreteBool;"));
-	}
-	
-	@Test
-	public void ConcreteBoolVisit() {
-		assertTrue(runRascalTests("import demo::Rules::ConcreteBoolVisit;"));
+		assertTrue(runRascalTests("import demo::common::ColoredTrees;"));
 	}
 
 	@Ignore @Test
@@ -127,7 +97,7 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Cycles() {
-		assertTrue(runRascalTests("import demo::Cycles;"));
+		assertTrue(runRascalTests("import demo::common::Cycles;"));
 	}
 	
 	@Test
@@ -137,62 +107,17 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void FactorialTest() {
-		assertTrue(runRascalTests("import demo::FactorialTest;"));
-	}
-
-	@Ignore @Test
-	public void FunAbstract() {
-		assertTrue(runRascalTests("import demo::Fun::FunAbstract;"));
-	}
-	
-	@Ignore @Test
-	public void GenericFeatherweightJava() {
-		assertTrue(runRascalTests("import demo::GenericFeatherweightJava::Examples;"));
-	}
-	
-	@Ignore @Test
-	public void GrammarToolsGrammar() {
-		assertTrue(runRascalTests("import experiments::GrammarTools::Grammar;"));
-	}
-	
-	@Ignore @Test
-	public void GrammarToolsImportBNF() {
-		assertTrue(runRascalTests("import experiments::GrammarTools::ImportBNF;"));
-	}
-	
-	@Ignore @Test
-	public void GrammarToolsItemSet() {
-		assertTrue(runRascalTests("import experiments::GrammarTools::ItemSet;"));
-	}
-	
-	@Ignore @Test
-	public void GrammarToolsFirstFollow() {
-		assertTrue(runRascalTests("import experiments::GrammarTools::FirstFollow;"));
-	}
-	
-	@Test
-	public void GraphDataType() {
-		assertTrue(runRascalTests("import demo::GraphDataType;"));
+		assertTrue(runRascalTests("import demo::basic::FactorialTest;"));
 	}
 	
 	@Test
 	public void Hello() {
-		assertTrue(runRascalTests("import demo::Hello;"));
-	}
-	
-	@Test
-	public void Innerproduct() {
-		assertTrue(runRascalTests("import  demo::Innerproduct;"));
+		assertTrue(runRascalTests("import demo::basic::Hello;"));
 	}
 	
 	@Test
 	public void Lift() {
-		assertTrue(runRascalTests("import  demo::Lift;"));
-	}
-	
-	@Ignore @Test
-	public void LRGen() {
-		assertTrue(runRascalTests("import  experiments::Parsing::LRGen;"));
+		assertTrue(runRascalTests("import  demo::common::Lift;"));
 	}
 	
 	@Test
@@ -215,11 +140,6 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runRascalTests("import experiments::ModelTransformations::Tree2List;"));
 	}
 
-	@Ignore @Test
-	public void ParsingGRD(){
-		assertTrue(runRascalTests("import experiments::Parsing::GRD;"));
-	}
-
 	@Test
 	public void Queens() {
 		assertTrue(runRascalTests("import demo::Queens;"));
@@ -237,32 +157,12 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void StringTemplate() {
-		assertTrue(runRascalTests("import demo::StringTemplate;"));
+		assertTrue(runRascalTests("import demo::common::StringTemplateTest;"));
 	}
 	
 	@Test
 	public void Squares() {
-		assertTrue(runRascalTests("import demo::Squares;"));
-	}
-
-	@Ignore @Test
-	public void StateMachine(){
-		assertTrue(runRascalTests("import demo::StateMachine::CanReach;"));
-	}
-	
-	@Ignore @Test
-	public void StateMachineOld(){
-		assertTrue(runRascalTests("import demo::StateMachine::OldCanReach;"));
-	}
-
-	@Test
-	public void Trans() {
-		assertTrue(runRascalTests("import demo::Trans;"));
-	}
-	
-	@Test
-	public void TreeTraversals() {
-		assertTrue(runRascalTests("import demo::TreeTraversals;"));
+		assertTrue(runRascalTests("import demo::basic::Squares;"));
 	}
 	
 	@Test
@@ -272,12 +172,12 @@ public class AllDemoTests extends TestFramework {
 	
 	@Test
 	public void WordCount() {
-		assertTrue(runRascalTests("import demo::WordCount;"));
+		assertTrue(runRascalTests("import demo::common::WordCount::WordCount;"));
 	}
 	
 	@Test
 	public void WordReplacement() {
-		assertTrue(runRascalTests("import demo::WordReplacement;"));
+		assertTrue(runRascalTests("import demo::common::WordReplacementTest;"));
 	}
 
 }

@@ -777,18 +777,24 @@ public class DataTypeTests extends TestFramework {
 
 	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\") }))",
 		        			"INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\") });"));
+	
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\"), SET(\"s2\")  }))",
+							"INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\"), SET(\"s2\")  });"));
+	
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s2\"), SET(\"s1\")  }))",
+							"INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s2\"), SET(\"s1\")  });"));
+
 
 
 	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") }))",
                				"INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") });"));
+	
+	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\"), SET(\"s4\") }))",
+   		    		  		"INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\"), SET(\"s4\")  });"));
 
 
 	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") }))",
 							"INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
-
-
-	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") }))",
-            				"INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
 
 	assertTrue(auxTest("simp(INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") }))",
             				"INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
@@ -825,25 +831,28 @@ public class DataTypeTests extends TestFramework {
 						   "INTERSECT({ SUBTYPES(INTERSECT({  })), SET(\"s1\") })"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\")  })), SET(\"s2\") })",
-			   	    	   "INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\") })), SET(\"s2\") })"));
+			   	    	   "INTERSECT({ SUBTYPES(INTERSECT({SET(\"s1\") })),  SET(\"s2\") })"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\") })",
 			        	   "INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\") });"));
+		
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s1\"), SET(\"s2\")  })",
+						   "INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s1\"), SET(\"s2\")  });"));
 
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\") })), SET(\"s2\"), SET(\"s1\")  })",
+						   "INTERSECT({ SUBTYPES(INTERSECT({             })), SET(\"s2\"), SET(\"s1\")  });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") })",
 	               		   "INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\") });"));
-
+		
+		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\"), SET(\"s4\") })",
+        		   		    "INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s2\") })), SET(\"s3\"), SET(\"s4\")  });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") })",
 						   "INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
 
-
-		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s1\"), SET(\"s3\") })), SET(\"s1\") })",
-	            		   "INTERSECT({ SUBTYPES(INTERSECT({              SET(\"s3\") })), SET(\"s1\") });"));
-
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") })",
-	            				"INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
+	            		   "INTERSECT({ SUBTYPES(INTERSECT({ SUBTYPES(SET(\"s3\"))})), SET(\"s3\") });"));
 
 		assertTrue(auxTest("INTERSECT({ SUBTYPES(INTERSECT({ SET(\"s70\"), SET(\"s4\")})), SET(\"s70\") })",
 	            		   "INTERSECT({ SUBTYPES(INTERSECT({               SET(\"s4\")})), SET(\"s70\") });"));
@@ -873,7 +882,7 @@ public class DataTypeTests extends TestFramework {
 	
 	/*
 	 * Anastassija's type constraint examples
-	 * Version 1; with explicit simplification function, no non-linear constraints
+	 * Version 1; with explicit simplification function, no non-linear constraints, fail to explore alternative matches
 	 */
 	
 	@Test
@@ -937,18 +946,35 @@ public class DataTypeTests extends TestFramework {
 	public void testSet6()  {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
-		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) = INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 });");
+		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) {" +
+		               " return INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 });" +
+				    "}");
 
 		funTests();
 	}
 	
 	@Test
 	public void testSetMultiVariable()  {
+		assertTrue(runTest("{set[value] S1, set[value] S2} := {} && (S1 == {}) && (S2 == {});"));
 		assertTrue(runTest("{S1*, S2*} := {} && (S1 == {}) && (S2 == {});"));
+		
+		assertTrue(runTest("{set[int] S1, set[int] S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
+		assertTrue(runTest("{S1*, S2*} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));"));
+		
+		assertTrue(runTest("{R = for({set[int] S1, set[int] S2} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
+		assertTrue(runTest("{R = for({S1*, S2*} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
+
 		assertTrue(runTest("{R = for({S1*, S2*} := {100}) append <S1, S2>; R == [<{100}, {}>, <{}, {100}> ];}"));
 		assertTrue(runTest("{R = for({S1*, S2*} := {100, 200}) append <S1, S2>; R == [<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>];}"));
 		assertTrue(runTest("{R = for({set[int] S1, S2*} := {100, \"a\"})  append <S1, S2>; R == [<{100}, {\"a\"}>, <{},{100,\"a\"}>];}"));
-		assertTrue(runTest("{R = for({set[int] S1, set[str] S2} := {100, \"a\"})	 append <S1, S2>; R == [<{100}, {\"a\"}>];}"));
+		assertTrue(runTest("{R = for({set[int] S1, set[str] S2} := {100, \"a\"}) append <S1, S2>; R == [<{100}, {\"a\"}>];}"));
+		
+		assertTrue(runTest("{R = for({set[str] S1, S2*} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>, <{},{100,\"a\"}>];}"));
+		assertTrue(runTest("{R = for({set[str] S1, set[int] S2} := {100, \"a\"})  append <S1, S2>; R == [<{\"a\"},{100}>];}"));
+		
+		assertFalse(runTest("{set[str] S1, set[str] S2} := {100, \"a\"};"));
+		assertFalse(runTest("{set[int] S1, set[int] S2} := {100, \"a\"};"));
+
 	}
 	
     @Test(expected=UndeclaredVariableError.class)

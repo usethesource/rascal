@@ -16,16 +16,78 @@ package org.rascalmpl.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.rascalmpl.test.library.BooleanTests;
+import org.rascalmpl.test.library.GraphTests;
+import org.rascalmpl.test.library.IntegerTests;
+import org.rascalmpl.test.library.ListTests;
+import org.rascalmpl.test.library.MapTests;
+import org.rascalmpl.test.library.NodeTests;
+import org.rascalmpl.test.library.NumberTests;
+import org.rascalmpl.test.library.RealTests;
+import org.rascalmpl.test.library.RelationTests;
+import org.rascalmpl.test.library.SetTests;
+import org.rascalmpl.test.library.StringTests;
+import org.rascalmpl.test.library.ValueIOTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	AllTests1.class,
-	AllTests2.class,
-	AllTests3.class,
-	AllTests4.class,
-	ConcreteSyntaxTests.class,
+	
+	AccumulatingTests.class,
+	AliasTests.class,
+	AnnotationTests.class,
+	AssignmentTests.class,
+	
+	BackTrackingTests.class,
+	BooleanTests.class,
+	
+	CallTests.class,
+	ComprehensionTests.class,
+
+	
+	DataDeclarationTests.class,
+	DataTypeTests.class,
+	DeclarationTests.class,
+	
+	GraphTests.class,
+	
+	ImportTests.class,
+	IntegerTests.class,
+	InterpolationTests.class,
+	IOTests.class,
+	
+	ListTests.class,
+	
+	MapTests.class,
+	
+	NodeTests.class,
+	NumberTests.class,
+	
+	PatternTests.class,
+	ProjectionTests.class,
+	
+	RangeTests.class,
+	RealTests.class,
+	RecoveryTests.class,
+	RegExpTests.class,
+	RelationTests.class,
+	RuleTests.class,
+	
+	ScopeTests.class,
+	SetTests.class,
+	StatementTests.class,
+	StrategyTests.class,
+	StringTests.class,
+	SubscriptTests.class,
+
+	TryCatchTests.class,
+	
+	ValueIOTests.class,
+	VisitTests.class,
+	
 	AllBenchmarks.class,
-	AllDemoTests.class
+	AllDemoTests.class,
+	
+	ConcreteSyntaxTests.class
         })
 public class All {
 // Empty
