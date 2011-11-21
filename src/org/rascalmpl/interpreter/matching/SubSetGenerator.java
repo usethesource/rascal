@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
+ *
+ *	 * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
@@ -19,6 +20,10 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
+/**
+ * Generate all subsets of a given set
+ *
+ */
 class SubSetGenerator implements Iterator<ISet> {
 	private final IEvaluatorContext ctx;
 	private ISet remainingElements;
@@ -26,6 +31,7 @@ class SubSetGenerator implements Iterator<ISet> {
 	private SubSetGenerator subsetGen;
 	private IValue currentElement;
 	private boolean hasNext;
+	private boolean debug = false;
 
 	SubSetGenerator(ISet elements, IEvaluatorContext ctx){
 		this.remainingElements = elements;
@@ -35,10 +41,12 @@ class SubSetGenerator implements Iterator<ISet> {
 	}
 	
 	public boolean hasNext() {
+		if(debug)System.err.println("SubSetGenerator.hasNext: " + hasNext);
 		return hasNext;
 	}
 
 	public ISet next() {
+		if(debug)System.err.println("SubSetGenerator.next: hasNext = " + hasNext);
 		if(subsetGen == null || !subsetGen.hasNext()){
 			if(elementGen.hasNext()){
 				currentElement = elementGen.next();
@@ -49,7 +57,9 @@ class SubSetGenerator implements Iterator<ISet> {
 				return ctx.getValueFactory().set();
 			}
 		}
-		return subsetGen.next().insert(currentElement);
+		ISet result = subsetGen.next().insert(currentElement);
+		if(debug)System.err.println("SubSetGenerator.next returns: " + result);
+		return result;
 	}
 
 	public void remove() {

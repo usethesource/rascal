@@ -137,6 +137,10 @@ public class TuplePattern extends AbstractMatchingResult {
 	    return false;
 	}
 	
+	public List<IMatchingResult> getChildren(){
+		return children;
+	}
+	
 	@Override
 	public String toString(){
 		StringBuilder res = new StringBuilder();

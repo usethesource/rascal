@@ -137,7 +137,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 	
 	@Override
 	public String toString(){
-		return declaredType + " " + name + "==" + subject;
+		return declaredType + " " + name /* + " => " + subject */;
 	}
 
 	@Override

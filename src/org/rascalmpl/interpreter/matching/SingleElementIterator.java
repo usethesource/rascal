@@ -20,24 +20,27 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
-class SingleElementIterator implements Iterator<ISet> {
+class SingleElementIterator implements Iterator<IValue> {
 	private final IEvaluatorContext ctx;
 	private final Iterator<IValue> elementIter;
+	private boolean debug = false;
 	
 	SingleElementIterator(ISet elements, IEvaluatorContext ctx){
 		this.elementIter = elements.iterator();
 		this.ctx = ctx;
+		if(debug) System.err.println("SingleElementIterator: " + elements);
 	}
 
 	public boolean hasNext() {
 		return elementIter.hasNext();
 	}
 
-	public ISet next() {
-		return ctx.getValueFactory().set(elementIter.next());
+	public IValue next() {
+		//return ctx.getValueFactory().set(elementIter.next());
+		return elementIter.next();
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove in SingleElementGenerator");
+		throw new UnsupportedOperationException("remove in SingleElementIterator");
 	}
 }

@@ -34,4 +34,9 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		return true;
 	}
 	
+	@Override
+	public String toString(){
+		return name.toString() /*+ " => " + ctx.getCurrentEnvt().getVariable(name.toString()) */;
+	}
+	
 }

@@ -271,6 +271,23 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public String toString(){
-		return "nodeAsTuple:" + tuple.toString();
+		List<IMatchingResult> children = tuple.getChildren();
+		int n = children.size();
+		if(n == 1){
+			return qName + "()";
+		}
+		StringBuilder res = new StringBuilder(qName.toString());
+		res.append("(");
+		String sep = "";
+		
+		for (int i = 1; i < children.size(); i++){
+			IBooleanResult mp = children.get(i);
+			res.append(sep);
+			sep = ", ";
+			res.append(mp.toString());
+		}
+		res.append(")");
+		
+		return res.toString();
 	}
 }
