@@ -10,7 +10,7 @@
 //START
 module demo::common::WordReplacementTest
 
-import demo::common::WordReplacement
+import demo::common::WordReplacement;
 
 public test bool t1() =  capitalize("1") == "1";
 public test bool t2() =  capitalize("rascal") == "Rascal";
