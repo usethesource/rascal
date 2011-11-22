@@ -70,17 +70,32 @@ private str escapeRascalString(str s) {
 }
 
 private str rascalToLatex(str snip, loc l) {
+	// we take out the backticks before parsing and readd them afterwards
+	int snipCount = 0;
+	map[int, str] snips = ();
+	newSnip = visit(snip) {
+		case /`<w:[^`]*>`/ : {
+			snipCount += 1;
+			snips[snipCount] = w;
+			insert "\":!:<snipCount>!:!\"";
+		}
+	}
 	try {
-		pt = parseCommands(snip, l);
+		pt = parseCommands(newSnip, l);
 		//println("Annotating specials...");
 		//pt = annotateSpecials(pt);
 		//println("Annotating math ops...");
 		//pt = annotateMathOps(pt, mathLiterals);
-		return highlight2latex(highlight(pt), escapeRascalString);
+		highlighted = highlight2latex(highlight(pt), escapeRascalString);
+		
+		// revert backtick wraps etc
+		return visit(highlighted) {
+			case /STR\{\":!:<si:\d+>!:!\"\}/ => "BACKTICK{<snips[toInt(si)]>}"
+		}
 	}
 	catch value err: {
 		println("Parse error at <err>");
-		return "\\begin{verbatim}PARSE ERROR at <err>  <snip>\\end{verbatim}";
+		return "\\begin{verbatim}PARSE ERROR at <err>  <newSnip> original: <snip>\\end{verbatim}";
 	}
 }
 
@@ -172,6 +187,8 @@ public list[Chunk] myParse(str s) {
 	println("Done parsing.");
 	return result;
 } 
+
+
 
 
 
