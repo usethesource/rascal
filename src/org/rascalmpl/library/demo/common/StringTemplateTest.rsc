@@ -16,16 +16,16 @@ import String;
 import IO;
 import demo::common::StringTemplate;
 
-private  map[str, str] fields = (
+public  map[str, str] fields = (
      "name" : "String",
      "age" : "Integer",
      "address" : "String"
   );
-
-public test bool t1() =
-    genClass("Person", fields) ==
-    "public class Person {
-    '
+  
+public str cperson = 
+  // Do not change a single space in the string below!
+  "public class Person {
+    '  
     '  private Integer age;
     '  public void setAge(Integer age) {
     '    this.age = age;
@@ -48,3 +48,6 @@ public test bool t1() =
     '    return address;
     '  }
     '}";
+
+public test bool t1() =
+    genClass("Person", fields) == cperson;
