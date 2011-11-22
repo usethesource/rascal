@@ -203,20 +203,20 @@ syntax Expression
 	| It             : "it" 
 	| QualifiedName  : QualifiedName qualifiedName 
 	// removed >
-	|  Subscript  : Expression expression "[" {Expression ","}+ subscripts "]" 
-	| FieldAccess : Expression expression "." Name field 
-	| FieldUpdate : Expression expression "[" Name key "=" Expression replacement "]" 
-	| FieldProject: Expression expression "\<" {Field ","}+ fields "\>" 
-	| Is : Expression expression "is" Name name
-	| Has : Expression expression "has" Name name
-	> IsDefined: Expression argument "?" 
-	> Negation: "!" Expression argument 
-	| Negative: "-" Expression argument 
-	| AsType: "[" Type type "]" Expression argument
-	> TransitiveClosure: Expression argument "+" !>> "="
-	| TransitiveReflexiveClosure: Expression argument "*" !>> "=" 
-	> SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
-	| GetAnnotation: Expression expression "@" Name name 
+	| Subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
+	| FieldAccess  : Expression expression "." Name field 
+	| FieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
+	| FieldProject : Expression expression "\<" {Field ","}+ fields "\>" 
+	| SetAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
+    | GetAnnotation: Expression expression "@" Name name 
+	| Is           : Expression expression "is" Name name
+	| Has          : Expression expression "has" Name name
+	| TransitiveClosure: Expression argument "+" !>> "="
+    | TransitiveReflexiveClosure: Expression argument "*" !>> "=" 
+	> IsDefined    : Expression argument "?" 
+	> Negation     : "!" Expression argument 
+	| Negative     : "-" Expression argument 
+	| AsType       : "[" Type type "]" Expression argument
 	> left Composition: Expression lhs "o" Expression rhs 
 	> left ( Product: Expression lhs "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
