@@ -58,7 +58,7 @@ public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
-	private final IMatchingResult[] matchers;
+//	private IMatchingResult[] matchers;
 	private final boolean isDefault;
 	private boolean isTest;
 
@@ -108,7 +108,7 @@ public class RascalFunction extends NamedFunction {
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
-		this.matchers = prepareFormals(eval);
+//		this.matchers = prepareFormals(eval);
 	}
 	
 	public boolean isAnonymous() {
@@ -140,6 +140,8 @@ public class RascalFunction extends NamedFunction {
 			String label = isAnonymous() ? "Anonymous Function" : name;
 			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
 			ctx.setCurrentEnvt(environment);
+			
+			IMatchingResult[] matchers = prepareFormals(ctx);
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
 
