@@ -15,7 +15,7 @@ Details:
 
 Description:
 
-The operator `+` appends an element at the end of a list.
+The operator `+` appends an element at the end of a list. The `+` is one of those [Operators] which are overloaded. It can also mean [List/Insert] or [List/Concatenation] for example.
 
 Examples:
 
@@ -26,7 +26,13 @@ Examples:
 Benefits:
 
 Pitfalls:
-* If both operands of `+` are a list, then it acts as [List/Concatenation]
+* If both operands of `+` are a list, then it acts as [List/Concatenation] 
+<screen>
+// This is concatenation:
+[1] + [2]
+// To append a list to a list, use extra brackets:
+[1] + [[2]]
+</screen>
 
 Questions:
 

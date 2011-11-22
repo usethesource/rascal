@@ -61,7 +61,7 @@
 
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  The <code>+</code> operator inserts an element in front of a list.
+<span class="sectionHead">Description</span>  The <code>+</code> operator can insert an element in front of a list. Note that <code>+</code> is one of the <a href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a> that is overloaded, it is also <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> and <a href="/Courses/Rascal/Expressions/Values/List/Append/Append.html">List/Append</a> for example.
 
 </div>
 
@@ -69,15 +69,32 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>1 + []
 list[int]: [1]
-<b>rascal></b>1 + [1]
-list[int]: [1,1]
+<b>rascal></b>1 + [2]
+list[int]: [1,2]
+<b>rascal></b>1 + [2,3]
+list[int]: [1,2,3]
 </pre>
 </div>
 
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> If the first operand before the <code>+</code> is a list, <code>+</code> acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> and not as <a href="/Courses/Rascal/Statements/Insert/Insert.html">Insert</a></li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> If the first operand before the <code>+</code> is a list, <code>+</code> acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> and not as <a href="/Courses/Rascal/Expressions/Values/List/Insert/Insert.html">List/Insert</a><br/>
+<br/>
+ 
+  This is concatenation:
+
+<pre class="screen"><b>rascal></b>[1] + [2]
+list[int]: [1,2]
+</pre>
+  To insert a list as an element, use extra brackets:
+
+<pre class="screen"><b>rascal></b>[[1]] + [2]
+list[value]: [
+  [1],
+  2
+]
+</pre></li>
 </ul>
 </div>
 

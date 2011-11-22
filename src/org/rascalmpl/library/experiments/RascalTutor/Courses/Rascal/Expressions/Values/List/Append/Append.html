@@ -61,7 +61,7 @@
 
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  The operator <code>+</code> appends an element at the end of a list.
+<span class="sectionHead">Description</span>  The operator <code>+</code> appends an element at the end of a list. The <code>+</code> is one of those <a href="/Courses/Rascal/Expressions/Operators/Operators.html">Operators</a> which are overloaded. It can also mean <a href="/Courses/Rascal/Expressions/Values/List/Insert/Insert.html">List/Insert</a> or <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> for example.
 
 </div>
 
@@ -77,7 +77,20 @@ list[int]: [1,2]
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> If both operands of <code>+</code> are a list, then it acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a></li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> If both operands of <code>+</code> are a list, then it acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a>  
+  This is concatenation:
+
+<pre class="screen"><b>rascal></b>[1] + [2]
+list[int]: [1,2]
+</pre>
+  To append a list to a list, use extra brackets:
+
+<pre class="screen"><b>rascal></b>[1] + [[2]]
+list[value]: [
+  1,
+  [2]
+]
+</pre></li>
 </ul>
 </div>
 

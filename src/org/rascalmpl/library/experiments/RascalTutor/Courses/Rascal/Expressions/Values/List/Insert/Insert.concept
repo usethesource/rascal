@@ -15,20 +15,28 @@ Details:
 
 Description:
 
-The `+` operator inserts an element in front of a list.
+The `+` operator can insert an element in front of a list. Note that `+` is one of the [Operators] that is overloaded, it is also [List/Concatenation] and [List/Append] for example.
 
 Examples:
 
 <screen>
 1 + []
-1 + [1]
+1 + [2]
+1 + [2,3]
 </screen>
 
 Benefits:
 
 Pitfalls:
 
-* If the first operand before the `+` is a list, `+` acts as [List/Concatenation] and not as [Insert]
+* If the first operand before the `+` is a list, `+` acts as [List/Concatenation] and not as [List/Insert]
+
+<screen>
+// This is concatenation:
+[1] + [2]
+// To insert a list as an element, use extra brackets:
+[[1]] + [2]
+</screen>
 
 Questions:
 
