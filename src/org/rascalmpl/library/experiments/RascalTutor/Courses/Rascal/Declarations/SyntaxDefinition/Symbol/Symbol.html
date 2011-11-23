@@ -80,7 +80,7 @@
  <br/>
 <br/>
 
-  <table><tr><th align="center"> Disambiguation                             </th><th align="center"> Description                                                         </th></tr><tr><td align="left"> <code><i>Symbol</i> $</code>                 </td><td align="left"> <code><i>Symbol</i></code> ends at end of line or end of file                           </td></tr><tr><td align="left"> <code>^<i>Symbol</i></code>                  </td><td align="left"> <code><i>Symbol</i></code> starts at begin of line                               </td></tr><tr><td align="left"> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>   </td><td align="left"> <code><i>Symbol</i></code> starts at certain column index.                       </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> \\ <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code>   </td></tr></table> <br/>
+  <table><tr><th align="center"> Disambiguation                             </th><th align="center"> Description                                                         </th></tr><tr><td align="left"> <code><i>Symbol</i> $</code>                 </td><td align="left"> <code><i>Symbol</i></code> ends at end of line or end of file                           </td></tr><tr><td align="left"> <code>^<i>Symbol</i></code>                  </td><td align="left"> <code><i>Symbol</i></code> starts at begin of line                               </td></tr><tr><td align="left"> <code><i>Symbol</i> @ <i>ColumnIndex</i></code>   </td><td align="left"> <code><i>Symbol</i></code> starts at certain column index.                       </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> >> <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !>> <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must <i>not</i> be (directly) followed by <code><i>Symbol</i><sub>2</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> &lt;&lt; <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>           </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> !&lt;&lt; <i>Symbol</i><sub>2</sub></code>  </td><td align="left"> <code><i>Symbol</i><sub>2</sub></code> must <i>not</i> be (directly) preceded by <code><i>Symbol</i><sub>1</sub></code>     </td></tr><tr><td align="left"> <code><i>Symbol</i><sub>1</sub> \ <i>Symbol</i><sub>2</sub></code>   </td><td align="left"> <code><i>Symbol</i><sub>1</sub></code> must not be in the language defined by <code><i>Symbol</i><sub>2</sub></code>   </td></tr></table> <br/>
 <br/>
 
  Symbols can be composed arbitrarily.
@@ -123,8 +123,66 @@
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  
+  A character class that defines all alphanumeric characters:
+
+<pre class="screen"><b>rascal></b>lexical AlphaNumeric = [a-zA-Z0-9];
+ok
+</pre>
+  A character class that defines anything except quotes:
+
+<pre class="screen"><b>rascal></b>lexical AnythingExceptQuote = ![\&quot;];
+ok
+</pre>
+  An identifier class with longest match (can not be followed immediately by [a-z]):
+
+<pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z];
+ok
+</pre>
+  An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
+
+<pre class="screen"><b>rascal></b>lexical Id = [a-z] !&lt;&lt; [a-z]+ !&gt;&gt; [a-z];
+ok
+</pre>
+  An identifier class with some reserved keywords and longest match:
+
+<pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z] \ &quot;if&quot; \ &quot;else&quot; \ &quot;fi&quot;;
+ok
+</pre>
+  An optional else branch coded using sequence and optional symbols:
+
+<pre class="screen"><b>rascal></b>syntax Statement = &quot;if&quot; Expression &quot;then&quot; Statement (&quot;else&quot; Statement)? &quot;fi&quot;;
+ok
+</pre>
+  A block of statements separated by semicolons:
+
+<pre class="screen"><b>rascal></b>syntax Statement = &quot;{&quot; {Statement &quot;;&quot;}* &quot;}&quot;;
+ok
+</pre>
+  A declaration with an embedded list of alternative modifiers and a list of typed parameters:
+
+<pre class="screen"><b>rascal></b>syntax Declaration = (&quot;public&quot; | &quot;private&quot; | &quot;static&quot; | &quot;final&quot;)* Type Id &quot;(&quot; {(Type Id) &quot;,&quot;}* &quot;)&quot; Statement;
+ok
+</pre>
+</div>
+
   	                       
+<div id="Benefits">
+<span class="sectionHead">Benefits</span>  <ul><li> The symbol language is very expressive and can lead to short definitions of complex syntactic constructs.</li>
+<li> There is no built-in longest match for iterators, which makes syntax definitions open to languages that do not have longest match.</li>
+<li> There is no built-in keyword preference or reservation, which makes syntax definitions open to language composition and legacy languages.</li>
+</ul>
+</div>
+
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> By nesting too many symbols definitions can be become hard to understand. </li>
+<li> By nesting too many symbols pattern matching and term construction becomes more complex. Extra non-terminals and rules with meaningful names can make a language specification more manageable. </li>
+<li> The lack of automatic longest match and prefer keyword heuristics (you have to define it yourself), sometimes leads to unexpected ambiguity. See <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a>.</li>
+</ul>
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=true"><b>New Subconcept</b></a>] |

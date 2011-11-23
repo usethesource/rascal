@@ -64,7 +64,7 @@ Inline conditions ([Disambiguation]s) can be added to symbols to constrain their
 | `$Symbol_1$ !>> $Symbol_2$`  | $Symbol_1$ must _not_ be (directly) followed by $Symbol_2$     |
 | `$Symbol_1$ << $Symbol_2$`   | $Symbol_2$ must be (directly) preceded by $Symbol_1$           |
 | `$Symbol_1$ !<< $Symbol_2$`  | $Symbol_2$ must _not_ be (directly) preceded by $Symbol_1$     |
-| `$Symbol_1$ \\ $Symbol_2$`   | $Symbol_1$ must not be in the language defined by $Symbol_2$   |
+| `$Symbol_1$ \ $Symbol_2$`   | $Symbol_1$ must not be in the language defined by $Symbol_2$   |
 
 
 
@@ -103,9 +103,35 @@ The _constraint_ symbols are specially there to deal with the fact that Rascal d
 
 Examples:
 
+
+<screen>
+// A character class that defines all alphanumeric characters:
+lexical AlphaNumeric = [a-zA-Z0-9];
+// A character class that defines anything except quotes:
+lexical AnythingExceptQuote = ![\"];
+// An identifier class with longest match (can not be followed immediately by [a-z]):
+lexical Id = [a-z]+ !>> [a-z];
+// An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
+lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
+// An identifier class with some reserved keywords and longest match:
+lexical Id = [a-z]+ !>> [a-z] \ "if" \ "else" \ "fi";
+// An optional else branch coded using sequence and optional symbols:
+syntax Statement = "if" Expression "then" Statement ("else" Statement)? "fi";
+// A block of statements separated by semicolons:
+syntax Statement = "{" {Statement ";"}* "}";
+// A declaration with an embedded list of alternative modifiers and a list of typed parameters:
+syntax Declaration = ("public" | "private" | "static" | "final")* Type Id "(" {(Type Id) ","}* ")" Statement;
+</screen>
+
 Benefits:
+* The symbol language is very expressive and can lead to short definitions of complex syntactic constructs.
+* There is no built-in longest match for iterators, which makes syntax definitions open to languages that do not have longest match.
+* There is no built-in keyword preference or reservation, which makes syntax definitions open to language composition and legacy languages.
 
 Pitfalls:
+* By nesting too many symbols definitions can be become hard to understand. 
+* By nesting too many symbols pattern matching and term construction becomes more complex. Extra non-terminals and rules with meaningful names can make a language specification more manageable. 
+* The lack of automatic longest match and prefer keyword heuristics (you have to define it yourself), sometimes leads to unexpected ambiguity. See [Disambiguation].
 
 Questions:
 
