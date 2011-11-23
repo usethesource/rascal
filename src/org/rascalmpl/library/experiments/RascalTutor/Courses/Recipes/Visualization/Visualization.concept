@@ -1,6 +1,6 @@
 Name: Visualization
 
-Synopsis:
+Synopsis: Recipes for creating visualizations.
 
 Syntax:
 
@@ -11,6 +11,8 @@ Function:
 Details:
 
 Description:
+We cover the following topics:
+<toc Recipes/Visualization 1>
 
 Examples:
 
