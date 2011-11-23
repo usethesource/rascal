@@ -85,8 +85,8 @@ In the above examples we have consistently added the two imports:
 import vis::Figure;
 import vis::Render;
 </listing>
-In other recipes and the Rascal docuementation we omit these two imports to avoid cluttering our examples with irrelevant details.
-Be aware you will always need hem when creating a visualisation.
+In other recipes and the Rascal documentation we omit these two imports to avoid cluttering our examples with irrelevant details.
+Be aware that you will always need them when creating a visualisation.
 
 Questions:
 
