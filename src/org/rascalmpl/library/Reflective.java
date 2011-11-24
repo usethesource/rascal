@@ -60,4 +60,9 @@ public class Reflective {
 		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 	
+	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
+		Evaluator evaluator = ctx.getEvaluator();
+		return evaluator.parseModuleWithoutIncludingExtends(evaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), new ModuleEnvironment("___parseModule___", ctx.getHeap()));
+	}
+	
 }
