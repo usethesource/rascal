@@ -21,7 +21,7 @@ public void graph1(){
     	[
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 
@@ -34,7 +34,7 @@ public void K2(){
     	[ edge("A", "B")   	 
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 // Graph of 3 nodes
@@ -51,7 +51,7 @@ public void K3(){
     	  edge("A", "C")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void K33(){
@@ -67,7 +67,7 @@ public void K33(){
     	  edge("C1", "A1")
     	];
     	
-    g1 = graph(nodes1, edges1, size(200));
+    g1 = graph(nodes1, edges1, size(200),gap(40));
 
     nodes2 =
      	[ box(text("A2"), id("A2"), size(20), fillColor("green")),
@@ -79,28 +79,13 @@ public void K33(){
     	  edge("B2", "C2"),
     	  edge("C2", "A2")
     	];
-    g2 = graph(nodes2, edges2, size(200));
+    g2 = graph(nodes2, edges2, size(200),gap(40));
     
-    render(hcat([g1, g2], gap(20)));
+    render(hcat([g1, g2]));
 }
 
 public FProperty popup(str s){
 	return mouseOver(box(text(s), gap(1), fillColor("yellow")));
-}
-
-public void K3a(){
-     nodes =
-        [ box(text("A"), id("A"), size(20), fillColor("green"), popup("A")),
-     	  box(text("B"), id("B"), size(20), fillColor("red"),  popup("B")),
-     	  box(text("C"), id("C"), size(20), fillColor("blue"),  popup("C"))
-     	];
-    edges = 
-    	[ edge("A", "B"),
-    	  edge("B", "C"),
-    	  edge("A", "C")
-    	];
-    	    
-    render(graph(nodes, edges, hint("layered"), size(400)));
 }
 
 public void graph4(){
@@ -117,7 +102,7 @@ public void graph4(){
     	  edge("D", "A")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void K4(){
@@ -134,7 +119,7 @@ public void K4(){
     	  edge("D", "A"), edge("D", "B"), edge("D", "C")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void K5(){
@@ -154,7 +139,7 @@ public void K5(){
     	  edge("E", "A"), edge("E", "B"), edge("E", "C"), edge("E", "D")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void K6(){
@@ -176,13 +161,13 @@ public void K6(){
     	  edge("F", "A"), edge("F", "B"), edge("F", "C"), edge("F", "D"), edge("F", "E")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void K(int n){
     nodes = [box(id("<i>"), size(20), fillColor("blue")) | int i <- [1 .. n] ];
     edges = [[edge("<i>", "<j>") | int j <- [ 1 .. n], j != i] | int i <- [ 1 .. n ] ];
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
 public void graph5(){
@@ -202,7 +187,7 @@ public void graph5(){
     	  edge("E", "A")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 public void graph6(){
      nodes =
@@ -223,178 +208,7 @@ public void graph6(){
     	  edge("F", "A")
     	];
     	    
-    render(graph(nodes, edges, size(400)));
+    render(graph(nodes, edges, size(400),gap(40)));
 }
 
-// Trees
-
-public void T22(){
-     nodes =
-     
-      [ box(text("A"), id("A"), size(20), fillColor("green")),
-     	  box(text("B"), id("B"),  size(20), fillColor("red")),
-     	  box(text("C"), id("C"),  size(20), fillColor("blue")),
-     	  box(text("D"), id("D"), size(20), fillColor("purple")),
-     	  box(text("E"), id("E"), size(20), fillColor("lightblue")),
-     	  box(text("F"), id("F"), size(20), fillColor("orange")),
-     	  box(text("G"), id("G"), size(20), fillColor("brown"))
-     	];
-     	
-    edges = 
-    	[ edge("A", "B"),  edge("A", "C"),
-    	  edge("B", "D"), edge("B", "E"), 
-    	  edge("C", "F"),  edge("C", "G")	   
-    	];
-    	    
-    render(graph(nodes, edges, size(400)));
-}
-
-public void T33(){
-     nodes =
-     
-        [ box(text("A"), id("A"), size(20), fillColor("green")),
-     	  box(text("B"), id("B"),  size(20), fillColor("red")),
-     	  box(text("C"), id("C"),  size(20), fillColor("blue")),
-     	  box(text("D"), id("D"), size(20), fillColor("purple")),
-     	  box(text("E"), id("E"), size(20), fillColor("lightblue")),
-     	  box(text("F"), id("F"), size(20), fillColor("orange")),
-     	  box(text("G"), id("G"), size(20), fillColor("brown")),
-     	  box(text("H"), id("H"), size(20), fillColor("black")),
-     	  box(text("I"), id("I"), size(20), fillColor("grey")),
-     	  box(text("J"), id("J"), size(20), fillColor("white")),
-     	  box(text("K"), id("K"), size(20), fillColor("deeppink")),
-     	  box(text("L"), id("L"), size(20), fillColor("deeppink")),
-     	  box(text("M"), id("M"), size(20), fillColor("deeppink"))
-     	];
-     	
-    edges = 
-    	[ edge("A", "B"),  edge("A", "C"),  edge("A", "D"),
-    	  edge("B", "E"), edge("B", "F"), edge("B", "G"),
-    	  edge("C", "H"),  edge("C", "I"),  edge("C", "J"),
-    	  edge("D", "K"),   edge("D", "L"),  edge("D", "M")
-    	];
-    	    
-    render(graph(nodes, edges, size(200)));
-}
-
-public void T44(){
-     nodes =
-     
-        [ box(text("A"), id("A"), size(20), fillColor("green")),
-     	  box(text("B"), id("B"),  size(20), fillColor("red")),
-     	  box(text("C"), id("C"),  size(20), fillColor("blue")),
-     	  box(text("D"), id("D"), size(20), fillColor("purple")),
-     	  box(text("E"), id("E"), size(20), fillColor("lightblue")),
-     	  box(text("F"), id("F"), size(20), fillColor("orange")),
-     	  box(text("G"), id("G"), size(20), fillColor("brown")),
-     	  box(text("H"), id("H"), size(20), fillColor("black")),
-     	  box(text("I"), id("I"), size(20), fillColor("grey")),
-     	  box(text("J"), id("J"), size(20), fillColor("white")),
-     	  box(text("K"), id("K"), size(20), fillColor("deeppink")),
-     	  box(text("L"), id("L"), size(20), fillColor("deeppink")),
-     	  box(text("M"), id("M"), size(20), fillColor("deeppink")),
-     	  box(text("N"), id("N"), size(20), fillColor("deeppink")),
-     	  box(text("O"), id("O"), size(20), fillColor("deeppink")),
-          box(text("P"), id("P"), size(20), fillColor("deeppink")),
-          box(text("Q"), id("Q"), size(20), fillColor("deeppink")),
-     	  box(text("R"), id("R"), size(20), fillColor("deeppink")),
-     	  box(text("S"), id("S"), size(20), fillColor("deeppink")),
-     	  box(text("T"), id("T"), size(20), fillColor("deeppink")),
-     	  box(text("U"), id("U"), size(20), fillColor("deeppink"))        
-     	];
-     	
-    edges = 
-    	[ edge("A", "B"),  edge("A", "C"),  edge("A", "D"),  edge("A", "E"),
-    	  edge("B", "F"), edge("B", "G"), edge("B", "H"), edge("B", "I"), 
-    	  edge("C", "J"),  edge("C", "K"),  edge("C", "L"),  edge("C", "M"),
-    	  edge("D", "N"),   edge("D", "O"),  edge("D", "P"),  edge("D", "Q"),
-    	  edge("E", "R"),   edge("E", "S"), edge("E", "T"), edge("E", "U")   	   
-    	];
-    	    
-    render(graph(nodes, edges, size(400), hint("layered")));
-}
-
-// Graph
-
-public void graphn(){
-     nodes =
-        [ box(text("A"), id("A"), size(20), fillColor("green")),
-     	  box(text("B"), id("B"),  size(20), fillColor("red")),
-     	  box(text("C"), id("C"),  size(20), fillColor("blue")),
-     	  box(text("D"), id("D"), size(20), fillColor("purple")),
-     	  box(text("E"), id("E"), size(20), fillColor("lightblue")),
-     	  box(text("F"), id("F"), size(20), fillColor("orange")),
-     	  box(text("G"), id("G"), size(20), fillColor("brown")),
-     	  box(text("H"), id("H"), size(20), fillColor("black")),
-     	  box(text("I"), id("I"), size(20), fillColor("grey")),
-     	  box(text("J"), id("J"), size(20), fillColor("white")),
-     	  box(text("K"), id("K"), size(20), fillColor("deeppink"))
-     	];
-     
-    edges = 
-    	[ edge("A", "B"),
-    	  edge("B", "C"),
-    	  edge("C", "D"),   	 
-    	  edge("D", "E"),
-    	  edge("E", "F"),
-    	  edge("F", "G"),
-    	  edge("G", "H"),
-    	  edge("H", "I"),
-    	  edge("I", "J"),
-    	  edge("J", "K"),
-    	  edge("K", "A")
-    	  
-    	  //edge("A", "D")
-    	  // edge("G", "K")  
-    	];
-    	    
-    render(graph(nodes, edges, hint("layered"), size(400)));
-}
-
-// See Introduction to the Theory of Computation, Michael Sipser, page 285)
-
-public void sat(){
-     Figure g1 = graph([ shapeEllipse(text("A1 1"), id("A1"),  fillColor("lightgreen"),layer("BOTTOM")),
-     	  shapeEllipse(text("B1 1"), id("B1"), fillColor("lightgreen"), layer("BOTTOM")),
-     	  shapeEllipse(text("C1 2"), id("C1"), fillColor("lightgreen"), layer("q"))], [ edge("A1", "B1") , 
-    	  edge("B1", "C1") ,  
-    	  edge("C1", "A1")], id("Q1"), hint("leveled"), gap(40), size(200), layer("z"));
-     Figure g2 = graph([ shapeEllipse(text("A2 1"), id("A2"),  fillColor("salmon"),layer("BOTTOM")),
-     	  shapeEllipse(text("B2 2"), id("B2"),  fillColor("salmon"), layer("BOTTOM")),
-     	  shapeEllipse(text("C2 2"), id("C2"), fillColor("salmon"), layer("q"))], [ edge("A2", "B2") , 
-    	  edge("B2", "C2") ,  
-    	  edge("C2", "A2")], id("Q2"), hint("leveled"), gap(40), size(200), layer("z"));
-     Figure g3 = graph([ shapeEllipse(text("A3 1"), id("A3"),  fillColor("salmon"),layer("BOTTOM")),
-     	  shapeEllipse(text("B3 2"), id("B3"),  fillColor("lightgreen"), layer("BOTTOM")),
-     	  shapeEllipse(text("C3 2"), id("C3"),  fillColor("lightgreen"), layer("q"))], [ edge("A3", "B3") , 
-    	  edge("B3", "C3") ,  
-    	  edge("C3", "A3")], id("Q3"), hint("leveled"), gap(40), size(200), layer("z"));
-     nodes =
-     	[ g1 ,
-     	  g2 ,
-     	  g3, 
-     	  box(text("1 1"), id("1"), size(20), fillColor("lightgreen"), layer("TOP")),
-     	  box(text("-1 1"), id("-1"), size(20), fillColor("salmon"), layer("TOP")),
-     	  box(text("2 2"), id("2"), size(20), fillColor("lightgreen"), layer("BOTTOM")),
-     	  box(text("-2 2"), id("-2"), size(20), fillColor("salmon"), layer("BOTTOM")) 	  
-     	];
-    edges = 
-    	[   
-    	  edge("A1", "1"),
-    	  edge("B1", "1"),
-    	  edge("C1", "2"),
-    	  
-    	  edge("A2", "1"),  
-    	  edge("B2", "-2"),
-    	  edge("C2", "-2"),
-    	  
-    	  edge("A3", "-1"),
-    	  edge("B3", "2"),
-    	  edge("C3", "2"),
-    	  edge("1","-1"),
-    	  edge("2","-2")  	    	 
-    	];
-    Figure g = graph(nodes, edges, size(800), hint("leveled"), gap(50));	    
-    render(g);
-}
 
