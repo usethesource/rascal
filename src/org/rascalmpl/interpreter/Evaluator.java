@@ -1128,7 +1128,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseModule(data, location, env, false);
+			return parseModule(data, location, env, false, true);
 		}finally{
 			setMonitor(old);
 		}
@@ -1137,13 +1137,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseModule(data, location, env, true);
+			return parseModule(data, location, env, true, true);
 		}finally{
 			setMonitor(old);
 		}
 	}
 	
-	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean withErrorTree){
+	public IConstructor parseModuleWithoutIncludingExtends(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseModule(data, location, env, true, false);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	
+	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean withErrorTree, boolean declareImportsAndSyntax){
 		__setInterrupt(false);
 		IActionExecutor actions = new BootRascalActionExecutor();
 
@@ -1167,12 +1177,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			env.setBootstrap(needBootstrapParser(preModule));
 		}
-		
-		// take care of imports and declare syntax
-		env.setSyntaxDefined(false);
-		event("Declaring syntax for module " + name);
-		preModule.declareSyntax(this, true);
-		
+		if (declareImportsAndSyntax) {
+			// take care of imports and declare syntax
+			env.setSyntaxDefined(false);
+			event("Declaring syntax for module " + name);
+			preModule.declareSyntax(this, true);
+		}
 		IGTD parser = null;
 		IConstructor result = null;
 		event("Parsing complete module " + name);

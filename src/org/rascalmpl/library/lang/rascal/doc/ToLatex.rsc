@@ -15,10 +15,12 @@ import lang::box::util::HighlightToLatex;
 import Reflective;
 import ParseTree;
 import String;
+import Map;
 import IO;
 
 data Chunk
 	= block(str s)
+	| moduleBlock(str s)
 	| inline(str s)
 	| water(str s);
 
@@ -69,7 +71,10 @@ private str escapeRascalString(str s) {
 	return escape(s, stringEscapes - preEscapes);
 }
 
-private str rascalToLatex(str snip, loc l) {
+
+private str rascalToLatex(str snip, loc l) = rascalToLatex(snip, l, false);
+
+private str rascalToLatex(str snip, loc l, bool isModule) {
 	// we take out the backticks before parsing and readd them afterwards
 	int snipCount = 0;
 	map[int, str] snips = ();
@@ -81,7 +86,12 @@ private str rascalToLatex(str snip, loc l) {
 		}
 	}
 	try {
-		pt = parseCommands(newSnip, l);
+		Tree pt;
+		if (isModule) {
+			pt = parseModule(newSnip, l);
+		} else {
+			pt = parseCommands(newSnip, l);
+		}
 		//println("Annotating specials...");
 		//pt = annotateSpecials(pt);
 		//println("Annotating math ops...");
@@ -95,7 +105,7 @@ private str rascalToLatex(str snip, loc l) {
 	}
 	catch value err: {
 		println("Parse error at <err>");
-		return "\\begin{verbatim}PARSE ERROR at <err>  <newSnip> original: <snip>\\end{verbatim}";
+		return "\\begin{verbatim}PARSE ERROR at <err>  <newSnip> <(size(snips) == 0) ? "" : "original: <snip>">\\end{verbatim}";
 	}
 }
 
@@ -123,6 +133,7 @@ public str expand(list[Chunk] doc, loc l) {
 		switch (c) {
 			case inline(str s): result += "\\irascaldoc{<rascalToLatex(s, l)>}";
 			case block(str s):  result += "\\begin{rascaldoc}<rascalToLatex(s, l)>\\end{rascaldoc}";
+			case moduleBlock(str s):  result += "\\begin{rascaldoc}<rascalToLatex(s, l, true)>\\end{rascaldoc}";
 			case water(str s):  result += s;
 		}
 	}
@@ -162,23 +173,36 @@ public list[Chunk] parseInlines(str s) {
 public list[Chunk] myParse(str s) {
 	println("Parsing...");
 	ile = block("");
+	ileModule = moduleBlock("");
 	eau = water("");
 	result = [];
 	inIsland = false;
+	inModuleIsland = false;
 	begin = true;
 	while (s != "", /^<line:.*>/ := s) {
 		off = size(line);
 		s = (off < size(s)) ? substring(s, off + 1) : "";
-		if (!inIsland, /^\s*\\begin\{rascal\}$/ := line) {
+		if (!inIsland, !inModuleIsland, /^\s*\\begin\{rascal\}$/ := line) {
 			inIsland = true;
 			ile.s = "";
 		}
-		else if (inIsland, /^\s*\\end\{rascal\}$/ := line) {
+		else if (inIsland, !inModuleIsland, /^\s*\\end\{rascal\}$/ := line) {
 			inIsland = false;
 			result += [ile];
 		}
+		else if (!inIsland, !inModuleIsland, /^\s*\\begin\{rascalModule\}$/ := line) {
+			inModuleIsland = true;
+			ileModule.s = "";
+		}
+		else if (!inIsland, inModuleIsland, /^\s*\\end\{rascalModule\}$/ := line) {
+			inModuleIsland = false;
+			result += [ileModule];
+		}
 		else if (inIsland) {
 			ile.s += "<line>\n";
+		}
+		else if (inModuleIsland) {
+			ileModule.s += "<line>\n";
 		}
 		else {
 			result += parseInlines("<line>\n");
