@@ -15,6 +15,7 @@ import Integer;
 
 @doc{Get n elements from the head of the list, or size(l) if size(l) < n}
 public list[&T] take(int n, list[&T] l){
+	if(n == 0){ return []; }
 	return [ l[i] | i <- [0 .. (min(size(l),n) - 1)]];
 }
 @doc{Drop n elements from the head of the list, or size(l) if size(l) < n}

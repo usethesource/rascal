@@ -38,18 +38,6 @@ public void path(int n){
 		| x <- [0..n]],shapeConnected(true),shapeCurved(true),shapeClosed(true),fillColor("red")));
 }
 
-public void graphgrow(int n){
-	render(
-		
-			bottomAxis("x",
-			leftAxis("y",
-				overlay([
-					ellipse(shrink(0.02),fillColor("blue"),hpos(convert((1.0/toReal(n)) * toReal(x) , "x")),vpos(convert(arbReal(),"y")))
-					| x <- [0..n]],shapeConnected(true),shapeCurved(true))
-			,vgrow(1.2)	
-		),shrink(0.7),hgrow(1.2))
-	);
-}
 
 
 

@@ -11,8 +11,8 @@ module vis::examples::Logo
 
 import vis::Figure;
 import vis::Render;
-/*
-private list[int] LogoData = [
+
+public list[int] LogoData = [
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
@@ -264,7 +264,19 @@ private list[int] LogoData = [
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,
 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff];
 
-public void renderLogo(int pixelSize) {
-  render(hvcat([box([size(pixelSize, pixelSize), lineWidth(0), lineColor(x), fillColor(x)]) | x <- LogoData], [size(50*pixelSize, 50*pixelSize)]));
+int width = 50;
+int height = 50;
+
+public Figure logo(){
+	list[list[Figure]] boxes;
+	boxes = for(i <- [0..height-1]){
+		append for(j <- [0..width-1]){
+			append box(fillColor(LogoData[i*50+j]),lineWidth(0));
+		}
+	}
+	return grid(boxes,aspectRatio(1.0));
 }
-*/
+
+public void renderLogo() {
+  render(logo());
+}
