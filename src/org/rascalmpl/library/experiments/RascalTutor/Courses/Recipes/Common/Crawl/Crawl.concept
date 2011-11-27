@@ -28,6 +28,8 @@ The crawler simply lists all entries in the current directory using [Rascal:list
 that end we the given suffix to the result. If an entry is itself a directory, it is crawled by a recursive call to crawl.
 At /*1*/ we use concatenation on a location and a string; it automatically adds a `/` separator, see [Rascal:Location] for details.
 
+We also show shorter versions `crawl2` and `crawl3` that we further discuss below.
+
 Let's now crawl the demo files used in this course:
 
 <screen>
@@ -50,6 +52,21 @@ aux = {<f, size(readFileLines(f))> | loc f <- files};
 m = max(range(aux));
 // and now [$Rascal:Relation/invert] `aux` and use [$Rascal:Relation/Subscription]  to find the tuples with the maximum value as first element.
 invert(aux)[m];
+</screen>
+
+In the listing given above, there are two alternative versions of crawl:
+* `crawl2` uses [$Rascal:Statements/Append] (at /*2*/ and /*3*/) to avoid introducing a local variable `res` as done in `crawl`.
+* `crawl3` is the shortest version that depends on a list comprehension and on the `ls` field of locations.
+
+
+Let's try them:
+
+<screen>
+import demo::common::Crawl;
+files2 = crawl(|std://library/demo|, ".rsc");
+files3 = crawl(|std://library/demo|, ".rsc");
+// and verify that the two lists are identical:
+files2 == files3;
 </screen>
 
 Benefits:

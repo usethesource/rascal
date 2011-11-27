@@ -78,12 +78,33 @@ public list[loc] crawl(loc dir, str suffix){
   };
   return res;
 }
+
+public list[loc] crawl2(loc dir, str suffix){
+  return 
+	  for(str entry &lt;- listEntries(dir)){
+	      loc sub = dir + entry;  
+	      if(isDirectory(sub)) {
+	          append crawl(sub, suffix);  <img src="/Courses/images/2.png">
+	      } else {
+		      if(endsWith(entry, suffix)) { 
+		         append [sub];           <img src="/Courses/images/3.png">
+		      }
+	      }
+	  };
+}
+
+public list[loc] crawl3(loc dir, str suffix) =
+  isDirectory(dir) ? [crawl(e,ext) | e &lt;- dir.ls] : (dir.extension == ext ? [dir] : []);
 </pre> The <code>crawl</code> function takes two arguments:
  <ul><li> The directory <code>dir</code> where the crawl should start.</li>
 <li> The suffix of the files we are looking for.</li>
 </ul> The crawler simply lists all entries in the current directory using <a href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">Rascal:listEntries</a> and adds all files
  that end we the given suffix to the result. If an entry is itself a directory, it is crawled by a recursive call to crawl.
  At <img src="/Courses/images/1.png"> we use concatenation on a location and a string; it automatically adds a <code>/</code> separator, see <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:Location</a> for details.
+ <br/>
+<br/>
+
+ We also show shorter versions <code>crawl2</code> and <code>crawl3</code> that we further discuss below.
  <br/>
 <br/>
 
@@ -106,7 +127,7 @@ int: 81
 <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
-int: 3288
+int: 3305
 </pre>
   This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>
@@ -137,6 +158,23 @@ int: 283
 
 <pre class="screen"><b>rascal></b>invert(aux)[m];
 set[loc]: {|std://library/demo/vis/Logo.rsc|}
+</pre> In the listing given above, there are two alternative versions of crawl:
+ <ul><li> <code>crawl2</code> uses <a href="/Courses/Rascal/Statements/Append/Append.html">Rascal:Append</a> (at <img src="/Courses/images/2.png"> and <img src="/Courses/images/3.png">) to avoid introducing a local variable <code>res</code> as done in <code>crawl</code>.</li>
+<li> <code>crawl3</code> is the shortest version that depends on a list comprehension and on the <code>ls</code> field of locations.</li>
+</ul> Let's try them:
+  <pre class="screen"><b>rascal></b>import demo::common::Crawl;
+ok
+<b>rascal></b>files2 = crawl(|std://library/demo|, &quot;.rsc&quot;);
+list[loc]: [|std://library/demo/basic/Ackermann.rsc|,|std://library/demo/basic/Bottles.rsc|,|std://library/dem&raquo;
+o/basic/Bubble.rsc|,|std://library/demo/basic/BubbleTest.rsc|,|std://library/demo/basic/Factorial....
+<b>rascal></b>files3 = crawl(|std://library/demo|, &quot;.rsc&quot;);
+list[loc]: [|std://library/demo/basic/Ackermann.rsc|,|std://library/demo/basic/Bottles.rsc|,|std://library/dem&raquo;
+o/basic/Bubble.rsc|,|std://library/demo/basic/BubbleTest.rsc|,|std://library/demo/basic/Factorial....
+</pre>
+  and verify that the two lists are identical:
+
+<pre class="screen"><b>rascal></b>files2 == files3;
+bool: true
 </pre>
 </div>
 
