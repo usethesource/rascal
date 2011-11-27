@@ -16,11 +16,12 @@ public list[loc] crawl(loc dir, str suffix){
   res = [];
   for(str entry <- listEntries(dir)){
       loc sub = dir + entry;   /*1*/
-      if(endsWith(entry, suffix)) { 
-         res += [sub]; 
-      }
       if(isDirectory(sub)) {
-         res += crawl(sub, suffix);
+          res += crawl(sub, suffix);
+      } else {
+	      if(endsWith(entry, suffix)) { 
+	         res += [sub]; 
+	      }
       }
   };
   return res;
