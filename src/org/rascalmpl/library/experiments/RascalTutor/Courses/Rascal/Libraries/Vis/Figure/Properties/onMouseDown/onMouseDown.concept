@@ -8,12 +8,12 @@ Syntax:
 Types:
 
 Function:
-`FProperty onMouseDown(bool (int,map[KeyModifier,bool]) cb)`
+`FProperty onMouseDown(bool (int, map[KeyModifier,bool]) cb)`
 
 Details:
 
 Description:
-The callback `cb` gets two arguments:
+`onMouseDown` has a single argument: a callback `cb` that gets two arguments:
 
 * an `int` indicating the mousebutton, 1 indicates left mouse button, 2 the middle and 3 the right. Higher numbers are used for mice with more buttons.
 *an `map[KeyModifier,bool]` indicating which keyboard modifiers are currently pressed. See [KeyModifier].
