@@ -13,23 +13,20 @@ Details: Contents
 Description:
 These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
 It consists of the following parts:
-* [Basic]: _hello world_-like examples.
-* [Common]: common taks you may encounter in practice.
-* [Languages]: definitions of some simple languages.
 
+<toc Recipes 1>
 
-The following features will be covered:
+The following features are covered:
 * Basic language features.
 * Common tasks.
 * Fact extraction.
-* Language definitions.
-* Syntax definitions.
+* Language definition.
+* Syntax definition.
 * Parsing.
 * Transformation.
 * Code generation.
 * IDE extensions.
 * Visualization.
-
 
 
 Examples:

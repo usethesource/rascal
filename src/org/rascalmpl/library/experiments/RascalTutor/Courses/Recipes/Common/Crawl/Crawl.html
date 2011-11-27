@@ -68,11 +68,12 @@ public list[loc] crawl(loc dir, str suffix){
   res = [];
   for(str entry &lt;- listEntries(dir)){
       loc sub = dir + entry;   <img src="/Courses/images/1.png">
-      if(endsWith(entry, suffix)) { 
-         res += [sub]; 
-      }
       if(isDirectory(sub)) {
-         res += crawl(sub, suffix);
+          res += crawl(sub, suffix);
+      } else {
+	      if(endsWith(entry, suffix)) { 
+	         res += [sub]; 
+	      }
       }
   };
   return res;
@@ -98,14 +99,14 @@ o/basic/Bubble.rsc|,|std://library/demo/basic/BubbleTest.rsc|,|std://library/dem
 <pre class="screen"><b>rascal></b>import List;
 ok
 <b>rascal></b>size(files);
-int: 78
+int: 81
 </pre>
   or to compute the total number of lines in these files:
 
 <pre class="screen"><b>rascal></b>import IO;
 ok
 <b>rascal></b>(0 | it + size(readFileLines(f)) | loc f &lt;- files);
-int: 2965
+int: 3288
 </pre>
   This above example uses a <a href="/Courses/Rascal/Expressions/Reducer/Reducer.html">Rascal:Reducer</a> expression.
  <br/>
@@ -130,12 +131,12 @@ rel[loc, int]: {
   Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
 
 <pre class="screen"><b>rascal></b>m = max(range(aux));
-int: 154
+int: 283
 </pre>
   and now <a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">Rascal:invert</a> <code>aux</code> and use <a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Rascal:Subscription</a>  to find the tuples with the maximum value as first element.
 
 <pre class="screen"><b>rascal></b>invert(aux)[m];
-set[loc]: {|std://library/demo/lang/Func/Eval3.rsc|}
+set[loc]: {|std://library/demo/vis/Logo.rsc|}
 </pre>
 </div>
 
