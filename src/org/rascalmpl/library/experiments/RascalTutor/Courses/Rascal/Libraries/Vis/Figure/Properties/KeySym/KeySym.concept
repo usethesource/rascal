@@ -2,7 +2,7 @@ Name: KeySym
 
 Synopsis: Dadatype describing a key on the keyboard.
 
-Syntax:
+Syntax: `import vis::KeySym;`
 
 Types:
 <listing>
