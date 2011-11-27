@@ -1,0 +1,40 @@
+Name: DrawLogo
+
+Synopsis: Draw the Rascal logo.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+Given a 50x50 matrix containing the colors of the Rascal logo,
+we can reproduce it as visualization.
+
+Examples:
+Here is the solution:
+<listing demo/vis/Logo.rsc>
+
+We can use it as follows:
+<figure logo1.png>
+import demo::vis::Logo;
+render(logo());
+</figure>
+will produce:
+![Rascal logo](logo1.png|200x200)
+or as a screenshot:
+
+![Screen shot](Screenshot1.png)
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
