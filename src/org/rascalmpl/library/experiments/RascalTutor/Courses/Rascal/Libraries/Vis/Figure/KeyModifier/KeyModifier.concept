@@ -2,7 +2,7 @@ Name: KeyModifier
 
 Synopsis: The `KeyModifier` datatype describes key modifiers in user-interactions.
 
-Syntax:
+Syntax: `import vis::Figure::KeySym`;
 Types:
 <listing>
 data KeyModifier =
