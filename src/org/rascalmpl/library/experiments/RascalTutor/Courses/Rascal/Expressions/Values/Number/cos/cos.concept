@@ -1,0 +1,29 @@
+Name: cos
+
+Synopsis: Calculate the cosine of a numeric value.
+
+Syntax:
+
+Types:
+
+Function: `real cos(num x)`
+
+Details:
+
+Description:
+The cosine of the number `x`.
+
+Examples:
+<screen>
+import Number;
+cos(1.0)
+cos(60 * PI() / 180)
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

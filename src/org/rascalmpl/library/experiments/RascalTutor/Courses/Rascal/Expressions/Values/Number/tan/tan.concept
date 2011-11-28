@@ -1,0 +1,26 @@
+Name: tan
+
+Synopsis: Calculate the tangent of a numeric value.
+
+Syntax:
+
+Types:
+
+Function: `real tan(num x)`
+
+Details:
+
+Description:
+The tangent of the number `x`.
+
+Examples:
+<screen>
+import Number;
+tan(45 * PI() / 180)
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
