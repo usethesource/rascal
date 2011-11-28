@@ -36,8 +36,8 @@ public class Factorial{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		int n = 12;
-		int iterations = 10000000;
+		int n = 500;
+		int iterations = 10000;
 		
 		// Warmup
 		for(int i = 0; i < 20000; i++){

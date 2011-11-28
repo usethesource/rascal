@@ -1,11 +1,25 @@
 # Program to  reverse alist
 
-def rev1(lst)
+def rev(lst)
   if lst.empty?
     []
   else
-	rev1(lst[1..lst.length]) + lst[0,1]
+	rev(lst[1..lst.length]).concat([lst.first]);
   end
 end
 
-puts rev1(Array.new(size=200))
+def measure
+  a = Array.new(1000);
+  
+  for i in 1..1000
+      a[i] = i;
+  end
+      
+  start = Time.now.sec;
+  for i in 1..10000
+      rev(a);
+  end
+  puts "10000 x rev list of 1000 elements used %f seconds " % (Time.now.sec - start);
+end
+
+measure();

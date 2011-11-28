@@ -9,4 +9,13 @@ def fact(n)
   end
 end
 
-puts fact(ARGV[0].to_i)
+
+def measure()
+  start = Time.now.sec;
+  for i in 1..10000
+      fact(500);
+  end
+  puts "10000 x fac(500) used %f seconds " % (Time.now.sec - start);
+end
+
+measure();
