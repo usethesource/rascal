@@ -75,25 +75,25 @@ public class LayeredGraph extends Figure {
 	private static final boolean debug = false;
 	private static final boolean printGraph = false;
 	
-	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes,
+	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, Figure[] nodes,
 			IList edges) {
 		super(properties);
 		this.fpa = fpa;
-		if(printGraph){
-			String sep = "";
-			System.err.printf("graph([\n");
-			for(IValue v: nodes){
-				System.err.printf("%s", sep + v);
-				sep = ",\n\t";
-			}
-			System.err.printf("],\n[\n");
-			sep = "";
-			for(IValue v: edges){
-				System.err.printf("%s", sep + v);
-				sep = ",\n\t";
-			}
-			System.err.printf("]);");
-		}
+//		if(printGraph){
+//			String sep = "";
+//			System.err.printf("graph([\n");
+////			for(IValue v: nodes){
+////				System.err.printf("%s", sep + v);
+////				sep = ",\n\t";
+////			}
+//			System.err.printf("],\n[\n");
+//			sep = "";
+//			for(IValue v: edges){
+//				System.err.printf("%s", sep + v);
+//				sep = ",\n\t";
+//			}
+//			System.err.printf("]);");
+//		}
 		
 		
 		// Create the nodes
@@ -102,18 +102,16 @@ public class LayeredGraph extends Figure {
 		registeredNodeIds = new HashMap<String,LayeredGraphNode>();
 		registeredLayerIds =  new HashMap<String, LinkedList<LayeredGraphNode>>();
 		ArrayList<Figure> children = new ArrayList<Figure>();
-		for(IValue v : nodes){
-			IConstructor c = (IConstructor) v;
-			Figure fig = FigureFactory.make(fpa, c, properties, null);
+		for(Figure fig : nodes){
 			children.add(fig);
 			String name = fig.prop.getStr(ID);
 			String layer = fig.prop.getStr(LAYER);
 
 			if(name.length() == 0)
-				throw RuntimeExceptionFactory.figureException("Id property should be defined", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property should be defined", null, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 
 			if(getRegisteredNodeId(name) != null)
-				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", v, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
+				throw RuntimeExceptionFactory.figureException("Id property is doubly declared", null, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		
 			LayeredGraphNode node = new LayeredGraphNode(this, name, fig);
 			this.nodes.add(node);
