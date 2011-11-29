@@ -66,7 +66,7 @@ data Production
   | \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg)
   ;
 
-public bool subtype(\type[&T] t, \type[&U] u) = subtype(t.symbol, u.symbol);
+public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 
 @doc{
 This function documents and implements the subtype relation (not proper!) of Rascal's type system. 
@@ -76,7 +76,7 @@ public default bool subtype(Symbol s, Symbol t) = false;
 
 public bool subtype(Symbol _, \value()) = true;
 public bool subtype(\void(), Symbol _) = true;
-public bool subtype(\cons(Symbol adt, str _), adt) = true;
+public bool subtype(\cons(Symbol a, str _), a) = true;
 public bool subtype(\adt(str _), \node()) = true;
 public bool subtype(\adt(str _, list[Symbol] _), \node()) = true;
 public bool subtype(\adt(str n, list[Symbol] l), \adt(n, list[Symbol] r)) = subtype(l, r);
