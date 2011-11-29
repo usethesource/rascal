@@ -1,6 +1,7 @@
 package org.rascalmpl.library.vis.graphics;
 
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 
 public interface GraphicsContext {
@@ -24,6 +25,7 @@ public interface GraphicsContext {
 	public void setShadowTop(double y);
 	public void setFont(String fontName, int fontSize, FontStyle... styles);
 	public Font getFont();
+	public FontData getFontData();
 
 	public void pushMatrix();
 	public void popMatrix();

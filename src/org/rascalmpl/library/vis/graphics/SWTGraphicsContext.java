@@ -491,5 +491,10 @@ public class SWTGraphicsContext implements GraphicsContext {
 		return gc.getFont();
 	}
 
+	@Override
+	public FontData getFontData() {
+		return currentFontData;
+	}
+
 	
 }
