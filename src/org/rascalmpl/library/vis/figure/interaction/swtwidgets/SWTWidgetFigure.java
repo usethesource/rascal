@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.figure.Figure;
@@ -36,6 +37,7 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
 public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure implements IHasSWTElement{
 
 	public WidgetType widget;
+	private FontData setFont;
 	
 	SWTWidgetFigure(IFigureConstructionEnv env,PropertyManager properties){
 		super(properties);
@@ -69,7 +71,11 @@ public abstract class SWTWidgetFigure<WidgetType extends Control> extends Figure
 
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
-		widget.setFont(gc.getFont());
+		FontData d = gc.getFontData();
+		if(d == null || !d.equals(setFont)){
+			widget.setFont(gc.getFont());
+			setFont = d;
+		}
 		visibleSWTElements.add(this);
 		int rx = FigureMath.round(globalLocation.getX() + gc.getTranslateX());
 		int ry = FigureMath.round(globalLocation.getY() + gc.getTranslateY());
