@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Gives a list of numbers, return a function that maps these numbers to a color scale between the colors `from` and `to`.
+Given a list of numbers `values`, `colorScale` returns a function that maps these numbers to a color scale between the colors `from` and `to`.
 
 Examples:
 <figure h1.png>
