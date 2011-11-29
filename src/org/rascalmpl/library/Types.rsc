@@ -1,19 +1,25 @@
 @unfinished
-@doc{this is a module that reflects Rascal's type system, implemented in Rascal itself for reflection purposes and 
-     to provide a syntax and semantics for reified types. It is ***unfinished***.
+@doc{
+  
+This is a module that reflects Rascal's type system, implemented in Rascal itself:
+  * for reflection purposes, and 
+  * to provide a syntax and semantics for reified types.
+     
+It is ***unfinished***.
+     
+The type(Symbol symbol) constructor is builtin. Rascal enforces that &T is always bound to the type represented by the |symbol| field.
+
+This means that:
+  * The # operator produces this type() constructor when called on a type, i.e. #int will produce the value \type(\int()) of type[int]
+  * Programmatically constructing a value such as type(\int()) will produce a value of static type[value] and of dynamic type[int]
+    
+data type[&T] = type(Symbol symbol);
+     
 }
 module Types
 
 @doc{
-  This \type[&T] adt is builtin. Rascal enforces that &T is always bound to the type represented by the |symbol| field.
-  
-  This means that:
-  * The # operator produces this \type constructor when called on a type, i.e. #int will produce the value \type(\int()) of type \type[int]
-  * Programmatically constructing a value such as \type(\int()) will also produce a value of type \type[int].
-  * The \type type and the \type constructor can be used without the \ escape because "type" is a builtin keyword. 
-    It's definition is just repeated here for documentation purposes.
 } 
-data \type[&T] = \type(Symbol symbol);
  
 @doc{Symbols are values that represent Rascal's types}  
 data Symbol
@@ -84,3 +90,15 @@ public bool subtype(\func(Symbol r1, list[Symbol] p1), \func(Symbol r2, list[Sym
 
 public default bool subtype(list[Symbol] l, list[Symbol] r) = false;
 public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- [0..size(l) - 1], subtype(l[i], r[i])) when size(l) == size(r);
+
+data Exception 
+  = typeCastException(type[value] from, type[value] to);
+
+public &T typeCast(type[&T] _, value v) {
+  if (&T x := v)
+    return x;
+  throw typeCastException(#value, typ);
+}
+
+@javaClass{org.rascalmpl.library.Types}
+public java type[value] typeOf(value v);
