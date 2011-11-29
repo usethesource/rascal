@@ -35,6 +35,7 @@ import org.rascalmpl.library.vis.figure.compose.HVCat;
 import org.rascalmpl.library.vis.figure.compose.Overlay;
 import org.rascalmpl.library.vis.figure.compose.Pack;
 import org.rascalmpl.library.vis.figure.compose.WidthDependsOnHeightWrapper;
+import org.rascalmpl.library.vis.figure.graph.layered.LayerGraphRecompute;
 import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraphEdge;
 import org.rascalmpl.library.vis.figure.interaction.ComputeFigure;
@@ -249,7 +250,7 @@ public class FigureFactory {
 			//if(properties.getStringProperty(Properties.HINT).contains("lattice"))
 			//	return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//if(properties.getStr(Properties.HINT).contains("layered"))
-				return new LayeredGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+				return new LayerGraphRecompute(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//if(properties.getStringProperty(Properties.HINT).contains("leveled"))
 			//	return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
