@@ -102,7 +102,7 @@ public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- [0..size(l) - 1],
 data Exception 
   = typeCastException(type[value] from, type[value] to);
 
-public &T typeCast(type[&T] _, value v) {
+public &T typeCast(type[&T] typ, value v) {
   if (&T x := v)
     return x;
   throw typeCastException(#value, typ);
