@@ -1,11 +1,19 @@
+@license{
+  Copyright (c) 2009-2011 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 @unfinished
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl}
 @doc{
   
 This is a module that reflects Rascal's type system, implemented in Rascal itself:
   * for reflection purposes, and 
   * to provide a syntax and semantics for reified types.
      
-It is ***unfinished***.
+DISCLAIMER: This module is ***unfinished*** and the type(Symbol constructor) is currently not represented by the following definition.
      
 The type(Symbol symbol) constructor is builtin. Rascal enforces that &T is always bound to the type represented by the |symbol| field.
 
@@ -101,4 +109,5 @@ public &T typeCast(type[&T] _, value v) {
 }
 
 @javaClass{org.rascalmpl.library.Types}
+@reflective
 public java type[value] typeOf(value v);
