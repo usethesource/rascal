@@ -33,3 +33,7 @@ public java Tree parseCommands(str commands, loc location);
 @reflect{Uses Evaluator to get back the parse tree for the given commands}
 public java Tree parseModule(str moduleContent, loc location);
 
+@javaClass{org.rascalmpl.library.Reflective}
+@reflect{Uses Evaluator to get back type information, using the current type environment}
+public java type[value] typeOf(value v);
+

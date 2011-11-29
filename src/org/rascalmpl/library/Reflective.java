@@ -21,8 +21,10 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -65,4 +67,7 @@ public class Reflective {
 		return evaluator.parseModuleWithoutIncludingExtends(evaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), new ModuleEnvironment("___parseModule___", ctx.getHeap()));
 	}
 	
+	public IConstructor typeOf(IValue v, IEvaluatorContext ctx) {
+		return (IConstructor)v.getType().accept(new TypeReifier(ctx, ctx.getValueFactory())).getValue();
+	}
 }
