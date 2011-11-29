@@ -26,10 +26,8 @@ data type[&T] = type(Symbol symbol);
 }
 module Types
 
-@doc{
-} 
- 
 @doc{Symbols are values that represent Rascal's types}  
+/*
 data Symbol
   = \int()
   | \bool()
@@ -71,6 +69,7 @@ public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 @doc{
 This function documents and implements the subtype relation (not proper!) of Rascal's type system. 
 }
+
 public bool subtype(Symbol s, s) = true;
 public default bool subtype(Symbol s, Symbol t) = false;
 
@@ -98,6 +97,7 @@ public bool subtype(\func(Symbol r1, list[Symbol] p1), \func(Symbol r2, list[Sym
 
 public default bool subtype(list[Symbol] l, list[Symbol] r) = false;
 public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- [0..size(l) - 1], subtype(l[i], r[i])) when size(l) == size(r);
+*/
 
 data Exception 
   = typeCastException(type[value] from, type[value] to);
@@ -109,5 +109,5 @@ public &T typeCast(type[&T] _, value v) {
 }
 
 @javaClass{org.rascalmpl.library.Types}
-@reflective
+@reflect
 public java type[value] typeOf(value v);
