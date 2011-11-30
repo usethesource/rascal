@@ -66,8 +66,4 @@ public class Reflective {
 		Evaluator evaluator = ctx.getEvaluator();
 		return evaluator.parseModuleWithoutIncludingExtends(evaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), new ModuleEnvironment("___parseModule___", ctx.getHeap()));
 	}
-	
-	public IConstructor typeOf(IValue v, IEvaluatorContext ctx) {
-		return (IConstructor)v.getType().accept(new TypeReifier(ctx, ctx.getValueFactory())).getValue();
-	}
 }
