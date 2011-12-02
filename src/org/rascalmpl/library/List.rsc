@@ -161,7 +161,33 @@ public java int size(list[&T] lst);
 @javaClass{org.rascalmpl.library.List}
 public java list[&T] slice(list[&T] lst, int begin, int len);
 @doc{Sort the elements of a list}
-public list[&T] sort(list[&T] lst)
+public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
+{ // mergesort
+  s = size(lst);
+  if(s <= 1){
+  	return lst;
+  }
+  middle = s/2;
+  left = sort(slice(lst,0,middle),lessThanOrEqual);
+  right = sort(slice(lst,middle,s - middle),lessThanOrEqual);
+  i = j = 0;
+  return for (_ <- index(lst)) { 
+  	if (i < size(left) && (j == size(right) || lessThanOrEqual(left[i],right[j]))) {
+  		append left[i];
+  		i+=1;
+  	} else {
+  		append right[j];
+  		j+=1;
+  	}
+  }
+}
+
+@doc{Sort the elements of a list}
+public list[&T] sort(list[&T] lst) =
+	sort(lst, bool (&T a,&T b) { return a <= b; } );
+
+@doc{Sort the elements of a list(stable)}
+public list[&T] stableSort(list[&T] lst)
 {
   if(size(lst) <= 1){
   	return lst;
