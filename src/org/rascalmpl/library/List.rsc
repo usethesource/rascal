@@ -160,7 +160,7 @@ public java int size(list[&T] lst);
 @doc{Sublist from start of length len}
 @javaClass{org.rascalmpl.library.List}
 public java list[&T] slice(list[&T] lst, int begin, int len);
-doc{Sort the elements of a list}
+@doc{Sort the elements of a list}
 public list[&T] sort(list[&T] lst)
 {
   if(size(lst) <= 1){
