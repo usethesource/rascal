@@ -186,54 +186,6 @@ public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
 public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a <= b; } );
 
-@doc{Sort the elements of a list(stable)}
-public list[&T] stableSort(list[&T] lst)
-{
-  if(size(lst) <= 1){
-  	return lst;
-  }
-  
-  list[&T] less = [];
-  list[&T] greater = [];
-  &T pivot = lst[0];
-  
-  lst =tail(lst) ;
-  
-  for(&T elm <- lst){
-     if(elm <= pivot){
-       less = [elm] + less;
-     } else {
-       greater = [elm] + greater;
-     }
-  }
-  
-  return sort(less) + pivot + sort(greater);
-}
-
-@doc{Sort the elements of a list}
-public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
-{
-  if(size(lst) <= 1){
-  	return lst;
-  }
-  
-  list[&T] less = [];
-  list[&T] greater = [];
-  &T pivot = lst[0];
-  
-  lst = tail(lst);
-  
-  for(&T elm <- lst){
-     if(lessThanOrEqual(elm,pivot)){
-       less = [elm] + less;
-     } else {
-       greater = [elm] + greater;
-     }
-  }
-  
-  return sort(less, lessThanOrEqual) + pivot + sort(greater, lessThanOrEqual);
-}
-
 @doc{Join list of values into string separated by sep}
 public str intercalate(str sep, list[value] l) {
   if (l == []) {
