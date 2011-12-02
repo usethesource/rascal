@@ -171,7 +171,7 @@ public list[&T] sort(list[&T] lst)
   list[&T] greater = [];
   &T pivot = lst[0];
   
-  <pivot, lst> = <head(lst),tail(lst)>;
+  lst =tail(lst) ;
   
   for(&T elm <- lst){
      if(elm <= pivot){
@@ -195,7 +195,7 @@ public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
   list[&T] greater = [];
   &T pivot = lst[0];
   
-  <pivot, lst> = <head(lst),tail(lst)>;
+  lst = tail(lst);
   
   for(&T elm <- lst){
      if(lessThanOrEqual(elm,pivot)){
