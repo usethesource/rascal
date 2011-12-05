@@ -29,15 +29,29 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 
 public class List {
+	private static final int MAX_STORED_DEFAULT = 8192-1;
+	
 	private static final TypeFactory types = TypeFactory.getInstance();
 	private final IValueFactory values;
 	private final Random random;
+	private IList indexes; // stores a list of 0..MAX_STORED_INDEX, so that values of index()
+								 // will be shared
+	private int maxStored;
 	
 	public List(IValueFactory values){
 		super();
-		
 		this.values = values;
+		indexes = makeUpTill(0,MAX_STORED_DEFAULT);
+		maxStored = MAX_STORED_DEFAULT;
 		random = new Random();
+	}
+	
+	private IList makeUpTill(int from,int len){
+		IListWriter writer = values.listWriter(types.integerType());
+		for(int i = from ; i <= len; i++){
+			writer.append(values.integer(i));
+		}
+		return writer.done();
 	}
 	
 	public IValue delete(IList lst, IInteger n)
@@ -169,6 +183,54 @@ public class List {
 	 		throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
 	 	}
 	 }
+	  
+	public IValue take(IInteger len, IList lst) {
+	   //@doc{take -- take n elements of from front of a list}
+		int lenVal = len.intValue();
+		int lstLen = lst.length();
+		if(lenVal >= lstLen){
+			return lst;
+		} else {
+			return lst.sublist(0, lenVal);
+		}
+	}
+
+	public IValue drop(IInteger len, IList lst) {
+	   //@doc{drop -- remove n elements of from front of a list}
+		int lenVal = len.intValue();
+		int lstLen = lst.length();
+		if(lenVal >= lstLen){
+			return values.list();
+		} else {
+			return lst.sublist(lenVal, lstLen - lenVal);
+		}
+	}
+	
+	public IValue upTill(IInteger ni) {
+		//@doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
+		int n = ni.intValue()+1;
+		if(n > maxStored){
+			int old = maxStored;
+			while(n > maxStored){
+				maxStored = ((maxStored + 1) * 2) -1;
+			}
+			IList rest = makeUpTill(old+1, maxStored);
+			indexes =  indexes.concat(rest);
+		}
+		return indexes.sublist(0, n);
+	}
+	
+	public IValue prefix(IList lst) {
+		   //@doc{Return all but the last element of a list}
+			int lstLen = lst.length();
+			if(lstLen <= 1){
+				return values.list();
+			} else {
+				return lst.sublist(0, lstLen - 1);
+			}
+		}
+
+
 	 
 	public IValue takeOneFrom(IList lst)
 	//@doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}

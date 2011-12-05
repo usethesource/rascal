@@ -14,15 +14,12 @@ import Exception;
 import Integer;
 
 @doc{Get n elements from the head of the list, or size(l) if size(l) < n}
-public list[&T] take(int n, list[&T] l){
-	if(n == 0){ return []; }
-	return [ l[i] | i <- [0 .. (min(size(l),n) - 1)]];
-}
+@javaClass{org.rascalmpl.library.List}
+public java list[&T] take(int n, list[&T] l);
+
 @doc{Drop n elements from the head of the list, or size(l) if size(l) < n}
-public list[&T] drop(int n, list[&T] l){
-	if(n >= size(l)) return [];
-	return [ l[i] | i <- [n .. size(l)-1]];
-}
+@javaClass{org.rascalmpl.library.List}
+public java list[&T] drop(int n, list[&T] l) ;
 	
 @doc{Get n elements from the head of the list, size(l) if size(l) < n}
 public list[&T] mix(list[&T] l, list[&T] r){
@@ -58,12 +55,8 @@ public list[&T] dup(list[&T] lst) {
 }
 
 @doc{Return all but the last element of a list}
-public list[&T] prefix(list[&T] lst) {
-   if ([list[&T] p, &T l] := lst) 
-     return p;
-   else 
-     return [];
-}
+@javaClass{org.rascalmpl.library.List}
+public java list[&T] prefix(list[&T] lst) ;
 
 @doc{Get the first n elements of a list}
 @javaClass{org.rascalmpl.library.List}
@@ -74,12 +67,11 @@ public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 public java &T getOneFrom(list[&T] lst);
 
 @doc{Get the indices of a list}
-public list[int] index(list[&T] lst){
-  n = size(lst);
-  if(n == 0)
-    return [];
-  return [0 .. n - 1];
-}
+public list[int] index(list[&T] lst) = upTill(size(lst));
+
+@doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
+@javaClass{org.rascalmpl.library.List}
+public java list[int] upTill(int n);
 
 @doc{Add an element at a specific position in a list}
 @javaClass{org.rascalmpl.library.List}
@@ -90,34 +82,15 @@ public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoun
 public java bool isEmpty(list[&T] lst);
 
 @doc{Apply a function to each element of a list}
-public list[&U] mapper(list[&T] lst, &U (&T) fn)
-{
-  return [fn(elm) | &T elm <- lst];
-}
+public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
 
 @doc{Largest element of a list}
-public &T max(list[&T] lst)
-{
-  &T result = getOneFrom(lst);
-  for(&T elm <- lst) {
-   if(result < elm) {
-      result = elm;
-   }
-  }
-  return result;
-}
+public &T max(list[&T] lst) =
+	(head(lst) | max(e,it) | e <- tail(lst));
 
 @doc{Smallest element of a list}
-public &T min(list[&T] lst)
-{
-  &T result = getOneFrom(lst);
-  for(&T elm <- lst){
-   if(elm < result){
-      result = elm;
-   }
-  }
-  return result;
-}
+public &T min(list[&T] lst) =
+	(head(lst) | min(e,it) | e <- tail(lst));
 
 @doc{Return all permutations of a list}
 public set[list[&T]] permutations(list[&T] lst)
@@ -160,26 +133,35 @@ public java int size(list[&T] lst);
 @doc{Sublist from start of length len}
 @javaClass{org.rascalmpl.library.List}
 public java list[&T] slice(list[&T] lst, int begin, int len);
+
+@doc{Merge the elements of two sorted lists into one list}
+public list[&T] merge(list[&T] left, list[&T] right){
+  res = while(!isEmpty(left) && !isEmpty(right)) {
+    if(head(left) <= head(right)) {
+      append head(left);
+      left = tail(left);
+    } else {
+      append head(right);
+      right = tail(right);
+    }
+  }
+  return res + left + right;
+}
+
+@doc{Split a list into two halves}
+public tuple[list[&T],list[&T]] split(list[&T] l) {
+	half = size(l)/2;
+	return <take(half,l), drop(half,l)>;
+}
+
 @doc{Sort the elements of a list}
-public list[&T] sort(list[&T] lst, bool (&T a, &T b) lessThanOrEqual)
-{ // mergesort
-  s = size(lst);
-  if(s <= 1){
-  	return lst;
-  }
-  middle = s/2;
-  left = sort(slice(lst,0,middle),lessThanOrEqual);
-  right = sort(slice(lst,middle,s - middle),lessThanOrEqual);
-  i = j = 0;
-  return for (_ <- index(lst)) { 
-  	if (i < size(left) && (j == size(right) || lessThanOrEqual(left[i],right[j]))) {
-  		append left[i];
-  		i+=1;
-  	} else {
-  		append right[j];
-  		j+=1;
-  	}
-  }
+public list[&T] sort(list[&T] l, bool (&T a, &T b) lessThanOrEqual) {
+	if(size(l) <= 1) {
+		return l;
+	} else {
+		<left,right> = split(l);
+		return merge(sort(left),sort(right));
+	}
 }
 
 @doc{Sort the elements of a list}
@@ -187,12 +169,9 @@ public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a <= b; } );
 
 @doc{Join list of values into string separated by sep}
-public str intercalate(str sep, list[value] l) {
-  if (l == []) {
-     return "";
-  }
-  return ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
-}
+public str intercalate(str sep, list[value] l) = 
+	l == [] ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+
 
 @doc{All but the first element of a list}
 @javaClass{org.rascalmpl.library.List}
@@ -212,17 +191,12 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
   throw EmptyList();
 }
 
-public tuple[&T, list[&T]] pop(list[&T] lst) throws EmptyList {
-  return headTail(lst);
-}
+public tuple[&T, list[&T]] pop(list[&T] lst) throws EmptyList =
+  headTail(lst);
 
-public &T top(list[&T] lst) throws EmptyList {
-  return head(lst);
-}
+public &T top(list[&T] lst) throws EmptyList = head(lst);
 
-public list[&T] push(&T elem, list[&T] lst) {
-  return [elem] + lst;
-}
+public list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 @doc{Convert a list of tuples to a map; first elements are associated with a set of second elements}
 @javaClass{org.rascalmpl.library.List}
@@ -279,26 +253,10 @@ public list[tuple[&T first, &U second, &V third]] zip(list[&T] a, list[&U] b, li
 }
 
 @doc{Make a pair of lists from a list of pairs.}
-public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) {
-	list[&T] ts = [];
-	list[&U] us = [];
-	for(<t,u> <- lst) {
-		ts += t;
-		us += u;
-	}
-	return <ts,us>;
-}
+public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) =
+	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
 
 @doc{Make a triple of lists from a list of triples.}
-public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) {
-	list[&T] ts = [];
-	list[&U] us = [];
-	list[&V] vs = [];
-	for(<t,u,v> <- lst) {
-		ts += t;
-		us += u;
-		vs += v;
-	}
-	return <ts,us,vs>;
-}
+public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
+	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
