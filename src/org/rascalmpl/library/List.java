@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -29,20 +31,17 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 
 public class List {
-	private static final int MAX_STORED_DEFAULT = 8192-1;
-	
 	private static final TypeFactory types = TypeFactory.getInstance();
 	private final IValueFactory values;
 	private final Random random;
-	private IList indexes; // stores a list of 0..MAX_STORED_INDEX, so that values of index()
-								 // will be shared
-	private int maxStored;
+	private WeakReference<IList> indexes;
+
 	
 	public List(IValueFactory values){
 		super();
 		this.values = values;
-		indexes = makeUpTill(0,MAX_STORED_DEFAULT);
-		maxStored = MAX_STORED_DEFAULT;
+		indexes = null;
+		
 		random = new Random();
 	}
 	
@@ -209,15 +208,17 @@ public class List {
 	public IValue upTill(IInteger ni) {
 		//@doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
 		int n = ni.intValue()+1;
-		if(n > maxStored){
-			int old = maxStored;
-			while(n > maxStored){
-				maxStored = ((maxStored + 1) * 2) -1;
+		if(indexes == null || indexes.get() == null){
+			IList l = makeUpTill(0, n);
+			indexes = new WeakReference<IList>(l);
+			return indexes.get();
+		} else {
+			IList l = indexes.get(); // strong ref
+			if(l == null){ // small chance
+				return upTill(ni);
 			}
-			IList rest = makeUpTill(old+1, maxStored);
-			indexes =  indexes.concat(rest);
-		}
-		return indexes.sublist(0, n);
+			return l.sublist(0, n);
+		} 
 	}
 	
 	public IValue prefix(IList lst) {
