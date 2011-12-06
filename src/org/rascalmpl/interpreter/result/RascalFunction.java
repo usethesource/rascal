@@ -58,11 +58,10 @@ public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
-//	private IMatchingResult[] matchers;
 	private final boolean isDefault;
 	private boolean isTest;
 	private boolean isStatic;
-	private List<Expression> formals;
+	private final List<Expression> formals;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -74,8 +73,6 @@ public class RascalFunction extends NamedFunction {
 		this.isTest = hasTestMod(func.getSignature());
 		// static means that the function is defined in a module (and not the console prompt).
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
-
-		cacheFormals();
 	}
 
 	
@@ -88,7 +85,6 @@ public class RascalFunction extends NamedFunction {
 				env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 		this.isTest = hasTestMod(func.getSignature());
-		cacheFormals();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -99,12 +95,12 @@ public class RascalFunction extends NamedFunction {
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
-//		this.matchers = prepareFormals(eval);
-		cacheFormals();
+		this.formals = cacheFormals();
 	}
 	
-	private void cacheFormals() throws ImplementationError {
+	private List<Expression> cacheFormals() throws ImplementationError {
 		Parameters params;
+		List<Expression> formals;
 		
 		if (ast instanceof FunctionDeclaration) {
 			params = ((FunctionDeclaration) ast).getSignature().getParameters();
@@ -141,6 +137,8 @@ public class RascalFunction extends NamedFunction {
 				throw new UnsupportedPatternError("...", last);
 			}
 		}
+		
+		return formals;
 	}
 	
 	@Override
