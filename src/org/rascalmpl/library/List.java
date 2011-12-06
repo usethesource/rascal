@@ -47,7 +47,7 @@ public class List {
 	
 	private IList makeUpTill(int from,int len){
 		IListWriter writer = values.listWriter(types.integerType());
-		for(int i = from ; i <= len; i++){
+		for(int i = from ; i < len; i++){
 			writer.append(values.integer(i));
 		}
 		return writer.done();
@@ -206,16 +206,18 @@ public class List {
 	}
 	
 	public IValue upTill(IInteger ni) {
-		//@doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
-		int n = ni.intValue()+1;
-		if(indexes == null || indexes.get() == null){
+		//@doc{Returns the list 0..n, this is slightly faster than [0,1..n], since the returned values are shared}
+		int n = ni.intValue();
+		if(indexes == null || indexes.get() == null) {
 			IList l = makeUpTill(0, n);
 			indexes = new WeakReference<IList>(l);
 			return indexes.get();
 		} else {
 			IList l = indexes.get(); // strong ref
-			if(l == null){ // small chance
-				return upTill(ni);
+			if(l == null || n >= l.length()){ 
+				l = makeUpTill(0,n);
+				indexes =  new WeakReference<IList>(l);
+				return l;
 			}
 			return l.sublist(0, n);
 		} 
