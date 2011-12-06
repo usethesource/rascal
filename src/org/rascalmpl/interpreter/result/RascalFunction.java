@@ -62,6 +62,7 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isDefault;
 	private boolean isTest;
 	private boolean isStatic;
+	private List<Expression> formals;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -73,6 +74,73 @@ public class RascalFunction extends NamedFunction {
 		this.isTest = hasTestMod(func.getSignature());
 		// static means that the function is defined in a module (and not the console prompt).
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
+
+		cacheFormals();
+	}
+
+	
+	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
+			Stack<Accumulator> accumulators) {
+		this(func, eval,
+				(FunctionType) func.getSignature().typeOf(env),
+				varargs, isDefault(func),
+				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
+				env, accumulators);
+		this.name = Names.name(func.getSignature().getName());
+		this.isTest = hasTestMod(func.getSignature());
+		cacheFormals();
+	}
+
+	@SuppressWarnings("unchecked")
+	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
+			boolean varargs, boolean isDefault, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+		super(ast, eval, functionType, null, varargs, env);
+		this.body = body;
+		this.isDefault = isDefault;
+		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
+		this.accumulators = (Stack<Accumulator>) accumulators.clone();
+//		this.matchers = prepareFormals(eval);
+		cacheFormals();
+	}
+	
+	private void cacheFormals() throws ImplementationError {
+		Parameters params;
+		
+		if (ast instanceof FunctionDeclaration) {
+			params = ((FunctionDeclaration) ast).getSignature().getParameters();
+		}
+		else if (ast instanceof Closure) {
+			params = ((Closure) ast).getParameters();
+		}
+		else if (ast instanceof VoidClosure) {
+			params = ((VoidClosure) ast).getParameters();
+		}
+		else {
+			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
+		}
+		
+		formals = params.getFormals().getFormals();
+		
+		if (params.isVarArgs() && formals.size() > 0) {
+			// deal with varags, change the last argument to a list if its not a pattern
+			Expression last = formals.get(formals.size() - 1);
+			if (last.isTypedVariable()) {
+				org.rascalmpl.ast.Type oldType = last.getType();
+				IConstructor origin = last.getTree();
+				Structured newType = ASTBuilder.make("Type","Structured", origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg","Default", origin,oldType))));
+				last = ASTBuilder.make("Expression","TypedVariable",origin, newType, last.getName());
+				formals = replaceLast(formals, last);
+			}
+			else if (last.isQualifiedName()) {
+				IConstructor origin = last.getTree();
+				org.rascalmpl.ast.Type newType = ASTBuilder.make("Type","Structured",origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg",origin, ASTBuilder.make("Type","Basic", origin, ASTBuilder.make("BasicType","Value", origin))))));
+				last = ASTBuilder.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
+				formals = replaceLast(formals, last);
+			}
+			else {
+				throw new UnsupportedPatternError("...", last);
+			}
+		}
 	}
 	
 	@Override
@@ -95,30 +163,6 @@ public class RascalFunction extends NamedFunction {
 		return false;
 	}
 
-	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
-			Stack<Accumulator> accumulators) {
-		this(func, eval,
-				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func),
-				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
-				env, accumulators);
-		this.name = Names.name(func.getSignature().getName());
-		this.isTest = hasTestMod(func.getSignature());
-	}
-
-	
-
-	@SuppressWarnings("unchecked")
-	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
-			boolean varargs, boolean isDefault, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, null, varargs, env);
-		this.body = body;
-		this.isDefault = isDefault;
-		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
-		this.accumulators = (Stack<Accumulator>) accumulators.clone();
-//		this.matchers = prepareFormals(eval);
-	}
-	
 	public boolean isAnonymous() {
 		return getName() == null;
 	}
@@ -268,44 +312,6 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	private IMatchingResult[] prepareFormals(IEvaluatorContext ctx) {
-		List<Expression> formals;
-		Parameters params;
-		
-		if (ast instanceof FunctionDeclaration) {
-			params = ((FunctionDeclaration) ast).getSignature().getParameters();
-		}
-		else if (ast instanceof Closure) {
-			params = ((Closure) ast).getParameters();
-		}
-		else if (ast instanceof VoidClosure) {
-			params = ((VoidClosure) ast).getParameters();
-		}
-		else {
-			throw new ImplementationError("Unexpected kind of Rascal function: " + ast);
-		}
-		
-		formals = params.getFormals().getFormals();
-		if (params.isVarArgs() && formals.size() > 0) {
-			// deal with varags, change the last argument to a list if its not a pattern
-			Expression last = formals.get(formals.size() - 1);
-			if (last.isTypedVariable()) {
-				org.rascalmpl.ast.Type oldType = last.getType();
-				IConstructor origin = last.getTree();
-				Structured newType = ASTBuilder.make("Type","Structured", origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg","Default", origin,oldType))));
-				last = ASTBuilder.make("Expression","TypedVariable",origin, newType, last.getName());
-				formals = replaceLast(formals, last);
-			}
-			else if (last.isQualifiedName()) {
-				IConstructor origin = last.getTree();
-				org.rascalmpl.ast.Type newType = ASTBuilder.make("Type","Structured",origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg",origin, ASTBuilder.make("Type","Basic", origin, ASTBuilder.make("BasicType","Value", origin))))));
-				last = ASTBuilder.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
-				formals = replaceLast(formals, last);
-			}
-			else {
-				throw new UnsupportedPatternError("...", last);
-			}
-		}
-		
 		int size = formals.size();
 		IMatchingResult[] matchers = new IMatchingResult[size];
 		
