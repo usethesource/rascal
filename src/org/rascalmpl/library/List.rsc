@@ -67,7 +67,7 @@ public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 public java &T getOneFrom(list[&T] lst);
 
 @doc{Get the indices of a list}
-public list[int] index(list[&T] lst) = upTill(size(lst));
+public list[int] index(list[&T] lst) = upTill(size(lst)-1);
 
 @doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
 @javaClass{org.rascalmpl.library.List}
@@ -135,9 +135,9 @@ public java int size(list[&T] lst);
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{Merge the elements of two sorted lists into one list}
-public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessThanOrEqual){
+public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessOrEqual){
   res = while(!isEmpty(left) && !isEmpty(right)) {
-    if(lessThanOrEqual(head(left),head(right))) {
+    if(lessOrEqual(head(left),head(right))) {
       append head(left);
       left = tail(left);
     } else {
@@ -155,12 +155,12 @@ public tuple[list[&T],list[&T]] split(list[&T] l) {
 }
 
 @doc{Sort the elements of a list}
-public list[&T] sort(list[&T] l, bool (&T a, &T b) leq) {
+public list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) {
 	if(size(l) <= 1) {
 		return l;
 	} else {
 		<left,right> = split(l);
-		return merge(sort(left,leq),sort(right,leq),leq);
+		return merge(sort(left,lessOrEqual),sort(right,lessOrEqual),lessOrEqual);
 	}
 }
 
