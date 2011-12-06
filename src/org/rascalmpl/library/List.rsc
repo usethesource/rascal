@@ -135,9 +135,9 @@ public java int size(list[&T] lst);
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{Merge the elements of two sorted lists into one list}
-public list[&T] merge(list[&T] left, list[&T] right){
+public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessThanOrEqual){
   res = while(!isEmpty(left) && !isEmpty(right)) {
-    if(head(left) <= head(right)) {
+    if(lessThanOrEqual(head(left),head(right))) {
       append head(left);
       left = tail(left);
     } else {
@@ -155,12 +155,12 @@ public tuple[list[&T],list[&T]] split(list[&T] l) {
 }
 
 @doc{Sort the elements of a list}
-public list[&T] sort(list[&T] l, bool (&T a, &T b) lessThanOrEqual) {
+public list[&T] sort(list[&T] l, bool (&T a, &T b) leq) {
 	if(size(l) <= 1) {
 		return l;
 	} else {
 		<left,right> = split(l);
-		return merge(sort(left),sort(right));
+		return merge(sort(left,leq),sort(right,leq),leq);
 	}
 }
 
