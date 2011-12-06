@@ -91,7 +91,7 @@ public class GlobalEnvironment {
 	 * Retrieve a module from the heap
 	 */
 	public ModuleEnvironment getModule(String name) {
-		return moduleEnvironment.get(Names.unescape(name));
+		return moduleEnvironment.get(name);
 	}
 
 	public ModuleEnvironment getModule(QualifiedName name, AbstractAST ast) {
