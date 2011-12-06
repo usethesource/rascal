@@ -170,7 +170,7 @@ public list[&T] sort(list[&T] lst) =
 
 @doc{Join list of values into string separated by sep}
 public str intercalate(str sep, list[value] l) = 
-	l == [] ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+	(l == []) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
 
 
 @doc{All but the first element of a list}
