@@ -38,6 +38,11 @@ public class ComposedFunctionResult extends AbstractFunction{
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return left.isStatic() && right.isStatic();
+	}
+	
+	@Override
 	public boolean isDefault() {
 		return right.isDefault();
 	}
