@@ -30,11 +30,6 @@ public class Names {
 		return names.get(names.size() - 1);
 	}
 	
-	static public String unescape(String s) {
-		s = s.replace('\\', ' ');
-		return s.replaceAll(" ","");
-	}
-	
 	static public boolean isQualified(QualifiedName name) {
 		return name.getNames().size() > 1;
 	}
@@ -89,14 +84,7 @@ public class Names {
 	}
 	
 	static public String name(Name name) {
-		String s;
-		if (name instanceof Name.Lexical) {
-			s = ((Name.Lexical) name).getString();
-		}
-		else {
-			throw new ImplementationError("unexpected type of name found: " + name);
-		}
-		return unescape(s);
+		return ((Name.Lexical) name).getString();
 	}
 	
 	static public String consName(QualifiedName qname) {
