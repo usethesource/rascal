@@ -67,9 +67,9 @@ public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 public java &T getOneFrom(list[&T] lst);
 
 @doc{Get the indices of a list}
-public list[int] index(list[&T] lst) = upTill(size(lst)-1);
+public list[int] index(list[&T] lst) = upTill(size(lst));
 
-@doc{Returns the list 0..n, this is slightly faster than [0..n], since the returned values are shared}
+@doc{Returns the list 0,1..n-1, this is slightly faster than [0..n], since the returned values are shared}
 @javaClass{org.rascalmpl.library.List}
 public java list[int] upTill(int n);
 
