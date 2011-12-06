@@ -91,6 +91,8 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 	public boolean isFile(URI uri) {
 		try {
 			URL res = clazz.getResource(getPath(uri));
+			if(res == null)
+				return false;
 			return registry.isFile(res.toURI());
 		} catch (URISyntaxException e) {
 			return false;
