@@ -3,6 +3,25 @@ package org.rascalmpl.library.vis.util;
 
 public class LinearSolver {
 	
+	// Solves a triadiagonal matrix, see http://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+	public static double[] solveTridiagonal(double[] a, double []b, double[] c, double[] d){
+		// forward sweep
+		c[0] = c[0]/b[0];
+		d[0] = d[0]/b[0];
+		for(int i = 1 ; i < c.length ; i++){
+			double m = c[i-1] * a[i];
+			c[i] = c[i]/(b[i]-m);
+			d[i] = (d[i] - d[i-1]*a[i])/(b[i] - m);
+		}
+		// backward sweep
+		int last = c.length -1;
+		double[] res = new double[c.length];
+		res[last] = d[last];
+		for(int i = last - 1 ; i >= 0 ; i--){
+			res[i] = d[i] - c[i]*res[i+1];
+		}
+		return res;
+	}
 	
 	// Solves a system of linear equations
 	// assumes a that all rows are of same length, the last elements is the constant

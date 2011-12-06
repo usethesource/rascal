@@ -82,6 +82,8 @@ public class Pack extends WidthDependsOnHeight {
 			gc.fill(FigureColorUtils.figureColor(180, 180, 180));
 			gc.rect(globalLocation.getX(), globalLocation.getY(), size.getX(), size.getY());
 			gc.text(message, globalLocation.getX() + size.getX()/2.0 - getTextWidth(message)/2.0, globalLocation.getY() + size.getY()/2.0 );
+		} else {
+			super.drawElement(gc, visibleSWTElements);
 		}
 	}
 
