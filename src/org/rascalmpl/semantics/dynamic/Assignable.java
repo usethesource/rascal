@@ -680,14 +680,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			QualifiedName qname = this.getQualifiedName();
-			Result<IValue> previous = __eval.__getEnv().getVariable(qname);
-
-			if (__eval.__getEnv().isNameFinal(qname)) {
-				throw new AssignmentToFinalError(this.getQualifiedName());
-			}
-
-			// System.out.println("I am assigning: " + this + "(oldvalue = " +
-			// previous + ")");
+			Result<IValue> previous = __eval.__getEnv().getSimpleVariable(qname);
 
 			if (previous != null && previous.getValue() != null) {
 				__eval.__setValue(__eval.newResult(previous, __eval
@@ -699,9 +692,6 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			switch (__eval.__getOperator()) {
 			case Default:
 			case IsDefined:
-				// System.out.println("And it's local: " + this);
-				// env.storeLocalVariable(qname, value); ?? OOPS
-				// env.declareVariable(value.getType(), qname.toString());
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
 				return __eval.__getValue();
 			default:
@@ -716,7 +706,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			return __eval.getCurrentEnvt().getVariable(this.getQualifiedName());
+			return __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
 
 		}
 

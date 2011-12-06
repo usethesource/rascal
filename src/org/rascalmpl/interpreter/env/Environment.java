@@ -162,6 +162,20 @@ public class Environment {
 		}
 	}
 
+	public Result<IValue> getSimpleVariable(QualifiedName name) {
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRootScope()) {
+				current = current.parent;
+			}
+
+			return current.getSimpleVariable(name);
+		}
+
+		String varName = Names.name(Names.lastName(name));
+		return getSimpleVariable(varName);
+	}
+	
 	public Result<IValue> getVariable(String name) {
 		Result<IValue> t = getSimpleVariable(name);
 		
@@ -172,7 +186,11 @@ public class Environment {
 		return getAllFunctions(name);
 	}
 	
-	protected Result<IValue> getSimpleVariable(String name) {
+	public Result<IValue> getSimpleVariable(Name name) {
+		return getSimpleVariable(Names.name(name));
+	}
+	
+	public Result<IValue> getSimpleVariable(String name) {
 		Result<IValue> t = null;
 		
 		if (variableEnvironment != null) {

@@ -742,15 +742,16 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				for (int i = 0; i < size; i++) {
 					QualifiedName var = varList.get(i);
 					vars[i] = var;
-					if (__eval.getCurrentEnvt().getVariable(var) == null) {
+					Result<IValue> tmp = __eval.getCurrentEnvt().getSimpleVariable(var);
+					
+					if (tmp == null) {
 						throw new UndeclaredVariableError(var.toString(), var);
 					}
-					if (__eval.getCurrentEnvt().getVariable(var).getValue() == null) {
+					if (tmp.getValue() == null) {
 						throw new UninitializedVariableError(var.toString(),
 								var);
 					}
-					currentValue[i] = __eval.getCurrentEnvt().getVariable(var)
-							.getValue();
+					currentValue[i] = tmp.getValue();
 				}
 
 				__eval.pushEnv();

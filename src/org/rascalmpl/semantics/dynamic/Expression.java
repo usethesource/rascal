@@ -1743,7 +1743,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 			Type signature = TF.tupleType(new Type[0]);
 
-			Result<IValue> r = eval.getEvaluator().getCurrentEnvt().getVariable(name);
+			Result<IValue> r = eval.getEvaluator().getCurrentEnvt().getSimpleVariable(name);
 
 			if (r != null) {
 				if (r.getValue() != null) {

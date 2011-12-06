@@ -47,7 +47,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		if(anonymous){
 			declaredType = TypeFactory.getInstance().valueType();
 		} else {
-			Result<IValue> varRes = env.getVariable(name);
+			Result<IValue> varRes = env.getSimpleVariable(name);
 			if (varRes == null || varRes.getType() == null) {
 				declaredType = TypeFactory.getInstance().valueType();
 			} else {
@@ -110,7 +110,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		}
 		// either bind the variable or check for equality
 		
-		Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
+		Result<IValue> varRes = ctx.getCurrentEnvt().getSimpleVariable(name);
 		if (varRes == null) {
 			// inferred declaration
 			declaredType = subject.getType();
