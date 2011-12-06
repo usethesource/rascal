@@ -1,3 +1,4 @@
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -22,8 +23,172 @@ public str apiGen(str apiName,list[type[value]] ts) {
 }
 
 public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) {
+
+	str declareType(type[value] t){
+		if("adt"(name,cs,ps) := t){
+			return 	"public static final Type <name> = tf.abstractDataType(typestore, \"<name>\"<typeParamsVarArgs(ps)>);
+					'<for(c <- cs) {>
+					'	<declareConstructor(c,name)><}>
+					";
+		} 
+		if ("alias"(name, ap, ps) := t) {
+			return "public static final Type <name> = 
+				tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
+		}
+		throw "Cannot declare type <t>"; 
+	}
+	
+	
+	public str declareConstructor(value t,str typeName){
+		switch(t){
+			case constructor(str cname,list[tuple[type[value],str]] args) : {
+				return "public static final Type <typeName>_<cname> = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
+			}
+		}
+	}
+	
+	public str type2FactoryCall(type[value] t){
+		switch(t){
+			case value() : return "tf.valueType()";
+			case void() : return "tf.voidType()";
+			case int() :  return "tf.integerType()"; 
+			case num() : return "tf.numberType()";
+			case real() : return "tf.realType()";
+			case bool() : return "tf.boolType()";
+			case str() :  return "tf.stringType()"; 
+			case loc() : return "tf.sourceLocationType()";
+			case datetime() : return "tf.dateTimeType()";
+			case node() : return "tf.nodeType()";
+			case constructor(name,_) : return resolveType (name);
+			case set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";	
+			case list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
+			case map(ti,ti2) : return "tf.mapType(<type2FactoryCall(ti)>,<type2FactoryCall(ti2)>)";
+			case tuple(list[type[value]] tis) : 
+				return "tf.tupleType(<typeList2FactoryVarArgs(tis)>)";
+			case tuple(list[tuple[type[value] \type, str label]] tis):
+				return "tf.tupleType(<typeAndLabelsList2FactoryVarArgs(tis)>)";
+			case rel(list[tuple[type[value] \type, str label]] tis) :
+				 return "tf.relType(<typeAndLabelsList2FactoryVarArgs(tis)>)";
+			case rel(list[type[value]] tis) : 
+				return "tf.relType(<typeList2FactoryVarArgs(tis)>)";
+			case fun(returnType, args): 
+				return "rtf.functionType(<type2FactoryCall(returnType)>,
+						tf.tupleType(<typeList2FactoryVarArgsFirstPos(args)>)";
+		}
+		// for some reason this does not work in switch (bug)
+		     if("adt"(name,_,_) := t) {
+		     	  return resolveType (name); 
+		 } else if("alias"(name,p,q) := t) {  
+		 	return resolveType (name);
+		 } else if("parameter"(name,t2) := t) {  
+			return "tf.parameterType(\"<name>\",<type2FactoryCall(t2)>)"; 
+		} else if("reified"(type[value] t2) := t) {
+			return "rtf.reifiedType(<type2FactoryCall(t2)>)";
+		}
+		 throw "Do not now how to construct <t>";
+	}
+	
+	str typeParamsVarArgs(list[tuple[type[value],type[value]]] p){
+		 return toExtraArgs([ type2FactoryCall(t[0]) | t <- p]);
+	}
+	
+	str typeAndLabelsList2FactoryVarArgs(list[tuple[type[value] \type, str label]] typesAndLabels){
+		return toExtraArgs([type2FactoryCall(arg.\type),"\"<arg.label>\"" | arg <- typesAndLabels ]);
+	}
+	
+	str typeList2FactoryVarArgs(list[type[value]] tss){
+		return toExtraArgs([ type2FactoryCall(t) | t <- tss]);
+	}
+	
+	str typeList2FactoryVarArgsFirstPos(list[type[value]] tss){
+		return intercalate(",",[ type2FactoryCall(t) | t <- tss]);
+	}
+	
+	str toExtraArgs(list[str] strs){
+		if(size(strs) == 0)  return "";
+		else return ("" | "<it>,<s>" | s <- strs);
+	}
+	
+	
+	str typeNameTuples2FactoryCallArgs(list[tuple[type[value],str]] args){
+		return toExtraArgs([type2FactoryCall(t),"\"" + n + "\"" | <t,n> <- args]);
+	} 
+	
+	str resolveType(str s){
+		if(externalTypes[s] ? ){
+			return "<externalTypes[s]>.<s>";
+		} else {
+			return s;
+		}
+	}
+	
+	
+	str declareGetters(type[value] t){
+		if("adt"(name,cs,ps) := t){
+			return 	"<for(c <- cs) {><declareConstructorGetters(c,name)><}>";
+		} 
+		if ("alias"(name, ap, ps) := t) {
+			return "public static final Type <name> = tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
+		}
+		throw "Cannot declare type <t>"; 
+	}
+	
+	
+	
+	str declareConstructorGetters(value t,str typeName){
+		switch(t){
+			case constructor(str cname,list[tuple[type[value],str]] args) : {
+				if(size(args) == 0) return "";
+				return 	"<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i][0])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
+						'	return <javaResult(args[i][0],"c.get(<i>)")>;
+						'}
+						'<}>";
+			}
+		}
+	}
+	
+	str typeToSimpleJavaType(type[value] t){
+		switch(t){
+			case int() : return "int";
+			case real() : return "double";
+			case num() : return "double";
+			case bool() : return "boolean";
+			case str() :  return "String";
+			default : return typeToJavaType(t);
+		}
+	}
+	
+	str javaResult(type[value] t,str access){
+		switch(t){
+			case int() : return "((IInteger)<access>).intValue()";
+			case real() : return "((IReal)<access>).doubleValue()";
+			case num() : return "<access> instanceof IInteger ? (double)((IInteger)<access>).intValue() : ((IReal)<access>).doubleValue()";
+			case bool() : return "((IBool)<access>).getValue()";
+			case str() :  return "((IString)<access>).getValue()";
+			default : return "(<typeToJavaType(t)>)<access>";
+		}
+	}
+	
+	str typeToJavaType(type[value] t){
+		switch(t){
+			case int() : return "IInteger";
+			case real() : return "IReal";
+			case num() : return "INumber";
+			case bool() : return "IBool";
+			case list(_) : return "IList";
+			case map(_,_) : return "IMap";
+			case rel(_) : return "IRelation";
+			case set(_) : return "ISet";
+			case loc() : return "ISourceLocation";
+			case str() :  return "IString";
+			case datetime() : return "IDateTime";
+			case tuple(_) : return  "ITuple";		 
+			case fun(returnType, args): return "Object"; // TODO: fixme with actual type
+			default : return "Object";
+		}
+	}
+	
 	allTypes = { x| t <- ts , x:/"adt"(n,c,p) <- t } + toSet(ts);
-	println(allTypes);
 	return 	"// This code was generated by Rascal API gen
 			'import org.rascalmpl.interpreter.types.RascalTypeFactory;
 			'import org.eclipse.imp.pdb.facts.type.Type;
@@ -42,7 +207,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'	<for(type[value] t <- allTypes) { >
 			'	<declareType(t)>
 			'	<}>
-			'	<for(t <- allTypes) { > <declareGetters(t)> <}>
+			'	<for(type[value] t <- allTypes) { > <declareGetters(t)> <}>
 			'	private static final class InstanceHolder {
 			'		public final static <apiName> factory = new <apiName>();
 			'	}
@@ -56,168 +221,6 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			'		return typestore;
 			'	}
 			'}";
+
 }
-
-public str declareType(type[value] t){
-	println(t);
-	if("adt"(name,cs,ps) := t){
-		return 	"public static final Type <name> = tf.abstractDataType(typestore, \"<name>\"<typeParamsVarArgs(ps)>);
-				'<for(c <- cs) {>
-				'	<declareConstructor(c,name)><}>
-				";
-	} 
-	if ("alias"(name, ap, ps) := t) {
-		return "public static final Type <name> = 
-			tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
-	}
-	throw "Cannot declare type <t>"; 
-}
-
-
-public str declareConstructor(value t,str typeName){
-	switch(t){
-		case constructor(str cname,list[tuple[type[value],str]] args) : {
-			return "public static final Type <typeName>_<cname> = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
-		}
-	}
-}
-
-public str type2FactoryCall(type[value] t){
-	switch(t){
-		case value() : return "tf.valueType()";
-		case void() : return "tf.voidType()";
-		case int() :  return "tf.integerType()"; 
-		case num() : return "tf.numberType()";
-		case real() : return "tf.realType()";
-		case bool() : return "tf.boolType()";
-		case str() :  return "tf.stringType()"; 
-		case loc() : return "tf.sourceLocationType()";
-		case datetime() : return "tf.dateTimeType()";
-		case "alias"(name,p,q) : return resolveType (t);
-		case node() : return "tf.nodeType()";
-		case "adt"(name,_,_) : return resolveType (t);
-		case constructor(name,_) : return resolveType (t);
-		case set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";	
-		case list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
-		case map(ti,ti2) : return "tf.mapType(<type2FactoryCall(ti)>,<type2FactoryCall(ti2)>)";
-		case "reified"(type[value] t2): return "rtf.reifiedType(<type2FactoryCall(t2)>)";
-		case tuple(list[type[value]] tis) : 
-			return "tf.tupleType(<typeList2FactoryVarArgs(tis)>)";
-		case tuple(list[tuple[type[value] \type, str label]] tis):
-			return "tf.tupleType(<typeAndLabelsList2FactoryVarArgs(tis)>)";
-		case rel(list[tuple[type[value] \type, str label]] tis) :
-			 return "tf.relType(<typeAndLabelsList2FactoryVarArgs(tis)>)";
-		case rel(list[type[value]] tis) : 
-			return "tf.relType(<typeList2FactoryVarArgs(tis)>)";
-		case "parameter"(name,t2) : 
-			return "tf.parameterType(\"<name>\",<type2FactoryCall(t2)>)";
-		case fun(returnType, args): 
-			return "rtf.functionType(<type2FactoryCall(returnType)>,
-					tf.tupleType(<typeList2FactoryVarArgsFirstPos(args)>)";
-		default: throw "Do not now how to construct <t>";
-	}
-	return "";
-}
-
-public str typeParamsVarArgs(list[tuple[type[value],type[value]]] p){
-	 return toExtraArgs([ type2FactoryCall(t[0]) | t <- p]);
-}
-
-public str typeAndLabelsList2FactoryVarArgs(list[tuple[type[value] \type, str label]] typesAndLabels){
-	return toExtraArgs([type2FactoryCall(arg.\type),"\"<arg.label>\"" | arg <- typesAndLabels ]);
-}
-
-public str typeList2FactoryVarArgs(list[type[value]] tss){
-	return toExtraArgs([ type2FactoryCall(t) | t <- tss]);
-}
-
-public str typeList2FactoryVarArgsFirstPos(list[type[value]] tss){
-	return intercalate(",",[ type2FactoryCall(t) | t <- tss]);
-}
-
-public str toExtraArgs(list[str] strs){
-	if(size(strs) == 0)  return "";
-	else return ("" | "<it>,<s>" | s <- strs);
-}
-
-
-public str typeNameTuples2FactoryCallArgs(list[tuple[type[value],str]] args){
-	return toExtraArgs([type2FactoryCall(t),"\"" + n + "\"" | <t,n> <- args]);
-} 
-
-public str resolveType(type[value] t){
-	if(externalTypes[t.name] ? ){
-		return "<externalTypes[t.name]>.<t.name>";
-	} else {
-		t.name;
-	}
-}
-
-
-public str declareGetters(type[&T] t){
-	if("adt"(name,cs,ps) := t){
-		return 	"<for(c <- cs) {><declareConstructorGetters(c,name)><}>";
-	} 
-	if ("alias"(name, ap, ps) := t) {
-		return "public static final Type <name> = tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
-	}
-	throw "Cannot declare type <t>"; 
-}
-
-
-
-public str declareConstructorGetters(value t,str typeName){
-	switch(t){
-		case constructor(str cname,list[tuple[type[value],str]] args) : {
-			if(size(args) == 0) return "";
-			return 	"<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i][0])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
-					'	return <javaResult(args[i][0],"c.get(<i>)")>;
-					'}
-					'<}>";
-		}
-	}
-}
-
-public str typeToSimpleJavaType(type[value] t){
-	switch(t){
-		case int() : return "int";
-		case real() : return "double";
-		case num() : return "double";
-		case bool() : return "boolean";
-		case str() :  return "String";
-		default : return typeToJavaType(t);
-	}
-}
-
-public str javaResult(type[value] t,str access){
-	switch(t){
-		case int() : return "((IInteger)<access>).intValue()";
-		case real() : return "((IReal)<access>).doubleValue()";
-		case num() : return "<access> instanceof IInteger ? (double)((IInteger)<access>).intValue() : ((IReal)<access>).doubleValue()";
-		case bool() : return "((IBool)<access>).getValue()";
-		case str() :  return "((IString)<access>).getValue()";
-		default : return "(<typeToJavaType(t)>)<access>";
-	}
-}
-
-public str typeToJavaType(type[value] t){
-	switch(t){
-		case int() : return "IInteger";
-		case real() : return "IReal";
-		case num() : return "INumber";
-		case bool() : return "IBool";
-		case list(_) : return "IList";
-		case map(_,_) : return "IMap";
-		case rel(_) : return "IRelation";
-		case set(_) : return "ISet";
-		case loc() : return "ISourceLocation";
-		case str() :  return "IString";
-		case datetime() : return "IDateTime";
-		case tuple(_) : return  "ITuple";		 
-		case fun(returnType, args): return "Object"; // TODO: fixme with actual type
-		default : return "Object";
-	}
-}
-
-		
 		
