@@ -29,6 +29,11 @@ public abstract class AbstractStrategy extends AbstractFunction {
 		this.function = function;
 	}
 
+	@Override
+	public boolean isStatic() {
+		return false;
+	}
+	
 	public AbstractFunction getFunction() {
 		return function;
 	}

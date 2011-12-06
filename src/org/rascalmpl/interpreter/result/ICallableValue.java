@@ -19,6 +19,7 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 public interface ICallableValue extends IValue {
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues);
+	public boolean isStatic();
 	
 	public Evaluator getEval();
 }

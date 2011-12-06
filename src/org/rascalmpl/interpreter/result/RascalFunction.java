@@ -61,6 +61,7 @@ public class RascalFunction extends NamedFunction {
 //	private IMatchingResult[] matchers;
 	private final boolean isDefault;
 	private boolean isTest;
+	private boolean isStatic;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -70,6 +71,13 @@ public class RascalFunction extends NamedFunction {
 				func.getBody().getStatements(), env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 		this.isTest = hasTestMod(func.getSignature());
+		// static means that the function is defined in a module (and not the console prompt).
+		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
+	}
+	
+	@Override
+	public boolean isStatic() {
+		return isStatic;
 	}
 	
 	@Override

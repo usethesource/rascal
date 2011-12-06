@@ -40,6 +40,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	private final List<AbstractFunction> primaryCandidates; // it should be a list to allow proper shadowing
 	private final List<AbstractFunction> defaultCandidates; // it should be a list to allow proper shadowing
 	private final String name;
+	private final boolean isStatic;
 
 	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
 		super(type, null, ctx);
@@ -54,6 +55,8 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 	    primaryCandidates.addAll(candidates);
 	    defaultCandidates.addAll(defaults);
+
+	    isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
 	
 	public OverloadedFunctionResult(AbstractFunction function) {
@@ -62,12 +65,29 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		
 		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
 		this.defaultCandidates = new ArrayList<AbstractFunction>(1);
+		
 		if (function.isDefault()) {
 			defaultCandidates.add(function);
 		}
 		else {
 			primaryCandidates.add(function);
 		}
+		
+		this.isStatic = function.isStatic();
+	}
+	
+	@Override
+	public boolean isStatic() {
+		return isStatic;
+	}
+
+	private boolean checkStatic(List<AbstractFunction> l) {
+		for (ICallableValue f : l) {
+			if (!f.isStatic()) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	@Override

@@ -70,6 +70,7 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -321,37 +322,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			org.rascalmpl.ast.Expression nameExpr = getExpression();
 		
 			if (nameExpr.isQualifiedName()) {
-				// If the name expression is just a name, enable caching of the
-				// name lookup result.
-				// Also, if we have not yet registered a handler when we cache
-				// the result, do so now.
-				Result<IValue> prefix = this.cachedPrefix;
-				if (prefix == null) {
-					this.cachedPrefix = prefix = eval
-							.getCurrentEnvt().getVariable(
-									nameExpr.getQualifiedName());
-
-					if (!registeredCacheHandler) {
-						eval.getEvaluator()
-								.registerConstructorDeclaredListener(
-										new IConstructorDeclared() {
-											public void handleConstructorDeclaredEvent() {
-												cachedPrefix = null;
-												registeredCacheHandler = false;
-											}
-										});
-						registeredCacheHandler = true;
-					}
-				}
-
-				// TODO: get rid of __eval if-then-else by introducing
-				// subclasses for NodePattern for each case.
-				if (nameExpr.isQualifiedName() && prefix == null) {
-					return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), visitArguments(eval));
-				} else if (nameExpr.isQualifiedName()
-						&& ((prefix instanceof AbstractFunction) || prefix instanceof OverloadedFunctionResult)) {
-					return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), visitArguments(eval));
-				}
+				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), visitArguments(eval));
 			}
 
 			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, visitArguments(eval));
@@ -373,33 +344,24 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 				Result<IValue> function = this.cachedPrefix;
 
-				// If the name expression is just a name, enable caching of the name
-				// lookup result.
-				// Also, if we have not yet registered a handler when we cache the
-				// result, do so now.
-				// NOTE: We verify that this is a constructor type, since we don't
-				// cache functions
-				// at this point.
-				// TODO: Split the function name lookup from the closure formation,
-				// so we can cache
-				// the lookup without having problems with closure formation and
-				// scoping for nested
-				// functions.
+				// If the name expression is just a name, enable caching of the name lookup result.
+				// Also, if we have not yet registered a handler when we cache the result, do so now.
 				if (function == null) {
-					this.cachedPrefix = function = this.getExpression().interpret(
-							__eval);
-					if (!function.getType().isConstructorType()) {
-						this.cachedPrefix = null;
+					this.cachedPrefix = function = this.getExpression().interpret(__eval);
+					
+					if (function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
+						if (this.cachedPrefix != null && !registeredCacheHandler) {
+							__eval.getEvaluator().registerConstructorDeclaredListener(
+									new IConstructorDeclared() {
+										public void handleConstructorDeclaredEvent() {
+											cachedPrefix = null;
+										}
+									});
+							registeredCacheHandler = true;
+						}
 					}
-
-					if (this.cachedPrefix != null && !registeredCacheHandler) {
-						__eval.getEvaluator().registerConstructorDeclaredListener(
-								new IConstructorDeclared() {
-									public void handleConstructorDeclaredEvent() {
-										cachedPrefix = null;
-									}
-								});
-						registeredCacheHandler = true;
+					else {
+						cachedPrefix = null;
 					}
 				}
 

@@ -45,6 +45,11 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return true;
+	}
+	
+	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
 		if (constructorType == Factory.Tree_Appl) {
 			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals);

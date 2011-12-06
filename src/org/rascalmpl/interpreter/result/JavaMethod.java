@@ -53,6 +53,11 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
+	public boolean isStatic() {
+		return true;
+	}
+	
+	@Override
 	public boolean isDefault() {
 		return false;
 	}
