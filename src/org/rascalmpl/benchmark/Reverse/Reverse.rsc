@@ -23,8 +23,8 @@ public list[int] rev (list[int] L)
         return L;
 }
 
-int SIZE = 1000;
-int ITER = 10000;
+int SIZE = 100;
+int ITER = 1000;
 
 public void measure(){
     L = for(int i <- [ 0 .. SIZE ]) append arbInt();

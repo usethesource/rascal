@@ -353,7 +353,7 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-	protected org.rascalmpl.interpreter.result.Result<IValue> getSimpleVariable(String name) {
+	public org.rascalmpl.interpreter.result.Result<IValue> getSimpleVariable(String name) {
 		Result<IValue> var = super.getSimpleVariable(name);
 		
 		if (var != null) {
