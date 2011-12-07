@@ -6,14 +6,6 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Atze van der Ploeg - ploeg@cwi.nl - CWI}
-module vis::examples::tetris::Util
+module Maybe
 
-// same as %, except that -1 % 4 becomes 3 instead of -1
-public int modPos(int a, int mod) {
-   a = a % mod;
-   if( a < 0) {
-      return mod + a;
-   } else {
-      return a;
-   }
-}
+data Maybe[&A] = nothing() | just(&A val);
