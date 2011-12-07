@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -184,7 +184,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 			case datetime() : return "IDateTime";
 			case tuple(_) : return  "ITuple";		 
 			case fun(returnType, args): return "Object"; // TODO: fixme with actual type
-			default : return "Object";
+			default : return "IValue";
 		}
 	}
 	
