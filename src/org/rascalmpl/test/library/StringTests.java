@@ -282,4 +282,24 @@ public class StringTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("findAll(\"abc\", \"xyzpqr\") == [];"));
 		assertTrue(runTestInSameEvaluator("findAll(\"abracadabra\", \"bra\") == [1, 8];"));
 	}
+	
+	@Test
+	public void findFirst(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("findFirst(\"abc\", \"a\") == 0;"));
+		assertTrue(runTestInSameEvaluator("findFirst(\"abc\", \"c\") == 2;"));
+		assertTrue(runTestInSameEvaluator("findFirst(\"abc\", \"x\") == -1;"));
+		assertTrue(runTestInSameEvaluator("findFirst(\"abc\", \"xyzpqr\") == -1;"));
+		assertTrue(runTestInSameEvaluator("findFirst(\"abracadabra\", \"bra\") == 1;"));
+	}
+	
+	@Test
+	public void findLast(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("findLast(\"abc\", \"a\") == 0;"));
+		assertTrue(runTestInSameEvaluator("findLast(\"abc\", \"c\") == 2;"));
+		assertTrue(runTestInSameEvaluator("findLast(\"abc\", \"x\") == -1;"));
+		assertTrue(runTestInSameEvaluator("findLast(\"abc\", \"xyzpqr\") == -1;"));
+		assertTrue(runTestInSameEvaluator("findLast(\"abracadabra\", \"bra\") == 8;"));
+	}
 }
