@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
@@ -31,6 +32,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TupleResult extends ElementResult<ITuple> {
 	
@@ -46,6 +48,38 @@ public class TupleResult extends ElementResult<ITuple> {
 	@Override
 	public Result<IValue> fieldSelect(int[] selectedFields) {
 		return makeResult(type.select(selectedFields), value.select(selectedFields), ctx);
+	}
+	
+	@Override
+	public Result<IValue> fieldSelect(Field[] selectedFields) {
+		int nFields = selectedFields.length;
+		int fieldIndices[] = new int[nFields];
+		Type baseType = this.getType();
+		
+		for (int i = 0; i < nFields; i++) {
+			Field f = selectedFields[i];
+			if (f.isIndex()) {
+				fieldIndices[i] = ((IInteger) f.getFieldIndex()
+						.interpret(this.ctx.getEvaluator()).getValue()).intValue();
+			} else {
+				String fieldName = org.rascalmpl.interpreter.utils.Names
+						.name(f.getFieldName());
+				try {
+					fieldIndices[i] = baseType.getFieldIndex(fieldName);
+				} catch (UndeclaredFieldException e) {
+					throw new UndeclaredFieldError(fieldName, baseType,
+							ctx.getCurrentAST());
+				}
+			}
+
+			if (fieldIndices[i] < 0 || fieldIndices[i] > baseType.getArity()) {
+				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
+								ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+		}
+		
+		return this.fieldSelect(fieldIndices);
 	}
 	
 	@Override

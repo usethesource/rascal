@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -27,7 +26,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.BasicType;
@@ -78,7 +76,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
@@ -705,57 +702,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			// TODO: move to result classes
 			Result<IValue> base = this.getExpression().interpret(__eval);
-
-			Type baseType = base.getType();
-			if (!baseType.isTupleType() && !baseType.isRelationType()
-					&& !baseType.isMapType()) {
-				throw new UnsupportedOperationError("projection", baseType,
-						this);
-			}
-
 			java.util.List<Field> fields = this.getFields();
-			int nFields = fields.size();
-			int selectedFields[] = new int[nFields];
-
-			for (int i = 0; i < nFields; i++) {
-				Field f = fields.get(i);
-				if (f.isIndex()) {
-					selectedFields[i] = ((IInteger) f.getFieldIndex()
-							.interpret(__eval).getValue()).intValue();
-				} else {
-					String fieldName = org.rascalmpl.interpreter.utils.Names
-							.name(f.getFieldName());
-					try {
-						selectedFields[i] = baseType.getFieldIndex(fieldName);
-					} catch (UndeclaredFieldException e) {
-						throw new UndeclaredFieldError(fieldName, baseType,
-								this);
-					}
-				}
-
-				if (!baseType.isMapType()
-						&& !baseType.getElementType().isVoidType()) {
-					if (selectedFields[i] < 0
-							|| selectedFields[i] > baseType.getArity()) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-								.indexOutOfBounds(__eval.__getVf().integer(i),
-										__eval.getCurrentAST(), __eval
-												.getStackTrace());
-					}
-				} else if (baseType.isMapType() && selectedFields[i] < 0
-						|| selectedFields[i] > 1) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-							.indexOutOfBounds(__eval.__getVf().integer(i),
-									__eval.getCurrentAST(), __eval
-											.getStackTrace());
-				}
-			}
-
-			return base.fieldSelect(selectedFields);
-
+			return base.fieldSelect(fields.toArray(new Field[0]));
 		}
 
 	}

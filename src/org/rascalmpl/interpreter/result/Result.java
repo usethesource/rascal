@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -396,6 +397,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public Result<IValue> fieldSelect(int[] selectedFields) {
+		return undefinedError(FIELD_SELECT_STRING, this);
+	}
+	
+	public Result<IValue> fieldSelect(Field[] selectedFields) {
 		return undefinedError(FIELD_SELECT_STRING, this);
 	}
 	

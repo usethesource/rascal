@@ -311,10 +311,10 @@ public class DataTypeTests extends TestFramework {
 		assertFalse(runTest("2.0 > 2;"));
 		assertFalse(runTest("1 > 2.0;"));
 		
-		assertTrue(runTest("3.5 > 2.5 ? 3.5 : 2.5 == 3.5;"));
+		assertTrue(runTest("((3.5 > 2.5) ? 3.5 : 2.5) == 3.5;"));
 		
-		assertTrue(runTest("3.5 > 2 ? 3.5 : 2 == 3.5;"));
-		assertTrue(runTest("3.5 > 4 ? 3.5 : 2 == 2;"));
+		assertTrue(runTest("((3.5 > 2) ? 3.5 : 2) == 3.5;"));
+		assertTrue(runTest("((3.5 > 4) ? 3.5 : 2) == 2;"));
 	}
 	
 	@Test
@@ -357,7 +357,7 @@ public class DataTypeTests extends TestFramework {
 		
 		assertTrue(runTest("{num n = 1; 2 > n;}"));
 		
-		assertTrue(runTest("{num n35 = 3.5; num n2 = 2; n35 > n2 ? 3.5 : 2 == 3.5;}"));
+		assertTrue(runTest("{num n35 = 3.5; num n2 = 2; ((n35 > n2) ? 3.5 : 2) == 3.5;}"));
 	}
 	
 	@Test
@@ -731,7 +731,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("5 notin {1, 2, 3};"));
 		assertTrue(runTest("{7,8} notin {{1, 2}, {3,4}, {5,6}};"));
 		
-		assertTrue(runTest("3 > 2 ? {1,2} : {1,2,3} == {1,2};"));
+		assertTrue(runTest("((3 > 2) ? {1,2} : {1,2,3}) == {1,2};"));
 		
 		assertTrue(runTest("{<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>} != {};"));
 	}
