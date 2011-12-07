@@ -1,6 +1,6 @@
 Name: replaceFirst
 
-Synopsis:
+Synopsis: Replace the first occurrence of a string in another string.
 
 Syntax:
 

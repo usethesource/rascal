@@ -1,6 +1,6 @@
 Name: replaceAll
 
-Synopsis:
+Synopsis: Replace all occurrences of a string in another string.
 
 Syntax:
 

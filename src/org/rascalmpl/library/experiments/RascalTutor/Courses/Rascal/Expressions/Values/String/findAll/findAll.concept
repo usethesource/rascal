@@ -1,6 +1,6 @@
 Name: findAll
 
-Synopsis:
+Synopsis: Find all occurrences of a string in another string.
 
 Syntax:
 
@@ -13,6 +13,8 @@ Details:
 Description:
 Find all occurrences of string `find` in string `subject`.
 The result is a (possible empty) list of positions where `find` matches.
+
+See also [findFirst] and [findLast].
 
 Examples:
 <screen>

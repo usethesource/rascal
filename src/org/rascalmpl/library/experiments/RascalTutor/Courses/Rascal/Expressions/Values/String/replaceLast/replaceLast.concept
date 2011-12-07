@@ -1,6 +1,6 @@
 Name: replaceLast
 
-Synopsis:
+Synopsis: Replace the last occurrence of a string in another string.
 
 Syntax:
 
