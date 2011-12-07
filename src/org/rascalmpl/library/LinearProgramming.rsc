@@ -22,7 +22,7 @@ data LinearCombination = linComb(set[ScaledVar] coefficients, num constant);
 
 data Constraint = eq(LinearCombination leq, LinearCombination req)
 				| leq(LinearCombination lhs, LinearCombination rhs);				
-Constraint geq(LinearCombination lhs, LinearCombination rhs) =
+public Constraint geq(LinearCombination lhs, LinearCombination rhs) =
 	leq(rhs,lhs);
 alias Constraints = set[Constraint];
 
