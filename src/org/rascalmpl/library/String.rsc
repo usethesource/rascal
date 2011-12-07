@@ -85,6 +85,14 @@ public java bool contains(str input, str find);
 @javaClass{org.rascalmpl.library.String}
 public java list[int] findAll(str input, str find);
 
+@doc{Find the first occurrence of "find" in "input".}
+@javaClass{org.rascalmpl.library.String}
+public java int findFirst(str input, str find);
+
+@doc{Find last occurrence of "find" in "input".}
+@javaClass{org.rascalmpl.library.String}
+public java int findLast(str input, str find);
+
 /*
 @doc{Replace all occurrences of "find" in "input" by "replacement"}
 public str replaceAll(str input, str find, str replacement) {

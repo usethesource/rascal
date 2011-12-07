@@ -368,4 +368,28 @@ public class String {
 		}
 		return w.done();
 	}
+	
+	public IValue findFirst(IString str, IString find){
+		char[] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		
+		for(int i = 0; i <= input.length - findChars.length; i++){
+			if(match(input, i, findChars)){
+				 return values.integer(i);
+			}
+		}
+		return values.integer(-1);
+	}
+	
+	public IValue findLast(IString str, IString find){
+		char[] input = str.getValue().toCharArray();
+		char [] findChars = find.getValue().toCharArray();
+		
+		for(int i = input.length - findChars.length; i >= 0; i--){
+			if(match(input, i, findChars)){
+				 return values.integer(i);
+			}
+		}
+		return values.integer(-1);
+	}
 }
