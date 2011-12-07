@@ -3,6 +3,7 @@
 	<name>rascal</name>
 	<comment></comment>
 	<projects>
+		<project>Math</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
