@@ -40,9 +40,10 @@ public java &T head(list[&T] lst) throws EmptyList;
 
 @doc{Return the last element of a list, if any}
 public &T last(list[&T] lst) throws EmptyList {
-  if ([list[&T] p, &T l] := lst) 
-    return l;
-  throw EmptyList();
+  if(lst == [] ) { throw EmptyList(); }
+  if([list[&T] p, &T l] := lst){
+  	return l;
+  }
 }
 
 @doc{Remove multiple occurrences of elements in a list. The first occurrence remains.}

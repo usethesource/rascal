@@ -32,8 +32,19 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 					";
 		} 
 		if ("alias"(name, ap, ps) := t) {
-			return "public static final Type <name> = 
-				tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
+		println("Gothere");
+			list[type[value]] pss = [];
+			println("Gothere");
+			if(ps != []) {
+				pss  = [ p | <p,_> <- ps];
+			}
+			println("Gothere2 <pss>");
+			s = typeList2FactoryVarArgs(pss); 
+			println("Gothere3");
+			res =  "public static final Type <name> = 
+				tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><s>)";
+			println(res);
+			return res;
 		}
 		throw "Cannot declare type <t>"; 
 	}
@@ -97,17 +108,17 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 	}
 	
 	str typeList2FactoryVarArgs(list[type[value]] tss){
-		return toExtraArgs([ type2FactoryCall(t) | t <- tss]);
+		println("HALLOO!");
+		if(tss == []) { return "";}
+		else { return toExtraArgs([ type2FactoryCall(t) | t <- tss]); }
 	}
 	
 	str typeList2FactoryVarArgsFirstPos(list[type[value]] tss){
 		return intercalate(",",[ type2FactoryCall(t) | t <- tss]);
 	}
 	
-	str toExtraArgs(list[str] strs){
-		if(size(strs) == 0)  return "";
-		else return ("" | "<it>,<s>" | s <- strs);
-	}
+	str toExtraArgs(list[str] strs) =
+		("" | "<it>,<s>" | s <- strs);
 	
 	
 	str typeNameTuples2FactoryCallArgs(list[tuple[type[value],str]] args){
@@ -127,10 +138,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 		if("adt"(name,cs,ps) := t){
 			return 	"<for(c <- cs) {><declareConstructorGetters(c,name)><}>";
 		} 
-		if ("alias"(name, ap, ps) := t) {
-			return "public static final Type <name> = tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><typeList2FactoryCallArgs(ps)>)";
-		}
-		throw "Cannot declare type <t>"; 
+		throw "Cannot declare getters for type <t>"; 
 	}
 	
 	
