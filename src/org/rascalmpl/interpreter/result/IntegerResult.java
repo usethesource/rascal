@@ -159,7 +159,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue> Result<U> moduloInteger(IntegerResult n) {
 		// note reverse
-		return makeResult(type, n.getValue().remainder(getValue()), ctx);
+		return makeResult(type, n.getValue().mod(getValue()), ctx);
 	}
 	
 	@Override  
