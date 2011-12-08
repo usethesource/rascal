@@ -78,11 +78,11 @@ public class LinearProgramming {
 			typestore, LLConstraint, "llConstraint", LLCoefficients,
 			"coefficients", ConstraintType, "ctype", tf.numberType(), "const");
 
-	public static final Type LLObjectiveFun = tf.abstractDataType(typestore,
-			"LLObjectiveFun");
+	public static final Type LLLinearExpr = tf.abstractDataType(typestore,
+			"LLLinearExpr");
 
-	public static final Type LLObjectiveFun_llObjFun = tf.constructor(
-			typestore, LLObjectiveFun, "llObjFun", LLCoefficients,
+	public static final Type LLLinearExpr_llLinearExp = tf.constructor(
+			typestore, LLLinearExpr, "llLinearExp", LLCoefficients,
 			"coefficients", tf.numberType(), "const");
 
 	public static IValue LLSolution_llSolution_varVals(IConstructor c) {
