@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@bootstrapParser
 module experiments::RascalTutor::CourseCompiler
 
 import experiments::RascalTutor::CourseModel;
@@ -24,35 +25,119 @@ import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 import Scripting;
+import Reflective;
+import lang::rascal::syntax::RascalRascal;
+import ParseTree;
 
 // ------------------------ compile a course ----------------------------------------
 
-public Course compileCourse(ConceptName rootConcept){     
-   concepts = ();
+public Course compileCourse(ConceptName rootConcept){   
 
-   courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
-
-   for(file <- courseFiles){
-       cpt = compileConcept(file);
-       fullName = getFullConceptName(file);
-       if(concepts[fullName]?)
-       	  println("Double declaration for <fullName>");
-       concepts[fullName] = cpt;      	 
+   remote = courseDir + rootConcept + remoteConcepts;
+   if(exists(remote)){
+      remoteMap = readTextValueFile(#map[ConceptName, loc], remote);
+      for(root <- remoteMap){
+          dir = remoteMap[root];
+          println("root = <root>, dir = <dir>");
+          remoteFiles =  crawl(dir, rascalExtension);
+          for(file <- remoteFiles)
+              extractRemoteConcepts(file, root);
+      }
    }
-   C = makeCourse(rootConcept, concepts);
+   
+   courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
+   
+   concepts = ();
+   warnings = [];
+   for(file <- courseFiles){
+       fullName = getFullConceptName(file);
+       try {
+	       cpt = compileConcept(file);
+	       if(concepts[fullName]?)
+	       	  warnings += mkWarning(fullName, "Redeclaration");
+	       concepts[fullName] = cpt; 
+       } 
+         catch ConceptError(c, msg):
+           warnings += [ mkWarning(fullName, msg) ];     
+         catch e:
+           warnings += [ mkWarning(fullName, "<e>") ];      	 
+   }
+  
+   C = makeCourse(rootConcept, concepts, warnings);
    return generateCourseControl(C);
 }
 
-public Course makeCourse(ConceptName rootConcept, map[ConceptName,Concept] conceptMap){      
+
+// ------------------ Extract concepts from external sources ------------------------
+
+str stripBraces(str content){
+  b = findFirst(content, "{");
+  b = (b >= 0) ? b + 1 : 0;
+  e = findLast(content, "}");
+  e = (e > 0) ? e - 1 : size(content);
+  return substring(content, b, e);
+}
+
+void processFunction(str moduleName, FunctionDeclaration decl, str doc, ConceptName root){
+  sign = decl.signature;
+  functionName = "<sign.name>";
+  tp = "<sign.\type>";
+  params =  "<sign.parameters>";
+  destination = courseDir + root + moduleName + functionName + "<functionName>.concept";
+  println("processFunction: <tp> <functionName><params> <doc> <destination>");
+  writeFile(destination, stripBraces(doc));
+  writeFile(courseDir + root + moduleName + functionName + remoteLoc, decl@\loc);
+  
+}
+
+void processModule(str name, Header header, str doc, ConceptName root){
+  destination = courseDir + root + name + "<name>.concept";
+  println("processModule: <name> <doc> <root> <destination>");  
+  writeFile(destination, stripBraces(doc));
+  writeFile(courseDir + root + name + remoteLoc, header@\loc);
+}
+
+void processDoc(str moduleName, FunctionDeclaration decl, ConceptName root){
+   visit(decl.tags){
+     case Tag t: 
+        if("<t.name>" == "doc") {
+           processFunction(moduleName, decl, "<t.contents>", root);
+        }
+   }
+}
+
+void processDoc(str moduleName, Header header, ConceptName root){
+   visit(header.tags){
+     case Tag t: 
+        if("<t.name>" == "doc") {
+           processModule(moduleName, header, "<t.contents>", root);
+        }
+   }
+}
+
+public void extractRemoteConcepts(loc L, ConceptName root){
+  M = parseModule(readFile(L), L);
+  mname = "";
+  top-down visit(M){
+    case Header header:  {mname = "<header.name>"; processDoc(mname, header, root); }
+    case FunctionDeclaration D: processDoc(mname, D, root);
+  }
+}
+
+str mkWarning(ConceptName cname, str msg) = "<showConceptPath(cname)>: <msg>";
+
+// --------- Make a course -----------------------------------
+
+public Course makeCourse(ConceptName rootConcept, map[ConceptName,Concept] conceptMap, list[str] warnings){      
     allBaseConcepts = {};
     set[str] searchTs = {};
-    warnings = [];
+ //   warnings = [];
     
     for(cname <- conceptMap){
        allBaseConcepts += toSet(basenames(cname));
        C = conceptMap[cname];
        for(w <- C.warnings)
-           warnings += ["<showConceptPath(cname)>: <w>"]; 
+           warnings += [mkWarning(cname, w)]; 
        searchTs += C.searchTerms;
     }
     
@@ -180,7 +265,7 @@ public Concept compileAndGenerateConcept(loc file, bool updateParent){
            concepts[pn] =  compileConcept(file);    
         }
      }
-     theCourse = makeCourse(theCourse.root, concepts);
+     theCourse = makeCourse(theCourse.root, concepts, []);
      println("<C.fullName>: validated course");
      generateCourseControl(theCourse);
      println("<C.fullName>: generated control");
@@ -195,22 +280,24 @@ public Concept compileAndGenerateConcept(loc file, bool updateParent){
 }
 
 public Concept compileConcept(loc file){
-   html_file = file[extension = htmlExtension];
+  return compileConcept(file, file[extension = htmlExtension], readFileLines(file));
+}
+
+public Concept compileConcept(loc file, loc html_file, list[str] script){
    
-   script = readFileLines(file);
    sections = getSections(script);
-   
+   conceptName = getFullConceptName(file);
    if(!(sections["Name"]?))
-      throw ConceptError("<file>: Missing section \"Name\"");
+      throw ConceptError(conceptName, "Missing section \"Name\"");
       
    name = sections["Name"][0];
-   conceptName = getFullConceptName(file);
+  
    println("<conceptName>: getSections done.");
    
    try {
 	   local_warnings = [];
 	   if(name != basename(conceptName))
-	      throw ConceptError("Got concept name \"<name>\", but \"<basename(conceptName)>\" is required");
+	      throw ConceptError(conceptName, "Got concept name \"<name>\", but \"<basename(conceptName)>\" is required");
 	      
 	   optDetails      	= getNames(sections["Details"] ? []);
 	   
@@ -258,11 +345,11 @@ public Concept compileConcept(loc file){
 	   return C;
 
 	} catch NoSuchKey(e):
-	    throw ConceptError("<conceptName>: Missing section \"<e>\"");
+	    throw ConceptError(conceptName, "Missing section \"<e>\"");
 	  catch IOError(e):
-	    throw ConceptError("<conceptName>: <e>");
+	    throw ConceptError(conceptName, "<e>");
 	  catch e: 
-	    throw ConceptError("<conceptName>: uncaught exception <e>");
+	    throw ConceptError(conceptName, "Uncaught exception <e>");
 }
 
 public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
@@ -440,7 +527,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
             i += 1;
           }
           if(size(answers) == 0)
-          	throw ConceptError("TextQuestion with no or malformed answers");
+          	throw ConceptError(cname, "TextQuestion with no or malformed answers");
           
           questions += textQuestion(cname, qname, markup([question], cname), answers);
           nquestions += 1;
@@ -459,7 +546,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
             i += 1;
           }
           if(size(good_answers) == 0 || size(bad_answers) == 0)
-          	throw ConceptError("ChoiceQuestion with insufficient or malformed answers");
+          	throw ConceptError(cname, "ChoiceQuestion with insufficient or malformed answers");
          
           println("<good_answers>, <bad_answers>");
       
@@ -489,17 +576,18 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
               cpt = rst;
            }
            options = resolveConcept(crs, cpt);
-           if(size(options) != 1)
+           if(size(options) != 1){
               addWarning("Unknown or ambiguous concept <cpt>");
-              
-           ucpid = getFullConceptName(options[0]);
-           try {
-                uq = getQuestion(ucpid, q);
-                uq.fullName = cname;
-                uq.name = qname;
-                questions += uq;
-                nquestions += 1;
-           } catch: addWarning("No question <q> in <ucpid>");
+           } else {  
+	           ucpid = getFullConceptName(options[0]);
+	           try {
+	                uq = getQuestion(ucpid, q);
+	                uq.fullName = cname;
+	                uq.name = qname;
+	                questions += uq;
+	                nquestions += 1;
+	           } catch: addWarning("No question <q> in <ucpid>");
+	       }
            i += 1;
       }
       
@@ -552,7 +640,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	    case /^make:\s*<name:[A-Za-z0-9]+>\s*\=\s*<tp:.*>$/:
 	      { try { vars += <name, parseType(tp)>; }
 	        catch:
-	            throw ConceptError("Question <qname>: type of generated variable <name> is incorrect");
+	            throw ConceptError(cname, "Question <qname>: type of generated variable <name> is incorrect");
 	        definedVars += name;	
 	        i += 1; 
 	      }
@@ -561,7 +649,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	      { auxVars += <name, expr>;
 	        u = uses(expr);
 	        if(u - definedVars != {})
-	           throw ConceptError("Question <qname>: expr uses undefined variables: <u - definedVars>");
+	           throw ConceptError(cname, "Question <qname>: expr uses undefined variables: <u - definedVars>");
 	        definedVars += name;
 	        usedVars += u;
 	        i += 1; 
@@ -571,7 +659,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	        rtype = \void();
 			try { rtype = parseType(tp); }
 			catch:
-			     throw ConceptError("Question <qname>: cannot parse type of expected type");
+			     throw ConceptError(cname, "Question <qname>: cannot parse type of expected type");
 	        usedVars += uses(rtype);
 	        i += 1; 
 		}
@@ -582,7 +670,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 		}
 		case /^test:\s*<e:.*>$/: {
 		   if(cndBefore + cndAfter != "")
-		      throw ConceptError("Question <qname>: has already a test <cnd>");
+		      throw ConceptError(cname, "Question <qname>: has already a test <cnd>");
 		   if (/^<b:.*>\<\?\><a:.*>$/ := e){
 		     cndBefore = b;
 		     cndAfter = a;
@@ -655,27 +743,27 @@ Type    +      +         +      0   ERROR
         -      -         -      0   ERROR    
 */
      if(holeInLst && holeInCnd)
-        throw ConceptError("Question <qname> should have at most one hole");
+        throw ConceptError(cname, "Question <qname> should have at most one hole");
         
      if((lstBefore + lstAfter) == "" && holeInLst)
-        throw ConceptError("Question <qname> has an empty listing with a hole");
+        throw ConceptError(cname, "Question <qname> has an empty listing with a hole");
         
      if((cndBefore + cndAfter) == "" && !(holeInLst))
-        throw ConceptError("Question <qname> has no test");
+        throw ConceptError(cname, "Question <qname> has no test");
         
      if(kind == typeOfExpr() && holeInCnd && rtype == \void())
-           throw ConceptError("Type question <qname> has condition with a hole and requires an expected type");
+           throw ConceptError(cname, "Type question <qname> has condition with a hole and requires an expected type");
      
      if(usedVars - definedVars != {})
-        throw ConceptError("Question <qname>: undefined variables <usedVars - definedVars>");
+        throw ConceptError(cname, "Question <qname>: undefined variables <usedVars - definedVars>");
         
      if(definedVars - usedVars != {})
-        throw ConceptError("Question <qname>: unused variables <definedVars - usedVars>");
+        throw ConceptError(cname, "Question <qname>: unused variables <definedVars - usedVars>");
         
      if(definedVars == {} && vars == [])
         try {
           vars = autoDeclare(cndBefore + cndAfter);
-        } catch: throw ConceptError("Question <qname>: illegal type in test");
+        } catch: throw ConceptError(cname, "Question <qname>: illegal type in test");
 
      return <i, tvQuestion(cname, qname, kind, details(markup([desc], cname), setup, lstBefore, lstAfter, cndBefore, cndAfter, holeInLst, holeInCnd, vars, auxVars, rtype, hint))>;
 }

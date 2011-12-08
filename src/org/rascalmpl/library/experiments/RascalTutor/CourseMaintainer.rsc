@@ -7,7 +7,6 @@
 }
 
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-
 module experiments::RascalTutor::CourseMaintainer
 
 import String;
@@ -19,6 +18,7 @@ import Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
 import experiments::RascalTutor::CourseManager;
+
 
 // Compile a complete course
 
@@ -118,6 +118,7 @@ public void validateExams(){
   
   goodAnswers = ();
   badAnswers = ();
+  
   for(sc <- scores){
       for(q <- sc.evaluation)
           if(sc.evaluation[q] == "pass")
@@ -125,6 +126,9 @@ public void validateExams(){
           else
             badAnswers[q] = (badAnswers[q] ? {}) + {sc.answers[q]};
   }
+  
+  println("goodAnswers: <goodAnswers>
+          'badAnswers: <badAnswers>");
   
   writeFile(resultDir + "Statistics.txt",
   		  "Number of students: <nstudents>
@@ -146,8 +150,21 @@ public void validateExams(){
           "<for(sc <- scores){>
           '<sc.studentName>;<round(sc.score)><for(q <- sortedqs){>;<sc.evaluation[q]?"fail"><}><}>"
           );
-  println("Written Results.csv");        
-  
+  println("Written Results.csv");     
+ /* 
+  for(sc <- scores){
+     println(sc.studentName);
+	  for(q <- sortedqs){
+	      if(!sc.evaluation[q]? || sc.evaluation[q] == "fail"){
+	        println("question <q>"); 
+	        println("Incorrect answer = <(sc.answers[q])?"none">");
+	        println("goodAnswers: " + (goodAnswers[q] ? "unknown"));
+	      }
+	      println("question <q> ... done");
+	  }   
+  }
+  println("Start writing Mailing.sh");
+  */
   writeFile(resultDir + "Mailing.sh",
           "<for(sc <- scores){>
           'mail -s \"Exam Results\" <sc.studentMail> \<\<==eod==
@@ -158,6 +175,9 @@ public void validateExams(){
           'The scores for individual questions are:
           '<for(q <- sortedqs){><q>:\t<sc.evaluation[q]?"fail">\n<}>
           '
+          'Detailed summary of failed questions:
+          '<for(q <- sortedqs){><suggestGoodAnswer(sc,q, goodAnswers)><}>
+          '
           'Best regards,
           '
           'The Rascal Team
@@ -166,6 +186,19 @@ public void validateExams(){
           ");
    println("Written Mailing.sh");
    println("ValidateExams ... done!");
+}
+
+str suggestGoodAnswer(examResult sc, str q, map[str,set[str]] goodAnswers){
+  if(sc.evaluation[q]? && sc.evaluation[q] == "pass")
+     return "";
+     
+  ans = "<q>: Your (incorrect) answer: <sc.answers[q]?"no answer given">\n";
+    
+  if(sc.expectedAnswers[q]?)
+     return "<ans>Expected answer is <sc.expectedAnswers[q]>\n";
+  if(goodAnswers[q]?)
+     return "<ans>Set of possible good answers: <goodAnswers[q]>\n";
+  return "<ans>No correct answers available";
 }
 
 /*
@@ -283,4 +316,3 @@ public void reorder(ConceptName rootConcept){
       writeFile(file, combine(newConcept));
     }
 }
-

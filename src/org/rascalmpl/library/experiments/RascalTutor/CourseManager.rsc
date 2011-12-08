@@ -28,6 +28,7 @@ import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::ValueGenerator;
 import experiments::RascalTutor::CourseCompiler;
 import ValueIO;
+import util::Editors;
 
 import IO;
 import Scripting;
@@ -63,6 +64,15 @@ public str edit(ConceptName cn, bool newConcept){
   if(newConcept){
     content = mkConceptTemplate("");
   } else {
+    remoteloc = courseDir + cn + remoteLoc;
+    if(exists(remoteloc)){
+       remote = readTextValueFile(#loc,  remoteloc);
+       println("start editor for <remote>");
+       edit(remote, []);
+       return html(head(title("Editing <cn>")),
+                   body("editing <remote> in external editor")
+                  );
+    }
     file = conceptFile(cn);
   	content = escapeForHtml(readFile(file));  //TODO: IO exception (not writable, does not exist)
   }
@@ -180,16 +190,22 @@ private examResult validateAllAnswers(str timestamp, map[str,map[str,str]] param
   int nquestions = 0;
   int npass = 0;
   answers = ();
+  expectedAnswers = ();
   res = ();
   for(qid <- paramMaps){
       nquestions += 1;
       v = validateAnswer1(paramMaps[qid]);
       answers[qid] = trim(paramMaps[qid]["answer"]) ? "";
-      if(v == "pass")
+      if(v == "pass"){
          npass += 1;
-      res[qid] = v;
+         res[qid] = v;
+      }
+      if(/fail:<expected:.*>$/ := v){
+         expectedAnswers[qid] = expected;
+         res[qid] = "fail";
+      }
   }
-  return examResult(studentName, studentMail, studentNumber, timestamp, answers, res, npass * 10.0 / nquestions);
+  return examResult(studentName, studentMail, studentNumber, timestamp, answers, expectedAnswers, res, npass * 10.0 / nquestions);
 }
 
 // Validate an answer, also handles the requests: "cheat" and "another"
@@ -230,7 +246,8 @@ public str validateAnswer1(map[str,str] params){
       case choiceQuestion(cid,qid,descr,choices): {
         try {
            int c = toInt(answer);
-           return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+           expected = [txt | good(str txt) <- choices];
+           return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, expected[0]);
         } catch:
            return wrongAnswer(cpid, qid, "");
       }
@@ -542,7 +559,7 @@ public str wrongAnswer(ConceptName cpid, QuestionName qid, str explanation){
        feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
 	   return  XMLResponses(("concept" : ecpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
 	} else
-	   return "fail";
+	   return "fail:<explanation>";
 }
 
 public str saveFeedback(str error, str replacement){
