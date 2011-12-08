@@ -77,8 +77,8 @@ syntax Renaming
 	= Default: Name from "=\>" Name to ;
 
 syntax Catch
-	= @Foldable Default: "catch" ":" Statement body 
-	| @Foldable Binding: "catch" Pattern pattern ":" Statement body ;
+	= Default: "catch" ":" Statement body 
+	| Binding: "catch" Pattern pattern ":" Statement body ;
 
 lexical PathChars
 	= URLChars [|] ;
@@ -816,9 +816,9 @@ syntax Pattern
     ;
     
 syntax Tag
-	= @Foldable @category="Comment" Default   : "@" Name name TagString contents 
-	| @Foldable @category="Comment" Empty     : "@" Name name 
-	| @Foldable @category="Comment" Expression: "@" Name name "=" Expression expression ;
+	= @Folded @category="Comment" Default   : "@" Name name TagString contents 
+	| @Folded @category="Comment" Empty     : "@" Name name 
+	| @Folded @category="Comment" Expression: "@" Name name "=" Expression expression ;
 
 syntax ModuleActuals
 	= Default: "[" {Type ","}+ types "]" ;
