@@ -19,17 +19,37 @@ import Real;
 
 alias Coefficients = map[str var,num coef];
 
-data ObjectiveFun = objFun(Coefficients coefficients, num const);
+data LinearExpression = linearExp(Coefficients coefficients, num const);
+alias OjectiveFun = LinearExpression;
 
-public ObjectiveFun objFun(Coefficients coefficients) =
-	objFun(coefficients,0);
+public ObjectiveFun linearExp(Coefficients coefficients) =
+	linearExp(coefficients,0);
 
 data ConstraintType = leq() | eq() | geq();
 
 data Constraint = 
 	constraint(	Coefficients coefficients,
 			   	ConstraintType ctype, num const);
-				
+
+
+public LinearExpression neg(LinearExpression exp) = 
+	linearExp((n : -v  | <n,v> <- toList(exp.coefficients)),-exp.const);
+	
+public LinearExpression add(LinearExpression lhs, LinearExpression rhs) =
+	linearExp(	(n : (lhs.coefficients[n] ? 0) + (rhs.coefficients[n] ? 0) |
+				n <- domain(lhs.coefficients) + domain(rhs.coefficients)),
+			  lhs.const + rhs.const);
+
+public LinearExpression sub(LinearExpression lhs, LinearExpression rhs) =
+	add(lhs,neg(rhs));
+
+public Constraint constraint(LinearExpression lhs, ConstraintType ctype) =
+	constraint(lhs.coefficients,ctype, -lhs.const);
+
+public Constraint constraint(LinearExpression lhs, 
+							 ConstrainType ctype, LinearExpression rhs) =
+	constraint(sub(lhs,rhs),ctype);
+							 
 alias Constraints = set[Constraint];
 alias VariableVals = map[str var, num val];
 
