@@ -5,139 +5,101 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-
+// High level linear programming interface
 module LinearProgramming
 
+import LLLinearProgramming;
 import List;
 import Maybe;
 import Set;
 import Number;
 import Map;
-import IO;
+import Integer;
+import Real;
 
-alias Variable = str;
-alias ScaledVar = tuple[num scale, Variable var];
+alias Coefficients = map[str var,num coef];
 
-data LinearCombination = linComb(set[ScaledVar] coefficients, num constant);
+data ObjectiveFun = objFun(Coefficients coefficients, num const);
 
-data Constraint = eq(LinearCombination leq, LinearCombination req)
-				| leq(LinearCombination lhs, LinearCombination rhs);				
-public Constraint geq(LinearCombination lhs, LinearCombination rhs) =
-	leq(rhs,lhs);
+public ObjectiveFun objFun(Coefficients coefficients) =
+	objFun(coefficients,0);
+
+data ConstraintType = leq() | eq() | geq();
+
+data Constraint = 
+	constraint(	Coefficients coefficients,
+			   	ConstraintType ctype, num const);
+				
 alias Constraints = set[Constraint];
+alias VariableVals = map[str var, num val];
 
-alias ObjectiveFunction = LinearCombination;
+data Solution = solution(VariableVals varVals, num funVal);
 
-data Solution = solution(map[Variable var, num solution], num funVal);
+num runObjFul(ObjectiveFun f, VariableVals vals) =
+	(f.const | 
+	 it + f.coefficients[var]*varVals[var] |
+	 var <- domain(f.coefficients));
+
 
 public Maybe[Solution] 
-minimizeNonNegative(set[Constraint] constraints, ObjectiveFunction f) =
+minimizeNonNegative(Constraints constraints, ObjectiveFun f) =
 	optimize(true,true, constraints, f);
 
 public Maybe[Solution] 
-minimize(set[Constraint] constraints, ObjectiveFunction f) =
+minimize(Constraints constraints, ObjectiveFun f) =
 	optimize(true,false, constraints, f);
 
-public Maybe[Solution] 
-minimize(set[Constraint] constraints, ObjectiveFunction f, bool nonZero) =
-	optimize(true,nonZero, constraints, f);
 
 public Maybe[Solution] 
-maximizeNonNegative(set[Constraint] constraints, ObjectiveFunction f) =
+maximizeNonNegative(Constraints constraints, ObjectiveFun f) =
 	optimize(false,true, constraints, f);
 
 public Maybe[Solution] 
-maximize(set[Constraint] constraints, ObjectiveFunction f) =
+maximize(set[Constraint] constraints, ObjectiveFun f) =
 	optimize(false,false, constraints, f);
 
-public Maybe[Solution] 
-maximize(set[Constraint] constraints, ObjectiveFunction f, bool nonZero) =
-	optimize(false,nonZero, constraints, f);
 
 public Maybe[Solution] 
 optimize(bool minimize, bool nonZero, 
-		 set[Constraint] constraints, ObjectiveFunction f) {
-	varIndex = getVarIndex(constraints,f);
-	llConstraints = toLowLevelConstraints(constraints,varIndex);
-	llf = toLowLevelLinearCombination(f, varIndex);
+		 Constraints constraints, ObjectiveFun f) {
+	indexVar = getIndexVar(constraints,f);
+	llConstraints = toLLConstraints(constraints,indexVar);
+	llf = toLLObjectiveFun(f, indexVar);
 	llSol = llOptimize(minimize, nonZero, llConstraints, llf);
 	switch(llSol) {
 		case nothing()   : return nothing();
-		case just(llsol) : return just(fromLLSolution(llsol,invertUnique(varIndex)));
+		case just(llsol) : return just(fromLLSolution(llsol,indexVar));
 	}
 }
+
+num zero = 0;
+
+list[num] toLLCoefficients(Coefficients coefficients, list[str] indexVar) =
+	[coefficients[i] ? zero | i <- indexVar];
+
+Coefficients normalize(Coefficients coefs) =
+	( () | it + ((c != 0) ? (var : c) : ()) | <var,c> <- toList(coefs));
+
+Coefficients 
+fromLLVariableVals(LLVariableVals vars, list[str] indexVar) =
+	( indexVar[i] : vars[i] | i <- index(indexVar));
+
+
+LLObjectiveFun toLLObjectiveFun(ObjectiveFun f, list[str] indexVar) =
+	llObjFun(toLLCoefficients(f.coefficients,indexVar),f.const);
+
+LLConstraint toLLConstraint(Constraint c, list[str] indexVar) =
+	llConstraint(toLLCoefficients(c.coefficients,indexVar),c.ctype, c.const);
+
+LLConstraints toLLConstraints(Constraints cs, list[str] indexVar) =
+	{ toLLConstraint(c,indexVar) | c <- cs }; 
 	
-// below: Low level interface (without names for the variables, just indexes)
+list[str] getIndexVar(Constraints cons,ObjectiveFun f) =
+	toList({domain(con.coefficients) | con <- cons} 
+		   + domain(f.coefficients));
 
-alias IndexUpdate = tuple[int index,num update];
 
-LLLinComb toLowLevelLinearCombination
-	(LinearCombination comb, map[Variable,int] varIndex) {
-	list[IndexUpdate] indexUpdates = 
-		[ <varIndex[v],s> | <s,v> <- comb.coefficients];
-	indexUpdates = sort(indexUpdates);
-	int lastInd = (indexUpdates == []) ? -1 : last(indexUpdates)[0];
-	cofs = for (i <- [0,1..lastInd]) {
-		cof = 0.0;
-		while (!isEmpty(indexUpdates) && head(indexUpdates).index == i) {
-			cof += toReal(head(indexUpdates).update);
-			indexUpdates = tail(indexUpdates);
-		}
-		append cof;
-	}
-	return <cofs, comb.constant>;
-} 
-
-LLConstraint toLowLevelConstraint(Constraint c, map[Variable,int] varIndex) {
-	LinearCombination left, right;
-	bool maybeLess;
-	switch (c) {
-		case leq(l,r) : { left = l ; right = r; maybeLess = true; }
-		case eq (l,r) : { left = l ; right = r; maybeLess = false;}
-	}
-	return llConstraint(toLowLevelLinearCombination(left,varIndex),
-						toLowLevelLinearCombination(right,varIndex),
-						maybeLess);
-}
-
-LLConstraints toLowLevelConstraints(Constraints cs, map[Variable,int] varIndex) =
-	{ toLowLevelConstraint(c,varIndex) | c <- cs }; 
+Solution fromLLSolution(LLSolution l, list[str] indexVar) =
+	solution( normalize(( indexVar[i] : l.varVals[i] | i <- index(l.varVals))),
+			 l.funVal);
 	
-map[Variable,int] getVarIndex(Constraints con,ObjectiveFunction f) {
-	vars = toList({var | /linComb(co,_) <-con, <_,var> <- co} 
-				 + {var | <_,var> <- f.coefficients});
-	return ( vars[i] : i | i <- index(vars));
-}
-
-Solution fromLLSolution(LLSolution l, map[int,Variable] indexVar) =
-	solution( ( indexVar[i] : l.values[i] | i <- index(l.values)),
-			 l.fval);
-	
-
-alias LLLinComb = tuple[list[num] coefficients, num constant];
-alias LLObjFun = LLLinComb;
-
-data LLConstraint = llConstraint(LLLinComb l, LLLinComb r, bool maybeLess);
-alias LLConstraints = set[LLConstraint];
-
-list[num] padToSize(list[num] l, int s) =
-	l + [0.0 | _ <- [1,2..s - size(l)]];
-
-
-alias LLSolution = tuple[list[num] values, num fval];
-
-public Maybe[LLSolution] 
-llOptimize(bool minimize, bool nonZero, LLConstraints constraints, LLLinComb f) {
-	int nrVars = max([size(co) | /<co,_> <- [constraints,f] ]);
-	constraints = {llConstraint(<padToSize(lcs,nrVars),lcon>,
-								<padToSize(rcs,nrVars),rcon>,less) 
-				  | llConstraint(<lcs,lcon>,<rcs,rcon>,less) <- constraints};
-	f.coefficients = padToSize(f.coefficients,nrVars);
-	return llOptimizeJ(minimize,nonZero,constraints,f);
-}
-	 
-
-@javaClass{org.rascalmpl.library.LinearProgramming}
-java Maybe[LLSolution] 
-llOptimizeJ(bool minimize, bool nonZero, LLConstraints constraints, LLLinComb f) ; 
-

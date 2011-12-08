@@ -19,26 +19,102 @@ import org.apache.commons.math.optimization.linear.Relationship;
 import org.apache.commons.math.optimization.linear.SimplexSolver;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 @SuppressWarnings("deprecation")
 public class LinearProgramming {
 	
 	private final IValueFactory values;
 
-	
-	public LinearProgramming(IValueFactory values){
+	public LinearProgramming(IValueFactory values) {
 		super();
 		this.values = values;
 	}
-	
+
+	public static TypeStore typestore = new TypeStore(
+			org.rascalmpl.values.errors.Factory.getStore(),
+			org.rascalmpl.values.locations.Factory.getStore());
+
+	private static TypeFactory tf = TypeFactory.getInstance();
+	private static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+
+	public static final Type LLVariableVals = tf.listType(tf.numberType());
+
+	public static final Type LLSolution = tf.abstractDataType(typestore,
+			"LLSolution");
+
+	public static final Type LLSolution_llSolution = tf.constructor(typestore,
+			LLSolution, "llSolution", LLVariableVals, "varVals",
+			tf.numberType(), "funVal");
+
+	public static final Type ConstraintType = tf.abstractDataType(typestore,
+			"ConstraintType");
+
+	public static final Type ConstraintType_leq = tf.constructor(typestore,
+			ConstraintType, "leq");
+	public static final Type ConstraintType_eq = tf.constructor(typestore,
+			ConstraintType, "eq");
+	public static final Type ConstraintType_geq = tf.constructor(typestore,
+			ConstraintType, "geq");
+
+	public static final Type LLCoefficients = LLVariableVals;
+
+	public static final Type LLConstraint = tf.abstractDataType(typestore,
+			"LLConstraint");
+
+	public static final Type LLConstraint_llConstraint = tf.constructor(
+			typestore, LLConstraint, "llConstraint", LLCoefficients,
+			"coefficients", ConstraintType, "ctype", tf.numberType(), "const");
+
+	public static final Type LLObjectiveFun = tf.abstractDataType(typestore,
+			"LLObjectiveFun");
+
+	public static final Type LLObjectiveFun_llObjFun = tf.constructor(
+			typestore, LLObjectiveFun, "llObjFun", LLCoefficients,
+			"coefficients", tf.numberType(), "const");
+
+	public static IValue LLSolution_llSolution_varVals(IConstructor c) {
+		return (IValue) c.get(0);
+	}
+
+	public static double LLSolution_llSolution_funVal(IConstructor c) {
+		return c.get(1) instanceof IInteger ? (double) ((IInteger) c.get(1))
+				.intValue() : ((IReal) c.get(1)).doubleValue();
+	}
+
+	public static IList LLConstraint_llConstraint_coefficients(IConstructor c) {
+		return (IList) c.get(0);
+	}
+
+	public static IConstructor LLConstraint_llConstraint_ctype(IConstructor c) {
+		return (IConstructor) c.get(1);
+	}
+
+	public static double LLConstraint_llConstraint_const(IConstructor c) {
+		return c.get(2) instanceof IInteger ? (double) ((IInteger) c.get(2))
+				.intValue() : ((IReal) c.get(2)).doubleValue();
+	}
+
+	public static IList LLObjectiveFun_llObjFun_coefficients(IConstructor c) {
+		return (IList) c.get(0);
+	}
+
+	public static double LLObjectiveFun_llObjFun_const(IConstructor c) {
+		return c.get(1) instanceof IInteger ? (double) ((IInteger) c.get(1))
+				.intValue() : ((IReal) c.get(1)).doubleValue();
+	}
 
 	// begin handwritten code
 
@@ -60,55 +136,48 @@ public class LinearProgramming {
 	}
 
 	private static LinearObjectiveFunction 
-		convertLinObjFun(ITuple c) {
-		double[] coefficients =  convertRealList(getCoefficients(c));
-		double constant =  getConstant(c);
+		convertLinObjFun(IConstructor c) {
+		double[] coefficients =  convertRealList(LLObjectiveFun_llObjFun_coefficients(c));
+		double constant =  LLObjectiveFun_llObjFun_const(c);
 		return new LinearObjectiveFunction(coefficients, constant);
 	}
 
-	private static IList getCoefficients(ITuple t) {
-			return (IList)t.get(0);
+	private static Relationship convertConstraintType(IConstructor c){
+		if(c.getConstructorType() == ConstraintType_leq){
+			return Relationship.LEQ;
+		} else if(c.getConstructorType() == ConstraintType_eq){
+			return Relationship.EQ;
+		} else {
+			return Relationship.GEQ;
+		}
 	}
-	
-	private static double getConstant(ITuple t) {
-		return ((INumber)t.get(1)).toReal().doubleValue();
-}
 
 	private static LinearConstraint convertConstraint(IConstructor c) {
-		ITuple l = (ITuple)c.get("l");
-		ITuple r = (ITuple)c.get("r");
-		
-		double[] coeffientsLhs = convertRealList(getCoefficients(l));
-	
-		double constantLhs = getConstant(l);
-		double[] coeffientsRhs = convertRealList(getCoefficients(r));
-		double constantRhs = getConstant(r);
-		boolean mayBeLess = ((IBool)c.get("maybeLess")).getValue();
-	
-		Relationship rel = mayBeLess ? Relationship.LEQ : Relationship.EQ;
-		System.out.println(coeffientsLhs);
-		return new LinearConstraint(coeffientsLhs, constantLhs, rel, coeffientsRhs,
-				constantRhs);
+		double[] coeffients = convertRealList(LLConstraint_llConstraint_coefficients(c));
+		double constant = LLConstraint_llConstraint_const(c);
+		Relationship r = convertConstraintType(LLConstraint_llConstraint_ctype(c));
+		return new LinearConstraint(coeffients, r, constant);
 	}
 
-	public IValue llOptimizeJ(IBool minimize, IBool nonNegative, ISet constraints, ITuple f) {
+	public IValue llOptimize(IBool minimize, IBool nonNegative, ISet constraints, IConstructor f) {
 		SimplexSolver solver = new SimplexSolver();
 		ArrayList<LinearConstraint> constraintsJ =
 				new ArrayList<LinearConstraint>(constraints.size());
 		for(IValue v : constraints ){
-			
 			constraintsJ.add(convertConstraint((IConstructor)v));
 		}
 		LinearObjectiveFunction fJ = convertLinObjFun(f);
 		GoalType goal = minimize.getValue() ? 
 						GoalType.MINIMIZE : GoalType.MAXIMIZE;
 		IValueFactory vf = values;
+		boolean nonNegativeJ =  nonNegative.getValue();
 		try {
 			RealPointValuePair res = 
-					solver.optimize(fJ, constraintsJ, goal, nonNegative.getValue());
+					solver.optimize(fJ, constraintsJ, goal,nonNegativeJ);
 			return vf.constructor(Maybe.Maybe_just, 
-					vf.tuple(convertToRealList(res.getPoint(), vf),
-							 vf.real(res.getValue()))
+					vf.constructor(
+							LLSolution_llSolution, convertToRealList(res.getPoint(), vf), 
+							vf.real(res.getValue()) )
 					);
 		} catch (Exception e) {
 			return  vf.constructor(Maybe.Maybe_nothing); 
