@@ -18,6 +18,8 @@ import Exception;
 
 public loc courseDir    = |std:///experiments/RascalTutor/Courses/|;
 public loc courseDirSVN = |std:///experiments/RascalTutor/Courses/.svn|;
+public str remoteLoc = "remote-loc.value";
+public str remoteConcepts = "remote-concepts.value";
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -102,9 +104,11 @@ data Choice = good(str description)
             | bad(str description)
             ;
             
-data Exception = ConceptError(str cause);
+data Exception = ConceptError(ConceptName cname, str cause);
 
-data examResult = examResult(str studentName, str studentMail, str StudentNumber, str timestamp, map[str,str] answers, map[str, str] evaluation, num score);
+data examResult = examResult(str studentName, str studentMail, str StudentNumber, str timestamp, 
+                             map[str,str] answers, map[str,str] expectedAnswers,
+                             map[str, str] evaluation, num score);
             
 alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             
@@ -113,6 +117,7 @@ alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 public str conceptExtension = "concept";
 public str htmlExtension = "html";
 public str questExtension = "quest";
+public str rascalExtension = "rsc";
 
 public str getFullConceptName(loc l){
    if (/^.*Courses\/<name:.*$>/ := l.parent.path)  
@@ -302,7 +307,7 @@ public str getSynopsis(loc file){
    try {
      script = readFileLines(file);
      sections = getSections(script);
-     return intercalate(" ", sections["Synopsis"] ? "");
+     return intercalate(" ", sections["Synopsis"] ? []);
    } catch: return "";
 }
 
@@ -333,7 +338,7 @@ public Course getCourse(str name){
      courseCache[name] = theCourse;
      return theCourse;
   }
-  throw ConceptError("No such course <name>");
+  throw ConceptError(name, "No such course");
 }
 
 public void updateCourse(Course c){
@@ -361,9 +366,13 @@ public list[loc] getCourseFiles(ConceptName rootConcept){
 }
 
 public list[loc] crawl(loc dir, str suffix){
+  dotSuffix = "." + suffix;
+  println(dir.path);
+  if(endsWith(dir.path, dotSuffix))
+     return [dir];
 println("crawl: <dir>, <listEntries(dir)>");
   list[loc] res = [];
-  dotSuffix = "." + suffix;
+ 
   for( str entry <- listEntries(dir) ){
     if(entry notin exclude){                       // TODO: TEMP
        loc sub = catenate(dir, entry);
