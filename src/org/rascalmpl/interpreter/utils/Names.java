@@ -13,14 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 
 
 public class Names {
@@ -31,31 +30,11 @@ public class Names {
 	}
 	
 	static public boolean isQualified(QualifiedName name) {
-		return name.getNames().size() > 1;
+		return ((Default) name).isQualified();
 	}
 
 	static public String fullName(QualifiedName qname) {
-		List<Name> names = qname.getNames();
-		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
-
-		if (prefix.size() == 0) {
-			return name(names.get(0));
-		}
-		
-		StringBuilder tmp = new StringBuilder(names.size() * 20);
-		Iterator<Name> iter = prefix.iterator();
-
-		while (iter.hasNext()) {
-			tmp.append(name(iter.next()));
-			if (iter.hasNext()) {
-				tmp.append("::");
-			}
-		}
-		
-		tmp.append("::");
-		tmp.append(name(names.get(names.size() - 1)));
-		
-		return tmp.toString();
+		return ((Default) qname).fullName();
 	}
 
 	/**
@@ -63,24 +42,7 @@ public class Names {
 	 * @return a string containing all but the last part of the given qualified name
 	 */
 	static public String moduleName(QualifiedName qname) {
-		List<Name> names = qname.getNames();
-		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
-
-		if (prefix.size() == 0) {
-			return null;
-		}
-		
-		StringBuilder tmp = new StringBuilder(names.size() * 20);
-		Iterator<Name> iter = prefix.iterator();
-
-		while (iter.hasNext()) {
-			tmp.append(name(iter.next()));
-			if (iter.hasNext()) {
-				tmp.append("::");
-			}
-		}
-		
-		return tmp.toString();
+		return ((Default) qname).moduleName();
 	}
 	
 	static public String name(Name name) {

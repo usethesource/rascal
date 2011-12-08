@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -27,11 +28,73 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 
 	static public class Default extends org.rascalmpl.ast.QualifiedName.Default {
 		private static final TypeFactory TF = TypeFactory.getInstance();
+		private final String lastName;
+		private String fullName;
+		private String moduleName;
+
 
 		public Default(IConstructor __param1, List<Name> __param2) {
 			super(__param1, __param2);
+			lastName = ((Name.Lexical) __param2.get(__param2.size() - 1)).getString();
 		}
 
+		public boolean isQualified() {
+			return getNames().size() > 1;
+		}
+		
+		public String lastName() {
+			return lastName;
+		}
+		
+		public String moduleName() {
+			if (moduleName != null) {
+				List<Name> names = getNames();
+				java.util.List<Name> prefix = names.subList(0, names.size() - 1);
+
+				if (prefix.size() == 0) {
+					return null;
+				}
+
+				StringBuilder tmp = new StringBuilder(names.size() * 20);
+				Iterator<Name> iter = prefix.iterator();
+
+				while (iter.hasNext()) {
+					tmp.append(((Name.Lexical) iter.next()).getString());
+					if (iter.hasNext()) {
+						tmp.append("::");
+					}
+				}
+			
+				moduleName = tmp.toString();
+			}
+			return moduleName;
+		}
+		public String fullName() {
+			if (fullName == null) {
+				List<Name> names = getNames();
+				java.util.List<Name> prefix = names.subList(0, names.size() - 1);
+
+				if (prefix.size() == 0) {
+					return ((Name.Lexical) names.get(0)).getString();
+				}
+				
+				StringBuilder tmp = new StringBuilder(names.size() * 20);
+				Iterator<Name> iter = prefix.iterator();
+
+				while (iter.hasNext()) {
+					tmp.append(((Name.Lexical) iter.next()).getString());
+					if (iter.hasNext()) {
+						tmp.append("::");
+					}
+				}
+				
+				tmp.append("::");
+				tmp.append(((Name.Lexical) names.get(names.size() - 1)).getString());
+				fullName = tmp.toString();
+			}
+			return fullName;
+		}
+		
 		@Override
 		public Type typeOf(Environment env) {
 			if (getNames().size() == 1
