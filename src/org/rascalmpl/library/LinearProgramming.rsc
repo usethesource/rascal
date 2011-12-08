@@ -20,16 +20,15 @@ import Real;
 alias Coefficients = map[str var,num coef];
 
 data LinearExpression = linearExp(Coefficients coefficients, num const);
-alias OjectiveFun = LinearExpression;
+alias ObjectiveFun = LinearExpression;
 
 public ObjectiveFun linearExp(Coefficients coefficients) =
 	linearExp(coefficients,0);
 
 data ConstraintType = leq() | eq() | geq();
 
-data Constraint = 
-	constraint(	Coefficients coefficients,
-			   	ConstraintType ctype, num const);
+data Constraint = constraint(	Coefficients coefficients,
+			   					ConstraintType ctype, num const);
 
 
 public LinearExpression neg(LinearExpression exp) = 
@@ -47,12 +46,12 @@ public Constraint constraint(LinearExpression lhs, ConstraintType ctype) =
 	constraint(lhs.coefficients,ctype, -lhs.const);
 
 public Constraint constraint(LinearExpression lhs, 
-							 ConstrainType ctype, LinearExpression rhs) =
+							 ConstraintType ctype, LinearExpression rhs) =
 	constraint(sub(lhs,rhs),ctype);
 							 
 alias Constraints = set[Constraint];
-alias VariableVals = map[str var, num val];
 
+alias VariableVals = map[str var, num val];
 data Solution = solution(VariableVals varVals, num funVal);
 
 num runObjFul(ObjectiveFun f, VariableVals vals) =
