@@ -119,7 +119,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		if (TreeAdapter.isList(subjectTree)) {
 			if ((TreeAdapter.getArgs(subjectTree)).isEmpty()) {
 				IConstructor sym = declaredType.getSymbol();
-				if (SymbolAdapter.isIterPlus(sym)  || (SymbolAdapter.isIterPlusSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1) || (SymbolAdapter.isIterStarSeps(sym) && SymbolAdapter.getSeparators(sym).length() > 1)) {
+				if (SymbolAdapter.isIterPlus(sym)  || (SymbolAdapter.isIterPlusSeps(sym))) {
 					return false;
 				}
 			}
