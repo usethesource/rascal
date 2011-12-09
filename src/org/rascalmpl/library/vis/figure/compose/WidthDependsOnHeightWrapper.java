@@ -12,7 +12,7 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
 public class WidthDependsOnHeightWrapper extends Scrollable{
 
 	Dimension major;
-
+	
 	public WidthDependsOnHeightWrapper(Dimension major, IFigureConstructionEnv env, IConstructor inner, PropertyManager properties) {
 		super(major != Dimension.X, major != Dimension.Y, env,inner,properties);
 		this.major = major;

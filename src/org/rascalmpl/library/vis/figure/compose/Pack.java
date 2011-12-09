@@ -151,6 +151,7 @@ public class Pack extends WidthDependsOnHeight {
 				//System.out.printf("Fig locatation %s\n",fig.location);
 			}
 		}
+		realSize.set(size);
 		//initialized = true;
 	}
 	

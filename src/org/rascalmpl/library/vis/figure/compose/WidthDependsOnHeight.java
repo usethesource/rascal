@@ -6,11 +6,14 @@ import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.library.vis.util.vector.Coordinate;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 
 public abstract class WidthDependsOnHeight extends Compose{
 
 	Dimension major, minor;
+	BoundingBox realSize;
 	
 	public static final double MINOR_MINSIZE = 30;
 	
@@ -18,6 +21,7 @@ public abstract class WidthDependsOnHeight extends Compose{
 		super(figures, properties);
 		this.major = major;
 		minor = major.other();
+		realSize = new BoundingBox();
 	}
 	
 	@Override
@@ -29,6 +33,12 @@ public abstract class WidthDependsOnHeight extends Compose{
 		return major;
 	}
 
+	@Override
+	public boolean mouseInside(Coordinate c) {
+		return c.getX() >= globalLocation.getX() && c.getX() <= globalLocation.getX() + realSize.getX()
+				&& c.getY() >= globalLocation.getY() && c.getY() <= globalLocation.getY()+ realSize.getY();
+	}
+	
 	@Override
 	public void computeMinSize() {
 		double minWidth = 0;
@@ -42,7 +52,7 @@ public abstract class WidthDependsOnHeight extends Compose{
 
 
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		gc.rect(globalLocation.getX()-3, globalLocation.getY()-3, size.getX()+3, size.getY()+3);
+		//gc.rect(globalLocation.getX()-3, globalLocation.getY()-3, size.getX()+3, size.getY()+3);
 	}
 	
 	

@@ -77,6 +77,7 @@ public class HVCat extends WidthDependsOnHeight{
 			y+=maxMinor +  prop.get2DReal(minor, TwoDProperties.GAP);
 		}
 		size.setMax(minor,y);
+		realSize.set(size);
 	}
 
 
