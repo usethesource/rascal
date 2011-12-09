@@ -12,6 +12,10 @@ import lang::rascal::grammar::definition::Symbols;
 
 public alias DoNotNest = rel[Production father, int position, Production child];
 
+public DoNotNest doNotNest(Grammar g) {
+  return {doNotNest(g.rules[s]) | s <- g.rules};
+}
+
 public DoNotNest doNotNest(Production p) {
   switch (p) {
     case prod(s, [list[Symbol] o,t],{_*,\assoc(left())}) :

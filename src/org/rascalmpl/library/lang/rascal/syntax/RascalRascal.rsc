@@ -200,7 +200,7 @@ syntax Expression
 	| Range          : "[" Expression first ".." Expression last "]"
 	| Tuple          : "\<" {Expression ","}+ elements "\>" 
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
-	| It             : "it" 
+	| It             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| QualifiedName  : QualifiedName qualifiedName 
 	// removed >
 	| Subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 

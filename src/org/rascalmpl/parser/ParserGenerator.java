@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -53,6 +54,11 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
 			evaluator.doImport(monitor, "lang::rascal::grammar::Assimilator");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
 		}
 		catch (Throwable e) {
 			throw new ImplementationError("Exception while loading parser generator: " + e.getMessage(), e);
@@ -142,5 +148,20 @@ public class ParserGenerator {
 	
 	public IConstructor getGrammar(IRascalMonitor monitor, String main, IMap definition) {
 		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
+	}
+	
+	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
+		IConstructor g = getGrammar(monitor, main, definition);
+		g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
+		g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
+		g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
+		g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
+		g = (IConstructor) evaluator.call(monitor, "literals", g);
+		return g;
+	}
+
+	public IRelation getNestingRestrictions(IRascalMonitor monitor,
+			IConstructor g) {
+		return (IRelation) evaluator.call(monitor, "doNotNest", g);
 	}
 }
