@@ -18,10 +18,10 @@ import IO;
 public Grammar expandRegularSymbols(Grammar G) {
   for (Symbol def <- G.rules) {
     if (choice(def, {regular(def)}) := G.rules[def]) { 
-      set[Production] init = {};
+      Production init = choice(def,{});
       
       for (p <- expand(def)) {
-        G.rules[p.def]?init += {p};
+        G.rules[p.def] = choice(p.def, {p, G.rules[p.def]?\init});
       }
     }
   }

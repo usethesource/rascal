@@ -6,6 +6,12 @@ import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Productions;
 import IO;
 
+public Grammar expandKeywords(Grammar g) {
+  return visit(g) {
+    case conditional(sym, conds) => conditional(sym, expandKeywords(g, conds)) 
+  };
+}
+
 public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   done = {};
   

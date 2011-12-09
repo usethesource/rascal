@@ -33,6 +33,7 @@ import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -596,6 +597,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			String main = uri.getAuthority();
 			ModuleEnvironment env = getHeap().getModule(main);
 			return pgen.getGrammar(monitor, main, env.getSyntaxDefinition());
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	public IConstructor getExpandedGrammar(IRascalMonitor monitor, URI uri) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			ParserGenerator pgen = getParserGenerator();
+			String main = uri.getAuthority();
+			ModuleEnvironment env = getHeap().getModule(main);
+			return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
+	public IRelation getNestingRestrictions(IRascalMonitor monitor, IConstructor g) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			ParserGenerator pgen = getParserGenerator();
+			return pgen.getNestingRestrictions(monitor, g);
 		}
 		finally {
 			setMonitor(old);
