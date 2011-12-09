@@ -47,7 +47,7 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 		}
 		
 		public String moduleName() {
-			if (moduleName != null) {
+			if (moduleName == null) {
 				List<Name> names = getNames();
 				java.util.List<Name> prefix = names.subList(0, names.size() - 1);
 

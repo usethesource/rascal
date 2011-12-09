@@ -32,6 +32,15 @@ public class CallTests extends TestFramework{
 		runTest("zap(1,2);");
 	}
 	
+	@Test
+	public void qualifiedNameType() {
+		prepareModule("M", "module M\n" +
+		         "data X = x();");
+
+		prepareMore("import M;");
+		prepareMore("M::X f() { return x(); }");
+		assertTrue(runTestInSameEvaluator("f() == x();"));
+	}
 	@Test(expected=ArgumentsMismatchError.class)
 	public void callError2() {
 		runTest("{ int f(int n) {return 2*n;}  f(\"abc\");}");
