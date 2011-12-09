@@ -344,10 +344,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				// If the name expression is just a name, enable caching of the name lookup result.
 				// Also, if we have not yet registered a handler when we cache the result, do so now.
 				if (function == null) {
-					this.cachedPrefix = function = this.getExpression().interpret(__eval);
+					function = this.getExpression().interpret(__eval);
 					
-					if (function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
-						if (this.cachedPrefix != null && !registeredCacheHandler) {
+					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
+						this.cachedPrefix = function;
+						if (!registeredCacheHandler) {
 							__eval.getEvaluator().registerConstructorDeclaredListener(
 									new IConstructorDeclared() {
 										public void handleConstructorDeclaredEvent() {
