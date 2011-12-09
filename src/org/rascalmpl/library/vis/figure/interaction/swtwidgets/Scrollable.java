@@ -20,7 +20,6 @@ public class Scrollable extends SWTWidgetFigure<FigureSWTApplet> {
 		super(env,  properties);
 		this.hscroll = hscroll;
 		this.vscroll = vscroll;
-		System.out.printf("Scrollable %s \n",inner);
 		widget = makeWidget(env.getSWTParent(), env,inner);
 		env.getSWTParent().registerChild(widget);
 		innerFig = widget.getFigure();

@@ -99,6 +99,9 @@ list[num] toLLCoefficients(Coefficients coefficients, list[str] indexVar) =
 Coefficients normalize(Coefficients coefs) =
 	( () | it + ((c != 0) ? (var : c) : ()) | <var,c> <- toList(coefs));
 
+public LinearExpression normalizeLinExp(LinearExpression l) =
+	l[coefficients = normalize(l.coefficients)];
+
 Coefficients 
 fromLLVariableVals(LLVariableVals vars, list[str] indexVar) =
 	( indexVar[i] : vars[i] | i <- index(indexVar));
