@@ -603,6 +603,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
+	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			ParserGenerator pgen = getParserGenerator();
+			return pgen.diagnoseAmbiguity(parseTree);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
+	
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {

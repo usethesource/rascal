@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -59,6 +60,7 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
+			evaluator.doImport(monitor, "Ambiguity");
 		}
 		catch (Throwable e) {
 			throw new ImplementationError("Exception while loading parser generator: " + e.getMessage(), e);
@@ -66,6 +68,10 @@ public class ParserGenerator {
 		finally {
 			monitor.endJob(true);
 		}
+	}
+	
+	public IValue diagnoseAmbiguity(IConstructor parseForest) {
+		return evaluator.call("diagnose", parseForest);
 	}
 	
 	/**
