@@ -75,12 +75,12 @@ public ConstraintBase gatherPatternConstraints(STBuilder st, ConstraintBase cb, 
 	        }
 	
 	        case (Pattern)`<LocationLiteral ll>` : {
-	            cb = addConstraintForLoc(cb, pat@\loc, makeLocType());
+	            cb = addConstraintForLoc(cb, pat@\loc, makeFailType("Location literals are not allowed in patterns",pat@\loc));
 	            return;
 	        }
 	
 	        case (Pattern)`<DateTimeLiteral dtl>` : {
-	            cb = addConstraintForLoc(cb, pat@\loc, makeDateTimeType());
+	            cb = addConstraintForLoc(cb, pat@\loc, makeFailType("Datetime literals are not allowed in patterns", pat@\loc));
 	            return;
 	        }
 	        

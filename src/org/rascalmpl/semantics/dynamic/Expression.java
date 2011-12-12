@@ -34,6 +34,7 @@ import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.BasicTypeEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -347,15 +348,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					function = this.getExpression().interpret(__eval);
 					
 					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
-						this.cachedPrefix = function;
-						if (!registeredCacheHandler) {
-							__eval.getEvaluator().registerConstructorDeclaredListener(
-									new IConstructorDeclared() {
-										public void handleConstructorDeclaredEvent() {
-											cachedPrefix = null;
-										}
-									});
-							registeredCacheHandler = true;
+						org.rascalmpl.ast.QualifiedName qname = this.getExpression().getQualifiedName();
+						if (__eval.getCurrentEnvt().isNameFinal(qname)) {
+							this.cachedPrefix = function;
+							if (!registeredCacheHandler) {
+								__eval.getEvaluator().registerConstructorDeclaredListener(
+										new IConstructorDeclared() {
+											public void handleConstructorDeclaredEvent() {
+												cachedPrefix = null;
+											}
+										});
+								registeredCacheHandler = true;
+							}
 						}
 					}
 					else {

@@ -95,13 +95,13 @@ private RSignature createRSignature(Tree t) {
         switch(h) {
             case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
                 RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-                sig = createModuleBodySignature(b,sig);
+                sig = createModuleBodySignature(b,sig,b@\loc);
                 return sig;
             }
 
             case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
                 RSignature sig = <{  }, convertName(n), getImportInfo(i)>;
-                sig = createModuleBodySignature(b,sig);
+                sig = createModuleBodySignature(b,sig,b@\loc);
                 return sig;
             }
 
@@ -116,13 +116,13 @@ private RSignature createRSignature(Tree t) {
 // Create the individual signature items in the module body.
 //
 private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
-    RSignature signatureForSignature(Visibility vis, Signature s) {
+    RSignature signatureForSignature(Visibility vis, Signature s, loc sl) {
         if ((Visibility)`public` := vis) { 
             switch(s) {
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` : 
-                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` :
-                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), l));
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
                 default: throw "signatureForSignature case not implemented for item <s>";
             }
         }

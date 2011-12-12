@@ -119,6 +119,7 @@ data RType =
     | RReifiedType(RType baseType)
     | RBagType(RType elementType)
     | RIntType()
+    | RRatType()
     | RRelType(list[RNamedType] elementTypes) 
     | RTypeVar(RName varName, RType varTypeBound)
     | RRealType()
@@ -135,7 +136,6 @@ data RType =
     | RConstructorType(RName constructorName, RType adtType, list[RNamedType] elementTypes) 
     | RListType(RType elementType)
     | RADTType(RName adtName, list[RType] adtParameters)
-    | RLexType()
     ;
   
 //
@@ -197,6 +197,7 @@ public RType convertBasicType(BasicType t) {
     switch(t) {
         case (BasicType)`bool` : return makeBoolType();
         case (BasicType)`int` : return makeIntType();
+        case (BasicType)`rat` : return makeRatType();
         case (BasicType)`real` : return makeRealType();
         case (BasicType)`num` : return makeNumType();
         case (BasicType)`str` : return makeStrType();
@@ -437,7 +438,6 @@ public str prettyPrintType(RType t) {
         case RConstructorType(cn, an, ets) : return "<prettyPrintType(an)>: <prettyPrintName(cn)>(<prettyPrintNamedTypeList(ets)>)";
         case RListType(et) : return "list[<prettyPrintType(et)>]";
         case RADTType(n,ps) : return "<prettyPrintName(n)>" + (size(ps) > 0 ? "[ <prettyPrintTypeList(ps)> ]" : "");
-        case RLexType() : return "lex";
         case RUserType(tn, tps) : return "<prettyPrintName(tn)>" + (size(tps)>0 ? "[<prettyPrintTypeList(tps)>]" : "");
         case RAliasType(an,ps,at) : return "alias <prettyPrintName(an)>" + (size(ps) > 0 ? "[<prettyPrintTypeList(ps)>]" : "") + " = <prettyPrintType(at)>";
         case RDataTypeSelector(s,t) : return "Selector <s>.<t>";
@@ -542,6 +542,17 @@ public bool isIntType(RType t) {
 }
 
 public RType makeIntType() { return RIntType(); }
+
+//
+// Routines for dealing with rat types
+//
+public bool isRatType(RType t) {
+    if (RAliasType(_,_,at) := t) return isRatType(at);
+    if (RTypeVar(_,tvb) := t) return isRatType(tvb);
+    return RRatType() := t;
+}
+
+public RType makeRatType() { return RRatType(); }
 
 //
 // Routines for dealing with rel types
@@ -1156,20 +1167,11 @@ public list[RType] getADTTypeParameters(RType t) {
 }
 
 //
-// Routines for dealing with lex types
-//
-public bool isLexType(RType t) {
-    if (RAliasType(_,_,at) := t) return isLexType(at);
-    if (RTypeVar(_,tvb) := t) return isLexType(tvb);
-    return RLexType() := t;
-}
-
-//
 // Routines for dealing with user types
 //
 public RName getUserTypeName(RType ut) {
     if (RUserType(x,_) := ut) return x;
-    throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
+    throw "Cannot get user type name from non user type <ut>";
 } 
 
 public bool userTypeHasParameters(RType ut) {

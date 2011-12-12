@@ -27,6 +27,7 @@ import lang::rascal::types::TypeSignatures;
 import lang::rascal::checker::Annotations;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::scoping::ScopedTypes;
+import lang::rascal::types::Lubs;
 
 import lang::rascal::syntax::RascalRascal;
 
@@ -107,15 +108,14 @@ public tuple[Tree,STBuilder] resolveTreeAux(Tree t, bool addNames) {
 // TODO: Removing qualifiers causes an error during filtering. This needs to be fixed (I'm
 // looking at you, Jurgen!)
 //
+public anno map[loc,str] Tree@docStrings;
+public anno map[loc,set[loc]] Tree@docLinks;
+
 public Tree addNamesToTree(STBuilder stBuilder, Tree t) {
-    loc generateLink(ItemId id) {
-        return stBuilder.scopeItemMap[id].definedAt;
-    }
-    
     set[loc] generateLinks(set[ItemId] ids) {
     	return { stBuilder.scopeItemMap[id].definedAt | id <- ids };
     }
-    
+
     str generateDocString(set[ItemId] ids) {
         str result = "";
         if (size(ids) == 1) {
@@ -131,49 +131,22 @@ public Tree addNamesToTree(STBuilder stBuilder, Tree t) {
         return result;
     }
     
-    Tree annotateNode(Tree tn) {
-        set[ItemId] ids = stBuilder.itemUses[tn@\loc];
-        if (size(ids) > 1)
-            return tn[@nameIds = ids][@doc = generateDocString(ids)][@links = generateLinks(ids)];
-        else if (size(ids) == 1)
-        	return tn[@nameIds = ids][@doc = generateDocString(ids)][@link = generateLink(getOneFrom(ids))];
-        else
-            return tn;
+    // First, generate a map of locations to items
+    map[loc,set[ItemId]] idmap = ( );
+    for ( < l, i > <- stBuilder.itemUses ) {
+    	if (l in idmap) {
+    		idmap[l] = idmap[l] + i; 
+    	} else {
+    		idmap[l] = { i };
+    	}
     }
+
+	map[loc,set[loc]] locLinks = ( );
+	for (l <- idmap<0>) locLinks[l] = generateLinks(idmap[l]);
+	    
+    map[loc,str] locStrings = ( l : generateDocString(idmap[l]) | l <- idmap<0> );
     
-    return visit(t) {
-        case tn:appl(prod(_, sort("Name"), _), _) :
-            if (tn@\loc in stBuilder.itemUses<0>)
-                insert(annotateNode(tn));
-                
-        case tn:appl(prod(_, sort("QualifiedName"), _), _) :
-            if (tn@\loc in stBuilder.itemUses<0>)
-                insert(annotateNode(tn));
-
-//        case (Name)`<Name n>` :
-//            if (n@\loc in stBuilder.itemUses)
-//                insert(annotateNode(n));
-
-//        case (QualifiedName)`<QualifiedName qn>` :
-//            if (qn@\loc in stBuilder.itemUses)
-//                insert(annotateNode(qn));
-
-//        case (Pattern)`<Name n>` :
-//            if (n@\loc in stBuilder.itemUses)
-//                insert(annotateNode(n,n@\loc));
-    
-//        case (Pattern)`<QualifiedName qn>` :
-//            if (qn@\loc in stBuilder.itemUses)
-//                insert(annotateNode(qn,qn@\loc));
-                
-//        case (UserType)`<QualifiedName qn>` :
-//            if (qn@\loc in stBuilder.itemUses)
-//                insert(annotateNode(qn,qn@\loc));
-
-//        case (Assignable)`<QualifiedName qn>` :
-//            if (qn@\loc in stBuilder.itemUses)
-//                insert(annotateNode(qn,qn@\loc));
-    };
+    return t[@docStrings = locStrings][@docLinks = locLinks];	
 }
 
 //
@@ -1105,7 +1078,7 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
     switch(exp) {
         // Strings (in case of interpolation)
         case (Expression)`<StringLiteral sl>`: {
-            list[Tree] ipl = prodFilter(sl,bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+            list[Tree] ipl = prodFilter(sl,bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1116,7 +1089,7 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
 
         // Locations (in case of interpolation)
         case (Expression)`<LocationLiteral ll>`: {
-            list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd; });
+            list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\sort("Expression"),_,_) := prd; });
             for (ipe <- ipl) stBuilder = handleExpression(ipe, stBuilder);
         }
 
@@ -1292,11 +1265,11 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
             stBuilder = handleExpression(e, stBuilder);
 
         // TransitiveReflexiveClosure
-        case (Expression)`<Expression e> *` :
+        case (Expression)`<Expression e>*` :
             stBuilder = handleExpression(e, stBuilder);
 
         // TransitiveClosure
-        case (Expression)`<Expression e> +` :
+        case (Expression)`<Expression e>+` :
             stBuilder = handleExpression(e, stBuilder);
 
         // GetAnnotation
@@ -1646,13 +1619,14 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
         case (Expression)`all ( <{Expression ","}+ egs> )` :
             for (e <- egs) stBuilder = handleExpression(e, stBuilder);
     }
-
+    
     // Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
     // representing the map.
     // exp[0] is the production used, exp[1] is the actual parse tree contents
-    if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := exp[0]) {
-        stBuilder = handleMapExpression(exp, stBuilder);
-    }
+    // TODO: This is causing a parse error for some reason, figure out why!
+    //if (prod(label(sort("Map"))_,_,)) := exp[0]) {
+    //    stBuilder = handleMapExpression(exp, stBuilder);
+    //}
 
     return stBuilder;
 }
@@ -1664,7 +1638,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             for (e <- gens) stBuilder = handleExpression(e, stBuilder);
             for (st <- pre) stBuilder = handleStatement(st, stBuilder);
             list[Tree] ipl = prodFilter(body, 
-                             bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                             bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1680,7 +1654,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             for (e <- conds) stBuilder = handleExpression(e, stBuilder);
             for (st <- pre) stBuilder = handleStatement(st, stBuilder);
             list[Tree] ipl = prodFilter(body, 
-                             bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                             bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1696,7 +1670,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             for (e <- conds) stBuilder = handleExpression(e, stBuilder);
             for (st <- preThen) stBuilder = handleStatement(st, stBuilder);
             list[Tree] ipl = prodFilter(bodyThen, 
-                             bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                             bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1706,7 +1680,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             for (st <- postThen) stBuilder = handleStatement(st, stBuilder);
             for (st <- preElse) stBuilder = handleStatement(st, stBuilder);
             ipl = prodFilter(bodyElse, 
-                  bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                  bool(Production prd) { return prod(s\ort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1722,7 +1696,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             stBuilder = handleExpression(cond, stBuilder);
             for (st <- pre) stBuilder = handleStatement(st, stBuilder);
             list[Tree] ipl = prodFilter(body, 
-                             bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                             bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1737,7 +1711,7 @@ public STBuilder handleStringTemplate(StringTemplate s, STBuilder stBuilder) {
             stBuilder = justSTBuilder(pushNewBooleanScope(s@\loc, stBuilder));
             for (st <- pre) stBuilder = handleStatement(st, stBuilder);
             list[Tree] ipl = prodFilter(body, 
-                             bool(Production prd) { return prod(_,\cf(sort("Expression")),_) := prd || prod(_,\cf(sort("StringTemplate")),_) := prd; });
+                             bool(Production prd) { return prod(\sort("Expression"),_,_) := prd || prod(\sort("StringTemplate"),_,_) := prd; });
             for (ipe <- ipl) {
                 if (`<Expression ipee>` := ipe)
                     stBuilder = handleExpression(ipee, stBuilder);
@@ -1945,7 +1919,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
 	switch(pat) {
         // Regular Expression literal
         case (Pattern)`<RegExpLiteral rl>` : {
-            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,sort("Name"),_) := prd; });
+            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(\lex("Name"),_,_) := prd; });
             // For each name, either introduce it into scope, or tag the use of an existing name; we can
             // assume that names are of type string, since they will hold parts of strings (but will check
             // this during type checking in case names we don't introduce aren't actually strings)
@@ -2368,7 +2342,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         case (Pattern)`<DateTimeLiteral _>` : return < stBuilder, makeDateTimeType() >;
     
         case (Pattern)`<RegExpLiteral rl>` : {
-            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(_,sort("Name"),_) := prd; });
+            list[Tree] names = prodFilter(rl, bool(Production prd) { return prod(\lex("Name"),_,_) := prd; });
             for (n <- names) {
                 RName rn = RSimpleName("<n>");
                 set[ItemId] possibleConflicts = getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), rn, FCVs());
@@ -2472,7 +2446,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
                 else
                     elementTypes += rt; 
             }
-            return < stBuilder, makeListType(lubOfList(elementTypes)) >;
+            return < stBuilder, makeListType(lubList(elementTypes)) >;
         }
 
         // We handle splicing here -- if we have a set variable, but not an explicit
@@ -2486,7 +2460,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
                 else
                     elementTypes += rt; 
             }
-            return < stBuilder, makeSetType(lubOfList(elementTypes)) >;
+            return < stBuilder, makeSetType(lubList(elementTypes)) >;
         }
 
         case (Pattern) `<<Pattern pi>>` : {
