@@ -219,7 +219,7 @@ public RType expandUnknownType(RType rt, STBuilder stBuilder, ItemId currentScop
     return (utRes != getUnknownType(rt)) ? utRes : rt; // If the type changed, we at least partially resolved it, return that
 }
 
-private map[str,RType(RType,STBuilder,ItemId)] expandHandlers = (
+public map[str,RType(RType,STBuilder,ItemId)] expandHandlers = (
     "RValueType" : expandValueType,
     "RLocType" : expandLocType,
     "RNodeType" : expandNodeType,
@@ -265,7 +265,10 @@ public RNamedType expandUserTypesForNamedType(RNamedType nt, STBuilder stBuilder
 }
 
 public RType expandUserTypes(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    if (getName(rt) in expandHandlers) { 
+    if (getName(rt) in expandHandlers) {
+    	//h = expandHandlers[getName(rt)];
+    	//println(rt); println(h);
+    	//RType expandedType = h(rt, stBuilder, currentScope); 
         RType expandedType = (expandHandlers[getName(rt)])(rt, stBuilder, currentScope);
         if ( (rt@at)? ) expandedType = expandedType[@at=rt@at];
         return expandedType;        

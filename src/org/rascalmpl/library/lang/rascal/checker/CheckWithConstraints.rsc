@@ -1466,18 +1466,6 @@ public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindStringLit
 	return BindStringLiteral(patType, subType, F(), at);
 }
 
-public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindLocationLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
-	if (isLocType(patType), comparable(patType,subType))
-		return BindLocationLiteral(patType, subType, T(), at);
-	return BindLocationLiteral(patType, subType, F(), at);
-}
-
-public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindDateTimeLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
-	if (isDateTimeType(patType), comparable(patType,subType))
-		return BindDateTimeLiteral(patType, subType, T(), at);
-	return BindDateTimeLiteral(patType, subType, F(), at);
-}
-
 public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindRegExpLiteral(RType patType, RType subType, SolveResult sr, loc at)) {
 	if (isStrType(patType), comparable(patType,subType))
 		return BindRegExpLiteral(patType, subType, T(), at);
@@ -1520,18 +1508,6 @@ public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindPatternNa
 public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindDeepPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
 	return BindDeepPattern(patType, childType, subType, sr, at);
 }
-
-//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindPatternAsName(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
-//	return BindPatternAsName(patType, childType, subType, sr, at);
-//}
-//
-//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindTypeGuard(RType patType, RType childType, RType guardType, RType subType, SolveResult sr, loc at)) {
-//	return BindTypeGuard(patType, childType, guardType, subType, sr, at);
-//}
-//
-//public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindAntiPattern(RType patType, RType childType, RType subType, SolveResult sr, loc at)) {
-//	return BindAntiPattern(patType, childType, subType, sr, at);
-//}
 
 public Constraint solveConstraint(STBuilder st, ConstraintBase cb, BindListPattern(RType patType, RType subType, list[Pattern] childPatterns, SolveResult sr, loc at)) {
 	Constraints toAdd = { };
