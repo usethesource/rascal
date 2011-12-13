@@ -1,3 +1,4 @@
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -25,6 +26,9 @@ public java list[&T] drop(int n, list[&T] l) ;
 public list[&T] mix(list[&T] l, list[&T] r){
 	return [l[i],r[i]| i <- [0 .. (min(size(l),size(r)) - 1)]] + drop(size(r),l) + drop(size(l),r);
 }
+
+@doc{Sum the elements of a list}
+public num sum(list[&T] l) = (head(l) | it + e | e <- tail(l));
 
 @doc{Delete nth element from list}
 @javaClass{org.rascalmpl.library.List}
