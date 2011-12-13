@@ -126,18 +126,22 @@ public class WordWrapMinRaggedness {
 	}
 	
 	double costOf(int startWord,  int endWord, double lineWidth){
-		return costOf(startWord,0,endWord,elems[endWord].syllables.length-1,lineWidth);
+		return costOf(startWord,0,endWord,elems[endWord].syllables.length-1,lineWidth,0,false);
 	}
 	
-	double costOf(int startWord, int startSyllable, int endWord, int endSyllable, double lineWidth){
+	double costOf(int startWord,  int endWord, double lineWidth,double prevCost){
+		return costOf(startWord,0,endWord,elems[endWord].syllables.length-1,lineWidth,lineWidth-prevCost,true);
+	}
+	
+	double costOf(int startWord, int startSyllable, int endWord, int endSyllable, double lineWidth, double prevWidth, boolean prev){
 		LineElements thisLine = new LineElements(startWord, startSyllable, endWord, endSyllable,lineWidth);
 		if(costs.containsKey(thisLine)){
 			return costs.get(thisLine);
 		} else{
 			double width = 0;
 			thisLine.endWord--;
-			if(costs.containsKey(thisLine)){
-				width = lineWidth - costs.get(thisLine);
+			if(prev){
+				width = prevWidth;
 				thisLine.endWord++;
 				width+=minSpaceWidth;
 				width+=elems[endWord].getWidthBeforeHyphen(endSyllable);

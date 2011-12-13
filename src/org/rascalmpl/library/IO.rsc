@@ -41,6 +41,48 @@ public java bool iprintln(value arg);
 @javaClass{org.rascalmpl.library.IO}
 public java bool iprint(value arg); 
 
+@doc{Prints the value indented and returns the value}
+public &T iprintExp(&T v) {
+	print("<v>");
+	return v;
+}
+
+@doc{Prints message and returns the value}
+public &T discardPrintExp(str s, &T t){
+	print(s);
+	return t;
+}
+
+@doc{Prints message on a line and returns the value}
+public &T discardPrintlnExp(str s, &T t){
+	println(s);
+	return t;
+}
+
+@doc{Prints the value and returns the value}
+public &T printExp(&T v) {
+	print("<v>");
+	return v;
+}
+
+@doc{Prints the message + the value and returns the value}
+public &T printExp(str s,&T v) {
+	print("s <v>");
+	return v;
+}
+
+@doc{Prints the value and returns the value}
+public &T printlnExp(&T v) {
+	println("<v>");
+	return v;
+}
+
+@doc{Prints the message + the value and returns the value}
+public &T printlnExp(str s,&T v) {
+	println("s <v>");
+	return v;
+}
+
 @doc{Print and return true, for debugging complex Boolean expressions or comprehensions}
 public bool bprint(value arg) 
 {
