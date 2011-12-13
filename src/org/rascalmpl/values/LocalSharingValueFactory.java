@@ -424,4 +424,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
 		return cachedDateTimes.cache(valueFactory.time(hour, minute, second, millisecond, hourOffset, minuteOffset));
 	}
+
+	@Override
+	public IReal pi(int precision) {
+		return cachedReals.cache(valueFactory.pi(precision));
+	}
+
+	@Override
+	public IReal e(int precision) {
+		return cachedReals.cache(valueFactory.e(precision));
+	}
 }
