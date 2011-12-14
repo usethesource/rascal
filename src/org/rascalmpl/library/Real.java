@@ -15,22 +15,21 @@ package org.rascalmpl.library;
 
 import java.util.Random;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.result.RealResult;
 
 public class Real {
 	private final IValueFactory values;
 	private final Random random;
-	private final double pi, e;
 	
 	public Real(IValueFactory values){
 		super();
 		
 		this.values = values;
 		random = new Random();
-		pi = Math.PI;
-		e = Math.E;
 	}
 
 	public IValue arbReal()
@@ -58,43 +57,48 @@ public class Real {
 	public IValue PI()
 	//@doc{pi -- returns the constant PI}
 	{
-	  return values.real(pi);
+		return values.pi(RealResult.PRECISION);
 	}
 	
 	public IValue E()
 	//@doc{e -- returns the constant E}
 	{
-	  return values.real(e);
+		return values.e(RealResult.PRECISION);
 	}
 	
-	public IValue pow(IReal x, IReal y){
-	  return values.real(Math.pow(x.doubleValue(), y.doubleValue()));
+	public IValue pow(IReal x, IInteger y){
+		return x.pow(y);
 	}
 	
 	public IValue exp(IReal x){
-		  return values.real(Math.exp(x.doubleValue()));
-		}
+		return x.exp(RealResult.PRECISION);
+	}
 	
 	public IValue sin(IReal x){
-		  return values.real(Math.sin(x.doubleValue()));
-		}
+		return x.sin(RealResult.PRECISION);
+	}
 	
 	public IValue cos(IReal x){
-		  return values.real(Math.cos(x.doubleValue()));
-		}
+		return x.cos(RealResult.PRECISION);
+	}
 	
 	public IValue tan(IReal x){
-		  return values.real(Math.tan(x.doubleValue()));
-		}
+		return x.tan(RealResult.PRECISION);
+	}
 	
 	public IValue sqrt(IReal x){
-		  return values.real(Math.sqrt(x.doubleValue()));
-		}
-	
-	public IValue log(IReal x) {
-		return values.real(Math.log(x.doubleValue()));
+		return x.sqrt(RealResult.PRECISION);
 	}
-	public IValue log10(IReal x) {
-		return values.real(Math.log10(x.doubleValue()));
+
+	public IValue nroot(IReal x, IInteger y){
+		return x.nroot(y, RealResult.PRECISION);
+	}
+
+	public IValue ln(IReal x) {
+		return x.ln(RealResult.PRECISION);
+	}
+
+	public IValue log(IReal x, IReal base) {
+		return x.log(base, RealResult.PRECISION);
 	}
 }
