@@ -32,17 +32,16 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 					";
 		} 
 		if ("alias"(name, ap, ps) := t) {
-		println("Gothere");
-			list[type[value]] pss = [];
-			println("Gothere");
-			if(ps != []) {
-				pss  = [ p | <p,_> <- ps];
-			}
-			println("Gothere2 <pss>");
-			s = typeList2FactoryVarArgs(pss); 
-			println("Gothere3");
+			// THERE is a bug heresomewhere in rascal
+			//list[type[value]] pss = [];
+			//if(ps != []) {
+			//	pss  = [ p | <p,_> <- ps];
+			//}
+			//println("Gothere2 <pss>");
+			//s = typeList2FactoryVarArgs(pss); 
+			//println("Gothere3");
 			res =  "public static final Type <name> = 
-				tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)><s>)";
+				tf.aliasType(typestore, \"<name>\",<type2FactoryCall(ap)>)";
 			println(res);
 			return res;
 		}
@@ -138,7 +137,8 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 		if("adt"(name,cs,ps) := t){
 			return 	"<for(c <- cs) {><declareConstructorGetters(c,name)><}>";
 		} 
-		throw "Cannot declare getters for type <t>"; 
+		// throw "Cannot declare getters for type <t>";
+		return ""; 
 	}
 	
 	
