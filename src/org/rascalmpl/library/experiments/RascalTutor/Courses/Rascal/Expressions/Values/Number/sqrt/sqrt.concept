@@ -1,0 +1,29 @@
+Name: sqrt
+
+Synopsis: Calculate the square root of a numeric value.
+
+Syntax:
+
+Types:
+
+Function: `real sqrt(num x)`
+
+Details:
+
+Description:
+Calculate &radic;`x`. 
+
+Examples:
+<screen>
+import Number;
+sqrt(1764.0)
+sqrt(123456789012345678901234567890123456789.0)
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

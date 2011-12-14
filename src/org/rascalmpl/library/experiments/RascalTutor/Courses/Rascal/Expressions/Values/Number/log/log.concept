@@ -1,0 +1,30 @@
+Name: log
+
+Synopsis: Calculate the log<sub>base</sub> of a numeric value.
+
+Syntax:
+
+Types:
+
+Function: `real log(num x, num base)`
+
+Details:
+
+Description:
+Calculate log<sub>base</sub> of `x`. 
+
+Examples:
+<screen>
+import Number;
+log(9.99999999, 10)
+log(10, 10)
+log(256.0, 2)
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

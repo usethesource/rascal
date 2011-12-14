@@ -74,9 +74,6 @@ public java real sqrt(real x);
 @javaClass{org.rascalmpl.library.Real}
 public java real nroot(real x, int n);
 
-@doc{Computes the natural log(x)}
-public real log(real x) = ln(x); // old version used to be log(x) so that's why we cannot rename it to ln
-
 @doc{Computes the natural ln(x)}
 @javaClass{org.rascalmpl.library.Real}
 public java real ln(real x);

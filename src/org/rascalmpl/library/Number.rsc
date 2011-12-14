@@ -107,11 +107,6 @@ public real nroot(num x, int n) {
     return Real::nroot(toReal(x), n);
 }
 
-@doc{computes natural log(x)}
-public real log(num x) {
-    return Real::log(toReal(x));
-}
-
 @doc{computes log_base_(x)}
 public real log(num x, num base) {
     return Real::log(toReal(x), toReal(base));
