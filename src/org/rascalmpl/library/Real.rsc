@@ -48,7 +48,7 @@ public java real E();
 
 @doc{Computes the power of x by y}
 @javaClass{org.rascalmpl.library.Real}
-public java real pow(real x, real y);
+public java real pow(real x, int y);
 
 @doc{Computes exp(x)}
 @javaClass{org.rascalmpl.library.Real}
@@ -70,10 +70,24 @@ public java real tan(real x);
 @javaClass{org.rascalmpl.library.Real}
 public java real sqrt(real x);
 
-@doc{Computes the natural log(x)}
+@doc{Computes the n-th root of x}
 @javaClass{org.rascalmpl.library.Real}
-public java real log(real x);
+public java real nroot(real x, int n);
+
+@doc{Computes the natural log(x)}
+public real log(real x) = ln(x); // old version used to be log(x) so that's why we cannot rename it to ln
+
+@doc{Computes the natural ln(x)}
+@javaClass{org.rascalmpl.library.Real}
+public java real ln(real x);
+
+@doc{Computes the log_base(x)}
+@javaClass{org.rascalmpl.library.Real}
+public java real log(real x, real base);
 
 @doc{Computes the 10 based log(x)}
-@javaClass{org.rascalmpl.library.Real}
-public java real log10(real x);
+public real log10(real x) = log(x, 10.0);
+
+@doc{Computes the 2 based log(x)}
+public real log2(real x) = log(x, 2.0);
+

@@ -73,43 +73,62 @@ public java real PI();
 public java real E();
 
 @doc{computes the power of x by y}
-public real pow(num x, num y) {
-    return Real::pow(toReal(x), toReal(y));
-    }
-
+public real pow(num x, int y) {
+    return Real::pow(toReal(x), y);
+}
 
 @doc{computes exp(x)}
 public real exp(num x) {
     return Real::exp(toReal(x));
-    }
+}
 
 @doc{computes sin(x)}
 public real sin(num x) {
     return Real::sin(toReal(x));
-    }
+}
 
 @doc{computes cos(x)}
 public real cos(num x) {
     return Real::cos(toReal(x));
-    }
+}
 
 @doc{computes tan(x)}
 public real tan(num x) {
     return Real::tan(toReal(x));
-    }
+}
 
 @doc{computes sqrt(x)}
 public real sqrt(num x) {
     return Real::sqrt(toReal(x));
-    }
+}
+
+@doc{computes n-th root of x}
+public real nroot(num x, int n) {
+    return Real::nroot(toReal(x), n);
+}
 
 @doc{computes natural log(x)}
 public real log(num x) {
     return Real::log(toReal(x));
-    }
+}
+
+@doc{computes log_base_(x)}
+public real log(num x, num base) {
+    return Real::log(toReal(x), toReal(base));
+}
+
+@doc{computes natural log of x}
+public real ln(num x) {
+	return Real::ln(toReal(x));
+}
 
 @doc{computes 10 based log(x)}
 public real log10(num x) {
     return Real::log10(toReal(x));
-    }
+}
+
+@doc{Computes the 2 based log(x)}
+public real log2(num x) {
+	return Real::log2(toReal(x));
+}
 
