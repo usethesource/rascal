@@ -160,14 +160,8 @@ public tuple[list[&T],list[&T]] split(list[&T] l) {
 }
 
 @doc{Sort the elements of a list}
-public list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) {
-	if(size(l) <= 1) {
-		return l;
-	} else {
-		<left,right> = split(l);
-		return merge(sort(left,lessOrEqual),sort(right,lessOrEqual),lessOrEqual);
-	}
-}
+@javaClass{org.rascalmpl.library.List}
+public java list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) ;
 
 @doc{Sort the elements of a list}
 public list[&T] sort(list[&T] lst) =
