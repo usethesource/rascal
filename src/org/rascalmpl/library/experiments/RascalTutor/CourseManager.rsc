@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
+@bootstrapParser
 module experiments::RascalTutor::CourseManager
 
 // The CourseManager handles all requests from the web server:
@@ -25,10 +26,11 @@ import Set;
 import Map;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::HTMLUtils;
+import experiments::RascalTutor::RascalUtils;
 import experiments::RascalTutor::ValueGenerator;
 import experiments::RascalTutor::CourseCompiler;
 import ValueIO;
-import util::Editors;
+import util::Diff;
 
 import IO;
 import Scripting;
@@ -36,8 +38,7 @@ import Scripting;
 // Show a concept.
 
 public str showConcept(Concept C){
-   html_file = C.file[extension = htmlExtension];
-   return readFile(html_file);
+   return readFile( htmlFile(C.fullName));
 }
 
 // ------------------------------------ Compiling ------------------------------------------------
@@ -60,22 +61,8 @@ public str compile(ConceptName rootConcept){
 
 public str edit(ConceptName cn, bool newConcept){
  
-  str content = "";
-  if(newConcept){
-    content = mkConceptTemplate("");
-  } else {
-    remoteloc = courseDir + cn + remoteLoc;
-    if(exists(remoteloc)){
-       remote = readTextValueFile(#loc,  remoteloc);
-       println("start editor for <remote>");
-       edit(remote, []);
-       return html(head(title("Editing <cn>")),
-                   body("editing <remote> in external editor")
-                  );
-    }
-    file = conceptFile(cn);
-  	content = escapeForHtml(readFile(file));  //TODO: IO exception (not writable, does not exist)
-  }
+  str content = (newConcept) ? mkConceptTemplate("") : escapeForHtml(readConceptFile(cn));
+  
   return html(head(title("Editing <cn>") + prelude(rootname(cn))),
               body(
                div("conceptPane",
@@ -105,17 +92,13 @@ public str save(ConceptName cn, str text, bool newConcept){
      fullName = cn + "/" + cname;
      	
      // Does the file for this concept already exist as a subconcept?
-     if(exists(catenate(courseDir, fullName)))
+     if(exists(courseDir + fullName))
      	return saveFeedback("Concept <fullName> exists already", "");
-     
-     // We have now the proper file name for the new concept and process it
-     file = courseDir + fullName + "<cname>.<conceptExtension>";
 
-     println("Write to file <file>");
-     writeFile(file, combine(lines));
+     saveConceptFile(fullName, combine(lines));
      
      try {
-       c = compileAndGenerateConcept(file, true);
+       c = compileAndGenerateConcept(fullName, true);
        return saveFeedback("", showConcept(c));
      } catch CourseError(e): {
        return saveFeedback(e, "");
@@ -123,12 +106,8 @@ public str save(ConceptName cn, str text, bool newConcept){
   } else {
     // Saving an existing concept
     try {
-      file = conceptFile(cn);
-      println("saving to <file> modified concept file.");
-      writeFile(file, text);
-     
-      c = compileAndGenerateConcept(file, false);
- 
+      saveConceptFile(cn, text);
+      c = compileAndGenerateConcept(cn, false);
       return saveFeedback(showConcept(c), "");
     } catch ConceptError(e): {
        return saveFeedback(e, "");

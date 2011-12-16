@@ -7,6 +7,8 @@
 }
 
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
+@bootstrapParser
 module experiments::RascalTutor::CourseMaintainer
 
 import String;
@@ -267,9 +269,9 @@ public void listSection(ConceptName rootConcept, str section){
  */
 
 public void createNewCourse(ConceptName rootConcept){
-  root = catenate(courseDir, rootConcept);
+  root = courseDir + rootConcept;
   mkDirectory(root);
-  cpFile = catenate(root, "<rootConcept>.concept");
+  cpFile = root + "<rootConcept>.concept";
   writeFile(cpFile,  mkConceptTemplate(rootConcept));
   compileCourse(rootConcept);
 }

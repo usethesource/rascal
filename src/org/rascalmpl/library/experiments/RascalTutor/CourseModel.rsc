@@ -7,6 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
+@bootstrapParser
 module experiments::RascalTutor::CourseModel
 
 import Graph;
@@ -15,6 +17,8 @@ import IO;
 import ValueIO;
 import String;
 import Exception;
+import ParseTree;
+import experiments::RascalTutor::RascalUtils;
 
 public loc courseDir    = |std:///experiments/RascalTutor/Courses/|;
 public loc courseDirSVN = |std:///experiments/RascalTutor/Courses/.svn|;
@@ -45,7 +49,7 @@ data Course =
 
 data Concept = 
 	 concept(ConceptName fullName,                  // Full name of the concept
-			loc file,                             	// Its source file
+//			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			set[str] searchTerms,    				// Set of search terms
@@ -119,12 +123,6 @@ public str htmlExtension = "html";
 public str questExtension = "quest";
 public str rascalExtension = "rsc";
 
-public str getFullConceptName(loc l){
-   if (/^.*Courses\/<name:.*$>/ := l.parent.path)  
-     return name;
-   throw "Concept not rooted in course path? <l> not in <courseDir.path>?";
-}
-
 // Get the basename from a ConceptName, eg 
 // - basename("A/B/C") => "C"
 
@@ -178,15 +176,16 @@ public str compose(list[str] names){
   return compose(names, 0, size(names)-1);
 }
 
-public loc catenate(loc basedir, str entry){
-   baseuri = basedir.uri;
-   if(!endsWith(baseuri, "/"))
-   	baseuri += "/";
-   return basedir[uri=baseuri + entry];
+public loc conceptFile(str cn){
+  return courseDir + cn + (basename(cn) + ".concept");
 }
 
-public loc conceptFile(str cn){
-  return catenate(courseDir, cn + "/" + basename(cn) + ".concept");
+public loc htmlFile(ConceptName cn){
+  return courseDir + cn + (basename(cn) + ".html");
+}
+
+public loc questFile(ConceptName cn){
+  return courseDir + cn + (basename(cn) + ".quest");
 }
 
 // Escape concept name for use as HTML id.
@@ -233,6 +232,41 @@ public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "T
                                    "Examples", "Benefits", "Pitfalls", "Questions"];
 
 public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
+
+public str readConceptFile(ConceptName cn){
+   remoteloc = courseDir + cn + remoteLoc;
+   if(exists(remoteloc)){
+      remote = readTextValueFile(#loc,  remoteloc);
+      return extractDoc(remote, basename(cn));
+   }
+   return readFile(conceptFile(cn));
+}
+
+public list[str] readConceptFileLines(ConceptName cn){
+   remoteloc = courseDir + cn + remoteLoc;
+   if(exists(remoteloc)){
+      remote = readTextValueFile(#loc,  remoteloc);
+      return splitLines(extractDoc(remote, basename(cn)));
+   }
+   return readFileLines(conceptFile(cn));
+}
+
+public void saveConceptFile(ConceptName cn, str text){
+   remoteloc = courseDir + cn + remoteLoc;
+   if(exists(remoteloc)){
+      remote = readTextValueFile(#loc,  remoteloc);
+      replaceDoc(remote, basename(cn), text);
+   } else {
+     file = conceptFile(cn);
+     println("saving to <file> modified concept file.");
+     writeFile(file, text);
+   }
+}     
+
+public map[str,list[str]] getSections(ConceptName cn){
+  return getSections(readConceptFileLines(cn));
+}
+
 
 public map[str,list[str]] getSections(list[str] script){
   sections = ();
@@ -285,36 +319,43 @@ public str combine(list[str] lines){
 
 
 public list[ConceptName] children(Concept c){
-  dir = catenate(courseDir, c.fullName);
-  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
+  dir = courseDir + c.fullName;
+  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
   res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
   //println("children(<c.fullName>) =\> <res>");
   return res;
 }
 
-public list[ConceptName] children(loc file){
-  fullName = getFullConceptName(file);
-  cdetails = getDetails(file);
-  //println("<file>, getDetails: <cdetails>");
-  dir = catenate(courseDir, fullName);
-  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(catenate(dir, entry))];
-  res =  [ fullName + "/" + entry | entry <- cdetails + (entries - cdetails)];
-  //println("children(<fullName>) =\> <res>");
+public list[ConceptName] children(ConceptName cn){
+  cdetails = getDetails(cn);
+  println("<cn>, getDetails: <cdetails>");
+  dir = courseDir + cn;
+  entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
+  res =  [ cn + "/" + entry | entry <- cdetails + (entries - cdetails)];
+  println("children(<cn>) =\> <res>");
   return res;
 }
 
-public str getSynopsis(loc file){
+
+public str getSynopsis(ConceptName cn){
    try {
-     script = readFileLines(file);
-     sections = getSections(script);
+     sections = getSections(cn);
      return intercalate(" ", sections["Synopsis"] ? []);
    } catch: return "";
 }
+
 
 // Extract list of names from a section (e.g. Details section)
 
 public list[str] getNames(list[str] lines){
    return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
+}
+
+public list[str] getDetails(ConceptName cn){
+   try {
+     sections = getSections(cn);
+     return getNames(sections["Details"] ? []);
+   } catch: return [];
 }
 
 public list[str] getDetails(loc file){
@@ -332,7 +373,7 @@ map[str,Course] courseCache = ();
 public Course getCourse(str name){
   if(courseCache[name]?)
      return courseCache[name];
-  courseFile = catenate(courseDir, name + "/course.value");
+  courseFile = courseDir + name + "course.value";
   if(exists(courseFile)){
      theCourse = readTextValueFile(#Course, courseFile);
      courseCache[name] = theCourse;
@@ -343,44 +384,88 @@ public Course getCourse(str name){
 
 public void updateCourse(Course c){
   courseCache[c.root] = c;
-  courseFiles[c.root] = for(cn <- c.concepts)
-                            append c.concepts[cn].file;
+  courseConcepts[c.root] = [cn | cn <- c.concepts];
 }
 
-map[str,list[loc]] courseFiles = ();
+public void removeExternalConceptFiles(Course c){
 
-public list[loc] getCourseFiles(ConceptName rootConcept){
-  if(courseFiles[rootConcept]?)
-     return courseFiles[rootConcept];
-  files = [];
+   for(cn <- c.concepts){
+    remoteloc = courseDir + cn + remoteLoc;
+    if(exists(remoteloc)){
+      file = conceptFile(cn);
+      println("REMOVE: <file>");
+    }
+   }
+}
+
+map[str,list[ConceptName]] courseConcepts = ();
+
+public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
+  println("getCourseConcepts: <rootConcept>");
+  if(courseConcepts[rootConcept]?)
+     return courseConcepts[rootConcept];
+  concepts = [];
   try {
+   println("getCourseConcepts: try to get Course");
    theCourse = getCourse(rootConcept);
-   files = for(cn <- theCourse.concepts)
-               append theCourse.concepts[cn].file;
+   concepts = [cn | cn <- theCourse.concepts];
   } catch: {
-     files = crawl(catenate(courseDir, rootConcept), conceptExtension);
+    concepts = getUncachedCourseConcepts(rootConcept);
   }
   
-  courseFiles[rootConcept] = files;
-  return files;
+  courseConcepts[rootConcept] = concepts;
+  return concepts;
 }
 
-public list[loc] crawl(loc dir, str suffix){
+public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
+    println("readRemoteConcepts: read all concepts");
+    remote = courseDir + rootConcept + remoteConcepts;
+    if(exists(remote)){
+      remoteMap = readTextValueFile(#map[ConceptName, loc], remote);
+      for(root <- remoteMap){
+          dir = remoteMap[root];
+          println("root = <root>, dir = <dir>");
+          remoteFiles =  crawlFiles(dir, rascalExtension);
+          for(file <- remoteFiles)
+              extractRemoteConcepts(file, root);
+      }
+    }
+    concepts = crawlConcepts(rootConcept);
+    println("concepts = <concepts>");
+    return concepts;
+}
+
+public list[loc] crawlFiles(loc dir, str suffix){
   dotSuffix = "." + suffix;
   println(dir.path);
   if(endsWith(dir.path, dotSuffix))
      return [dir];
-println("crawl: <dir>, <listEntries(dir)>");
+println("crawlFiles: <dir>, <listEntries(dir)>");
   list[loc] res = [];
  
   for( str entry <- listEntries(dir) ){
-    if(entry notin exclude){                       // TODO: TEMP
-       loc sub = catenate(dir, entry);
-       if(endsWith(entry, dotSuffix)) { 
+    if(entry notin exclude){
+       loc sub = dir + entry;
+       if(endsWith(entry, dotSuffix) || exists(dir + remoteLoc)) { 
       	  res += [sub]; 
        }
        if(isDirectory(sub)) {
-          res += crawl(sub, suffix);
+          res += crawlFiles(sub, suffix);
+      }
+    }
+  };
+  return res;
+}
+
+public list[ConceptName] crawlConcepts(ConceptName root){ 
+  dir = courseDir + root;
+  println("crawlConcepts: <dir>, <listEntries(dir)>");
+  list[ConceptName] res = [root];
+ 
+  for( str entry <- listEntries(dir) ){
+    if(entry notin exclude){
+       if(isDirectory(dir + entry)) {
+          res += crawlConcepts("<root>/<entry>");
       }
     }
   };
