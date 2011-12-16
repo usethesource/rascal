@@ -7,6 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
+@bootstrapParser
 module experiments::RascalTutor::HTMLGenerator
 
 import experiments::RascalTutor::HTMLUtils;
@@ -544,44 +546,44 @@ str markupToc(str conceptName, str slevel){
       addWarning("Unkown or ambiguous concept in toc: <conceptName>");
       return inlineError("unknown or ambiguous in toc: <conceptName>");
     }
-    return markupToc1(options[0][extension = conceptExtension], level);
+    return markupToc1(options[0], level);
 }
 
-str markupToc1(loc cfile, int level){
+str markupToc1(ConceptName cn, int level){
     if(level <= 0)
        return "";
     res = "";
-    for(ch <- children(cfile)){
-        chfile = conceptFile(ch);
-        syn  = getSynopsis(chfile);
-        res += li("<refToResolvedConcept(ch, true)>: <markupRestLine(syn)>") + markupToc1(chfile, level - 1);
+    for(ch <- children(cn)){
+        //chfile = conceptFile(ch);
+        syn  = getSynopsis(ch);
+        res += li("<refToResolvedConcept(ch, true)>: <markupRestLine(syn)>") + markupToc1(ch, level - 1);
     }
     return ul(res);
 }
 
 // ---- Refer to a concept ----
 
-private map[tuple[str, str], list[loc]] resolveCache = ();
+private map[tuple[str, str], list[ConceptName]] resolveCache = ();
 
-public list[loc] resolveConcept(ConceptName course, str toConcept){
+public list[ConceptName] resolveConcept(ConceptName course, str toConcept){
   try {
       return resolveCache[<course, toConcept>];
    } catch: ;
    
  // println("resolveConcept: <course>, <toConcept>");
-  if(!exists(catenate(courseDir, course)))
+  if(!exists(courseDir + course))
   	 return [];
   if(course == toConcept)
-     return [catenate(courseDir, "<course>/<course>.html")];
+      return [course];
+     //return [courseDir + course + "<course>.html"];
  
-   courseFiles = getCourseFiles(course);
+   courseConcepts = getCourseConcepts(course);
    lcToConcept = toLowerCase(toConcept);
    if(lcToConcept[0] != "/" && rootname(toConcept) != course)
       lcToConcept = "/" + lcToConcept; // Enforce match of whole concept name
-   options = for(file <- courseFiles){
-                 cn = getFullConceptName(file);
+   options = for(cn <- courseConcepts){
                  if(endsWith(toLowerCase(cn), lcToConcept))
-                    append file;
+                    append cn;
              };
    resolveCache[<course, toConcept>] = options;
    return options;
@@ -594,7 +596,7 @@ public str refToUnresolvedConcept(ConceptName fromCourse, ConceptName toCourse, 
   options = resolveConcept(toCourse, toConcept);
   
   if(size(options) == 1){
-     cn = getFullConceptName(options[0]);
+     cn = options[0];
      courseTxt = (fromCourse == toCourse) ? "" : ((toConcept == toCourse) ? "" : "<toCourse>:");
      conceptTxt = short ? "<basename(toConcept)>" : "<toConcept>";
      //println("txt = <courseTxt><conceptTxt>");
@@ -606,7 +608,7 @@ public str refToUnresolvedConcept(ConceptName fromCourse, ConceptName toCourse, 
   }
   if(size(options) > 1){
      addWarning("Ambiguous reference to concept: <toCourse>:<toConcept>; 
-                'Resolve with one of {<intercalate(", ", [getFullConceptName(opt) | opt <- options])>}");
+                'Resolve with one of {<intercalate(", ", options)>}");
      return inlineError("ambiguous: <toCourse>:<toConcept>");
   }
 }
