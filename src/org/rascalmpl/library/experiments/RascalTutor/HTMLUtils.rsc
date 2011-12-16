@@ -6,6 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
+@bootstrapParser
 module experiments::RascalTutor::HTMLUtils
 
 // HTML utilities
