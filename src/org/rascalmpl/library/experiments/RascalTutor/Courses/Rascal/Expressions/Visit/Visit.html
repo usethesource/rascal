@@ -80,7 +80,7 @@ default: ...
  (consisting of a sequence of <a href="/Courses/Rascal/Patterns/PatternWithAction/PatternWithAction.html">PatternWithAction</a>s, it traverses the term. 
  Depending on the precise actions it may perform replacement (mimicking a transformer), 
  update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
- If <b>any</b> of the actions contains an <a href="/Courses/Rascal/Statements/Insert/Insert.html">Insert</a> statement, 
+ If <b>any</b> of the actions contains an <span class="inlineError">ambiguous: Rascal:Insert</span> statement, 
  the value of the visit expression is a new value that is obtained by successive insertions in the subject 
  term by executing one or more cases. Otherwise, the original value of the subject term is returned.
  <br/>
@@ -193,7 +193,7 @@ public ColoredTree flipRedChildren(ColoredTree t){
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Visit&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Visit&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

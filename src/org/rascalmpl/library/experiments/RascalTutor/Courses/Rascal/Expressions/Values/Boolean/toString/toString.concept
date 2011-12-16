@@ -1,15 +1,10 @@
+
 Name: toString
-
 Synopsis: Convert Boolean value to string.
-
 Syntax:
-
 Types:
-
 Function: str toString(bool b)`
-
 Details:
-
 Description:
 Maps `true` to `"true"` and `false` to `"false"`.
 
@@ -21,8 +16,5 @@ toString(false);
 </screen>
 
 Benefits:
-
 Pitfalls:
-
 Questions:
-

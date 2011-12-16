@@ -1,16 +1,11 @@
+
 Name: fromInt
-
 Synopsis: Convert from integer to Boolean.
-
 Syntax:
-
 Types:
-
 Function:
 `bool fromInt(int n)`
-
 Details:
-
 Description:
 Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
 
@@ -22,8 +17,5 @@ fromInt(0);
 </screen>
 
 Benefits:
-
 Pitfalls:
-
 Questions:
-

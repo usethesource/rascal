@@ -68,6 +68,14 @@ ok
 <b>rascal></b>fontNames();
 Uncaught Rascal Exception: prompt:///:1,0: Java(&quot;Invalid thread access&quot;)
 
+    org.eclipse.swt.SWT.error(SWT.java:4282)
+    org.eclipse.swt.SWT.error(SWT.java:4197)
+    org.eclipse.swt.SWT.error(SWT.java:4168)
+    org.eclipse.swt.widgets.Display.error(Display.java:1065)
+    org.eclipse.swt.widgets.Display.checkDevice(Display.java:618)
+    org.eclipse.swt.graphics.Device.getFontList(Device.java:365)
+    org.rascalmpl.library.vis.swt.SWTFontsAndColors.fontNames(SWTFontsAndColors.java:47)
+    sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
     somewhere in: $shell$
 </pre> The available fonts (on the machine on which this page was generated) are
  <xfigure f1.png>

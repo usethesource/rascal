@@ -1,13 +1,9 @@
+
 Name: toReal
-
 Synopsis: Convert Boolean value to real.
-
 Syntax:
-
 Types:
-
 Function: `real toReal(bool b)`
-
 Details:
 
 Description:
@@ -21,8 +17,5 @@ toReal(false);
 </screen>
 
 Benefits:
-
 Pitfalls:
-
 Questions:
-

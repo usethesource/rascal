@@ -48,11 +48,15 @@
 
 </div>
 
-<div id="Types">
-<span class="sectionHead">Types</span> 
-<pre class="listing">
+	                       
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <code>lang::java::jdt::JavaADT;</code>
 
-data AstNode = 
+</div>
+
+                           
+<div id="Types">
+<span class="sectionHead">Types</span>  <pre class="listing">data AstNode = 
 	  compilationUnit(AstNode package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
 	// Declarations
@@ -127,7 +131,7 @@ data AstNode =
 	| typeDeclarationStatement(AstNode typeDeclaration)
 	| variableDeclarationStatement(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 	| whileStatement(AstNode expression, AstNode body)
-							
+						
 	// Types
 	| arrayType(AstNode \typeOfArray)
 	| parameterizedType(AstNode \typeOfParam, list[AstNode] genericTypes)
@@ -148,30 +152,22 @@ data AstNode =
 	| memberRefParameter()
 	;
 				
-data Option[&T] = 
-	  some(&T opt)
+data Option[&amp;T] = 
+	  some(&amp;T opt)
 	| none()
 	;
-
 </pre>
 </div>
 
+                           
 <div id="Description">
-<span class="sectionHead">Description</span>
-This module provides a data model for representing Java method bodies as abstract syntax trees (ASTs). 
-Java declarations, expressions, statements, types, comments, Javadocs that may occur in the method bodies are represented by the data type <code>ASTNode</code>.  
-The data type <code>Option</code> models the optional occurrence of a value of some type, for example, the second argument of the <code>variableDeclarationFragment(str name, Option[AstNode] initializer)</code> constructor is of the <code>Option[ASTNode]</code> type
-indicating that Java does not require a variable to be initialized when being declared. 
-</div>
-
-	                       
-<div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>lang::java::jdt::JavaADT;</code>
+<span class="sectionHead">Description</span>  This module provides a data model for representing Java method bodies as abstract syntax trees (ASTs). 
+ Java declarations, expressions, statements, types, comments, Javadocs that may occur in the method bodies are represented by the data type <code>ASTNode</code>.  
+ The data type <code>Option</code> models the optional occurrence of a value of some type, for example, the second argument of the <code>variableDeclarationFragment(str name, Option[AstNode] initializer)</code> constructor is of the <code>Option[ASTNode]</code> type
+ indicating that Java does not require a variable to be initialized when being declared. 
 
 </div>
 
-                           
-                           
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import lang::java::jdt::JavaADT;

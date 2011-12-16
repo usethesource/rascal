@@ -1,18 +1,8 @@
+
 Name: arbBool
-
 Synopsis: Return an arbitrary Boolean value.
-
-Syntax:
-
-Types:
-
 Function:
 `bool arbBool( )`
-
-Details:
-
-Description:
-
 
 Examples:
 <screen>
@@ -24,8 +14,3 @@ arbBool();
 
 Benefits:
 <tt>arbInt</tt> is a convenient generator for arbitrary binary choices.
-
-Pitfalls:
-
-Questions:
-

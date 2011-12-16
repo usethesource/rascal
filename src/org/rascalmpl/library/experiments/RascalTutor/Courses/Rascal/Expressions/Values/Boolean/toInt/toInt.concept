@@ -1,16 +1,12 @@
+
 Name: toInt
-
 Synopsis: Convert a Boolean value to integer.
-
 Syntax:
-
 Types:
-
 Function:
 int toInt(bool b)
 
 Details:
-
 Description:
 Maps `true` to `1` and `false` to 0.
 
@@ -22,8 +18,5 @@ toInt(false);
 </screen>
 
 Benefits:
-
 Pitfalls:
-
 Questions:
-
