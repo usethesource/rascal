@@ -5,6 +5,7 @@ import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::\syntax::RascalRascal;
 import ParseTree;
+import String;
 
 public bool match(Symbol checked, Symbol referenced) {
   while (checked is condition || checked is label)
