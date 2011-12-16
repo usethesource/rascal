@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+
 @bootstrapParser
 module experiments::RascalTutor::CourseCompiler
 
@@ -26,102 +27,31 @@ import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
 import Scripting;
 import Reflective;
-import lang::rascal::syntax::RascalRascal;
-import ParseTree;
+import experiments::RascalTutor::RascalUtils;
 
 // ------------------------ compile a course ----------------------------------------
 
 public Course compileCourse(ConceptName rootConcept){   
-
-   remote = courseDir + rootConcept + remoteConcepts;
-   if(exists(remote)){
-      remoteMap = readTextValueFile(#map[ConceptName, loc], remote);
-      for(root <- remoteMap){
-          dir = remoteMap[root];
-          println("root = <root>, dir = <dir>");
-          remoteFiles =  crawl(dir, rascalExtension);
-          for(file <- remoteFiles)
-              extractRemoteConcepts(file, root);
-      }
-   }
-   
-   courseFiles = crawl(catenate(courseDir, rootConcept), conceptExtension);
    
    concepts = ();
    warnings = [];
-   for(file <- courseFiles){
-       fullName = getFullConceptName(file);
+   for(cn <- getUncachedCourseConcepts(rootConcept)){
        try {
-	       cpt = compileConcept(file);
-	       if(concepts[fullName]?)
-	       	  warnings += mkWarning(fullName, "Redeclaration");
-	       concepts[fullName] = cpt; 
+	       cpt = compileConcept(cn);
+	       if(concepts[cn]?)
+	       	  warnings += mkWarning(cn, "Redeclaration");
+	       concepts[cn] = cpt; 
        } 
-         catch ConceptError(c, msg):
-           warnings += [ mkWarning(fullName, msg) ];     
-         catch e:
-           warnings += [ mkWarning(fullName, "<e>") ];      	 
+       catch ConceptError(c, msg):
+           warnings += [ mkWarning(cn, msg) ];     
+       catch e:
+           warnings += [ mkWarning(cn, "<e>") ];      	 
    }
   
    C = makeCourse(rootConcept, concepts, warnings);
+   updateCourse(C);
+   removeExternalConceptFiles(C);
    return generateCourseControl(C);
-}
-
-
-// ------------------ Extract concepts from external sources ------------------------
-
-str stripBraces(str content){
-  b = findFirst(content, "{");
-  b = (b >= 0) ? b + 1 : 0;
-  e = findLast(content, "}");
-  e = (e > 0) ? e - 1 : size(content);
-  return substring(content, b, e);
-}
-
-void processFunction(str moduleName, FunctionDeclaration decl, str doc, ConceptName root){
-  sign = decl.signature;
-  functionName = "<sign.name>";
-  tp = "<sign.\type>";
-  params =  "<sign.parameters>";
-  destination = courseDir + root + moduleName + functionName + "<functionName>.concept";
-  println("processFunction: <tp> <functionName><params> <doc> <destination>");
-  writeFile(destination, stripBraces(doc));
-  writeFile(courseDir + root + moduleName + functionName + remoteLoc, decl@\loc);
-  
-}
-
-void processModule(str name, Header header, str doc, ConceptName root){
-  destination = courseDir + root + name + "<name>.concept";
-  println("processModule: <name> <doc> <root> <destination>");  
-  writeFile(destination, stripBraces(doc));
-  writeFile(courseDir + root + name + remoteLoc, header@\loc);
-}
-
-void processDoc(str moduleName, FunctionDeclaration decl, ConceptName root){
-   visit(decl.tags){
-     case Tag t: 
-        if("<t.name>" == "doc") {
-           processFunction(moduleName, decl, "<t.contents>", root);
-        }
-   }
-}
-
-void processDoc(str moduleName, Header header, ConceptName root){
-   visit(header.tags){
-     case Tag t: 
-        if("<t.name>" == "doc") {
-           processModule(moduleName, header, "<t.contents>", root);
-        }
-   }
-}
-
-public void extractRemoteConcepts(loc L, ConceptName root){
-  M = parseModule(readFile(L), L);
-  mname = "";
-  top-down visit(M){
-    case Header header:  {mname = "<header.name>"; processDoc(mname, header, root); }
-    case FunctionDeclaration D: processDoc(mname, D, root);
-  }
 }
 
 str mkWarning(ConceptName cname, str msg) = "<showConceptPath(cname)>: <msg>";
@@ -167,7 +97,7 @@ public Course generateCourseControl(Course C){
    navigationPanel = makeNavigationPanel(rootConcept, concepts, "");
     
    // Generate global course data in JS file
-   jsFile = catenate(courseDir, rootConcept + "/course.js");
+   jsFile = courseDir + rootConcept + "course.js";
   
    try {
 	   writeFile(jsFile, jsCoursePrelude(rootConcept, C.baseConcepts, concepts));
@@ -190,14 +120,14 @@ public Course generateCourseControl(Course C){
                      ));
    }
    
-   warnFile = catenate(courseDir, C.root + "/warnings.html");
+   warnFile = courseDir + C.root + "warnings.html";
    
    try {
       writeFile(warnFile, warn_html);
    }
    catch e: println("cannot save file <warnFile>"); // do nothing
    
-   courseFile = catenate(courseDir, C.root + "/course.value");
+   courseFile = courseDir + C.root + "course.value";
    try {
      writeTextValueFile(courseFile,C);
    }
@@ -210,7 +140,7 @@ public Course generateCourseControl(Course C){
 public str makeNavigationPanel(ConceptName rootConcept, map[ConceptName,Concept] concepts, str offset){
    navigationPanel = div("navPane", ul(makeNavigationPanel1(rootConcept, concepts, "")));
    
-   navFile = catenate(courseDir, rootConcept + "/navigate.html");
+   navFile = courseDir + rootConcept + "navigate.html";
    
    try {
 	   writeFile(navFile, navigationPanel);
@@ -247,46 +177,41 @@ public str getNavigationPanel(ConceptName rootConcept){
 // Compile the concept at location file.
 // If updateParent == true we also compile the parent concept (necessary when a new concept is added)
 
-public Concept compileAndGenerateConcept(loc file, bool updateParent){
+public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
 
-   C = compileConcept(file);
-   println("Compiling <file> ... done.");
-   courseFile = catenate(courseDir, rootname(C.fullName) + "/course.value");
+   C = compileConcept(cn);
+   println("Compiling <cn> ... done.");
+   courseFile = courseDir + rootname(cn) + "course.value";
    try {
      theCourse = readTextValueFile(#Course, courseFile);
-     println("<C.fullName>: read course.value");
      concepts = theCourse.concepts;
-     concepts[C.fullName] = C;
+     concepts[cn] = C;
      if(updateParent){
-        pn = parentname(C.fullName);
+        pn = parentname(cn);
         if(rootname(pn) != pn) { // No update needed at root
            file = conceptFile(pn);
-           println("<C.fullName>: updateParentDetails: file = <file>");
-           concepts[pn] =  compileConcept(file);    
+           println("<cn>: updateParentDetails: pn = <pn>");
+           concepts[pn] =  compileConcept(pn);    
         }
      }
      theCourse = makeCourse(theCourse.root, concepts, []);
      println("<C.fullName>: validated course");
      generateCourseControl(theCourse);
-     println("<C.fullName>: generated control");
+     println("<cn>: generated control");
      updateCourse(theCourse);
      return C;
    }
    catch e: { println("can not read file <courseFile>");
-              theCourse = compileCourse(rootname(C.fullName));
+              theCourse = compileCourse(rootname(cn));
               updateCourse(theCourse);
-              return theCourse.concepts[C.fullName];
+              return theCourse.concepts[cn];
             }
 }
 
-public Concept compileConcept(loc file){
-  return compileConcept(file, file[extension = htmlExtension], readFileLines(file));
-}
-
-public Concept compileConcept(loc file, loc html_file, list[str] script){
+public Concept compileConcept(ConceptName conceptName){
    
-   sections = getSections(script);
-   conceptName = getFullConceptName(file);
+   sections = getSections(conceptName);
+
    if(!(sections["Name"]?))
       throw ConceptError(conceptName, "Missing section \"Name\"");
       
@@ -325,20 +250,20 @@ public Concept compileConcept(loc file, loc html_file, list[str] script){
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
-	   questions 		= getAllQuestions(conceptName, sections["Questions"]);
+	   questions 		= getAllQuestions(conceptName, sections["Questions"] ? []);
 	   
 	   html_synopsis    = "<section("Synopsis", markup(synopsisSection, conceptName))>
 	                       <section("Syntax", markup(syntaxSection, conceptName))>
                            <section("Types", markup(typesSection, conceptName))>
                            <section("Function", markup(functionSection, conceptName))>";
-  	   html_body        = "<section("Description", markup(sections["Description"], conceptName))>
-  	                       <section("Examples", markup(sections["Examples"], conceptName))>
-  	                       <section("Benefits", markup(sections["Benefits"], conceptName))>
-  	                       <section("Pitfalls", markup(sections["Pitfalls"], conceptName))>
+  	   html_body        = "<section("Description", markup(sections["Description"] ? [], conceptName))>
+  	                       <section("Examples", markup(sections["Examples"] ? [], conceptName))>
+  	                       <section("Benefits", markup(sections["Benefits"] ? [], conceptName))>
+  	                       <section("Pitfalls", markup(sections["Pitfalls"] ? [], conceptName))>
   	                       <showQuestionsSection(conceptName, questions)>";
 	   warnings         = getAndClearWarnings() + local_warnings;
 	      
-	   C =  concept(conceptName, file, warnings, optDetails, searchTs, questions);
+	   C =  concept(conceptName, warnings, optDetails, searchTs, questions);
 	   println("<conceptName>: creating concept done.");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
 	   println("<conceptName>: generating HTML done.");
@@ -382,7 +307,8 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
   	)
    );
    
-   html_file = C.file[extension = htmlExtension];
+   html_file = htmlFile(cn);
+   println("Writing to <html_file>");
    try {
 	     writeFile(html_file, html_code);
    }
@@ -390,7 +316,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 	 
    if(size(C.questions) > 0){
 	  qs = C.questions;
-	  quest_file = C.file[extension = questExtension];
+	  quest_file = questFile(cn);
       try {
 	       writeTextValueFile(quest_file, C.questions);
 	  }
@@ -579,7 +505,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
            if(size(options) != 1){
               addWarning("Unknown or ambiguous concept <cpt>");
            } else {  
-	           ucpid = getFullConceptName(options[0]);
+	           ucpid = options[0];
 	           try {
 	                uq = getQuestion(ucpid, q);
 	                uq.fullName = cname;
@@ -988,7 +914,7 @@ public Question getQuestion(ConceptName cid, QuestionName qid){
 
   cid = unescapeConcept(cid);
   try {
-  	quest_file = catenate(courseDir, cid + "/" + basename(cid))[extension = questExtension];
+  	quest_file = (courseDir + cid + basename(cid))[extension = questExtension];
   	questions = readTextValueFile(#Questions, quest_file);
   
  	 for(q <- questions)
