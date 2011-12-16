@@ -12,10 +12,13 @@
 package org.rascalmpl.library;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -26,6 +29,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 
@@ -34,7 +41,6 @@ public class List {
 	private final IValueFactory values;
 	private final Random random;
 	private WeakReference<IList> indexes;
-
 	
 	public List(IValueFactory values){
 		super();
@@ -42,6 +48,42 @@ public class List {
 		indexes = null;
 		
 		random = new Random();
+	}
+	
+	public IList sort(IList l, IValue cmpv){
+		final ICallableValue cmp = (ICallableValue) cmpv;
+		final IValue[] argArr = new IValue[2]; // this creates less garbage
+		FunctionType ftype = (FunctionType) cmpv.getType();
+		Type argTypes = ftype.getArgumentTypes();
+		final Type[] typeArr = 
+				new Type[] {argTypes.getFieldType(0),argTypes.getFieldType(1)};
+		
+		IValue[] tmpArr = new IValue[l.length()];
+		for(int i = 0 ; i < l.length() ; i++){
+			tmpArr[i] = l.get(i);
+		}
+		Comparator<IValue> cmpj = new Comparator<IValue>() {
+
+			@Override
+			public int compare(IValue lhs, IValue rhs) {
+				if(lhs == rhs){
+					return 0;
+				} else {
+					argArr[0] = lhs;
+					argArr[1] = rhs;
+					Result<IValue> res = cmp.call(typeArr,argArr);
+					boolean leq = ((IBool)res.getValue()).getValue();
+					return leq ? -1 : 1;
+				}
+			}
+		};
+		Arrays.sort(tmpArr,cmpj);
+		
+		IListWriter writer = values.listWriter(l.getElementType());
+		for(IValue v : tmpArr){
+			writer.append(v);
+		}
+		return writer.done();
 	}
 	
 	private IList makeUpTill(int from,int len){
