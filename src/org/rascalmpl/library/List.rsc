@@ -89,6 +89,17 @@ public java bool isEmpty(list[&T] lst);
 @doc{Apply a function to each element of a list}
 public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
 
+// should this be here? do not know where else
+// to put general max and min...
+@doc{Largest of two values.}
+public &T max(&T n, &T m) = n > m ? n : m;
+
+// should this be here? do not know where else
+// to put general max and min...
+@doc{Smallest of two values.}
+public &T min(&T n, &T m) =  n < m ? n : m;
+
+
 @doc{Largest element of a list}
 public &T max(list[&T] lst) =
 	(head(lst) | max(e,it) | e <- tail(lst));
