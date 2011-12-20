@@ -216,16 +216,19 @@ syntax Expression
 	> IsDefined    : Expression argument "?" 
 	> Negation     : "!" Expression argument 
 	| Negative     : "-" Expression argument 
+	| non-assoc Splice : "*" Expression argument
 	| AsType       : "[" Type type "]" Expression argument
 	> left Composition: Expression lhs "o" Expression rhs 
-	> left ( Product: Expression lhs "*" Expression rhs  
+	> left ( Product: Expression lhs "*" () !>> "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
-	     | Modulo: Expression lhs "%" Expression rhs  
+	       | Modulo: Expression lhs "%" Expression rhs  
 		   | Division: Expression lhs "/" Expression rhs 
 	     )
 	> left Intersection: Expression lhs "&" Expression rhs 
 	> left ( Addition   : Expression lhs "+" Expression rhs  
-		   | Subtraction: Expression lhs "-" Expression rhs 
+		   | Subtraction: Expression lhs "-" Expression rhs
+		   | AppendAfter: Expression lhs "\<\<" Expression rhs
+		   | InsertBefore: Expression lhs "\>\>" Expression rhs 
 	       )
 	> non-assoc ( NotIn: Expression lhs "notin" Expression rhs  
 		        | In: Expression lhs "in" Expression rhs 
@@ -478,7 +481,7 @@ start syntax Command
 	| Import: Import imported ;
 
 lexical TagString
-	= "{" (![}] | ([\\][}]))* "}" ;
+	= "{" ( ![{}] | TagString)* contents "}";
 
 syntax ProtocolTail
 	= Mid: MidProtocolChars mid Expression expression ProtocolTail tail 
@@ -801,7 +804,10 @@ syntax Pattern
 	= Set                 : "{" {Pattern ","}* elements "}" 
 	| List                : "[" {Pattern ","}* elements "]" 
 	| QualifiedName       : QualifiedName qualifiedName 
-	| MultiVariable       : QualifiedName qualifiedName "*" 
+	| MultiVariable       : QualifiedName qualifiedName "*"
+	| SplatStar           : "*" QualifiedName qualifiedName
+	| SplatPlus           : "+" QualifiedName qualifiedName 
+	| Negative            : "-" Literal literal
 	| Literal             : Literal literal 
 	| Tuple               : "\<" {Pattern ","}+ elements "\>" 
 	| TypedVariable       : Type type Name name 
