@@ -42,6 +42,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 		
 		
+		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			String name = eval.getUnescapedModuleName(this);
