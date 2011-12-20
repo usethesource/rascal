@@ -877,7 +877,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			setMonitor(old);
 		}
 	}
-
+	
 	public void doImport(IRascalMonitor monitor, String string) {
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
