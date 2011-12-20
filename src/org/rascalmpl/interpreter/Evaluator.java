@@ -1205,6 +1205,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
 		
+		if(isDeprecated(preModule))
+			throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(preModule), preModule);
+		
 		if(env == null){
 			env = heap.getModule(name);
 			if(env == null){
@@ -1294,6 +1297,25 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 		}
 		return null;
+	}
+	
+	public boolean isDeprecated(Module preModule){
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public String getDeprecatedMessage(Module preModule){
+		for (Tag tag : preModule.getHeader().getTags().getTags()) {
+			if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
+				String contents = tag.getContents().toString();
+				return contents.substring(1, contents.length() -1);
+			}
+		}
+		return "";
 	}
 
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
