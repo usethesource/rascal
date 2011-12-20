@@ -508,7 +508,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* $
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r] $
 	;
 
 lexical RegExp
