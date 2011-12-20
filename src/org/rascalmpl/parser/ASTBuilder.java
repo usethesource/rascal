@@ -581,9 +581,9 @@ public class ASTBuilder {
 			ISourceLocation location = TreeAdapter.getLocation(pattern);
 			stats.setConcreteFragmentSize(location.getLength());
 			
-			if (stats.isAmbiguous()) {
-				throw new Ambiguous(ast.getTree());
-			}
+//			if (stats.isAmbiguous()) {
+//				throw new Ambiguous(ast.getTree());
+//			}
 		}
 		
 		constructorCache.putUnsafe(tree, ast);

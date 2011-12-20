@@ -45,4 +45,16 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException {
 		return arg;
 	}
+	
+	@Override
+	public IConstructor visitTreeExpected(IConstructor arg)
+			throws VisitorException {
+		return arg;
+	}
+	
+	@Override
+	public IConstructor visitTreeError(IConstructor arg)
+			throws VisitorException {
+		return arg;
+	}
 }
