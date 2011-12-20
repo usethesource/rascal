@@ -14,6 +14,8 @@ package org.rascalmpl.test.library;
 
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+
 import org.junit.Test;
 import org.rascalmpl.test.TestFramework;
 
@@ -89,6 +91,18 @@ public class MathTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{real D = cos(3*PI()/2); abs(D)     < 0.000001;}"));
 		assertTrue(runTestInSameEvaluator("{real D = cos(2*PI());   abs(D - 1) < 0.000001;}"));
 	}
+	
+	@Test
+	public void cosExtensive() {
+		prepare("import Math;");
+		
+		BigDecimal start = BigDecimal.valueOf(-100);
+		BigDecimal stop = start.negate();
+		BigDecimal increments = BigDecimal.ONE.divide(BigDecimal.valueOf(10));
+		for (BigDecimal param = start; stop.compareTo(param) > 0; param = param.add(increments)) {
+			assertTrue(runTestInSameEvaluator("{ real D = cos(" + param.toString() + "); abs(D - (" + Double.toString(Math.cos(param.doubleValue())) + ")) < 0.00001; }"));
+		}
+	}	
 	
 	@Test
 	public void denominator(){
@@ -273,6 +287,19 @@ public class MathTests extends TestFramework {
 	}
 	
 	@Test
+	public void sinExtensive() {
+		prepare("import Math;");
+		
+		BigDecimal start = BigDecimal.valueOf(-100);
+		BigDecimal stop = start.negate();
+		BigDecimal increments = BigDecimal.ONE.divide(BigDecimal.valueOf(10));
+		for (BigDecimal param = start; stop.compareTo(param) > 0; param = param.add(increments)) {
+			assertTrue(runTestInSameEvaluator("{ real D = sin(" + param.toString() + "); abs(D - (" + Double.toString(Math.sin(param.doubleValue())) + ")) < 0.00001; }"));
+		}
+	}	
+	
+	
+	@Test
 	public void sqrt(){
 		prepare("import Math;");
 		//assertTrue(runTestInSameEvaluator("{real D = sqrt(0);        abs(D)     < 0.000001;}"));
@@ -288,6 +315,23 @@ public class MathTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{real D = tan(PI()/4);   abs(D - 1) < 0.000001;}"));
 		assertTrue(runTestInSameEvaluator("{real D = tan(-PI()/4);  abs(D + 1) < 0.000001;}"));
 	}
+	
+	@Test
+	public void tanExtensive() {
+		prepare("import Math;");
+		
+		BigDecimal start = BigDecimal.valueOf(Math.PI).divide(BigDecimal.valueOf(2)).negate();
+		BigDecimal stop = start.negate();
+		BigDecimal increments = BigDecimal.ONE.divide(BigDecimal.valueOf(100));
+		
+		// around pi/2 tan is undefined so we skip checking around that.
+		start = start.add(increments);
+		stop = stop.subtract(increments);
+		for (BigDecimal param = start; stop.compareTo(param) > 0; param = param.add(increments)) {
+			assertTrue(runTestInSameEvaluator("{ real D = tan(" + param.toString() + "); abs(D - (" + Double.toString(Math.tan(param.doubleValue())) + ")) < 0.00001; }"));
+		}
+	}
+	
 	
 	@Test
 	public void toRat() {
