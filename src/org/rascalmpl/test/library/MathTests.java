@@ -252,6 +252,9 @@ public class MathTests extends TestFramework {
 	@Test
 	public void nroot(){
 		prepare("import Math;");
+		assertTrue(runTestInSameEvaluator("{real D = nroot(10,1);        abs(D - 10)     < 0.000001;}"));
+		assertTrue(runTestInSameEvaluator("{real D = nroot(10,2);        abs(D*D - 10)   < 0.000001;}"));
+		assertTrue(runTestInSameEvaluator("{real D = nroot(10,3);        abs(D*D*D - 10) < 0.000001;}"));
 	}
 	
 	@Test
@@ -265,6 +268,11 @@ public class MathTests extends TestFramework {
 	@Test
 	public void pow(){
 		prepare("import Math;");
+		
+		assertTrue(runTestInSameEvaluator("{real D = pow(7,0);        abs(D - 1)      < 0.000001;}"));
+		assertTrue(runTestInSameEvaluator("{real D = pow(7,1);        abs(D - 7)      < 0.000001;}"));
+		assertTrue(runTestInSameEvaluator("{real D = pow(7,2);        abs(D - 7*7)    < 0.000001;}"));
+		assertTrue(runTestInSameEvaluator("{real D = pow(7,3);        abs(D - 7*7*7)  < 0.000001;}"));
 	}
 	
 	@Test
@@ -351,7 +359,6 @@ public class MathTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("toReal(3) == 3.0;"));
 	}
 
-	
 	@Test
 	public void toIntReal() {
 
