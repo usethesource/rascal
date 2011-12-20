@@ -1206,7 +1206,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = getModuleName(preModule);
 		
 		if(isDeprecated(preModule))
-			throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(preModule), preModule);
+			// TODO Error location should point to import statement and not to deprecated module
+			throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(preModule), currentAST); 
 		
 		if(env == null){
 			env = heap.getModule(name);
@@ -1324,6 +1325,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			IConstructor tree = parseModule(this, java.net.URI.create("rascal:///" + name), env);
 			ASTBuilder astBuilder = getBuilder();
 			Module moduleAst = astBuilder.buildModule(tree);
+			
+//			if(isDeprecated(moduleAst))
+//				throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(moduleAst), astBuilder.getLastSuccessLocation());
+
 
 			if (moduleAst == null) {
 				throw new ImplementationError("After this, all ambiguous ast's have been filtered in " + name, astBuilder.getLastSuccessLocation());
