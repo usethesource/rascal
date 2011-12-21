@@ -530,6 +530,54 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isNoMatch() {
+    return false;
+  }
+
+  static public class NoMatch extends Expression {
+    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+  
+    
+    private final org.rascalmpl.ast.Expression pattern;
+    private final org.rascalmpl.ast.Expression expression;
+  
+    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(node);
+      
+      this.pattern = pattern;
+      this.expression = expression;
+    }
+  
+    @Override
+    public boolean isNoMatch() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionNoMatch(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
+    }
+  
+    @Override
+    public boolean hasExpression() {
+      return true;
+    }	
+  }
   public boolean isJoin() {
     return false;
   }
@@ -604,54 +652,6 @@ public abstract class Expression extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionEnumerator(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
-    }
-  
-    @Override
-    public boolean hasExpression() {
-      return true;
-    }	
-  }
-  public boolean isNoMatch() {
-    return false;
-  }
-
-  static public class NoMatch extends Expression {
-    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
-  
-    
-    private final org.rascalmpl.ast.Expression pattern;
-    private final org.rascalmpl.ast.Expression expression;
-  
-    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
-      
-      this.pattern = pattern;
-      this.expression = expression;
-    }
-  
-    @Override
-    public boolean isNoMatch() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionNoMatch(this);
     }
   
     
@@ -833,6 +833,54 @@ public abstract class Expression extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIn(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isAppendAfter() {
+    return false;
+  }
+
+  static public class AppendAfter extends Expression {
+    // Production: sig("AppendAfter",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public AppendAfter(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isAppendAfter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionAppendAfter(this);
     }
   
     
@@ -1339,54 +1387,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isGetAnnotation() {
-    return false;
-  }
-
-  static public class GetAnnotation extends Expression {
-    // Production: sig("GetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")])
-  
-    
-    private final org.rascalmpl.ast.Expression expression;
-    private final org.rascalmpl.ast.Name name;
-  
-    public GetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
-      super(node);
-      
-      this.expression = expression;
-      this.name = name;
-    }
-  
-    @Override
-    public boolean isGetAnnotation() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionGetAnnotation(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
-    }
-  
-    @Override
-    public boolean hasExpression() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }	
-  }
   public boolean isRange() {
     return false;
   }
@@ -1432,6 +1432,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasLast() {
+      return true;
+    }	
+  }
+  public boolean isGetAnnotation() {
+    return false;
+  }
+
+  static public class GetAnnotation extends Expression {
+    // Production: sig("GetAnnotation",[arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.Name","name")])
+  
+    
+    private final org.rascalmpl.ast.Expression expression;
+    private final org.rascalmpl.ast.Name name;
+  
+    public GetAnnotation(IConstructor node , org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.Name name) {
+      super(node);
+      
+      this.expression = expression;
+      this.name = name;
+    }
+  
+    @Override
+    public boolean isGetAnnotation() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionGetAnnotation(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
+    }
+  
+    @Override
+    public boolean hasExpression() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
       return true;
     }	
   }
@@ -1672,6 +1720,43 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasStatements() {
+      return true;
+    }	
+  }
+  public boolean isSplice() {
+    return false;
+  }
+
+  static public class Splice extends Expression {
+    // Production: sig("Splice",[arg("org.rascalmpl.ast.Expression","argument")])
+  
+    
+    private final org.rascalmpl.ast.Expression argument;
+  
+    public Splice(IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(node);
+      
+      this.argument = argument;
+    }
+  
+    @Override
+    public boolean isSplice() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionSplice(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getArgument() {
+      return this.argument;
+    }
+  
+    @Override
+    public boolean hasArgument() {
       return true;
     }	
   }
@@ -2122,6 +2207,54 @@ public abstract class Expression extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionIfDefinedOtherwise(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isRemainder() {
+    return false;
+  }
+
+  static public class Remainder extends Expression {
+    // Production: sig("Remainder",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public Remainder(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isRemainder() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionRemainder(this);
     }
   
     
@@ -2942,6 +3075,54 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isInsertBefore() {
+    return false;
+  }
+
+  static public class InsertBefore extends Expression {
+    // Production: sig("InsertBefore",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public InsertBefore(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isInsertBefore() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionInsertBefore(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
   public boolean isIt() {
     return false;
   }
@@ -3016,30 +3197,30 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isNegative() {
+  public boolean isSplicePlus() {
     return false;
   }
 
-  static public class Negative extends Expression {
-    // Production: sig("Negative",[arg("org.rascalmpl.ast.Expression","argument")])
+  static public class SplicePlus extends Expression {
+    // Production: sig("SplicePlus",[arg("org.rascalmpl.ast.Expression","argument")])
   
     
     private final org.rascalmpl.ast.Expression argument;
   
-    public Negative(IConstructor node , org.rascalmpl.ast.Expression argument) {
+    public SplicePlus(IConstructor node , org.rascalmpl.ast.Expression argument) {
       super(node);
       
       this.argument = argument;
     }
   
     @Override
-    public boolean isNegative() { 
+    public boolean isSplicePlus() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionNegative(this);
+      return visitor.visitExpressionSplicePlus(this);
     }
   
     
@@ -3087,6 +3268,43 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasQualifiedName() {
+      return true;
+    }	
+  }
+  public boolean isNegative() {
+    return false;
+  }
+
+  static public class Negative extends Expression {
+    // Production: sig("Negative",[arg("org.rascalmpl.ast.Expression","argument")])
+  
+    
+    private final org.rascalmpl.ast.Expression argument;
+  
+    public Negative(IConstructor node , org.rascalmpl.ast.Expression argument) {
+      super(node);
+      
+      this.argument = argument;
+    }
+  
+    @Override
+    public boolean isNegative() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionNegative(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getArgument() {
+      return this.argument;
+    }
+  
+    @Override
+    public boolean hasArgument() {
       return true;
     }	
   }
@@ -3186,6 +3404,54 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isVisit() {
+    return false;
+  }
+
+  static public class Visit extends Expression {
+    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
+  
+    
+    private final org.rascalmpl.ast.Label label;
+    private final org.rascalmpl.ast.Visit visit;
+  
+    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+      super(node);
+      
+      this.label = label;
+      this.visit = visit;
+    }
+  
+    @Override
+    public boolean isVisit() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionVisit(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Label getLabel() {
+      return this.label;
+    }
+  
+    @Override
+    public boolean hasLabel() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Visit getVisit() {
+      return this.visit;
+    }
+  
+    @Override
+    public boolean hasVisit() {
+      return true;
+    }	
+  }
   public boolean isSetAnnotation() {
     return false;
   }
@@ -3242,54 +3508,6 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasValue() {
-      return true;
-    }	
-  }
-  public boolean isVisit() {
-    return false;
-  }
-
-  static public class Visit extends Expression {
-    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
-  
-    
-    private final org.rascalmpl.ast.Label label;
-    private final org.rascalmpl.ast.Visit visit;
-  
-    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-      super(node);
-      
-      this.label = label;
-      this.visit = visit;
-    }
-  
-    @Override
-    public boolean isVisit() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionVisit(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Label getLabel() {
-      return this.label;
-    }
-  
-    @Override
-    public boolean hasLabel() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Visit getVisit() {
-      return this.visit;
-    }
-  
-    @Override
-    public boolean hasVisit() {
       return true;
     }	
   }

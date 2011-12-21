@@ -1435,9 +1435,42 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	}
 
+	// TODO Atze: this is the old implementation of Modulo which was actually remainder, which I guess needs fixing.
 	static public class Modulo extends org.rascalmpl.ast.Expression.Modulo {
 
 		public Modulo(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
+				org.rascalmpl.ast.Expression __param3) {
+			super(__param1, __param2, __param3);
+		}
+
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
+
+			throw new UnexpectedTypeError(TF.boolType(), this
+					.interpret(__eval.getEvaluator()).getType(),
+					this);
+
+		}
+
+	
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+
+			Result<IValue> left = this.getLhs().interpret(__eval);
+			Result<IValue> right = this.getRhs().interpret(__eval);
+			
+			// TODO: something todo here Atze!
+			return left.modulo(right);
+
+		}
+
+	}
+	
+	// TODO: Atze I cloned this class from the old Modulo code, so it should be ok now. Remove this comment?
+	static public class Remainder extends org.rascalmpl.ast.Expression.Remainder {
+
+		public Remainder(IConstructor __param1, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3) {
 			super(__param1, __param2, __param3);
 		}

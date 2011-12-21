@@ -32,7 +32,7 @@ public abstract class PreModule extends AbstractAST {
     return false;
   }
 
-  public Rest getRest() {
+  public org.rascalmpl.ast.Rest getRest() {
     throw new UnsupportedOperationException();
   }
   public boolean hasHeader() {
@@ -78,13 +78,13 @@ public abstract class PreModule extends AbstractAST {
   }
 
   static public class Default extends PreModule {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("","rest")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("org.rascalmpl.ast.Rest","rest")])
   
     
     private final org.rascalmpl.ast.Header header;
-    private final Rest  rest;
+    private final org.rascalmpl.ast.Rest rest;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Header header, Rest  rest) {
+    public Default(IConstructor node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Rest rest) {
       super(node);
       
       this.header = header;
@@ -112,7 +112,7 @@ public abstract class PreModule extends AbstractAST {
       return true;
     }
     @Override
-    public  Rest getRest() {
+    public org.rascalmpl.ast.Rest getRest() {
       return this.rest;
     }
   

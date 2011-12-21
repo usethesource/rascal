@@ -30,7 +30,7 @@ data GrammarModule
   = \module(str name, set[str] imports, set[str] extends, Grammar grammar);
  
 data GrammarDefinition
-  = \definition(str main, map[str name, GrammarModule mod] modules);
+  = \definition(str main, map[str name, GrammarModule \mod] modules);
 
 anno loc Production@\loc;
  
@@ -131,3 +131,4 @@ public rel[str, str] extends(GrammarDefinition def) {
 public rel[str,str] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
+
