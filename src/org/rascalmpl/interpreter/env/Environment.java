@@ -77,6 +77,7 @@ public class Environment {
 	protected ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
 	protected final String name;
+	private Environment myRoot;
 
 	public Environment(String name) {
 		this(null, null, null, null, name);
@@ -502,15 +503,13 @@ public class Environment {
 	}
 
 	public Environment getRoot() {
-		if (parent == null) {
+		if (this.isRootScope()) {
 			return this;
 		}
-		
-		Environment target = parent;
-		while (target!=null && !target.isRootScope()) {
-			target = target.parent;
+		if (myRoot == null) {
+			myRoot = parent.getRoot();
 		}
-		return target;
+		return myRoot;
 	}
 	
 	public GlobalEnvironment getHeap() {
