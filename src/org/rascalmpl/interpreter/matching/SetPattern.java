@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -572,6 +573,10 @@ public class SetPattern extends AbstractMatchingResult {
 
 		main: 
 		do {
+			if (ctx.isInterrupted()) {
+				throw new InterruptException(ctx.getStackTrace());
+			}
+			
 			if(debug)System.err.println("\n=== MAIN: Pattern = " + this +  ":= " + subject + "\ncurrentVar[" + currentVar + "]=" + varName[currentVar]);
 			if(debug)printVars();
 			IValue v = null;
