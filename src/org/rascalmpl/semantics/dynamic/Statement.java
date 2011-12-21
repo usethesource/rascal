@@ -1165,6 +1165,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			loop: while (true) {
 				int i = 0;
 				try {
+					if (__eval.__getInterrupt()) {
+						throw new InterruptException(__eval.getStackTrace());
+					}
+					
 					gens[0] = generators.get(0).getBacktracker(__eval);
 					gens[0].init();
 					olds[0] = __eval.getCurrentEnvt();
