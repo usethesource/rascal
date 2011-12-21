@@ -689,7 +689,9 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new UndeclaredModuleError(modulename, name);
+				// this might happen if the name is actually a type name instead of a module name
+				// when we replace the :: notation for . this issue should dissappear
+				return false;
 			}
 			
 			return imported.isNameFlagged(cons, flags);
