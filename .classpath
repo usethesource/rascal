@@ -18,6 +18,5 @@
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Java-Eclipse Project"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
