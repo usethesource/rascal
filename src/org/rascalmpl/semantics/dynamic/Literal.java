@@ -51,6 +51,8 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
+		
+		
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {

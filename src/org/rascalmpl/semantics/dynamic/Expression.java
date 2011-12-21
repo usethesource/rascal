@@ -58,6 +58,7 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.ListPattern;
 import org.rascalmpl.interpreter.matching.MatchResult;
 import org.rascalmpl.interpreter.matching.MultiVariablePattern;
+import org.rascalmpl.interpreter.matching.NegativePattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
 import org.rascalmpl.interpreter.matching.NotResult;
 import org.rascalmpl.interpreter.matching.OrResult;
@@ -1571,6 +1572,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			throw new UnexpectedTypeError(TF.boolType(), this
 					.interpret(__eval.getEvaluator()).getType(),
 					this);
+		}
+		
+		@Override
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+			return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval));
 		}
 
 		@Override
