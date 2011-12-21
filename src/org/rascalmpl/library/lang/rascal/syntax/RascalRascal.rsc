@@ -31,7 +31,7 @@ start syntax Module
 	= Default: Header header Body body ;
 
 start syntax PreModule
-    = Default: Header header () !>> HeaderKeyword Rest? rest;
+    = Default: Header header () !>> HeaderKeyword Rest rest;
 
 keyword HeaderKeyword
   = "import"
@@ -43,7 +43,7 @@ keyword HeaderKeyword
   | "extend"
   ;
 
-lexical Rest = ![]+ !>> ![];          
+lexical Rest = ![]* !>> ![];          
                    
 syntax ModuleParameters
 	= Default: "[" {TypeVar ","}+ parameters "]" ;
@@ -221,13 +221,14 @@ syntax Expression
 	> left Composition: Expression lhs "o" Expression rhs 
 	> left ( Product: Expression lhs "*" () !>> "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
-	       | Modulo: Expression lhs "%" Expression rhs  
+	       | Remainder: Expression lhs "%" Expression rhs 
+	       | Modulo: Expression lhs "mod" Expression rhs  
 		   | Division: Expression lhs "/" Expression rhs 
 	     )
 	> left Intersection: Expression lhs "&" Expression rhs 
 	> left ( Addition   : Expression lhs "+" Expression rhs  
 		   | Subtraction: Expression lhs "-" Expression rhs
-		   | AppendAfter: Expression lhs "\<\<" Expression rhs
+		   | AppendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | InsertBefore: Expression lhs "\>\>" Expression rhs 
 	       )
 	> non-assoc ( NotIn: Expression lhs "notin" Expression rhs  
@@ -336,7 +337,9 @@ syntax Assignment
 	| Intersection: "&=" 
 	| Subtraction: "-=" 
 	| Default: "=" 
-	| Addition: "+=" ;
+	| Addition: "+=" 
+	| Append: "\<\<="
+	;
 
 syntax Assignable
 	= bracket Bracket   : "(" Assignable arg ")"
@@ -481,7 +484,7 @@ start syntax Command
 	| Import: Import imported ;
 
 lexical TagString
-	= "{" ( ![{}] | TagString)* contents "}";
+	= "{" ( ![{}] | ("\\" [{}]) | TagString)* contents "}";
 
 syntax ProtocolTail
 	= Mid: MidProtocolChars mid Expression expression ProtocolTail tail 
@@ -493,8 +496,6 @@ lexical Nonterminal
 syntax PathTail
 	= Mid: MidPathChars mid Expression expression PathTail tail 
 	| Post: PostPathChars post ;
-
-
 
 syntax Visibility
 	= Private: "private" 
@@ -508,9 +509,9 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r] $
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r] $ // the restriction helps with parsing speed
 	;
-
+	
 lexical RegExp
 	= @category="MetaVariable" [\<]  Expression expression [\>] ;
 
@@ -643,6 +644,7 @@ keyword RascalKeywords
 	| "alias" 
 	| "any" 
 	| "module" 
+	| "mod"
 	| "bool" 
 	| "public" 
 	| "one" 
@@ -799,14 +801,18 @@ syntax Mapping[&T]
 lexical MidPathChars
 	= "\>" URLChars "\<" ;
 
+/*
+  Note that Pattern must closely follow the definitions of Expression because eventually
+  these two non-terminals will be fused just before AST generation.
+*/
 syntax Pattern
 	= Set                 : "{" {Pattern ","}* elements "}" 
 	| List                : "[" {Pattern ","}* elements "]" 
 	| QualifiedName       : QualifiedName qualifiedName 
 	| MultiVariable       : QualifiedName qualifiedName "*"
-	| SplatStar           : "*" QualifiedName qualifiedName
-	| SplatPlus           : "+" QualifiedName qualifiedName 
-	| Negative            : "-" Literal literal
+	| Splice              : "*" Pattern argument
+	| SplicePlus          : "+" Pattern argument 
+	| Negative            : "-" Pattern argument
 	| Literal             : Literal literal 
 	| Tuple               : "\<" {Pattern ","}+ elements "\>" 
 	| TypedVariable       : Type type Name name 
