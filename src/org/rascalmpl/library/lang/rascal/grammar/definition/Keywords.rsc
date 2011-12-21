@@ -13,19 +13,26 @@ public Grammar expandKeywords(Grammar g) {
 }
 
 public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
+  names = {};
   done = {};
-  
-  // find any condition defined by a keyword sort
-  // we use '/' to skip over 'meta' wrappers
-  while ({other*, cond} := conds, cond has symbol, keywords(name) := cond.symbol || meta(keywords(name)) := cond.symbol) {
-    if (name in done) 
-      return conds; // failsafe for erroneous cyclic keywords definition! 
-     
-    // now look up the definition of the keyword sort and weave it in.
-    conds = other + {cond[symbol=s] | choice(_, alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+  todo = conds;
+
+  solve(todo) {  
+    for (cond <- todo) {
+      todo -= {cond};
+      
+      if (cond has symbol, keywords(name) := cond.symbol || meta(keywords(name)) := cond.symbol) {
+        if (name in names) continue;
+        names += {name};
+        todo += {cond[symbol=s] | choice(_, alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+      }
+      else {
+        done += cond;
+      }
+    }
   }
   
-  return conds;  
+  return done;  
 }
 
 public set[Production] getKeywords(Grammar g) {
