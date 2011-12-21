@@ -26,6 +26,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.*;
+import org.rascalmpl.ast.Expression.AppendAfter;
+import org.rascalmpl.ast.Expression.InsertBefore;
+import org.rascalmpl.ast.Expression.Remainder;
+import org.rascalmpl.ast.Expression.Splice;
+import org.rascalmpl.ast.Expression.SplicePlus;
 import org.rascalmpl.ast.Literal.Rational;
 import org.rascalmpl.ast.RationalLiteral.Ambiguity;
 import org.rascalmpl.ast.RationalLiteral.Lexical;
@@ -3606,6 +3611,42 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	@Override
 	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionAppendAfter(AppendAfter x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionSplice(Splice x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionRemainder(Remainder x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionInsertBefore(InsertBefore x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitExpressionSplicePlus(SplicePlus x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitAssignmentAppend(org.rascalmpl.ast.Assignment.Append x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

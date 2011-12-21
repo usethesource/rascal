@@ -189,6 +189,32 @@ public abstract class Assignment extends AbstractAST {
   
     	
   }
+  public boolean isAppend() {
+    return false;
+  }
+
+  static public class Append extends Assignment {
+    // Production: sig("Append",[])
+  
+    
+  
+    public Append(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isAppend() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitAssignmentAppend(this);
+    }
+  
+    	
+  }
   public boolean isSubtraction() {
     return false;
   }

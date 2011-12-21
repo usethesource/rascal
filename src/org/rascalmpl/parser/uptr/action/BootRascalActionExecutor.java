@@ -52,6 +52,10 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 			return tree;
 		}
 		
+		if (sym.isEqual(EXP)) {
+			return filterExpression(tree, prod);
+		}
+		
 		if (sym.isEqual(STAT)) {
 			return filterStatement(tree, prod);
 		}
@@ -72,6 +76,8 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 		
 		return tree;
 	}
+
+	
 
 	private IConstructor filterArg(IConstructor tree, IConstructor prod, String father, int pos, String... children) {
 		String cons = ProductionAdapter.getConstructorName(prod);
@@ -157,6 +163,14 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 
 	private IConstructor filterMapping(IConstructor tree, IConstructor prod) {
 		return filterArg(tree, prod, "Default", 0, "IfDefinedOtherwise");
+	}
+	
+	private IConstructor filterExpression(IConstructor tree, IConstructor prod) {
+		tree = filterArg(tree, prod, "Subscript", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		if (tree == null) 
+			return null;
+		
+		return filterArg(tree, prod, "CallOrTree", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
 	}
 
 	private IConstructor filterType(IConstructor tree, IConstructor prod) {
