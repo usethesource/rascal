@@ -4,8 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/asm-all-3.3.jar"/>
-	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-continuation-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-7.1.5.v20100705.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-io-7.1.5.v20100705.jar"/>
@@ -20,5 +18,6 @@
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Java-Eclipse Project"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
