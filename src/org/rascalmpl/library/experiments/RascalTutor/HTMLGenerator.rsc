@@ -284,7 +284,7 @@ private str markupRestLine(str line){
     
     case /^`<c:[^`]*>`/ => (size(c) == 0) ? "`" : code(markupCode(c))
     
-    case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
+    case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
     
     case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!*'(),~]+>\)/ => link(url, text)
     
@@ -321,8 +321,8 @@ private str markupRestLine(str line){
 
 private str markupSubs(str txt){
   return visit(txt){
-    case /^_<subsup:[A-Za-z0-9]+>/  => sub(subsup) 
-    case /^\^<subsup:[A-Za-z0-9]+>/ => sup(subsup)   
+    case /^_<subsup:[\+\-]?[A-Za-z0-9]+>/  => sub(subsup) 
+    case /^\^<subsup:[\+\-]?[A-Za-z0-9]+>/ => sup(subsup)   
   }
 }
 
@@ -372,7 +372,7 @@ private str markupCode(str text){
 //    case /^\\ /  => "&nbsp;"
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
-    case /^\$<var:[A-Za-z]*><ext:[_\^A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
+    case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
     case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
   };
 }
@@ -391,7 +391,6 @@ private str markupFigure(list[str] lines, int width, int height, str file){
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
-  println("HERE1");
   if(/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
  
@@ -407,12 +406,12 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	              50000);
 	  println("**** shell output ****\n<out>");
 	  errors = lookForErrors(out);
-	  println("errors = <errors>");
+	  if(errors != "") println("errors = <errors>");
 	  // Restore original call for listing
 	  lines[n-1] = renderCall;
   } else
     errors = "Last line should be a call to \"render\"";
-  println("Here2"); 
+
   if(errors != ""){
     errors = "\<warning\>" + errors + "\</warning\>";
     addWarning(errors);
