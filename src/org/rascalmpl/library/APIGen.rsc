@@ -148,7 +148,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 				if(size(args) == 0) return "";
 				return 	"<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i][0])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
 						'	return <javaResult(args[i][0],"c.get(<i>)")>;
-						'}
+						'}		println("<t> =\> <result>");
 						'<}>";
 			}
 		}
@@ -199,7 +199,6 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
 		if("alias"(s,_,_) := t) {
 			result = s;
 		}
-		println("<t> =\> <result>");
 		return result;
 	}
 	
