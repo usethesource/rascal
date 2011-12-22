@@ -107,7 +107,7 @@ public list[RascalType] parseTypeList(str txt){
          if(prefix != "")
          	prefix += ",";
          	
-         println("parseTypeList: <prefix + et>");
+         //println("parseTypeList: <prefix + et>");
          pt = parseType(prefix + et);
          append pt;
          prefix = "";

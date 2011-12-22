@@ -45,16 +45,20 @@ private str getDoc(Tags tags){
 
 void writeDeclConcept(str moduleName, str itemName, loc itemLoc, str doc, str /*ConceptName*/ root){
   println("writeDeclConcept: <itemName>, <doc>");
-  destination = courseDir + root + moduleName + itemName + "<itemName>.concept";
-  writeFile(destination, doc);
-  writeFile(courseDir + root + moduleName + itemName + remoteLoc, itemLoc);
+  if(doc != ""){
+  	destination = courseDir + root + moduleName + itemName + "<itemName>.concept";
+  	writeFile(destination, doc);
+  	writeFile(courseDir + root + moduleName + itemName + remoteLoc, itemLoc);
+  } 	
 }
 
 void writeModuleConcept(str moduleName, loc moduleLoc, str doc, str /*ConceptName*/ root){
   println("writeModuleConcept: <moduleName>, <doc>");
-  destination = courseDir + root + moduleName + "<moduleName>.concept";
-  writeFile(destination, doc);
-  writeFile(courseDir + root + moduleName + remoteLoc, moduleLoc);
+  if(doc != ""){
+  	destination = courseDir + root + moduleName + "<moduleName>.concept";
+  	writeFile(destination, doc);
+  	writeFile(courseDir + root + moduleName + remoteLoc, moduleLoc);
+  }
 }
 
 public void extractRemoteConcepts(loc L, str /*ConceptName*/ root){
@@ -92,7 +96,7 @@ public str replace(str old, int begin, int length, str repl){
   return "<before><repl><after>";
 }
 
-private void replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocContent, loc L){
+private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocContent, loc L){
 	visit(tags){
      case Tag t: 
         if("<t.name>" == "doc") {
@@ -100,14 +104,14 @@ private void replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
             newFileContent = replace(oldFileContent, l.offset, l.length, "@doc{\n<newDocContent>\n}");
             println("newFileContent = <newFileContent>");
             writeFile(L, newFileContent);
-            return;
+            return true;
         }
    }
-   throw "Could not replace doc content for <itemName> in <L>";
+   return false;
 }
 
 
-public void replaceDoc(loc L, str itemName, str newDocContent){
+public bool replaceDoc(loc L, str itemName, str newDocContent){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
   println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
@@ -115,14 +119,12 @@ public void replaceDoc(loc L, str itemName, str newDocContent){
   top-down visit(M){
     case Header header: 
          if("<header.name>" == itemName){
-            replaceDoc(itemName, header.tags, oldFileContent, newDocContent, L1);
-            return;
+            return replaceDoc(itemName, header.tags, oldFileContent, newDocContent, L1);
          }
     case FunctionDeclaration decl: 
    		 if("<decl.signature.name>" == itemName) {
-   		 	replaceDoc(itemName, decl.tags, oldFileContent, newDocContent, L1);
-   		 	return;
+   		 	return replaceDoc(itemName, decl.tags, oldFileContent, newDocContent, L1);
    		 }
   }
-  throw "Could not replace doc content for <itemName> in <L>";
+  return false;
 }

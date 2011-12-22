@@ -233,11 +233,17 @@ public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "T
 
 public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
 
+// Read a concept file cn
+// - if a remote location is defined AND the extracted doc is non-empty, return it.
+// - otherwise return "<cn>.concept".
+
 public str readConceptFile(ConceptName cn){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
       remote = readTextValueFile(#loc,  remoteloc);
-      return extractDoc(remote, basename(cn));
+      rdoc = extractDoc(remote, basename(cn));
+      if(rdoc != "")
+      	 return rdoc;
    }
    return readFile(conceptFile(cn));
 }
@@ -246,7 +252,9 @@ public list[str] readConceptFileLines(ConceptName cn){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
       remote = readTextValueFile(#loc,  remoteloc);
-      return splitLines(extractDoc(remote, basename(cn)));
+      rdoc = extractDoc(remote, basename(cn));
+      if(rdoc != "")
+      	 return splitLines(rdoc);
    }
    return readFileLines(conceptFile(cn));
 }
@@ -255,12 +263,12 @@ public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
       remote = readTextValueFile(#loc,  remoteloc);
-      replaceDoc(remote, basename(cn), text);
-   } else {
-     file = conceptFile(cn);
-     println("saving to <file> modified concept file.");
-     writeFile(file, text);
+      if(replaceDoc(remote, basename(cn), text))
+         return;
    }
+   file = conceptFile(cn);
+   println("saving to <file> modified concept file.");
+   writeFile(file, text);
 }     
 
 public map[str,list[str]] getSections(ConceptName cn){
@@ -328,11 +336,11 @@ public list[ConceptName] children(Concept c){
 
 public list[ConceptName] children(ConceptName cn){
   cdetails = getDetails(cn);
-  println("<cn>, getDetails: <cdetails>");
+  //("<cn>, getDetails: <cdetails>");
   dir = courseDir + cn;
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
   res =  [ cn + "/" + entry | entry <- cdetails + (entries - cdetails)];
-  println("children(<cn>) =\> <res>");
+  //println("children(<cn>) =\> <res>");
   return res;
 }
 
@@ -459,7 +467,7 @@ println("crawlFiles: <dir>, <listEntries(dir)>");
 
 public list[ConceptName] crawlConcepts(ConceptName root){ 
   dir = courseDir + root;
-  println("crawlConcepts: <dir>, <listEntries(dir)>");
+  //println("crawlConcepts: <dir>, <listEntries(dir)>");
   list[ConceptName] res = [root];
  
   for( str entry <- listEntries(dir) ){
