@@ -1,19 +1,13 @@
+
 Name: userTime
-
 Synopsis: Measuring user time.
-
-Syntax:
-
-Types:
 
 Function:
 # `int userTime()`
 # `int userTime(void () block)`
 
-Details:
-
 Description:
-# Current time in nanoseconds since the start of the thread that runs the code that calls this function.
+# Current time in __nanoseconds__ (10$^-9$ sec) since the start of the thread that runs the code that calls this function.
 # User time in nanoseconds needed to execute the code `block`.
 
 Examples:
@@ -29,10 +23,3 @@ userTime() - before;
 // The code to be measured can also be passed as a function parameter to `userTime`:
 userTime( void() { fac(50); } );
 </screen>
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-

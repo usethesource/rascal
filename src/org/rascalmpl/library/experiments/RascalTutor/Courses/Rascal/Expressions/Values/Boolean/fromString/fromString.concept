@@ -1,1 +1,4 @@
-Convert the strings "true" or "false" to a boo
+
+Name: fromString
+Synopsis: Convert the strings "true" or "false" to a bool.
+Function: `bool fromString(str s)`

@@ -1,8 +1,7 @@
 
-Name: arbBool
+Name:     arbBool
 Synopsis: Return an arbitrary Boolean value.
-Function:
-`bool arbBool( )`
+Function: `bool arbBool( )`
 
 Examples:
 <screen>

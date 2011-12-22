@@ -1,10 +1,6 @@
+
 Name: systemTime
-
 Synopsis: Measuring system time.
-
-Syntax:
-
-Types:
 
 Function:
 # `int systemTime()`
@@ -13,7 +9,7 @@ Function:
 Details:
 
 Description:
-# Current system time in nanoseconds since the start of the thread that runs the code that calls this function.
+# Current system time in nanoseconds (10$^-9$ sec) since the start of the thread that runs the code that calls this function.
 # System time in nanoseconds needed to execute the code `block`.
 
 Examples:
@@ -28,10 +24,3 @@ systemTime() - before;
 // The code to be measured can also be passed as a function parameter to `systemTime`:
 systemTime( void() { fac(50); } );
 </screen>
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-

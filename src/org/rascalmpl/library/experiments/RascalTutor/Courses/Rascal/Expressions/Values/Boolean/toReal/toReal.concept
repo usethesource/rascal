@@ -1,10 +1,7 @@
 
-Name: toReal
+Name:     toReal
 Synopsis: Convert Boolean value to real.
-Syntax:
-Types:
 Function: `real toReal(bool b)`
-Details:
 
 Description:
 Maps `true` to `1,0` and `false` to `0.0`.
@@ -15,7 +12,3 @@ import Boolean;
 toReal(true);
 toReal(false);
 </screen>
-
-Benefits:
-Pitfalls:
-Questions:

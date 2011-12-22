@@ -1,0 +1,22 @@
+
+Name: benchmark
+Synopsis: Measure and report the execution time of name:void-closure pairs
+Functions:
+# `map[str,num] benchmark(map[str, void()] Cases)`
+# `map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)`
+
+Description:
+
+Given is a map that maps strings (used as label to identify each case) to void-closures that execute the code to be benchmarked.
+An optionl `duration` argument can be used to specify the function to perform the actual measurement. By default the function [realTime] is used. A map of labels and durantions is returned.
+
+Examples:
+We use the factorial function described in [Recipes:Factorial] as example:
+<screen>
+import Benchmark;
+import demo::basic::Factorial;
+// We measure two calls to the factorial function with arguments `100`, respectively, `200` (using by default `realkTime` that returns milliseconds):
+benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}) );
+// We can do the same using [userTime] that returns nanoseconds:
+benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}), userTime );
+</screen>

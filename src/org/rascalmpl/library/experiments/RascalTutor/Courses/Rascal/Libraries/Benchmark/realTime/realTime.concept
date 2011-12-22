@@ -1,0 +1,15 @@
+
+Name: realTime
+Synopsis: Current time in milliseconds.
+Function:
+# `int realTime()`
+# `int realTime(void () block)`
+
+Description:
+
+# Current system time in __milliseconds__ (10$^-3$ sec) since January 1, 1970 GMT.
+# Real time in milliseconds needed to execute the code `block`.
+
+Pitfalls:
+This function is a competitor for the [now] function that provides a [datetime] value for the current time.
+

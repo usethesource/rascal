@@ -1,27 +1,10 @@
-Name: Benchmark
 
-Synopsis:
-Functions for time measurement and benchmarking.
+Name:     Benchmark
+Synopsis: Functions for time measurement and benchmarking.
 
-Syntax:
-`import Benchmark;`
-
-Types:
-
-Function:
-
-Details:
+Syntax:   `import Benchmark;`
 
 Description:
 
 Provides the following functions:
 <toc Rascal/Libraries/Benchmark 1>
-
-Examples:
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-

@@ -1,10 +1,6 @@
-Name: cpuTime
 
+Name:     cpuTime
 Synopsis: Measuring CPU time.
-
-Syntax:
-
-Types:
 
 Function:
 # `int cpuTime()`
@@ -13,7 +9,7 @@ Function:
 Details:
 
 Description:
-# Current cpu time in nanoseconds since the start of the thread that runs the code that calls this function.
+# Current cpu time in __nanoseconds__ (10$^-9$ sec) since the start of the thread that runs the code that calls this function.
 # The cpu time in nanoseconds used by the execution of the code `block`.
 
 Examples:
@@ -28,11 +24,5 @@ fac(50);
 cpuTime() - before;
 // The code to be measured can also be passed as a function parameter to `cpuTime`:
 cpuTime( void() { fac(50); } );
+// These two timings for the same task may differ significantly due to the way these statements are executed here in the tutor.
 </screen>
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-
