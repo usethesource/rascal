@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.TraversalEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -31,12 +30,10 @@ import org.rascalmpl.values.uptr.Factory;
 
 public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
-	private TraversalEvaluator te;
 
 	public ConstructorFunction(AbstractAST ast, Evaluator eval, Environment env, Type constructorType) {
 		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env);
 		this.constructorType = constructorType;
-		this.te = new TraversalEvaluator(eval);
 	}
 
 	@Override
@@ -69,8 +66,7 @@ public class ConstructorFunction extends NamedFunction {
 			instantiated = constructorType.instantiate(bindings);
 		}
 
-		// TODO: the actual construction of the tree before applying rules should be avoided here!
-		return makeResult(instantiated, te.applyRules(instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals)), ctx);
+		return makeResult(instantiated, instantiated.make(getValueFactory(), ctx.getCurrentEnvt().getStore(), actuals), ctx);
 	}
 	
 	@Override

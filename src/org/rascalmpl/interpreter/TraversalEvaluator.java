@@ -325,8 +325,7 @@ public class TraversalEvaluator {
 				rcons = rcons.setAnnotations(cons.getAnnotations());
 			}
 
-			// check whether new rewrite rules now apply, but only if something indeed changed.
-			return applyRules(rcons);
+			return rcons;
 		}
 		else {
 			return subject;
@@ -444,12 +443,7 @@ public class TraversalEvaluator {
 				n = n.setAnnotations(node.getAnnotations());
 			}
 			
-			if (tr.changed) {
-				result = applyRules(n);
-			}
-			else {
-				result = n;
-			}
+			result = n;
 		}
 		return result;
 	}
@@ -664,21 +658,5 @@ public class TraversalEvaluator {
 		else {
 			throw new ImplementationError("Impossible case in rule");
 		}
-	}
-	
-	public IValue applyRules(IValue value) {
-		Type typeToSearchFor = value.getType();
-		if (typeToSearchFor.isAbstractDataType()) {
-			typeToSearchFor = ((IConstructor) value).getConstructorType();
-		}
-
-		java.util.List<RewriteRule> rules = eval.getHeap().getRules(typeToSearchFor);
-		
-		if (rules.size() > 0) {
-			TraverseResult tr = new TraverseResult(); 
-			return traverseTop(value, new CasesOrRules(rules), tr);
-		}
-
-		return value;
 	}
 }

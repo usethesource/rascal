@@ -45,9 +45,6 @@ public class GlobalEnvironment {
 	/** The heap of Rascal */
 	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		
-	/** Normalizing rules are a global feature */
-	private final HashMap<Type, List<RewriteRule>> ruleEnvironment = new HashMap<Type, List<RewriteRule>>();
-	
 	/** Keeping track of module locations */
 	private final HashMap<String, URI> moduleLocations = new HashMap<String,URI>();
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
@@ -58,7 +55,6 @@ public class GlobalEnvironment {
 	
 	public void clear() {
 		moduleEnvironment.clear();
-		ruleEnvironment.clear();
 		moduleLocations.clear();
 		locationModules.clear();
 	}
@@ -103,39 +99,6 @@ public class GlobalEnvironment {
 	}
 	
 
-	public void storeRule(Type forType, PatternWithAction rule, Environment env) {
-		List<RewriteRule> rules = ruleEnvironment.get(forType);
-		
-		if (!forType.isConstructorType() && !forType.isNodeType() && forType != Factory.Tree && forType != Factory.Tree_Appl) {
-			throw new IllegalArgumentException("forType should be a constructor type, instead it is :" + forType);
-		}
-		
-		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
-		if (rules == null) {
-			rules = new ArrayList<RewriteRule>();
-			ruleEnvironment.put(forType, rules);
-		}
-		
-		rules.add(new RewriteRule(rule, env));
-	}
-	
-	public List<RewriteRule> getRules(Type forType) {
-		List<RewriteRule> rules = ruleEnvironment.get(forType);
-		//System.err.println("getRules: type=" + forType + ",rules=" + rules);
-		return rules != null ? rules : new ArrayList<RewriteRule>();
-	}
-
-	
-	public List<RewriteRule> getRules() {
-		List<RewriteRule> result = new LinkedList<RewriteRule>();
-		
-		for (Type t : ruleEnvironment.keySet()) {
-			result.addAll(ruleEnvironment.get(t));
-		}
-		
-		return result;
-	}
-
 	public boolean existsModule(String name) {
 		return moduleEnvironment.containsKey(name);
 	}
@@ -144,10 +107,9 @@ public class GlobalEnvironment {
 	@Override
 	public String toString(){
 		StringBuffer res = new StringBuffer();
-		res.append("==== Module Environment ====\n").append(moduleEnvironment);
-		res.append("==== Rule Environment ====\n");
-		for(Type type : ruleEnvironment.keySet()){
-			res.append(type).append(" : ").append(ruleEnvironment.get(type)).append("\n");
+		res.append("heap.modules: ");
+		for (String mod : moduleEnvironment.keySet()) {
+			res.append(mod + ",");
 		}
 		return res.toString();
 	}
