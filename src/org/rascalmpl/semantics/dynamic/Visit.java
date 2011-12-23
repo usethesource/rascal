@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.TraversalEvaluator.FIXEDPOINT;
 import org.rascalmpl.interpreter.TraversalEvaluator.PROGRESS;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.Cases;
 
 public abstract class Visit extends org.rascalmpl.ast.Visit {
 
@@ -46,7 +47,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
 
 			IValue val = te.traverse(subject.getValue(),
-					te.new CasesOrRules(cases), DIRECTION.BottomUp,
+					te.new CaseBlockList(Cases.precompute(cases)), DIRECTION.BottomUp,
 					PROGRESS.Continuing, FIXEDPOINT.No);
 			Type t = val.getType();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
@@ -106,7 +107,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
 			IValue val = te
-					.traverse(subject.getValue(), te.new CasesOrRules(cases),
+					.traverse(subject.getValue(), te.new CaseBlockList(Cases.precompute(cases)),
 							direction, progress, fixedpoint);
 			Type t = val.getType();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,

@@ -3624,4 +3624,16 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return null;
 	}
 
+	@Override
+	public IValue visitRestLexical(org.rascalmpl.ast.Rest.Lexical x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

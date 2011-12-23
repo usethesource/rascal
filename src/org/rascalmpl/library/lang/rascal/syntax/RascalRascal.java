@@ -9577,8 +9577,8 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
     
     protected static final void _init_prod__Default_$PreModule__header_$Header_$layouts_LAYOUTLIST_conditional__empty__not_follow__$HeaderKeyword_$layouts_LAYOUTLIST_conditional__iter_star_seps__char_class___range__0_65535__$layouts_LAYOUTLIST__not_follow__char_class___range__0_65535_(ExpectBuilder builder) {
       AbstractStackNode[] tmp = new AbstractStackNode[5];
-      
-      tmp[4] = new SeparatedListStackNode(-2252, 4, regular__iter_star_seps__char_class___range__0_65535__$layouts_LAYOUTLIST, new CharStackNode(-2253, 0, new char[][]{{0,65535}}, null, null), new AbstractStackNode[]{new NonTerminalStackNode(-2254, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{0,65535}})});
+       
+      tmp[4] = new ListStackNode(-2252, 4, regular__iter_star_seps__char_class___range__0_65535__$layouts_LAYOUTLIST, new CharStackNode(-2253, 0, new char[][]{{0,65535}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new char[][]{{0,65535}})});
       tmp[3] = new NonTerminalStackNode(-2251, 3, "$layouts_LAYOUTLIST", null, null);
       tmp[2] = new EmptyStackNode(-2250, 2, regular__empty, null, new ICompletionFilter[] {new StringFollowRestriction(new char[] {108,101,120,105,99,97,108}), new StringFollowRestriction(new char[] {105,109,112,111,114,116}), new StringFollowRestriction(new char[] {115,116,97,114,116}), new StringFollowRestriction(new char[] {115,121,110,116,97,120}), new StringFollowRestriction(new char[] {108,97,121,111,117,116}), new StringFollowRestriction(new char[] {101,120,116,101,110,100}), new StringFollowRestriction(new char[] {107,101,121,119,111,114,100})});
       tmp[1] = new NonTerminalStackNode(-2249, 1, "$layouts_LAYOUTLIST", null, null);

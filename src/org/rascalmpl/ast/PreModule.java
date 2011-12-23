@@ -28,6 +28,13 @@ public abstract class PreModule extends AbstractAST {
   }
 
   
+  public boolean hasRest() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Rest getRest() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasHeader() {
     return false;
   }
@@ -71,15 +78,17 @@ public abstract class PreModule extends AbstractAST {
   }
 
   static public class Default extends PreModule {
-    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header")])
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Header","header"),arg("org.rascalmpl.ast.Rest","rest")])
   
     
     private final org.rascalmpl.ast.Header header;
+    private final org.rascalmpl.ast.Rest rest;
   
-    public Default(IConstructor node , org.rascalmpl.ast.Header header) {
+    public Default(IConstructor node , org.rascalmpl.ast.Header header,  org.rascalmpl.ast.Rest rest) {
       super(node);
       
       this.header = header;
+      this.rest = rest;
     }
   
     @Override
@@ -100,6 +109,15 @@ public abstract class PreModule extends AbstractAST {
   
     @Override
     public boolean hasHeader() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Rest getRest() {
+      return this.rest;
+    }
+  
+    @Override
+    public boolean hasRest() {
       return true;
     }	
   }

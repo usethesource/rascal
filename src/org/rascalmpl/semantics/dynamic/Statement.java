@@ -843,11 +843,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
 					.getCurrentAST(), __eval.getStackTrace());
-
 		}
 
 	}
