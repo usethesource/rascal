@@ -1264,6 +1264,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitPreModuleDefault(PreModule.Default x) { 
+    return null; 
+  }
+
   public T visitFunctionModifierDefault(FunctionModifier.Default x) { 
     return null; 
   }
@@ -1281,10 +1285,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitBoundDefault(Bound.Default x) { 
-    return null; 
-  }
-
-  public T visitPreModuleDefault(PreModule.Default x) { 
     return null; 
   }
 
@@ -1461,6 +1461,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitRestLexical(Rest.Lexical x) { 
+    return null; 
+  }
+
   public T visitMidPathCharsLexical(MidPathChars.Lexical x) { 
     return null; 
   }
@@ -1631,6 +1635,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x) { 
+    return null; 
+  }
+
+  public T visitRestAmbiguity(Rest.Ambiguity x) { 
     return null; 
   }
 

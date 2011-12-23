@@ -70,7 +70,6 @@ import org.rascalmpl.test.library.ValueIOTests;
 	RecoveryTests.class,
 	RegExpTests.class,
 	RelationTests.class,
-	RuleTests.class,
 	
 	ScopeTests.class,
 	SetTests.class,

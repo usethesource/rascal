@@ -640,6 +640,8 @@ public interface IASTVisitor<T> {
 
   public T visitVariableUnInitialized(Variable.UnInitialized x);
 
+  public T visitPreModuleDefault(PreModule.Default x);
+
   public T visitFunctionModifierDefault(FunctionModifier.Default x);
 
   public T visitFunctionModifierTest(FunctionModifier.Test x);
@@ -649,8 +651,6 @@ public interface IASTVisitor<T> {
   public T visitBoundEmpty(Bound.Empty x);
 
   public T visitBoundDefault(Bound.Default x);
-
-  public T visitPreModuleDefault(PreModule.Default x);
 
   public T visitComprehensionSet(Comprehension.Set x);
 
@@ -739,6 +739,8 @@ public interface IASTVisitor<T> {
 
   public T visitPrePathCharsLexical(PrePathChars.Lexical x);
 
+  public T visitRestLexical(Rest.Lexical x);
+
   public T visitMidPathCharsLexical(MidPathChars.Lexical x);
 
   public T visitJustTimeLexical(JustTime.Lexical x);
@@ -815,6 +817,7 @@ public interface IASTVisitor<T> {
   public T visitPrePathCharsAmbiguity(PrePathChars.Ambiguity x);
   public T visitStringConstantAmbiguity(StringConstant.Ambiguity x);
   public T visitDateTimeLiteralAmbiguity(DateTimeLiteral.Ambiguity x);
+  public T visitRestAmbiguity(Rest.Ambiguity x);
   public T visitReplacementAmbiguity(Replacement.Ambiguity x);
   public T visitMidPathCharsAmbiguity(MidPathChars.Ambiguity x);
   public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);

@@ -1465,7 +1465,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return false;
 	}
 
-	boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
+	public boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = getCurrentEnvt();
 		try {
 			IMatchingResult mp = pat.getMatcher(this);
@@ -1475,23 +1475,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				if (interrupt)
 					throw new InterruptException(getStackTrace());
 				if (mp.next()) {
-//					try {
-//						boolean trueConditions = true;
-//						for (Expression cond : conditions) {
-//							if (!cond.interpret(this).isTrue()) {
-//								trueConditions = false;
-//								break;
-//							}
-//						}
-//						if (trueConditions) {
-//							throw new Insert(replacementExpr.interpret(this), mp);
-//						}
-//					} catch (Failure e) {
-//						System.err.println("failure occurred");
-//					}
-					
-					/*** copied for Statement.IfThen ***/
-					
 					int size = conditions.size();
 					
 					if (size == 0) {
@@ -1535,8 +1518,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					} finally {
 						unwind(old2);
 					}
-					
-					/****** end of (adapted) clone *****/
 				}
 			}
 		} finally {

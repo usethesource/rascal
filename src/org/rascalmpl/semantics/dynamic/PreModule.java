@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.ast.Header;
+import org.rascalmpl.ast.Rest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -26,8 +27,8 @@ public abstract class PreModule extends org.rascalmpl.ast.PreModule {
 
 	static public class Default extends org.rascalmpl.ast.PreModule.Default {
 
-		public Default(IConstructor node, Header header) {
-			super(node, header);
+		public Default(IConstructor node, Header header, Rest rest) {
+			super(node, header, rest);
 		}
 
 		@Override
