@@ -31,11 +31,11 @@ private str package = "org.rascalmpl.library.lang.rascal.syntax";
 private loc inputFolder = |rascal:///lang/rascal/syntax|;
 //private loc outputFolder = |project://RascalLibrary/src/lang/rascal/syntax|;
 //private loc astFolder = |project://RascalLibrary/src/org/rascalmpl/ast|;
-//private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
-//private loc astFolder = |boot:///src/org/rascalmpl/ast|;
+private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
+private loc astFolder = |boot:///src/org/rascalmpl/ast|;
 // private loc astFolder = |home:///Sources/Rascal/rascal/src/org/rascalmpl/ast|;
-private loc outputFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/library/lang/rascal/syntax|;
-private loc astFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/ast|;
+//private loc outputFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/library/lang/rascal/syntax|;
+//private loc astFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/ast|;
 
 private str grammarName = "RascalRascal";
 private str rootName = "RascalRascal";
@@ -46,6 +46,8 @@ public void bootstrap() {
   gr = getRascalGrammar();
   bootRootParser(gr);
   bootObjectParser(gr);
+  
+  gr.rules[lex("Rest")] = choice(lex("Rest"),{});
   bootMetaParser(gr);
   bootAST(gr);
 }
