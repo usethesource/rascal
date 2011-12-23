@@ -157,7 +157,6 @@ syntax Kind
 	| Anno: "anno" 
 	| Data: "data" 
 	| View: "view" 
-	| Rule: "rule" 
 	| Alias: "alias" 
 	| Module: "module" 
 	| Tag: "tag" ;
@@ -221,8 +220,7 @@ syntax Expression
 	> left Composition: Expression lhs "o" Expression rhs 
 	> left ( Product: Expression lhs "*" () !>> "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
-	       | Remainder: Expression lhs "%" Expression rhs 
-	       | Modulo: Expression lhs "mod" Expression rhs  
+	       | Remainder: Expression lhs "%" Expression rhs
 		   | Division: Expression lhs "/" Expression rhs 
 	     )
 	> left Intersection: Expression lhs "&" Expression rhs 
@@ -231,6 +229,7 @@ syntax Expression
 		   | AppendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | InsertBefore: Expression lhs "\>\>" Expression rhs 
 	       )
+	> left Modulo: Expression lhs "mod" Expression rhs
 	> non-assoc ( NotIn: Expression lhs "notin" Expression rhs  
 		        | In: Expression lhs "in" Expression rhs 
 	)
@@ -653,7 +652,6 @@ keyword RascalKeywords
 	| "start"
 	| "fun" 
 	| "non-terminal" 
-	| "rule" 
 	| "constructor" 
 	| "datetime" 
 	| "value" 
@@ -677,7 +675,6 @@ syntax Declaration
 	| Tag         : Tags tags Visibility visibility "tag" Kind kind Name name "on" {Type ","}+ types ";" 
 	| DataAbstract: Tags tags Visibility visibility "data" UserType user ";" 
 	| @Foldable Data : Tags tags Visibility visibility "data" UserType user "=" {Variant "|"}+ variants ";"
-	| Rule           : Tags tags "rule" Name name PatternWithAction patternAction ";" 
 	| Function       : FunctionDeclaration functionDeclaration 
 	;
 
