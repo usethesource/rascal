@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.Factory;
 
+// TODO: I think these classes can go if the syntax for rewrite rules is removed
 public abstract class PatternWithAction extends
 		org.rascalmpl.ast.PatternWithAction {
 
@@ -63,12 +64,8 @@ public abstract class PatternWithAction extends
 								.nodeType(), pt, this);
 			}
 
-			__eval.__getHeap().storeRule(pt, this,
-					__eval.getCurrentModuleEnvironment());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
-
 	}
 
 	static public class Replacing extends
@@ -101,12 +98,8 @@ public abstract class PatternWithAction extends
 								.nodeType(), pt, this);
 			}
 
-			__eval.__getHeap().storeRule(pt, this,
-					__eval.getCurrentModuleEnvironment());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
-
 	}
 
 	public PatternWithAction(IConstructor __param1) {
