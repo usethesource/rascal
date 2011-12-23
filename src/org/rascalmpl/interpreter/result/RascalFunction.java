@@ -203,6 +203,7 @@ public class RascalFunction extends NamedFunction {
 			Environment[] olds = new Environment[size];
 			int i = 0;
 			
+			
 			if (size == 0) {
 				try {
 					return runBody();
