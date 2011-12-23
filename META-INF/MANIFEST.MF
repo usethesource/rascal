@@ -6,7 +6,6 @@ Bundle-Version: 0.3.12.qualifier
 Bundle-ClassPath: rascal.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
- lib/asm-all-3.3.jar,
  lib/joda-time-1.6.jar,
  lib/xercesImpl.jar,
  src,
@@ -18,8 +17,7 @@ Bundle-ClassPath: rascal.jar,
  lib/jetty-servlet-7.1.5.v20100705.jar,
  lib/jetty-util-7.1.5.v20100705.jar,
  lib/jetty-webapp-7.1.5.v20100705.jar,
- lib/jetty-xml-7.1.5.v20100705.jar,
- lib/commons-math-2.2.jar
+ lib/jetty-xml-7.1.5.v20100705.jar
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
@@ -65,9 +63,11 @@ Export-Package:
 Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
  org.eclipse.swt,
  org.jdom;bundle-version="1.1.1",
- org.objectweb.asm;bundle-version="3.3.1"
+ org.objectweb.asm;bundle-version="3.3.1",
+ org.apache.commons.math;bundle-version="2.1.0"
 Import-Package: javax.servlet,
  javax.servlet.http,
+ org.apache.commons.math.optimization;version="2.1.0",
  org.eclipse.jdt.core.jdom,
  org.eclipse.swt,
  org.objectweb.asm;version="3.3.1",
