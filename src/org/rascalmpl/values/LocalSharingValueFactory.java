@@ -168,6 +168,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 		return cachedNodes.cache(valueFactory.node(name, children));
 	}
 
+	public INode node(String name, Map<String,IValue> annos, IValue... children){
+		return cachedNodes.cache(valueFactory.node(name, annos, children));
+	}
+	
 	public INode node(String name){
 		return cachedNodes.cache(valueFactory.node(name));
 	}
