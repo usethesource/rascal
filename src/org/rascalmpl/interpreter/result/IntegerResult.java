@@ -57,6 +57,11 @@ public class IntegerResult extends ElementResult<IInteger> {
 	}
 	
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> remainder(Result<V> result) {
+		return result.remainderInteger(this);
+	}
+	
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> result) {
 		return result.moduloInteger(this);
 	}
@@ -155,6 +160,13 @@ public class IntegerResult extends ElementResult<IInteger> {
 		// note the reverse division.
 		return makeResult(type, n.getValue().divide(getValue()), ctx);
 	}
+	
+	@Override
+	protected <U extends IValue> Result<U> remainderInteger(IntegerResult n) {
+		// note reverse
+		return makeResult(type, n.getValue().remainder(getValue()), ctx);
+	}
+	
 	
 	@Override
 	protected <U extends IValue> Result<U> moduloInteger(IntegerResult n) {

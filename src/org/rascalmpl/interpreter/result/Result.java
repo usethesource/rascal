@@ -74,6 +74,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String NEGATE_STRING = "negation";
 	private static final String JOIN_STRING = "join";
 	private static final String FIELD_SELECT_STRING = "field selection";
+	private static final String REMAINDER_STRING = "remainder";
 	
 	private Iterator<Result<IValue>> iterator = null;
 	protected Type type;
@@ -205,6 +206,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> that) {
 		return undefinedError(MODULO_STRING, that);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> remainder(Result<V> that) {
+		return undefinedError(REMAINDER_STRING, that);
 	}
 
 	public <U extends IValue, V extends IValue> Result<U> in(Result<V> that) {
@@ -439,6 +444,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> moduloReal(RealResult that) {
 		return that.undefinedError(MODULO_STRING, this);
 	}
+	
+	protected <U extends IValue> Result<U> remainderReal(RealResult that) {
+		return that.undefinedError(REMAINDER_STRING, this);
+	}
 
 	protected <U extends IValue> Result<U> addTuple(TupleResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
@@ -446,6 +455,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	protected <U extends IValue> Result<U> moduloInteger(IntegerResult that) {
 		return that.undefinedError(MODULO_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> remainderInteger(IntegerResult that) {
+		return that.undefinedError(REMAINDER_STRING, this);
 	}
 
 	
