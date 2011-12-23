@@ -111,32 +111,6 @@ public abstract class Kind extends AbstractAST {
   
     	
   }
-  public boolean isRule() {
-    return false;
-  }
-
-  static public class Rule extends Kind {
-    // Production: sig("Rule",[])
-  
-    
-  
-    public Rule(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isRule() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindRule(this);
-    }
-  
-    	
-  }
   public boolean isAnno() {
     return false;
   }
