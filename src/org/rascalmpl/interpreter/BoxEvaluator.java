@@ -26,15 +26,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.*;
-import org.rascalmpl.ast.Expression.AppendAfter;
-import org.rascalmpl.ast.Expression.InsertBefore;
-import org.rascalmpl.ast.Expression.Remainder;
-import org.rascalmpl.ast.Expression.Splice;
-import org.rascalmpl.ast.Expression.SplicePlus;
-import org.rascalmpl.ast.Literal.Rational;
-import org.rascalmpl.ast.RationalLiteral.Ambiguity;
-import org.rascalmpl.ast.RationalLiteral.Lexical;
-import org.rascalmpl.ast.Statement.Filter;
 import org.rascalmpl.ast.Assignable.Annotation;
 import org.rascalmpl.ast.Assignable.Constructor;
 import org.rascalmpl.ast.Assignable.FieldAccess;
@@ -89,12 +80,13 @@ import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.Declaration.Function;
-import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Expression.All;
 import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.Anti;
 import org.rascalmpl.ast.Expression.Any;
+import org.rascalmpl.ast.Expression.AppendAfter;
+import org.rascalmpl.ast.Expression.AsType;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.Composition;
@@ -108,12 +100,12 @@ import org.rascalmpl.ast.Expression.FieldUpdate;
 import org.rascalmpl.ast.Expression.GetAnnotation;
 import org.rascalmpl.ast.Expression.GreaterThan;
 import org.rascalmpl.ast.Expression.GreaterThanOrEq;
-import org.rascalmpl.ast.Expression.AsType;
 import org.rascalmpl.ast.Expression.Has;
 import org.rascalmpl.ast.Expression.IfDefinedOtherwise;
 import org.rascalmpl.ast.Expression.IfThenElse;
 import org.rascalmpl.ast.Expression.Implication;
 import org.rascalmpl.ast.Expression.In;
+import org.rascalmpl.ast.Expression.InsertBefore;
 import org.rascalmpl.ast.Expression.Is;
 import org.rascalmpl.ast.Expression.IsDefined;
 import org.rascalmpl.ast.Expression.It;
@@ -134,7 +126,10 @@ import org.rascalmpl.ast.Expression.Or;
 import org.rascalmpl.ast.Expression.QualifiedName;
 import org.rascalmpl.ast.Expression.Reducer;
 import org.rascalmpl.ast.Expression.ReifyType;
+import org.rascalmpl.ast.Expression.Remainder;
 import org.rascalmpl.ast.Expression.SetAnnotation;
+import org.rascalmpl.ast.Expression.Splice;
+import org.rascalmpl.ast.Expression.SplicePlus;
 import org.rascalmpl.ast.Expression.StepRange;
 import org.rascalmpl.ast.Expression.TransitiveClosure;
 import org.rascalmpl.ast.Expression.TransitiveReflexiveClosure;
@@ -162,6 +157,7 @@ import org.rascalmpl.ast.Kind.Anno;
 import org.rascalmpl.ast.Literal.Boolean;
 import org.rascalmpl.ast.Literal.Integer;
 import org.rascalmpl.ast.Literal.Location;
+import org.rascalmpl.ast.Literal.Rational;
 import org.rascalmpl.ast.Literal.RegExp;
 import org.rascalmpl.ast.LocalVariableDeclaration.Dynamic;
 import org.rascalmpl.ast.Parameters.VarArgs;
@@ -177,6 +173,8 @@ import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.ProdModifier.Associativity;
 import org.rascalmpl.ast.Range.FromTo;
+import org.rascalmpl.ast.RationalLiteral.Ambiguity;
+import org.rascalmpl.ast.RationalLiteral.Lexical;
 import org.rascalmpl.ast.Replacement.Conditional;
 import org.rascalmpl.ast.Replacement.Unconditional;
 import org.rascalmpl.ast.ShellCommand.Edit;
@@ -199,6 +197,7 @@ import org.rascalmpl.ast.Statement.Continue;
 import org.rascalmpl.ast.Statement.DoWhile;
 import org.rascalmpl.ast.Statement.EmptyStatement;
 import org.rascalmpl.ast.Statement.Fail;
+import org.rascalmpl.ast.Statement.Filter;
 import org.rascalmpl.ast.Statement.For;
 import org.rascalmpl.ast.Statement.FunctionDeclaration;
 import org.rascalmpl.ast.Statement.GlobalDirective;
@@ -707,16 +706,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	public IValue visitDeclarationFunction(Function x) {
 		return eX(x.getFunctionDeclaration());
-	}
-
-	public IValue visitDeclarationRule(Rule x) {
-		/**
-		 * tags:Tags "rule" name:Name patternAction:PatternWithAction ";"
-		 */
-		return list(
-				eX(x.getTags()),
-				H(1, KW("rule"), eX(x.getName()),
-						H(0, eX(x.getPatternAction()), BoxADT.SEMICOLON)));
 	}
 
 	public IValue visitDeclarationTag(Tag x) {
@@ -1284,10 +1273,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	}
 
 	public IValue visitKindModule(org.rascalmpl.ast.Kind.Module x) {
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitKindRule(org.rascalmpl.ast.Kind.Rule x) {
 		return L(x.getClass().toString());
 	}
 
@@ -3599,18 +3584,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 
 	@Override
 	public IValue visitBasicTypeRational(org.rascalmpl.ast.BasicType.Rational x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitRestLexical(org.rascalmpl.ast.Rest.Lexical x) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
 		// TODO Auto-generated method stub
 		return null;
 	}

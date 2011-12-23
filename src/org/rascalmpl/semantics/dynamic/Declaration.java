@@ -131,22 +131,6 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 
 	}
 
-	static public class Rule extends org.rascalmpl.ast.Declaration.Rule {
-
-		public Rule(IConstructor __param1, Tags __param2, Name __param3,
-				PatternWithAction __param4) {
-			super(__param1, __param2, __param3, __param4);
-		}
-
-		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
-
-			return this.getPatternAction().interpret(__eval);
-
-		}
-
-	}
-
 	static public class Variable extends org.rascalmpl.ast.Declaration.Variable {
 
 		public Variable(IConstructor __param1, Tags __param2, Visibility __param3,

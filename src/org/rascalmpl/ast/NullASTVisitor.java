@@ -100,38 +100,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitDeclarationAlias(Declaration.Alias x) { 
-    return null; 
-  }
-
-  public T visitDeclarationData(Declaration.Data x) { 
-    return null; 
-  }
-
-  public T visitDeclarationFunction(Declaration.Function x) { 
-    return null; 
-  }
-
-  public T visitDeclarationAnnotation(Declaration.Annotation x) { 
-    return null; 
-  }
-
-  public T visitDeclarationVariable(Declaration.Variable x) { 
-    return null; 
-  }
-
-  public T visitDeclarationDataAbstract(Declaration.DataAbstract x) { 
-    return null; 
-  }
-
-  public T visitDeclarationRule(Declaration.Rule x) { 
-    return null; 
-  }
-
-  public T visitDeclarationTag(Declaration.Tag x) { 
-    return null; 
-  }
-
   public T visitBasicTypeMap(BasicType.Map x) { 
     return null; 
   }
@@ -644,6 +612,34 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitDeclarationAlias(Declaration.Alias x) { 
+    return null; 
+  }
+
+  public T visitDeclarationData(Declaration.Data x) { 
+    return null; 
+  }
+
+  public T visitDeclarationFunction(Declaration.Function x) { 
+    return null; 
+  }
+
+  public T visitDeclarationAnnotation(Declaration.Annotation x) { 
+    return null; 
+  }
+
+  public T visitDeclarationVariable(Declaration.Variable x) { 
+    return null; 
+  }
+
+  public T visitDeclarationDataAbstract(Declaration.DataAbstract x) { 
+    return null; 
+  }
+
+  public T visitDeclarationTag(Declaration.Tag x) { 
+    return null; 
+  }
+
   public T visitRenamingDefault(Renaming.Default x) { 
     return null; 
   }
@@ -677,46 +673,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitStringLiteralTemplate(StringLiteral.Template x) { 
-    return null; 
-  }
-
-  public T visitKindModule(Kind.Module x) { 
-    return null; 
-  }
-
-  public T visitKindVariable(Kind.Variable x) { 
-    return null; 
-  }
-
-  public T visitKindRule(Kind.Rule x) { 
-    return null; 
-  }
-
-  public T visitKindAnno(Kind.Anno x) { 
-    return null; 
-  }
-
-  public T visitKindFunction(Kind.Function x) { 
-    return null; 
-  }
-
-  public T visitKindData(Kind.Data x) { 
-    return null; 
-  }
-
-  public T visitKindTag(Kind.Tag x) { 
-    return null; 
-  }
-
-  public T visitKindView(Kind.View x) { 
-    return null; 
-  }
-
-  public T visitKindAlias(Kind.Alias x) { 
-    return null; 
-  }
-
-  public T visitKindAll(Kind.All x) { 
     return null; 
   }
 
@@ -948,6 +904,42 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitKindModule(Kind.Module x) { 
+    return null; 
+  }
+
+  public T visitKindVariable(Kind.Variable x) { 
+    return null; 
+  }
+
+  public T visitKindAnno(Kind.Anno x) { 
+    return null; 
+  }
+
+  public T visitKindFunction(Kind.Function x) { 
+    return null; 
+  }
+
+  public T visitKindData(Kind.Data x) { 
+    return null; 
+  }
+
+  public T visitKindTag(Kind.Tag x) { 
+    return null; 
+  }
+
+  public T visitKindView(Kind.View x) { 
+    return null; 
+  }
+
+  public T visitKindAlias(Kind.Alias x) { 
+    return null; 
+  }
+
+  public T visitKindAll(Kind.All x) { 
+    return null; 
+  }
+
   public T visitProdModifierAssociativity(ProdModifier.Associativity x) { 
     return null; 
   }
@@ -973,6 +965,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitReplacementConditional(Replacement.Conditional x) { 
+    return null; 
+  }
+
+  public T visitFormalsDefault(Formals.Default x) { 
     return null; 
   }
 
@@ -1081,10 +1077,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitStatementVisit(Statement.Visit x) { 
-    return null; 
-  }
-
-  public T visitFormalsDefault(Formals.Default x) { 
     return null; 
   }
 
@@ -1272,10 +1264,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitPreModuleDefault(PreModule.Default x) { 
-    return null; 
-  }
-
   public T visitFunctionModifierDefault(FunctionModifier.Default x) { 
     return null; 
   }
@@ -1293,6 +1281,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitBoundDefault(Bound.Default x) { 
+    return null; 
+  }
+
+  public T visitPreModuleDefault(PreModule.Default x) { 
     return null; 
   }
 
@@ -1469,10 +1461,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitRestLexical(Rest.Lexical x) { 
-    return null; 
-  }
-
   public T visitMidPathCharsLexical(MidPathChars.Lexical x) { 
     return null; 
   }
@@ -1646,10 +1634,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitRestAmbiguity(Rest.Ambiguity x) { 
-    return null; 
-  }
-
   public T visitReplacementAmbiguity(Replacement.Ambiguity x) { 
     return null; 
   }
@@ -1750,11 +1734,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
+  public T visitFieldAmbiguity(Field.Ambiguity x) { 
     return null; 
   }
 
-  public T visitFieldAmbiguity(Field.Ambiguity x) { 
+  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
     return null; 
   }
 
