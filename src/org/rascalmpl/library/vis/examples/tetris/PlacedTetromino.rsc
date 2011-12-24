@@ -12,7 +12,6 @@ module vis::examples::tetris::PlacedTetromino
 
 import vis::examples::tetris::Tetromino;
 import vis::examples::tetris::PlayField;
-import vis::examples::tetris::Util;
 import List;
 
 data PlacedTetromino = 
@@ -41,7 +40,7 @@ PlacedTetromino move(PlacedTetromino t, Offset off) =
    t[location = move(t.location,off)];
 PlacedTetromino down(PlacedTetromino t)            = move(t,<1,0>);
 PlacedTetromino rotate(PlacedTetromino t, int rot) =
-   t[rotState = modPos(t.rotState + rot,size(getTetromino(t).orientations))]; 
+   t[rotState = t.rotState + rot mod size(getTetromino(t).orientations)]; 
 PlacedTetromino rotateCW(PlacedTetromino t)        = rotate(t,1);
 PlacedTetromino rotateCCW(PlacedTetromino t)       = rotate(t,-1);
 

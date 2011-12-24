@@ -10,7 +10,6 @@
 // see http://en.wikipedia.org/wiki/Tetromino
 module vis::examples::tetris::Tetromino
 
-import vis::examples::tetris::Util;
 import List;
 import Integer;
 
@@ -89,8 +88,8 @@ alias Orientations = list[Orientation];
 
 Orientation makeOrientation(list[Blocks] rots, int i, int tsize) =
     orientation(rots[i], 
-                legalOffsets(rots[modPos(i-1,size(rots))],rots[i],tsize), 
-                legalOffsets(rots[modPos(i+1,size(rots))],rots[i],tsize));
+                legalOffsets(rots[i-1 mod size(rots)],rots[i],tsize), 
+                legalOffsets(rots[i+1 mod size(rots)],rots[i],tsize));
 
 data Tetromino = 
     tetromino(list[Orientation] orientations, int size);
