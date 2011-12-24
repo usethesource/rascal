@@ -10,7 +10,6 @@ module vis::examples::tetris::Tetris
 
 import vis::examples::tetris::TetrisState;
 import vis::examples::tetris::PlayField;
-import vis::examples::tetris::Util;
 import vis::examples::tetris::Tetromino;
 import vis::Figure;
 import vis::Render;
@@ -26,7 +25,7 @@ import Time;
 alias HighScore  = tuple[str name,int score];
 alias Highscores = list[HighScore];
  // does not work on windows
-loc highscoresFile = |file:///tmp/atzeTetrisHighscores|;
+loc highscoresFile = |home:///rascaltetrishighscores.bin|;
 int nrHighscores = 6;
 int minSpinTime = 250; // milliseconds
 int nrNext = 4;
