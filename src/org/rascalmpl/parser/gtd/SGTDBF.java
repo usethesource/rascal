@@ -714,12 +714,10 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Handles the retrieved alternatives for the given stack.
 	 */
-	private boolean handleExpects(AbstractStackNode[] expects, AbstractStackNode stackBeingWorkedOn){
+	private boolean handleExpects(AbstractStackNode[] expects, ArrayList<AbstractStackNode> cachedEdges, AbstractStackNode stackBeingWorkedOn){
 		boolean hasValidAlternatives = false;
 		
 		sharedLastExpects.dirtyClear();
-		
-		ArrayList<AbstractStackNode> cachedEdges = null;
 		
 		EXPECTS: for(int i = expects.length - 1; i >= 0; --i){
 			AbstractStackNode first = expects[i];
@@ -752,18 +750,12 @@ public abstract class SGTDBF implements IGTD{
 			}
 			
 			first.initEdges();
-			if(cachedEdges == null){
-				cachedEdges = first.addEdge(stackBeingWorkedOn, location);
-			}else{
-				first.addEdges(cachedEdges, location);
-			}
+			first.addEdges(cachedEdges, location);
 			
 			sharedLastExpects.add(first.getId(), first);
 			
 			hasValidAlternatives = true;
 		}
-		
-		cachedEdgesForExpect.put(stackBeingWorkedOn.getName(), cachedEdges);
 		
 		return hasValidAlternatives;
 	}
@@ -809,8 +801,6 @@ public abstract class SGTDBF implements IGTD{
 		}else if(!stack.isExpandable()){ // A 'normal' non-terminal.
 			ArrayList<AbstractStackNode> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges != null){ // Edge sharing 'expansion' optimization.
-				cachedEdges.add(stack);
-				
 				ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = resultStoreCache.get(location);
 				if(levelResultStoreMap != null){
 					AbstractContainerNode resultStore = levelResultStoreMap.get(stack.getName(), getResultStoreId(stack.getId()));
@@ -819,16 +809,20 @@ public abstract class SGTDBF implements IGTD{
 					}
 				}
 			}else{
+				cachedEdges = new ArrayList<AbstractStackNode>(1);
+				cachedEdgesForExpect.put(stack.getName(), cachedEdges);
+				
 				AbstractStackNode[] expects = invokeExpects(stack);
 				if(expects == null){
 					unexpandableNodes.push(stack);
 					return;
 				}
-				if(handleExpects(expects, stack)){
+				if(!handleExpects(expects, cachedEdges, stack)){
 					unexpandableNodes.push(stack);
 					return;
 				}
 			}
+			cachedEdges.add(stack);
 		}else{ // Expandable
 			boolean expanded = false;
 			
