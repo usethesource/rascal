@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
+import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -26,8 +27,10 @@ public abstract class AbstractStackNode{
 	protected AbstractStackNode[] production;
 	protected AbstractStackNode[][] alternateProductions;
 	
-	protected IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap;
+	protected IntegerObjectList<EdgesSet> edgesMap;
 	protected ArrayList<Link>[] prefixesMap;
+	
+	protected EdgesSet incomingEdges;
 	
 	protected final int id;
 	protected final int dot;
@@ -338,16 +341,23 @@ public abstract class AbstractStackNode{
 	 * Initializes the set of edges of this node.
 	 */
 	public void initEdges(){
-		edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>();
+		edgesMap = new IntegerObjectList<EdgesSet>();
+	}
+	
+	/**
+	 * Assigns the set of incoming edges to this stack node. Because of sharing there will always be only one of these sets.
+	 */
+	public void setIncomingEdges(EdgesSet incomingEdges){
+		this.incomingEdges = incomingEdges;
 	}
 	
 	/**
 	 * Adds the given edge to the set of edges for the indicated location.
 	 */
-	public ArrayList<AbstractStackNode> addEdge(AbstractStackNode edge, int startLocation){
-		ArrayList<AbstractStackNode> edges = edgesMap.findValue(startLocation);
+	public EdgesSet addEdge(AbstractStackNode edge, int startLocation){
+		EdgesSet edges = edgesMap.findValue(startLocation);
 		if(edges == null){
-			edges = new ArrayList<AbstractStackNode>(1);
+			edges = new EdgesSet(1);
 			edgesMap.add(startLocation, edges);
 		}
 		
@@ -359,51 +369,38 @@ public abstract class AbstractStackNode{
 	/**
 	 * Adds the given set of edges to the edge map for the indicated location.
 	 */
-	public void addEdges(ArrayList<AbstractStackNode> edges, int startLocation){
+	public void addEdges(EdgesSet edges, int startLocation){
 		edgesMap.add(startLocation, edges);
 	}
 	
 	/**
-	 * Adds the given edge to the set of edges for the indicated location and associated the given prefix with this node.
+	 * Sets the given edges set for the indicated location and associated the given prefix with this node.
 	 * 
 	 * This method is used by children of expandable nodes;
 	 * expandable nodes contain dynamically unfolding alternatives, which can be cyclic.
 	 * A 'null' prefix, for example, indicates that the current node starts the alternative.
 	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
 	 */
-	public void addEdgeWithPrefix(AbstractStackNode edge, Link prefix, int startLocation){
-		// Initialize the prefix map (if necessary).
+	public void setEdgesSetWithPrefix(EdgesSet edges, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
-			prefixesMap = new ArrayList[(edgesMapSize + 1) << 1];
+			prefixesMap = (ArrayList<Link>[]) new ArrayList[(edgesMapSize + 1) << 1];
 		}else{
 			int prefixesMapSize = prefixesMap.length;
 			int possibleMaxSize = edgesMapSize + 1;
 			if(prefixesMapSize < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
-				prefixesMap = new ArrayList[possibleMaxSize << 1];
+				prefixesMap = (ArrayList<Link>[]) new ArrayList[possibleMaxSize << 1];
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
 			}
 		}
 		
-		// Add the edge.
-		ArrayList<AbstractStackNode> edges;
-		int index = edgesMap.findKey(startLocation);
-		if(index == -1){
-			index = edgesMap.size();
-			
-			edges = new ArrayList<AbstractStackNode>(1);
-			edgesMap.add(startLocation, edges);
-		}else{
-			edges = edgesMap.getValue(index);
-		}
-		edges.add(edge);
+		edgesMap.add(startLocation, edges);
 		
-		// Add the prefix.
-		ArrayList<Link> prefixes = prefixesMap[index];
+		ArrayList<Link> prefixes = prefixesMap[edgesMapSize];
 		if(prefixes == null){
 			prefixes = new ArrayList<Link>(1);
-			prefixesMap[index] = prefixes;
+			prefixesMap[edgesMapSize] = prefixes;
 		}
 		prefixes.add(prefix);
 	}
@@ -431,12 +428,12 @@ public abstract class AbstractStackNode{
 	 * This method also takes care of stack merges in the process of doing this.
 	 */
 	public void updateNode(AbstractStackNode predecessor, AbstractNode predecessorResult){
-		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
+		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		if(edgesMap == null){ // Clean node, no stack merge occurred.
 			// Initialize the edges map by cloning the one of the predecessor, as we need to transfer all these edges to this node.
-			edgesMap = new IntegerObjectList<ArrayList<AbstractStackNode>>(edgesMapToAdd);
+			edgesMap = new IntegerObjectList<EdgesSet>(edgesMapToAdd);
 			
 			// Initialize the prefixes map.
 			prefixesMap = new ArrayList[edgesMap.size()];
@@ -549,7 +546,7 @@ public abstract class AbstractStackNode{
 	 * of the parser's implementation.
 	 */
 	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
-		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMapToAdd = predecessor.edgesMap;
+		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		// Initialize the prefixes map.
@@ -610,7 +607,7 @@ public abstract class AbstractStackNode{
 	 * 
 	 * When alternatives have a shared prefix, their successors can shared the same edges and prefixes maps.
 	 */
-	public void updatePrefixSharedNode(IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	public void updatePrefixSharedNode(IntegerObjectList<EdgesSet> edgesMap, ArrayList<Link>[] prefixesMap){
 		this.edgesMap = edgesMap;
 		this.prefixesMap = prefixesMap;
 	}
@@ -618,8 +615,15 @@ public abstract class AbstractStackNode{
 	/**
 	 * Returns the edges map.
 	 */
-	public IntegerObjectList<ArrayList<AbstractStackNode>> getEdges(){
+	public IntegerObjectList<EdgesSet> getEdges(){
 		return edgesMap;
+	}
+	
+	/**
+	 * Returns the incoming edges set.
+	 */
+	public EdgesSet getIncomingEdges(){
+		return incomingEdges;
 	}
 	
 	/**

@@ -22,9 +22,9 @@ import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
@@ -48,7 +48,6 @@ public class ErrorResultBuilder{
 	private final URI inputURI;
 	
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
-	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String, AbstractContainerNode>> errorResultStoreCache;
 	
 	public ErrorResultBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
 		super();
@@ -63,7 +62,6 @@ public class ErrorResultBuilder{
 		this.inputURI = inputURI;
 		
 		errorNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
-		errorResultStoreCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<String,AbstractContainerNode>>();
 	}
 	
 	/**
@@ -84,7 +82,7 @@ public class ErrorResultBuilder{
 	/**
 	 * Construct the possible future for the given node and continuation.
 	 */
-	private void updateAlternativeNextNode(AbstractStackNode next, IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap, ArrayList<Link>[] prefixesMap){
+	private void updateAlternativeNextNode(AbstractStackNode next, IntegerObjectList<EdgesSet> edgesMap, ArrayList<Link>[] prefixesMap){
 		next = next.getCleanCopy(location);
 		next.updatePrefixSharedNode(edgesMap, prefixesMap); // Prevent unnecessary overhead; share whenever possible.
 		
@@ -106,7 +104,7 @@ public class ErrorResultBuilder{
 		
 		AbstractStackNode[][] alternateProds = node.getAlternateProductions();
 		if(alternateProds != null){
-			IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = null;
+			IntegerObjectList<EdgesSet> edgesMap = null;
 			ArrayList<Link>[] prefixesMap = null;
 			if(next != null){
 				edgesMap = next.getEdges();
@@ -144,19 +142,12 @@ public class ErrorResultBuilder{
 		
 		//IntegerList filteredParents = parser.getFilteredParents(node.getId());
 		
-		IntegerObjectList<ArrayList<AbstractStackNode>> edgesMap = node.getEdges();
+		IntegerObjectList<EdgesSet> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
 		
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
-			ArrayList<AbstractStackNode> edgeList = edgesMap.getValue(i);
-			
-			ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(startLocation);
-			
-			if(levelResultStoreMap == null){
-				levelResultStoreMap = new ObjectIntegerKeyedHashMap<String, AbstractContainerNode>();
-				errorResultStoreCache.putUnsafe(startLocation, levelResultStoreMap);
-			}
+			EdgesSet edgeList = edgesMap.getValue(i);
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
 			
@@ -173,12 +164,12 @@ public class ErrorResultBuilder{
 					firstTimeRegistration.putUnsafe(nodeName, resultStoreId);
 					
 					//if(filteredParents == null || !filteredParents.contains(edge.getId())){
-						resultStore = levelResultStoreMap.get(nodeName, resultStoreId);
+						resultStore = edgeList.getLastResult(resultStoreId);
 						if(resultStore != null){
 							resultStore.addAlternative(production, resultLink);
 						}else{
 							resultStore = (!edge.isExpandable()) ? new ErrorSortContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout()) : new ErrorListContainerNode(inputURI, startLocation, location, edge.isSeparator(), edge.isLayout());
-							levelResultStoreMap.putUnsafe(nodeName, resultStoreId, resultStore);
+							edgeList.setLastResult(resultStore, resultStoreId);
 							resultStore.addAlternative(production, resultLink);
 							
 							errorNodes.push(edge, resultStore);
@@ -269,8 +260,7 @@ public class ErrorResultBuilder{
 		}
 		
 		// Find the top node.
-		ObjectIntegerKeyedHashMap<String, AbstractContainerNode> levelResultStoreMap = errorResultStoreCache.get(0);
-		ErrorSortContainerNode result = (ErrorSortContainerNode) levelResultStoreMap.get(startNode.getName(), parser.getResultStoreId(startNode.getId()));
+		ErrorSortContainerNode result = (ErrorSortContainerNode) startNode.getIncomingEdges().getLastResult(parser.getResultStoreId(startNode.getId()));
 		
 		// Update the top node with the rest of the string (this node will always be a sort node).
 		result.setUnmatchedInput(rest);
