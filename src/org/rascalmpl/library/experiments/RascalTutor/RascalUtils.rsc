@@ -14,6 +14,7 @@ import experiments::RascalTutor::CourseModel;
 
 import IO;
 import String;
+import List;
 import lang::rascal::syntax::RascalRascal;
 import Reflective;
 import ParseTree;
@@ -43,52 +44,125 @@ private str getDoc(Tags tags){
    return "";
 }
 
-void writeDeclConcept(str moduleName, str itemName, loc itemLoc, str doc, str /*ConceptName*/ root){
-  println("writeDeclConcept: <itemName>, <doc>");
-  if(doc != ""){
-  	destination = courseDir + root + moduleName + itemName + "<itemName>.concept";
-  	writeFile(destination, doc);
-  	writeFile(courseDir + root + moduleName + itemName + remoteLoc, itemLoc);
-  } 	
+// Remove <AUTOINSERTED> ... </AUTOINSERTED> from doc contents
+public str removeAUTOINSERTED(str doc){
+  if(/^<pre:.*>\<AUTOINSERTED\>.*\<\/AUTOINSERTED\>\s*<post:.*>$/s := doc)
+     return "<post>";
+  return doc;
 }
 
-void writeModuleConcept(str moduleName, loc moduleLoc, str doc, str /*ConceptName*/ root){
-  println("writeModuleConcept: <moduleName>, <doc>");
-  if(doc != ""){
-  	destination = courseDir + root + moduleName + "<moduleName>.concept";
-  	writeFile(destination, doc);
-  	writeFile(courseDir + root + moduleName + remoteLoc, moduleLoc);
+private str autoinsert(str ins, str doc){
+   return "\<AUTOINSERTED\>
+          '<ins>
+          '\</AUTOINSERTED\>
+          '<doc>";
+}
+
+// Handling of function declarations
+
+// Get all function signatures for a given function name
+
+public list[str] getFunctionSignatures(Tree M, str name){
+  signatures = [];
+  top-down-break visit(M){
+		case FunctionDeclaration decl: if("<decl.signature.name>" == name) signatures +=  getFunctionSignature(decl);
   }
+  return signatures;
 }
 
-public void extractRemoteConcepts(loc L, str /*ConceptName*/ root){
-  println("extractRemoteConcepts: <L>, <root>");
+private str getFunctionSignature(FunctionDeclaration decl){
+  return visit("<decl.signature>"){
+           case /java\s*/ => ""
+           case /\s*\n\s*/ => " "
+         }
+}
+
+// Get doc for function declaration, autoinsert name and signature
+
+private str getFunctionDoc(Tree m, FunctionDeclaration decl){
+  doc = getDoc(decl.tags);
+  name = "<decl.signature.name>";
+  signatures = getFunctionSignatures(m, name);
+  fsig = size(signatures) == 1 ? "`<signatures[0]>`" : "<for(s <- signatures){># `<s>`\n<}>";
+  ins = "Name: <name>
+        'Function: 
+        '<fsig>";
+         
+  return autoinsert(ins, doc);
+}
+
+// Get doc for data declaration, autoinsert name and declaration
+private str getDataDoc(Declaration decl){
+	doc = getDoc(decl.tags);
+	name = "<decl.user>";
+	ins =  "Name: <name>
+	       'Types: 
+	       '\<listing\>
+	       'data <name> =\n       <decl.variants>;
+	       '\</listing\>";
+	return autoinsert(ins, doc);
+}
+
+public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
+  //println("extractRemoteConcepts: <L>, <root>");
   M = parseModule(readFile(L), L);
   moduleName = "";
+  contentMap = ();
   top-down visit(M){
     case Header header:	{ moduleName = "<header.name>"; 
-                          writeModuleConcept(moduleName, header@\loc, getDoc(header.tags), root);
+                          println("extractRemoteConcepts: <moduleName>");
+                          doc =  getDoc(header.tags);
+                          if(doc != ""){  		
+  							writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
+  							contentMap["<root>/<moduleName>"] = doc;
+  						  }
    		 				}
     case FunctionDeclaration decl: 
     					{ functionName = "<decl.signature.name>";
-           				  writeDeclConcept(moduleName, functionName, decl@\loc, getDoc(decl.tags), root);
+    					  key = "<root>/<moduleName>/<functionName>";
+    					  if(!contentMap[key]? && "<decl.visibility>" == "public"){
+           				     println("extractRemoteConcepts: <functionName>");
+           				     doc = getFunctionDoc(M, decl);
+           				     if(doc != ""){  	
+  							    writeFile(courseDir + root + moduleName + functionName + remoteLoc, decl@\loc);
+  							    contentMap[key] = doc;
+  						     } 
+  						  }
            				}
-  }
+    case Declaration decl: 
+                        { if(decl.user?){
+                             userType = "<decl.user>";
+                             key = "<root>/<moduleName>/<userType>";
+                             if(!contentMap[key]?){
+                                println("extractRemoteConcepts: <userType>");
+                                doc = getDataDoc(decl);
+           				        if(doc != ""){  	
+  							       writeFile(courseDir + root + moduleName + userType + remoteLoc, decl@\loc);
+  							       contentMap[key] = doc;
+  						        }
+  						     }
+                          }
+    					}
+  	}
+  	return contentMap;
 }
 
 // Extract the contents of the doc string for itemName
 
 public str extractDoc(loc L, str itemName){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  println("extractDoc: <L1>, <itemName>");
+  //println("extractDoc: <L1>, <itemName>");
   M = parseModule(readFile(L1), L1);
   top-down visit(M){
-    case Header header: if("<header.name>" == itemName) return getDoc(header.tags);
-    case FunctionDeclaration decl: if("<decl.signature.name>" == itemName) return getDoc(decl.tags);
+		case Header header: if("<header.name>" == itemName) return getDoc(header.tags);
+		case FunctionDeclaration decl: if("<decl.signature.name>" == itemName) return getFunctionDoc(M, decl);
+		case Declaration d: if(d.user? && "<d.user>" == itemName) return getDataDoc(d);
   }
   println("extractDoc: <L1>, <itemName>, return empty");
   return "";
 }
+
+
 
 public str replace(str old, int begin, int length, str repl){
   before = substring(old, 0, begin);
@@ -102,7 +176,7 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
         if("<t.name>" == "doc") {
            	l = t@\loc;
             newFileContent = replace(oldFileContent, l.offset, l.length, "@doc{\n<newDocContent>\n}");
-            println("newFileContent = <newFileContent>");
+            //println("newFileContent = <newFileContent>");
             writeFile(L, newFileContent);
             return true;
         }
@@ -110,12 +184,12 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
    return false;
 }
 
-
 public bool replaceDoc(loc L, str itemName, str newDocContent){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
   println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
   M = parseModule(oldFileContent, L1);
+  newDocContent = removeAUTOINSERTED(newDocContent);
   top-down visit(M){
     case Header header: 
          if("<header.name>" == itemName){
@@ -125,6 +199,14 @@ public bool replaceDoc(loc L, str itemName, str newDocContent){
    		 if("<decl.signature.name>" == itemName) {
    		 	return replaceDoc(itemName, decl.tags, oldFileContent, newDocContent, L1);
    		 }
+    case Declaration d: 
+   		 if(d.user? && "<d.user>" == itemName) {
+   		 	return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
+   		 }
   }
   return false;
 }
+
+
+
+

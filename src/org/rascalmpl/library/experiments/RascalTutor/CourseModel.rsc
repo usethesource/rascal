@@ -13,6 +13,7 @@ module experiments::RascalTutor::CourseModel
 
 import Graph;
 import List;
+import Map;
 import IO;
 import ValueIO;
 import String;
@@ -240,6 +241,8 @@ public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Cours
 public str readConceptFile(ConceptName cn){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
+      if(remoteContentMap[cn]?)
+         return remoteContentMap[cn];
       remote = readTextValueFile(#loc,  remoteloc);
       rdoc = extractDoc(remote, basename(cn));
       if(rdoc != "")
@@ -249,8 +252,13 @@ public str readConceptFile(ConceptName cn){
 }
 
 public list[str] readConceptFileLines(ConceptName cn){
+   //println("readConceptFileLines: <cn>");
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
+      if(remoteContentMap[cn]?){
+         //println("readConceptFileLines: <cn> returns <remoteContentMap[cn]>");
+         return splitLines(remoteContentMap[cn]);
+      }
       remote = readTextValueFile(#loc,  remoteloc);
       rdoc = extractDoc(remote, basename(cn));
       if(rdoc != "")
@@ -395,17 +403,6 @@ public void updateCourse(Course c){
   courseConcepts[c.root] = [cn | cn <- c.concepts];
 }
 
-public void removeExternalConceptFiles(Course c){
-
-   for(cn <- c.concepts){
-    remoteloc = courseDir + cn + remoteLoc;
-    if(exists(remoteloc)){
-      file = conceptFile(cn);
-      println("REMOVE: <file>");
-    }
-   }
-}
-
 map[str,list[ConceptName]] courseConcepts = ();
 
 public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
@@ -425,21 +422,30 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
   return concepts;
 }
 
+map[str,str] remoteContentMap = ();
+
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
-    println("readRemoteConcepts: read all concepts");
+    println("getUncachedCourseConcepts: read all concepts");
+    remoteContentMap = ();
     remote = courseDir + rootConcept + remoteConcepts;
     if(exists(remote)){
-      remoteMap = readTextValueFile(#map[ConceptName, loc], remote);
-      for(root <- remoteMap){
-          dir = remoteMap[root];
+      remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
+      for(<root, dir> <- remoteMap){
           println("root = <root>, dir = <dir>");
           remoteFiles =  crawlFiles(dir, rascalExtension);
-          for(file <- remoteFiles)
-              extractRemoteConcepts(file, root);
+          for(file <- remoteFiles){
+              cmap = extractRemoteConcepts(file, root);
+              println("Extracted extracted <size(cmap)> concepts from <file>");
+              //for(cn <- cmap)
+              //    println("<cn>:\n<cmap[cn]>");
+              for(cn <- cmap)
+                  remoteContentMap[cn] = cmap[cn];
+          }    
       }
     }
     concepts = crawlConcepts(rootConcept);
     println("concepts = <concepts>");
+    courseConcepts[rootConcept] = concepts;
     return concepts;
 }
 

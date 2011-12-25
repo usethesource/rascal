@@ -50,7 +50,6 @@ public Course compileCourse(ConceptName rootConcept){
   
    C = makeCourse(rootConcept, concepts, warnings);
    updateCourse(C);
-   removeExternalConceptFiles(C);
    return generateCourseControl(C);
 }
 
@@ -210,6 +209,7 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
 
 public Concept compileConcept(ConceptName conceptName){
    
+   println("compileConcept: <conceptName>");
    sections = getSections(conceptName);
 
    if(!(sections["Name"]?))
