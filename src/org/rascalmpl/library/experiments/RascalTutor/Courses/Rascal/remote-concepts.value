@@ -1,2 +1,3 @@
-("Rascal/Expressions/Values":|std:///Boolean.rsc|,
-"Rascal/Libraries":|std:///Benchmark.rsc|)
+[<"Rascal/Expressions/Values",|std:///Boolean.rsc|>,
+<"Rascal/Expressions/Values",|std:///DateTime.rsc|>,
+<"Rascal/Libraries",|std:///Benchmark.rsc|>]

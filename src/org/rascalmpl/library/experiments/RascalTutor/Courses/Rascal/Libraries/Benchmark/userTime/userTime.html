@@ -53,7 +53,10 @@
                            
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>int userTime()</code></li>
-<li> <code>int userTime(void () block)</code></li>
+<li> <code>int userTime(void () block)</code><br/>
+<br/>
+ </AUTOINSERTED>
+</li>
 </ol>
 </div>
 
@@ -74,16 +77,16 @@ ok
   Here we measure time by using separate calls to <code>userTime</code> before and after a call to <code>fac</code>.
 
 <pre class="screen"><b>rascal></b>before = userTime();
-int: 100604526000
+int: 170229926000
 <b>rascal></b>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 <b>rascal></b>userTime() - before;
-int: 2441000
+int: 26310000
 </pre>
   The code to be measured can also be passed as a function parameter to <code>userTime</code>:
 
 <pre class="screen"><b>rascal></b>userTime( void() { fac(50); } );
-int: 377000
+int: 2762000
 </pre>
 </div>
 
