@@ -27,12 +27,7 @@ module Benchmark
 import IO;
 
 @doc{
-Name:     cpuTime
 Synopsis: Measuring CPU time.
-
-Function:
-# `int cpuTime()`
-# `int cpuTime(void () block)`
 
 Details:
 
@@ -69,12 +64,7 @@ public int cpuTime(void () block) {
 }
 
 @doc{
-Name: systemTime
 Synopsis: Measuring system time.
-
-Function:
-# `int systemTime()`
-# `int systemTime(void () block)`
 
 Details:
 
@@ -109,12 +99,7 @@ public int systemTime(void () block) {
 }
 
 @doc{
-Name: userTime
 Synopsis: Measuring user time.
-
-Function:
-# `int userTime()`
-# `int userTime(void () block)`
 
 Description:
 # Current time in __nanoseconds__ (10$^-9$ sec) since the start of the thread that runs the code that calls this function.
@@ -149,11 +134,7 @@ public int userTime(void () block) {
 @deprecated{This function can disappear}
 
 @doc{
-Name: realTime
 Synopsis: Current time in milliseconds.
-Function:
-# `int realTime()`
-# `int realTime(void () block)`
 
 Description:
 
@@ -162,8 +143,6 @@ Description:
 
 Pitfalls:
 This function is a competitor for the [now] function that provides a [datetime] value for the current time.
-
-
 }
 
 @javaImport{import java.lang.System;}
@@ -180,11 +159,7 @@ public int realTime(void () block) {
 }
 
 @doc{
-Name: benchmark
 Synopsis: Measure and report the execution time of name:void-closure pairs
-Function:
-# `map[str,num] benchmark(map[str, void()] Cases)`
-# `map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)`
 
 Description:
 
@@ -201,7 +176,6 @@ benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}) );
 // We can do the same using [userTime] that returns nanoseconds:
 benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}), userTime );
 </screen>
-
 }
 public map[str,num] benchmark(map[str, void()] Cases) {
 	return benchmark(Cases, realTime);

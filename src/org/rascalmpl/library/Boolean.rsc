@@ -11,9 +11,7 @@
 module Boolean
 
 @doc{
-Name:     arbBool
 Synopsis: Return an arbitrary Boolean value.
-Function: `bool arbBool( )`
 
 Examples:
 <screen>
@@ -32,10 +30,7 @@ public java bool arbBool();
 
 @deprecated{Useless function that will be removed}
 @doc{
-Name: 	  fromInt
 Synopsis: Convert from integer to Boolean.
-
-Function: `bool fromInt(int n)`
 
 Description:
 Convert an integer to a Boolean value: all non-zero integers are mapped to `true`, zero is mapped to `false`.
@@ -53,9 +48,7 @@ public bool fromInt(int i)
 }
 
 @doc{
-Name: fromString
 Synopsis: Convert the strings "true" or "false" to a bool.
-Function: `bool fromString(str s)`
 }
 
 public bool fromString(str s)
@@ -70,9 +63,7 @@ public bool fromString(str s)
 }
 
 @doc{
-Name:     toInt
 Synopsis: Convert a Boolean value to integer.
-Function: int toInt(bool b)
 
 Description:
 Maps `true` to `1` and `false` to 0.
@@ -90,9 +81,7 @@ public int toInt(bool b)
 }
 
 @doc{
-Name:     toReal
 Synopsis: Convert Boolean value to real.
-Function: `real toReal(bool b)`
 
 Description:
 Maps `true` to `1,0` and `false` to `0.0`.
@@ -111,9 +100,7 @@ public real toReal(bool b)
 }
 
 @doc{
-Name:     toString
 Synopsis: Convert Boolean value to string.
-Function: `str toString(bool b)`
 
 Description:
 Maps `true` to `"true"` and `false` to `"false"`.
