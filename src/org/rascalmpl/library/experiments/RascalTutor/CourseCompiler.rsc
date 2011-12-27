@@ -249,13 +249,15 @@ public Concept compileConcept(ConceptName conceptName){
 	   typesSection 	= sections["Types"] ? [];
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
+	   usageSection     = sections["Usage"] ? [];
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   questions 		= getAllQuestions(conceptName, sections["Questions"] ? []);
 	   
 	   html_synopsis    = "<section("Synopsis", markup(synopsisSection, conceptName))>
 	                       <section("Syntax", markup(syntaxSection, conceptName))>
                            <section("Types", markup(typesSection, conceptName))>
-                           <section("Function", markup(functionSection, conceptName))>";
+                           <section("Function", markup(functionSection, conceptName))>
+                           <section("Usage", markup(usageSection, conceptName))>";
   	   html_body        = "<section("Description", markup(sections["Description"] ? [], conceptName))>
   	                       <section("Examples", markup(sections["Examples"] ? [], conceptName))>
   	                       <section("Benefits", markup(sections["Benefits"] ? [], conceptName))>
