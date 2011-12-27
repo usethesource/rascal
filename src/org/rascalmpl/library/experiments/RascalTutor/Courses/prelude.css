@@ -104,6 +104,7 @@ th { background-color: silver; }
 #Details { padding: 0.5em 0em; }
 #Synopsis{ padding: 0.5em 0em; }
 #Syntax{ padding: 0.5em 0em; }
+#Usage{ padding: 0.5em 0em; }
 
 #Syntax code {
  border: 1px solid #000;
