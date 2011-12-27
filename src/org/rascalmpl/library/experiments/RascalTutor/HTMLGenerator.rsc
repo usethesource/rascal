@@ -310,7 +310,7 @@ private str markupRestLine(str line){
     
     case /^\</ => "&lt;"
     
-    case /^\/\*<dig:[0-9]>\*\//  => "\<img src=\"/Courses/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9][0-9]?>\*\//  => "\<img src=\"/Courses/images/<dig>.png\"\>"
     
     case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"/Courses/<conceptPath>/<file>\"\>"
     
@@ -373,7 +373,7 @@ private str markupCode(str text){
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
-    case /^\/\*<dig:[0-9]>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9][0-9]?>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
   };
 }
 

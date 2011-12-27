@@ -50,7 +50,6 @@ data Course =
 
 data Concept = 
 	 concept(ConceptName fullName,                  // Full name of the concept
-//			loc file,                             	// Its source file
 			list[str] warnings,                     // Explicit warnings in concept text
 			list[ConceptName] details,              // Optional (ordered!) list of details
 			set[str] searchTerms,    				// Set of search terms
@@ -208,6 +207,8 @@ return "Name: <cn>
        'Types:
        '
        'Function:
+       '       
+       'Usage:
        '
        'Details:
        '
@@ -229,7 +230,7 @@ return "Name: <cn>
 //
 // Options is a "meta-section" and may contain directives for the course compiler.
 
-public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "Types", "Function", "Details", "Description",
+public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "Types", "Function", "Usage", "Details", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"];
 
 public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
