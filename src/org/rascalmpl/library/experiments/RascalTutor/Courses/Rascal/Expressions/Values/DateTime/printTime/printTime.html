@@ -49,20 +49,19 @@
 </div>
 
 	                       
-<div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>import DateTime;</code>
-
-</div>
-
                            
                            
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>str printTime(datetime inputTime, str formatString)</code></li>
-<li> <code>str printTime(datetime inputTime)</code><br/>
-<br/>
- </AUTOINSERTED>
-</li>
+<li> <code>str printTime(datetime inputTime)</code></li>
 </ol>
+</div>
+
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import DateTime;</code>
+ </AUTOINSERTED>
+
 </div>
 
   	                       
@@ -70,11 +69,11 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import DateTime;
 ok
 <b>rascal></b>N = now();
-datetime: $2011-12-27T09:46:41.883+0100
+datetime: $2011-12-27T22:44:46.887+0100
 <b>rascal></b>printTime(N);
-str: &quot;09:46:41.883+01:00&quot;
+str: &quot;22:44:46.887+01:00&quot;
 <b>rascal></b>printTime(N, &quot;HH/mm/ss&quot;);
-str: &quot;09/46/41&quot;
+str: &quot;22/44/46&quot;
 </pre>
 </div>
 

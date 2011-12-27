@@ -51,6 +51,7 @@
 	                       
                            
                            
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  A top-level table of contents:
  <ul><li><a href="/Courses/Rascal/Contents/Contents.html">Contents</a>: Table of Contents.</li>
@@ -470,7 +471,9 @@
 <ul><li><a href="/Courses/Rascal/Libraries/Exception/RuntimeException/RuntimeException.html">RuntimeException</a>: The <code>Exception</code> datatype used in all Rascal exceptions.</li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/Graph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a graph.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predessors of a graph node.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/Graph/Graph.html">Graph</a>: A <code>Graph</code> datatype with associated functions.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/order/order.html">order</a>: Compute topological order of the nodes in a graph.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/predecessors/predecessors.html">predecessors</a>: Determine the direct predecessors of a graph node.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/reach/reach.html">reach</a>: Determine the graph nodes reachable from a set of nodes.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/reachR/reachR.html">reachR</a>: Determine the graph nodes reachable from a set of nodes using a restricted set of intermediate nodes.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Graph/reachX/reachX.html">reachX</a>: Determine the graph nodes reachable from a set of nodes excluding certain intermediate nodes.</li>
@@ -521,14 +524,16 @@
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/LinearProgramming/LinearProgramming.html">LinearProgramming</a>: A library for doing Linear programming</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Maybe/Maybe.html">Maybe</a>: Optional datatype</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
-<ul><li><a href="/Courses/Rascal/Libraries/Message/error/error.html">error</a>: </li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Message/info/info.html">info</a>: </li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Message/Message/Message.html">Message</a>: </li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Message/warning/warning.html">warning</a>: </li>
+<ul><li><a href="/Courses/Rascal/Libraries/Message/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a>: Functions on parse trees.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">implode</a>: Implode a parse tree according to a given ADT.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a>: Parse a string or file and return a parse tree.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/unparse/unparse.html">unparse</a>: Yield the string of characters that form the leafs of a given parse tree.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a>: Parse input text (from a string or a location) and return a parse tree.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/parseWithErrorTree/parseWithErrorTree.html">parseWithErrorTree</a>: Parse input text (from a string or a location) and return a parse tree which can contain error nodes.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/sameType/sameType.html">sameType</a>: </li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/Tree/Tree.html">Tree</a>: The Tree data type as produced by the parser.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/treeAt/treeAt.html">treeAt</a>: Select the innermost Tree of a given type which is enclosed by a given location.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/TreeSearchResult/TreeSearchResult.html">TreeSearchResult</a>: Tree search result type for <a href="/Courses/Rascal/Libraries/ParseTree/treeAt/treeAt.html">treeAt</a>.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/unparse/unparse.html">unparse</a>: Yield the string of characters that form the leafs of the given parse tree.</li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/PriorityQueue.html">PriorityQueue</a>: A <code>PriorityQueue</code> datatype and associated functions.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/extractMinimum/extractMinimum.html">extractMinimum</a>: Extract minimum element from priority queue.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/findMinimum/findMinimum.html">findMinimum</a>: Find the minimum priority in a prority queue.</li>
@@ -642,7 +647,7 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineColor/lineColor.html">lineColor</a>: Defines the line color.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineStyle/lineStyle.html">lineStyle</a>: Sets the style of lines and borders of figures.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/lineWidth/lineWidth.html">lineWidth</a>: Defines the width of lines.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/manhattan/manhattan.html">manhattan</a>: Define the drawing style of <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/tree/tree.html">tree</a>s.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/manhattan/manhattan.html">manhattan</a>: Define the drawing style of <span class="inlineError">ambiguous: Rascal:tree</span>s.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/mouseOver/mouseOver.html">mouseOver</a>: Define interactive mouse over behaviour.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onClick/onClick.html">onClick</a>: Old name for <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseDown/onMouseDown.html">onMouseDown</a>, use that instead!</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onKeyDown/onKeyDown.html">onKeyDown</a>: Define interactive behaviour when a key is pressed.</li>
@@ -652,7 +657,7 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseExit/onMouseExit.html">onMouseExit</a>: Define interactive behaviour when the mouse pointer leaves the figure.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseMove/onMouseMove.html">onMouseMove</a>: Define interactive behaviour when the mouse moves over this figure.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/onMouseUp/onMouseUp.html">onMouseUp</a>: Define interactive behaviour when the mouse button is released.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a>: Define the orientation of a <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/tree/tree.html">tree</a> or <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/graph.html">graph</a>.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a>: Define the orientation of a <span class="inlineError">ambiguous: Rascal:tree</span> or <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/graph.html">graph</a>.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/project/project.html">project</a>: Project figure on a <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/hscreen/hscreen.html">hscreen</a> or <a href="/Courses/Rascal/Libraries/Vis/Figure/Figures/vscreen/vscreen.html">vscreen</a>.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/resizable/resizable.html">resizable</a>: Define whether figure can be resized.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/right/right.html">right</a>: Right, horizontal, alignment.</li>
@@ -696,7 +701,7 @@
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

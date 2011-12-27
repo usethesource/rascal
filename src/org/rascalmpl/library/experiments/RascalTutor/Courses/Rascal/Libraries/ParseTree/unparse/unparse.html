@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/ParseTree/unparse</title>
 
-<meta name="description" content="Rascal/Libraries/ParseTree/unparse:  Yield the string of characters that form the leafs of a given parse tree.">
+<meta name="description" content="Rascal/Libraries/ParseTree/unparse:  Yield the string of characters that form the leafs of the given parse tree.">
 
 <meta name="keywords" content="Rascal/Libraries/ParseTree/unparse, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Yield the string of characters that form the leafs of a given parse tree.
+<span class="sectionHead">Synopsis</span>  Yield the string of characters that form the leafs of the given parse tree.
 
 </div>
 
@@ -56,7 +56,34 @@
 
 </div>
 
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import ParseTree;</code>
+ </AUTOINSERTED>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  <code>unparse</code> is the inverse function of <a href="/Courses/Rascal/Libraries/ParseTree/parse/parse.html">parse</a>, i.e., for every syntactically correct string <code><i>TXT</i></code> of
+ type <code>S</code>, the following holds:
+ <pre class="listing">unparse(parse(#S, <i>TXT</i>)) == <i>TXT</i>
+</pre>
+</div>
+
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+ok
+<b>rascal></b>import ParseTree;
+ok
+</pre>
+  First parse an expression, this results in a parse tree. Then unparse this parse tree:
+
+<pre class="screen"><b>rascal></b>unparse(parse(#Exp, &quot;2+3&quot;));
+str: &quot;2+3&quot;
+</pre>
+</div>
+
   	                       
   	                       
   	                       

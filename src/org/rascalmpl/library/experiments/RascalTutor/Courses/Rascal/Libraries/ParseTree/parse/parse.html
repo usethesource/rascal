@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/ParseTree/parse</title>
 
-<meta name="description" content="Rascal/Libraries/ParseTree/parse:  Parse a string or file and return a parse tree.">
+<meta name="description" content="Rascal/Libraries/ParseTree/parse:  Parse input text (from a string or a location) and return a parse tree.">
 
 <meta name="keywords" content="Rascal/Libraries/ParseTree/parse, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Parse a string or file and return a parse tree.
+<span class="sectionHead">Synopsis</span>  Parse input text (from a string or a location) and return a parse tree.
 
 </div>
 
@@ -52,18 +52,54 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] start, str input)</code></li>
-<li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] start, loc input)</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input)</code></li>
+<li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input, loc origin)</code></li>
+<li> <code>&amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, loc input)</code></li>
 </ol>
+</div>
+
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import ParseTree;</code>
+ </AUTOINSERTED>
+
 </div>
 
 <div id="Description">
 <span class="sectionHead">Description</span>  <ol><li> Parse a string and return a parse tree.</li>
+<li> Parse a string and return a parse tree, <code>origin</code> defines the original location of the input.</li>
 <li> Parse the contents of resource input and return a parse tree.</li>
 </ol>
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+ok
+<b>rascal></b>import ParseTree;
+ok
+</pre>
+  Checking that <code>parse</code> returns a parse tree:
+
+<pre class="screen"><b>rascal></b>parse(#Exp, &quot;2+3&quot;);
+`2+3`
+Exp: appl(
+  prod(
+    sort(&quot;Exp&quot;),
+    [
+      sort(&quot;Exp&quot;),
+      layouts(&quot;$default$&quot;),
+      lit(&quot;+&quot;),
+      layouts(&quot;$default$&quot;),
+      sort(&quot;Exp&quot;)
+    ],
+    {assoc(left())}),
+  [
+    appl(
+      pr...
+</pre>
+</div>
+
   	                       
   	                       
   	                       

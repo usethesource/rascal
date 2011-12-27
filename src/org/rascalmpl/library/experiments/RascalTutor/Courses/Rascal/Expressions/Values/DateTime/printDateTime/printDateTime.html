@@ -49,20 +49,19 @@
 </div>
 
 	                       
-<div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>import DateTime;</code>
-
-</div>
-
                            
                            
 <div id="Function">
 <span class="sectionHead">Function</span>  <ol><li> <code>str printDateTime(datetime inputDateTime, str formatString)</code></li>
-<li> <code>str printDateTime(datetime inputDateTime)</code><br/>
-<br/>
- </AUTOINSERTED>
-</li>
+<li> <code>str printDateTime(datetime inputDateTime)</code></li>
 </ol>
+</div>
+
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import DateTime;</code>
+ </AUTOINSERTED>
+
 </div>
 
   	                       
@@ -70,13 +69,13 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import DateTime;
 ok
 <b>rascal></b>N = now();
-datetime: $2011-12-27T09:46:41.311+0100
+datetime: $2011-12-27T22:44:41.205+0100
 <b>rascal></b>printDateTime(N);
-str: &quot;2011-12-27T09:46:41.311+01:00&quot;
+str: &quot;2011-12-27T22:44:41.205+01:00&quot;
 <b>rascal></b>printDateTime(N, &quot;yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ&quot;);
-str: &quot;2011-12-27T09:46:41.311+01:00&quot;
+str: &quot;2011-12-27T22:44:41.205+01:00&quot;
 <b>rascal></b>printDateTime(N, &quot;YYYY/MM/dd/HH/mm/ss&quot;);
-str: &quot;2011/12/27/09/46/41&quot;
+str: &quot;2011/12/27/22/44/41&quot;
 </pre>
 </div>
 

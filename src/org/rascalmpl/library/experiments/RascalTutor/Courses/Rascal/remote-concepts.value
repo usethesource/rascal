@@ -2,4 +2,6 @@
 <"Rascal/Expressions/Values",|std:///DateTime.rsc|>,
 <"Rascal/Libraries",|std:///Benchmark.rsc|>,
 <"Rascal/Libraries",|std:///Exception.rsc|>,
-<"Rascal/Libraries",|std:///Message.rsc|>]
+<"Rascal/Libraries",|std:///Graph.rsc|>,
+<"Rascal/Libraries",|std:///Message.rsc|>,
+<"Rascal/Libraries",|std:///ParseTree.rsc|>]

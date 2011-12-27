@@ -49,15 +49,10 @@
 </div>
 
 	                       
-<div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>import Exception;</code>
-
-</div>
-
                            
 <div id="Types">
-<span class="sectionHead">Types</span>  <pre class="listing">data RuntimeException =
-       EmptyList()
+<span class="sectionHead">Types</span>  <pre class="listing">data RuntimeException
+     = EmptyList()
      | EmptyMap() 
      | EmptySet()
      | IndexOutOfBounds(int index)
@@ -86,11 +81,17 @@
      | StackOverflow()
      | Timeout()
      ;
-</pre> </AUTOINSERTED>
-
+</pre>
 </div>
 
                            
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Exception;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  <code>RuntimeException</code> is an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> that describes the <i>soft</i> exceptions that can be caught by a Rascal program.
  Since declarations for ADTs are extensible, the user can add new exceptions when needed.
