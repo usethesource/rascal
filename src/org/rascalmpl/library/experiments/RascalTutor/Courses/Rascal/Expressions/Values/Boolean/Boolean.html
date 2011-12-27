@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Boolean</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Boolean:  Boolean values.">
+<meta name="description" content="Rascal/Expressions/Values/Boolean: ">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Boolean, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,90 +43,20 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Boolean values.
-
-</div>
-
 	                       
 <div id="Syntax">
-<span class="sectionHead">Syntax</span>  <code>true</code>, <code>false</code>
- <br/>
-<br/>
-
- Library functions: <code>import Boolean;</code>
+<span class="sectionHead">Syntax</span>  <code>import Boolean;</code>
+ </AUTOINSERTED>
 
 </div>
 
                            
-<div id="Types">
-<span class="sectionHead">Types</span>  <code>bool</code>
-
-</div>
-
                            
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Expressions/Values/Boolean/All/All.html">All</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/And/And.html">And</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Any/Any.html">Any</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/arbBool/arbBool.html">arbBool</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Equivalence/Equivalence.html">Equivalence</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/fromInt/fromInt.html">fromInt</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/fromString/fromString.html">fromString</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/IfDefinedElse/IfDefinedElse.html">IfDefinedElse</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Implication/Implication.html">Implication</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/IsDefined/IsDefined.html">IsDefined</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Match/Match.html">Match</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Negation/Negation.html">Negation</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/NoMatch/NoMatch.html">NoMatch</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/Or/Or.html">Or</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/toInt/toInt.html">toInt</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/toReal/toReal.html">toReal</a> &#032 <a href="/Courses/Rascal/Expressions/Values/Boolean/toString/toString.html">toString</a> &#032 
 </div>
 
-<div id="Description">
-<span class="sectionHead">Description</span>  The Booleans are represented by the type <code>bool</code> which has two values: <code>true</code> and <code>false</code>.
- <br/>
-<br/>
-
- The Boolean operators (to be more precise: operators with a value of type Boolean as result) have <i>short-circuit</i> semantics. 
- This means that the operands are evaluated until the outcome of the operator is known.
- <br/>
-<br/>
-
- Most operators are self-explanatory except the match (:=) and no match (!:=) operators that are also the main reason to treat Boolean operator expressions separately. Although we describe patterns in full detail in <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a>, a preview is useful here. A pattern can
-  <ul><li> match (or not match) any arbitrary value (that we will call the <i>subject value</i>);</li>
-<li> during the match variables may be bound to subvalues of the subject value.</li>
-</ul> The <i>match</i> operator
- <pre class="listing"><i>Pat</i> := <i>Exp</i>
-</pre> is evaluated as follows:
-  <ul><li> <code><i>Exp</i></code> is evaluated, the result is a subject value;</li>
-<li> the subject value is matched against the pattern <code><i>Pat</i></code>;</li>
-<li> if the match succeeds, any variables in the pattern are bound to subvalues of the subject value and the match expression yields <code>true</code>;</li>
-<li> if the match fails, no variables are bound and the match expression yields <code>false</code>.</li>
-</ul> This looks and <i>is</i> nice and dandy, so why all this fuss about Boolean operators?
- The catch is that--as we will see in <a href="/Courses/Rascal/Patterns/Patterns.html">Patterns</a>--a match need not be unique. This means that there may be more than one way of matching the subject value resulting in different variable bindings. 
- <br/>
-<br/>
-
- This behaviour is applicable in the context of all Rascal constructs where a pattern match determines the flow of control of the program, in particular:
-  <ul><li> Boolean expressions: when a pattern match fails that is part of a Boolean expression, further solutions are tried in order to try to make the Boolean expression true.</li>
-<li> Tests in <a href="/Courses/Rascal/Statements/For/For.html">For</a>, <a href="/Courses/Rascal/Statements/While/While.html">While</a>, <a href="/Courses/Rascal/Statements/Do/Do.html">Do</a> statements.</li>
-<li> Tests in <a href="/Courses/Rascal/Expressions/Values/Boolean/Any/Any.html">Any</a> and <a href="/Courses/Rascal/Expressions/Values/Boolean/All/All.html">All</a> expressions.</li>
-<li> Tests and <a href="/Courses/Rascal/Expressions/Comprehensions/Enumerator/Enumerator.html">Enumerator</a>s in comprehensions.</li>
-<li> Pattern matches in cases of a <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a>.</li>
-<li> Pattern matches in cases of a <a href="/Courses/Rascal/Statements/Switch/Switch.html">Switch</a>.</li>
-</ul>
-</div>
-
   	                       
-<div id="Examples">
-<span class="sectionHead">Examples</span>  Consider the following match of a list
- <pre class="listing">[1, list[int] L, 2, list[int] M] := [1,2,3,2,4]
-</pre> By definition <code>list[int] L</code> and <code>list[int] M</code> match list elements that are part of the enclosing list in which they occur. If they should match a nested list each should be enclosed in list brackets.
- <br/>
-<br/>
-
- There are two solutions for the above match:
-  <ul><li> <code>L</code> = <code>[]</code> and <code>M</code> =<code> [2, 3, 2, 4]</code>; and</li>
-<li> <code>L</code> = <code>[2,3]</code> and <code>M</code> =<code> [4]</code>.</li>
-</ul> Depending on the context, only the first solution of a match expression is used, respectively all solutions are used.
- If a match expression occurs in a larger Boolean expression, a subsequent subexpression may yield false and -- depending on the actual operator -- evaluation backtracks to a previously evaluated match operator to try a next solution. Let's illustrate this by extending the above example:
-  <pre class="listing">[1, list[int] L, 2, list[int] M] := [1,2,3,2,4] &amp;&amp; size(L) > 0
-</pre> where we are looking for a solution in which L has a non-empty list as value. Evaluation proceeds as follows:
-  <ul><li> The left argument of the <code>&amp;&amp;</code> operator is evaluated: the match expression is evaluated resulting in the bindings <code>L = []</code> and <code>M = [2, 3, 2, 4]</code>;</li>
-<li> The right argument of the <code>&amp;&amp;</code> operator is evaluated: <code>size(L) > 0</code> yields <code>false</code>;</li>
-<li> Backtrack to the left argument of the <code>&amp;&amp;</code> operator to check for more solutions: indeed there are more solutions resulting in the bindings <code>L = [2,3]</code> and <code>M = [4]</code>;</li>
-<li> Proceed to the right operator of <code>&amp;&amp;</code>: this time <code>size(L) > 0</code> yields <code>true</code>;</li>
-<li> The result of evaluating the complete expression is <code>true</code>.</li>
-</ul>
-</div>
-
   	                       
   	                       
   	                       

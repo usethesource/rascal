@@ -104,14 +104,14 @@ set[int]: {4,3,2,1}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_Difference_1:answer" id="Rascal/Expressions/Values/Set/Difference_1_2" value="2">
-<label for="Rascal/Expressions/Values/Set/Difference_1_2">Greater than or equal the number of elements in the first set.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_Difference_1:answer" id="Rascal/Expressions/Values/Set/Difference_1_0" value="0">
 <label for="Rascal/Expressions/Values/Set/Difference_1_0">Smaller than or equal the number of elements in the first set.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_Difference_1:answer" id="Rascal/Expressions/Values/Set/Difference_1_3" value="3">
 <label for="Rascal/Expressions/Values/Set/Difference_1_3">Smaller than the number of elements in both sets.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_Difference_1:answer" id="Rascal/Expressions/Values/Set/Difference_1_1" value="1">
+<label for="Rascal/Expressions/Values/Set/Difference_1_1">Greater than the number of elements in both sets.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -135,9 +135,9 @@ set[int]: {4,3,2,1}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_2:A" value="{&quot;Little Bird&quot;, &quot;Lime&quot;, &quot;Basil&quot;}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_2:B" value="{&quot;Ginger&quot;}">
-The type of <tt>{&quot;Little Bird&quot;, &quot;Lime&quot;, &quot;Basil&quot;} + {&quot;Ginger&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_2:A" value="{-20, -18, 5}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_2:B" value="{16, 8, 10, 8, 4}">
+The type of <tt>{-20, -18, 5} + {16, 8, 10, 8, 4}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -161,9 +161,9 @@ The type of <tt>{&quot;Little Bird&quot;, &quot;Lime&quot;, &quot;Basil&quot;} +
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_3:A" value="{false, true, true}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_3:A" value="{false, true, true}">
-The type of <tt>{false, true, true} - {false, true, true}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_3:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_3:A" value="{false, false, false, false}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_3:A" value="{false, false, false, false}">
+The type of <tt>{false, false, false, false} - {false, false, false, false}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_3:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -187,9 +187,9 @@ The type of <tt>{false, true, true} - {false, true, true}</tt> is <input type="t
 <span id="answerFeedback_Rascal_Expressions_Values_Set_Difference_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4:A" value="{-1, -5, -6, -1}">
-<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4:B" value="{-5, -1, -6, 1}">
-<pre class="prequestion">{-1, -5, -6, -1} - {-5, -1, -6, 1} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4:A" value="{&quot;S&quot;, &quot;G&quot;, &quot;Cookie Monster&quot;, &quot;Musterd&quot;}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4:B" value="{&quot;Cayenne&quot;}">
+<pre class="prequestion">{&quot;S&quot;, &quot;G&quot;, &quot;Cookie Monster&quot;, &quot;Musterd&quot;} - {&quot;Cayenne&quot;} == <input type="text" size="30" name="Rascal_Expressions_Values_Set_Difference_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_Difference_4:another" value="yes">

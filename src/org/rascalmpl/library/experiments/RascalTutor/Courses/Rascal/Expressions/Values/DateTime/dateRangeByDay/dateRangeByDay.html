@@ -49,6 +49,11 @@
 </div>
 
 	                       
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <code>import DateTime;</code>
+
+</div>
+
                            
                            
 <div id="Function">
@@ -67,13 +72,13 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import DateTime;
 ok
 <b>rascal></b>B = now();
-datetime: $2011-12-25T10:08:41.972+0100
+datetime: $2011-12-27T09:46:27.207+0100
 <b>rascal></b>E = incrementDays(B, 2);
-datetime: $2011-12-27T10:08:41.972+0100
+datetime: $2011-12-29T09:46:27.207+0100
 <b>rascal></b>I = createInterval(B, E);
-interval: Interval($2011-12-25T10:08:41.972+0100,$2011-12-27T10:08:41.972+0100)
+interval: Interval($2011-12-27T09:46:27.207+0100,$2011-12-29T09:46:27.207+0100)
 <b>rascal></b>dateRangeByDay(I);
-list[datetime]: [$2011-12-25,$2011-12-26,$2011-12-27]
+list[datetime]: [$2011-12-27,$2011-12-28,$2011-12-29]
 </pre>
 </div>
 
