@@ -7,7 +7,9 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
-
+//@doc{
+//Synopsis: DataTime library
+//}
 module DateTime
 
 import List;
