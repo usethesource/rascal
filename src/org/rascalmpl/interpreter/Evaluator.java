@@ -1205,9 +1205,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
 		
-		if(isDeprecated(preModule))
+		if(isDeprecated(preModule)){
 			// TODO Error location should point to import statement and not to deprecated module
-			throw new ModuleLoadError(name, name + " is deprecated -- " + getDeprecatedMessage(preModule), currentAST); 
+			System.err.println("WARNING: module " + name + " is deprecated -- " + getDeprecatedMessage(preModule)); 
+		}
 		
 		if(env == null){
 			env = heap.getModule(name);
