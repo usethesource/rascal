@@ -512,8 +512,8 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 				if (__eval.__getValueArguments()[0].getType() instanceof org.rascalmpl.interpreter.types.ReifiedType) {
 					return org.rascalmpl.interpreter.types.RascalTypeFactory
 							.getInstance().reifiedType(
-									org.rascalmpl.interpreter.Typeifier
-											.toType((IConstructor) __eval
+									new org.rascalmpl.interpreter.TypeReifier(VF)
+											.valueToType((IConstructor) __eval
 													.__getValueArguments()[0]));
 				}
 			}

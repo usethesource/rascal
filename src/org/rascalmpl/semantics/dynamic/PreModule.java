@@ -29,7 +29,6 @@ public abstract class PreModule extends org.rascalmpl.ast.PreModule {
 
 		public Default(IConstructor node, Header header, Rest rest) {
 			super(node, header, rest);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

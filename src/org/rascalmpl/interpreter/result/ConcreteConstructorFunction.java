@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.TraversalEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -32,12 +31,10 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
-	private final TraversalEvaluator re;
 
 	public ConcreteConstructorFunction(AbstractAST ast, Evaluator eval,
 			Environment env) {
 		super(ast, eval, env, Factory.Tree_Appl);
-		this.re = new TraversalEvaluator(eval);
 	}
 	
 	@Override
@@ -53,7 +50,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
-		return makeResult(concreteType, re.applyRules(newAppl), ctx);
+		return makeResult(concreteType, newAppl, ctx);
 	}
 
 	private IValue flatten(IConstructor prod, IList args) {

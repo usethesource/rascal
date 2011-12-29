@@ -11,20 +11,21 @@
 *******************************************************************************/
 package org.rascalmpl.library;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 
-public class Types {
+public class Type {
 	private final IValueFactory vf;
 
-	public Types(IValueFactory vf) {
+	public Type(IValueFactory vf) {
 		this.vf = vf;
 		
 	}
 	
 	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
-		return v.getType().accept(new TypeReifier(ctx, vf)).getValue();
+		return ((IConstructor) new TypeReifier(vf).typeToValue(v.getType(), ctx).getValue()).get("symbol");
 	}
 }

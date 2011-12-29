@@ -1,6 +1,7 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,9 +9,13 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Case;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
+import org.rascalmpl.ast.Replacement;
+import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -93,23 +98,40 @@ public class Cases  {
 
 		return false;
 	}
+	
 	public static abstract class CaseBlock {
-		public abstract boolean matchAndEval(Evaluator eval,
-				Result<IValue> subject);
+		public boolean hasRegExp = false;
+		public boolean allConcrete = false;
+		public abstract boolean matchAndEval(Evaluator eval, Result<IValue> subject);
+		
+		protected void computePredicates(Case c) {
+			if (c.hasPatternWithAction()) {
+				Expression pattern = c.getPatternWithAction().getPattern();
+				hasRegExp |= pattern.isLiteral() && pattern.getLiteral().isRegExp();
+
+				Type type = pattern._getType();
+				allConcrete &= (type != null) && type instanceof NonTerminalType;
+			}
+		}
 	}
 
 	public static class ConcreteBlock extends CaseBlock {
-		private final Hashtable<IConstructor, List<Case>> table = new Hashtable<IConstructor, List<Case>>();
+		private final Hashtable<IConstructor, List<DefaultBlock>> table = new Hashtable<IConstructor, List<DefaultBlock>>();
 
+		public ConcreteBlock() {
+			allConcrete = true;
+			hasRegExp = false;
+		}
+		
 		void add(Case c) {
-			IConstructor key = TreeAdapter.getProduction(c
-					.getPatternWithAction().getPattern().getTree());
-			List<Case> same = table.get(key);
+			Expression pattern = c.getPatternWithAction().getPattern();
+			IConstructor key = TreeAdapter.getProduction(pattern.getTree());
+			List<DefaultBlock> same = table.get(key);
 			if (same == null) {
-				same = new LinkedList<Case>();
+				same = new LinkedList<DefaultBlock>();
 				table.put(key, same);
 			}
-			same.add(c);
+			same.add(new DefaultBlock(c));
 		}
 
 		@Override
@@ -119,13 +141,10 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(Factory.Tree)) {
-				List<Case> alts = table.get(TreeAdapter
-						.getProduction((IConstructor) value));
+				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((IConstructor) value));
 				if (alts != null) {
-					for (Case c : alts) {
-						PatternWithAction rule = c.getPatternWithAction();
-						if (eval.matchAndEval(subject, rule.getPattern(),
-								rule.getStatement())) {
+					for (CaseBlock c : alts) {
+						if (c.matchAndEval(eval, subject)) {
 							return true;
 						}
 					}
@@ -138,28 +157,49 @@ public class Cases  {
 
 	private static class DefaultBlock extends CaseBlock {
 		private final Case theCase;
+		private final PatternWithAction pattern;
+		private final Statement statement;
+		private final Replacement replacement;
+		private final List<Expression> conditions;
+		private final Expression insert;
 
 		public DefaultBlock(Case c) {
 			this.theCase = c;
+			this.pattern = c.hasPatternWithAction() ? c.getPatternWithAction() : null;
+			this.statement = c.hasStatement() ? c.getStatement() : null;
+			this.replacement = pattern != null && pattern.hasReplacement() ? pattern.getReplacement() : null;
+			this.conditions = replacement != null && replacement.hasConditions() ? replacement.getConditions() : Collections.<Expression>emptyList();
+			this.insert = replacement != null ? replacement.getReplacementExpression() : null;
+			
+			computePredicates(c);
 		}
 
 		@Override
 		public boolean matchAndEval(Evaluator __eval, Result<IValue> subject) {
 			if (theCase.isDefault()) {
-				// TODO: what if the default statement uses a fail
-				// statement?
 				theCase.getStatement().interpret(__eval);
 				return true;
 			}
 			
 			PatternWithAction rule = theCase.getPatternWithAction();
-			return __eval.matchAndEval(subject, rule.getPattern(), rule.getStatement());
+			
+			if (rule.hasStatement()) {
+				return __eval.matchAndEval(subject, rule.getPattern(), pattern.getStatement());
+			}
+			else {
+				return __eval.matchEvalAndReplace(subject, rule.getPattern(), conditions, insert);
+			}
 		}
 	}
 
 	private static class NodeCaseBlock extends CaseBlock {
-		private final Hashtable<String, List<Case>> table = new Hashtable<String, List<Case>>();
+		private final Hashtable<String, List<DefaultBlock>> table = new Hashtable<String, List<DefaultBlock>>();
 
+		public NodeCaseBlock() {
+			hasRegExp = false;
+			allConcrete = false;
+		}
+		
 		void add(Case c) {
 			org.rascalmpl.ast.Expression name = c.getPatternWithAction()
 					.getPattern().getExpression();
@@ -172,12 +212,12 @@ public class Cases  {
 						.getStringLiteral().getConstant()).getString();
 			}
 
-			List<Case> same = table.get(key);
+			List<DefaultBlock> same = table.get(key);
 			if (same == null) {
-				same = new LinkedList<Case>();
+				same = new LinkedList<DefaultBlock>();
 				table.put(key, same);
 			}
-			same.add(c);
+			same.add(new DefaultBlock(c));
 		}
 
 		@Override
@@ -187,22 +227,16 @@ public class Cases  {
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
-				List<Case> alts = table.get(((INode) value).getName());
+				List<DefaultBlock> alts = table.get(((INode) value).getName());
 				if (alts != null) {
-					for (Case c : alts) {
-						PatternWithAction rule = c.getPatternWithAction();
-						if (eval.matchAndEval(subject, rule.getPattern(),
-								rule.getStatement())) {
+					for (DefaultBlock c : alts) {
+						if (c.matchAndEval(eval, subject)) {
 							return true;
 						}
 					}
 				}
 			}
-
 			return false;
 		}
 	}
-
-	
-
 }
