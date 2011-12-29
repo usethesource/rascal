@@ -71,7 +71,7 @@ public class TypeReifier {
 		Map<IConstructor, IConstructor> definitions = new HashMap<IConstructor, IConstructor>();
 		IConstructor symbol = reify(t, definitions, ctx, store);
 		
-		Map<Type,Type> bindings = new TreeMap<Type,Type>();
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
 		bindings.put(Factory.TypeParam, t);
 		Type typeType = Factory.Type.instantiate(bindings);
 		
@@ -193,7 +193,7 @@ public class TypeReifier {
 			return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("reified"), store));
 		}
 		else if (cons == Factory.Symbol_Rel) {
-			return relToType(symbol, store);
+			return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
 		}
 		else if (cons == Factory.Symbol_Set) {
 			return tf.setType(symbolToType((IConstructor) symbol.get("symbol"), store));
@@ -246,10 +246,6 @@ public class TypeReifier {
 		}
 	}
 	
-	private Type relToType(IConstructor symbol, TypeStore store) {
-		return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
-	}
-
 	private Type mapToType(IConstructor symbol, TypeStore store) {
 		IConstructor from = (IConstructor) symbol.get("from");
 		IConstructor to = (IConstructor) symbol.get("to");
@@ -550,7 +546,7 @@ public class TypeReifier {
 			}
 
 			private IValue visitNonTerminalType(NonTerminalType externalType) {
-				IConstructor gr = ctx.getEvaluator().getGrammar(ctx.getEvaluator().getMonitor(), URI.create("reify:///"));
+				IConstructor gr = ctx.getEvaluator().getGrammar(ctx.getEvaluator().getMonitor(), URI.create("rascal://" + ctx.getCurrentEnvt().getRoot().getName()));
 				IMap rules = (IMap) gr.get("rules");
 				for (IValue sym : rules) {
 					definitions.put((IConstructor) sym, (IConstructor) rules.get(sym));
