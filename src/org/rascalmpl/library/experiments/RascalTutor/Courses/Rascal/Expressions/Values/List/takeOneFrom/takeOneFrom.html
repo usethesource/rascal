@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/List/takeOneFrom</title>
 
-<meta name="description" content="Rascal/Expressions/Values/List/takeOneFrom:  Remove an arbitrary element from a list.">
+<meta name="description" content="Rascal/Expressions/Values/List/takeOneFrom:  Remove an arbitrary element from a list, returns the element and the modified list.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/List/takeOneFrom, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Remove an arbitrary element from a list.
+<span class="sectionHead">Synopsis</span>  Remove an arbitrary element from a list, returns the element and the modified list.
 
 </div>
 
@@ -52,16 +52,23 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>tuple[&amp;T, list[&amp;T]] takeOneFrom(list[&amp;T] lst) throws EmptyList</code>
+<span class="sectionHead">Function</span>  <code>tuple[&amp;T, list[&amp;T]] takeOneFrom(list[&amp;T] lst)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Select an arbitrary element from <code>lst</code>, and return a tuple consisting of:
  <ul><li> the selected element, and </li>
 <li> a new list consisting of all elements of <code>lst</code> except the selected element.</li>
-</ul>
+</ul> See <a href="/Courses/Rascal/Expressions/Values/List/getOneFrom/getOneFrom.html">getOneFrom</a> to only selected an element from a list.
+
 </div>
 
   	                       
@@ -71,9 +78,15 @@ ok
 <b>rascal></b>takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;30,[10,20,40,50]&gt;
 <b>rascal></b>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;40,[10,20,30,50]&gt;
+tuple[int,list[int]]: &lt;20,[10,30,40,50]&gt;
 <b>rascal></b>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;50,[10,20,30,40]&gt;
+tuple[int,list[int]]: &lt;20,[10,30,40,50]&gt;
+<b>rascal></b>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
+tuple[str,list[str]]: &lt;&quot;owl&quot;,[&quot;zebra&quot;,&quot;elephant&quot;,&quot;snake&quot;]&gt;
+<b>rascal></b>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
+tuple[str,list[str]]: &lt;&quot;zebra&quot;,[&quot;elephant&quot;,&quot;snake&quot;,&quot;owl&quot;]&gt;
+<b>rascal></b>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
+tuple[str,list[str]]: &lt;&quot;zebra&quot;,[&quot;elephant&quot;,&quot;snake&quot;,&quot;owl&quot;]&gt;
 </pre>
 </div>
 

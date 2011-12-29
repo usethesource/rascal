@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Set/toMapUnique</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Set/toMapUnique:  Convert a set of tuples to a map.">
+<meta name="description" content="Rascal/Expressions/Values/Set/toMapUnique:  Convert a set of tuples to a map (provided that there are no multiple keys).">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Set/toMapUnique, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Convert a set of tuples to a map.
+<span class="sectionHead">Synopsis</span>  Convert a set of tuples to a map (provided that there are no multiple keys).
 
 </div>
 
@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>map[&amp;A, set[&amp;B]] toMapUnique(set[tuple[&amp;A, &amp;B]] s) throws MulipleKey</code>
+<span class="sectionHead">Function</span>  <code>map[&amp;A,&amp;B] toMapUnique(rel[&amp;A, &amp;B] st) throws MultipleKey</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Convert a set of tuples to a map. The result should be a legal map (i.e., without multiple keys).
 

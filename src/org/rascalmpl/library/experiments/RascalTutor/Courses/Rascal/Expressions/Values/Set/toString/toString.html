@@ -52,22 +52,35 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>str toString(set[&amp;T] s)</code>
+<span class="sectionHead">Function</span>  <code>str toString(set[&amp;T] st)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Set;
 ok
 <b>rascal></b>toString({1, 2, 3});
 str: &quot;{3,2,1}&quot;
+<b>rascal></b>toString({&quot;elephant&quot;, &quot;zebra&quot;, &quot;snake&quot;});
+str: &quot;{\&quot;zebra\&quot;,\&quot;elephant\&quot;,\&quot;snake\&quot;}&quot;
 </pre>
 </div>
 
   	                       
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.
+
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Set/toString&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Set/toString&new=true"><b>New Subconcept</b></a>] |

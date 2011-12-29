@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[&amp;T] delete(list[&amp;T] lst, int n) throws IndexOutOfBounds(int index)</code>
+<span class="sectionHead">Function</span>  <code>list[&amp;T] delete(list[&amp;T] lst, int n)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Delete the <code>n</code>-th element from a list. A new list without the <code>n</code>-th element is returned as result.
  The <code>IndexOutOfBounds</code> exception is thrown when n is not a valid index.
@@ -69,6 +75,8 @@
 ok
 <b>rascal></b>delete([1, 2, 3], 1);
 list[int]: [1,3]
+<b>rascal></b>delete([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 2);
+list[str]: [&quot;zebra&quot;,&quot;elephant&quot;,&quot;owl&quot;]
 </pre>
 </div>
 

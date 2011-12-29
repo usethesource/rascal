@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Set/getOneFrom</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Set/getOneFrom:  Returns a random element from a set.">
+<meta name="description" content="Rascal/Expressions/Values/Set/getOneFrom:  Pick a random element from a set.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Set/getOneFrom, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Returns a random element from a set.
+<span class="sectionHead">Synopsis</span>  Pick a random element from a set.
 
 </div>
 
@@ -52,23 +52,34 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;T getOneFrom(set[&amp;T] s) throws EmptySet</code>
+<span class="sectionHead">Function</span>  <code>&amp;T getOneFrom(set[&amp;T] st) throws EmptySet</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Also see <a href="/Courses/Rascal/Expressions/Values/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a>.
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Set;
 ok
 <b>rascal></b>getOneFrom({1,2,3,4});
-int: 1
+int: 3
 <b>rascal></b>getOneFrom({1,2,3,4});
 int: 4
 <b>rascal></b>getOneFrom({1,2,3,4});
-int: 4
-<b>rascal></b>getOneFrom({1,2,3,4});
 int: 1
+<b>rascal></b>getOneFrom({1,2,3,4});
+int: 3
 </pre>
 </div>
 

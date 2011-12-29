@@ -52,17 +52,25 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[&amp;T] toList(set[&amp;T] s)</code>
+<span class="sectionHead">Function</span>  <code>list[&amp;T] toList(set[&amp;T] st)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Set;
 ok
 <b>rascal></b>toList({1, 2, 3, 4});
 list[int]: [1,2,3,4]
+<b>rascal></b>toList({&quot;elephant&quot;, &quot;zebra&quot;, &quot;snake&quot;});
+list[str]: [&quot;snake&quot;,&quot;elephant&quot;,&quot;zebra&quot;]
 </pre>
 </div>
 

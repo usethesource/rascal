@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/List/insertAt</title>
 
-<meta name="description" content="Rascal/Expressions/Values/List/insertAt:  Insert an element in a list.">
+<meta name="description" content="Rascal/Expressions/Values/List/insertAt:  Insert an element at a specific position in a list.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/List/insertAt, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Insert an element in a list.
+<span class="sectionHead">Synopsis</span>  Insert an element at a specific position in a list.
 
 </div>
 
@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[&amp;T] insertAt(list[&amp;T] lst, int n, &amp;T elm) throws IndexOutOfBounds(int index)</code>
+<span class="sectionHead">Function</span>  <code>list[&amp;T] insertAt(list[&amp;T] lst, int n, &amp;T elm) throws IndexOutOfBounds</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns a new list with the value of <code>elm</code> inserted at index position <code>n</code> of the old list.
 
@@ -68,8 +74,10 @@
 ok
 <b>rascal></b>insertAt([1,2,3], 1, 5);
 list[int]: [1,5,2,3]
+<b>rascal></b>insertAt([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 2, &quot;eagle&quot;);
+list[str]: [&quot;zebra&quot;,&quot;elephant&quot;,&quot;eagle&quot;,&quot;snake&quot;,&quot;owl&quot;]
 </pre>
- An execption is thrown when the index position is outside the list:
+ An exception is thrown when the index position is outside the list:
 
 <pre class="screen"><b>rascal></b>insertAt([1,2,3], 10, 5);
 Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(10)

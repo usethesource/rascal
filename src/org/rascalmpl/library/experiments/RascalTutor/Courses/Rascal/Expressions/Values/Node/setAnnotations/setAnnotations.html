@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Node/setAnnotations</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Node/setAnnotations:  Add anootations to a node value.">
+<meta name="description" content="Rascal/Expressions/Values/Node/setAnnotations:  Add a map of annotations to a node value.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Node/setAnnotations, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Add anootations to a node value.
+<span class="sectionHead">Synopsis</span>  Add a map of annotations to a node value.
 
 </div>
 
@@ -52,13 +52,19 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;T &lt;: node java setAnnotations(&amp;T &lt;: node x, map[str, value] annotations)</code>
+<span class="sectionHead">Function</span>  <code>&amp;T &lt;: node setAnnotations(&amp;T &lt;: node x, map[str, value] annotations)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Node;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
-<span class="sectionHead">Description</span>  Set the annotations on node value <code>x</code> as descriped by the map <code>annotations</code>.
+<span class="sectionHead">Description</span>  Set the annotations on node value <code>x</code> as described by the map <code>annotations</code>.
 
 </div>
 
@@ -76,6 +82,13 @@ node: f(10,&quot;abc&quot;)[
 
   	                       
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>   This function may result in run-time type errors later if
+   you store a value with a label that has an incomparable annotation type
+   declared.
+
+</div>
+
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Node/setAnnotations&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Node/setAnnotations&new=true"><b>New Subconcept</b></a>] |

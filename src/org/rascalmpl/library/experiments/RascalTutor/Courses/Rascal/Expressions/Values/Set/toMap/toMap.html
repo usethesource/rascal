@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Set/toMap</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Set/toMap:  Convert a set of tuples to a map.">
+<meta name="description" content="Rascal/Expressions/Values/Set/toMap:  Convert a set of tuples to a map; each key is associated with a set of values.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Set/toMap, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Convert a set of tuples to a map.
+<span class="sectionHead">Synopsis</span>  Convert a set of tuples to a map; each key is associated with a set of values.
 
 </div>
 
@@ -52,13 +52,20 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>map[&amp;A, set[&amp;B]] toMap(set[tuple[&amp;A, &amp;B]] s)</code>
+<span class="sectionHead">Function</span>  <code>map[&amp;A,set[&amp;B]] toMap(rel[&amp;A, &amp;B] st)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
-<span class="sectionHead">Description</span>  Convert a set of tuples to a map in which the first element of each tuple is associated with the set of second elements of all tuples with the same first element.
+<span class="sectionHead">Description</span>  Convert a set of tuples to a map in which the first element of each tuple 
+ is associated with the set of second elements of all tuples with the same first element.
 
 </div>
 

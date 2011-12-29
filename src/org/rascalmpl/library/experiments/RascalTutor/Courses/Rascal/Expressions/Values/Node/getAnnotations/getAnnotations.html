@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Node/getAnnotations</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Node/getAnnotations:  Retrieve the annnotations of a node value as a map.">
+<meta name="description" content="Rascal/Expressions/Values/Node/getAnnotations:  Retrieve the annotations of a node value as a map.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Node/getAnnotations, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Retrieve the annnotations of a node value as a map.
+<span class="sectionHead">Synopsis</span>  Retrieve the annotations of a node value as a map.
 
 </div>
 
@@ -57,6 +57,12 @@
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Node;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Node;
@@ -71,7 +77,7 @@ ok
 </pre>
   Create a node with two annotations:
 
-<pre class="screen"><b>rascal></b>N = setAnnotations(&quot;f&quot;(10, &quot;abc&quot;), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
+<pre class="screen"><b>rascal></b>F = setAnnotations(&quot;f&quot;(10, &quot;abc&quot;), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: f(10,&quot;abc&quot;)[
   @color=&quot;red&quot;,
   @size=&quot;large&quot;
@@ -79,9 +85,9 @@ node: f(10,&quot;abc&quot;)[
 </pre>
   and retrieve those annotations:
 
-<pre class="screen"><b>rascal></b>getAnnotations(N);
+<pre class="screen"><b>rascal></b>getAnnotations(F);
 map[str, value]: (&quot;color&quot;:&quot;red&quot;,&quot;size&quot;:&quot;large&quot;)
-<b>rascal></b>N@color;
+<b>rascal></b>F@color;
 str: &quot;red&quot;
 </pre>
 </div>

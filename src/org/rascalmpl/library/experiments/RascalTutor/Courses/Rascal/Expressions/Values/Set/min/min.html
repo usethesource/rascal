@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Set/min</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Set/min:  Determine the smallest element of a set.">
+<meta name="description" content="Rascal/Expressions/Values/Set/min:  Smallest element of a set.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Set/min, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Determine the smallest element of a set.
+<span class="sectionHead">Synopsis</span>  Smallest element of a set.
 
 </div>
 
@@ -52,17 +52,25 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;T min(set[&amp;T] s)</code>
+<span class="sectionHead">Function</span>  <code>&amp;T min(set[&amp;T] st)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Set;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Set;
 ok
-<b>rascal></b>min({1, 3, 5, 4, 2});
+<b>rascal></b>min({1, 3, 5, 2, 4});
 int: 1
+<b>rascal></b>min({&quot;elephant&quot;, &quot;zebra&quot;, &quot;snake&quot;});
+str: &quot;elephant&quot;
 </pre>
 </div>
 

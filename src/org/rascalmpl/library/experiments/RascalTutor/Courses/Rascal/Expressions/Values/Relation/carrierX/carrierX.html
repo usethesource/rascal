@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Relation/carrierX</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Relation/carrierX:  A relation excluded tuples containing certain values.">
+<meta name="description" content="Rascal/Expressions/Values/Relation/carrierX: ">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Relation/carrierX, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,34 +43,26 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Expressions/Expressions.html">Expressions</a>/<a href="/Courses/Rascal/Expressions/Values/Values.html">Values</a>/<a href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Relation</a>/<a href="/Courses/Rascal/Expressions/Values/Relation/carrierX/carrierX.html">carrierX</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  A relation excluded tuples containing certain values.
-
-</div>
-
 	                       
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>rel[&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T] R, set[&amp;T] S)</code>
-
+<span class="sectionHead">Function</span>  <ol><li> <code>rel[&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T] R, set[&amp;T] S)</code></li>
+<li> <code>rel[&amp;T,&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T,&amp;T] R, set[&amp;T] S)</code></li>
+<li> <code>rel[&amp;T,&amp;T,&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T,&amp;T,&amp;T] R, set[&amp;T] S)</code></li>
+<li> <code>rel[&amp;T,&amp;T,&amp;T,&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T,&amp;T,&amp;T,&amp;T] R, set[&amp;T] S)</code></li>
+</ol>
 </div>
 
                            
-<div id="Description">
-<span class="sectionHead">Description</span>  Returns relation <code>R</code> excluding tuples with some element in <code>S</code>.
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Relation;</code>
+ </AUTOINSERTED>
+ Binary relation excluded tuples with some element in 
 
 </div>
 
   	                       
-<div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Relation;
-ok
-<b>rascal></b>carrierX({&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;}, {10, 1, 20});
-rel[int, int]: {&lt;3,30&gt;}
-</pre>
-</div>
-
   	                       
   	                       
   	                       

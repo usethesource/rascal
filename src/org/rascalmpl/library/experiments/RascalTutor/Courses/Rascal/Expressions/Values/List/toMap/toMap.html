@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/List/toMap</title>
 
-<meta name="description" content="Rascal/Expressions/Values/List/toMap:  Convert a list of pairs to a map.">
+<meta name="description" content="Rascal/Expressions/Values/List/toMap:  Convert a list of pairs to a map; first elements are associated with a set of second elements.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/List/toMap, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Convert a list of pairs to a map.
+<span class="sectionHead">Synopsis</span>  Convert a list of pairs to a map; first elements are associated with a set of second elements.
 
 </div>
 
@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>map[&amp;A,set[&amp;B]] toMap(list[tuple[&amp;A, &amp;B]] lst)</code>
+<span class="sectionHead">Function</span>  <code>map[&amp;A,set[&amp;B]] toMap(list[tuple[&amp;A, &amp;B]] lst) throws DuplicateKey</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Convert a list of tuples to a map in which the first element of each tuple is 
  associated with the set of second elements from all tuples with the same first element. Keys should be unique.

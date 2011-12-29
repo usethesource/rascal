@@ -50,14 +50,15 @@
 
 	                       
                            
-                           
-                           
-<div id="Usage">
-<span class="sectionHead">Usage</span>  <code>import Message;</code>
- </AUTOINSERTED>
-
+<div id="Types">
+<span class="sectionHead">Types</span>  <pre class="listing">data Message = error(str msg, loc at)
+             | warning(str msg, loc at)
+             | info(str msg, loc at);
+</pre>
 </div>
 
+                           
+                           
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/Message/Message/Message.html">Message</a> &#032 
 </div>
@@ -66,7 +67,12 @@
 <span class="sectionHead">Description</span>  Messages can be used to communicate information about source texts.
  They can be interpreted by IDEs to display type errors and warnings, etc.
  <code>Message</code>s are, for instance, used as <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> annotations.
+ <br/>
+<br/>
 
+ Provides the following functions:
+ <ul><li><a href="/Courses/Rascal/Libraries/Message/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
+</ul>
 </div>
 
   	                       

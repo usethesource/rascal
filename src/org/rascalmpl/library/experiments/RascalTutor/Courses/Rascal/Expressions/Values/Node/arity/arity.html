@@ -52,17 +52,25 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  int arity(node T)
+<span class="sectionHead">Function</span>  <code>int arity(node T)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Node;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Node;
 ok
 <b>rascal></b>arity(&quot;f&quot;(10, &quot;abc&quot;));
 int: 2
+<b>rascal></b>arity(&quot;f&quot;(10, &quot;abc&quot;, false));
+int: 3
 </pre>
 </div>
 

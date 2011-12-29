@@ -52,13 +52,22 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>int toInt(str s) throws IllegalArgument(value v)</code>
-
+<span class="sectionHead">Function</span>  <ol><li> <code>int toInt(str s) throws IllegalArgument</code></li>
+<li> <code>int toInt(str s, int r) throws IllegalArgument</code></li>
+</ol>
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import String;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
-<span class="sectionHead">Description</span>  Converts string <code>s</code> to integer. Throws <code>IllegalArgument</code> when <code>s</code> cannot be converted.
+<span class="sectionHead">Description</span>  <ol><li> Converts string <code>s</code> to integer. </li>
+<li> Convert string <code>s</code> to integer using radix <code>r</code>.</li>
+</ol> Throws <code>IllegalArgument</code> when <code>s</code> cannot be converted.
 
 </div>
 
@@ -66,9 +75,14 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import String;
 ok
-<b>rascal></b>toInt(&quot;2010&quot;);
-int: 2010
-<b>rascal></b>toInt(&quot;abc&quot;);
+<b>rascal></b>toInt(&quot;11&quot;);
+int: 11
+<b>rascal></b>toInt(&quot;11&quot;, 8);
+int: 9
+</pre>
+  Now try an erroneous argument:
+
+<pre class="screen"><b>rascal></b>toInt(&quot;abc&quot;);
 Uncaught Rascal Exception: prompt:///:1,6: IllegalArgument()
     somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.String.toInt(org.eclipse.imp.p&raquo;
 db.facts.IString)

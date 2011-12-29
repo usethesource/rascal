@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/List/max</title>
 
-<meta name="description" content="Rascal/Expressions/Values/List/max:  Determine the largest element from a list.">
+<meta name="description" content="Rascal/Expressions/Values/List/max:  Determine the largest element in a list.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/List/max, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Determine the largest element from a list.
+<span class="sectionHead">Synopsis</span>  Determine the largest element in a list.
 
 </div>
 
@@ -52,17 +52,25 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;T max(list[&amp;T] s)</code>
+<span class="sectionHead">Function</span>  <code>&amp;T max(list[&amp;T] lst)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
 ok
 <b>rascal></b>max([1, 3, 5, 2, 4]);
 int: 5
+<b>rascal></b>max([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
+str: &quot;zebra&quot;
 </pre>
 </div>
 

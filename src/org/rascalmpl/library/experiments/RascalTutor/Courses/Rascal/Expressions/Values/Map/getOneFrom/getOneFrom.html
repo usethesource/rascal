@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Map/getOneFrom</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Map/getOneFrom:  Get a random key from a map.">
+<meta name="description" content="Rascal/Expressions/Values/Map/getOneFrom:  Get a n arbitrary key from a map.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Map/getOneFrom, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Get a random key from a map.
+<span class="sectionHead">Synopsis</span>  Get a n arbitrary key from a map.
 
 </div>
 
@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>&amp;K getOneFrom(map[&amp;K, &amp;V] M) throws emptyMap</code>
+<span class="sectionHead">Function</span>  <code>&amp;K getOneFrom(map[&amp;K, &amp;V] M)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Map;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns an arbitrary key of map <code>M</code>.
 
@@ -69,7 +75,7 @@ ok
 <b>rascal></b>getOneFrom((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;pineapple&quot;: 3));
 str: &quot;pear&quot;
 <b>rascal></b>getOneFrom((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;pineapple&quot;: 3));
-str: &quot;pineapple&quot;
+str: &quot;pear&quot;
 <b>rascal></b>getOneFrom((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;pineapple&quot;: 3));
 str: &quot;pineapple&quot;
 </pre>

@@ -52,13 +52,20 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>int charAt(str s, int i) throws IndexOutOfBounds(int index)</code>
+<span class="sectionHead">Function</span>  <code>int charAt(str s, int i) throws out_of_range(str msg)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import String;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
-<span class="sectionHead">Description</span>  Returns the character at position <code>i</code> in string <code>s</code>.
+<span class="sectionHead">Description</span>  Return the character at position <code>i</code> in string <code>s</code> as integer character code.
+ Also see <a href="/Courses/Rascal/Expressions/Values/String/stringChar/stringChar.html">stringChar</a> that converts character codes back to string.
 
 </div>
 
@@ -68,6 +75,8 @@
 ok
 <b>rascal></b>charAt(&quot;abc&quot;, 0);
 int: 97
+<b>rascal></b>stringChar(charAt(&quot;abc&quot;, 0));
+str: &quot;a&quot;
 </pre>
 </div>
 

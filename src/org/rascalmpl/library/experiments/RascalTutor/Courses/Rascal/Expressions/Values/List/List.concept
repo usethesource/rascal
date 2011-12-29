@@ -28,7 +28,7 @@ where `$T$` is an arbitrary type.
 
 When variables of type list occur inside a list, their elements are automatically _spliced_ into the surrounding set. This can be prevented by surrounding them with extra `[` and `]` brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
 
-The following functions on lists are provided:
+The following functions and operators on lists are provided:
 
 <toc Rascal/Expressions/Values/List 1>
 

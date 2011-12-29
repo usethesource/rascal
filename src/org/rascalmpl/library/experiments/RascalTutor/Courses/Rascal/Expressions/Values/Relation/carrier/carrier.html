@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Relation/carrier</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Relation/carrier:  Returns the set of all elements in any tuple in a relation.">
+<meta name="description" content="Rascal/Expressions/Values/Relation/carrier:  Return the set of all elements in any tuple in a relation.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Relation/carrier, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Returns the set of all elements in any tuple in a relation.
+<span class="sectionHead">Synopsis</span>  Return the set of all elements in any tuple in a relation.
 
 </div>
 
@@ -52,17 +52,28 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>set[&amp;T] carrier (rel[&amp;T,&amp;T] R)</code>
-
+<span class="sectionHead">Function</span>  <ol><li> <code>set[&amp;T]  carrier (rel[&amp;T,&amp;T] R)</code></li>
+<li> <code>set[&amp;T]  carrier (rel[&amp;T,&amp;T,&amp;T] R)</code></li>
+<li> <code>set[&amp;T]  carrier (rel[&amp;T,&amp;T,&amp;T,&amp;T] R)</code></li>
+<li> <code>set[&amp;T]  carrier (rel[&amp;T,&amp;T,&amp;T,&amp;T,&amp;T] R)</code></li>
+</ol>
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Relation;</code>
+ </AUTOINSERTED>
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Relation;
 ok
 <b>rascal></b>carrier({&lt;1,10&gt;, &lt;2,20&gt;});
 set[int]: {10,20,2,1}
+<b>rascal></b>carrier({&lt;1,10,100,1000&gt;, &lt;2,20,200,2000&gt;});
+set[int]: {10,1000,200,100,20,2,1,2000}
 </pre>
 </div>
 
