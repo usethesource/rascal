@@ -393,7 +393,7 @@ public ConstraintBase gatherPatternConstraints(STBuilder st, ConstraintBase cb, 
 	    }
 	    
 	    if (prod(label("Tuple",_),_,_) := pat[0]) {
-	        list[Pattern] tupleContents = getTuplePatternContents(pat);
+	        list[Pattern] tupleContents = [ p | Pattern p <- getTupleItems(pat) ];
 	        list[RType] tupleTypes = [ ];
 	        for (tc <- tupleContents) {
 	            gatherPatternConstraints(tc);
@@ -409,26 +409,4 @@ public ConstraintBase gatherPatternConstraints(STBuilder st, ConstraintBase cb, 
 	
 	gatherPatternConstraints(patPC);
 	return cb;
-}
-
-public list[Pattern] getTuplePatternContents(Pattern pat) {
-    return [ p | Pattern p <- getTupleItems(pat) ];
-}
-
-public list[Tree] getTupleItems(Tree t) {
-    list[Tree] tupleParts = [ ];
-
-    // t[1] holds the parse tree contents for the tuple
-    if (list[Tree] tupleTop := t[1]) {
-        // tupleTop[0] = <, tupleTop[1] = layout, tupleTop[2] = tuple contents, tupleTop[3] = layout, tupleTop[4] = >, so we get out 2
-        if (appl(_,list[Tree] tupleItems) := tupleTop[2]) {
-            if (size(tupleItems) > 0) {
-                // The tuple items include layout and commas, so we use a mod 4 to account for this: we have
-                // item layout comma layout item layout comma layout etc
-                tupleParts = [ tupleItems[n] | n <- [0..size(tupleItems)-1], n % 4 == 0];
-            }
-        }
-    }
-
-    return tupleParts;
 }

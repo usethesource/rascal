@@ -416,10 +416,6 @@ public STBuilder handleModuleBodyNamesOnly(Body b, STBuilder stBuilder) {
                 case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` :
                     stBuilder = handleTagDeclarationNamesOnly(tgs,v,k,n,typs,t@\loc,stBuilder);
 
-                // Rule declaration
-                case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
-                    stBuilder = handleRuleDeclarationNamesOnly(tgs,n,pwa,t@\loc,stBuilder);
-
 // Views have been removed from the grammar.
 //                // View
 //                case (Toplevel) `<Tags tgs> <Visibility v> view <Name n> <: <Name sn> = <{Alternative "|"}+ alts> ;` :
@@ -470,10 +466,6 @@ public STBuilder handleModuleBodyFull(Body b, STBuilder stBuilder) {
                 // Tag declaration
                 case (Toplevel) `<Tags tgs> <Visibility v> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` :
                     stBuilder = handleTagDeclaration(tgs, v, k, n, typs, t@\loc, stBuilder);
-
-                // Rule declaration
-                case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` :
-                    stBuilder = handleRuleDeclaration(tgs, n, pwa, t@\loc, stBuilder);
 
                 // ADT without variants
                 case (Toplevel) `<Tags tgs> <Visibility v> data <UserType typ> ;` :
@@ -713,21 +705,6 @@ public STBuilder handleTagDeclaration(Tags t, Visibility v, Kind k, Name n, {Typ
 //
 public STBuilder handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Name n, {Type ","}+ ts, loc l, STBuilder stBuilder) {
     return handleTagsNamesOnly(t, stBuilder);
-}
-
-//
-// In this first pass we just worry about the name of the rule, we don't yet descend into the pattern.
-//
-public STBuilder handleRuleDeclarationNamesOnly(Tags t, Name n, PatternWithAction p, loc l, STBuilder stBuilder) {
-    stBuilder = handleTagsNamesOnly(t, stBuilder);
-    return justSTBuilder(addRuleToScope(convertName(n), l, handleTagsNamesOnly(t, stBuilder)));
-}
-
-//
-// For the second pass, descend into the rule pattern with action.
-//							
-public STBuilder handleRuleDeclaration(Tags t, Name n, PatternWithAction p, loc l, STBuilder stBuilder) {
-    return handlePatternWithAction(p, handleTags(t, stBuilder));
 }
 
 //
@@ -999,45 +976,19 @@ public STBuilder handleStatement(Statement s, STBuilder stBuilder) {
 }
 
 //
-// Pick apart a map to properly introduce its names into scope
-//
-public list[Tree] getMapMappings(Tree t) {
-    list[Tree] mapParts = [ ];
-
-    // t[1] holds the parse tree contents for the map
-    if (list[Tree] mapTop := t[1]) {
-        // mapTop[0] = (, mapTop[1] = layout, mapTop[2] = map contents, mapTop[3] = layout, mapTop[4] = ), so we get out 2
-        if (appl(_,list[Tree] mapItems) := mapTop[2]) {
-            if (size(mapItems) > 0) {
-                // The map items include layout and commas, so we use a mod 4 to account for this: we have
-                // item layout comma layout item layout comma layout etc
-                list[Tree] mapMappings = [ mapItems[n] | n <- [0..size(mapItems)-1], n % 4 == 0];
-
-                // Each item should have the domain and range inside. It is organized as pat layout : layout pat
-                for (n <- [0..size(mapMappings)-1]) {
-                    if (appl(_,list[Tree] mapContents) := mapMappings[n]) {
-                        if (size(mapContents) == 5 && `<Tree tl>` := mapContents[0] && `<Tree tr>` := mapContents[4]) {
-                            mapParts = mapParts + [ tl, tr ]; 
-                        }
-                    } 
-                }
-            }
-        }
-    }
-
-    return mapParts;
-}
-
-//
 // Return domain : range expression pairs as a list of tuples for a map expression
 //
 public list[tuple[Expression mapDomain, Expression mapRange]] getMapExpressionContents(Expression exp) {
     list[Tree] mm = getMapMappings(exp); // What comes back is in the form [domain,range,domain,range,...]
 
     if (size(mm) > 0)
-        return [ <el, er> | n <- [0..size(mm)-1], n % 2 == 0, `<Expression el>` := mm[n], `<Expression er>` := mm[n+1] ];
+        return [ <el, er> | n <- [0..size(mm)-1], n % 2 == 0, Expression el := mm[n], Expression er := mm[n+1] ];
     else
         return [ ];
+}
+
+public list[Pattern] getTuplePatternContents(Pattern pat) {
+	return [ p | Pattern p <- getTupleItems(pat) ];
 }
 
 //
@@ -1047,7 +998,7 @@ public list[tuple[Pattern mapDomain, Pattern mapRange]] getMapPatternContents(Pa
     list[Tree] mm = getMapMappings(pat); // What comes back is in the form [domain,range,domain,range,...]
 
     if (size(mm) > 0)
-        return [ <pl, pr> | n <- [0..size(mm)-1], n % 2 == 0, `<Pattern pl>` := mm[n], `<Pattern pr>` := mm[n+1] ];
+        return [ <pl, pr> | n <- [0..size(mm)-1], n % 2 == 0, Pattern pl := mm[n], Pattern pr := mm[n+1] ];
     else
         return [ ];
 }
@@ -1136,11 +1087,11 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
             for (ei <- el) stBuilder = handleExpression(ei, stBuilder);
 
         // Tuple, just one expression
-        case (Expression) `<<Expression ei>>` :
+        case (Expression) `< <Expression ei> >` :
             stBuilder = handleExpression(ei, stBuilder);
 
         // Tuple, more than one expression
-        case (Expression)`<<Expression ei>, <{Expression ","}* el>>` : {
+        case (Expression)`< <Expression ei>, <{Expression ","}* el> >` : {
             stBuilder = handleExpression(ei,stBuilder);
             for (eli <- el) stBuilder = handleExpression(eli, stBuilder);
         }
@@ -1860,6 +1811,12 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         return stBuilder;
     }
 
+    STBuilder handleTuplePattern(Pattern pat, STBuilder stBuilder) {
+        list[Pattern] tupleContents = getTuplePatternContents(pat);
+        for (ti <- tupleContents) stBuilder = handlePattern(ti, stBuilder);
+        return stBuilder;
+    }
+
 	STBuilder handlePatternName(RName n, loc l, STBuilder stBuilder) {
 		if (size(getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs())) > 0) {		
 			stBuilder = addItemUses(stBuilder, getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs()), l);
@@ -1989,13 +1946,13 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         }
 
         // Tuple, with just one element
-        case (Pattern) `<<Pattern pi>>` : {
+        case (Pattern) `< <Pattern pi> >` : {
             // println("NAMESPACE: Handling tuple pattern <pat>");
             stBuilder = handlePattern(pi, stBuilder);
         }
 
-        // Tuple, with multiple elements
-        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+//        // Tuple, with multiple elements
+        case (Pattern) `< <Pattern pi>, <{Pattern ","}* pl> >` : {
             // println("NAMESPACE: Handling tuple pattern <pat>");
             stBuilder = handlePattern(pi, stBuilder);
             for (pli <- pl) stBuilder = handlePattern(pli, stBuilder);
@@ -2057,10 +2014,14 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         }
 	}
 	
+    //if (prod(label("Tuple",_),_,_) := pat[0]) {
+    //    stBuilder = handleTuplePattern(pat, stBuilder);
+    //}
+
     // Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
     // representing the map.
     // pat[0] is the production used, pat[1] is the actual parse tree contents
-    if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := pat[0]) {
+    if (prod(label("Map",_),_,_) := pat[0]) {
         stBuilder = handleMapPattern(pat, stBuilder);
     }
 
@@ -2284,6 +2245,15 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         return < stBuilder, makeMapType(lub(mapDomains), lub(mapRanges)) >;
     }
 
+    tuple[STBuilder,RType] handleTupleParameter(Pattern pat, STBuilder stBuilder) {
+        list[RType] tupleItemTypes = [ ];
+        for (ti <- getTuplePatternContents(pat)) {
+        	< stBuilder, rt > = handleParameter(ti, stBuilder);
+        	tupleItemTypes += rt;
+        }
+        return < stBuilder, makeTupleType(tupleItemTypes) >;
+    }
+
     // A parameter has the type of its current definition ONLY if that definition is
     // in the current function scope. If there is no definition in the current scope
     // we have an error, all names must be explicitly typed in the parameter before
@@ -2463,12 +2433,12 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
             return < stBuilder, makeSetType(lubList(elementTypes)) >;
         }
 
-        case (Pattern) `<<Pattern pi>>` : {
+        case (Pattern) `< <Pattern pi> >` : {
             < stBuilder, rt > = handleParameter(pi, stBuilder);
             return < stBuilder, makeTupleType([rt]) >;
         }
 
-        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+        case (Pattern) `< <Pattern pi>, <{Pattern ","}* pl> >` : {
             list[RType] tupleTypes = [ ];
             < stBuilder, rt > = handleParameter(pi, stBuilder); tupleTypes += rt;
             for (pli <- pl) {
@@ -2524,10 +2494,11 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         }
     }
     
-    // Logic for handling maps -- we cannot directly match them, so instead we need to pick apart the tree
-    // representing the map.
-    // pat[0] is the production used, pat[1] is the actual parse tree contents
-    if (prod(_,_,attrs([_*,term(cons("Map")),_*])) := pat[0]) {
+    //if (prod(label("Tuple",_),_,_) := pat[0]) {
+    //    return handleTupleParameter(pat, stBuilder);
+    //}
+
+    if (prod(label("Map",_),_,_) := pat[0]) {
         return handleMapParameter(pat, stBuilder);
     }
 

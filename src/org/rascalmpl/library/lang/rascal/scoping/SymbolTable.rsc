@@ -35,7 +35,7 @@ data Namespace = Modules() | Labels() | FCVs() | Types() | TypeVars() | Annotati
 //
 // Each item in the symbol table is given a unique ID.
 //
-alias ItemId = int;
+public alias ItemId = int;
 
 //
 // The symbol table is made up of a mix of different items, some of
@@ -100,7 +100,7 @@ public RName getItemName(Item item) {
         case "Annotation" : return item.annotationName;
         case "Rule" : return item.ruleName;
         case "TypeVariable" : return item.typeVar.varName;
-		default : throw "Item does not have a name, use itemHasHame(Item item) to check first to ensure the item has a name";
+		default : throw "Item does not have a name, use itemHasHame(Item item) to check first to ensure the item has a name: <item>";
 	}
 }
 
@@ -189,7 +189,8 @@ public STBuilder mergeOrScopes(STBuilder stBuilder, list[ItemId] orLayers, ItemI
 // Indicate that scopeItem is used at location l
 //
 public STBuilder addItemUse(STBuilder stBuilder, ItemId scopeItem, loc l) {
-    return stBuilder[itemUses = stBuilder.itemUses + < l, scopeItem >];
+	t = < l, scopeItem >;
+    return stBuilder[itemUses = stBuilder.itemUses + t];
 }
 
 //
@@ -203,12 +204,14 @@ public STBuilder addItemUses(STBuilder stBuilder, set[ItemId] scopeItems, loc l)
 // Add a scope error with message msg at location l
 //
 public STBuilder addScopeError(STBuilder stBuilder, loc l, str msg) {
-	stBuilder.messages = stBuilder.messages + < l, error(msg,l) >;
+	t = < l, error(msg,l) >;
+	stBuilder.messages = stBuilder.messages + t;
     return stBuilder;
 }
 
 public STBuilder addScopeWarning(STBuilder stBuilder, loc l, str msg) {
-	stBuilder.messages = stBuilder.messages + < l, warning(msg,l) >;
+	t = < l, warning(msg,l) >;
+	stBuilder.messages = stBuilder.messages + t;
     return stBuilder;
 }
 
@@ -591,10 +594,14 @@ public AddedItemPair addItem(Item si, ItemId parentId, loc l, STBuilder stBuilde
     stBuilder.scopeItemMap = stBuilder.scopeItemMap + (newItemId : si);
 
 	// add it to the symbol table
-    stBuilder.scopeRel = stBuilder.scopeRel + < parentId, newItemId >;
+	t1 = < parentId, newItemId >;
+    stBuilder.scopeRel = stBuilder.scopeRel + t1;
 
 	// add it to the symbol table names relation, if it has a name
-    if (itemHasName(si)) stBuilder.scopeNames = stBuilder.scopeNames + < parentId, getItemName(si), newItemId >;
+    if (itemHasName(si)) {
+		t2 = < parentId, getItemName(si), newItemId >;
+    	stBuilder.scopeNames = stBuilder.scopeNames + t2;
+    }
 
 	// flag this as a use of the item being added
 	// TODO: We should really add this as a use at the location of the name!
@@ -668,7 +675,8 @@ public AddedItemPair pushNewTopScope(STBuilder stBuilder) {
 //
 public AddedItemPair pushNewModuleScope(RName moduleName, loc l, STBuilder stBuilder) {
 	< stBuilder, addedId > = pushNewScope(Module(moduleName, head(stBuilder.scopeStack),l), head(stBuilder.scopeStack), l, stBuilder);
-	stBuilder.scopeNames = stBuilder.scopeNames + < addedId, moduleName, addedId >;
+	t = < addedId, moduleName, addedId >;
+	stBuilder.scopeNames = stBuilder.scopeNames + t;
 	return < stBuilder, addedId >;
 }
 
@@ -708,7 +716,8 @@ public AddedItemPair pushNewPatternMatchScope(loc l, STBuilder stBuilder) {
 public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
     if (hasAnonymousName) functionName = RSimpleName("@ANONYMOUS_FUNCTION_<stBuilder.nextScopeId>");
     < stBuilder, addedId > = pushNewScope(Function(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, scopeToUse, l), scopeToUse, l, stBuilder);
-	stBuilder.scopeNames = stBuilder.scopeNames + < addedId, functionName, addedId >;
+    t = < addedId, functionName, addedId >;
+	stBuilder.scopeNames = stBuilder.scopeNames + t;
 	return < stBuilder, addedId >;
 }
 
