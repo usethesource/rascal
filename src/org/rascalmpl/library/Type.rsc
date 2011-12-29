@@ -52,7 +52,7 @@ data Symbol
   | \datetime()
   ;
   
-@doc{These are the composite types}  
+@doc{These are the composite (abstract) types}  
 data Symbol 
   = \set(Symbol symbol)
   | \rel(list[Symbol] symbols)
