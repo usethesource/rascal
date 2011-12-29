@@ -9,55 +9,156 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Node
 
-@doc{Number of children of a node}
+@doc{
+Synopsis: Determine the number of children of a node.
+
+Examples:
+<screen>
+import Node;
+arity("f"(10, "abc"));
+arity("f"(10, "abc", false));
+</screen>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java int arity(node T);
 
-@doc{retrieve the annnotations of a node value as a map}
+@doc{
+Synopsis: Delete a specific annotation from a node.
+
+Examples:
+<screen>
+import Node;
+F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+delAnnotation(F, "size");
+</screen>
+}
+@javaClass{org.rascalmpl.library.Node}
+public java &T <: node delAnnotation(&T <: node x, str label);
+
+@doc{
+Synopsis: Delete all annotations from a node.
+
+Examples:
+<screen>
+import Node;
+F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+delAnnotations(F);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Node}
+public java &T <: node  delAnnotations(&T <: node x);
+
+@doc{
+Synopsis: Delete recursively all annotations from all nodes in a value.
+
+Examples:
+<screen>
+import Node;
+G = setAnnotations("g"("def"), ("level" : "20", "direction" : "north"));
+F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
+delAnnotationsRec(F);
+</screen>
+}
+@javaClass{org.rascalmpl.library.Node}
+public &T delAnnotationsRec(&T v) {
+  return visit(v) { case m: node n => delAnnotations(m) };
+}
+
+@doc{
+Synopsis: Retrieve the annotations of a node value as a map.
+
+Examples:
+
+<screen>
+import Node;
+// Declare two string-valued annotation on nodes, named color, respectively, size:
+anno str node @ color;
+anno str node @ size;
+// Create a node with two annotations:
+F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+// and retrieve those annotations:
+getAnnotations(F);
+F@color;
+</screen>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java map[str,value] getAnnotations(node x);
 
-@doc{Get the children of a node}
+@doc{Synopsis: Get the children of a node.
+Examples:
+<screen>
+import Node;
+getChildren("f"(10, "abc"));
+</screen>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java list[value] getChildren(node T);
 
-@doc{Get the function name of a node}
+@doc{
+Synopsis: Determine the name of a node.
+
+Examples:
+<screen>
+import Node;
+getName("f"(10, "abc"));
+</screen>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java str getName(node T);
 
-@doc{Create a node given its function name and arguments}
+@doc{
+Synopsis: Create a node given its function name and arguments.
+
+Examples:
+<screen>
+import Node;
+makeNode("f", [10, "abc"]);
+</screen>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java node makeNode(str N, value V...);
 
-@doc{Read an ATerm from a named file}
+@doc{
+Synopsis: Read an ATerm from a named file.
+
+<warning>Move this function to ATermIO?</warning>
+}
 @javaClass{org.rascalmpl.library.Node}
 public java value readATermFromFile(str fileName);
 
 @doc{
-  Set a whole map of annotations on a value.
-  
-  WARNING: Note that this function may result in run-time type errors later if
+Synopsis: Add a map of annotations to a node value.
+
+Description:
+Set the annotations on node value `x` as described by the map `annotations`.
+
+Examples:
+<screen>
+import Node;
+setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+</screen>
+
+Benefits:
+
+Pitfalls:
+ This function may result in run-time type errors later if
   you store a value with a label that has an incomparable annotation type
   declared.
 }
 @javaClass{org.rascalmpl.library.Node}
 public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
 
-@doc{remove annotation on a node}
-@javaClass{org.rascalmpl.library.Node}
-public java &T <: node delAnnotation(&T <: node x, str label);
 
-@doc{removes all annotations on all nodes in a value}
-@javaClass{org.rascalmpl.library.Node}
-public &T delAnnotationsRec(&T v) {
-  return visit(v) { case m: node n => delAnnotations(m) };
+@doc{
+Synopsis: Convert a node to a string.
+
+Examples:
+<screen>
+import Node;
+F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+toString(F);
+</screen>
 }
-
-@doc{remove all annotations on a node}
-@javaClass{org.rascalmpl.library.Node}
-public java &T <: node  delAnnotations(&T <: node x);
-
-@doc{Convert a node to a string}
 @javaClass{org.rascalmpl.library.Node}
 public java str toString(node T);
 

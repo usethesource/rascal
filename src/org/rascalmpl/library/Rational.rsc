@@ -17,7 +17,7 @@ public rat arbRat() {
 	d = arbInt();
 	if(d == 0)
 		d = 1;
-	return toRational(n) / toRational(d);
+	return toRat(n, d);
 }
 @doc{Absolute value of rational.}
 public rat abs(rat N)
@@ -52,6 +52,10 @@ public java int denominator(rat n);
 @doc{Return the remainder of dividing the numerator by the denominator}
 @javaClass{org.rascalmpl.library.Rational}
 public java int remainder(rat n);
+
+@doc{Convert a given numerator and denominator to a rational value.}
+@javaClass{org.rascalmpl.library.Rational}
+public java real toRat(int numerator, int denominator);
 
 @doc{Convert a rational value to a real value.}
 @javaClass{org.rascalmpl.library.Rational}
