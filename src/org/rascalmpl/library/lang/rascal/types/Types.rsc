@@ -71,7 +71,7 @@ public str prettyPrintName(RName n) {
 // Abstract syntax for tag kinds
 //
 data RKind = FunctionKind() | VariableKind() | AllKind() | AnnoKind() | DataKind() |
-             ViewKind() | RuleKind() | AliasKind() | ModuleKind() | TagKind();
+             ViewKind() | AliasKind() | ModuleKind() | TagKind();
              
 public RKind convertKind(Kind k) {
     switch(k) {
@@ -81,7 +81,6 @@ public RKind convertKind(Kind k) {
         case (Kind) `anno` : return AnnoKind();
         case (Kind) `data` : return DataKind();
         case (Kind) `view` : return ViewKind();
-        case (Kind) `rule` : return RuleKind();
         case (Kind) `alias` : return AliasKind();
         case (Kind) `module` : return ModuleKind();
         case (Kind) `tag` : return TagKind();
@@ -97,7 +96,6 @@ public str prettyPrintKind(RKind rk) {
         case AnnoKind() : return "anno";
         case DataKind() : return "data";
         case ViewKind() : return "view";
-        case RuleKind() : return "rule";
         case AliasKind() : return "alias";
         case ModuleKind() : return "module";
         case TagKind() : return "tag";

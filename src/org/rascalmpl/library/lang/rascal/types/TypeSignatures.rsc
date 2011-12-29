@@ -62,7 +62,6 @@ data RSignatureItem =
     | VariableSigItem(RName variableName, RType variableType, loc at)
     | ADTSigItem(RName adtName, RType adtType, loc at)
     | ConstructorSigItem(RName conName, RType constructorType, loc at)
-    | RuleSigItem(RName ruleName, loc at)
     | AnnotationSigItem(RName annName, RType annType, RType onType, loc at)
     | TagSigItem(RName tagName, RKind tagKind, list[RType] taggedTypes, loc at)
     ;
@@ -178,11 +177,6 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 //                    if ((Visibility)`public` := vis) {
                         sig = addSignatureItem(sig, TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
 //                    }
-                }
-                
-                // Rule declaration -- we will include the rule names in the signature, but I'm not sure we actually need them
-                case (Toplevel) `<Tags tgs> rule <Name n> <PatternWithAction pwa> ;` : {
-                    sig = addSignatureItem(sig, RuleSigItem(convertName(n), t@\loc));
                 }
                 
                 // ADT without variants
