@@ -472,7 +472,10 @@ public class TypeReifier {
 					sym = Factory.Symbol_Adt.make(vf, vf.string(type.getName()), w.done());
 					cache.put(type, sym);
 				
-					for (Type cons : store.lookupAlternatives(type)) {
+
+					// make sure to find the type by the uninstantiated adt
+					Type adt = store.lookupAbstractDataType(type.getName());
+					for (Type cons : store.lookupAlternatives(adt)) {
 						cons.accept(this);
 					}
 				}
