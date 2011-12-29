@@ -13,169 +13,476 @@ module String
 
 import Origins;
 
-@doc{Convert a character code into a string}
-@javaClass{org.rascalmpl.library.String}
-public java str stringChar(int char);
+@doc{
+Synopsis: Center a string in given space.
 
-@doc{Convert a list of character codes into a string}
-@javaClass{org.rascalmpl.library.String}
-public java str stringChars(list[int] chars);
+Description:
+# Center string `s` in string of length `n` using spaces.
+# Center string `s` in string of length `n` using `pad` as padding character.
 
-@doc{Return the character at position i in string s.}
-@javaClass{org.rascalmpl.library.String}
-public java int charAt(str s, int i) throws out_of_range(str msg);
+Examples:
+<screen>
+import String;
+center("abc", 10);
+center("abc", 10, "x");
+</screen>
+}
 
-@doc{Returns true if string s ends with given string suffix.}
-@javaClass{org.rascalmpl.library.String}
-public java bool endsWith(str s, str suffix);
-
-@doc{Returns string with leading and trailing whitespace removed.}
-@javaClass{org.rascalmpl.library.String}
-public java str trim(str s);
-
-@doc{Return string of length n, with s placed according to dir (left/center/right) and padded with pad}
-@javaClass{org.rascalmpl.library.String}
-private java str format(str s, str dir, int n, str pad);
-
-@doc{Center s in string of length n using spaces}
 public str center(str s, int n)
 {
   return format(s, "center", n, " ");
 }
 
-@doc{Center s in string of length n using pad}
 public str center(str s, int n, str pad)
 {
   return format(s, "center", n, pad);
 }
 
-@doc{Is string empty?}
+@doc{
+Synopsis: Return character in a string by its index position.
+
+Description:
+Return the character at position `i` in string `s` as integer character code.
+Also see [$String/stringChar] that converts character codes back to string.
+
+Examples:
+<screen>
+import String;
+charAt("abc", 0);
+stringChar(charAt("abc", 0));
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java int charAt(str s, int i) throws out_of_range(str msg);
+
+@doc{
+Synopsis: Check that a string contains another string.
+
+Description:
+Check whether the string `find` occurs as substring in the string `subject`.
+
+Examples:
+<screen>
+import String;
+contains("abracadabra", "bra");
+contains("abracadabra", "e");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java bool contains(str input, str find);
+
+@doc{
+Synopsis: Check whether a string ends with a given substring.
+
+Description:
+Yields `true` if string `subject` ends with the string `suffix`.
+
+Examples:
+<screen>
+import String;
+endsWith("Hello.rsc", ".rsc");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java bool endsWith(str subject, str suffix);
+
+@doc{
+Synopsis: Replace single characters in a string.
+
+Description:
+Return a copy of `subject` in which each single character key in replacements
+has been replaced by its associated value.
+
+Examples:
+<screen>
+import String;
+import IO;
+escape("abracadabra", ("a" : "AA", "c" : "C"));
+L = escape("\"Good Morning\", he said", ("\"": "\\\""));
+println(L);
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java str escape(str subject, map[str,str] mapping);
+
+
+@doc{
+Synopsis: Find all occurrences of a string in another string.
+
+Description:
+Find all occurrences of string `find` in string `subject`.
+The result is a (possible empty) list of positions where `find` matches.
+
+See also [findFirst] and [findLast].
+
+Examples:
+<screen>
+import String;
+findAll("abracadabra", "a");
+findAll("abracadabra", "bra");
+findAll("abracadabra", "e");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java list[int] findAll(str subject, str find);
+
+@doc{
+Synopsis: Find the first occurrence of a string in another string.
+
+Description:
+Find the first occurrence of string `find` in string `subject`.
+The result is either a position in `subject` or `-1` when `find` is not found.
+
+Also see [findAll] and [findLast].
+
+Examples:
+<screen>
+import String;
+findFirst("abracadabra", "a");
+findFirst("abracadabra", "bra");
+findFirst("abracadabra", "e");
+</screen>       
+}
+@javaClass{org.rascalmpl.library.String}
+public java int findFirst(str subject, str find);
+
+@doc{
+Synopsis: Find the last occurrence of a string in another string.
+
+Description:
+Find the last occurrence of string `find` in string `subject`.
+The result is either a position in `subject` or `-1` when `find` is not found.
+
+Also see [findAll] and [findFirst].
+
+Examples:
+<screen>
+import String;
+findLast("abracadabra", "a");
+findLast("abracadabra", "bra");
+findLast("abracadabra", "e");
+</screen> 
+}
+@javaClass{org.rascalmpl.library.String}
+public java int findLast(str subject, str find);
+
+@doc{
+Synopsis: Check whether a string is empty.
+
+Description:
+Returns `true` if string `s` is empty.
+
+Examples:
+<screen>
+import String;
+isEmpty("");
+isEmpty("abc");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java bool isEmpty(str s);
 
-@doc{Left align s in string of length n using spaces}
+@doc{
+Synopsis: Left alignment of string in given space.
+
+Description:
+# Left align string `s` in string of length `n` using spaces.
+# Left align string `s` in string of length `n` using `pad` as pad character.
+
+Examples:
+<screen>
+import String;
+left("abc", 10);
+left("abc", 10, "x");
+</screen>
+}
 public str left(str s, int n)
 {
   return format(s, "left", n, " ");
 }
 
-@doc{Left align s in string of length n using pad}
 public str left(str s, int n, str pad)
 {
   return format(s, "left", n, pad);
 }
 
-@doc{Replace all occurrences of "find" in "input" by "replacement"}
-@javaClass{org.rascalmpl.library.String}
-public java str replaceAll(str input, str find, str replacement);
+@doc{
+Synopsis: Replace all occurrences of a string in another string.
 
-@doc{Replace the first occurrence of "find" in "input" by "replacement"}
-@javaClass{org.rascalmpl.library.String}
-public java str replaceFirst(str input, str find, str replacement);
+Description:
+Return a copy of `subject` in which all occurrences of `find` (if any) have been replaced by `replacement`.
+Also see [replaceFirst] and [replaceLast].
 
-@doc{Replace the last occurrence of "find" in "input" by "replacement"}
-@javaClass{org.rascalmpl.library.String}
-public java str replaceLast(str input, str find, str replacement);
+Examples:
+<screen>
+import String;
+replaceAll("abracadabra", "a", "A");
+replaceAll("abracadabra", "ra", "RARA");
+replaceAll("abracadabra", "cra", "CRA");
+</screen>
 
-@doc{Does string "input" contain the substring "find"?}
-@javaClass{org.rascalmpl.library.String}
-public java bool contains(str input, str find);
+Pitfalls:
+Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 
-@doc{Find all occurrences of "find" in "input".}
-@javaClass{org.rascalmpl.library.String}
-public java list[int] findAll(str input, str find);
-
-@doc{Find the first occurrence of "find" in "input".}
-@javaClass{org.rascalmpl.library.String}
-public java int findFirst(str input, str find);
-
-@doc{Find last occurrence of "find" in "input".}
-@javaClass{org.rascalmpl.library.String}
-public java int findLast(str input, str find);
-
-/*
-@doc{Replace all occurrences of "find" in "input" by "replacement"}
-public str replaceAll(str input, str find, str replacement) {
-	return visit (input) { 
-	  case find => "<replacement>"
-	}	
 }
+@javaClass{org.rascalmpl.library.String}
+public java str replaceAll(str subject, str find, str replacement);
 
-@doc{Replace the first occurrence of "find" in "input" by "replacement"}
-public str replaceFirst(str input, str find, str replacement) {
-	if(/^<pre:.*?><find><post:.*>$/ := input) {	
-		return "<pre><replacement><post>";
-	}	
-	
-	return input;
+@doc{
+Synopsis: Replace the first occurrence of a string in another string.
+
+Description:
+Return a copy of `subject` in which the first occurrence of `find` (if it exists) has been replaced by `replacement`.
+Also see [replaceAll] and [replaceLast].
+
+Examples:
+<screen>
+import String;
+replaceFirst("abracadabra", "a", "A");
+replaceFirst("abracadabra", "ra", "RARA");
+replaceFirst("abracadabra", "cra", "CRA");
+</screen>
+
+Pitfalls:
+Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
+@javaClass{org.rascalmpl.library.String}
+public java str replaceFirst(str subject, str find, str replacement);
 
+@doc{
+Synopsis: Replace the last occurrence of a string in another string.
 
-@doc{Replace the last occurrence of "find" in "input" by "replacement"}
-public str replaceLast(str input, str find, str replacement) {
-	if(/^<pre:.*><find><post:.*?>$/ := input) {	
-		return "<pre><replacement><post>";
-	}	
-	
-	return input;
+Description:
+Return a copy of `subject` in which the last occurrence of `find` (if it exists) has been replaced by `replacement`.
+Also see [replaceFirst] and [replaceLast].
+
+Examples:
+<screen>
+import String;
+replaceLast("abracadabra", "a", "A");
+replaceLast("abracadabra", "ra", "RARA");
+replaceLast("abracadabra", "cra", "CRA");
+</screen>
+
+Pitfalls:
+Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
-*/
+@javaClass{org.rascalmpl.library.String}
+public java str replaceLast(str subject, str find, str replacement);
 
-@doc{Right align s in string of length n using spaces}
+@doc{
+Synopsis: Return a string with all characters in reverse order.
+
+Description:
+Returns string with all characters of string `s` in reverse order.
+
+Examples:
+<screen>
+import String;
+reverse("abc");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java str reverse(str s);
+
+
+@doc{
+Synopsis: Right align s in string of length n using space.
+
+Examples:
+<screen>
+import String;
+right("abc", 10);
+right("abc", 10, "x");
+</screen>
+}
+@doc{
+Synopsis: Right alignment of a string value in a given space.
+
+Description:
+# Right align string `s` in string of length `n` using spaces.
+# Right align string `s` in string of length `n` using `pad` as pad character.
+
+Examples:
+<screen>
+import String;
+right("abc", 10);
+right("abc", 10, "x");
+</screen>
+}
 public str right(str s, int n)
 {
   return format(s, "right", n, " ");
 }
 
-@doc{Return string with all characters in reverse order.}
-@javaClass{org.rascalmpl.library.String}
-public java str reverse(str s);
-
-@doc{Right align s in string of length n using pad}
 public str right(str s, int n, str pad)
 {
   return format(s, "right", n, pad);
 }
 
-@doc{Return the length of string s.}
+
+@doc{
+Synopsis: Determine length of a string value.
+
+Description:
+Returns the length (number of characters) in string `s`.
+
+Examples:
+<screen>
+import String;
+size("abc");
+size("");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java int size(str s);
 
-@doc{Return true if string s starts with the string prefix.}
-@javaClass{org.rascalmpl.library.String}
-public java bool startsWith(str s, str prefix);
+@doc{
+Synopsis: Check whether a string starts with a given prefix.
 
-@doc{Extract a substring from string s from begin to the end of s}
+Description:
+Yields `true` if string `subject` starts with the string `prefix`.
+
+Examples:
+<screen>
+import String;
+startsWith("Hello.rsc", "Hell");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java bool startsWith(str subject, str prefix);
+
+
+@doc{
+Synopsis: Convert a character code into a string.
+}
+@javaClass{org.rascalmpl.library.String}
+public java str stringChar(int char);
+
+@doc{
+Synopsis: Convert a list of character codes into a string.
+}
+@javaClass{org.rascalmpl.library.String}
+public java str stringChars(list[int] chars);
+
+
+@doc{
+Synopsis: Extract a substring from a string value.
+
+Description:
+# Yields substring of string `s` from index `begin` to the end of the string.
+# Yields substring of string `s` from index `begin` to (but not including) index `end`.
+
+Examples:
+<screen>
+import String;
+substring("abcdef", 2);
+substring("abcdef", 2, 4);
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java str substring(str s, int begin);
 
-@doc{Extract a substring from string s from begin to end}
 @javaClass{org.rascalmpl.library.String}
 public java str substring(str s, int begin, int end);
 
-@doc{Convert a string s to integer}
-@javaClass{org.rascalmpl.library.String}
-public java int toInt(str s);
 
-@doc{Convert a string s to integer using radix r}
-@javaClass{org.rascalmpl.library.String}
-public java int toInt(str s, int r);
+@doc{
+Synopsis: Convert a string value to integer.
 
-@doc{Convert all characters in string s to lowercase.}
+Description:
+# Converts string `s` to integer. 
+# Convert string `s` to integer using radix `r`.
+
+
+Throws `IllegalArgument` when `s` cannot be converted.
+
+Examples:
+<screen errors>
+import String;
+toInt("11");
+toInt("11", 8);
+// Now try an erroneous argument:
+toInt("abc");
+</screen>
+}
+@javaClass{org.rascalmpl.library.String}
+public java int toInt(str s) throws IllegalArgument;
+
+@javaClass{org.rascalmpl.library.String}
+public java int toInt(str s, int r) throws IllegalArgument;
+
+@doc{
+Synopsis: Convert the characters in a string value to lower case.
+
+Description:
+Convert all characters in string `s` to lowercase. Also see [toUpperCase].
+
+Examples:
+<screen>
+import String;
+toLowerCase("AaBbCc123");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java str toLowerCase(str s);
 
-@doc{Convert a string s to a real}
+
+@doc{
+Synopsis: Convert a string value to real.
+
+Description:
+Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
+
+Examples:
+<screen errors>
+import String;
+toReal("2.5e-3");
+toReal("123");
+toReal("abc");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java real toReal(str s);
 
-@doc{Convert all characters in string s to uppercase.}
+@doc{
+Synopsis:Convert the characters in a string value to upper case.
+
+Description:
+Converts all characters in string `s` to upper case.
+
+Also see [toLowerCase].
+
+Examples:
+<screen>
+import String;
+toUpperCase("AaBbCc123");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
 public java str toUpperCase(str s);
 
-@doc{Convert all characters in string s to uppercase.}
+@doc{
+Synopsis: Returns string with leading and trailing whitespace removed.
+
+Examples:
+<screen>
+import String;
+trim("  jelly
+beans  ");
+</screen>
+}
 @javaClass{org.rascalmpl.library.String}
-public java str escape(str s, map[str,str] mapping);
+public java str trim(str s);
+
+/* 
+ * Return string of length n, with s placed according to dir (left/center/right) and padded with pad.
+ * Used to implement:left, center and right above.
+ */ 
+@javaClass{org.rascalmpl.library.String}
+private java str format(str s, str dir, int n, str pad);
+
+/* Not yet documented */
 
 @javaClass{org.rascalmpl.library.String}
 public java list[tuple[str string, node origin]] origins(str s);

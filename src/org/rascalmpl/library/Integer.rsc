@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@deprecated{Use "import Math;" instead}
 module Integer
 
 @doc{Absolute value of integer.}
