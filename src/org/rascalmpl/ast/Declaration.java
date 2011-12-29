@@ -56,13 +56,6 @@ public abstract class Declaration extends AbstractAST {
   public org.rascalmpl.ast.Type getBase() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPatternAction() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.PatternWithAction getPatternAction() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasVariants() {
     return false;
   }
@@ -541,65 +534,6 @@ public abstract class Declaration extends AbstractAST {
   
     @Override
     public boolean hasUser() {
-      return true;
-    }	
-  }
-  public boolean isRule() {
-    return false;
-  }
-
-  static public class Rule extends Declaration {
-    // Production: sig("Rule",[arg("org.rascalmpl.ast.Tags","tags"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.PatternWithAction","patternAction")])
-  
-    
-    private final org.rascalmpl.ast.Tags tags;
-    private final org.rascalmpl.ast.Name name;
-    private final org.rascalmpl.ast.PatternWithAction patternAction;
-  
-    public Rule(IConstructor node , org.rascalmpl.ast.Tags tags,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.PatternWithAction patternAction) {
-      super(node);
-      
-      this.tags = tags;
-      this.name = name;
-      this.patternAction = patternAction;
-    }
-  
-    @Override
-    public boolean isRule() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitDeclarationRule(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Tags getTags() {
-      return this.tags;
-    }
-  
-    @Override
-    public boolean hasTags() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Name getName() {
-      return this.name;
-    }
-  
-    @Override
-    public boolean hasName() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.PatternWithAction getPatternAction() {
-      return this.patternAction;
-    }
-  
-    @Override
-    public boolean hasPatternAction() {
       return true;
     }	
   }

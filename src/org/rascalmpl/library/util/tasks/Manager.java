@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.Typeifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -44,6 +43,7 @@ public class Manager {
 	private Transaction base = null;
 	private final ITaskRegistry<Type, IValue, IValue> registry;
 	private final IValueFactory vf;
+	private final TypeReifier typeReifier;
 	private final Map<IValueWrapper,ProducerWrapper> producers = new HashMap<IValueWrapper,ProducerWrapper>();
 	
 	public Manager() {
@@ -52,6 +52,7 @@ public class Manager {
 	
 	public Manager(IValueFactory vf) {
 		this.vf = vf;
+		this.typeReifier = new TypeReifier(vf);
 		this.registry = PDBValueTaskRegistry.getRegistry();
 	}
 	
@@ -82,7 +83,7 @@ public class Manager {
 	}
 	
 	public IValue getFact(IValue tr, IConstructor key, IValue name, IEvaluatorContext ctx) {
-		IValue fact = transaction(tr).getFact(ctx, Typeifier.toType(key), name);
+		IValue fact = transaction(tr).getFact(ctx, typeReifier.valueToType(key), name);
 		if(fact == null)
 			fact = null; // <- put breakpoint here!
 		return check(fact, key, name, ctx);
@@ -91,24 +92,24 @@ public class Manager {
 
 	private IValue check(IValue fact, IConstructor key, IValue name, IEvaluatorContext ctx) {
 		if(fact == null)
-			throw RuntimeExceptionFactory.noSuchKey(vf.string(Typeifier.toType(key).toString() + ":" + name.toString()), 
+			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType(key).toString() + ":" + name.toString()), 
 					ctx.getCurrentAST(), ctx.getStackTrace());
-		else if(!fact.getType().isSubtypeOf(Typeifier.toType(key)))
-			throw new UnexpectedTypeError(Typeifier.toType(key), fact.getType(), ctx.getCurrentAST());
+		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType(key)))
+			throw new UnexpectedTypeError(typeReifier.valueToType(key), fact.getType(), ctx.getCurrentAST());
 		else
 			return fact;
 	}
 
 	public IValue queryFact(IValue tr, IConstructor key, IValue name, IEvaluatorContext ctx) {
-		return check(transaction(tr).queryFact(Typeifier.toType(key), name), key, name, ctx);
+		return check(transaction(tr).queryFact(typeReifier.valueToType(key), name), key, name, ctx);
 	}
 
 	public void removeFact(IValue tr, IConstructor key, IValue name) {
-		transaction(tr).removeFact(Typeifier.toType(key), name);
+		transaction(tr).removeFact(typeReifier.valueToType(key), name);
 	}
 
 	public void setFact(IValue tr, IConstructor key, IValue name, IValue value, IEvaluatorContext ctx) {
-		Type keyType = Typeifier.toType(key);
+		Type keyType = typeReifier.valueToType(key);
 		if(!value.getType().isSubtypeOf(keyType))
 			throw new UnexpectedTypeError(keyType, value.getType(), ctx.getCurrentAST());
 		else
@@ -136,7 +137,7 @@ public class Manager {
 	}
 
 	protected IConstructor reify(IEvaluatorContext ctx, Type type) {
-		return (IConstructor) type.accept(new TypeReifier(ctx, ctx.getValueFactory())).getValue();
+		return (IConstructor) new TypeReifier(ctx.getValueFactory()).typeToValue(type, ctx).getValue();
 	}
 	/**
 	 *  Cast an IValue to ITransaction 
@@ -162,12 +163,12 @@ public class Manager {
 					IValue keyType = ((ITuple)v).get(0);
 					IValue nameType = ((ITuple)v).get(1);
 					this.keys.add(TypeFactory.getInstance().tupleType(
-							Typeifier.toType((IConstructor)keyType),
-							Typeifier.toType((IConstructor)nameType)));
+							typeReifier.valueToType((IConstructor)keyType),
+							typeReifier.valueToType((IConstructor)nameType)));
 				}
 				else {
 					this.keys.add(TypeFactory.getInstance().tupleType(
-							Typeifier.toType((IConstructor)v),
+							typeReifier.valueToType((IConstructor)v),
 							TypeFactory.getInstance().valueType()));
 				}
 			}

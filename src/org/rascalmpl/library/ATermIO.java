@@ -26,8 +26,7 @@ import org.eclipse.imp.pdb.facts.io.ATermWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.Typeifier;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ATermIO{
@@ -40,9 +39,8 @@ public class ATermIO{
 	}
 	
 	public IValue readTextATermFile(IConstructor type, ISourceLocation loc, IEvaluatorContext ctx){
-		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare(type, store);
+		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(type, store);
 		
 		InputStream in = null;
 		try{

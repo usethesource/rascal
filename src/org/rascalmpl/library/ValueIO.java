@@ -31,23 +31,23 @@ import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.Typeifier;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ValueIO{
 	private final IValueFactory values;
+	private final TypeReifier tr;
 	
 	public ValueIO(IValueFactory values){
 		super();
 		
 		this.values = values;
+		this.tr = new TypeReifier(values);
 	}
 	
 	public IValue readBinaryValueFile(IConstructor type, ISourceLocation loc, IEvaluatorContext ctx){
-		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare(type, store);
+		Type start = tr.valueToType(type, store);
 		
 		InputStream in = null;
 		try{
@@ -70,9 +70,8 @@ public class ValueIO{
 	}
 	
 	public IValue readTextValueFile(IConstructor type, ISourceLocation loc, IEvaluatorContext ctx){
-		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare(type, store);
+		Type start = tr.valueToType(type, store);
 		
 		InputStream in = null;
 		try{
@@ -92,9 +91,8 @@ public class ValueIO{
 	}
 	
 	public IValue readTextValueString(IConstructor type, IString input) {
-		Type start = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
 		TypeStore store = new TypeStore();
-		Typeifier.declare(type, store);
+		Type start = tr.valueToType(type, store);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(input.getValue().getBytes());
 		try {

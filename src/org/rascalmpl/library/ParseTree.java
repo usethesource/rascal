@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.Typeifier;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -36,14 +36,16 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseTree {
 	private final IValueFactory values;
+	private final TypeReifier tr;
 	
 	public ParseTree(IValueFactory values){
 		super();
 		
 		this.values = values;
+		this.tr = new TypeReifier(values);
 	}
 	
-	public IValue parse(IConstructor start, ISourceLocation input, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -63,7 +65,7 @@ public class ParseTree {
 		}
 	}
 
-	public IValue parseWithErrorTree(IConstructor start, ISourceLocation input, IEvaluatorContext ctx){
+	public IValue parseWithErrorTree(IValue start, ISourceLocation input, IEvaluatorContext ctx){
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -75,7 +77,7 @@ public class ParseTree {
 		return pt;
 	}
 	
-	public IValue parse(IConstructor start, IString input, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
@@ -95,7 +97,7 @@ public class ParseTree {
 		}
 	}
 	
-	public IValue parseWithErrorTree(IConstructor start, IString input, IEvaluatorContext ctx){
+	public IValue parseWithErrorTree(IValue start, IString input, IEvaluatorContext ctx){
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -108,7 +110,7 @@ public class ParseTree {
 		return pt;
 	}
 	
-	public IValue parse(IConstructor start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
@@ -128,7 +130,7 @@ public class ParseTree {
 		}
 	}
 	
-	public IValue parseWithErrorTree(IConstructor start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parseWithErrorTree(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
@@ -327,13 +329,13 @@ public class ParseTree {
 		return implodedArgs;
 	}
 	
-	public IValue implode(IConstructor reifiedType, IConstructor tree) {
+	public IValue implode(IValue reifiedType, IConstructor tree) {
 		TypeStore store = new TypeStore();
-		Type type = Typeifier.declare(reifiedType, store);
+		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		return implode(store, type, tree, false);
 	}
 	
-	private static IConstructor checkPreconditions(IConstructor start, Type reified) {
+	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
 		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
 		}

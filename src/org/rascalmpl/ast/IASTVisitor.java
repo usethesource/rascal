@@ -58,22 +58,6 @@ public interface IASTVisitor<T> {
 
   public T visitTypeVarBounded(TypeVar.Bounded x);
 
-  public T visitDeclarationAlias(Declaration.Alias x);
-
-  public T visitDeclarationData(Declaration.Data x);
-
-  public T visitDeclarationFunction(Declaration.Function x);
-
-  public T visitDeclarationAnnotation(Declaration.Annotation x);
-
-  public T visitDeclarationVariable(Declaration.Variable x);
-
-  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
-
-  public T visitDeclarationRule(Declaration.Rule x);
-
-  public T visitDeclarationTag(Declaration.Tag x);
-
   public T visitBasicTypeMap(BasicType.Map x);
 
   public T visitBasicTypeRelation(BasicType.Relation x);
@@ -330,6 +314,20 @@ public interface IASTVisitor<T> {
 
   public T visitTagsDefault(Tags.Default x);
 
+  public T visitDeclarationAlias(Declaration.Alias x);
+
+  public T visitDeclarationData(Declaration.Data x);
+
+  public T visitDeclarationFunction(Declaration.Function x);
+
+  public T visitDeclarationAnnotation(Declaration.Annotation x);
+
+  public T visitDeclarationVariable(Declaration.Variable x);
+
+  public T visitDeclarationDataAbstract(Declaration.DataAbstract x);
+
+  public T visitDeclarationTag(Declaration.Tag x);
+
   public T visitRenamingDefault(Renaming.Default x);
 
   public T visitSyntaxDefinitionKeyword(SyntaxDefinition.Keyword x);
@@ -347,26 +345,6 @@ public interface IASTVisitor<T> {
   public T visitStringLiteralInterpolated(StringLiteral.Interpolated x);
 
   public T visitStringLiteralTemplate(StringLiteral.Template x);
-
-  public T visitKindModule(Kind.Module x);
-
-  public T visitKindVariable(Kind.Variable x);
-
-  public T visitKindRule(Kind.Rule x);
-
-  public T visitKindAnno(Kind.Anno x);
-
-  public T visitKindFunction(Kind.Function x);
-
-  public T visitKindData(Kind.Data x);
-
-  public T visitKindTag(Kind.Tag x);
-
-  public T visitKindView(Kind.View x);
-
-  public T visitKindAlias(Kind.Alias x);
-
-  public T visitKindAll(Kind.All x);
 
   public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
 
@@ -482,6 +460,24 @@ public interface IASTVisitor<T> {
 
   public T visitLabelDefault(Label.Default x);
 
+  public T visitKindModule(Kind.Module x);
+
+  public T visitKindVariable(Kind.Variable x);
+
+  public T visitKindAnno(Kind.Anno x);
+
+  public T visitKindFunction(Kind.Function x);
+
+  public T visitKindData(Kind.Data x);
+
+  public T visitKindTag(Kind.Tag x);
+
+  public T visitKindView(Kind.View x);
+
+  public T visitKindAlias(Kind.Alias x);
+
+  public T visitKindAll(Kind.All x);
+
   public T visitProdModifierAssociativity(ProdModifier.Associativity x);
 
   public T visitProdModifierBracket(ProdModifier.Bracket x);
@@ -495,6 +491,8 @@ public interface IASTVisitor<T> {
   public T visitReplacementUnconditional(Replacement.Unconditional x);
 
   public T visitReplacementConditional(Replacement.Conditional x);
+
+  public T visitFormalsDefault(Formals.Default x);
 
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
 
@@ -549,8 +547,6 @@ public interface IASTVisitor<T> {
   public T visitStatementContinue(Statement.Continue x);
 
   public T visitStatementVisit(Statement.Visit x);
-
-  public T visitFormalsDefault(Formals.Default x);
 
   public T visitModuleDefault(Module.Default x);
 
@@ -847,8 +843,8 @@ public interface IASTVisitor<T> {
   public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
   public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
   public T visitJustDateAmbiguity(JustDate.Ambiguity x);
-  public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
   public T visitFieldAmbiguity(Field.Ambiguity x);
+  public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
   public T visitTypeAmbiguity(Type.Ambiguity x);
   public T visitPathPartAmbiguity(PathPart.Ambiguity x);
   public T visitClassAmbiguity(Class.Ambiguity x);

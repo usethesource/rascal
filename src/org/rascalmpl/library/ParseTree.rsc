@@ -13,6 +13,7 @@
 //START
 module ParseTree
 
+extend Type;
 import Message;
 
 @doc{These are the trees normally found after parsing}
@@ -31,86 +32,6 @@ data Tree
   | errorcycle(Symbol symbol, int cycleLength)
   ;
 
-@doc{
-  Productions are the rules of a grammar, with a defined non-terminal, a list
-  of terminal and non-terminal symbols and a possibly empty set of attributes.
-}
-data Production 
-  = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) 
-  | regular(Symbol def)
-  ;
-
-@doc{
-  Attributes document additional semantics of a production rule. Neither tags nor
-  brackets are processed by the parser generator. Rather downstream processors are
-  activated by these. Associativity is a parser generator feature though. 
-}
-data Attr 
-  = \assoc(Associativity \assoc)  
-  | \tag(value \tag) 
-  | \bracket() 
-  ;
-
-@doc{These are the kinds of associativity}
-data Associativity 
-  = \left() 
-  | \right() 
-  | \assoc() 
-  | \non-assoc()
-  ;
-
-data CharRange = range(int begin, int end);
-
-alias CharClass = list[CharRange];
-
-@doc{The start symbol wraps any symbol to indicate it will occur at the top}
-data Symbol = \start(Symbol symbol);
-
-@doc{These symbols are the named non-terminals} 
-data Symbol 
-  = \sort(str name)  
-  | \lex(str name) 
-  | \layouts(str name) 
-  | \keywords(str name)
-  | \parameterized-sort(str name, list[Symbol] parameters)  
-  | \parameter(str name)
-  | \label(str name, Symbol symbol)
-  ; 
-
-@doc{These are the terminal symbols}
-data Symbol 
-  = \lit(str string) 
-  | \cilit(str string)
-  | \char-class(list[CharRange] ranges)
-  ;
-    
-@doc{These are the regular expressions}
-data Symbol
-  = \empty()  
-  | \opt(Symbol symbol)  
-  | \iter(Symbol symbol)   
-  | \iter-star(Symbol symbol)   
-  | \iter-seps(Symbol symbol, list[Symbol] separators)   
-  | \iter-star-seps(Symbol symbol, list[Symbol] separators) 
-  | \alt(set[Symbol] alternatives)
-  | \seq(list[Symbol] sequence)
-  ;
-  
-@doc{The conditional wrapper adds conditions to the existance of an instance of a symbol}
-data Symbol = \conditional(Symbol symbol, set[Condition] conditions);
-
-@doc{Conditions on symbols give rise to disambiguation filters.}    
-data Condition
-  = \follow(Symbol symbol)
-  | \not-follow(Symbol symbol)
-  | \precede(Symbol symbol)
-  | \not-precede(Symbol symbol)
-  | \delete(Symbol symbol)
-  | \at-column(int column) 
-  | \begin-of-line()  
-  | \end-of-line()  
-  ;
-         
 @doc{provides access to the source location of a parse tree node}
 anno loc Tree@\loc;
 
