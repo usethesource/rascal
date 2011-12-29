@@ -12,7 +12,7 @@
 module List
 
 import Exception;
-import Integer;
+import Math;
 
 @doc{
 Synopsis: Delete an element from a list.
