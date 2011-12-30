@@ -2258,7 +2258,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Type typeOf(Environment env) {
-			java.util.List<Field> fields = getFields();
+			java.util.List<org.rascalmpl.ast.Expression> fields = getElements();
 			Type fieldTypes[] = new Type[fields.size()];
 
 			for (int i = 0; i < fields.size(); i++) {
