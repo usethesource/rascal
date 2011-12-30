@@ -374,6 +374,14 @@ public int lastIndexOf(list[&T] lst, &T elt) {
 	return -1;
 }
 
+public list[&T] remove(list[&T] lst, int indexToDelete) =
+	[ lst[i] | i <- index(lst), i != indexToDelete ];
+
+public set[list[&T]] permutations(list[&T] lst) =
+	isEmpty(lst) ? {[]} : 
+	{ lst[i] + rest | i <- index(lst), rest <- permutation(remove(lst,i)) };
+	
+
 @doc{
 Synopsis: Compute all permutations of a list.
 
@@ -383,24 +391,46 @@ import List;
 permutations([1,2,3]);
 </screen>
 }
-public set[list[&T]] permutations(list[&T] lst)
-{
-  int N = size(lst);
-  if(N <= 1)
-  	return {[lst]};
-  	
-  set[list[&T]] result = {};
-  
-  for(int i <- domain(lst)){
-   
-  	set[list[&T]] perm = permutations(head(lst, i) + tail(lst, N - i -1));
-  	
-  	for(list[&T] sub <- perm){
-  		result = result + {[lst[i], sub]};
-  	}
-  }
-  return result;
+public set[list[&T]] permutations(list[&T] lst) =
+	permutationsBag(distribution(lst));
+
+map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
+	removeFromBag(b,el,1);
+
+map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
+	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : 0) : b + (el : b[el] - nr)); 
+
+set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
+	isEmpty(b) ? {[]} : 
+	{ [e] + rest | e <- domain(b),
+				   rest <- permutationsBag(removeFromBag(b,e))};
+
+@doc{
+Synopsis: Get the distribution of the elements of the list. That
+is how often does each element occur in the list? 
+
+Examples:
+<screen>
+import List;
+distribution([4,4,4,3,1,2,1,1,3,4]);
+</screen>
 }
+public map[&T element, int occurs] distribution(list[&T] lst) {
+	lst = sort(lst);
+	res = while(!isEmpty(lst)) {
+		<<e,occurs>,lst> = takeSame(lst);
+		append <e,occurs>;
+	}
+	return toMapUnique(res);
+}
+
+tuple[tuple[&T el, int occurs] head, list[&T] rest] takeSame(list[&T] lst){
+	h = head(lst);
+	int i = 1; 
+	while(i < size(lst) && lst[i] == h) { i += 1; }
+	return <<h,i>,drop(i,lst)>;
+}
+
 
 @doc{
 Synopsis: Pop top element from list, return a tuple.
