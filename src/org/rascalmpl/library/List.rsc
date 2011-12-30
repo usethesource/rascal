@@ -13,6 +13,7 @@ module List
 
 import Exception;
 import Math;
+import Map;
 
 @doc{
 Synopsis: Delete an element from a list.
@@ -377,9 +378,6 @@ public int lastIndexOf(list[&T] lst, &T elt) {
 public list[&T] remove(list[&T] lst, int indexToDelete) =
 	[ lst[i] | i <- index(lst), i != indexToDelete ];
 
-public set[list[&T]] permutations(list[&T] lst) =
-	isEmpty(lst) ? {[]} : 
-	{ lst[i] + rest | i <- index(lst), rest <- permutation(remove(lst,i)) };
 	
 
 @doc{
