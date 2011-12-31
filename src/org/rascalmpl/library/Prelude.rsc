@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @doc{
 Name: Prelude
 Synopsis: Definition of the Rascal standard prelude.
