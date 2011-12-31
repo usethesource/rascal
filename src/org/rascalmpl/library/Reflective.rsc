@@ -1,3 +1,10 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use util/Reflective.rsc   */
+/* DO NOT EDIT               */
+/*****************************/
+
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials

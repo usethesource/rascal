@@ -329,7 +329,7 @@ public &T printlnExp(&T v) {
 }
 
 public &T printlnExp(str msg, &T v) {
-	println("<s><v>");
+	println("<msg><v>");
 	return v;
 }
 
