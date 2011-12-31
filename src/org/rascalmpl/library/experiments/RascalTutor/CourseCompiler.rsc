@@ -25,14 +25,16 @@ import DateTime;
 import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
-import Scripting;
-import Reflective;
+import util::Eval;
+import util::Reflective;
 import experiments::RascalTutor::RascalUtils;
+import Benchmark;
 
 // ------------------------ compile a course ----------------------------------------
 
 public Course compileCourse(ConceptName rootConcept){   
    
+   begin = realTime();
    concepts = ();
    warnings = [];
    for(cn <- getUncachedCourseConcepts(rootConcept)){
@@ -50,7 +52,10 @@ public Course compileCourse(ConceptName rootConcept){
   
    C = makeCourse(rootConcept, concepts, warnings);
    updateCourse(C);
-   return generateCourseControl(C);
+   cc = generateCourseControl(C);
+   passed = (realTime() - begin)/1000;
+   println("Compilation time: <passed/60> min. (<passed> sec.)");
+   return cc;
 }
 
 str mkWarning(ConceptName cname, str msg) = "<showConceptPath(cname)>: <msg>";

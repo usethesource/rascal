@@ -33,7 +33,7 @@ import ValueIO;
 import util::Diff;
 
 import IO;
-import Scripting;
+import util::Eval;
 
 // Show a concept.
 
