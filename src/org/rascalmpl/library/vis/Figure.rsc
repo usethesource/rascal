@@ -987,10 +987,10 @@ public Figure normalize(Figure f){
 	f = outermost visit(f){
 		case Figure f : {
 			if([x*,unpack(y),z*] := f.props){
-				f.props = [x,y,z];
+				f.props = x + y + z; 				// TEMP CHANGE FOR AUTOMATIC SPLICING: f.props = [x,y,z];
 				insert f;
 			} else if([x*,std(unpack(y)),z*] := f.props){
-				f.props = [x,z] + [std(p) | p <- y];
+				f.props = x + z + [std(p) | p <- y]; // TEMP CHANGE FOR AUTOMATIC SPLICING: f.props = [x,z] + [std(p) | p <- y];
 				insert f;
 			} else {
 				fail;

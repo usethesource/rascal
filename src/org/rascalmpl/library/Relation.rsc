@@ -273,6 +273,7 @@ public set[set[&U]] groupDomainByRange(rel[&U dom, &T ran] input) {
 @doc{
 Synopsis: Make sets of elements in the range that relate to the same element in the domain.
 
+Description:
 <screen>
 import Relation;
 skins = {<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">};

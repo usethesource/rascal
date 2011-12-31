@@ -19,7 +19,7 @@ Absolute value of the number `n`. The result type is equal to the type of the ar
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 abs(13)
 abs(-13)
 abs(3.14)
@@ -28,17 +28,17 @@ abs(-3.14)
 
 Questions:
 QType: abs(<A:int>)
-prep: import Number;
+prep: import util::Math;
 
 QType: abs(<A:real>)
-prep: import Number;
+prep: import util::Math;
 
 QValue: 
-prep: import Number;
+prep: import util::Math;
 test: abs(<A:int[-20,-1]>)
 
 QValue: 
-prep: import Number;
+prep: import util::Math;
 test: abs(<A:real[-20,-1]>)
 
 }
@@ -81,7 +81,7 @@ Generates an arbitrary real value in the interval [0.0, 1.0].
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 arbReal();
 arbReal();
 arbReal();
@@ -95,7 +95,7 @@ Synopsis: Generate an arbitrary rational value.
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 arbRat();
 arbRat();
 arbRat();
@@ -130,7 +130,7 @@ Also see [$Math/floor].
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 ceil(3.2);
 ceil(-3.2);
 </screen>
@@ -146,7 +146,7 @@ The cosine of the number `x`.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 cos(1.0)
 cos(60 * PI() / 180)
 </screen>       
@@ -165,7 +165,7 @@ Synopsis: The constant E.
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 E();
 </screen>
 }
@@ -190,7 +190,7 @@ Also see [$Math/ceil].
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 floor(3.2);
 floor(-3.2);
 </screen>
@@ -206,7 +206,7 @@ Calculate natural log of `x`.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 ln(20.0)
 ln(42.0)
 </screen>
@@ -222,7 +222,7 @@ Calculate log<sub>base</sub> of `x`.
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 log(9.99999999, 10)
 log(10, 10)
 log(256.0, 2)
@@ -249,7 +249,7 @@ The largest of two numbers. The type of the result is the same as the type of th
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 max(12, 13);
 max(12, 13.5);
 max(12, 11.5);
@@ -257,16 +257,16 @@ max(12, 11.5);
 
 Questions:
 QType: max(<A:int>, <B:int>)
-prep: import Number;
+prep: import util::Math;
 
 QType: max(<A:int>, <B:real>)
-prep: import Number;
+prep: import util::Math;
 
 QValue: max(<A:num>, <B:num>)
-prep:  import Number;
+prep:  import util::Math;
 
 QValue:
-prep: import Number;
+prep: import util::Math;
 make: A = num
 make: B = num[0,20]
 expr: C = <A> + <B>
@@ -274,7 +274,7 @@ hint: <C>
 test: max(<A>, <?>) == <C>
 
 QValue:
-prep: import Number;
+prep: import util::Math;
 make: A = num
 hint: any value smaller than <A>
 test: max(<A>, <?>) == <A>
@@ -292,7 +292,7 @@ The smallest of two numbers. The type of the result is the same as the type of t
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 min(12, 13);
 min(12, -13);
 min(3.14, 4);
@@ -300,16 +300,16 @@ min(3.14, 4);
 
 Questions:
 QType: min(<A:int>, <B:int>)
-prep: import Number;
+prep: import util::Math;
 
 QType: min(<A:int>, <B:real>)
-prep: import Number;
+prep: import util::Math;
 
 QType: min(<A:real>, <B:real>)
-prep: import Number;
+prep: import util::Math;
 
 QValue: min(<A:num>, <B:num>)
-prep:  import Number;
+prep:  import util::Math;
 }
 public &T <: num min(&T <: num N, &T <: num M)
 {
@@ -330,7 +330,7 @@ Calculate <sup>n</sup>&radic;`x` where `n` can only be a integer.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 nroot(42 * 42, 2);
 nroot(42 * 42 * 42, 3);
 nroot(123456789012345678901234567890123456789.0, 100)
@@ -344,7 +344,7 @@ Synopsis: The constant pi.
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 PI();
 </screen>
 }
@@ -359,7 +359,7 @@ The calculate `x`<sup>`y`</sup> where `y` can only be a integer.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 pow(sqrt(42), 2)
 pow(12345678901234567890.0, 1000)
 </screen>
@@ -378,7 +378,7 @@ Synopsis: Round a number to the nearest integer.
 
 Examples:
 <screen>
-import Math;
+import util::Math;
 round(3.4);
 round(3.5);
 round(3.6);
@@ -398,7 +398,7 @@ The sine of the number `x`.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 sin(0)
 sin(PI() / 2)
 </screen>
@@ -414,7 +414,7 @@ Calculate &radic;`x`.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 sqrt(42 * 42);
 sqrt(12345678901234567890.5 * 12345678901234567890.5);
 </screen>
@@ -430,7 +430,7 @@ The tangent of the number `x`.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 tan(45 * PI() / 180)
 </screen>
 }
@@ -445,7 +445,7 @@ Convert a number to an integer. If `n` is an integer, this is the identity. If `
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 toInt(13)
 toInt(13.5)
 </screen>
@@ -464,7 +464,7 @@ Synopsis: Convert a numeric value to a real.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 toReal(12)
 toReal(3.14)
 </screen>
@@ -477,7 +477,7 @@ Synopsis: Convert a numeric value to a string.
 
 Examples:
 <screen>
-import Number;
+import util::Math;
 toString(12)
 toString(3.14)
 </screen>

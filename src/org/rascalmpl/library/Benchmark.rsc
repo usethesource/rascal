@@ -1,3 +1,9 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use util/Benchmark.rsc    */
+/* DO NOT EDIT               */
+/*****************************/
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -21,6 +27,9 @@ Description:
 Provides the following functions:
 <toc Rascal/Libraries/Benchmark 1>
 }
+
+
+
 @deprecated{Use "import util::Benchmark;" instead}
 module Benchmark
 
