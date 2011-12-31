@@ -16,7 +16,7 @@ import IO;
 import String;
 import List;
 import lang::rascal::syntax::RascalRascal;
-import Reflective;
+import util::Reflective;
 import ParseTree;
 
 // Rascal utilities
@@ -32,11 +32,25 @@ str stripBraces(str content){
   return substring(content, b, e);
 }
 
-str stripParameterization(str name){
+str de_escape(str name){
+  if(startsWith(name, "\\"))
+     return substring(name, 1);
+  return name;
+}
+
+str normalizeName(str name){
+  name = de_escape(name);
   i = findFirst(name, "[");
-  if(i < 0)
-     return name;
-  return substring(name, 0, i);
+  if(i > 0)
+     name = substring(name, 0, i);
+  return replaceAll(name, "::", "/");
+}
+
+str makeName(str name){
+  return "Name: <basename(name)>";
+}
+str makeUsage(str name){
+  return "Usage: `import <replaceAll(name, "/", "::")>;`";
 }
 
 // Return the content of the doc tag in a list of tags.
@@ -66,10 +80,10 @@ private str autoinsert(str ins, str doc){
 }
 
 private str getModuleDoc(Header header){
-  mname = stripParameterization("<header.name>");
+  mname = normalizeName("<header.name>");
   doc = getDoc(header.tags);
-  ins = "Name: <mname>
-        'Usage: `import <mname>;`";
+  ins = "<makeName(mname)>
+        '<makeUsage(mname)>";
          
   return autoinsert(ins, doc);
 }
@@ -78,7 +92,7 @@ private str getModuleDoc(Header header){
 
 private bool isSimilarFunction(str functionName, Declaration decl){
   return decl is Function && 
-        stripParameterization("<decl.functionDeclaration.signature.name>") == functionName && 
+        normalizeName("<decl.functionDeclaration.signature.name>") == functionName && 
         "<decl.functionDeclaration.visibility>" == "public";
 }
 
@@ -92,13 +106,15 @@ private str getFunctionSignature(FunctionDeclaration decl){
 // Get doc for function declaration, autoinsert name and signature
 
 private str getFunctionDoc(str mname, FunctionDeclaration fdecl, list[str] signatures){
-  fname = stripParameterization("<fdecl.signature.name>");
+  fname = normalizeName("<fdecl.signature.name>");
   doc = getDoc(fdecl.tags);
+  if(doc == "")
+     return "";
   fsig = size(signatures) == 1 ? "`<signatures[0]>`" : "<for(s <- signatures){># `<s>`\n<}>";
-  ins = "Name: <fname>
+  ins = "<makeName(fname)>
         'Function: 
         '<fsig>
-        'Usage: `import <mname>;`";
+        '<makeUsage(mname)>";
          
   return autoinsert(ins, doc);
 }
@@ -128,13 +144,13 @@ private str getDataOrAliasSignature(Declaration decl){
 private str getDataDoc(str mname, Declaration decl, list[str] sigs){
     println("getDataDoc: <decl>, <sigs>");
 	doc = getDoc(decl.tags);
-	name = stripParameterization("<decl.user>");
-	ins =  "Name: <name>
+	name = normalizeName("<decl.user>");
+	ins =  "<makeName(name)>
 	       'Types: 
 	       '\<listing\>
 	       '<intercalate("\n", sigs)>
 	       '\</listing\>
-	       'Usage: `import <mname>;`";
+	       '<makeUsage(mname)>";
 	return autoinsert(ins, doc);
 }
 
@@ -154,11 +170,11 @@ private list[Declaration] declarations = [];
 private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
    decl = declarations[current];
    fdecl = decl.functionDeclaration;
-   functionName = stripParameterization("<fdecl.signature.name>");
+   functionName = normalizeName("<fdecl.signature.name>");
    doc = "";
    key = "<libRoot>/<moduleName>/<functionName>";
    if(!contentMap[key]? && "<fdecl.visibility>" == "public"){
-      println("extractRemoteConcepts: <functionName>");
+      println("extractFunctionDeclaration: <functionName>");
       fsigs = [getFunctionSignature(fdecl)];
       while(current+1 < size(declarations) && isSimilarFunction(functionName, declarations[current+1])){
             fsigs += getFunctionSignature(declarations[current+1].functionDeclaration);
@@ -184,12 +200,12 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
-  userType = stripParameterization("<decl.user>");
+  userType = normalizeName("<decl.user>");
   println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     println("extractRemoteConcepts: <userType>");
+     println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
@@ -198,6 +214,54 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
      doc = getDataDoc(moduleName, decl, sigs);
      if(doc != "" && writing){  	
 	    writeFile(courseDir + libRoot + moduleName + userType + remoteLoc, decl@\loc);
+	    contentMap[key] = doc;
+	 }
+  }
+  return <current + 1, doc>;
+}
+
+private str getAnnotationSignature(Declaration decl){
+  println("getAnnotationSignature: <decl>");
+  if(getDoc(decl.tags) == "")
+     return "<decl>";
+  return "anno <decl.annoType> <decl.onType>@<decl.name>;";
+}
+
+// Get doc for annotation  declaration, autoinsert name and declaration
+private str getAnnotationDoc(str mname, Declaration decl, str sig){
+    println("getAnnotationDoc: <decl>, <sig>");
+	doc = getDoc(decl.tags);
+	name = normalizeName("<decl.name>");
+	ins =  "<makeName(name)>
+	       'Types: 
+	       '\<listing\>
+	       '<sig>
+	       '\</listing\>
+	       '<makeUsage(mname)>";
+	return autoinsert(ins, doc);
+}
+
+// Extract an annotation declaration from a list of Declarations.
+// current: index of current declaration in declarations.
+// writing: should we write a remoteLoc file?
+// Returns: <next, doc>:
+//          next: the index of the declaration following the one used (always +1).
+//          doc:  the generated documentation string.
+
+private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
+  decl = declarations[current];
+  annoType = "<decl.annoType>";
+  onType   = "<decl.onType>";
+  name     = de_escape("<decl.name>");
+  println("name = <name>");
+  key = "<libRoot>/<moduleName>/<name>";
+  doc = "";
+  if(!contentMap[key]?){
+     println("extractAnnotationDeclaration: <name>");
+     sig = getAnnotationSignature(decl);
+     doc = getAnnotationDoc(moduleName, decl, sig);
+     if(doc != "" && writing){  	
+	    writeFile(courseDir + libRoot + moduleName + name + remoteLoc, decl@\loc);
 	    contentMap[key] = doc;
 	 }
   }
@@ -218,9 +282,9 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   libRoot = root;
   top-down visit(M){
     case Header header: {
-       moduleName = stripParameterization("<header.name>"); 
+       moduleName = normalizeName("<header.name>"); 
        doc =  getModuleDoc(header);
-       println("extractRemoteConcepts: <moduleName>");
+       println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
      
        if(doc != ""){  		
    	      writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
@@ -237,6 +301,8 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
        <i, doc> = extractFunctionDeclaration(i, true);
     } else if(decl is Data || decl is Alias){
       <i, doc> = extractDataOrAliasDeclaration(i, true);
+    } else if(decl is Annotation){
+      <i, doc> = extractAnnotationDeclaration(i, true);
     } else {
       i += 1;
   	}
@@ -254,13 +320,13 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 
 public str extractDoc(loc L, str itemName){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  //println("extractDoc: <L1>, <itemName>");
+  println("extractDoc: <L1>, <itemName>");
   M = parseModule(readFile(L1), L1);
   moduleName = "";
   declarations = [];
   contentMap = ();
   top-down visit(M){
-		case Header header: { moduleName = stripParameterization("<header.name>"); if(moduleName == itemName) return getModuleDoc(header); }
+		case Header header: { moduleName = normalizeName("<header.name>"); println("moduleName: <moduleName>"); if(basename(moduleName) == itemName) return getModuleDoc(header); }
 		case Declaration d: { declarations += d; }
   }
   
@@ -269,10 +335,13 @@ public str extractDoc(loc L, str itemName){
     Declaration decl = declarations[i];
     if(decl is Function){
        <i, doc> = extractFunctionDeclaration(i, false);
-       if(stripParameterization("<decl.functionDeclaration.signature.name>") == itemName) return doc;
+       if(normalizeName("<decl.functionDeclaration.signature.name>") == itemName) return doc;
     } else if(decl is Data || decl is Alias){
       <i, doc> = extractDataOrAliasDeclaration(i, false);
-      if(stripParameterization("<decl.user>") == itemName) return doc;
+      if(normalizeName("<decl.user>") == itemName) return doc;
+    } else if(decl is Annotation){
+      <i, doc> = extractAnnotationDeclaration(i, true);
+      if(de_escape("<decl.name>") == itemName) return doc;
     } else {
       i += 1;
   	}
@@ -312,17 +381,19 @@ public bool replaceDoc(loc L, str itemName, str newDocContent){
   newDocContent = removeAUTOINSERTED(newDocContent);
   top-down visit(M){
     case Header header: 
-         if(stripParameterization("<header.name>") == itemName){
+         if(normalizeName("<header.name>") == itemName){
             return replaceDoc(itemName, header.tags, oldFileContent, newDocContent, L1);
          }
     case FunctionDeclaration decl: 
-   		 if(stripParameterization("<decl.signature.name>") == itemName) {
+   		 if(normalizeName("<decl.signature.name>") == itemName) {
    		 	return replaceDoc(itemName, decl.tags, oldFileContent, newDocContent, L1);
    		 }
     case Declaration d: 
-   		 if((d is Data || d is Alias) && stripParameterization("<d.user>") == itemName) {
+   		 if((d is Data || d is Alias) && normalizeName("<d.user>") == itemName) {
    		 	return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
-   		 }
+   		 } else if(d is Annotation && de_escape("<d.name>") == itemName){
+   		   return replaceDoc(itemName, d.tags, oldFileContent, newDocContent, L1);
+   		 } 
   }
   return false;
 }

@@ -240,43 +240,74 @@ public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Cours
 // - otherwise return "<cn>.concept".
 
 public str readConceptFile(ConceptName cn){
+   println("readConceptFile: <cn>");
+   cfile = conceptFile(cn);
+   if(exists(cfile))
+      return readFile(cfile);
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
-      if(remoteContentMap[cn]?)
-         return remoteContentMap[cn];
-      remote = readTextValueFile(#loc,  remoteloc);
-      rdoc = extractDoc(remote, basename(cn));
-      if(rdoc != "")
-      	 return rdoc;
-   }
-   return readFile(conceptFile(cn));
-}
-
-public list[str] readConceptFileLines(ConceptName cn){
-   //println("readConceptFileLines: <cn>");
-   remoteloc = courseDir + cn + remoteLoc;
-   if(exists(remoteloc)){
-      if(remoteContentMap[cn]?){
-         //println("readConceptFileLines: <cn> returns <remoteContentMap[cn]>");
-         return splitLines(remoteContentMap[cn]);
+      rmap = remoteContentMap[rootname(cn)] ? ();
+      if(rmap[cn]?){
+         rdoc = rmap[cn];
+         if(rdoc != ""){
+            println("readConceptFile, found in cache: <cn>");
+         	return rdoc;
+         }
       }
       remote = readTextValueFile(#loc,  remoteloc);
       rdoc = extractDoc(remote, basename(cn));
-      if(rdoc != "")
-      	 return splitLines(rdoc);
+      if(rdoc != ""){
+         rmap[cn] = rdoc;
+         remoteContentMap[rootname(cn)] = rmap;
+      	 return rdoc;
+      }
    }
-   return readFileLines(conceptFile(cn));
+   throw "readConceptFile: <cn> not found";
+}
+
+public list[str] readConceptFileLines(ConceptName cn){
+   println("readConceptFileLines: <cn>");
+   cfile = conceptFile(cn);
+   if(exists(cfile))
+      return readFileLines(cfile);
+   remoteloc = courseDir + cn + remoteLoc;
+   if(exists(remoteloc)){
+      rmap = remoteContentMap[rootname(cn)] ? ();
+      if(rmap[cn]?){
+         println("readConceptFileLines: \"<cn>\" returns <rmap[cn]>");
+         rdoc = rmap[cn];
+         if(rdoc != ""){
+            println("readConceptFileLines, found in cache: <cn>");
+            return splitLines(rdoc);
+         }
+      } else {
+        println("readConceptFileLines: rmap[\"<cn>\"] is undefined!");
+      }
+      
+      remote = readTextValueFile(#loc,  remoteloc);
+      rdoc = extractDoc(remote, basename(cn));
+      if(rdoc != ""){
+         rmap[cn] = rdoc;
+         remoteContentMap[rootname(cn)] = rmap;
+      	 return splitLines(rdoc);
+      }
+   }
+   throw "readConceptFileLines: <cn> not found";
 }
 
 public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
       remote = readTextValueFile(#loc,  remoteloc);
-      if(replaceDoc(remote, basename(cn), text))
+      if(replaceDoc(remote, basename(cn), text)){
+         rmap = remoteContentMap[rootname(cn)] ? ();
+         rmap[cn] = text;
+         remoteContentMap[rootname(cn)] = rmap;
          return;
+         }
    }
    file = conceptFile(cn);
-   println("saving to <file> modified concept file.");
+   println("Saving to <file> modified concept file.");
    writeFile(file, text);
 }     
 
@@ -423,11 +454,12 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
   return concepts;
 }
 
-map[str,str] remoteContentMap = ();
+map[str,map[str,str]] remoteContentMap = ();
 
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
     println("getUncachedCourseConcepts: read all concepts");
-    remoteContentMap = ();
+    remoteContentMap[rootConcept] = ();
+    rmap = ();
     remote = courseDir + rootConcept + remoteConcepts;
     if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
@@ -437,13 +469,14 @@ public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
           for(file <- remoteFiles){
               cmap = extractRemoteConcepts(file, root);
               println("Extracted extracted <size(cmap)> concepts from <file>");
-              //for(cn <- cmap)
-              //    println("<cn>:\n<cmap[cn]>");
               for(cn <- cmap)
-                  remoteContentMap[cn] = cmap[cn];
+                  println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+              for(cn <- cmap)
+                  rmap[cn] = cmap[cn];
           }    
       }
     }
+    remoteContentMap[rootConcept] = rmap;
     concepts = crawlConcepts(rootConcept);
     println("concepts = <concepts>");
     courseConcepts[rootConcept] = concepts;
