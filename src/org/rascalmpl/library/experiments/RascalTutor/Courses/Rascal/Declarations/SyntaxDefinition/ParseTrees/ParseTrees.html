@@ -89,6 +89,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+
 @doc{
 Synopsis: Functions on parse trees.
 
@@ -108,7 +109,7 @@ Parse trees are usually analyzed and constructed using [ConcreteSyntax] expressi
  
 _Advanced users_ may want to create tools that analyze any parse tree, regardless of the [SyntaxDefinition] that generated it, you can manipulate them on the abstract level.
 
-The full definition of `Tree`, `Production` and `Symbol` is given in [Tree]. A parse tree is a nested tree structure of type `Tree`. 
+In [$ParseTree/Tree] is the full definition of `Tree`, `Production` and `Symbol`. A parse tree is a nested tree structure of type `Tree`. 
    * Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. `Production` is the abstract representation of a [SyntaxDefinition] rule, which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
    * The leaves of a parse tree are always
 characters (`char`), which have an integer index in the UTF8 table. 
@@ -130,6 +131,9 @@ You can analyze and manipulate parse trees in three ways:
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
 
+The `ParseTree` library provides:
+&lt;toc Rascal/Libraries/ParseTree 1>
+
 Examples:
 
 &lt;listing>
@@ -150,13 +154,20 @@ test a() = parse(#A,"ab") == appl(prod(label("myA",lex("A")),[lit("a"),sort("bLa
 // here you see that the alternative name is a label around the first argument of `prod` while argument labels become labels in the list of children of a `prod`.
 &lt;/listing>
 
+Examples:
+
 Benefits:
 
 Pitfalls:
 For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
 for the type of [Location]s.
 Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
+
+Questions:
+
+
 }
+
 module ParseTree
 
 import Message;
@@ -261,7 +272,9 @@ data Condition
      | \end-of-line()  
      ;
          
-// Provides access to the source location of a parse tree node.
+@doc{
+Synopsis: Annotate a parse tree node with a source location.
+}
 anno loc Tree@\loc;
 
 @doc{
@@ -472,24 +485,37 @@ data Exp = add(Exp, Exp);
 @javaClass{org.rascalmpl.library.ParseTree}
 public java &amp;T&lt;:node implode(type[&amp;T&lt;:node] t, Tree tree);
 
-@doc{introduces a (error) message related to a certain sub-tree}
+@doc{
+Synopsis: Annotate a parse tree node with an (error) message.
+}
 public anno Message Tree@message;
 
-@doc{lists all (error) messages relevant for a certain sub-tree}
+@doc{
+Synopsis: Annotate a parse tree node with a list of (error) messages.
+}
 public anno set[Message] Tree@messages;
 
-@doc{provides a documentation string for this parse tree node}
+@doc{
+Synopsis: Annotate a parse tree node with a documentation string.
+}
 anno str Tree@doc;
 
-@doc{provides a documentation string for certain locations}
+@doc{
+Synopsis: Annotate a parse tree node with documentation strings for several locations.
+
+}
 anno map[loc,str] Tree@docs;
 
-@doc{provides the target of a reference}
+
+@doc{
+Synopsis: Annotate a parse tree node with the target of a reference.
+}
 anno loc Tree@link;
 
-@doc{provides multiple targets of a references}
+@doc{
+Synopsis: Annotate a parse tree node with multiple targets for a reference.
+}
 anno set[loc] Tree@links;
-
 
 @doc{
 Synopsis: Tree search result type for [treeAt].

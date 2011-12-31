@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/IO/exists</title>
 
-<meta name="description" content="Rascal/Libraries/IO/exists:  Check whether a file exists.">
+<meta name="description" content="Rascal/Libraries/IO/exists:  Check whether a given location exists.">
 
 <meta name="keywords" content="Rascal/Libraries/IO/exists, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Check whether a file exists.
+<span class="sectionHead">Synopsis</span>  Check whether a given location exists.
 
 </div>
 
@@ -57,12 +57,29 @@
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import IO;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Check whether a certain location exists, i.e., whether an actual file is associated with it.
 
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import IO;
+ok
+</pre>
+  Does the library file <code>IO.rsc</code> exist?
+
+<pre class="screen"><b>rascal></b>exists(|std:///IO.rsc|);
+bool: true
+</pre>
+</div>
+
   	                       
   	                       
   	                       

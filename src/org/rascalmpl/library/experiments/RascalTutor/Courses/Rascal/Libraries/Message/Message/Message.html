@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Message/Message</title>
 
-<meta name="description" content="Rascal/Libraries/Message/Message:  A `Message` datatype that represents messages in the IDE.">
+<meta name="description" content="Rascal/Libraries/Message/Message: ">
 
 <meta name="keywords" content="Rascal/Libraries/Message/Message, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,13 +43,17 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  A <code>Message</code> datatype that represents messages in the IDE.
-
-</div>
-
 	                       
                            
+<div id="Types">
+<span class="sectionHead">Types</span>  <pre class="listing">data Message
+     = error(str msg, loc at)
+     | warning(str msg, loc at)
+     | info(str msg, loc at)
+     ;
+</pre>
+</div>
+
                            
                            
 <div id="Usage">
@@ -60,8 +64,7 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Messages can be used to communicate information about source texts.
- They can be interpreted by IDEs to display type errors and warnings, etc.
- <code>Message</code>s are, for instance, used as <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a> annotations.
+ They can be interpreted by IDE's to display type errors and warnings, etc.
 
 </div>
 

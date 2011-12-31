@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/IO/lastModified</title>
 
-<meta name="description" content="Rascal/Libraries/IO/lastModified:  Last modification date of a file.">
+<meta name="description" content="Rascal/Libraries/IO/lastModified:  Last modification date of a location.">
 
 <meta name="keywords" content="Rascal/Libraries/IO/lastModified, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Last modification date of a file.
+<span class="sectionHead">Synopsis</span>  Last modification date of a location.
 
 </div>
 
@@ -57,12 +57,29 @@
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import IO;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Returns last modification time of the file at location <code>file</code>.
 
 </div>
 
   	                       
+<div id="Examples">
+<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import IO;
+ok
+</pre>
+  Determine the last modification date of the Rascal standard library:
+
+<pre class="screen"><b>rascal></b>lastModified(|std:///IO.rsc|);
+datetime: $2011-12-29T16:45:51.000+0100
+</pre>
+</div>
+
   	                       
   	                       
   	                       

@@ -5,7 +5,7 @@ Synopsis: Integer values.
 Syntax:
 sequence of digits of arbitrary length.
 
-Library functions: `import Integer`;
+Library functions: `import Integer`; (__deprecated__ use `import Math`;)
 
 Types:
 `int`

@@ -41,16 +41,6 @@ render(grid(split(boxes, 3)));
 </figure>
 ![c3](c3.png)
 
-
-<figure c2.png 800x800>
-boxes = [ box(hcat([text(c), box([size(20, 20), fillColor(c)])],hgrow(1.2)),grow(1.2))
-        | c <- colorNames() 
-        ];
-render(hvcat(boxes,justify(true)));
-</figure>
-
-![colors](c2.png)
-
 Benefits:
 
 Pitfalls:

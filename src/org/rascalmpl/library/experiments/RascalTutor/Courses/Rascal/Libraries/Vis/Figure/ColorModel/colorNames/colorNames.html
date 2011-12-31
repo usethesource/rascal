@@ -83,17 +83,6 @@ public list[list[&amp;T]] split(list[&amp;T] elms, int n){
 boxes = [ box(text(col, left()), fillColor(col)) | col &lt;- colorNames() ];
 render(grid(split(boxes, 3))); 
 </pre> <img class="TutorImg"  title="c3" alt="c3" src="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorNames/c3.png">
- <br/>
-<br/>
-
- <br/>
-<br/>
-
- <pre class="listing">boxes = [ box(hcat([text(c), box([size(20, 20), fillColor(c)])],hgrow(1.2)),grow(1.2))
-        | c &lt;- colorNames() 
-        ];
-render(hvcat(boxes,justify(true)));
-</pre> <img class="TutorImg"  title="colors" alt="colors" src="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorNames/c2.png">
 
 </div>
 

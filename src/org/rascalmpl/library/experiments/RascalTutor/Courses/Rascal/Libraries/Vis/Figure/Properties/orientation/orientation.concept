@@ -1,6 +1,6 @@
 Name: orientation
 
-Synopsis: Define the orientation of a [tree] or [$Figures/graph].
+Synopsis: Define the orientation of a [$Figures/tree] or [$Figures/graph].
 
 Syntax:
 
@@ -22,7 +22,7 @@ Function:
 Details:
 
 Description:
-Describes the orientation of a [$Figures/graph] or a [tree]. Possible values are described by
+Describes the orientation of a [$Figures/graph] or a [$Figures/tree]. Possible values are described by
 the datatype `orientation`.
 
 Examples:

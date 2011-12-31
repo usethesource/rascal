@@ -3,7 +3,7 @@ Name: Real
 Synopsis: Real values.
 
 Syntax:
-Library functions: `import Real`;
+Library functions: `import Real`; (__deprecated__: use `import Math;`)
 
 Types:
 `real`

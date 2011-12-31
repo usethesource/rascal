@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Provides the following functions:
+The `IO` library provides the following functions:
 <toc Rascal/Libraries/IO 1>
 
 Examples:

@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/IO/readFileLines</title>
 
-<meta name="description" content="Rascal/Libraries/IO/readFileLines:  Read the contens of a file and return it as a list of strings.">
+<meta name="description" content="Rascal/Libraries/IO/readFileLines:  Read the contens of a file location and return it as a list of strings.">
 
 <meta name="keywords" content="Rascal/Libraries/IO/readFileLines, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Read the contens of a file and return it as a list of strings.
+<span class="sectionHead">Synopsis</span>  Read the contens of a file location and return it as a list of strings.
 
 </div>
 
@@ -52,11 +52,17 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[str] readFileLines(loc filename) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)</code>
+<span class="sectionHead">Function</span>  <code>list[str] readFileLines(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)</code>
 
 </div>
 
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import IO;</code>
+ </AUTOINSERTED>
+
+</div>
+
 <div id="Description">
 <span class="sectionHead">Description</span>  Return the contents of a file location as a list of lines.
  Also see <a href="/Courses/Rascal/Libraries/IO/readFile/readFile.html">readFile</a>.
