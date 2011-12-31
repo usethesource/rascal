@@ -35,7 +35,7 @@ for(/black(_,leaf(int N)) := T)
 // Here we list all integers that occur in any leaf:
 for(/int N := T)
     println("Match <N>");
-// Rather than printing, we can also collect them in a list using [Append]:
+// Rather than printing, we can also collect them in a list using [$Statements/Append]:
 for(/int N := T)
     append N;
 </screen>

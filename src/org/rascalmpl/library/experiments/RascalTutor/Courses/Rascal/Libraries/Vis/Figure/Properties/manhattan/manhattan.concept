@@ -1,6 +1,6 @@
 Name: manhattan
 
-Synopsis: Define the drawing style of [tree]s.
+Synopsis: Define the drawing style of [$Figures/tree]s.
 
 Syntax:
 
@@ -12,7 +12,7 @@ Function:
 Details:
 
 Description:
-Determine drawing style for [tree]s:
+Determine drawing style for [$Figures/tree]s:
 * When true, all connections are drawn horizontally and vertically.
 * When false, all connections are drawn diagonally.
 

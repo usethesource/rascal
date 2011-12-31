@@ -20,7 +20,7 @@ All the elements of the subject are visited and when one of the cases matches th
 with that case are executed. These cases may:
 
 * cause some side effect, i.e., assign a value to local or global variables;
-* execute an [Insert] statement that replaces the current element;
+* execute an [$Statements/Insert] statement that replaces the current element;
 * execute a [Fail] statement that causes the match for the current case to fail (and undoing all side-effects due to the successful match itself and the execution of the statements so far).
 
 

@@ -27,7 +27,7 @@ The following properties are applicable to graphs:
 * [layer] is used to define the placement of nodes in the same layer.
 * [orientation] is used to define the drawing direction.
 * [toArrow] and [fromArrow] are used to define arrows on edges.
-* [label] defines an edge label.
+* [$Properties/label] defines an edge label.
 
 Examples:
 <figure g1.png>

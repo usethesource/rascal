@@ -40,7 +40,7 @@ Given a subject term (the current value of $Exp$) and a list of cases
 (consisting of a sequence of [PatternWithAction]s, it traverses the term. 
 Depending on the precise actions it may perform replacement (mimicking a transformer), 
 update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
-If __any__ of the actions contains an [Insert] statement, 
+If __any__ of the actions contains an [$Statements/Insert] statement, 
 the value of the visit expression is a new value that is obtained by successive insertions in the subject 
 term by executing one or more cases. Otherwise, the original value of the subject term is returned.
 
