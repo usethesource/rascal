@@ -18,7 +18,7 @@ Description:
 The Graph data type is a binary relation and all operators and functions defined
 on [Relation] are also defined on Graph.
 
-Provides the following functions:
+The `Graph` library provides the following functions:
 <toc Rascal/Libraries/Graph 1>
 }
 module Graph

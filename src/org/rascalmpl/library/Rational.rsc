@@ -9,8 +9,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Rational
-import Integer;
 
+/* Moved to util::Math
 @doc{An arbitrary rational.}
 public rat arbRat() {
 	n = arbInt();
@@ -36,6 +36,7 @@ public rat min(rat n, rat m)
 {
 	return n < m ? n : m;
 }
+*/
 
 @doc{Convert a rational value to an integer value. (Will round or truncate.)}
 @javaClass{org.rascalmpl.library.Rational}

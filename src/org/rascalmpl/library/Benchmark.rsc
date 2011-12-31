@@ -21,7 +21,7 @@ Description:
 Provides the following functions:
 <toc Rascal/Libraries/Benchmark 1>
 }
-
+@deprecated{Use "import util::Benchmark;" instead}
 module Benchmark
 
 import IO;
@@ -53,7 +53,7 @@ cpuTime( void() { fac(50); } );
 }
 
 @javaImport{import java.lang.System;}
-@javaClass{org.rascalmpl.library.Benchmark}
+@javaClass{org.rascalmpl.library.util.Benchmark}
 public java int cpuTime();
 
 // Measure the exact running time of a block of code, doc combined with previous function.
@@ -88,7 +88,7 @@ systemTime( void() { fac(50); } );
 }
 
 @javaImport{import java.lang.System;}
-@javaClass{org.rascalmpl.library.Benchmark}
+@javaClass{org.rascalmpl.library.util.Benchmark}
 public java int systemTime();
 
 // Measure the exact running time of a block of code, doc combined with previous function.
@@ -121,7 +121,7 @@ userTime( void() { fac(50); } );
 }
 
 @javaImport{import java.lang.System;}
-@javaClass{org.rascalmpl.library.Benchmark}
+@javaClass{org.rascalmpl.library.util.Benchmark}
 public java int userTime();
 
 // Measure the exact running time of a block of code, doc combined with previous function.
@@ -146,7 +146,7 @@ This function is a competitor for the [now] function that provides a [datetime] 
 }
 
 @javaImport{import java.lang.System;}
-@javaClass{org.rascalmpl.library.Benchmark}
+@javaClass{org.rascalmpl.library.util.Benchmark}
 public java int realTime();
 
 

@@ -10,10 +10,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 //START
-@doc{
-Name: Exception
-Synopsis: Definition of all exceptions.
-}
+
 module Exception
 
 /*
