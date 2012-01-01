@@ -370,7 +370,7 @@
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/domainX/domainX.html">domainX</a>: Relation excluding certain domain values.</li>
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/FieldSelection/FieldSelection.html">FieldSelection</a>: Select a field (column) from a relation value.</li>
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/groupDomainByRange/groupDomainByRange.html">groupDomainByRange</a>: Make sets of elements in the domain that relate to the same element in the range.</li>
-<ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a>: Make sets of elements in the range that relate to the same element in the domain.  <screen> import Relation; skins = {<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">}; groupRangeByDomain(skins); </screen></li>
+<ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a>: Make sets of elements in the range that relate to the same element in the domain.</li>
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/ident/ident.html">ident</a>: The identity relation.</li>
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">invert</a>: Invert the tuples in a relation.</li>
 <ul></ul><li><a href="/Courses/Rascal/Expressions/Values/Relation/Join/Join.html">Join</a>: Join two relation values.</li>
@@ -535,16 +535,6 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/IO/rprintln/rprintln.html">rprintln</a>: Raw print of a value followed by newline.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/IO/touch/touch.html">touch</a>: Changes the last modification date of a file.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/IO/writeFile/writeFile.html">writeFile</a>: Write values to a file.</li>
-<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/Java/Java.html">Java</a>: An Entity datatype for representing facts about Java programs.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/JDT.html">JDT</a>: Datatypes for representing relations between parts of Java programs. See <a href="/Courses/Rascal/Libraries/Java/Java.html">Java</a> for the basic data model for Java artifacts. </li>
-<ul><li><a href="/Courses/Rascal/Libraries/JDT/extractClass/extractClass.html">extractClass</a>: Import facts from a Java file.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a>: Extracts facts from a Java project and all projects it depends on.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/extractProject/extractProject.html">extractProject</a>: Import facts from a Java project.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/extractResource/extractResource.html">extractResource</a>: Extract Java facts from a project, file or folder</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/extractResources/extractResources.html">extractResources</a>: Extract facts from a set of resources and merge them.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a>: Check if a Resource is on its project's build path.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/JavaADT/JavaADT.html">JavaADT</a>: Describes a flat representation of the AST nodes that can occur in method bodies, static initializers and constructors.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/JDT/matchLocations/matchLocations.html">matchLocations</a>: Match JDT locations with Rascal locations.</li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/LabeledGraph.html">LabeledGraph</a>: A <code>LabeledGraph</code> datatype with associated functions.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/bottom/bottom.html">bottom</a>: Determine the bottom nodes (leaves) of a labeled graph.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/predecessors/predecessors.html">predecessors</a>: Determine the set of direct predecessors of a node in a labeled graph.</li>
@@ -554,9 +544,22 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/shortestPathPair/shortestPathPair.html">shortestPathPair</a>: Determine the shortest path between two nodes in a labeled graph.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/successors/successors.html">successors</a>: Determine the set of direct succesors of a labeled graph node.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/LabeledGraph/top/top.html">top</a>: Determine the set of top nodes (roots) of a labeled graph.</li>
-<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/LinearProgramming/LinearProgramming.html">LinearProgramming</a>: A library for doing Linear programming</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Maybe/Maybe.html">Maybe</a>: Optional datatype</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
+<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/lang/lang.html">lang</a>: Libraries for various languages.</li>
+<ul><li><a href="/Courses/Rascal/Libraries/lang/java/java.html">java</a>: Definitions and tools related to the Java language.</li>
+<ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/jdt.html">jdt</a>: Tools related to the Eclipse Java Development ToolKit (JDT).</li>
+<ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/Java/Java.html">Java</a>: An Entity datatype for representing facts about Java programs.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/JDT.html">JDT</a>: Datatypes for representing relations between parts of Java programs. See <span class="inlineError">ambiguous: Rascal:Java</span> for the basic data model for Java artifacts. </li>
+<ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/extractClass/extractClass.html">extractClass</a>: Import facts from a Java file.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/extractFactsTransitive/extractFactsTransitive.html">extractFactsTransitive</a>: Extracts facts from a Java project and all projects it depends on.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/extractProject/extractProject.html">extractProject</a>: Import facts from a Java project.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/extractResource/extractResource.html">extractResource</a>: Extract Java facts from a project, file or folder</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/extractResources/extractResources.html">extractResources</a>: Extract facts from a set of resources and merge them.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/isOnBuildPath/isOnBuildPath.html">isOnBuildPath</a>: Check if a Resource is on its project's build path.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/JavaADT/JavaADT.html">JavaADT</a>: Describes a flat representation of the AST nodes that can occur in method bodies, static initializers and constructors.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/lang/java/jdt/JDT/matchLocations/matchLocations.html">matchLocations</a>: Match JDT locations with Rascal locations.</li>
+<ul></ul></ul></ul></ul><li><a href="/Courses/Rascal/Libraries/lang/RSF/RSF.html">RSF</a>: Functions for reading/writing the Rigi Standard Format (RSF).</li>
+<ul><li><a href="/Courses/Rascal/Libraries/lang/RSF/readRSF/readRSF.html">readRSF</a>: Read a file in Rigi Standard Format (RSF). </li>
+<ul></ul></ul></ul><li><a href="/Courses/Rascal/Libraries/Message/Message.html">Message</a>: A <code>Message</code> datatype that represents messages in the IDE.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/Message/Message/Message.html">Message</a>: </li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">ParseTree</a>: Functions on parse trees.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/ParseTree/doc/doc.html">doc</a>: Annotate a parse tree node with a documentation string.</li>
@@ -580,14 +583,6 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/insertElement/insertElement.html">insertElement</a>: Insert an element in a priority queue.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/isEmpty/isEmpty.html">isEmpty</a>: Check whether priority queue is empty.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/PriorityQueue/mkPriorityQueue/mkPriorityQueue.html">mkPriorityQueue</a>: Create a priority queue.</li>
-<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/Resources/Resources.html">Resources</a>: A <code>Resource</code> datatype and related functions on Eclipse resources.</li>
-<ul><li><a href="/Courses/Rascal/Libraries/Resources/dependencies/dependencies.html">dependencies</a>: Compute the (transitive) dependencies of a project.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Resources/getProject/getProject.html">getProject</a>: Retrieve the hierarchical representation of a single named project.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Resources/projects/projects.html">projects</a>: Retrieve the set of project locations of the current Eclipse workspace.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Resources/references/references.html">references</a>: The set of projects that are referenced by a project.</li>
-<ul></ul><li><a href="/Courses/Rascal/Libraries/Resources/root/root.html">root</a>: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.</li>
-<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/RSF/RSF.html">RSF</a>: Functions for reading/writing the Rigi Standard Format (RSF).</li>
-<ul><li><a href="/Courses/Rascal/Libraries/RSF/readRSF/readRSF.html">readRSF</a>: Read a file in Rigi Standard Format (RSF). </li>
 <ul></ul></ul><li><a href="/Courses/Rascal/Libraries/util/util.html">util</a>: Utility libraries</li>
 <ul><li><a href="/Courses/Rascal/Libraries/util/Benchmark/Benchmark.html">Benchmark</a>: Functions for time measurement and benchmarking.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/util/Benchmark/benchmark/benchmark.html">benchmark</a>: Measure and report the execution time of name:void-closure pairs</li>
@@ -619,7 +614,8 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/IDE/registerLanguage/registerLanguage.html">registerLanguage</a>: Register a language extension and a parser for use in Eclipse.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/IDE/registerNonRascalContributions/registerNonRascalContributions.html">registerNonRascalContributions</a>: Register contributions to menus of a non-Rascal editor.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/IDE/registerOutliner/registerOutliner.html">registerOutliner</a>: Register an outliner.</li>
-<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/Math.html">Math</a>: Mathematical functions.</li>
+<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/util/LinearProgramming/LinearProgramming.html">LinearProgramming</a>: A library for doing Linear programming</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/Math.html">Math</a>: Mathematical functions.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/util/Math/abs/abs.html">abs</a>: Absolute value of a number.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/arbInt/arbInt.html">arbInt</a>: Generate a random integer value.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/arbRat/arbRat.html">arbRat</a>: Generate an arbitrary rational value.</li>
@@ -649,6 +645,13 @@
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/toRat/toRat.html">toRat</a>: Convert two numbers to a rational value (not supported on reals).</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/toReal/toReal.html">toReal</a>: Convert a numeric value to a real.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/util/Math/toString/toString.html">toString</a>: Convert a numeric value to a string.</li>
+<ul></ul></ul><li><a href="/Courses/Rascal/Libraries/util/Maybe/Maybe.html">Maybe</a>: Optional datatype</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Resources/Resources.html">Resources</a>: A <code>Resource</code> datatype and related functions on Eclipse resources.</li>
+<ul><li><a href="/Courses/Rascal/Libraries/util/Resources/dependencies/dependencies.html">dependencies</a>: Compute the (transitive) dependencies of a project.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Resources/getProject/getProject.html">getProject</a>: Retrieve the hierarchical representation of a single named project.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Resources/projects/projects.html">projects</a>: Retrieve the set of project locations of the current Eclipse workspace.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Resources/references/references.html">references</a>: The set of projects that are referenced by a project.</li>
+<ul></ul><li><a href="/Courses/Rascal/Libraries/util/Resources/root/root.html">root</a>: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.</li>
 <ul></ul></ul></ul><li><a href="/Courses/Rascal/Libraries/ValueIO/ValueIO.html">ValueIO</a>: Functions for reading and writing values in textual and binary format.</li>
 <ul><li><a href="/Courses/Rascal/Libraries/ValueIO/readBinaryValueFile/readBinaryValueFile.html">readBinaryValueFile</a>: Read a value from a binary file.</li>
 <ul></ul><li><a href="/Courses/Rascal/Libraries/ValueIO/readTextValueFile/readTextValueFile.html">readTextValueFile</a>: Read a value from a text file.</li>
@@ -798,7 +801,7 @@
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Contents&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Contents&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

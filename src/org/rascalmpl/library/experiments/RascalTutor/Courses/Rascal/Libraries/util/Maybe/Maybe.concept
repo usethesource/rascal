@@ -1,0 +1,34 @@
+Name: Maybe
+
+Synopsis: Optional datatype
+
+Syntax: `data Maybe[&A] = nothing() | just(&A val);`
+
+Types:
+
+Function:
+
+Details:
+
+Description: Data type used to describe that something maybe will give a result
+
+Examples: 
+<listing>
+Maybe[int] linearSearch(list[int] l, int toFind) {
+   for(i <- index(l)){
+      if(l[i] == toFind) {
+         return just(i);
+      }
+   }
+   return nothing();
+}
+</listing>
+
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

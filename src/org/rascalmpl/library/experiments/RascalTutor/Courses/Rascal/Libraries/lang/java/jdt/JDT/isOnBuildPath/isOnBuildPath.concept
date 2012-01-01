@@ -1,0 +1,24 @@
+Name: isOnBuildPath
+
+Synopsis: Check if a Resource is on its project's build path.
+
+Syntax:
+
+Types:
+
+Function:
+`bool isOnBuildPath(loc file)`
+
+Details:
+
+Description:
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+

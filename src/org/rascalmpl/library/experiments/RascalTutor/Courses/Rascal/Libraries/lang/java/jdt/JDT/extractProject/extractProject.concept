@@ -1,0 +1,24 @@
+Name: extractProject
+
+Synopsis: Import facts from a Java project.
+
+Syntax:
+
+Types:
+
+Function:
+`Resource extractProject(loc project)`
+
+Details:
+
+Description:
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+

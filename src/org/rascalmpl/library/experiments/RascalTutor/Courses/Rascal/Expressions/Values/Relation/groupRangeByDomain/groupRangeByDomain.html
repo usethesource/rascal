@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Expressions/Values/Relation/groupRangeByDomain</title>
 
-<meta name="description" content="Rascal/Expressions/Values/Relation/groupRangeByDomain:  Make sets of elements in the range that relate to the same element in the domain.  &lt;screen&gt; import Relation; skins = {&lt;&quot;bird&quot;, &quot;feather&quot;&gt;, &lt;&quot;dog&quot;, &quot;fur&quot;&gt;, &lt;&quot;tortoise&quot;, &quot;shell&quot;&gt;, &lt;&quot;human&quot;, &quot;skin&quot;&gt;, &lt;&quot;fish&quot;, &quot;scale&quot;&gt;, &lt;&quot;lizard&quot;, &quot;scale&quot;&gt;, &lt;&quot;crab&quot;, &quot;shell&quot;&gt;, &lt;&quot;cat&quot;, &quot;fur&quot;&gt;}; groupRangeByDomain(skins); &lt;/screen&gt;">
+<meta name="description" content="Rascal/Expressions/Values/Relation/groupRangeByDomain:  Make sets of elements in the range that relate to the same element in the domain.">
 
 <meta name="keywords" content="Rascal/Expressions/Values/Relation/groupRangeByDomain, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -45,7 +45,26 @@
 
 <div id="Synopsis">
 <span class="sectionHead">Synopsis</span>  Make sets of elements in the range that relate to the same element in the domain.
-  <pre class="screen"><b>rascal></b>import Relation;
+
+</div>
+
+	                       
+                           
+                           
+<div id="Function">
+<span class="sectionHead">Function</span>  <code>set[set[&amp;T]] groupRangeByDomain(rel[&amp;U dom, &amp;T ran] input)</code>
+
+</div>
+
+                           
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import Relation;</code>
+ </AUTOINSERTED>
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  <pre class="screen"><b>rascal></b>import Relation;
 ok
 <b>rascal></b>skins = {&lt;&quot;bird&quot;, &quot;feather&quot;&gt;, &lt;&quot;dog&quot;, &quot;fur&quot;&gt;, &lt;&quot;tortoise&quot;, &quot;shell&quot;&gt;, &lt;&quot;human&quot;, &quot;skin&quot;&gt;, &lt;&quot;fish&quot;, &quot;scale&quot;&gt;, &lt;&quot;l&raquo;
 izard&quot;, &quot;scale&quot;&gt;, &lt;&quot;crab&quot;, &quot;shell&quot;&gt;, &lt;&quot;cat&quot;, &quot;fur&quot;&gt;};
@@ -68,21 +87,6 @@ set[set[str]]: {
   {&quot;shell&quot;}
 }
 </pre>
-</div>
-
-	                       
-                           
-                           
-<div id="Function">
-<span class="sectionHead">Function</span>  <code>set[set[&amp;T]] groupRangeByDomain(rel[&amp;U dom, &amp;T ran] input)</code>
-
-</div>
-
-                           
-<div id="Usage">
-<span class="sectionHead">Usage</span>  <code>import Relation;</code>
- </AUTOINSERTED>
-
 </div>
 
   	                       

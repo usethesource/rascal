@@ -59,7 +59,7 @@
 
                            
 <div id="Usage">
-<span class="sectionHead">Usage</span>  <code>import util::Benchmark;</code>
+<span class="sectionHead">Usage</span>  <code>import Benchmark;</code>
  </AUTOINSERTED>
 
 </div>
@@ -81,16 +81,16 @@ ok
   Here we measure time by using separate calls to <code>userTime</code> before and after a call to <code>fac</code>.
 
 <pre class="screen"><b>rascal></b>before = userTime();
-int: 199346935000
+int: 238935071000
 <b>rascal></b>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 <b>rascal></b>userTime() - before;
-int: 2902000
+int: 3134000
 </pre>
   The code to be measured can also be passed as a function parameter to <code>userTime</code>:
 
 <pre class="screen"><b>rascal></b>userTime( void() { fac(50); } );
-int: 505000
+int: 528000
 </pre>
 </div>
 

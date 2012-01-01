@@ -1,8 +1,8 @@
 /* Generated code for course Rascal */
 
-var baseConcepts = new Array("!","!:=","!<<","!=","!>>","\"","\"),","\")?","\")]);","\"<\"","\">\";","#","%","&","&&","\'","(","(\"","(&","()","();","([",")","),",");",")>",")]","){>","){>...","*","*=","+","+=",",","-","-=",".","..","...\"","...)","/","/*1*/","/*10*/","/*11*/","/*12*/;","/*13*/","/*2*/","/*3*/","/*4*/","/*5*/","/*6*/;","/*7*/;","/*8*/;","/*9*/","//","/=",":","::",":=",";","<","<-","<:","<<","<=","<==>","<}","<}>","=","==","==>","=>",">",">=",">>","?","?=","@","@\\","Abstract","AccessDenied","Action","AddSegment","Addition","AlgebraicDataType","Alias","All","AmbiguityDetection","AmbiguityDiagnosis","And","Angles","Annotation","Any","Append","Assert","AssertionFailed","Assignment","Associativity","AstNode","AstNodeRel","Attr","Benchmark","BindingRel","Block","Boolean","Bound","Break","Call","CarthesianProduct","CaseDistinction","CharClass","CharRange","Color","ColorModel","Comments","Composition","CompositionModel","Comprehension","Comprehensions","Concatenation","Concepts","Concrete","ConcreteSyntax","Condition","Conditional","Constructor","Contents","Continue","Contribution","ControlStructures","Datatypes","DateTime","Declarations","Descendant","Difference","Disambiguation","Division","Do","DocumentationHover","Duration","E","EmptyList","EmptyMap","EmptySet","Entity","EntityRel","EntitySet","Enumerator","Enumerators","Equal","EquationSolving","Equivalence","ErrorMarking","Eval","Exception","Expressions","FProperties","FProperty","Fail","FieldAssignment","FieldProjection","FieldSelection","Figure","Figures","FileNotFound","Filter","Folding","Follow","For","Function","Functions","Graph","GreaterThan","GreaterThanOrEqual","Help","HostNotFound","Hyperlinking","IDE","IDEConstruction","IO","Id","If","IfDefinedElse","IllegalArgument","IllegalIdentifier","ImmutableValues","Implication","Import","IndexOutOfBounds","Insert","Installing","InstallingAndRunning","Integer","InteractionModel","Intersection","Interval","IsDefined","JDT","Java","JavaADT","Javadoc","Join","KeyModifier","KeySym","LGraph","LabeledGraph","Labelled","LessThan","LessThanOrEqual","Libraries","LineDecoration","LinearProgramming","List","Literal","Location","Map","Match","Math","Maybe","Menu","Menus","Message","MissingCase","Modifier","ModifierRel","Module","ModuleNotFound","Motivation","MultiVariable","Multiplication","Negation","NoMatch","NoSuchAnnotation","NoSuchElement","NoSuchKey","Node","NotEqual","Number","Object","Operators","Option","Or","Orientation","Outline","PI","ParseError","ParseTree","ParseTrees","PathNotFound","Pattern","PatternMatching","PatternWithAction","Patterns","PermissionDenied","Plugin","Preceed","PrimitiveType","Priority","PriorityQueue","Product","Production","Program","Properties","RSF","Range","Rascal","Real","Reducer","ReflexiveTransitiveClosure","Regular","ReifiedTypes","Relation","Remainder","Render","Replacement","Reserve","Resource","Resources","Return","RewriteRules","Running","RuntimeException","SchemeNotSupported","Selection","Set","Solve","StackOverflow","StatementAsExpression","Statements","StaticTyping","Strategy","StrictSubList","StrictSubMap","StrictSubSet","StrictSuperList","StrictSuperMap","StrictSuperSet","String","SubList","SubMap","SubSet","Subscription","Subtraction","Subversion","SuperList","SuperMap","SuperSet","Switch","Symbol","SyntaxDefinition","SyntaxDefinitionAndParsing","Tag","Test","TestVis","Throw","Timeout","TransitiveClosure","Tree","TreeSearchResult","TryCatch","Tuple","TypeConstrained","TypeConstraints","TypeParameters","TypedLabelled","Types","Union","Value","ValueIO","Values","Variable","VariableDeclaration","Vis","Visit","Visiting","Void","While","[","[&","[@","\\","\\0","]","];","]]","^","`","abs","align","alt","alt_2","alternatives","amb","anno","annotationTypeDeclaration","annotationTypeMemberDeclaration","annotations","anonymousClass","anonymousClassDeclaration","appendToFile","appl","arbBool","arbColor","arbInt","arbRat","arbReal","area","args","arguments","arity","array","arrayAccess","arrayCreation","arrayInitializer","arrayType","aspectRatio","assertStatement","assoc","at","attributes","begin","benchmark","blockComment","body","bodyDeclarations","bool","boolValue","booleanExpression","booleanLiteral","bottom","bound","box","bprintln","bracket","breakStatement","button","byte","calls","carrier","carrierR","carrierX","case","castExpression","catch","catchClause","catchClauses","ceil","center","char","charAt","charValue","character","characterLiteral","checkbox","choice","cilit","class","classInstanceCreation","classes","classify","clearLanguage","clearLanguages","clearNonRascalContribution","clearNonRascalContributions","collectionExpression","color","colorNames","colorScale","colorSteps","column","combo","compilationUnit","complement","computeFigure","computedColor","computedInt","computedNum","computedReal","computedStr","conditionalExpression","conditions","connect","constr","constructorInvocation","constructors","contains","continueStatement","cos","cpuTime","createDate","createDateTime","createDuration","createInterval","createTime","cycle","cycleLength","data","dateRangeByDay","datetime","days","daysDiff","daysInInterval","declaredMethods","declaredSubTypes","declaredTopTypes","decrementDays","decrementHours","decrementMilliseconds","decrementMinutes","decrementMonths","decrementSeconds","decrementYears","def","default","defaultBlock","delAnnotation","delAnnotations","delAnnotationsRec","delete","denominator","dependencies","deprecated","dimensions","distribution","doStatement","doc","docs","domain","domainR","domainX","double","downTop","drop","dup","duration","edge","edit","elementType","ellipse","else","elseBranch","elseStatement","empty","emptyStatement","end","endGap","endsWith","enhancedForStatement","entity","enum","enumConstant","enumConstantDeclaration","enumConstants","enumDeclaration","error","erroramb","errorcycle","escape","eval","evalType","exists","exp","expected","expression","expressionStatement","extended","extendedOperands","extends","extendsList","extractClass","extractFactsTransitive","extractMinimum","extractProject","extractResource","extractResources","false","field","fieldAccess","fieldDeclaration","fieldDecls","fields","file","fillColor","final","finally","find","findAll","findFirst","findLast","findMinimum","float","floor","foldable","folder","font","fontBold","fontColor","fontItalic","fontNames","fontSize","forStatement","fragments","from","fromArrow","fromInt","fromString","fswitch","gap","genericTypes","getAnnotations","getChildren","getName","getOneFrom","getProject","graph","gray","grid","group","groupDomainByRange","groupRangeByDomain","grow","halign","handler","hcat","hcenter","hconnect","head","headTail","height","hendGap","hgap","hgrow","highlight","hint","hours","hresizable","hscreen","hscrollable","hshadowPos","hshrink","hsize","hstartGap","hvcat","ialign","id","ident","ifStatement","implementation","implements","implode","importDeclaration","imports","in","incrementDays","incrementHours","incrementMilliseconds","incrementMinutes","incrementMonths","incrementSeconds","incrementYears","index","indexOf","infixExpression","info","initializer","initializers","insertAt","insertElement","instanceofExpression","int","intercalate","interface","interpolateColor","interval","invert","invertUnique","iprint","iprintExp","iprintln","iprintlnExp","isDefault","isDirectory","isEmpty","isFile","isOnBuildPath","isVarargs","iter","javadoc","jdt","joinDateAndTime","just","justify","key","keyAltLeft","keyAltRight","keyArrowDown","keyArrowLeft","keyArrowRight","keyArrowUp","keyBackSpace","keyBreak","keyCapsLock","keyCode","keyCommandLeft","keyCommandRight","keyControlLeft","keyControlRight","keyEnd","keyEnter","keyEscape","keyF1","keyF10","keyF11","keyF12","keyF13","keyF14","keyF15","keyF16","keyF17","keyF18","keyF19","keyF2","keyF20","keyF3","keyF4","keyF5","keyF6","keyF7","keyF8","keyF9","keyHelp","keyHome","keyInsert","keyKeypad0","keyKeypad1","keyKeypad2","keyKeypad3","keyKeypad4","keyKeypad5","keyKeypad6","keyKeypad7","keyKeypad8","keyKeypad9","keyKeypadAdd","keyKeypadCr","keyKeypadDecimal","keyKeypadDivide","keyKeypadEqual","keyKeypadMultiply","keyKeypadSubtract","keyNumLock","keyPageDown","keyPageUp","keyPause","keyPrintScreen","keyPrintable","keyScrollLock","keyShiftLeft","keyShiftRight","keyTab","keyUnknown","keyword","keywords","label","labeledStatement","lang","last","lastIndexOf","lastModified","layer","layout","layouts","left","leftRight","leftSide","level","lex","lexical","line","lineColor","lineComment","lineNumber","lineStyle","lineWidth","link","links","listEntries","lit","ln","loc","log","log10","log2","long","lub","makeNode","manhattan","mapper","markerAnnotation","matchLocations","max","memberRef","memberRefParameter","memberValuePair","memberValuePairs","members","menu","merge","message","messages","method","methodBodies","methodDeclaration","methodDecls","methodInvocation","methods","milliseconds","min","minutes","mix","mkDirectory","mkPriorityQueue","modAlt","modCommand","modCtrl","modShift","modifier","modifiers","months","mouseOver","msg","name","native","non","none","normalAnnotation","not","nothing","notin","now","nr","nroot","null","nullLiteral","num","numberLiteral","numerator","objectType","of","onClick","onDemand","onKeyDown","onKeyUp","onMouseDown","onMouseEnter","onMouseExit","onMouseMove","onMouseUp","operand","operator","opt","optionalBooleanExpression","optionalExpression","optionalQualifier","optionalQualifierString","order","orientation","outline","overlay","pack","package","packageDeclaration","packages","palette","parameter","parameterized","parameterizedType","parameters","params","parenthesizedExpression","parse","parseDate","parseDateInLocale","parseDateTime","parseDateTimeInLocale","parseTime","parseTimeInLocale","parseWithErrorTree","permutations","pop","popup","possibleExceptions","postfixExpression","pow","power","power1","precede","predecessors","prefix","prefixExpression","primType","primitive","primitiveType","print","printDate","printDateInLocale","printDateTime","printDateTimeInLocale","printExp","printTime","printTimeInLocale","println","printlnExp","private","prod","project","projects","protected","public","push","qualifiedName","qualifiedType","qualifier","range","rangeR","rangeX","ranges","reach","reachR","reachX","readATermFromFile","readBinaryValueFile","readFile","readFileBytes","readFileLines","readRSF","readTextValueFile","readTextValueString","realTime","reducer","references","registerAnnotator","registerContributions","registerLanguage","registerNonRascalContributions","registerOutliner","rel","remainder","render","renderSave","replaceAll","replaceFirst","replaceLast","resizable","rest","returnStatement","returnType","reverse","rgb","right","rightLeft","rightSide","root","rotate","round","rprint","rprintln","scale","scaleSlider","scrollable","seconds","separators","seps","seq","sequence","setAnnotations","shadow","shadowColor","shadowPos","shapeClosed","shapeConnected","shapeCurved","shell","short","shortestPathPair","shrink","simpleName","simpleType","sin","singleMemberAnnotation","singleVariableDeclaration","size","slice","some","sort","space","split","splitDateTime","sqrt","star","start","startGap","startsWith","static","staticImport","std","str","strictfp","stringChar","stringChars","stringLiteral","stringValue","substring","successors","sum","super","superConstructorInvocation","superFieldAccess","superMethodInvocation","switchCase","switchStatement","symbols","synchronized","synchronizedStatement","syntax","systemTime","tagElement","tail","take","takeOneFrom","tan","text","textAngle","textElement","textfield","thenBranch","thenStatement","thisExpression","throwStatement","throws","timer","to","toArrow","toInt","toList","toLowerCase","toMap","toMapUnique","toRat","toReal","toRel","toSet","toString","toUpperCase","top","topDown","touch","transient","tree","treeAt","treeFound","treeNotFound","treemap","trim","true","try","tryStatement","type","typeArgument","typeDeclaration","typeDeclarationStatement","typeDeclarations","typeLiteral","typeName","typeOfArray","typeOfParam","typeParameter","typedArguments","types","unparse","unzip","upTill","updaters","userTime","util","val","valign","variableDeclarationExpression","variableDeclarationFragment","variableDeclarationStatement","variables","vcat","vcenter","vconnect","vendGap","vgap","vgrow","volatile","vresizable","vscreen","vscrollable","vshadowPos","vshrink","vsize","vstartGap","warning","whileExpression","whileStatement","width","wildcard","wildcardType","writeBinaryValueFile","writeFile","writeTextValueFile","years","zip","{","{>","{>...","|","||","}","}+");
+var baseConcepts = new Array("!","!:=","!<<","!=","!>>","\"","\"),","\")?","\")]);","\"<\"","\">\";","#","%","&","&&","\'\\\\\\\\\\\\\\","(","(\"","(&","()","();","([",")","),",");",")>",")]","){>","){>...","*","*=","+","+=",",","-","-=",".","..","...\"","...)","/","/*1*/","/*10*/","/*11*/","/*12*/;","/*13*/","/*2*/","/*3*/","/*4*/","/*5*/","/*6*/;","/*7*/;","/*8*/;","/*9*/","//","/=",":","::",":=",";","<","<-","<:","<<","<=","<==>","<}","<}>","=","==","==>","=>",">",">=",">>","?","?=","@","@\\","Abstract","AccessDenied","Action","AddSegment","Addition","AlgebraicDataType","Alias","All","AmbiguityDetection","AmbiguityDiagnosis","And","Angles","Annotation","Any","Append","Assert","AssertionFailed","Assignment","Associativity","AstNode","AstNodeRel","Attr","Benchmark","BindingRel","Block","Boolean","Bound","Break","Call","CarthesianProduct","CaseDistinction","CharClass","CharRange","Color","ColorModel","Comments","Composition","CompositionModel","Comprehension","Comprehensions","Concatenation","Concepts","Concrete","ConcreteSyntax","Condition","Conditional","Constructor","Contents","Continue","Contribution","ControlStructures","Datatypes","DateTime","Declarations","Descendant","Difference","Disambiguation","Division","Do","DocumentationHover","Duration","E","EmptyList","EmptyMap","EmptySet","Entity","EntityRel","EntitySet","Enumerator","Enumerators","Equal","EquationSolving","Equivalence","ErrorMarking","Eval","Exception","Expressions","FProperties","FProperty","Fail","FieldAssignment","FieldProjection","FieldSelection","Figure","Figures","FileNotFound","Filter","Folding","Follow","For","Function","Functions","Graph","GreaterThan","GreaterThanOrEqual","Help","HostNotFound","Hyperlinking","IDE","IDEConstruction","IO","Id","If","IfDefinedElse","IllegalArgument","IllegalIdentifier","ImmutableValues","Implication","Import","IndexOutOfBounds","Insert","Installing","InstallingAndRunning","Integer","InteractionModel","Intersection","Interval","IsDefined","JDT","Java","JavaADT","Javadoc","Join","KeyModifier","KeySym","LGraph","LabeledGraph","Labelled","LessThan","LessThanOrEqual","Libraries","LineDecoration","LinearProgramming","List","Literal","Location","Map","Match","Math","Maybe","Menu","Menus","Message","MissingCase","Modifier","ModifierRel","Module","ModuleNotFound","Motivation","MultiVariable","Multiplication","Negation","NoMatch","NoSuchAnnotation","NoSuchElement","NoSuchKey","Node","NotEqual","Number","Object","Operators","Option","Or","Orientation","Outline","PI","ParseError","ParseTree","ParseTrees","PathNotFound","Pattern","PatternMatching","PatternWithAction","Patterns","PermissionDenied","Plugin","Preceed","PrimitiveType","Priority","PriorityQueue","Product","Production","Program","Properties","RSF","Range","Rascal","Real","Reducer","ReflexiveTransitiveClosure","Regular","ReifiedTypes","Relation","Remainder","Render","Replacement","Reserve","Resource","Resources","Return","RewriteRules","Running","RuntimeException","SchemeNotSupported","Selection","Set","Solve","StackOverflow","StatementAsExpression","Statements","StaticTyping","Strategy","StrictSubList","StrictSubMap","StrictSubSet","StrictSuperList","StrictSuperMap","StrictSuperSet","String","SubList","SubMap","SubSet","Subscription","Subtraction","Subversion","SuperList","SuperMap","SuperSet","Switch","Symbol","SyntaxDefinition","SyntaxDefinitionAndParsing","Tag","Test","TestVis","Throw","Timeout","TransitiveClosure","Tree","TreeSearchResult","TryCatch","Tuple","TypeConstrained","TypeConstraints","TypeParameters","TypedLabelled","Types","Union","Value","ValueIO","Values","Variable","VariableDeclaration","Vis","Visit","Visiting","Void","While","[","[&","[@","\\","\\0","]","];","]]","^","`","abs","align","alt","alt_2","alternatives","amb","anno","annotationTypeDeclaration","annotationTypeMemberDeclaration","annotations","anonymousClass","anonymousClassDeclaration","appendToFile","appl","arbBool","arbColor","arbInt","arbRat","arbReal","area","args","arguments","arity","array","arrayAccess","arrayCreation","arrayInitializer","arrayType","aspectRatio","assertStatement","assoc","at","attributes","begin","benchmark","blockComment","body","bodyDeclarations","bool","boolValue","booleanExpression","booleanLiteral","bottom","bound","box","bprintln","bracket","breakStatement","button","byte","calls","carrier","carrierR","carrierX","case","castExpression","catch","catchClause","catchClauses","ceil","center","char","charAt","charValue","character","characterLiteral","checkbox","choice","cilit","class","classInstanceCreation","classes","classify","clearLanguage","clearLanguages","clearNonRascalContribution","clearNonRascalContributions","collectionExpression","color","colorNames","colorScale","colorSteps","column","combo","compilationUnit","complement","computeFigure","computedColor","computedInt","computedNum","computedReal","computedStr","conditionalExpression","conditions","connect","constr","constructorInvocation","constructors","contains","continueStatement","cos","cpuTime","createDate","createDateTime","createDuration","createInterval","createTime","cycle","cycleLength","data","dateRangeByDay","datetime","days","daysDiff","daysInInterval","declaredMethods","declaredSubTypes","declaredTopTypes","decrementDays","decrementHours","decrementMilliseconds","decrementMinutes","decrementMonths","decrementSeconds","decrementYears","def","default","defaultBlock","delAnnotation","delAnnotations","delAnnotationsRec","delete","denominator","dependencies","deprecated","dimensions","distribution","doStatement","doc","docs","domain","domainR","domainX","double","downTop","drop","dup","duration","edge","edit","elementType","ellipse","else","elseBranch","elseStatement","empty","emptyStatement","end","endGap","endsWith","enhancedForStatement","entity","enum","enumConstant","enumConstantDeclaration","enumConstants","enumDeclaration","error","erroramb","errorcycle","escape","eval","evalType","exists","exp","expected","expression","expressionStatement","extended","extendedOperands","extends","extendsList","extractClass","extractFactsTransitive","extractMinimum","extractProject","extractResource","extractResources","false","field","fieldAccess","fieldDeclaration","fieldDecls","fields","file","fillColor","final","finally","find","findAll","findFirst","findLast","findMinimum","float","floor","foldable","folder","font","fontBold","fontColor","fontItalic","fontNames","fontSize","forStatement","fragments","from","fromArrow","fromInt","fromString","fswitch","gap","genericTypes","getAnnotations","getChildren","getName","getOneFrom","getProject","graph","gray","grid","group","groupDomainByRange","groupRangeByDomain","grow","halign","handler","hcat","hcenter","hconnect","head","headTail","height","hendGap","hgap","hgrow","highlight","hint","hours","hresizable","hscreen","hscrollable","hshadowPos","hshrink","hsize","hstartGap","hvcat","ialign","id","ident","ifStatement","implementation","implements","implode","importDeclaration","imports","in","incrementDays","incrementHours","incrementMilliseconds","incrementMinutes","incrementMonths","incrementSeconds","incrementYears","index","indexOf","infixExpression","info","initializer","initializers","insertAt","insertElement","instanceofExpression","int","intercalate","interface","interpolateColor","interval","invert","invertUnique","iprint","iprintExp","iprintln","iprintlnExp","isDefault","isDirectory","isEmpty","isFile","isOnBuildPath","isVarargs","iter","java","javadoc","jdt","joinDateAndTime","just","justify","key","keyAltLeft","keyAltRight","keyArrowDown","keyArrowLeft","keyArrowRight","keyArrowUp","keyBackSpace","keyBreak","keyCapsLock","keyCode","keyCommandLeft","keyCommandRight","keyControlLeft","keyControlRight","keyEnd","keyEnter","keyEscape","keyF1","keyF10","keyF11","keyF12","keyF13","keyF14","keyF15","keyF16","keyF17","keyF18","keyF19","keyF2","keyF20","keyF3","keyF4","keyF5","keyF6","keyF7","keyF8","keyF9","keyHelp","keyHome","keyInsert","keyKeypad0","keyKeypad1","keyKeypad2","keyKeypad3","keyKeypad4","keyKeypad5","keyKeypad6","keyKeypad7","keyKeypad8","keyKeypad9","keyKeypadAdd","keyKeypadCr","keyKeypadDecimal","keyKeypadDivide","keyKeypadEqual","keyKeypadMultiply","keyKeypadSubtract","keyNumLock","keyPageDown","keyPageUp","keyPause","keyPrintScreen","keyPrintable","keyScrollLock","keyShiftLeft","keyShiftRight","keyTab","keyUnknown","keyword","keywords","label","labeledStatement","lang","last","lastIndexOf","lastModified","layer","layout","layouts","left","leftRight","leftSide","level","lex","lexical","line","lineColor","lineComment","lineNumber","lineStyle","lineWidth","link","links","listEntries","lit","ln","loc","log","log10","log2","long","lub","makeNode","manhattan","mapper","markerAnnotation","matchLocations","max","memberRef","memberRefParameter","memberValuePair","memberValuePairs","members","menu","merge","message","messages","method","methodBodies","methodDeclaration","methodDecls","methodInvocation","methods","milliseconds","min","minutes","mix","mkDirectory","mkPriorityQueue","modAlt","modCommand","modCtrl","modShift","modifier","modifiers","months","mouseOver","msg","name","native","non","none","normalAnnotation","not","nothing","notin","now","nr","nroot","null","nullLiteral","num","numberLiteral","numerator","objectType","of","onClick","onDemand","onKeyDown","onKeyUp","onMouseDown","onMouseEnter","onMouseExit","onMouseMove","onMouseUp","operand","operator","opt","optionalBooleanExpression","optionalExpression","optionalQualifier","optionalQualifierString","order","orientation","outline","overlay","pack","package","packageDeclaration","packages","palette","parameter","parameterized","parameterizedType","parameters","params","parenthesizedExpression","parse","parseDate","parseDateInLocale","parseDateTime","parseDateTimeInLocale","parseTime","parseTimeInLocale","parseWithErrorTree","permutations","pop","popup","possibleExceptions","postfixExpression","pow","power","power1","precede","predecessors","prefix","prefixExpression","primType","primitive","primitiveType","print","printDate","printDateInLocale","printDateTime","printDateTimeInLocale","printExp","printTime","printTimeInLocale","println","printlnExp","private","prod","project","projects","protected","public","push","qualifiedName","qualifiedType","qualifier","range","rangeR","rangeX","ranges","reach","reachR","reachX","readATermFromFile","readBinaryValueFile","readFile","readFileBytes","readFileLines","readRSF","readTextValueFile","readTextValueString","realTime","reducer","references","registerAnnotator","registerContributions","registerLanguage","registerNonRascalContributions","registerOutliner","rel","remainder","render","renderSave","replaceAll","replaceFirst","replaceLast","resizable","rest","returnStatement","returnType","reverse","rgb","right","rightLeft","rightSide","root","rotate","round","rprint","rprintln","scale","scaleSlider","scrollable","seconds","separators","seps","seq","sequence","setAnnotations","shadow","shadowColor","shadowPos","shapeClosed","shapeConnected","shapeCurved","shell","short","shortestPathPair","shrink","simpleName","simpleType","sin","singleMemberAnnotation","singleVariableDeclaration","size","slice","some","sort","space","split","splitDateTime","sqrt","star","start","startGap","startsWith","static","staticImport","std","str","strictfp","stringChar","stringChars","stringLiteral","stringValue","substring","successors","sum","super","superConstructorInvocation","superFieldAccess","superMethodInvocation","switchCase","switchStatement","symbols","synchronized","synchronizedStatement","syntax","systemTime","tagElement","tail","take","takeOneFrom","tan","text","textAngle","textElement","textfield","thenBranch","thenStatement","thisExpression","throwStatement","throws","timer","to","toArrow","toInt","toList","toLowerCase","toMap","toMapUnique","toRat","toReal","toRel","toSet","toString","toUpperCase","top","topDown","touch","transient","tree","treeAt","treeFound","treeNotFound","treemap","trim","true","try","tryStatement","type","typeArgument","typeDeclaration","typeDeclarationStatement","typeDeclarations","typeLiteral","typeName","typeOfArray","typeOfParam","typeParameter","typedArguments","types","unparse","unzip","upTill","updaters","userTime","util","val","valign","variableDeclarationExpression","variableDeclarationFragment","variableDeclarationStatement","variables","vcat","vcenter","vconnect","vendGap","vgap","vgrow","volatile","vresizable","vscreen","vscrollable","vshadowPos","vshrink","vsize","vstartGap","warning","whileExpression","whileStatement","width","wildcard","wildcardType","writeBinaryValueFile","writeFile","writeTextValueFile","years","zip","{","{>","{>...","|","||","}","}+");
 
-var conceptNames = new Array("Rascal","Rascal/Concepts","Rascal/Concepts/CaseDistinction","Rascal/Concepts/Comprehensions","Rascal/Concepts/ControlStructures","Rascal/Concepts/Datatypes","Rascal/Concepts/Enumerators","Rascal/Concepts/Enumerators/EquationSolving","Rascal/Concepts/Functions","Rascal/Concepts/IDEConstruction","Rascal/Concepts/ImmutableValues","Rascal/Concepts/PatternMatching","Rascal/Concepts/RewriteRules","Rascal/Concepts/StaticTyping","Rascal/Concepts/SyntaxDefinitionAndParsing","Rascal/Concepts/Visiting","Rascal/Contents","Rascal/Declarations","Rascal/Declarations/AlgebraicDataType","Rascal/Declarations/Alias","Rascal/Declarations/Annotation","Rascal/Declarations/Function","Rascal/Declarations/Import","Rascal/Declarations/Module","Rascal/Declarations/Program","Rascal/Declarations/StaticTyping","Rascal/Declarations/StaticTyping/ReifiedTypes","Rascal/Declarations/StaticTyping/TypeConstraints","Rascal/Declarations/StaticTyping/TypeParameters","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Action","Rascal/Declarations/SyntaxDefinition/AmbiguityDetection","Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis","Rascal/Declarations/SyntaxDefinition/Disambiguation","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Declarations/SyntaxDefinition/Disambiguation/Follow","Rascal/Declarations/SyntaxDefinition/Disambiguation/Preceed","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Declarations/SyntaxDefinition/Disambiguation/Reserve","Rascal/Declarations/SyntaxDefinition/ParseTrees","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Declarations/Tag","Rascal/Declarations/Variable","Rascal/Expressions","Rascal/Expressions/Call","Rascal/Expressions/Comprehensions","Rascal/Expressions/Comprehensions/Enumerator","Rascal/Expressions/Comprehensions/Filter","Rascal/Expressions/ConcreteSyntax","Rascal/Expressions/Operators","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Reducer","Rascal/Expressions/Replacement","Rascal/Expressions/Selection","Rascal/Expressions/StatementAsExpression","Rascal/Expressions/Values","Rascal/Expressions/Values/Boolean","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/Boolean/And","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/Boolean/Equivalence","Rascal/Expressions/Values/Boolean/IfDefinedElse","Rascal/Expressions/Values/Boolean/Implication","Rascal/Expressions/Values/Boolean/IsDefined","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/Boolean/Negation","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Boolean/Or","Rascal/Expressions/Values/Boolean/arbBool","Rascal/Expressions/Values/Boolean/fromInt","Rascal/Expressions/Values/Boolean/fromString","Rascal/Expressions/Values/Boolean/toInt","Rascal/Expressions/Values/Boolean/toReal","Rascal/Expressions/Values/Boolean/toString","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/DateTime","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/DateTime/FieldSelection","Rascal/Expressions/Values/DateTime/GreaterThan","Rascal/Expressions/Values/DateTime/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/LessThan","Rascal/Expressions/Values/DateTime/LessThanOrEqual","Rascal/Expressions/Values/DateTime/NotEqual","Rascal/Expressions/Values/DateTime/createDate","Rascal/Expressions/Values/DateTime/createDateTime","Rascal/Expressions/Values/DateTime/createDuration","Rascal/Expressions/Values/DateTime/createInterval","Rascal/Expressions/Values/DateTime/createTime","Rascal/Expressions/Values/DateTime/dateRangeByDay","Rascal/Expressions/Values/DateTime/daysDiff","Rascal/Expressions/Values/DateTime/daysInInterval","Rascal/Expressions/Values/DateTime/decrementDays","Rascal/Expressions/Values/DateTime/decrementHours","Rascal/Expressions/Values/DateTime/decrementMilliseconds","Rascal/Expressions/Values/DateTime/decrementMinutes","Rascal/Expressions/Values/DateTime/decrementMonths","Rascal/Expressions/Values/DateTime/decrementSeconds","Rascal/Expressions/Values/DateTime/decrementYears","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/DateTime/incrementDays","Rascal/Expressions/Values/DateTime/incrementHours","Rascal/Expressions/Values/DateTime/incrementMilliseconds","Rascal/Expressions/Values/DateTime/incrementMinutes","Rascal/Expressions/Values/DateTime/incrementMonths","Rascal/Expressions/Values/DateTime/incrementSeconds","Rascal/Expressions/Values/DateTime/incrementYears","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/DateTime/joinDateAndTime","Rascal/Expressions/Values/DateTime/now","Rascal/Expressions/Values/DateTime/parseDate","Rascal/Expressions/Values/DateTime/parseDateInLocale","Rascal/Expressions/Values/DateTime/parseDateTime","Rascal/Expressions/Values/DateTime/parseDateTimeInLocale","Rascal/Expressions/Values/DateTime/parseTime","Rascal/Expressions/Values/DateTime/parseTimeInLocale","Rascal/Expressions/Values/DateTime/printDate","Rascal/Expressions/Values/DateTime/printDateInLocale","Rascal/Expressions/Values/DateTime/printDateTime","Rascal/Expressions/Values/DateTime/printDateTimeInLocale","Rascal/Expressions/Values/DateTime/printTime","Rascal/Expressions/Values/DateTime/printTimeInLocale","Rascal/Expressions/Values/DateTime/splitDateTime","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/List","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/List/NotEqual","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/List/delete","Rascal/Expressions/Values/List/domain","Rascal/Expressions/Values/List/drop","Rascal/Expressions/Values/List/dup","Rascal/Expressions/Values/List/getOneFrom","Rascal/Expressions/Values/List/head","Rascal/Expressions/Values/List/headTail","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/List/index","Rascal/Expressions/Values/List/indexOf","Rascal/Expressions/Values/List/insertAt","Rascal/Expressions/Values/List/intercalate","Rascal/Expressions/Values/List/isEmpty","Rascal/Expressions/Values/List/last","Rascal/Expressions/Values/List/lastIndexOf","Rascal/Expressions/Values/List/mapper","Rascal/Expressions/Values/List/max","Rascal/Expressions/Values/List/merge","Rascal/Expressions/Values/List/min","Rascal/Expressions/Values/List/mix","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/permutations","Rascal/Expressions/Values/List/pop","Rascal/Expressions/Values/List/prefix","Rascal/Expressions/Values/List/push","Rascal/Expressions/Values/List/reducer","Rascal/Expressions/Values/List/reverse","Rascal/Expressions/Values/List/size","Rascal/Expressions/Values/List/slice","Rascal/Expressions/Values/List/sort","Rascal/Expressions/Values/List/split","Rascal/Expressions/Values/List/sum","Rascal/Expressions/Values/List/tail","Rascal/Expressions/Values/List/take","Rascal/Expressions/Values/List/takeOneFrom","Rascal/Expressions/Values/List/toMap","Rascal/Expressions/Values/List/toMapUnique","Rascal/Expressions/Values/List/toRel","Rascal/Expressions/Values/List/toSet","Rascal/Expressions/Values/List/toString","Rascal/Expressions/Values/List/top","Rascal/Expressions/Values/List/unzip","Rascal/Expressions/Values/List/upTill","Rascal/Expressions/Values/List/zip","Rascal/Expressions/Values/Location","Rascal/Expressions/Values/Location/AddSegment","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Location/FieldSelection","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Expressions/Values/Location/LessThan","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Expressions/Values/Location/NotEqual","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Map/Subscription","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/distribution","Rascal/Expressions/Values/Map/domain","Rascal/Expressions/Values/Map/domainR","Rascal/Expressions/Values/Map/domainX","Rascal/Expressions/Values/Map/getOneFrom","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/invert","Rascal/Expressions/Values/Map/invertUnique","Rascal/Expressions/Values/Map/isEmpty","Rascal/Expressions/Values/Map/mapper","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/Map/range","Rascal/Expressions/Values/Map/rangeR","Rascal/Expressions/Values/Map/rangeX","Rascal/Expressions/Values/Map/size","Rascal/Expressions/Values/Map/toList","Rascal/Expressions/Values/Map/toRel","Rascal/Expressions/Values/Map/toString","Rascal/Expressions/Values/Node","Rascal/Expressions/Values/Node/Equal","Rascal/Expressions/Values/Node/GreaterThan","Rascal/Expressions/Values/Node/GreaterThanOrEqual","Rascal/Expressions/Values/Node/LessThan","Rascal/Expressions/Values/Node/LessThanOrEqual","Rascal/Expressions/Values/Node/NotEqual","Rascal/Expressions/Values/Node/arity","Rascal/Expressions/Values/Node/delAnnotation","Rascal/Expressions/Values/Node/delAnnotations","Rascal/Expressions/Values/Node/delAnnotationsRec","Rascal/Expressions/Values/Node/getAnnotations","Rascal/Expressions/Values/Node/getChildren","Rascal/Expressions/Values/Node/getName","Rascal/Expressions/Values/Node/makeNode","Rascal/Expressions/Values/Node/readATermFromFile","Rascal/Expressions/Values/Node/setAnnotations","Rascal/Expressions/Values/Node/toString","Rascal/Expressions/Values/Number","Rascal/Expressions/Values/Number/Addition","Rascal/Expressions/Values/Number/Conditional","Rascal/Expressions/Values/Number/Division","Rascal/Expressions/Values/Number/Equal","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Expressions/Values/Number/Multiplication","Rascal/Expressions/Values/Number/Negation","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/Number/Remainder","Rascal/Expressions/Values/Number/Subtraction","Rascal/Expressions/Values/Number/abs","Rascal/Expressions/Values/Number/arbInt","Rascal/Expressions/Values/Number/arbReal","Rascal/Expressions/Values/Number/cos","Rascal/Expressions/Values/Number/ln","Rascal/Expressions/Values/Number/log","Rascal/Expressions/Values/Number/max","Rascal/Expressions/Values/Number/min","Rascal/Expressions/Values/Number/nroot","Rascal/Expressions/Values/Number/pow","Rascal/Expressions/Values/Number/sin","Rascal/Expressions/Values/Number/sqrt","Rascal/Expressions/Values/Number/tan","Rascal/Expressions/Values/Number/toInt","Rascal/Expressions/Values/Number/toReal","Rascal/Expressions/Values/Number/toString","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Real","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/Relation/carrier","Rascal/Expressions/Values/Relation/carrierR","Rascal/Expressions/Values/Relation/carrierX","Rascal/Expressions/Values/Relation/complement","Rascal/Expressions/Values/Relation/distribution","Rascal/Expressions/Values/Relation/domain","Rascal/Expressions/Values/Relation/domainR","Rascal/Expressions/Values/Relation/domainX","Rascal/Expressions/Values/Relation/groupDomainByRange","Rascal/Expressions/Values/Relation/groupRangeByDomain","Rascal/Expressions/Values/Relation/ident","Rascal/Expressions/Values/Relation/invert","Rascal/Expressions/Values/Relation/range","Rascal/Expressions/Values/Relation/rangeR","Rascal/Expressions/Values/Relation/rangeX","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Set/Comprehension","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Values/Set/classify","Rascal/Expressions/Values/Set/getOneFrom","Rascal/Expressions/Values/Set/group","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Set/index","Rascal/Expressions/Values/Set/isEmpty","Rascal/Expressions/Values/Set/mapper","Rascal/Expressions/Values/Set/max","Rascal/Expressions/Values/Set/min","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/Set/power","Rascal/Expressions/Values/Set/power1","Rascal/Expressions/Values/Set/reducer","Rascal/Expressions/Values/Set/size","Rascal/Expressions/Values/Set/takeOneFrom","Rascal/Expressions/Values/Set/toList","Rascal/Expressions/Values/Set/toMap","Rascal/Expressions/Values/Set/toMapUnique","Rascal/Expressions/Values/Set/toString","Rascal/Expressions/Values/String","Rascal/Expressions/Values/String/Concatenation","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/GreaterThan","Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/String/NotEqual","Rascal/Expressions/Values/String/center","Rascal/Expressions/Values/String/charAt","Rascal/Expressions/Values/String/contains","Rascal/Expressions/Values/String/endsWith","Rascal/Expressions/Values/String/escape","Rascal/Expressions/Values/String/findAll","Rascal/Expressions/Values/String/findFirst","Rascal/Expressions/Values/String/findLast","Rascal/Expressions/Values/String/isEmpty","Rascal/Expressions/Values/String/left","Rascal/Expressions/Values/String/replaceAll","Rascal/Expressions/Values/String/replaceFirst","Rascal/Expressions/Values/String/replaceLast","Rascal/Expressions/Values/String/reverse","Rascal/Expressions/Values/String/right","Rascal/Expressions/Values/String/size","Rascal/Expressions/Values/String/startsWith","Rascal/Expressions/Values/String/stringChar","Rascal/Expressions/Values/String/stringChars","Rascal/Expressions/Values/String/substring","Rascal/Expressions/Values/String/toInt","Rascal/Expressions/Values/String/toLowerCase","Rascal/Expressions/Values/String/toReal","Rascal/Expressions/Values/String/toUpperCase","Rascal/Expressions/Values/String/trim","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/Concatenation","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/Value","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Value/Equal","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/Void","Rascal/Expressions/Visit","Rascal/InstallingAndRunning","Rascal/InstallingAndRunning/Installing","Rascal/InstallingAndRunning/Running","Rascal/InstallingAndRunning/Running/Help","Rascal/Libraries","Rascal/Libraries/Exception","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Graph","Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph/bottom","Rascal/Libraries/Graph/order","Rascal/Libraries/Graph/predecessors","Rascal/Libraries/Graph/reach","Rascal/Libraries/Graph/reachR","Rascal/Libraries/Graph/reachX","Rascal/Libraries/Graph/shortestPathPair","Rascal/Libraries/Graph/successors","Rascal/Libraries/Graph/top","Rascal/Libraries/IO","Rascal/Libraries/IO/appendToFile","Rascal/Libraries/IO/bprintln","Rascal/Libraries/IO/exists","Rascal/Libraries/IO/find","Rascal/Libraries/IO/iprint","Rascal/Libraries/IO/iprintExp","Rascal/Libraries/IO/iprintln","Rascal/Libraries/IO/iprintlnExp","Rascal/Libraries/IO/isDirectory","Rascal/Libraries/IO/isFile","Rascal/Libraries/IO/lastModified","Rascal/Libraries/IO/listEntries","Rascal/Libraries/IO/mkDirectory","Rascal/Libraries/IO/print","Rascal/Libraries/IO/printExp","Rascal/Libraries/IO/println","Rascal/Libraries/IO/printlnExp","Rascal/Libraries/IO/readFile","Rascal/Libraries/IO/readFileBytes","Rascal/Libraries/IO/readFileLines","Rascal/Libraries/IO/rprint","Rascal/Libraries/IO/rprintln","Rascal/Libraries/IO/touch","Rascal/Libraries/IO/writeFile","Rascal/Libraries/JDT","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT/extractClass","Rascal/Libraries/JDT/extractFactsTransitive","Rascal/Libraries/JDT/extractProject","Rascal/Libraries/JDT/extractResource","Rascal/Libraries/JDT/extractResources","Rascal/Libraries/JDT/isOnBuildPath","Rascal/Libraries/JDT/matchLocations","Rascal/Libraries/Java","Rascal/Libraries/LabeledGraph","Rascal/Libraries/LabeledGraph/bottom","Rascal/Libraries/LabeledGraph/predecessors","Rascal/Libraries/LabeledGraph/reach","Rascal/Libraries/LabeledGraph/reachR","Rascal/Libraries/LabeledGraph/reachX","Rascal/Libraries/LabeledGraph/shortestPathPair","Rascal/Libraries/LabeledGraph/successors","Rascal/Libraries/LabeledGraph/top","Rascal/Libraries/LinearProgramming","Rascal/Libraries/Maybe","Rascal/Libraries/Message","Rascal/Libraries/Message/Message","Rascal/Libraries/ParseTree","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/ParseTree/doc","Rascal/Libraries/ParseTree/docs","Rascal/Libraries/ParseTree/implode","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/links","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/ParseTree/message","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/ParseTree/parse","Rascal/Libraries/ParseTree/parseWithErrorTree","Rascal/Libraries/ParseTree/treeAt","Rascal/Libraries/ParseTree/unparse","Rascal/Libraries/PriorityQueue","Rascal/Libraries/PriorityQueue/extractMinimum","Rascal/Libraries/PriorityQueue/findMinimum","Rascal/Libraries/PriorityQueue/insertElement","Rascal/Libraries/PriorityQueue/isEmpty","Rascal/Libraries/PriorityQueue/mkPriorityQueue","Rascal/Libraries/RSF","Rascal/Libraries/RSF/readRSF","Rascal/Libraries/Resources","Rascal/Libraries/Resources/dependencies","Rascal/Libraries/Resources/getProject","Rascal/Libraries/Resources/projects","Rascal/Libraries/Resources/references","Rascal/Libraries/Resources/root","Rascal/Libraries/ValueIO","Rascal/Libraries/ValueIO/readBinaryValueFile","Rascal/Libraries/ValueIO/readTextValueFile","Rascal/Libraries/ValueIO/readTextValueString","Rascal/Libraries/ValueIO/writeBinaryValueFile","Rascal/Libraries/ValueIO/writeTextValueFile","Rascal/Libraries/Vis","Rascal/Libraries/Vis/Figure","Rascal/Libraries/Vis/Figure/Angles","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Libraries/Vis/Figure/ColorModel/arbColor","Rascal/Libraries/Vis/Figure/ColorModel/color","Rascal/Libraries/Vis/Figure/ColorModel/colorNames","Rascal/Libraries/Vis/Figure/ColorModel/colorScale","Rascal/Libraries/Vis/Figure/ColorModel/colorSteps","Rascal/Libraries/Vis/Figure/ColorModel/gray","Rascal/Libraries/Vis/Figure/ColorModel/interpolateColor","Rascal/Libraries/Vis/Figure/ColorModel/palette","Rascal/Libraries/Vis/Figure/ColorModel/rgb","Rascal/Libraries/Vis/Figure/CompositionModel","Rascal/Libraries/Vis/Figure/Figures","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Vis/Figure/Figures/box","Rascal/Libraries/Vis/Figure/Figures/button","Rascal/Libraries/Vis/Figure/Figures/checkbox","Rascal/Libraries/Vis/Figure/Figures/choice","Rascal/Libraries/Vis/Figure/Figures/combo","Rascal/Libraries/Vis/Figure/Figures/computeFigure","Rascal/Libraries/Vis/Figure/Figures/edge","Rascal/Libraries/Vis/Figure/Figures/ellipse","Rascal/Libraries/Vis/Figure/Figures/fswitch","Rascal/Libraries/Vis/Figure/Figures/graph","Rascal/Libraries/Vis/Figure/Figures/grid","Rascal/Libraries/Vis/Figure/Figures/hcat","Rascal/Libraries/Vis/Figure/Figures/hscreen","Rascal/Libraries/Vis/Figure/Figures/hscrollable","Rascal/Libraries/Vis/Figure/Figures/hvcat","Rascal/Libraries/Vis/Figure/Figures/outline","Rascal/Libraries/Vis/Figure/Figures/overlay","Rascal/Libraries/Vis/Figure/Figures/pack","Rascal/Libraries/Vis/Figure/Figures/rotate","Rascal/Libraries/Vis/Figure/Figures/scale","Rascal/Libraries/Vis/Figure/Figures/scaleSlider","Rascal/Libraries/Vis/Figure/Figures/scrollable","Rascal/Libraries/Vis/Figure/Figures/space","Rascal/Libraries/Vis/Figure/Figures/text","Rascal/Libraries/Vis/Figure/Figures/textfield","Rascal/Libraries/Vis/Figure/Figures/tree","Rascal/Libraries/Vis/Figure/Figures/treemap","Rascal/Libraries/Vis/Figure/Figures/vcat","Rascal/Libraries/Vis/Figure/Figures/vscreen","Rascal/Libraries/Vis/Figure/Figures/vscrollable","Rascal/Libraries/Vis/Figure/InteractionModel","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/Properties/align","Rascal/Libraries/Vis/Figure/Properties/area","Rascal/Libraries/Vis/Figure/Properties/aspectRatio","Rascal/Libraries/Vis/Figure/Properties/bottom","Rascal/Libraries/Vis/Figure/Properties/center","Rascal/Libraries/Vis/Figure/Properties/connect","Rascal/Libraries/Vis/Figure/Properties/endGap","Rascal/Libraries/Vis/Figure/Properties/fillColor","Rascal/Libraries/Vis/Figure/Properties/font","Rascal/Libraries/Vis/Figure/Properties/fontBold","Rascal/Libraries/Vis/Figure/Properties/fontColor","Rascal/Libraries/Vis/Figure/Properties/fontItalic","Rascal/Libraries/Vis/Figure/Properties/fontNames","Rascal/Libraries/Vis/Figure/Properties/fontSize","Rascal/Libraries/Vis/Figure/Properties/fromArrow","Rascal/Libraries/Vis/Figure/Properties/gap","Rascal/Libraries/Vis/Figure/Properties/grow","Rascal/Libraries/Vis/Figure/Properties/halign","Rascal/Libraries/Vis/Figure/Properties/hcenter","Rascal/Libraries/Vis/Figure/Properties/hconnect","Rascal/Libraries/Vis/Figure/Properties/height","Rascal/Libraries/Vis/Figure/Properties/hendGap","Rascal/Libraries/Vis/Figure/Properties/hgap","Rascal/Libraries/Vis/Figure/Properties/hgrow","Rascal/Libraries/Vis/Figure/Properties/hint","Rascal/Libraries/Vis/Figure/Properties/hresizable","Rascal/Libraries/Vis/Figure/Properties/hshadowPos","Rascal/Libraries/Vis/Figure/Properties/hshrink","Rascal/Libraries/Vis/Figure/Properties/hsize","Rascal/Libraries/Vis/Figure/Properties/hstartGap","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Libraries/Vis/Figure/Properties/id","Rascal/Libraries/Vis/Figure/Properties/justify","Rascal/Libraries/Vis/Figure/Properties/label","Rascal/Libraries/Vis/Figure/Properties/layer","Rascal/Libraries/Vis/Figure/Properties/left","Rascal/Libraries/Vis/Figure/Properties/lineColor","Rascal/Libraries/Vis/Figure/Properties/lineStyle","Rascal/Libraries/Vis/Figure/Properties/lineWidth","Rascal/Libraries/Vis/Figure/Properties/manhattan","Rascal/Libraries/Vis/Figure/Properties/mouseOver","Rascal/Libraries/Vis/Figure/Properties/onClick","Rascal/Libraries/Vis/Figure/Properties/onKeyDown","Rascal/Libraries/Vis/Figure/Properties/onKeyUp","Rascal/Libraries/Vis/Figure/Properties/onMouseDown","Rascal/Libraries/Vis/Figure/Properties/onMouseEnter","Rascal/Libraries/Vis/Figure/Properties/onMouseExit","Rascal/Libraries/Vis/Figure/Properties/onMouseMove","Rascal/Libraries/Vis/Figure/Properties/onMouseUp","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/Vis/Figure/Properties/project","Rascal/Libraries/Vis/Figure/Properties/resizable","Rascal/Libraries/Vis/Figure/Properties/right","Rascal/Libraries/Vis/Figure/Properties/shadow","Rascal/Libraries/Vis/Figure/Properties/shadowColor","Rascal/Libraries/Vis/Figure/Properties/shadowPos","Rascal/Libraries/Vis/Figure/Properties/shapeClosed","Rascal/Libraries/Vis/Figure/Properties/shapeConnected","Rascal/Libraries/Vis/Figure/Properties/shapeCurved","Rascal/Libraries/Vis/Figure/Properties/shrink","Rascal/Libraries/Vis/Figure/Properties/size","Rascal/Libraries/Vis/Figure/Properties/startGap","Rascal/Libraries/Vis/Figure/Properties/std","Rascal/Libraries/Vis/Figure/Properties/textAngle","Rascal/Libraries/Vis/Figure/Properties/timer","Rascal/Libraries/Vis/Figure/Properties/toArrow","Rascal/Libraries/Vis/Figure/Properties/top","Rascal/Libraries/Vis/Figure/Properties/valign","Rascal/Libraries/Vis/Figure/Properties/vcenter","Rascal/Libraries/Vis/Figure/Properties/vconnect","Rascal/Libraries/Vis/Figure/Properties/vendGap","Rascal/Libraries/Vis/Figure/Properties/vgap","Rascal/Libraries/Vis/Figure/Properties/vgrow","Rascal/Libraries/Vis/Figure/Properties/vresizable","Rascal/Libraries/Vis/Figure/Properties/vshadowPos","Rascal/Libraries/Vis/Figure/Properties/vshrink","Rascal/Libraries/Vis/Figure/Properties/vsize","Rascal/Libraries/Vis/Figure/Properties/vstartGap","Rascal/Libraries/Vis/Figure/Properties/width","Rascal/Libraries/Vis/Render","Rascal/Libraries/Vis/Render/render","Rascal/Libraries/Vis/Render/renderSave","Rascal/Libraries/Vis/TestVis","Rascal/Libraries/util","Rascal/Libraries/util/Benchmark","Rascal/Libraries/util/Benchmark/benchmark","Rascal/Libraries/util/Benchmark/cpuTime","Rascal/Libraries/util/Benchmark/realTime","Rascal/Libraries/util/Benchmark/systemTime","Rascal/Libraries/util/Benchmark/userTime","Rascal/Libraries/util/Eval","Rascal/Libraries/util/Eval/eval","Rascal/Libraries/util/Eval/evalType","Rascal/Libraries/util/Eval/shell","Rascal/Libraries/util/IDE","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/util/IDE/DocumentationHover","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/util/IDE/Folding","Rascal/Libraries/util/IDE/Hyperlinking","Rascal/Libraries/util/IDE/Menus","Rascal/Libraries/util/IDE/Outline","Rascal/Libraries/util/IDE/Plugin","Rascal/Libraries/util/IDE/clearLanguage","Rascal/Libraries/util/IDE/clearLanguages","Rascal/Libraries/util/IDE/clearNonRascalContribution","Rascal/Libraries/util/IDE/clearNonRascalContributions","Rascal/Libraries/util/IDE/label","Rascal/Libraries/util/IDE/loc","Rascal/Libraries/util/IDE/registerAnnotator","Rascal/Libraries/util/IDE/registerContributions","Rascal/Libraries/util/IDE/registerLanguage","Rascal/Libraries/util/IDE/registerNonRascalContributions","Rascal/Libraries/util/IDE/registerOutliner","Rascal/Libraries/util/Math","Rascal/Libraries/util/Math/E","Rascal/Libraries/util/Math/PI","Rascal/Libraries/util/Math/abs","Rascal/Libraries/util/Math/arbInt","Rascal/Libraries/util/Math/arbRat","Rascal/Libraries/util/Math/arbReal","Rascal/Libraries/util/Math/ceil","Rascal/Libraries/util/Math/cos","Rascal/Libraries/util/Math/denominator","Rascal/Libraries/util/Math/exp","Rascal/Libraries/util/Math/floor","Rascal/Libraries/util/Math/ln","Rascal/Libraries/util/Math/log","Rascal/Libraries/util/Math/log10","Rascal/Libraries/util/Math/log2","Rascal/Libraries/util/Math/max","Rascal/Libraries/util/Math/min","Rascal/Libraries/util/Math/nroot","Rascal/Libraries/util/Math/numerator","Rascal/Libraries/util/Math/pow","Rascal/Libraries/util/Math/remainder","Rascal/Libraries/util/Math/round","Rascal/Libraries/util/Math/sin","Rascal/Libraries/util/Math/sqrt","Rascal/Libraries/util/Math/tan","Rascal/Libraries/util/Math/toInt","Rascal/Libraries/util/Math/toRat","Rascal/Libraries/util/Math/toReal","Rascal/Libraries/util/Math/toString","Rascal/Motivation","Rascal/Patterns","Rascal/Patterns/Abstract","Rascal/Patterns/Abstract/Descendant","Rascal/Patterns/Abstract/Labelled","Rascal/Patterns/Abstract/List","Rascal/Patterns/Abstract/Literal","Rascal/Patterns/Abstract/MultiVariable","Rascal/Patterns/Abstract/Node","Rascal/Patterns/Abstract/Set","Rascal/Patterns/Abstract/Tuple","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Patterns/Abstract/TypedLabelled","Rascal/Patterns/Abstract/Variable","Rascal/Patterns/Abstract/VariableDeclaration","Rascal/Patterns/Concrete","Rascal/Patterns/PatternWithAction","Rascal/Patterns/Regular","Rascal/Statements","Rascal/Statements/Append","Rascal/Statements/Assert","Rascal/Statements/Assignment","Rascal/Statements/Block","Rascal/Statements/Break","Rascal/Statements/Continue","Rascal/Statements/Do","Rascal/Statements/Fail","Rascal/Statements/For","Rascal/Statements/If","Rascal/Statements/Insert","Rascal/Statements/Return","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Statements/Test","Rascal/Statements/Throw","Rascal/Statements/TryCatch","Rascal/Statements/While");
+var conceptNames = new Array("Rascal","Rascal/Concepts","Rascal/Concepts/CaseDistinction","Rascal/Concepts/Comprehensions","Rascal/Concepts/ControlStructures","Rascal/Concepts/Datatypes","Rascal/Concepts/Enumerators","Rascal/Concepts/Enumerators/EquationSolving","Rascal/Concepts/Functions","Rascal/Concepts/IDEConstruction","Rascal/Concepts/ImmutableValues","Rascal/Concepts/PatternMatching","Rascal/Concepts/RewriteRules","Rascal/Concepts/StaticTyping","Rascal/Concepts/SyntaxDefinitionAndParsing","Rascal/Concepts/Visiting","Rascal/Contents","Rascal/Declarations","Rascal/Declarations/AlgebraicDataType","Rascal/Declarations/Alias","Rascal/Declarations/Annotation","Rascal/Declarations/Function","Rascal/Declarations/Import","Rascal/Declarations/Module","Rascal/Declarations/Program","Rascal/Declarations/StaticTyping","Rascal/Declarations/StaticTyping/ReifiedTypes","Rascal/Declarations/StaticTyping/TypeConstraints","Rascal/Declarations/StaticTyping/TypeParameters","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Action","Rascal/Declarations/SyntaxDefinition/AmbiguityDetection","Rascal/Declarations/SyntaxDefinition/AmbiguityDiagnosis","Rascal/Declarations/SyntaxDefinition/Disambiguation","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Declarations/SyntaxDefinition/Disambiguation/Follow","Rascal/Declarations/SyntaxDefinition/Disambiguation/Preceed","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Declarations/SyntaxDefinition/Disambiguation/Reserve","Rascal/Declarations/SyntaxDefinition/ParseTrees","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Declarations/Tag","Rascal/Declarations/Variable","Rascal/Expressions","Rascal/Expressions/Call","Rascal/Expressions/Comprehensions","Rascal/Expressions/Comprehensions/Enumerator","Rascal/Expressions/Comprehensions/Filter","Rascal/Expressions/ConcreteSyntax","Rascal/Expressions/Operators","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Reducer","Rascal/Expressions/Replacement","Rascal/Expressions/Selection","Rascal/Expressions/StatementAsExpression","Rascal/Expressions/Values","Rascal/Expressions/Values/Boolean","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/Boolean/And","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/Boolean/Equivalence","Rascal/Expressions/Values/Boolean/IfDefinedElse","Rascal/Expressions/Values/Boolean/Implication","Rascal/Expressions/Values/Boolean/IsDefined","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/Boolean/Negation","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Boolean/Or","Rascal/Expressions/Values/Boolean/arbBool","Rascal/Expressions/Values/Boolean/fromInt","Rascal/Expressions/Values/Boolean/fromString","Rascal/Expressions/Values/Boolean/toInt","Rascal/Expressions/Values/Boolean/toReal","Rascal/Expressions/Values/Boolean/toString","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/DateTime","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/DateTime/FieldSelection","Rascal/Expressions/Values/DateTime/GreaterThan","Rascal/Expressions/Values/DateTime/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/LessThan","Rascal/Expressions/Values/DateTime/LessThanOrEqual","Rascal/Expressions/Values/DateTime/NotEqual","Rascal/Expressions/Values/DateTime/createDate","Rascal/Expressions/Values/DateTime/createDateTime","Rascal/Expressions/Values/DateTime/createDuration","Rascal/Expressions/Values/DateTime/createInterval","Rascal/Expressions/Values/DateTime/createTime","Rascal/Expressions/Values/DateTime/dateRangeByDay","Rascal/Expressions/Values/DateTime/daysDiff","Rascal/Expressions/Values/DateTime/daysInInterval","Rascal/Expressions/Values/DateTime/decrementDays","Rascal/Expressions/Values/DateTime/decrementHours","Rascal/Expressions/Values/DateTime/decrementMilliseconds","Rascal/Expressions/Values/DateTime/decrementMinutes","Rascal/Expressions/Values/DateTime/decrementMonths","Rascal/Expressions/Values/DateTime/decrementSeconds","Rascal/Expressions/Values/DateTime/decrementYears","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/DateTime/incrementDays","Rascal/Expressions/Values/DateTime/incrementHours","Rascal/Expressions/Values/DateTime/incrementMilliseconds","Rascal/Expressions/Values/DateTime/incrementMinutes","Rascal/Expressions/Values/DateTime/incrementMonths","Rascal/Expressions/Values/DateTime/incrementSeconds","Rascal/Expressions/Values/DateTime/incrementYears","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/DateTime/joinDateAndTime","Rascal/Expressions/Values/DateTime/now","Rascal/Expressions/Values/DateTime/parseDate","Rascal/Expressions/Values/DateTime/parseDateInLocale","Rascal/Expressions/Values/DateTime/parseDateTime","Rascal/Expressions/Values/DateTime/parseDateTimeInLocale","Rascal/Expressions/Values/DateTime/parseTime","Rascal/Expressions/Values/DateTime/parseTimeInLocale","Rascal/Expressions/Values/DateTime/printDate","Rascal/Expressions/Values/DateTime/printDateInLocale","Rascal/Expressions/Values/DateTime/printDateTime","Rascal/Expressions/Values/DateTime/printDateTimeInLocale","Rascal/Expressions/Values/DateTime/printTime","Rascal/Expressions/Values/DateTime/printTimeInLocale","Rascal/Expressions/Values/DateTime/splitDateTime","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/List","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/List/NotEqual","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/List/delete","Rascal/Expressions/Values/List/domain","Rascal/Expressions/Values/List/drop","Rascal/Expressions/Values/List/dup","Rascal/Expressions/Values/List/getOneFrom","Rascal/Expressions/Values/List/head","Rascal/Expressions/Values/List/headTail","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/List/index","Rascal/Expressions/Values/List/indexOf","Rascal/Expressions/Values/List/insertAt","Rascal/Expressions/Values/List/intercalate","Rascal/Expressions/Values/List/isEmpty","Rascal/Expressions/Values/List/last","Rascal/Expressions/Values/List/lastIndexOf","Rascal/Expressions/Values/List/mapper","Rascal/Expressions/Values/List/max","Rascal/Expressions/Values/List/merge","Rascal/Expressions/Values/List/min","Rascal/Expressions/Values/List/mix","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/permutations","Rascal/Expressions/Values/List/pop","Rascal/Expressions/Values/List/prefix","Rascal/Expressions/Values/List/push","Rascal/Expressions/Values/List/reducer","Rascal/Expressions/Values/List/reverse","Rascal/Expressions/Values/List/size","Rascal/Expressions/Values/List/slice","Rascal/Expressions/Values/List/sort","Rascal/Expressions/Values/List/split","Rascal/Expressions/Values/List/sum","Rascal/Expressions/Values/List/tail","Rascal/Expressions/Values/List/take","Rascal/Expressions/Values/List/takeOneFrom","Rascal/Expressions/Values/List/toMap","Rascal/Expressions/Values/List/toMapUnique","Rascal/Expressions/Values/List/toRel","Rascal/Expressions/Values/List/toSet","Rascal/Expressions/Values/List/toString","Rascal/Expressions/Values/List/top","Rascal/Expressions/Values/List/unzip","Rascal/Expressions/Values/List/upTill","Rascal/Expressions/Values/List/zip","Rascal/Expressions/Values/Location","Rascal/Expressions/Values/Location/AddSegment","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Location/FieldSelection","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Expressions/Values/Location/LessThan","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Expressions/Values/Location/NotEqual","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Map/Subscription","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/distribution","Rascal/Expressions/Values/Map/domain","Rascal/Expressions/Values/Map/domainR","Rascal/Expressions/Values/Map/domainX","Rascal/Expressions/Values/Map/getOneFrom","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/invert","Rascal/Expressions/Values/Map/invertUnique","Rascal/Expressions/Values/Map/isEmpty","Rascal/Expressions/Values/Map/mapper","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/Map/range","Rascal/Expressions/Values/Map/rangeR","Rascal/Expressions/Values/Map/rangeX","Rascal/Expressions/Values/Map/size","Rascal/Expressions/Values/Map/toList","Rascal/Expressions/Values/Map/toRel","Rascal/Expressions/Values/Map/toString","Rascal/Expressions/Values/Node","Rascal/Expressions/Values/Node/Equal","Rascal/Expressions/Values/Node/GreaterThan","Rascal/Expressions/Values/Node/GreaterThanOrEqual","Rascal/Expressions/Values/Node/LessThan","Rascal/Expressions/Values/Node/LessThanOrEqual","Rascal/Expressions/Values/Node/NotEqual","Rascal/Expressions/Values/Node/arity","Rascal/Expressions/Values/Node/delAnnotation","Rascal/Expressions/Values/Node/delAnnotations","Rascal/Expressions/Values/Node/delAnnotationsRec","Rascal/Expressions/Values/Node/getAnnotations","Rascal/Expressions/Values/Node/getChildren","Rascal/Expressions/Values/Node/getName","Rascal/Expressions/Values/Node/makeNode","Rascal/Expressions/Values/Node/readATermFromFile","Rascal/Expressions/Values/Node/setAnnotations","Rascal/Expressions/Values/Node/toString","Rascal/Expressions/Values/Number","Rascal/Expressions/Values/Number/Addition","Rascal/Expressions/Values/Number/Conditional","Rascal/Expressions/Values/Number/Division","Rascal/Expressions/Values/Number/Equal","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Expressions/Values/Number/Multiplication","Rascal/Expressions/Values/Number/Negation","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/Number/Remainder","Rascal/Expressions/Values/Number/Subtraction","Rascal/Expressions/Values/Number/abs","Rascal/Expressions/Values/Number/arbInt","Rascal/Expressions/Values/Number/arbReal","Rascal/Expressions/Values/Number/cos","Rascal/Expressions/Values/Number/ln","Rascal/Expressions/Values/Number/log","Rascal/Expressions/Values/Number/max","Rascal/Expressions/Values/Number/min","Rascal/Expressions/Values/Number/nroot","Rascal/Expressions/Values/Number/pow","Rascal/Expressions/Values/Number/sin","Rascal/Expressions/Values/Number/sqrt","Rascal/Expressions/Values/Number/tan","Rascal/Expressions/Values/Number/toInt","Rascal/Expressions/Values/Number/toReal","Rascal/Expressions/Values/Number/toString","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Real","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/Relation/carrier","Rascal/Expressions/Values/Relation/carrierR","Rascal/Expressions/Values/Relation/carrierX","Rascal/Expressions/Values/Relation/complement","Rascal/Expressions/Values/Relation/distribution","Rascal/Expressions/Values/Relation/domain","Rascal/Expressions/Values/Relation/domainR","Rascal/Expressions/Values/Relation/domainX","Rascal/Expressions/Values/Relation/groupDomainByRange","Rascal/Expressions/Values/Relation/groupRangeByDomain","Rascal/Expressions/Values/Relation/ident","Rascal/Expressions/Values/Relation/invert","Rascal/Expressions/Values/Relation/range","Rascal/Expressions/Values/Relation/rangeR","Rascal/Expressions/Values/Relation/rangeX","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Set/Comprehension","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Values/Set/classify","Rascal/Expressions/Values/Set/getOneFrom","Rascal/Expressions/Values/Set/group","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Set/index","Rascal/Expressions/Values/Set/isEmpty","Rascal/Expressions/Values/Set/mapper","Rascal/Expressions/Values/Set/max","Rascal/Expressions/Values/Set/min","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/Set/power","Rascal/Expressions/Values/Set/power1","Rascal/Expressions/Values/Set/reducer","Rascal/Expressions/Values/Set/size","Rascal/Expressions/Values/Set/takeOneFrom","Rascal/Expressions/Values/Set/toList","Rascal/Expressions/Values/Set/toMap","Rascal/Expressions/Values/Set/toMapUnique","Rascal/Expressions/Values/Set/toString","Rascal/Expressions/Values/String","Rascal/Expressions/Values/String/Concatenation","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/GreaterThan","Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/String/NotEqual","Rascal/Expressions/Values/String/center","Rascal/Expressions/Values/String/charAt","Rascal/Expressions/Values/String/contains","Rascal/Expressions/Values/String/endsWith","Rascal/Expressions/Values/String/escape","Rascal/Expressions/Values/String/findAll","Rascal/Expressions/Values/String/findFirst","Rascal/Expressions/Values/String/findLast","Rascal/Expressions/Values/String/isEmpty","Rascal/Expressions/Values/String/left","Rascal/Expressions/Values/String/replaceAll","Rascal/Expressions/Values/String/replaceFirst","Rascal/Expressions/Values/String/replaceLast","Rascal/Expressions/Values/String/reverse","Rascal/Expressions/Values/String/right","Rascal/Expressions/Values/String/size","Rascal/Expressions/Values/String/startsWith","Rascal/Expressions/Values/String/stringChar","Rascal/Expressions/Values/String/stringChars","Rascal/Expressions/Values/String/substring","Rascal/Expressions/Values/String/toInt","Rascal/Expressions/Values/String/toLowerCase","Rascal/Expressions/Values/String/toReal","Rascal/Expressions/Values/String/toUpperCase","Rascal/Expressions/Values/String/trim","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/Concatenation","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/Value","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Value/Equal","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/Void","Rascal/Expressions/Visit","Rascal/InstallingAndRunning","Rascal/InstallingAndRunning/Installing","Rascal/InstallingAndRunning/Running","Rascal/InstallingAndRunning/Running/Help","Rascal/Libraries","Rascal/Libraries/Exception","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Graph","Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph/bottom","Rascal/Libraries/Graph/order","Rascal/Libraries/Graph/predecessors","Rascal/Libraries/Graph/reach","Rascal/Libraries/Graph/reachR","Rascal/Libraries/Graph/reachX","Rascal/Libraries/Graph/shortestPathPair","Rascal/Libraries/Graph/successors","Rascal/Libraries/Graph/top","Rascal/Libraries/IO","Rascal/Libraries/IO/appendToFile","Rascal/Libraries/IO/bprintln","Rascal/Libraries/IO/exists","Rascal/Libraries/IO/find","Rascal/Libraries/IO/iprint","Rascal/Libraries/IO/iprintExp","Rascal/Libraries/IO/iprintln","Rascal/Libraries/IO/iprintlnExp","Rascal/Libraries/IO/isDirectory","Rascal/Libraries/IO/isFile","Rascal/Libraries/IO/lastModified","Rascal/Libraries/IO/listEntries","Rascal/Libraries/IO/mkDirectory","Rascal/Libraries/IO/print","Rascal/Libraries/IO/printExp","Rascal/Libraries/IO/println","Rascal/Libraries/IO/printlnExp","Rascal/Libraries/IO/readFile","Rascal/Libraries/IO/readFileBytes","Rascal/Libraries/IO/readFileLines","Rascal/Libraries/IO/rprint","Rascal/Libraries/IO/rprintln","Rascal/Libraries/IO/touch","Rascal/Libraries/IO/writeFile","Rascal/Libraries/LabeledGraph","Rascal/Libraries/LabeledGraph/bottom","Rascal/Libraries/LabeledGraph/predecessors","Rascal/Libraries/LabeledGraph/reach","Rascal/Libraries/LabeledGraph/reachR","Rascal/Libraries/LabeledGraph/reachX","Rascal/Libraries/LabeledGraph/shortestPathPair","Rascal/Libraries/LabeledGraph/successors","Rascal/Libraries/LabeledGraph/top","Rascal/Libraries/Message","Rascal/Libraries/Message/Message","Rascal/Libraries/ParseTree","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/ParseTree/doc","Rascal/Libraries/ParseTree/docs","Rascal/Libraries/ParseTree/implode","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/links","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/ParseTree/message","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/ParseTree/parse","Rascal/Libraries/ParseTree/parseWithErrorTree","Rascal/Libraries/ParseTree/treeAt","Rascal/Libraries/ParseTree/unparse","Rascal/Libraries/PriorityQueue","Rascal/Libraries/PriorityQueue/extractMinimum","Rascal/Libraries/PriorityQueue/findMinimum","Rascal/Libraries/PriorityQueue/insertElement","Rascal/Libraries/PriorityQueue/isEmpty","Rascal/Libraries/PriorityQueue/mkPriorityQueue","Rascal/Libraries/ValueIO","Rascal/Libraries/ValueIO/readBinaryValueFile","Rascal/Libraries/ValueIO/readTextValueFile","Rascal/Libraries/ValueIO/readTextValueString","Rascal/Libraries/ValueIO/writeBinaryValueFile","Rascal/Libraries/ValueIO/writeTextValueFile","Rascal/Libraries/Vis","Rascal/Libraries/Vis/Figure","Rascal/Libraries/Vis/Figure/Angles","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Libraries/Vis/Figure/ColorModel/arbColor","Rascal/Libraries/Vis/Figure/ColorModel/color","Rascal/Libraries/Vis/Figure/ColorModel/colorNames","Rascal/Libraries/Vis/Figure/ColorModel/colorScale","Rascal/Libraries/Vis/Figure/ColorModel/colorSteps","Rascal/Libraries/Vis/Figure/ColorModel/gray","Rascal/Libraries/Vis/Figure/ColorModel/interpolateColor","Rascal/Libraries/Vis/Figure/ColorModel/palette","Rascal/Libraries/Vis/Figure/ColorModel/rgb","Rascal/Libraries/Vis/Figure/CompositionModel","Rascal/Libraries/Vis/Figure/Figures","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Vis/Figure/Figures/box","Rascal/Libraries/Vis/Figure/Figures/button","Rascal/Libraries/Vis/Figure/Figures/checkbox","Rascal/Libraries/Vis/Figure/Figures/choice","Rascal/Libraries/Vis/Figure/Figures/combo","Rascal/Libraries/Vis/Figure/Figures/computeFigure","Rascal/Libraries/Vis/Figure/Figures/edge","Rascal/Libraries/Vis/Figure/Figures/ellipse","Rascal/Libraries/Vis/Figure/Figures/fswitch","Rascal/Libraries/Vis/Figure/Figures/graph","Rascal/Libraries/Vis/Figure/Figures/grid","Rascal/Libraries/Vis/Figure/Figures/hcat","Rascal/Libraries/Vis/Figure/Figures/hscreen","Rascal/Libraries/Vis/Figure/Figures/hscrollable","Rascal/Libraries/Vis/Figure/Figures/hvcat","Rascal/Libraries/Vis/Figure/Figures/outline","Rascal/Libraries/Vis/Figure/Figures/overlay","Rascal/Libraries/Vis/Figure/Figures/pack","Rascal/Libraries/Vis/Figure/Figures/rotate","Rascal/Libraries/Vis/Figure/Figures/scale","Rascal/Libraries/Vis/Figure/Figures/scaleSlider","Rascal/Libraries/Vis/Figure/Figures/scrollable","Rascal/Libraries/Vis/Figure/Figures/space","Rascal/Libraries/Vis/Figure/Figures/text","Rascal/Libraries/Vis/Figure/Figures/textfield","Rascal/Libraries/Vis/Figure/Figures/tree","Rascal/Libraries/Vis/Figure/Figures/treemap","Rascal/Libraries/Vis/Figure/Figures/vcat","Rascal/Libraries/Vis/Figure/Figures/vscreen","Rascal/Libraries/Vis/Figure/Figures/vscrollable","Rascal/Libraries/Vis/Figure/InteractionModel","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/Properties/align","Rascal/Libraries/Vis/Figure/Properties/area","Rascal/Libraries/Vis/Figure/Properties/aspectRatio","Rascal/Libraries/Vis/Figure/Properties/bottom","Rascal/Libraries/Vis/Figure/Properties/center","Rascal/Libraries/Vis/Figure/Properties/connect","Rascal/Libraries/Vis/Figure/Properties/endGap","Rascal/Libraries/Vis/Figure/Properties/fillColor","Rascal/Libraries/Vis/Figure/Properties/font","Rascal/Libraries/Vis/Figure/Properties/fontBold","Rascal/Libraries/Vis/Figure/Properties/fontColor","Rascal/Libraries/Vis/Figure/Properties/fontItalic","Rascal/Libraries/Vis/Figure/Properties/fontNames","Rascal/Libraries/Vis/Figure/Properties/fontSize","Rascal/Libraries/Vis/Figure/Properties/fromArrow","Rascal/Libraries/Vis/Figure/Properties/gap","Rascal/Libraries/Vis/Figure/Properties/grow","Rascal/Libraries/Vis/Figure/Properties/halign","Rascal/Libraries/Vis/Figure/Properties/hcenter","Rascal/Libraries/Vis/Figure/Properties/hconnect","Rascal/Libraries/Vis/Figure/Properties/height","Rascal/Libraries/Vis/Figure/Properties/hendGap","Rascal/Libraries/Vis/Figure/Properties/hgap","Rascal/Libraries/Vis/Figure/Properties/hgrow","Rascal/Libraries/Vis/Figure/Properties/hint","Rascal/Libraries/Vis/Figure/Properties/hresizable","Rascal/Libraries/Vis/Figure/Properties/hshadowPos","Rascal/Libraries/Vis/Figure/Properties/hshrink","Rascal/Libraries/Vis/Figure/Properties/hsize","Rascal/Libraries/Vis/Figure/Properties/hstartGap","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Libraries/Vis/Figure/Properties/id","Rascal/Libraries/Vis/Figure/Properties/justify","Rascal/Libraries/Vis/Figure/Properties/label","Rascal/Libraries/Vis/Figure/Properties/layer","Rascal/Libraries/Vis/Figure/Properties/left","Rascal/Libraries/Vis/Figure/Properties/lineColor","Rascal/Libraries/Vis/Figure/Properties/lineStyle","Rascal/Libraries/Vis/Figure/Properties/lineWidth","Rascal/Libraries/Vis/Figure/Properties/manhattan","Rascal/Libraries/Vis/Figure/Properties/mouseOver","Rascal/Libraries/Vis/Figure/Properties/onClick","Rascal/Libraries/Vis/Figure/Properties/onKeyDown","Rascal/Libraries/Vis/Figure/Properties/onKeyUp","Rascal/Libraries/Vis/Figure/Properties/onMouseDown","Rascal/Libraries/Vis/Figure/Properties/onMouseEnter","Rascal/Libraries/Vis/Figure/Properties/onMouseExit","Rascal/Libraries/Vis/Figure/Properties/onMouseMove","Rascal/Libraries/Vis/Figure/Properties/onMouseUp","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/Vis/Figure/Properties/project","Rascal/Libraries/Vis/Figure/Properties/resizable","Rascal/Libraries/Vis/Figure/Properties/right","Rascal/Libraries/Vis/Figure/Properties/shadow","Rascal/Libraries/Vis/Figure/Properties/shadowColor","Rascal/Libraries/Vis/Figure/Properties/shadowPos","Rascal/Libraries/Vis/Figure/Properties/shapeClosed","Rascal/Libraries/Vis/Figure/Properties/shapeConnected","Rascal/Libraries/Vis/Figure/Properties/shapeCurved","Rascal/Libraries/Vis/Figure/Properties/shrink","Rascal/Libraries/Vis/Figure/Properties/size","Rascal/Libraries/Vis/Figure/Properties/startGap","Rascal/Libraries/Vis/Figure/Properties/std","Rascal/Libraries/Vis/Figure/Properties/textAngle","Rascal/Libraries/Vis/Figure/Properties/timer","Rascal/Libraries/Vis/Figure/Properties/toArrow","Rascal/Libraries/Vis/Figure/Properties/top","Rascal/Libraries/Vis/Figure/Properties/valign","Rascal/Libraries/Vis/Figure/Properties/vcenter","Rascal/Libraries/Vis/Figure/Properties/vconnect","Rascal/Libraries/Vis/Figure/Properties/vendGap","Rascal/Libraries/Vis/Figure/Properties/vgap","Rascal/Libraries/Vis/Figure/Properties/vgrow","Rascal/Libraries/Vis/Figure/Properties/vresizable","Rascal/Libraries/Vis/Figure/Properties/vshadowPos","Rascal/Libraries/Vis/Figure/Properties/vshrink","Rascal/Libraries/Vis/Figure/Properties/vsize","Rascal/Libraries/Vis/Figure/Properties/vstartGap","Rascal/Libraries/Vis/Figure/Properties/width","Rascal/Libraries/Vis/Render","Rascal/Libraries/Vis/Render/render","Rascal/Libraries/Vis/Render/renderSave","Rascal/Libraries/Vis/TestVis","Rascal/Libraries/lang","Rascal/Libraries/lang/RSF","Rascal/Libraries/lang/RSF/readRSF","Rascal/Libraries/lang/java","Rascal/Libraries/lang/java/jdt","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/JDT/extractClass","Rascal/Libraries/lang/java/jdt/JDT/extractFactsTransitive","Rascal/Libraries/lang/java/jdt/JDT/extractProject","Rascal/Libraries/lang/java/jdt/JDT/extractResource","Rascal/Libraries/lang/java/jdt/JDT/extractResources","Rascal/Libraries/lang/java/jdt/JDT/isOnBuildPath","Rascal/Libraries/lang/java/jdt/JDT/matchLocations","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/util","Rascal/Libraries/util/Benchmark","Rascal/Libraries/util/Benchmark/benchmark","Rascal/Libraries/util/Benchmark/cpuTime","Rascal/Libraries/util/Benchmark/realTime","Rascal/Libraries/util/Benchmark/systemTime","Rascal/Libraries/util/Benchmark/userTime","Rascal/Libraries/util/Eval","Rascal/Libraries/util/Eval/eval","Rascal/Libraries/util/Eval/evalType","Rascal/Libraries/util/Eval/shell","Rascal/Libraries/util/IDE","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/util/IDE/DocumentationHover","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/util/IDE/Folding","Rascal/Libraries/util/IDE/Hyperlinking","Rascal/Libraries/util/IDE/Menus","Rascal/Libraries/util/IDE/Outline","Rascal/Libraries/util/IDE/Plugin","Rascal/Libraries/util/IDE/clearLanguage","Rascal/Libraries/util/IDE/clearLanguages","Rascal/Libraries/util/IDE/clearNonRascalContribution","Rascal/Libraries/util/IDE/clearNonRascalContributions","Rascal/Libraries/util/IDE/label","Rascal/Libraries/util/IDE/loc","Rascal/Libraries/util/IDE/registerAnnotator","Rascal/Libraries/util/IDE/registerContributions","Rascal/Libraries/util/IDE/registerLanguage","Rascal/Libraries/util/IDE/registerNonRascalContributions","Rascal/Libraries/util/IDE/registerOutliner","Rascal/Libraries/util/LinearProgramming","Rascal/Libraries/util/Math","Rascal/Libraries/util/Math/E","Rascal/Libraries/util/Math/PI","Rascal/Libraries/util/Math/abs","Rascal/Libraries/util/Math/arbInt","Rascal/Libraries/util/Math/arbRat","Rascal/Libraries/util/Math/arbReal","Rascal/Libraries/util/Math/ceil","Rascal/Libraries/util/Math/cos","Rascal/Libraries/util/Math/denominator","Rascal/Libraries/util/Math/exp","Rascal/Libraries/util/Math/floor","Rascal/Libraries/util/Math/ln","Rascal/Libraries/util/Math/log","Rascal/Libraries/util/Math/log10","Rascal/Libraries/util/Math/log2","Rascal/Libraries/util/Math/max","Rascal/Libraries/util/Math/min","Rascal/Libraries/util/Math/nroot","Rascal/Libraries/util/Math/numerator","Rascal/Libraries/util/Math/pow","Rascal/Libraries/util/Math/remainder","Rascal/Libraries/util/Math/round","Rascal/Libraries/util/Math/sin","Rascal/Libraries/util/Math/sqrt","Rascal/Libraries/util/Math/tan","Rascal/Libraries/util/Math/toInt","Rascal/Libraries/util/Math/toRat","Rascal/Libraries/util/Math/toReal","Rascal/Libraries/util/Math/toString","Rascal/Libraries/util/Maybe","Rascal/Libraries/util/Resources","Rascal/Libraries/util/Resources/dependencies","Rascal/Libraries/util/Resources/getProject","Rascal/Libraries/util/Resources/projects","Rascal/Libraries/util/Resources/references","Rascal/Libraries/util/Resources/root","Rascal/Motivation","Rascal/Patterns","Rascal/Patterns/Abstract","Rascal/Patterns/Abstract/Descendant","Rascal/Patterns/Abstract/Labelled","Rascal/Patterns/Abstract/List","Rascal/Patterns/Abstract/Literal","Rascal/Patterns/Abstract/MultiVariable","Rascal/Patterns/Abstract/Node","Rascal/Patterns/Abstract/Set","Rascal/Patterns/Abstract/Tuple","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Patterns/Abstract/TypedLabelled","Rascal/Patterns/Abstract/Variable","Rascal/Patterns/Abstract/VariableDeclaration","Rascal/Patterns/Concrete","Rascal/Patterns/PatternWithAction","Rascal/Patterns/Regular","Rascal/Statements","Rascal/Statements/Append","Rascal/Statements/Assert","Rascal/Statements/Assignment","Rascal/Statements/Block","Rascal/Statements/Break","Rascal/Statements/Continue","Rascal/Statements/Do","Rascal/Statements/Fail","Rascal/Statements/For","Rascal/Statements/If","Rascal/Statements/Insert","Rascal/Statements/Return","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Statements/Test","Rascal/Statements/Throw","Rascal/Statements/TryCatch","Rascal/Statements/While");
 
 var searchTerms = {};
 
@@ -19,11 +19,11 @@ searchTerms["!>>"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Ra
 
 searchTerms["\""] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/String","Rascal/Declarations/Function");
 
-searchTerms["\"),"] = new Array("Rascal/Libraries/Java");
+searchTerms["\"),"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["\")?"] = new Array("Rascal/Declarations/Function");
 
-searchTerms["\")]);"] = new Array("Rascal/Libraries/Java");
+searchTerms["\")]);"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["\"<\""] = new Array("Rascal/Expressions/ConcreteSyntax");
 
@@ -37,25 +37,25 @@ searchTerms["&"] = new Array("Rascal/Expressions/Values/Map/Intersection","Rasca
 
 searchTerms["&&"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Boolean/And");
 
-searchTerms["\'"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/String","Rascal/Libraries/util/IDE/Contribution");
+searchTerms["\'\\\\\\\\\\\\\\"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/String","Rascal/Libraries/util/IDE/Contribution");
 
-searchTerms["("] = new Array("Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/For","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Expressions/Values/String","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/Union","Rascal/Patterns/Abstract","Rascal/Libraries/Message","Rascal/Expressions/Values/Set/Union","Rascal/Statements/Do","Rascal/Expressions/Visit","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/List","Rascal/Expressions/Reducer","Rascal/Statements/Assignment","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/List/Append","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Set/Difference","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Statements/If","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/Map/Difference","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Libraries/Resources","Rascal/Expressions/Values/Set/Intersection","Rascal/Statements/While","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Expressions/Values/List/Difference","Rascal/Statements/Switch","Rascal/Expressions/Values/List/Concatenation","Rascal/Libraries/Java","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT");
+searchTerms["("] = new Array("Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/For","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Expressions/Values/String","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/Union","Rascal/Patterns/Abstract","Rascal/Libraries/Message","Rascal/Expressions/Values/Set/Union","Rascal/Statements/Do","Rascal/Expressions/Visit","Rascal/Expressions/Values/List","Rascal/Libraries/Exception/RuntimeException","Rascal/Statements/Assignment","Rascal/Expressions/Reducer","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/List/Append","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Set/Difference","Rascal/Libraries/lang/java/jdt/Java","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Statements/If","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/Map/Difference","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Expressions/Values/Set/Intersection","Rascal/Statements/While","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Boolean/Any","Rascal/Libraries/util/Resources","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Expressions/Values/List/Difference","Rascal/Statements/Switch","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["(\""] = new Array("Rascal/Declarations/Function","Rascal/Libraries/Java");
+searchTerms["(\""] = new Array("Rascal/Declarations/Function","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["(&"] = new Array("Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Maybe","Rascal/Libraries/JDT/JavaADT");
+searchTerms["(&"] = new Array("Rascal/Libraries/util/Maybe","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["()"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java","Rascal/Libraries/Maybe","Rascal/Libraries/JDT/JavaADT");
+searchTerms["()"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/util/Maybe","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["();"] = new Array("Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/ParseTree/TreeSearchResult");
 
-searchTerms["(["] = new Array("Rascal/Libraries/Java");
+searchTerms["(["] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms[")"] = new Array("Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/For","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/Map/Union","Rascal/Patterns/Abstract","Rascal/Libraries/Message","Rascal/Expressions/Visit","Rascal/Libraries/Exception/RuntimeException","Rascal/Statements/Assignment","Rascal/Expressions/Reducer","Rascal/Expressions/Values/Value/Conditional","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Statements/If","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Libraries/Resources","Rascal/Statements/While","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Java","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT");
+searchTerms[")"] = new Array("Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/For","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/Map/Union","Rascal/Patterns/Abstract","Rascal/Libraries/Message","Rascal/Expressions/Visit","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Reducer","Rascal/Statements/Assignment","Rascal/Expressions/Values/Value/Conditional","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Libraries/lang/java/jdt/Java","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Statements/If","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Statements/While","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Boolean/Any","Rascal/Libraries/util/Resources","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["),"] = new Array("Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Map/Union");
 
-searchTerms[");"] = new Array("Rascal/Statements/Do","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/Resources","Rascal/Libraries/Message","Rascal/Libraries/Maybe","Rascal/Libraries/Java");
+searchTerms[");"] = new Array("Rascal/Statements/Do","Rascal/Libraries/util/Resources","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/util/Maybe","Rascal/Libraries/Message","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms[")>"] = new Array("Rascal/Expressions/Values/String");
 
@@ -73,7 +73,7 @@ searchTerms["+"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rasc
 
 searchTerms["+="] = new Array("Rascal/Statements/Assignment");
 
-searchTerms[","] = new Array("Rascal/Statements/For","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Reducer","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Statements/If","Rascal/Expressions/Values/Map/Difference","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Libraries/Resources","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Boolean/Any","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Libraries/Message","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/List","Rascal/Libraries/Graph","Rascal/Statements/Assignment","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Patterns/Abstract/Tuple","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Declarations/Function","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Location","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Libraries/Graph/Graph","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Patterns/Abstract/Set","Rascal/Libraries/Java","Rascal/Expressions/Values/Tuple/Concatenation");
+searchTerms[","] = new Array("Rascal/Statements/For","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Reducer","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Libraries/lang/java/jdt/Java","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Statements/If","Rascal/Expressions/Values/Map/Difference","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Boolean/Any","Rascal/Libraries/util/Resources","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Relation/Join","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Libraries/Message","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Graph","Rascal/Statements/Assignment","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Patterns/Abstract/Tuple","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/List/Comprehension","Rascal/Declarations/Function","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Location","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Libraries/Graph/Graph","Rascal/Expressions/Call","Rascal/Statements/Solve","Rascal/Patterns/Abstract/Set","Rascal/Expressions/Values/Tuple/Concatenation","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["-"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Number/Subtraction","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Number/Negation","Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/Set/Difference");
 
@@ -89,7 +89,7 @@ searchTerms["...)"] = new Array("Rascal/Declarations/Function");
 
 searchTerms["/"] = new Array("Rascal/Patterns/Abstract/Descendant","Rascal/Patterns/Regular","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Number/Division");
 
-searchTerms["/*1*/"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java");
+searchTerms["/*1*/"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["/*10*/"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
@@ -115,19 +115,19 @@ searchTerms["/*8*/;"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["/*9*/"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["//"] = new Array("Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/JDT/JavaADT");
+searchTerms["//"] = new Array("Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["/="] = new Array("Rascal/Statements/Assignment");
 
 searchTerms[":"] = new Array("Rascal/Expressions/Visit","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Number/Conditional","Rascal/Patterns/PatternWithAction","Rascal/Statements/TryCatch","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract","Rascal/Statements/Switch","Rascal/Patterns/Abstract/TypedLabelled","Rascal/Statements/Assert","Rascal/Expressions/Values/Map/Comprehension","Rascal/Patterns/Abstract/Labelled");
 
-searchTerms["::"] = new Array("Rascal/Libraries/Vis/Render","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Resources","Rascal/Libraries/Vis/Figure","Rascal/Libraries/JDT/JavaADT");
+searchTerms["::"] = new Array("Rascal/Libraries/Vis/Render","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/Vis/Figure");
 
 searchTerms[":="] = new Array("Rascal/Expressions/Values/Boolean/Match");
 
-searchTerms[";"] = new Array("Rascal/Statements/For","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Statements/TryCatch","Rascal/Statements/Block","Rascal/Libraries/util/IDE/Folding","Rascal/Libraries/RSF","Rascal/Declarations/Variable","Rascal/Expressions/Values/DateTime","Rascal/Libraries/PriorityQueue","Rascal/Expressions/Visit","Rascal/Expressions/Values/Real","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ValueIO","Rascal/Libraries/util/IDE/label","Rascal/Declarations/Alias","Rascal/Libraries/ParseTree/doc","Rascal/Libraries/Vis/Render","Rascal/Libraries/ParseTree/links","Rascal/Libraries/IO","Rascal/Statements/If","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Statements/Fail","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Libraries/util/IDE/loc","Rascal/Libraries/Resources","Rascal/Statements/While","Rascal/Statements/Continue","Rascal/Libraries/ParseTree/message","Rascal/Libraries/Vis/Figure","Rascal/Libraries/ParseTree/link","Rascal/Expressions/Values/Boolean","Rascal/Libraries/ParseTree/docs","Rascal/Declarations/AlgebraicDataType","Rascal/Declarations/Import","Rascal/Statements/Return","Rascal/Libraries/ParseTree/Tree","Rascal/Statements/Break","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Libraries/Java","Rascal/Declarations/Module","Rascal/Expressions/Values/Number","Rascal/Libraries/JDT/JavaADT","Rascal/Statements/Insert");
+searchTerms[";"] = new Array("Rascal/Statements/For","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Statements/TryCatch","Rascal/Statements/Block","Rascal/Libraries/util/IDE/Folding","Rascal/Declarations/Variable","Rascal/Expressions/Values/DateTime","Rascal/Libraries/PriorityQueue","Rascal/Expressions/Values/Real","Rascal/Expressions/Visit","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ValueIO","Rascal/Libraries/util/IDE/label","Rascal/Libraries/lang/java/jdt/Java","Rascal/Declarations/Alias","Rascal/Libraries/ParseTree/doc","Rascal/Libraries/Vis/Render","Rascal/Libraries/ParseTree/links","Rascal/Libraries/IO","Rascal/Statements/If","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Statements/Fail","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Libraries/util/IDE/loc","Rascal/Statements/While","Rascal/Statements/Continue","Rascal/Libraries/ParseTree/message","Rascal/Libraries/Vis/Figure","Rascal/Libraries/ParseTree/link","Rascal/Expressions/Values/Boolean","Rascal/Libraries/ParseTree/docs","Rascal/Declarations/AlgebraicDataType","Rascal/Declarations/Import","Rascal/Statements/Return","Rascal/Libraries/ParseTree/Tree","Rascal/Statements/Break","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Declarations/Module","Rascal/Expressions/Values/Number","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Statements/Insert");
 
-searchTerms["<"] = new Array("Rascal/Expressions/Values/Location/LessThan","Rascal/Patterns/Abstract/Tuple","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/String","Rascal/Expressions/Values/Location","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Relation","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Values/Node/LessThan","Rascal/Statements/Assignment","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/DateTime/LessThan");
+searchTerms["<"] = new Array("Rascal/Expressions/Values/Location/LessThan","Rascal/Patterns/Abstract/Tuple","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/String","Rascal/Expressions/Values/Location","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Number/LessThan","Rascal/Patterns/Concrete","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Relation","Rascal/Expressions/Operators/FieldProjection","Rascal/Expressions/Values/Node/LessThan","Rascal/Statements/Assignment","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/DateTime/LessThan");
 
 searchTerms["<-"] = new Array("Rascal/Expressions/Comprehensions/Enumerator");
 
@@ -143,7 +143,7 @@ searchTerms["<}"] = new Array("Rascal/Expressions/Values/String");
 
 searchTerms["<}>"] = new Array("Rascal/Expressions/Values/String");
 
-searchTerms["="] = new Array("Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/util/IDE/Folding","Rascal/Libraries/Message","Rascal/Declarations/Variable","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Operators/FieldAssignment","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/IDE/Hyperlinking","Rascal/Libraries/Graph","Rascal/Statements/Assignment","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Replacement","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Declarations/Alias","Rascal/Expressions/ConcreteSyntax","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Libraries/Resources","Rascal/Libraries/Maybe","Rascal/Libraries/Graph/Graph","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/util/IDE/DocumentationHover","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["="] = new Array("Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/util/IDE/Folding","Rascal/Libraries/Message","Rascal/Declarations/Variable","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Operators/FieldAssignment","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/IDE/Hyperlinking","Rascal/Statements/Assignment","Rascal/Libraries/Graph","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Replacement","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Libraries/lang/java/jdt/Java","Rascal/Declarations/Alias","Rascal/Expressions/ConcreteSyntax","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Message/Message","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Libraries/Graph/Graph","Rascal/Libraries/util/Resources","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/util/Maybe","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/util/IDE/DocumentationHover","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["=="] = new Array("Rascal/Expressions/Values/Value/Equal","Rascal/Expressions/Values/Number/Equal","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/Node/Equal","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Location/Equal");
 
@@ -165,7 +165,7 @@ searchTerms["@"] = new Array("Rascal/Declarations/Annotation","Rascal/Libraries/
 
 searchTerms["@\\"] = new Array("Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/loc");
 
-searchTerms["A"] = new Array("Rascal/Libraries/Maybe");
+searchTerms["A"] = new Array("Rascal/Libraries/util/Maybe");
 
 searchTerms["AccessDenied"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
@@ -173,17 +173,17 @@ searchTerms["AssertionFailed"] = new Array("Rascal/Libraries/Exception/RuntimeEx
 
 searchTerms["Associativity"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["AstNode"] = new Array("Rascal/Libraries/JDT","Rascal/Libraries/JDT/JavaADT");
+searchTerms["AstNode"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["AstNodeRel"] = new Array("Rascal/Libraries/JDT");
+searchTerms["AstNodeRel"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["Attr"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["BindingRel"] = new Array("Rascal/Libraries/JDT");
+searchTerms["BindingRel"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["Boolean"] = new Array("Rascal/Expressions/Values/Boolean");
 
-searchTerms["Bound"] = new Array("Rascal/Libraries/Java");
+searchTerms["Bound"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["CharClass"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
@@ -191,7 +191,7 @@ searchTerms["CharRange"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["Color"] = new Array("Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/ColorModel");
 
-searchTerms["Comments"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Comments"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["Condition"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
@@ -199,7 +199,7 @@ searchTerms["Contribution"] = new Array("Rascal/Libraries/util/IDE/Contribution"
 
 searchTerms["DateTime"] = new Array("Rascal/Expressions/Values/DateTime");
 
-searchTerms["Declarations"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Declarations"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["Duration"] = new Array("Rascal/Expressions/Values/DateTime/duration");
 
@@ -209,13 +209,13 @@ searchTerms["EmptyMap"] = new Array("Rascal/Libraries/Exception/RuntimeException
 
 searchTerms["EmptySet"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["Entity"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT");
+searchTerms["Entity"] = new Array("Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["EntityRel"] = new Array("Rascal/Libraries/JDT");
+searchTerms["EntityRel"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["EntitySet"] = new Array("Rascal/Libraries/JDT");
+searchTerms["EntitySet"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["Expressions"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Expressions"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["FProperties"] = new Array("Rascal/Libraries/Vis/Figure/Properties");
 
@@ -233,7 +233,7 @@ searchTerms["HostNotFound"] = new Array("Rascal/Libraries/Exception/RuntimeExcep
 
 searchTerms["IO"] = new Array("Rascal/Libraries/IO","Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["Id"] = new Array("Rascal/Libraries/Java");
+searchTerms["Id"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["IllegalArgument"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
@@ -247,9 +247,9 @@ searchTerms["Interval"] = new Array("Rascal/Expressions/Values/DateTime/interval
 
 searchTerms["Java"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["JavaADT"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["JavaADT"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["Javadoc"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Javadoc"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["KeyModifier"] = new Array("Rascal/Libraries/Vis/Figure/KeyModifier");
 
@@ -269,7 +269,7 @@ searchTerms["Map"] = new Array("Rascal/Expressions/Values/Map");
 
 searchTerms["Math"] = new Array("Rascal/Expressions/Values/Real","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/Number");
 
-searchTerms["Maybe"] = new Array("Rascal/Libraries/Maybe");
+searchTerms["Maybe"] = new Array("Rascal/Libraries/util/Maybe");
 
 searchTerms["Menu"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
@@ -277,9 +277,9 @@ searchTerms["Message"] = new Array("Rascal/Libraries/Message/Message","Rascal/Li
 
 searchTerms["MissingCase"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["Modifier"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT");
+searchTerms["Modifier"] = new Array("Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["ModifierRel"] = new Array("Rascal/Libraries/JDT");
+searchTerms["ModifierRel"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["ModuleNotFound"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
@@ -293,9 +293,9 @@ searchTerms["Node"] = new Array("Rascal/Expressions/Values/Node");
 
 searchTerms["Number"] = new Array("Rascal/Expressions/Values/Number");
 
-searchTerms["Object"] = new Array("Rascal/Libraries/Java");
+searchTerms["Object"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["Option"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Option"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["Orientation"] = new Array("Rascal/Libraries/Vis/Figure/Properties/orientation");
 
@@ -307,21 +307,17 @@ searchTerms["Pattern"] = new Array("Rascal/Expressions/ConcreteSyntax");
 
 searchTerms["PermissionDenied"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["PrimitiveType"] = new Array("Rascal/Libraries/Java");
+searchTerms["PrimitiveType"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["PriorityQueue"] = new Array("Rascal/Libraries/PriorityQueue");
 
 searchTerms["Production"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["RSF"] = new Array("Rascal/Libraries/RSF");
-
 searchTerms["Real"] = new Array("Rascal/Expressions/Values/Real");
 
 searchTerms["Render"] = new Array("Rascal/Libraries/Vis/Render");
 
-searchTerms["Resource"] = new Array("Rascal/Libraries/Resources");
-
-searchTerms["Resources"] = new Array("Rascal/Libraries/Resources");
+searchTerms["Resource"] = new Array("Rascal/Libraries/util/Resources");
 
 searchTerms["RuntimeException"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
@@ -331,7 +327,7 @@ searchTerms["Set"] = new Array("Rascal/Expressions/Values/Set");
 
 searchTerms["StackOverflow"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["Statements"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Statements"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["Strategy"] = new Array("Rascal/Expressions/Visit");
 
@@ -341,31 +337,31 @@ searchTerms["Subversion"] = new Array("Rascal/Libraries/Exception/RuntimeExcepti
 
 searchTerms["Symbol"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["T"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/JDT/JavaADT");
+searchTerms["T"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["Timeout"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["Tree"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/docs","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/ParseTree/message","Rascal/Libraries/ParseTree/doc");
+searchTerms["Tree"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/docs","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/ParseTree/message","Rascal/Libraries/ParseTree/doc");
 
 searchTerms["TreeSearchResult"] = new Array("Rascal/Libraries/ParseTree/TreeSearchResult");
 
-searchTerms["Types"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["Types"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["ValueIO"] = new Array("Rascal/Libraries/ValueIO");
 
 searchTerms["X"] = new Array("Rascal/Expressions/ConcreteSyntax");
 
-searchTerms["["] = new Array("Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Tuple","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Set/in","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Map","Rascal/Libraries/Resources","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List","Rascal/Statements/Assignment","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Set/Equal","Rascal/Libraries/Java","Rascal/Expressions/Values/Tuple/Concatenation");
+searchTerms["["] = new Array("Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Tuple","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Libraries/lang/java/jdt/Java","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Set/in","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Libraries/util/Resources","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Relation/Join","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List","Rascal/Statements/Assignment","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/Tuple/Concatenation","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["[&"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Maybe","Rascal/Libraries/JDT/JavaADT");
+searchTerms["[&"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/util/Maybe","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["[@"] = new Array("Rascal/Expressions/Replacement");
 
-searchTerms["\\"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/ConcreteSyntax","Rascal/Expressions/Values/String","Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition/Disambiguation/Reserve","Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["\\"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/ConcreteSyntax","Rascal/Expressions/Values/String","Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition/Disambiguation/Reserve","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["\\0"] = new Array("Rascal/Expressions/Values/String");
 
-searchTerms["]"] = new Array("Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Set/in","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/Resources","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/Concatenation","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List","Rascal/Libraries/Graph","Rascal/Statements/Assignment","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Replacement","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Libraries/Maybe","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Libraries/Graph/Graph","Rascal/Expressions/Values/Set/Equal","Rascal/Libraries/Java","Rascal/Expressions/Values/Tuple/Concatenation");
+searchTerms["]"] = new Array("Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Range","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Operators/FieldAssignment","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Libraries/lang/java/jdt/Java","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Set/in","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Libraries/util/Resources","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/List/Insert","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/notin","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Set/Comprehension","Rascal/Patterns/Abstract/List","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Relation/Join","Rascal/Patterns/Abstract","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List","Rascal/Libraries/Graph","Rascal/Statements/Assignment","Rascal/Patterns/Abstract/TypeConstrained","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Subscription","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Replacement","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Set/Difference","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Libraries/Graph/Graph","Rascal/Expressions/Values/Set/Equal","Rascal/Libraries/util/Maybe","Rascal/Expressions/Values/Tuple/Concatenation","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["];"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/LabeledGraph","Rascal/Libraries/Vis/Figure/Figures");
 
@@ -377,7 +373,7 @@ searchTerms["`"] = new Array("Rascal/Patterns/Concrete");
 
 searchTerms["a"] = new Array("Rascal/Libraries/util/IDE/Folding");
 
-searchTerms["abstract"] = new Array("Rascal/Libraries/Java");
+searchTerms["abstract"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["action"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
@@ -397,15 +393,15 @@ searchTerms["amb"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["anno"] = new Array("Rascal/Declarations/Annotation","Rascal/Libraries/ParseTree/links","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/docs","Rascal/Libraries/ParseTree/messages","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/loc","Rascal/Libraries/util/IDE/label","Rascal/Libraries/ParseTree/message","Rascal/Libraries/ParseTree/doc");
 
-searchTerms["annotationTypeDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["annotationTypeDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["annotationTypeMemberDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["annotationTypeMemberDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["annotations"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["annotations"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["anonymousClass"] = new Array("Rascal/Libraries/Java");
+searchTerms["anonymousClass"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["anonymousClassDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["anonymousClassDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["any"] = new Array("Rascal/Expressions/Values/Boolean/Any");
 
@@ -415,23 +411,23 @@ searchTerms["appl"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["args"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["arguments"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["arguments"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["array"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["array"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["arrayAccess"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["arrayAccess"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["arrayCreation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["arrayCreation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["arrayInitializer"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["arrayInitializer"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["arrayType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["arrayType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["assert"] = new Array("Rascal/Statements/Assert");
 
-searchTerms["assertStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["assertStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["assignment"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["assignment"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["assoc"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity");
 
@@ -443,67 +439,67 @@ searchTerms["b"] = new Array("Rascal/Expressions/Values/String");
 
 searchTerms["begin"] = new Array("Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["block"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["block"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["blockComment"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["blockComment"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["body"] = new Array("Rascal/Libraries/JDT","Rascal/Libraries/JDT/JavaADT");
+searchTerms["body"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["bodyDeclarations"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["bodyDeclarations"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["bool"] = new Array("Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/NotEqual","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Number/Equal","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/Boolean/IsDefined","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/Boolean/And","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Statements/If","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Location/NotEqual","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/Node/LessThan","Rascal/Expressions/Values/DateTime/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/LessThan","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Libraries/JDT/JavaADT","Rascal/Expressions/Comprehensions/Filter","Rascal/Expressions/Values/Boolean/Negation","Rascal/Expressions/Values/Boolean/Implication","Rascal/Expressions/Values/Node/GreaterThan","Rascal/Expressions/Values/Value/Equal","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/NotEqual","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Statements/Assert","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/String/GreaterThan","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/Number/Conditional","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/DateTime/GreaterThan","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Expressions/Values/List/NotEqual","Rascal/Expressions/Values/Node/LessThanOrEqual","Rascal/Expressions/Values/Location/LessThan","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Node/GreaterThanOrEqual","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Boolean/Equivalence","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/Boolean","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/DateTime/LessThanOrEqual","Rascal/Expressions/Values/Node/NotEqual","Rascal/Expressions/Values/Node/Equal","Rascal/Expressions/Values/Boolean/Or");
+searchTerms["bool"] = new Array("Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/NotEqual","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Number/Equal","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/String/LessThan","Rascal/Expressions/Values/Boolean/IsDefined","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/List/Equal","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/Boolean/And","Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/Set/SubSet","Rascal/Statements/If","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Location/NotEqual","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Values/Node/LessThan","Rascal/Expressions/Values/DateTime/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/LessThan","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Comprehensions/Filter","Rascal/Expressions/Values/Boolean/Negation","Rascal/Expressions/Values/Boolean/Implication","Rascal/Expressions/Values/Node/GreaterThan","Rascal/Expressions/Values/Value/Equal","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/NotEqual","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Number/LessThan","Rascal/Statements/Assert","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/String/GreaterThan","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/Number/Conditional","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/DateTime/GreaterThan","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Expressions/Values/List/NotEqual","Rascal/Expressions/Values/Node/LessThanOrEqual","Rascal/Expressions/Values/Location/LessThan","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Boolean/All","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/Map/Equal","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Node/GreaterThanOrEqual","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Boolean/Equivalence","Rascal/Expressions/Values/Set/Equal","Rascal/Expressions/Values/Boolean","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/DateTime/LessThanOrEqual","Rascal/Expressions/Values/Node/NotEqual","Rascal/Expressions/Values/Node/Equal","Rascal/Expressions/Values/Boolean/Or","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["boolValue"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["boolValue"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["boolean"] = new Array("Rascal/Libraries/Java");
+searchTerms["boolean"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["booleanExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["booleanExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["booleanLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["booleanLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["bound"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["bound"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["bracket"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["break"] = new Array("Rascal/Statements/Break");
 
-searchTerms["breakStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["breakStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["byte"] = new Array("Rascal/Libraries/Java");
+searchTerms["byte"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["calls"] = new Array("Rascal/Libraries/JDT");
+searchTerms["calls"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["case"] = new Array("Rascal/Expressions/Visit","Rascal/Statements/Switch");
 
-searchTerms["castExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["castExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["catch"] = new Array("Rascal/Statements/TryCatch");
 
-searchTerms["catchClause"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["catchClause"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["catchClauses"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["catchClauses"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["char"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java");
+searchTerms["char"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["charValue"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["charValue"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["character"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["characterLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["characterLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["cilit"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["class"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java");
+searchTerms["class"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["classInstanceCreation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["classInstanceCreation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["classes"] = new Array("Rascal/Libraries/JDT");
+searchTerms["classes"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["collectionExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["collectionExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["column"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["compilationUnit"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["compilationUnit"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["computedColor"] = new Array("Rascal/Libraries/Vis/Figure/Properties");
 
@@ -517,59 +513,59 @@ searchTerms["computedStr"] = new Array("Rascal/Libraries/Vis/Figure/Properties")
 
 searchTerms["conditional"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["conditionalExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["conditionalExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["conditions"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["constr"] = new Array("Rascal/Libraries/Java");
+searchTerms["constr"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["constructorInvocation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["constructorInvocation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["constructors"] = new Array("Rascal/Libraries/JDT");
+searchTerms["constructors"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["contents"] = new Array("Rascal/Libraries/Resources");
+searchTerms["contents"] = new Array("Rascal/Libraries/util/Resources");
 
 searchTerms["continue"] = new Array("Rascal/Statements/Continue");
 
-searchTerms["continueStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["continueStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["cycle"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["cycleLength"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["data"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/Message/Message","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Resources","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Message","Rascal/Libraries/Java","Rascal/Libraries/Maybe","Rascal/Libraries/JDT/JavaADT");
+searchTerms["data"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/Resources","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/DateTime/duration","Rascal/Libraries/Message/Message","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/DateTime/interval","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/util/Maybe","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Message","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["datetime"] = new Array("Rascal/Expressions/Values/DateTime/NotEqual","Rascal/Expressions/Values/DateTime/FieldSelection","Rascal/Expressions/Values/DateTime/Equal","Rascal/Expressions/Values/DateTime/interval","Rascal/Expressions/Values/DateTime/GreaterThanOrEqual","Rascal/Expressions/Values/DateTime/LessThanOrEqual","Rascal/Expressions/Values/DateTime/LessThan","Rascal/Expressions/Values/DateTime/GreaterThan","Rascal/Expressions/Values/DateTime");
 
 searchTerms["days"] = new Array("Rascal/Expressions/Values/DateTime/duration");
 
-searchTerms["declaredMethods"] = new Array("Rascal/Libraries/JDT");
+searchTerms["declaredMethods"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["declaredSubTypes"] = new Array("Rascal/Libraries/JDT");
+searchTerms["declaredSubTypes"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["declaredTopTypes"] = new Array("Rascal/Libraries/JDT");
+searchTerms["declaredTopTypes"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["def"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["default"] = new Array("Rascal/Expressions/Visit","Rascal/Declarations/Function","Rascal/Statements/Switch");
 
-searchTerms["defaultBlock"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["defaultBlock"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["delete"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["deprecated"] = new Array("Rascal/Libraries/Java");
+searchTerms["deprecated"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["dimensions"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["dimensions"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["do"] = new Array("Rascal/Statements/Do","Rascal/Expressions/Values/String");
 
-searchTerms["doStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["doStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["doc"] = new Array("Rascal/Libraries/util/IDE/DocumentationHover","Rascal/Libraries/ParseTree/doc");
 
 searchTerms["docs"] = new Array("Rascal/Libraries/ParseTree/docs");
 
-searchTerms["double"] = new Array("Rascal/Libraries/Java");
+searchTerms["double"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["downTop"] = new Array("Rascal/Libraries/Vis/Figure/Properties/orientation");
 
@@ -577,33 +573,33 @@ searchTerms["duration"] = new Array("Rascal/Expressions/Values/DateTime/duration
 
 searchTerms["edit"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
-searchTerms["elementType"] = new Array("Rascal/Libraries/Java");
+searchTerms["elementType"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["else"] = new Array("Rascal/Statements/If","Rascal/Expressions/Values/String");
 
-searchTerms["elseBranch"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["elseBranch"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["elseStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["elseStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["empty"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["emptyStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["emptyStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["end"] = new Array("Rascal/Expressions/Values/DateTime/interval","Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["enhancedForStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["enhancedForStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["entity"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT");
+searchTerms["entity"] = new Array("Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["enum"] = new Array("Rascal/Libraries/Java");
+searchTerms["enum"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["enumConstant"] = new Array("Rascal/Libraries/Java");
+searchTerms["enumConstant"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["enumConstantDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["enumConstantDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["enumConstants"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["enumConstants"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["enumDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["enumDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["error"] = new Array("Rascal/Libraries/Message/Message","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Message");
 
@@ -611,23 +607,23 @@ searchTerms["erroramb"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["errorcycle"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["exception"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["exception"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["expected"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["expression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["expression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["expressionStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["expressionStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["expressions"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["expressions"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["extended"] = new Array("Rascal/Libraries/Java");
+searchTerms["extended"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["extendedOperands"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["extendedOperands"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["extends"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/JDT");
+searchTerms["extends"] = new Array("Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["extendsList"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["extendsList"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["f"] = new Array("Rascal/Expressions/Values/String");
 
@@ -635,39 +631,39 @@ searchTerms["fail"] = new Array("Rascal/Statements/Fail");
 
 searchTerms["false"] = new Array("Rascal/Expressions/Values/Boolean");
 
-searchTerms["field"] = new Array("Rascal/Libraries/Java");
+searchTerms["field"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["fieldAccess"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["fieldAccess"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["fieldDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["fieldDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["fieldDecls"] = new Array("Rascal/Libraries/JDT");
+searchTerms["fieldDecls"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["fields"] = new Array("Rascal/Libraries/JDT");
+searchTerms["fields"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["file"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Resources");
+searchTerms["file"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/Resources");
 
-searchTerms["final"] = new Array("Rascal/Libraries/Java");
+searchTerms["final"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["finally"] = new Array("Rascal/Statements/TryCatch","Rascal/Libraries/JDT/JavaADT");
+searchTerms["finally"] = new Array("Rascal/Statements/TryCatch","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["float"] = new Array("Rascal/Libraries/Java");
+searchTerms["float"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["foldable"] = new Array("Rascal/Libraries/util/IDE/Folding");
 
-searchTerms["folder"] = new Array("Rascal/Libraries/Resources");
+searchTerms["folder"] = new Array("Rascal/Libraries/util/Resources");
 
 searchTerms["follow"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["for"] = new Array("Rascal/Statements/For","Rascal/Expressions/Values/String","Rascal/Libraries/util/IDE/Contribution");
 
-searchTerms["forStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["forStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["fragments"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["fragments"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["from"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/JDT");
+searchTerms["from"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["genericTypes"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["genericTypes"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["group"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
@@ -679,59 +675,59 @@ searchTerms["hours"] = new Array("Rascal/Expressions/Values/DateTime/duration");
 
 searchTerms["ialign"] = new Array("Rascal/Libraries/Vis/Figure/Properties/ialign");
 
-searchTerms["id"] = new Array("Rascal/Libraries/Resources","Rascal/Libraries/Java");
+searchTerms["id"] = new Array("Rascal/Libraries/util/Resources","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["if"] = new Array("Rascal/Statements/If","Rascal/Expressions/Values/String");
 
-searchTerms["ifStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["ifStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["implementation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["implementation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["implements"] = new Array("Rascal/Libraries/JDT","Rascal/Libraries/JDT/JavaADT");
+searchTerms["implements"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["import"] = new Array("Rascal/Libraries/Vis/Render","Rascal/Libraries/IO","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/String","Rascal/Expressions/Values/Map","Rascal/Libraries/Resources","Rascal/Libraries/RSF","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/Set","Rascal/Libraries/Vis/Figure","Rascal/Expressions/Values/DateTime","Rascal/Libraries/PriorityQueue","Rascal/Expressions/Values/Real","Rascal/Expressions/Values/List","Rascal/Expressions/Values/Boolean","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Declarations/Import","Rascal/Expressions/Values/Node","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ValueIO","Rascal/Expressions/Values/Number");
+searchTerms["import"] = new Array("Rascal/Libraries/Vis/Render","Rascal/Libraries/IO","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/String","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/Set","Rascal/Libraries/Vis/Figure","Rascal/Expressions/Values/DateTime","Rascal/Libraries/PriorityQueue","Rascal/Expressions/Values/Real","Rascal/Expressions/Values/List","Rascal/Expressions/Values/Boolean","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Declarations/Import","Rascal/Expressions/Values/Node","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ValueIO","Rascal/Expressions/Values/Number");
 
-searchTerms["importDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["importDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["imports"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["imports"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["in"] = new Array("Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Map/in");
 
-searchTerms["index"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/JDT/JavaADT");
+searchTerms["index"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["infixExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["infixExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["info"] = new Array("Rascal/Libraries/Message/Message","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Message");
 
-searchTerms["initializer"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["initializer"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["initializers"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["initializers"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["insert"] = new Array("Rascal/Statements/Insert");
 
-searchTerms["instanceofExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["instanceofExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["int"] = new Array("Rascal/Expressions/Values/Number/Subtraction","Rascal/Expressions/Values/Number/Equal","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Number/Addition","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/Number/Remainder","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/Number/Conditional","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/Number/Negation","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Number/Multiplication","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Relation/Subscription","Rascal/Libraries/Java","Rascal/Expressions/Values/Number","Rascal/Expressions/Values/Number/Division");
+searchTerms["int"] = new Array("Rascal/Expressions/Values/Number/Subtraction","Rascal/Expressions/Values/Number/Equal","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/Number/LessThanOrEqual","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Vis/Figure/ColorModel","Rascal/Expressions/Values/Number/GreaterThanOrEqual","Rascal/Expressions/Values/Number/GreaterThan","Rascal/Expressions/Values/Integer","Rascal/Expressions/Values/Number/LessThan","Rascal/Expressions/Values/Number/Addition","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/Number/Remainder","Rascal/Expressions/Values/Number/NotEqual","Rascal/Expressions/Values/DateTime/duration","Rascal/Expressions/Values/Number/Conditional","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/Number/Negation","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Number/Multiplication","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Number","Rascal/Libraries/lang/java/jdt/Java","Rascal/Expressions/Values/Number/Division");
 
-searchTerms["interface"] = new Array("Rascal/Libraries/Java");
+searchTerms["interface"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["interval"] = new Array("Rascal/Expressions/Values/DateTime/interval");
 
-searchTerms["isDefault"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["isDefault"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["isVarargs"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["isVarargs"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["iter"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["java"] = new Array("Rascal/Declarations/Function","Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["java"] = new Array("Rascal/Declarations/Function","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["javadoc"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["javadoc"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["jdt"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["jdt"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["join"] = new Array("Rascal/Expressions/Values/Relation/Join");
 
-searchTerms["just"] = new Array("Rascal/Libraries/Maybe");
+searchTerms["just"] = new Array("Rascal/Libraries/util/Maybe");
 
 searchTerms["key"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties/KeySym");
 
@@ -877,11 +873,11 @@ searchTerms["keywords"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["l"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/IDE/ErrorMarking");
 
-searchTerms["label"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/LabeledGraph","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/util/IDE/label","Rascal/Libraries/JDT/JavaADT");
+searchTerms["label"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/LabeledGraph","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/util/IDE/label","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["labeledStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["labeledStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["lang"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["lang"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["layout"] = new Array("Rascal/Declarations/SyntaxDefinition");
 
@@ -891,7 +887,7 @@ searchTerms["left"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Declar
 
 searchTerms["leftRight"] = new Array("Rascal/Libraries/Vis/Figure/Properties/orientation");
 
-searchTerms["leftSide"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["leftSide"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["level"] = new Array("Rascal/Libraries/Vis/Figure/Figures/LineDecoration");
 
@@ -901,7 +897,7 @@ searchTerms["lexical"] = new Array("Rascal/Declarations/SyntaxDefinition");
 
 searchTerms["line"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["lineComment"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["lineComment"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["lineNumber"] = new Array("Rascal/Libraries/Vis/Figure/Figures/LineDecoration");
 
@@ -909,49 +905,49 @@ searchTerms["link"] = new Array("Rascal/Libraries/ParseTree/link","Rascal/Librar
 
 searchTerms["links"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Libraries/util/IDE/Hyperlinking");
 
-searchTerms["list"] = new Array("Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/List/Intersection","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/SuperList","Rascal/Libraries/Java","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/JDT/JavaADT");
+searchTerms["list"] = new Array("Rascal/Expressions/Values/List/SubList","Rascal/Expressions/Values/List/in","Rascal/Expressions/Values/List/Intersection","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/Vis/Figure/Figures","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/List/StrictSuperList","Rascal/Libraries/Vis/Figure/Properties","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Equal","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/List/StrictSubList","Rascal/Expressions/Values/List/Subscription","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/List/notin","Rascal/Expressions/Values/List/SuperList","Rascal/Expressions/Values/List/NotEqual","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["lit"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["loc"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Location/LessThan","Rascal/Libraries/Message/Message","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Location/NotEqual","Rascal/Libraries/util/IDE/loc","Rascal/Expressions/Values/Location","Rascal/Libraries/Resources","Rascal/Libraries/Message","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/Location/AddSegment","Rascal/Expressions/Values/Location/FieldSelection","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Libraries/JDT");
+searchTerms["loc"] = new Array("Rascal/Expressions/Values/Location/LessThan","Rascal/Libraries/ParseTree/links","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/Location/NotEqual","Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/loc","Rascal/Libraries/util/IDE/loc","Rascal/Expressions/Values/Location","Rascal/Libraries/Message","Rascal/Expressions/Values/Location/Equal","Rascal/Expressions/Values/Location/LessThanOrEqual","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/Resources","Rascal/Libraries/ParseTree/link","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/Location/GreaterThan","Rascal/Expressions/Values/Location/AddSegment","Rascal/Expressions/Values/Location/FieldSelection","Rascal/Expressions/Values/Location/GreaterThanOrEqual","Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["location"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["long"] = new Array("Rascal/Libraries/Java");
+searchTerms["long"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["lub"] = new Array("Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/If","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/List/Intersection","Rascal/Expressions/Values/List/Comprehension","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/List","Rascal/Expressions/Values/Value/Conditional","Rascal/Expressions/Values/List/Insert","Rascal/Expressions/Values/List/Append","Rascal/Expressions/Values/List/Difference","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/List/Concatenation","Rascal/Expressions/Values/Set/Difference");
 
 searchTerms["map"] = new Array("Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Map/StrictSuperMap","Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/Map/SubMap","Rascal/Expressions/Values/Map/Difference","Rascal/Expressions/Values/Map/Subscription","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/Map/NotEqual","Rascal/Expressions/Values/Map","Rascal/Expressions/Values/Map/SuperMap","Rascal/Expressions/Values/Map/Union","Rascal/Expressions/Values/Map/StrictSubMap","Rascal/Expressions/Values/Map/in","Rascal/Expressions/Values/Map/Comprehension","Rascal/Expressions/Values/Map/Equal");
 
-searchTerms["markerAnnotation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["markerAnnotation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["memberRef"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["memberRef"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["memberRefParameter"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["memberRefParameter"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["memberValuePair"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["memberValuePair"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["memberValuePairs"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["memberValuePairs"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["members"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
 searchTerms["menu"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
-searchTerms["message"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/ParseTree/message","Rascal/Libraries/JDT/JavaADT");
+searchTerms["message"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/ParseTree/message");
 
 searchTerms["messages"] = new Array("Rascal/Libraries/util/IDE/ErrorMarking","Rascal/Libraries/ParseTree/messages");
 
-searchTerms["method"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT");
+searchTerms["method"] = new Array("Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["methodBodies"] = new Array("Rascal/Libraries/JDT");
+searchTerms["methodBodies"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["methodDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["methodDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["methodDecls"] = new Array("Rascal/Libraries/JDT");
+searchTerms["methodDecls"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["methodInvocation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["methodInvocation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["methods"] = new Array("Rascal/Libraries/JDT");
+searchTerms["methods"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["milliseconds"] = new Array("Rascal/Expressions/Values/DateTime/duration");
 
@@ -965,9 +961,9 @@ searchTerms["modCtrl"] = new Array("Rascal/Libraries/Vis/Figure/KeyModifier");
 
 searchTerms["modShift"] = new Array("Rascal/Libraries/Vis/Figure/KeyModifier");
 
-searchTerms["modifier"] = new Array("Rascal/Libraries/JDT");
+searchTerms["modifier"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["modifiers"] = new Array("Rascal/Libraries/JDT","Rascal/Libraries/JDT/JavaADT");
+searchTerms["modifiers"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["module"] = new Array("Rascal/Declarations/Module");
 
@@ -977,111 +973,111 @@ searchTerms["msg"] = new Array("Rascal/Libraries/Message/Message","Rascal/Librar
 
 searchTerms["n"] = new Array("Rascal/Expressions/Values/String");
 
-searchTerms["name"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["name"] = new Array("Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["native"] = new Array("Rascal/Libraries/Java");
+searchTerms["native"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["node"] = new Array("Rascal/Expressions/Values/Node/GreaterThan","Rascal/Expressions/Values/Node/LessThan","Rascal/Expressions/Selection","Rascal/Expressions/Values/Node","Rascal/Libraries/util/IDE/loc","Rascal/Expressions/Values/Node/NotEqual","Rascal/Expressions/Values/Node/Equal","Rascal/Libraries/util/IDE/label","Rascal/Expressions/Values/Node/LessThanOrEqual","Rascal/Expressions/Values/Node/GreaterThanOrEqual");
 
 searchTerms["non"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity");
 
-searchTerms["none"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["none"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["normalAnnotation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["normalAnnotation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["not"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["nothing"] = new Array("Rascal/Libraries/Maybe");
+searchTerms["nothing"] = new Array("Rascal/Libraries/util/Maybe");
 
 searchTerms["notin"] = new Array("Rascal/Expressions/Values/Map/notin","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/List/notin");
 
-searchTerms["nr"] = new Array("Rascal/Libraries/Java");
+searchTerms["nr"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["null"] = new Array("Rascal/Libraries/Java");
+searchTerms["null"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["nullLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["nullLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["num"] = new Array("Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Expressions/Values/Number");
 
-searchTerms["number"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["number"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["numberLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["numberLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["o"] = new Array("Rascal/Expressions/Values/Relation/Composition");
 
-searchTerms["objectType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["objectType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["of"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["onDemand"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["onDemand"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["operand"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["operand"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["operator"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["operator"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["opt"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/JDT/JavaADT");
+searchTerms["opt"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["optionalBooleanExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["optionalBooleanExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["optionalExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["optionalExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["optionalQualifier"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["optionalQualifier"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["optionalQualifierString"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["optionalQualifierString"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["p"] = new Array("Rascal/Expressions/ConcreteSyntax");
 
-searchTerms["package"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["package"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["packageDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["packageDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["packages"] = new Array("Rascal/Libraries/JDT");
+searchTerms["packages"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["parameter"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["parameter"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["parameterized"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["parameterizedType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["parameterizedType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["parameters"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/JDT/JavaADT");
+searchTerms["parameters"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["params"] = new Array("Rascal/Libraries/Java");
+searchTerms["params"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["parenthesizedExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["parenthesizedExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["popup"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
-searchTerms["possibleExceptions"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["possibleExceptions"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["postfixExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["postfixExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["precede"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["prefixExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["prefixExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["primType"] = new Array("Rascal/Libraries/Java");
+searchTerms["primType"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["primitive"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["primitive"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["primitiveType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["primitiveType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["private"] = new Array("Rascal/Declarations/Function","Rascal/Libraries/Java");
+searchTerms["private"] = new Array("Rascal/Declarations/Function","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["prod"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["project"] = new Array("Rascal/Libraries/Resources");
+searchTerms["project"] = new Array("Rascal/Libraries/util/Resources");
 
-searchTerms["projects"] = new Array("Rascal/Libraries/Resources");
+searchTerms["projects"] = new Array("Rascal/Libraries/util/Resources");
 
-searchTerms["protected"] = new Array("Rascal/Libraries/Java");
+searchTerms["protected"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["public"] = new Array("Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Declarations/Function","Rascal/Libraries/Java");
+searchTerms["public"] = new Array("Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Declarations/Function","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["qualifiedName"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["qualifiedName"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["qualifiedType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["qualifiedType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["qualifier"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["qualifier"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["r"] = new Array("Rascal/Expressions/Values/String");
 
@@ -1095,23 +1091,23 @@ searchTerms["real"] = new Array("Rascal/Expressions/Values/Number/Subtraction","
 
 searchTerms["regular"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["rel"] = new Array("Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Set/Product","Rascal/Libraries/JDT");
+searchTerms["rel"] = new Array("Rascal/Expressions/Values/Relation","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Expressions/Values/Relation/TransitiveClosure","Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure","Rascal/Expressions/Values/Relation/Join","Rascal/Expressions/Values/Relation/Composition","Rascal/Expressions/Values/Relation/Subscription","Rascal/Libraries/lang/java/jdt/JDT","Rascal/Expressions/Values/Set/Product");
 
 searchTerms["rest"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["return"] = new Array("Rascal/Statements/Return");
 
-searchTerms["returnStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["returnStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["returnType"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["returnType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["right"] = new Array("Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity");
 
 searchTerms["rightLeft"] = new Array("Rascal/Libraries/Vis/Figure/Properties/orientation");
 
-searchTerms["rightSide"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["rightSide"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["root"] = new Array("Rascal/Libraries/Resources");
+searchTerms["root"] = new Array("Rascal/Libraries/util/Resources");
 
 searchTerms["s"] = new Array("Rascal/Libraries/util/IDE/Contribution");
 
@@ -1127,21 +1123,21 @@ searchTerms["seq"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["sequence"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["set"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Set/Comprehension","Rascal/Expressions/Values/Set/SubSet","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Set/SuperSet","Rascal/Libraries/Resources","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/List","Rascal/Expressions/Values/Set/Equal","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Set/Difference","Rascal/Libraries/JDT");
+searchTerms["set"] = new Array("Rascal/Libraries/ParseTree/links","Rascal/Expressions/Values/Set/NotEqual","Rascal/Expressions/Values/Set/Comprehension","Rascal/Expressions/Values/Set/SubSet","Rascal/Libraries/ParseTree/messages","Rascal/Expressions/Values/Set/in","Rascal/Expressions/Values/Set/SuperSet","Rascal/Expressions/Values/Set/Intersection","Rascal/Expressions/Values/Set/StrictSubSet","Rascal/Expressions/Values/Set/Product","Rascal/Expressions/Values/Set","Rascal/Expressions/Values/Set/Union","Rascal/Expressions/Values/Map/Intersection","Rascal/Expressions/Values/Relation/CarthesianProduct","Rascal/Expressions/Values/Set/StrictSuperSet","Rascal/Expressions/Values/Relation/FieldSelection","Rascal/Expressions/Values/List","Rascal/Expressions/Values/Set/Equal","Rascal/Libraries/util/Resources","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Set/notin","Rascal/Expressions/Values/Set/Insert","Rascal/Expressions/Values/Relation/Subscription","Rascal/Expressions/Values/Set/Difference","Rascal/Libraries/lang/java/jdt/JDT");
 
-searchTerms["short"] = new Array("Rascal/Libraries/Java");
+searchTerms["short"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["simpleName"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["simpleName"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["simpleType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["simpleType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["singleMemberAnnotation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["singleMemberAnnotation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["singleVariableDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["singleVariableDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["solve"] = new Array("Rascal/Statements/Solve");
 
-searchTerms["some"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["some"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["sort"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
@@ -1149,43 +1145,43 @@ searchTerms["star"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["start"] = new Array("Rascal/Declarations/SyntaxDefinition","Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["statements"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["statements"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["static"] = new Array("Rascal/Libraries/Java");
+searchTerms["static"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["staticImport"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["staticImport"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["str"] = new Array("Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/String/LessThan","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/String","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/NotEqual","Rascal/Statements/Assert","Rascal/Libraries/Message","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/String/Concatenation","Rascal/Expressions/Values/String/GreaterThan","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Location/AddSegment","Rascal/Libraries/Java","Rascal/Libraries/util/IDE/label","Rascal/Libraries/JDT/JavaADT","Rascal/Libraries/ParseTree/doc");
+searchTerms["str"] = new Array("Rascal/Expressions/Values/String/GreaterThanOrEqual","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Expressions/Values/String/LessThan","Rascal/Libraries/Message/Message","Rascal/Expressions/Values/String","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/String/Equal","Rascal/Expressions/Values/String/NotEqual","Rascal/Statements/Assert","Rascal/Libraries/Message","Rascal/Expressions/Values/String/LessThanOrEqual","Rascal/Expressions/Values/String/Concatenation","Rascal/Expressions/Values/String/GreaterThan","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/Vis/Figure/Properties","Rascal/Libraries/ParseTree/docs","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Location/AddSegment","Rascal/Libraries/util/IDE/label","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/ParseTree/doc");
 
-searchTerms["strictfp"] = new Array("Rascal/Libraries/Java");
+searchTerms["strictfp"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["string"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["stringLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["stringLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["stringValue"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["stringValue"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["super"] = new Array("Rascal/Libraries/Java");
+searchTerms["super"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["superConstructorInvocation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["superConstructorInvocation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["superFieldAccess"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["superFieldAccess"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["superMethodInvocation"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["superMethodInvocation"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["switch"] = new Array("Rascal/Statements/Switch");
 
-searchTerms["switchCase"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["switchCase"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["switchStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["switchStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["symbol"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
 searchTerms["symbols"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["synchronized"] = new Array("Rascal/Libraries/Java");
+searchTerms["synchronized"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["synchronizedStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["synchronizedStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["syntax"] = new Array("Rascal/Expressions/ConcreteSyntax","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Libraries/util/IDE/Folding");
 
@@ -1193,29 +1189,29 @@ searchTerms["t"] = new Array("Rascal/Libraries/util/IDE/Hyperlinking","Rascal/Li
 
 searchTerms["tag"] = new Array("Rascal/Libraries/ParseTree/Tree");
 
-searchTerms["tagElement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["tagElement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["test"] = new Array("Rascal/Declarations/Function");
 
-searchTerms["textElement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["textElement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["thenBranch"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["thenBranch"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["thenStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["thenStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["thisExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["thisExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["throw"] = new Array("Rascal/Statements/Throw");
 
-searchTerms["throwStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["throwStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["throws"] = new Array("Rascal/Declarations/Function");
 
-searchTerms["to"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/JDT");
+searchTerms["to"] = new Array("Rascal/Libraries/Graph/Graph","Rascal/Libraries/Graph","Rascal/Libraries/LabeledGraph","Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["topDown"] = new Array("Rascal/Libraries/Vis/Figure/Properties/orientation");
 
-searchTerms["transient"] = new Array("Rascal/Libraries/Java");
+searchTerms["transient"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["tree"] = new Array("Rascal/Libraries/util/IDE/Contribution","Rascal/Libraries/ParseTree/TreeSearchResult");
 
@@ -1227,75 +1223,73 @@ searchTerms["true"] = new Array("Rascal/Expressions/Values/Boolean","Rascal/Libr
 
 searchTerms["try"] = new Array("Rascal/Statements/TryCatch");
 
-searchTerms["tryStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["tryStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["tuple"] = new Array("Rascal/Expressions/Values/Tuple/GreaterThan","Rascal/Expressions/Values/Tuple/GreaterThanOrEqual","Rascal/Expressions/Values/List/Product","Rascal/Expressions/Values/Tuple","Rascal/Expressions/Values/Tuple/LessThan","Rascal/Expressions/Values/Tuple/Equal","Rascal/Expressions/Values/Tuple/NotEqual","Rascal/Expressions/Values/Tuple/LessThanOrEqual","Rascal/Expressions/Values/Tuple/FieldSelection","Rascal/Expressions/Values/Tuple/Concatenation");
 
-searchTerms["type"] = new Array("Rascal/Declarations/StaticTyping/ReifiedTypes","Rascal/Libraries/JDT/JavaADT");
+searchTerms["type"] = new Array("Rascal/Declarations/StaticTyping/ReifiedTypes","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeArgument"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeArgument"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeDeclaration"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeDeclaration"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeDeclarationStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeDeclarationStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeDeclarations"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeDeclarations"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeLiteral"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeLiteral"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeName"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeName"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeOfArray"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeOfArray"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeOfParam"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeOfParam"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["typeParameter"] = new Array("Rascal/Libraries/Java","Rascal/Libraries/JDT/JavaADT");
+searchTerms["typeParameter"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["typedArguments"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["typedArguments"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["types"] = new Array("Rascal/Libraries/JDT");
+searchTerms["types"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["u"] = new Array("Rascal/Expressions/Values/String");
 
-searchTerms["updaters"] = new Array("Rascal/Libraries/JDT/JavaADT");
-
-searchTerms["util"] = new Array("Rascal/Libraries/Resources");
+searchTerms["updaters"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["v"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
-searchTerms["val"] = new Array("Rascal/Libraries/Maybe");
+searchTerms["val"] = new Array("Rascal/Libraries/util/Maybe");
 
-searchTerms["value"] = new Array("Rascal/Expressions/Values/Value/Equal","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Value","Rascal/Libraries/JDT/JavaADT");
+searchTerms["value"] = new Array("Rascal/Expressions/Values/Value/Equal","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Values/Value/NotEqual","Rascal/Expressions/Values/Value/LessThanOrEqual","Rascal/Expressions/Values/Node","Rascal/Libraries/ParseTree/Tree","Rascal/Expressions/Values/Value/GreaterThanOrEqual","Rascal/Expressions/Values/Value/GreaterThan","Rascal/Expressions/Values/Boolean/NoMatch","Rascal/Expressions/Values/Boolean/Match","Rascal/Expressions/Values/Value/LessThan","Rascal/Expressions/Values/Value","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["variable"] = new Array("Rascal/Libraries/Java");
+searchTerms["variable"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["variableDeclarationExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["variableDeclarationExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["variableDeclarationFragment"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["variableDeclarationFragment"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["variableDeclarationStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["variableDeclarationStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["variables"] = new Array("Rascal/Libraries/JDT");
+searchTerms["variables"] = new Array("Rascal/Libraries/lang/java/jdt/JDT");
 
 searchTerms["vis"] = new Array("Rascal/Libraries/Vis/Render","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure");
 
 searchTerms["visit"] = new Array("Rascal/Expressions/Visit");
 
-searchTerms["void"] = new Array("Rascal/Statements/If","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Void","Rascal/Libraries/Java");
+searchTerms["void"] = new Array("Rascal/Statements/If","Rascal/Libraries/util/IDE/Contribution","Rascal/Expressions/Values/Void","Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["volatile"] = new Array("Rascal/Libraries/Java");
+searchTerms["volatile"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
 searchTerms["warning"] = new Array("Rascal/Libraries/Message/Message","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Libraries/Message");
 
 searchTerms["while"] = new Array("Rascal/Statements/Do","Rascal/Expressions/Values/String","Rascal/Statements/While");
 
-searchTerms["whileExpression"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["whileExpression"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["whileStatement"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["whileStatement"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
-searchTerms["wildcard"] = new Array("Rascal/Libraries/Java");
+searchTerms["wildcard"] = new Array("Rascal/Libraries/lang/java/jdt/Java");
 
-searchTerms["wildcardType"] = new Array("Rascal/Libraries/JDT/JavaADT");
+searchTerms["wildcardType"] = new Array("Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["x"] = new Array("Rascal/Libraries/Exception/RuntimeException");
 
@@ -1307,7 +1301,7 @@ searchTerms["{>"] = new Array("Rascal/Expressions/Values/String");
 
 searchTerms["{>..."] = new Array("Rascal/Expressions/Values/String");
 
-searchTerms["|"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Set/Comprehension","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Message/Message","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Libraries/Resources","Rascal/Libraries/Message","Rascal/Libraries/Maybe","Rascal/Libraries/Exception/RuntimeException","Rascal/Expressions/Reducer","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Libraries/Java","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/JDT/JavaADT");
+searchTerms["|"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Set/Comprehension","Rascal/Libraries/Vis/Figure/Properties/KeySym","Rascal/Libraries/Message/Message","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Libraries/Vis/Figure/Figures/LineDecoration","Rascal/Expressions/Values/List/Comprehension","Rascal/Libraries/util/IDE/Contribution","Rascal/Declarations/SyntaxDefinition","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Libraries/Message","Rascal/Libraries/Exception/RuntimeException","Rascal/Libraries/util/Resources","Rascal/Expressions/Reducer","Rascal/Declarations/AlgebraicDataType","Rascal/Libraries/Vis/Figure/KeyModifier","Rascal/Libraries/Vis/Figure/Properties/orientation","Rascal/Libraries/util/Maybe","Rascal/Libraries/ParseTree/Tree","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Libraries/ParseTree/TreeSearchResult","Rascal/Expressions/Values/Map/Comprehension","Rascal/Libraries/lang/java/jdt/Java","Rascal/Libraries/lang/java/jdt/JDT/JavaADT");
 
 searchTerms["||"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Boolean/Or");
 

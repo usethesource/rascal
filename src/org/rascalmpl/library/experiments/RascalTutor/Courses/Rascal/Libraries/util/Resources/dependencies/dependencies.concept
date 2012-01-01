@@ -1,0 +1,29 @@
+Name: dependencies
+
+Synopsis: Compute the (transitive) dependencies of a project.
+
+Syntax:
+
+Types:
+
+Function:
+`set[loc] dependencies(loc project)`
+
+Details:
+
+Description:
+
+
+Examples:
+Assuming that the project `|project://org.eclipse.imp.pdb.values|` exists in the current workspace, we can get the following:
+<screen>
+import util::Resources;
+dependencies(|project://org.eclipse.imp.pdb.values|);
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
