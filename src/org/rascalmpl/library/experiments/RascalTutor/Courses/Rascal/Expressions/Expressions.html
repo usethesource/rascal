@@ -58,9 +58,9 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
-  <ul><li> An elementary <i>literal value</i>, e.g. constants of the types <a href="/Courses/Rascal/Expressions/Values/Boolean/Boolean.html">Boolean</a>, <a href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a>, <a href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a>,    <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>, <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a>, <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a> or <a href="/Courses/Rascal/Expressions/Values/DateTime/DateTime.html">DateTime</a>.
+  <ul><li> An elementary <i>literal value</i>, e.g. constants of the types <span class="inlineError">ambiguous: Rascal:Boolean</span>, <a href="/Courses/Rascal/Expressions/Values/Integer/Integer.html">Integer</a>, <a href="/Courses/Rascal/Expressions/Values/Real/Real.html">Real</a>,    <a href="/Courses/Rascal/Expressions/Values/Number/Number.html">Number</a>, <span class="inlineError">ambiguous: Rascal:String</span>, <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Location</a> or <span class="inlineError">ambiguous: Rascal:DateTime</span>.
 </li>
-<li> A <i>structured value</i> for <a href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>, <a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>, <a href="/Courses/Rascal/Expressions/Values/Map/Map.html">Map</a>, <a href="/Courses/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a> or <a href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Relation</a>.    The elements are first evaluated before the structured value is built.
+<li> A <i>structured value</i> for <a href="/Courses/Rascal/Expressions/Values/List/List.html">List</a>, <a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Set</a>, <span class="inlineError">ambiguous: Rascal:Map</span>, <a href="/Courses/Rascal/Expressions/Values/Tuple/Tuple.html">Tuple</a> or <span class="inlineError">ambiguous: Rascal:Relation</span>.    The elements are first evaluated before the structured value is built.
 </li>
 <li> A <i>variable</i> that evaluates to its current value.</li>
 <li> A call to a function or constructor: <ul><li> A <i>function call</i>. First the arguments are evaluated and the corresponding function is called.       The value returned by the function is used as value of the function call. See <a href="/Courses/Rascal/Expressions/Call/Call.html">Call</a>.
@@ -86,7 +86,7 @@
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 5 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

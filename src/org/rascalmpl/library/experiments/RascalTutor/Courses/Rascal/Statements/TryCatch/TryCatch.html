@@ -64,7 +64,7 @@ finally: <i>Statement</i><sub>3</sub>;
                            
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  A try catch statement has as purpose to catch any <a href="/Courses/Rascal/Libraries/Exception/Exception.html">Exception</a>s that are raised during the execution of <code><i>Statement</i><sub>1</sub></code>.
+<span class="sectionHead">Description</span>  A try catch statement has as purpose to catch any <span class="inlineError">ambiguous: Rascal:Exception</span>s that are raised during the execution of <code><i>Statement</i><sub>1</sub></code>.
  These exceptions may caused by:
   <ul><li> The execution of an explicit <a href="/Courses/Rascal/Statements/Throw/Throw.html">Throw</a> statement.</li>
 <li> The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.</li>
@@ -78,7 +78,7 @@ finally: <i>Statement</i><sub>3</sub>;
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  Let's define a variant of the <a href="/Courses/Rascal/Expressions/Values/List/head/head.html">head</a> function that returns the first element of a list,
+<span class="sectionHead">Examples</span>  Let's define a variant of the <span class="inlineError">ambiguous: Rascal:head</span> function that returns the first element of a list,
  but throws an exception when the list is empty. Our variant will return <code>0</code> for an empty list:
  <pre class="screen"><b>rascal></b>import List;
 ok
@@ -104,7 +104,7 @@ int: 0
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/TryCatch&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/TryCatch&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
