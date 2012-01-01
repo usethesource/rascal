@@ -10,7 +10,7 @@ module util::LinearProgramming
 
 import util::LLLinearProgramming;
 import List;
-import Maybe;
+import util::Maybe;
 import Set;
 import Number;
 import Map;
