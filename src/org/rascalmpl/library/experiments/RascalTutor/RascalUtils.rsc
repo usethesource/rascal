@@ -49,6 +49,7 @@ str normalizeName(str name){
 str makeName(str name){
   return "Name: <basename(name)>";
 }
+
 str makeUsage(str name){
   return "Usage: `import <replaceAll(name, "/", "::")>;`";
 }
@@ -273,7 +274,7 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 // - root: the concept that will act as root for all concepts in this library.
 
 public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
-  //println("extractRemoteConcepts: <L>, <root>");
+  println("extractRemoteConcepts: <L>, <root>");
   M = parseModule(readFile(L), L);
   //rprintln(M);
   moduleName = "";
@@ -282,7 +283,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   libRoot = root;
   top-down visit(M){
     case Header header: {
-       moduleName = normalizeName("<header.name>"); 
+       moduleName = basename(normalizeName("<header.name>")); 
        doc =  getModuleDoc(header);
        println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
      
@@ -326,7 +327,7 @@ public str extractDoc(loc L, str itemName){
   declarations = [];
   contentMap = ();
   top-down visit(M){
-		case Header header: { moduleName = normalizeName("<header.name>"); println("moduleName: <moduleName>"); if(basename(moduleName) == itemName) return getModuleDoc(header); }
+		case Header header: { moduleName = basename(normalizeName("<header.name>")); println("moduleName: <moduleName>"); if(moduleName == itemName) return getModuleDoc(header); }
 		case Declaration d: { declarations += d; }
   }
   
