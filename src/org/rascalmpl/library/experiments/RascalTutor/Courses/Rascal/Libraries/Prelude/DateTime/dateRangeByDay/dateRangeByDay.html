@@ -73,11 +73,11 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import DateTime;
 ok
 <b>rascal></b>B = now();
-datetime: $2012-01-01T10:53:07.420+0100
+datetime: $2012-01-01T15:56:32.965+0100
 <b>rascal></b>E = incrementDays(B, 2);
-datetime: $2012-01-03T10:53:07.420+0100
+datetime: $2012-01-03T15:56:32.965+0100
 <b>rascal></b>I = createInterval(B, E);
-interval: Interval($2012-01-01T10:53:07.420+0100,$2012-01-03T10:53:07.420+0100)
+interval: Interval($2012-01-01T15:56:32.965+0100,$2012-01-03T15:56:32.965+0100)
 <b>rascal></b>dateRangeByDay(I);
 list[datetime]: [$2012-01-01,$2012-01-02,$2012-01-03]
 </pre>
