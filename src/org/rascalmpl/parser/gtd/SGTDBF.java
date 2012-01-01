@@ -46,7 +46,7 @@ import org.rascalmpl.parser.gtd.util.Stack;
  * This is the core of the parser; it drives the parse process.
  */
 public abstract class SGTDBF implements IGTD{
-	private final static int DEFAULT_RESULT_STORE_ID = -1;
+	public final static int DEFAULT_RESULT_STORE_ID = -1;
 	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
