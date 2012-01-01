@@ -59,7 +59,7 @@
 
                            
 <div id="Usage">
-<span class="sectionHead">Usage</span>  <code>import Benchmark;</code>
+<span class="sectionHead">Usage</span>  <code>import util::Benchmark;</code>
  </AUTOINSERTED>
 
 </div>
@@ -86,7 +86,7 @@ map[str, num]: (&quot;fac10&quot;:2,&quot;fac20&quot;:2)
   We can do the same using <a href="/Courses/Rascal/Libraries/util/Benchmark/userTime/userTime.html">userTime</a> that returns nanoseconds:
 
 <pre class="screen"><b>rascal></b>benchmark( (&quot;fac10&quot; : void() {fac(100);}, &quot;fac20&quot; : void() {fac(200);}), userTime );
-map[str, num]: (&quot;fac10&quot;:1065000,&quot;fac20&quot;:2034000)
+map[str, num]: (&quot;fac10&quot;:1160000,&quot;fac20&quot;:2104000)
 </pre>
 </div>
 

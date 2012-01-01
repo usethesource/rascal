@@ -1,0 +1,24 @@
+Name: writeTextValueFile
+
+Synopsis: Write a value to a file using a textual file format.
+
+Syntax:
+
+Types:
+
+Function:
+`void writeTextValueFile(loc file, value val)`
+
+Details:
+
+Description:
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+

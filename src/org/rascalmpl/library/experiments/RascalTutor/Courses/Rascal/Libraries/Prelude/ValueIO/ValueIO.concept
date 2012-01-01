@@ -1,0 +1,27 @@
+Name: ValueIO
+
+Synopsis: Functions for reading and writing values in textual and binary format.
+
+
+Syntax:
+`import ValueIO;`
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+Provides the following functions:
+<toc Rascal/Libraries/ValueIO 1>
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
