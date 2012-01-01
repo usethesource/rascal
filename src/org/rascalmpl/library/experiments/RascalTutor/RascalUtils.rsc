@@ -283,7 +283,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   libRoot = root;
   top-down visit(M){
     case Header header: {
-       moduleName = basename(normalizeName("<header.name>")); 
+       moduleName = normalizeName("<header.name>"); 
        doc =  getModuleDoc(header);
        println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
      

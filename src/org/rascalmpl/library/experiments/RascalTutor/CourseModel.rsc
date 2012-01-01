@@ -248,7 +248,7 @@ public str readConceptFile(ConceptName cn){
       rmap = remoteContentMap[rootname(cn)] ? ();
       if(!(rmap[cn]?)){
          remote = readTextValueFile(#loc,  remoteloc);
-         extractAndCacheRemoteConcepts(remote, parentname(parentname(cn)));
+         extractAndCacheRemoteConcepts(remote, getLocalRoot(cn));
          rmap = remoteContentMap[rootname(cn)] ? ();
       }
       if(rmap[cn]?){
@@ -450,6 +450,23 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
   
   courseConcepts[rootConcept] = concepts;
   return concepts;
+}
+
+// Get the local root for a remote concept, e.i., given a remote concept
+// find the root under which it is included in the concept hierarchy.
+
+str getLocalRoot(str cn){
+   remote = courseDir + rootname(cn) + remoteConcepts;
+   if(exists(remote)){
+      remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
+      for(<root, dir> <- remoteMap){
+          dir1 = replaceLast(dir.path, ".rsc", "");
+          println("<dir1> -- <cn>");
+          if(contains(cn, dir1))
+             return root;
+      }
+   }
+   throw "No local root found for <cn>";
 }
 
 map[str,map[str,str]] remoteContentMap = ();
