@@ -1,0 +1,178 @@
+Name: T20111128
+
+Options: exam
+
+Synopsis:
+
+Syntax:
+
+Types:
+
+Function:
+
+Details:
+
+Description:
+
+This test assesses basic Rascal skills. In each exercise you have to select a choice or fill in a text field. 
+
+When your are done, press the submit button at the bottom of the page.
+
+You pass when you have at least 60% of the questions right.
+
+Important:
+* Fill in your name, email address and student number. __These fields are required.__
+* Make sure your email address is correct: __your email address will be used to inform you about the outcome of the test__.
+* Be very accurate in filling in answers (avoid redundant, incorrect, symbols like `;` and `)` in your answer) since this test will be processed automatically.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+QChoice: A list:
+g: Has elements that are ordered.
+b: Has elements that are unordered.
+g: Can contain zero or more elements.
+b: Can contain one or more elements.
+g: Can contain duplicate elements.
+b: Can not contain duplicate elements.
+
+QChoice: A map maps keys to values. In a map:
+g: All keys have to be unique.
+b: All values have to be unique.
+b: All keys and values have to be unique.
+b: All keys are ordered.
+b: All values are ordered.
+g: All (key, value) pairs are unordered.
+b: All (key, value) pairs are ordered.
+
+
+QChoice: A relation:
+g: Is a set of tuples.
+b: Is a list of tuples.
+b: Is a tuple of tuples.
+b: Has ordered elements.
+g: Has unordered elements.
+g: Can not contain duplicates.
+b: Can contain duplicates.
+
+QChoice: The following statement about subtypes is correct:
+g: `int` is a subtype of `num`.
+b: `bool` is a subtype of `int`.
+g: `real` is a subtype of `number`.
+g: `int` is a subtype of `real`.
+g: `num` is a subtype of `value`.
+b: `num` is a subtype of `real`.
+b: `value` is a subtype of `void`.
+g: An Algebraic Data Type (defined using `data`) is a subtype of `node`.
+g: A relation is a subtype of set.
+
+QChoice: The type of a set is determined by:
+g: The least upperbound of the type of all elements.
+g: The types of all the elements in the set.
+b: The average of the type of the elements with the smallest and the largest type.
+b: The least upperbound of the type of two arbitrary elements.
+b: The type of two arbitrary elements.
+
+QChoice: Which statement about the domain and range function on a binary relation of type `rel[int,int]` is correct:
+g: Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple.
+g: Domain and range are only applicable to binary relations.
+b: Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple.
+b: Domain returns a set of the second element of each tuple in the relation and range returns a set of the first element of each tuple.
+b: Domain returns a list of the second element of each tuple in the relation and range returns a list of the first element of each tuple.
+b: Domain returns a set of the elements that occur in any tuple in the relation and range returns a list of those elements.
+
+QType: <A:list[arb[int,real,str,loc]]>
+
+QType:
+make: A = int
+type: set[num]
+test: {<A>, <?>}
+
+QType:
+make: A = int
+type: set[value]
+test: {<A>, <?>}
+
+QType: 
+make: A = str
+type: map[str,int]
+test: (<A>: <?>)
+hint: a map from strings to integers
+
+QType: <A:set[arb[int,real,num,str,loc]]>
+
+
+QValue:
+desc: Create a list of the right size.
+list:
+import List;
+list[int] text = <?>;
+test: size(text) == 3;
+
+QValue:
+desc: Return the strings that contain a given substring.
+list:
+text = ["An", "honest", "man", "is", "always", "a", "child"]; 
+public list[str] find(list[str] text, str contains) = [ s | s <- text, <?> ];
+test: find(text, "s") == ["honest", "is", "always"];
+
+QValue:
+desc: Return the list of words with a length smaller than or equal to `n`.
+list:
+import Number;
+import String;
+text = ["Quote", "from", "Mahatma", "Gandhi:", 
+"Freedom", "is", "not", "worth", "having", "if", "it", "does", "not", 
+"include", "the", "freedom", "to", "make", "mistakes"];
+
+public list[str] smallerOrEq(list[str] text, int n){
+  return
+    for(s <- text)
+        if(<?>)
+           append s;
+}
+test: smallerOrEq(text, 3) == ["is", "not", "if", "it", "not", "the", "to"];
+
+QValue:
+desc: Complete this function that returns the set of keys with the largest associated value.
+list:
+import Map;
+import Set;
+inventory = ("orange" : 20, "apple" : 15, "banana" : 25, "lemon" : 15);
+public set[str] largest(map[str,int] inv){
+    m = <?>; // Determine the maximal value in the map
+    return { s  | s <- inv, inv[s] == m };
+}
+test: largest(inventory) == {"banana"};
+
+
+QValue:
+desc: Complete this function that tests that a list of words consists of three identical sublists:
+list:
+import List;
+public bool isTriple(list[str] words){
+  return [list[str] L, <?>] := words;
+}
+test: isTriple(["a", "b", "a", "b", "a", "b"]) == true;
+
+
+QValue:
+desc: Given a data type `ColoredTree`, complete the definition of the function `flipRedChildren` that exchanges the children of all black nodes.
+list:
+data ColoredTree = leaf(int N)      
+                 | red(ColoredTree left, ColoredTree right) 
+                 | black(ColoredTree left, ColoredTree right);
+
+ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+
+public ColoredTree flipBlackChildren(ColoredTree t){
+  return visit(t){
+     case black(l,r) => <?>
+  };
+}
+test: flipBlackChildren(rb) ==  red(black(red(leaf(2),leaf(3)), leaf(1)), black(leaf(4), leaf(3)));

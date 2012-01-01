@@ -14,9 +14,6 @@ Details: Cat2 NotThere
 
 Description:
 
-<screen>
-4/0;
-</screen>
 PPPPPPsfd
 XXXXXX
 YYYYYYYYYYYYYYYYYY
@@ -50,6 +47,8 @@ will be displayed as
 |-----|----|
 | ![Box 1](box1.png) | zzz |
 
+<toc XXX 1>
+
 Examples:
 
 <listing demo/basic/Hello.rsc>
@@ -68,4 +67,3 @@ QType[B]: <A:int>
 QValue: 2 * <A:int>
 
 QUse: Test:AAA 1
-
