@@ -1,5 +1,6 @@
 package org.rascalmpl.parser.gtd.stack.edge;
 
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
@@ -11,8 +12,10 @@ public class EdgesSet{
 	private AbstractStackNode[] edges;
 	private int size;
 	
-	private IntegerMap lastVisitedLevel;
+	private int lastVisitedLevel = -1;
+	private IntegerMap lastVisitedFilteredLevel;
 	
+	private AbstractContainerNode lastResults;
 	private IntegerKeyedHashMap<AbstractContainerNode> lastFilteredResults;
 	
 	public EdgesSet(){
@@ -20,9 +23,6 @@ public class EdgesSet{
 		
 		edges = new AbstractStackNode[DEFAULT_SIZE];
 		size = 0;
-		
-		lastVisitedLevel = new IntegerMap();
-		lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
 	}
 	
 	public EdgesSet(int initialSize){
@@ -30,9 +30,6 @@ public class EdgesSet{
 		
 		edges = new AbstractStackNode[initialSize];
 		size = 0;
-		
-		lastVisitedLevel = new IntegerMap();
-		lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
 	}
 	
 	private void enlarge(){
@@ -77,18 +74,46 @@ public class EdgesSet{
 	}
 	
 	public void setLastVisistedLevel(int level, int resultStoreId){
-		lastVisitedLevel.put(resultStoreId, level);
+		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID){
+			lastVisitedLevel = level;
+		}else{
+			if(lastVisitedFilteredLevel == null){
+				lastVisitedFilteredLevel = new IntegerMap();
+			}
+			
+			lastVisitedFilteredLevel.put(resultStoreId, level);
+		}
 	}
 	
 	public int getLastVisistedLevel(int resultStoreId){
-		return lastVisitedLevel.get(resultStoreId);
+		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID) return lastVisitedLevel;
+		
+		if(lastVisitedFilteredLevel == null){
+			lastVisitedFilteredLevel = new IntegerMap();
+			return -1;
+		}
+		return lastVisitedFilteredLevel.get(resultStoreId);
 	}
 	
 	public void setLastResult(AbstractContainerNode lastResult, int resultStoreId){
-		lastFilteredResults.put(resultStoreId, lastResult);
+		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID){
+			lastResults = lastResult;
+		}else{
+			if(lastFilteredResults == null){
+				lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
+			}
+			
+			lastFilteredResults.put(resultStoreId, lastResult);
+		}
 	}
 	
 	public AbstractContainerNode getLastResult(int resultStoreId){
+		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID) return lastResults;
+		
+		if(lastFilteredResults == null){
+			lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
+			return null;
+		}
 		return lastFilteredResults.get(resultStoreId);
 	}
 	
