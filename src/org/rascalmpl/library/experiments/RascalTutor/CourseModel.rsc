@@ -6,7 +6,6 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
 module experiments::RascalTutor::CourseModel
@@ -247,24 +246,22 @@ public str readConceptFile(ConceptName cn){
    remoteloc = courseDir + cn + remoteLoc;
    if(exists(remoteloc)){
       rmap = remoteContentMap[rootname(cn)] ? ();
+      if(!(rmap[cn]?)){
+         remote = readTextValueFile(#loc,  remoteloc);
+         extractAndCacheRemoteConcepts(remote, parentname(parentname(cn)));
+         rmap = remoteContentMap[rootname(cn)] ? ();
+      }
       if(rmap[cn]?){
          rdoc = rmap[cn];
          if(rdoc != ""){
             println("readConceptFile, found in cache: <cn>");
          	return rdoc;
          }
-      }
-      remote = readTextValueFile(#loc,  remoteloc);
-      rdoc = extractDoc(remote, basename(cn));
-      if(rdoc != ""){
-         rmap[cn] = rdoc;
-         remoteContentMap[rootname(cn)] = rmap;
-      	 return rdoc;
-      }
+      } 
    }
    throw "readConceptFile: <cn> not found";
 }
-
+/*
 public list[str] readConceptFileLines(ConceptName cn){
    println("readConceptFileLines: <cn>");
    cfile = conceptFile(cn);
@@ -294,6 +291,7 @@ public list[str] readConceptFileLines(ConceptName cn){
    }
    throw "readConceptFileLines: <cn> not found";
 }
+*/
 
 public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
@@ -312,7 +310,7 @@ public void saveConceptFile(ConceptName cn, str text){
 }     
 
 public map[str,list[str]] getSections(ConceptName cn){
-  return getSections(readConceptFileLines(cn));
+  return getSections(splitLines(readConceptFile(cn)));
 }
 
 
@@ -456,6 +454,19 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
 
 map[str,map[str,str]] remoteContentMap = ();
 
+void extractAndCacheRemoteConcepts(loc file, str root){
+     file = file[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
+     println("extractAndCacheRemoteConcepts: <file>, <root>");
+     rmap =  remoteContentMap[rootname(root)] ? ();
+     cmap = extractRemoteConcepts(file, root);
+     println("Extracted extracted <size(cmap)> concepts from <file>");
+     for(cn <- cmap)
+         println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+     for(cn <- cmap)
+         rmap[cn] = cmap[cn];
+     remoteContentMap[rootname(root)] = rmap;
+}
+
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
     println("getUncachedCourseConcepts: read all concepts");
     remoteContentMap[rootConcept] = ();
@@ -467,16 +478,19 @@ public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
           println("root = <root>, dir = <dir>");
           remoteFiles =  crawlFiles(dir, rascalExtension);
           for(file <- remoteFiles){
+              extractAndCacheRemoteConcepts(file, root);
+          /*
               cmap = extractRemoteConcepts(file, root);
               println("Extracted extracted <size(cmap)> concepts from <file>");
               for(cn <- cmap)
                   println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
               for(cn <- cmap)
                   rmap[cn] = cmap[cn];
+          */
           }    
       }
     }
-    remoteContentMap[rootConcept] = rmap;
+    //remoteContentMap[rootConcept] = rmap;
     concepts = crawlConcepts(rootConcept);
     println("concepts = <concepts>");
     courseConcepts[rootConcept] = concepts;
