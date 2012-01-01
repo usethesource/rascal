@@ -2,7 +2,8 @@ Name: shortestPathPair
 
 Synopsis: Determine the shortest path between two nodes in a labeled graph.
 
-Syntax:
+Usage:
+`import util::LabeledGraph;`
 
 Types:
 

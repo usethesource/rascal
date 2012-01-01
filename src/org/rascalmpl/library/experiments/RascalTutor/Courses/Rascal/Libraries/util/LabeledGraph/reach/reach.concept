@@ -2,7 +2,8 @@ Name: reach
 
 Synopsis: Determine the labeled graph nodes reachable from a set of nodes.
 
-Syntax:
+Usage:
+`import util::LabeledGraph;`
 
 Types:
 

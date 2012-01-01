@@ -2,12 +2,10 @@ Name: findMinimum
 
 Synopsis: Find the minimum priority in a prority queue.
 
-Syntax:
-
-Types:
-
 Function:
 `int findMinimum(PriorityQueue Q)`
+
+Usage: `import util::PriorityQueue;`
 
 Details:
 

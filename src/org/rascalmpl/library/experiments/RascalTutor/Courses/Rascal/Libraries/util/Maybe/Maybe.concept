@@ -2,13 +2,9 @@ Name: Maybe
 
 Synopsis: Optional datatype
 
-Syntax: `data Maybe[&A] = nothing() | just(&A val);`
+Types: `data Maybe[&A] = nothing() | just(&A val);`
 
-Types:
-
-Function:
-
-Details:
+Usage: `import util::Maybe;`
 
 Description: Data type used to describe that something maybe will give a result
 

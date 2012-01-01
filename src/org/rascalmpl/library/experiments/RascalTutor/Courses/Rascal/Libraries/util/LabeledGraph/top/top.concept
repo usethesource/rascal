@@ -2,21 +2,18 @@ Name: top
 
 Synopsis: Determine the set of top nodes (roots) of a labeled graph.
 
-Syntax:
-
-Types:
-
 Function:
 `set[&T] top(LGraph[&T] G)`
 
-Details:
+Usage:
+`import util::LabeledGraph;`
 
 Description:
 Returns the top nodes of LabeledGraph `G`, i.e., the root nodes that do not have any predecessors.
 
 Examples:
 <screen>
-import LabeledGraph;
+import util::LabeledGraph;
 top({<1,"A",2>, <1,"B",3>, <2,"C",4>, <3,"D",4>});
 </screen>
 

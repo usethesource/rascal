@@ -2,14 +2,10 @@ Name: insertElement
 
 Synopsis: Insert an element in a priority queue.
 
-Syntax:
-
-Types:
-
 Function:
 `PriorityQueue insertElement(PriorityQueue Q, int priority, int val)`
 
-Details:
+Usage: `import util::PriorityQueue;`
 
 Description:
 Insert the pair (`priority`, `val`) in PriorityQueue Q.

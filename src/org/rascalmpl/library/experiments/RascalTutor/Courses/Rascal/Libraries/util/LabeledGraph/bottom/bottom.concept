@@ -2,7 +2,8 @@ Name: bottom
 
 Synopsis: Determine the bottom nodes (leaves) of a labeled graph.
 
-Syntax:
+Usage:
+`import util::LabeledGraph;`
 
 Types:
 
@@ -16,7 +17,7 @@ Returns the bottom nodes of LabeledGraph `G`, i.e., the leaf nodes that don't ha
 
 Examples:
 <screen>
-import LabeledGraph;
+import util::LabeledGraph;
 bottom({<1,"A",2>, <1,"B",3>, <2,"C",4>, <3,"D",4>});
 </screen>
 
