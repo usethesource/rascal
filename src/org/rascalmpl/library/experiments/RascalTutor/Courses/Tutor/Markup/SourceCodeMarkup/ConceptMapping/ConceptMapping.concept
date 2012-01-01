@@ -1,6 +1,6 @@
 Name: ConceptMapping
 
-Synopsis: Mapping concepts in source code to a subtree of a course.
+Synopsis: Map the concepts in Rascal source code to a subtree of a course.
 
 Syntax:
 
@@ -14,7 +14,7 @@ Details:
 
 Description:
 
-Each Rascal library file defines some module $M$ that may declare concepts $M/c_1$, $M/c_2$, ....
+Each Rascal library file defines some module `M` that may declare concepts `M/c$_1$`, `M/c$_2$`, ....
 as indicated by embedded `@doc` annotations.
 How are these concepts included in a Tutor course?
 The answer is a mapping file `remote-concepts.value` that may exist at the top level of a course.

@@ -10,13 +10,12 @@ Function:
        
 Usage:
 
-Details:
+Details: DocAnnotations
 
 Description:
 
 The mark up of concepts inside Rascal source code requires two steps:
-* __Doc annotations__ to associate concepts with declarations.
-* __Concept mapping__ to map these concepts to a subtree of some course.
+<toc Tutor/Markup/SourceCodeMarkup 1>
 
 Examples:
 
