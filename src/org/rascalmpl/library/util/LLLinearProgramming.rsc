@@ -10,7 +10,7 @@
 module util::LLLinearProgramming
 
 import List;
-import Maybe;
+import util::Maybe;
 
 alias LLCoefficients = list[num];
 
