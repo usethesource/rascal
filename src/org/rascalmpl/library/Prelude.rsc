@@ -24,11 +24,12 @@ It combines the following modules:
 * `Map`,
 * `Node`,
 * `ParseTree`,
-* `Rational`,
+* `Rational`, ???
 * `Relation`,
 * `Set`,
 * `String`,
-* `ToString`.
+* `ToString`,
+* `ValueIO`.
 }
 module Prelude
 
@@ -46,6 +47,7 @@ extend Relation;
 extend Set;
 extend String;
 extend ToString;
+extend ValueIO;
 
 
 
