@@ -51,8 +51,9 @@
 	                       
                            
                            
+                           
 <div id="Description">
-<span class="sectionHead">Description</span>  <a href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">Rascal:implode</a> is a function that automates the mapping between parse trees and abstract syntax trees.
+<span class="sectionHead">Description</span>  <a href="/Courses/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">Rascal:implode</a> is a function that automates the mapping between parse trees and abstract syntax trees.
  It takes two arguments:
  <ul><li> The <i>reified</i> type of the desired abstract syntax. (In Rascal, types can not be used freely as values.   A reified type, is a type that is wrapped in such a way that it can be passed as an argument to a function.)
 </li>
@@ -126,7 +127,7 @@ public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) =
 </pre> Notes:
  <ul><li> <img src="/Courses/images/1.png"> We also need the <code>parse</code> function, as defined above.</li>
 <li> <img src="/Courses/images/2.png"> We also need the abstract syntax as already defined earlier in <a href="/Courses/Recipes/Languages/Exp/Abstract/Abstract.html">Exp/Abstract</a>.</li>
-<li> <img src="/Courses/images/3.png"> We need <a href="/Courses/Rascal/Libraries/ParseTree/ParseTree.html">Rascal:ParseTree</a> since it provides the <a href="/Courses/Rascal/Libraries/ParseTree/implode/implode.html">Rascal:implode</a> function.</li>
+<li> <img src="/Courses/images/3.png"> We need <a href="/Courses/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">Rascal:ParseTree</a> since it provides the <a href="/Courses/Rascal/Libraries/Prelude/ParseTree/implode/implode.html">Rascal:implode</a> function.</li>
 </ul> Let's try it:
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
 ok

@@ -51,6 +51,7 @@
 	                       
                            
                            
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  A <a href="http://en.wikipedia.org/wiki/Quine_(computing)">quine<img src="/Courses/images/www-icon.png" with="20" height="20"></a>
  is a computer program that takes no input and produces a copy of its own source code.
@@ -114,7 +115,7 @@ str: &quot;\&quot;Good Morning, Dr. Watson\&quot;, said Holmes&quot;
 ok
 </pre>
   As you see the quotes inside the string are not escaped and the result is not a legal string.
-  So what can we do? We escape all dangerous characters in the string before printing it using the <a href="/Courses/Rascal/Expressions/Values/String/escape/escape.html">Rascal:escape</a> function.
+  So what can we do? We escape all dangerous characters in the string before printing it using the <a href="/Courses/Rascal/Libraries/Prelude/String/escape/escape.html">Rascal:escape</a> function.
   It takes a string and a map of characters to be escaped and returns a result in which all escaping has been carried out.
   Be aware that in the map, also escaping is needed!
   We want to say: escape <code>"</code> and replace it by <code>\"</code>, but since both <code>"</code> and <code>\</code> have to be escaped themselves

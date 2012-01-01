@@ -18,7 +18,7 @@ How can we print a list of squares? Here is a solution:
 
 At /*1*/ the [Rascal:IO] module is imported since we want to print things using `println`.
 
-[Rascal:String] interpolation is used here several times.
+[Rascal:Values/String] interpolation is used here several times.
 In /*2*/ the value of `N` is inserted in the header message
 and in /*3*/ the values of `I` and `I * I` are inserted in each line that is printed.
 

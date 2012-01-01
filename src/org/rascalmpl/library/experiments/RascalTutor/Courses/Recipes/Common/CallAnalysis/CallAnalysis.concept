@@ -38,7 +38,7 @@ Consider the following call graph (a box represents a procedure and an arrow rep
 // First, we introduce therefore a new type `Proc` (an alias for strings) to denote procedures:
 alias Proc = str;
 // Next, we have to represent the call relation as a Rascal datatype, and the relation is the most appropriate for it.
-// As preparation, we also import the libraries [$Rascal:Values/Set], [$Rascal:Relation] and [$Rascal:Libraries/Graph] that will come in handy.
+// As preparation, we also import the libraries [$Rascal:Prelude/Set], [$Rascal:Prelude/Relation] and [$Rascal:Prelude/Graph] that will come in handy.
 import Set;
 import Relation;
 import Graph;
@@ -53,11 +53,11 @@ rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">,
 size(Calls);
 // __How many procedures occur in this system?__ This question is more subtle, since a procedure may call (or be called) by
 // several others and the number of tuples is therefore not indicative. What we need are the set of procedures that
-// occur (as first or second element) in _any_ tuple. This is precisely what the function [Rascal:carrier] gives us:
+// occur (as first or second element) in _any_ tuple. This is precisely what the function [$Rascal:carrier] gives us:
 carrier(Calls);
 // and computing the number of procedures is now easy:
 size(carrier(Calls));
-// As an aside, functions [Rascal:Relation/domain] and [Rascal:Relation/range] do the same for the first, respectively, second element of the pairs in a relation:
+// As an aside, functions [$Rascal:Prelude/Relation/domain] and [$Rascal:Prelude/Relation/range] do the same for the first, respectively, second element of the pairs in a relation:
 domain(Calls);
 range(Calls);
 // __What are the entry points for this system?__

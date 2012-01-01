@@ -51,6 +51,7 @@
 	                       
                            
                            
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  Suppose a mystery box ends up on your desk. When you open it, it contains a huge software system with several questions attached to it:
   <ul><li> How many procedure calls occur in this system?</li>
@@ -83,7 +84,7 @@
 ok
 </pre>
   Next, we have to represent the call relation as a Rascal datatype, and the relation is the most appropriate for it.
-  As preparation, we also import the libraries <a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Rascal:Set</a>, <a href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Rascal:Relation</a> and <a href="/Courses/Rascal/Libraries/Graph/Graph.html">Rascal:Graph</a> that will come in handy.
+  As preparation, we also import the libraries <a href="/Courses/Rascal/Libraries/Prelude/Set/Set.html">Rascal:Set</a>, <a href="/Courses/Rascal/Libraries/Prelude/Relation/Relation.html">Rascal:Relation</a> and <a href="/Courses/Rascal/Libraries/Prelude/Graph/Graph.html">Rascal:Graph</a> that will come in handy.
 
 <pre class="screen"><b>rascal></b>import Set;
 ok
@@ -109,7 +110,7 @@ rel[Proc, Proc]: {
 <br/>
 
   <b>How many calls occur in this system?</b>
-  We use the function <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:Set/size</a> to determine the number of elements in a set or relation.
+  We use the function <a href="/Courses/Rascal/Libraries/Prelude/Set/size/size.html">Rascal:Set/size</a> to determine the number of elements in a set or relation.
   Since each tuple in the <code>Calls</code> relation represents a call between procedures, the number of tuples is equal
   to the number of calls.
 
@@ -118,7 +119,7 @@ int: 8
 </pre>
   <b>How many procedures occur in this system?</b> This question is more subtle, since a procedure may call (or be called) by
   several others and the number of tuples is therefore not indicative. What we need are the set of procedures that
-  occur (as first or second element) in <i>any</i> tuple. This is precisely what the function <a href="/Courses/Rascal/Expressions/Values/Relation/carrier/carrier.html">Rascal:carrier</a> gives us:
+  occur (as first or second element) in <i>any</i> tuple. This is precisely what the function <a href="/Courses/Rascal/Libraries/Prelude/Relation/carrier/carrier.html">Rascal:carrier</a> gives us:
 
 <pre class="screen"><b>rascal></b>carrier(Calls);
 set[str]: {&quot;g&quot;,&quot;f&quot;,&quot;e&quot;,&quot;d&quot;,&quot;c&quot;,&quot;b&quot;,&quot;a&quot;}
@@ -128,7 +129,7 @@ set[str]: {&quot;g&quot;,&quot;f&quot;,&quot;e&quot;,&quot;d&quot;,&quot;c&quot;
 <pre class="screen"><b>rascal></b>size(carrier(Calls));
 int: 7
 </pre>
-  As an aside, functions <a href="/Courses/Rascal/Expressions/Values/Relation/domain/domain.html">Rascal:Relation/domain</a> and <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:Relation/range</a> do the same for the first, respectively, second element of the pairs in a relation:
+  As an aside, functions <a href="/Courses/Rascal/Libraries/Prelude/Relation/domain/domain.html">Rascal:domain</a> and <a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">Rascal:range</a> do the same for the first, respectively, second element of the pairs in a relation:
 
 <pre class="screen"><b>rascal></b>domain(Calls);
 set[str]: {&quot;g&quot;,&quot;f&quot;,&quot;d&quot;,&quot;b&quot;,&quot;a&quot;}

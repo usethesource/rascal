@@ -51,6 +51,7 @@
 	                       
                            
                            
+                           
 <div id="Description">
 <span class="sectionHead">Description</span>  A <a href="http://en.wikipedia.org/wiki/Web_crawler">Web Crawler<img src="/Courses/images/www-icon.png" with="20" height="20"></a> is a program that browses web pages in a systematic manner.
  Here we present a crawler for files in a file system, although it can easily be extended to browse the web as well.
@@ -98,7 +99,7 @@ public list[loc] crawl3(loc dir, str suffix) =
 </pre> The <code>crawl</code> function takes two arguments:
  <ul><li> The directory <code>dir</code> where the crawl should start.</li>
 <li> The suffix of the files we are looking for.</li>
-</ul> The crawler simply lists all entries in the current directory using <a href="/Courses/Rascal/Libraries/IO/listEntries/listEntries.html">Rascal:listEntries</a> and adds all files
+</ul> The crawler simply lists all entries in the current directory using <a href="/Courses/Rascal/Libraries/Prelude/IO/listEntries/listEntries.html">Rascal:listEntries</a> and adds all files
  that end we the given suffix to the result. If an entry is itself a directory, it is crawled by a recursive call to crawl.
  At <img src="/Courses/images/1.png"> we use concatenation on a location and a string; it automatically adds a <code>/</code> separator, see <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:Location</a> for details.
  <br/>
@@ -149,12 +150,12 @@ rel[loc, int]: {
   &lt;|std://library/demo/common/LiftTest.rsc|,32&gt;,
   &lt;|std://library/demo/lang/Exp...
 </pre>
-  Now determine the maximum length (using <a href="/Courses/Rascal/Expressions/Values/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Expressions/Values/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
+  Now determine the maximum length (using <a href="/Courses/Rascal/Libraries/Prelude/Set/size/size.html">Rascal:size</a>), by taking the maximum of the <a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">Rascal:range</a> of <code>aux</code>:
 
 <pre class="screen"><b>rascal></b>m = max(range(aux));
 int: 283
 </pre>
-  and now <a href="/Courses/Rascal/Expressions/Values/Relation/invert/invert.html">Rascal:invert</a> <code>aux</code> and use <a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Rascal:Subscription</a>  to find the tuples with the maximum value as first element.
+  and now <a href="/Courses/Rascal/Libraries/Prelude/Relation/invert/invert.html">Rascal:invert</a> <code>aux</code> and use <a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Rascal:Subscription</a>  to find the tuples with the maximum value as first element.
 
 <pre class="screen"><b>rascal></b>invert(aux)[m];
 set[loc]: {|std://library/demo/vis/Logo.rsc|}

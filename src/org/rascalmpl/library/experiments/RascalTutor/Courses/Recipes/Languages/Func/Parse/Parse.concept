@@ -12,7 +12,7 @@ Details:
 
 Description:
 Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
-The work horse is the [Rascal:parse] function that is available in the [Rascal:Libraries/ParseTree] library.
+The work horse is the [$Rascal:parse] function that is available in the [$Rascal:Prelude/ParseTree] library.
 
 Examples:
 Here is how to parse Func programs from a string or file:
