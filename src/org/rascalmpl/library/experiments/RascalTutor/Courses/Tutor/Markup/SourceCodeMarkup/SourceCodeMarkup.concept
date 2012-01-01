@@ -1,0 +1,29 @@
+Name: SourceCodeMarkup
+
+Synopsis: Mark up in Rascal source code.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+The mark up of concepts inside Rascal source code requires two steps:
+* __Doc annotations__ to associate concepts with declarations.
+* __Concept mapping__ to map these concepts to a subtree of some course.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

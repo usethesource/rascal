@@ -1,0 +1,51 @@
+Name: ConceptMapping
+
+Synopsis: Mapping concepts in source code to a subtree of a course.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Each Rascal library file defines some module $M$ that may declare concepts $M/c_1$, $M/c_2$, ....
+as indicated by embedded `@doc` annotations.
+How are these concepts included in a Tutor course?
+The answer is a mapping file `remote-concepts.value` that may exist at the top level of a course.
+It is a value of type `list[tuple[str root, loc libFile]]`, i.e. a list of tuples that
+associates a root (a concept name) with a Rascal source file. All concepts in `libFile`
+become subconcepts of that root. Moving the documentation for a library file is as simple as 
+changing a single entry is this mapping. 
+
+Examples:
+This is an excerpt from the  `remote-concepts.value` for the Rascal course:
+<listing>
+[<"Rascal/Libraries/Prelude",|std:///Boolean.rsc|>,
+<"Rascal/Libraries/Prelude",|std:///DateTime.rsc|>,
+<"Rascal/Libraries/Prelude",|std:///List.rsc|>,
+<"Rascal/Libraries/Prelude",|std:///Map.rsc|>,
+...
+<"Rascal/Libraries/Prelude",|std:///ParseTree.rsc|>,
+<"Rascal/Libraries",|std:///util/Benchmark.rsc|>,
+<"Rascal/Libraries",|std:///util/Eval.rsc|>,
+<"Rascal/Libraries",|eclipse-std:///util/IDE.rsc|>,
+<"Rascal/Libraries",|std:///util/Math.rsc|>]
+</listing>
+
+This establishes that the function `now` that is declared in the `DateTime.rsc` library files
+will become `Rascal/Libraries/Prelude/DateTime/now`.
+
+Benefits:
+
+Pitfalls:
+Be carefull to avoid spaces, since the value reader does not like them.
+
+Questions:
+
+       
