@@ -13,7 +13,7 @@
 }
 module Grammar
 
-import ParseTree;
+extend ParseTree;
 import Set;
 import IO;
 
@@ -43,72 +43,12 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   return grammar(starts, rules);
 } 
            
-@doc{
-Here we extend productions with basic combinators allowing to
-construct ordered and un-ordered compositions, and associativity groups.
 
-The intended semantics are that 
- 	'choice' means unordered choice,
- 	'priority'  means ordered choice, where alternatives are tried from left to right,
-    'assoc'  means all alternatives are acceptible, but nested on the declared side
-    'others' means '...', which is substituted for a choice among the other definitions
-    'reference' means a reference to another production rule which should be substituted there,
-                for extending priority chains and such.
-} 
-data Production 
-  = \choice(Symbol def, set[Production] alternatives)
-  | \priority(Symbol def, list[Production] choices)
-  | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives)
-  | \others(Symbol def)
-  | \reference(Symbol def, str cons)
-  ;
-
-@doc{
-  These combinators are defined on Symbol, but it is checked (elsewhere) that only char-classes are passed in.
-}
-data Symbol 
-  = intersection(Symbol lhs, Symbol rhs)
-  | union(Symbol lhs, Symbol rhs)
-  | difference(Symbol lhs, Symbol rhs)
-  | complement(Symbol cc)
-  ;
   
 @doc{
   An item is an index into the symbol list of a production rule
 }  
 data Item = item(Production production, int index);
-
-// The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
-
-@doc{Nested choice is flattened}
-public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
-  = choice(s, a+b);
-  
-@doc{Nested priority is flattened}
-public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
-  = priority(s,a+b+c);
-   
-@doc{Choice under associativity is flattened}
-public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
-  = associativity(s, as, a+b); 
-  
-@doc{Nested (equal) associativity is flattened}             
-public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
-  if (a == b)  
-    return associativity(rhs, a, rest + alts) ;
-  else
-    fail;
-}
-
-public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), set[Production] rest}) {
-  if (!(\assoc(_) <- as)) 
-	  return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
-  else fail;
-}
-
-@doc{Priority under an associativity group defaults to choice}
-public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
-  = associativity(s, as, a + { e | e <- b}); 
 
 @doc{
   Compose two grammars, by adding the rules of g2 to the rules of g1.

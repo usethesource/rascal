@@ -91,6 +91,7 @@ Questions:
 
 module ParseTree
 
+extend Type;
 import Message;
 
 @doc{
@@ -129,9 +130,9 @@ data Production
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) /*3*/
      | regular(Symbol def)
      ;
+     
 data Attr 
      = \assoc(Associativity \assoc) /*4*/
-     | \tag(value \tag) 
      | \bracket() 
      ;
 data Associativity 
@@ -156,7 +157,6 @@ data Symbol
      | \keywords(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameter(str name)
-     | \label(str name, Symbol symbol)
      ; 
 
 // These are the terminal symbols.
@@ -192,7 +192,52 @@ data Condition
      | \begin-of-line()  
      | \end-of-line()  
      ;
-         
+
+@doc{
+Here we extend productions with basic combinators allowing to
+construct ordered and un-ordered compositions, and associativity groups.
+
+The intended semantics are that 
+  * 'choice' means unordered choice (defined in |Type|)
+  * 'priority'  means ordered choice, where alternatives are tried from left to right,
+  * 'assoc'  means all alternatives are acceptible, but nested on the declared side
+  * 'others' means '...', which is substituted for a choice among the other definitions
+  * 'reference' means a reference to another production rule which should be substituted there,
+                for extending priority chains and such.
+} 
+data Production 
+  = \priority(Symbol def, list[Production] choices)
+  | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives)
+  | \others(Symbol def)
+  | \reference(Symbol def, str cons)
+  ;
+
+@doc{Nested priority is flattened}
+public Production priority(Symbol s, [list[Production] a, priority(Symbol t, list[Production] b),list[Production] c])
+  = priority(s,a+b+c);
+   
+@doc{Choice under associativity is flattened}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, choice(Symbol t, set[Production] b)}) 
+  = associativity(s, as, a+b); 
+  
+@doc{Nested (equal) associativity is flattened}             
+public Production associativity(Symbol rhs, Associativity a, {associativity(Symbol rhs2, Associativity b, set[Production] alts), set[Production] rest}) {
+  if (a == b)  
+    return associativity(rhs, a, rest + alts) ;
+  else
+    fail;
+}
+
+public Production associativity(Symbol rhs, Associativity a, {prod(Symbol rhs, list[Symbol] lhs, set[Attr] as), set[Production] rest}) {
+  if (!(\assoc(_) <- as)) 
+    return \associativity(rhs, a, rest + {prod(rhs, lhs, as + {\assoc(a)})});
+  else fail;
+}
+
+@doc{Priority under an associativity group defaults to choice}
+public Production associativity(Symbol s, Associativity as, {set[Production] a, priority(Symbol t, list[Production] b)}) 
+  = associativity(s, as, a + { e | e <- b}); 
+             
 @doc{
 Synopsis: Annotate a parse tree node with a source location.
 }

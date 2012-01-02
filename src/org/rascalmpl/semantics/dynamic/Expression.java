@@ -1922,7 +1922,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					valued ? null : TF.tupleType(fieldTypes),
 					valued ? fieldValues : null));
 
-			return type.accept(new TypeReifier(__eval, __eval.__getVf()));
+			return new TypeReifier(__eval.__getVf()).typeToValue(type, __eval);
 
 		}
 
@@ -1944,7 +1944,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			Type t = getType().typeOf(__eval.getCurrentEnvt());
-			return t.accept(new TypeReifier(__eval, __eval.__getVf()));
+			return new TypeReifier(__eval.__getVf()).typeToValue(t, __eval);
 		}
 	}
 
