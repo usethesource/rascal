@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module Set
-
+import List;
 @doc{
 Synopsis: Classify elements in a set.
 
@@ -27,13 +27,9 @@ classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}
 </screen>
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) {
-  map[&K,set[&V]] result = ();
-  set[&V] empty = {};
-  for (elem <- input) {
-    &K class = getClass(elem);
-    result[class]?empty += {elem};
-  }
-  return result;
+  set[set[&V]] grouped = 
+     group(input,bool (&V a,&V b) { return getClass(a) == getClass(b); });
+  return ( getClass(getOneFrom(s)) : s | s <- grouped);
 }
 
 @doc{
@@ -73,14 +69,16 @@ group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, s
 </screen>
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
-  set[set[&T]] result = {};
-  while (input != {}) {
-    <e, input> = takeOneFrom(input);
-    set[&T] same = { f | f <- input, similar(e, f) };
-    input -= same;
-    result = result + {{same, e}};
+  sinput = sort(toList(input), bool (&T a, &T b) { return similar(a,b) ? a < b ; } );
+  lres = while (!isEmpty(sinput)) {
+    h = head(sinput);
+    sim = h + 
+    takeWhile(tail(sinput),
+      bool (&T a) { return similar(a,h); });
+	  append toSet(sim);
+	  sinput = drop(size(sim),sinput);
   }
-  return result;
+  return toSet(lres); 
 }
 
 
