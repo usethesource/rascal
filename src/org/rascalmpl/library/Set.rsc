@@ -9,6 +9,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module Set
 import List;
+import Math;
 @doc{
 Synopsis: Classify elements in a set.
 
@@ -92,14 +93,10 @@ index({"elephant", "zebra", "snake"});
 </screen>
 }
 public map[&T,int] index(set[&T] s) {
-  result = ();
-  i = 0;
-  for (x <- s) {
-    result[x] = i;
-    i += 1;
-  }
-  return result;
+  sl = toList(s);
+  return (sl[i] : i | i <- index(sl));
 }
+
 
 
 
@@ -148,15 +145,9 @@ max({1, 3, 5, 2, 4});
 max({"elephant", "zebra", "snake"});
 </screen>
 }
-public &T max(set[&T] st)
-{
-  &T result = getOneFrom(st);
-  for(&T elm <- st){
-  	if(elm > result){
-    	result = elm;
-    }
-  }
-  return result;
+public &T max(set[&T] st) {
+	<h,t> = takeOneFrom(st);
+	return (h | e > it ? e : it | e <- t);
 }
 
 @doc{
@@ -178,15 +169,9 @@ import Set;
 min({1, 3, 5, 4, 2});
 </screen>
 }
-public &T min(set[&T] st)
-{
-  &T result = getOneFrom(st);
-  for(&T elm <- st){
-   if(elm < result){
-      result = elm;
-   }
-  }
-  return result;
+public &T min(set[&T] st) {
+	<h,t> = takeOneFrom(st);
+	return (h | e < it ? e : it | e <- t);
 }
 
 @doc{
@@ -203,16 +188,27 @@ power({1,2,3,4});
 }
 public set[set[&T]] power(set[&T] st)
 {
-
-  set[set[&T]] result = {{st}};
-  for(&T elm <- st){
-  	set[set[&T]] pw = power(st - elm);
-  	result = result + pw;
-  	for(set[&T] sub <- pw){
-  		result = result + {{sub + elm}};
-  	}
+  // the power set of a set of size n has 2^n-1 elements 
+  // so we enumerate the numbers 0..2^n-1
+  // if the nth bit of a number i is 1 then
+  // the nth element of the set should be in the
+  // ith subset 
+  stl = toList(st);
+  i = 0;
+  res = while(i < pow(2,size(st))) {
+	j = i;
+	elIndex = 0;
+	sub = while(j > 0) {;
+	  if(j mod 2 == 1) {
+		append stl[elIndex];
+	  }
+	  elIndex += 1;
+	  j /= 2;
+	}
+	append toSet(sub);
+	i+=1;
   }
-  return result;
+  return toSet(res);
 }
 
 @doc{
@@ -227,10 +223,7 @@ import Set;
 power1({1,2,3,4});
 </screen>
 }
-public set[set[&T]] power1(set[&T] st)
-{
-	return power(st) - {{}};
-}
+public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
 @doc{
 Synopsis: Apply a function to successive elements of a set and combine the results (__deprecated__).
@@ -248,14 +241,8 @@ reducer({10, 20, 30, 40}, add, 0);
 Pitfalls:
 This function is __deprecated__, use a [$Expressions/Reducer] instead.
 }
-public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
-{
-  &T result = unit;
-  for(&T elm <- st){
-    result = fn(result, elm);
-  }
-  return result;
-}
+public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
+	(unit | fn(it,elm) | elm <- st);
 
 @doc{
 Synopsis:  Determine the number of elements in a set.
