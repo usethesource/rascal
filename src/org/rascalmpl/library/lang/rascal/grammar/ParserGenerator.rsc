@@ -295,8 +295,8 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
 }
 
 private Symbol getType(Production p) = getType(p.def);
-private Symbol getType(label(_,s)) = s;
-private default Symbol  getType(s) = s;
+private Symbol getType(label(str _, Symbol s)) = s;
+private default Symbol getType(Symbol s) = s;
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.

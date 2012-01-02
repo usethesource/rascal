@@ -13,15 +13,20 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
-
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -33,89 +38,536 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 /**
- * TypeReifier is a visitor that maps types to values that represent these types. These values have
+ * TypeReifier maps types to values that represent these types and their definitions. These values have
  * very specific types, namely 'type[&T]' where &T is bound to the type the value represents. 
- * <br>
- * The 'type[&T]' is rank-2 polymorphic because &T can be bound differently on different nesting levels
- * of type representations. Therefore it can not be declared or represented in Rascal itself.
- * <br>
- *
- * This is the shape of the values that type reification produces:
 <pre>
-data type[&T] =
-  \value() |
-  \int() |
-  \real() |
-  \bool() |
-  \map(Type \key, Type \value) |
-  \list(Type element) |
-  \set(Type element) |
-  \rel(list[tuple[Type \type, str label]] fields) | // with labels
-  \rel(list[Type] arguments) |  // without labels
-  \tuple(list[tuple[Type \type, str label]] fields) | // with labels
-  \tuple(list[Type] arguments) | // without labels
-  \void() |
-  \fun(Type \return, list[tuple[Type \type, str label]]) |  
-  \node() |
-  \non-terminal(Symbol symbol) |
-  \adt(str name,  list[constructor] constructors, list[tuple[Type,Type]] bindings) |
-  \parameter(str name, Type bound) |
-  \loc() |
-  \alias(str name, Type aliased, list[tuple[Type,Type]] bindings) |
-  \reified(Type reified)
-
-data constructor[&T] = 
-  \constructor(str name, list[tuple[Type \type, str label]] fields)
+data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 </pre>
  */
-public class TypeReifier implements ITypeVisitor<Result<IValue>> {
-	private final IEvaluatorContext ctx;
-	private final Type typeOfTypes;
-	private final TypeFactory tf;
-	private final Environment env;
+public class TypeReifier {
 	private final IValueFactory vf;
-	private final Type param;
-	private final TypeStore store;
-	private final Type cons;
-	private final Type valueAdt;
-	private final Type listAdt;
-	private final Type listCons;
-	private final Type fieldType;
-	private final Type bindingType;
-	private final Type tupleType;
+	private final TypeFactory tf;
 	
-	private Set<IValue> visiting = new HashSet<IValue>();
-	
-	public TypeReifier(IEvaluatorContext ctx, IValueFactory valueFactory) {
-		this.ctx = ctx;
-		this.env = ctx.getCurrentEnvt();
-		this.store = constructCompleteTypeStore(this.env);
-		this.tf = TypeFactory.getInstance();
+	public TypeReifier(IValueFactory valueFactory) {
 		this.vf = valueFactory;
-		this.param = tf.parameterType("T");
-		this.typeOfTypes = RascalTypeFactory.getInstance().reifiedType(param);
-		this.cons = env.abstractDataType("constructor");
-
-		store.declareAbstractDataType(typeOfTypes);
-		
-	    Map<Type,Type> bindings = bind(tf.valueType());
-	    this.valueAdt = typeOfTypes.instantiate(bindings);
-	    
-	    // TODO note: maybe we should instantiate these instances of typeOfType with value to be on the safe side...
-	    this.listAdt = tf.listType(valueAdt);
-	    this.tupleType = tf.tupleType(typeOfTypes, typeOfTypes);
-		this.bindingType = tf.listType(tupleType);
-	    this.fieldType = tf.tupleType(typeOfTypes, "type", tf.stringType(), "label");
-	    this.listCons = tf.listType(cons);
+		this.tf = TypeFactory.getInstance();
 	}
 	
+	public Result<IValue> typeToValue(Type t, IEvaluatorContext ctx) {
+		Environment env = ctx.getCurrentEnvt();
+		env.getStore().declareAbstractDataType(Factory.Type);
+		env.getStore().declareConstructor(Factory.Type_Reified);
+		TypeStore store = constructCompleteTypeStore(env);
+		
+		Map<IConstructor, IConstructor> definitions = new HashMap<IConstructor, IConstructor>();
+		IConstructor symbol = reify(t, definitions, ctx, store);
+		
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		bindings.put(Factory.TypeParam, t);
+		Type typeType = Factory.Type.instantiate(bindings);
+		
+		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
+		for (IConstructor key : definitions.keySet()) {
+			defs.put(key, definitions.get(key));
+		}
+		IValue result = Factory.Type_Reified.instantiate(bindings).make(vf, symbol, defs.done());
+		
+		return ResultFactory.makeResult(typeType, result, ctx);
+	}
+	
+	public Type valueToType(IConstructor typeValue) {
+		return valueToType(typeValue, new TypeStore());
+	}
+	
+	/**
+	 * Reconstruct a type from a reified type value and declare all types used.
+	 * @param typeValue the type value to restore
+	 * @param store     a possibly empty store that will be filled with the relevant type declarations.
+	 * @return
+	 */
+	public Type valueToType(IConstructor typeValue, TypeStore store) {
+		if (typeValue.getType() instanceof ReifiedType) {
+			/* Although the type of this value contains already a type, it may be more general
+			 * then the type represented by the symbol. So, we do have to map the symbol to
+			 * a type recursively.
+			 * 
+			 * We also need to construct a TypeStore from the declarations, such that the 
+			 * appropriate definitions for ADT's and aliases can be found.
+			 */
+			IMap definitions = (IMap) typeValue.get("definitions");
+			declareAbstractDataTypes(definitions, store);
+			return symbolToType((IConstructor) typeValue.get("symbol"), store);
+		}
+
+		throw new IllegalArgumentException(typeValue + " is not a reified type");
+	}
+	
+	/**
+	 * This method assumes that all types that are used have been defined.
+	 */
+	private void declareAbstractDataTypes(IMap definitions, TypeStore store) {
+		for (IValue key : definitions) {
+			IConstructor def = (IConstructor) definitions.get(key);
+			
+			
+			
+			if (def.getConstructorType() == Factory.Production_Choice) {
+				IConstructor defined = (IConstructor) def.get("def");
+				
+				if (defined.getConstructorType() == Factory.Symbol_Adt) {
+					Type adt = adtToType(defined, store);
+				
+					for (IValue alt : (ISet) def.get("alternatives")) {
+						declareConstructor(adt, (IConstructor) alt, store);
+					}
+				}
+			}
+		}
+	}
+
+	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
+		IConstructor defined = (IConstructor) alt.get("def");
+		String name = ((IString) defined.get("name")).getValue();
+		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+	}
+
+	private Type symbolToType(IConstructor symbol, TypeStore store) {
+		Type cons = symbol.getConstructorType();
+		
+		if (cons == Factory.Symbol_Int) {
+			return tf.integerType();
+		}
+		else if (cons == Factory.Symbol_Real) {
+			return tf.realType();
+		}
+		else if (cons == Factory.Symbol_Rat) {
+			return tf.rationalType();
+		}
+		else if (cons == Factory.Symbol_Bool) {
+			return tf.boolType();
+		}
+		else if (cons == Factory.Symbol_Datetime) {
+			return tf.dateTimeType();
+		}
+		else if (cons == Factory.Symbol_Num) {
+			return tf.nodeType();
+		}
+		else if (cons == Factory.Symbol_Loc) {
+			return tf.sourceLocationType();
+		}
+		else if (cons == Factory.Symbol_Adt) {
+			return adtToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Alias){
+			return aliasToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Bag) {
+			throw new NotYetImplemented("bags are not implemented yet");
+		}
+		else if (cons == Factory.Symbol_Cons) {
+			return consToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Func) {
+			return funcToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Label) {
+			return symbolToType((IConstructor) symbol.get("symbol"), store);
+		}
+		else if (cons == Factory.Symbol_Map) {
+			return mapToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Node) {
+			return tf.nodeType();
+		}
+		else if (cons == Factory.Symbol_Parameter) {
+			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
+		}
+		else if (cons == Factory.Symbol_ReifiedType) {
+			return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("reified"), store));
+		}
+		else if (cons == Factory.Symbol_Rel) {
+			return tf.relTypeFromTuple(symbolsToTupleType((IList) symbol.get("symbols"), store));
+		}
+		else if (cons == Factory.Symbol_Set) {
+			return tf.setType(symbolToType((IConstructor) symbol.get("symbol"), store));
+		}
+		else if (cons == Factory.Symbol_Str) {
+			return tf.stringType();
+		}
+		else if (cons == Factory.Symbol_Tuple) {
+			return tupleToType(symbol, store);
+		}
+		else if (cons == Factory.Symbol_Void) {
+			return tf.voidType();
+		}
+		else if (cons == Factory.Symbol_Value) {
+			return tf.valueType();
+		}
+		else {
+			// We assume the other types are one of the non-terminal symbols
+			return RascalTypeFactory.getInstance().nonTerminalType(symbol);
+		}
+	}
+
+	private Type tupleToType(IConstructor symbol, TypeStore store) {
+		return symbolsToTupleType((IList) symbol.get("symbols"), store);
+	}
+
+	private Type symbolsToTupleType(IList symbols, TypeStore store) {
+		boolean allLabels = true;
+		Type[] types = new Type[symbols.length()];
+		String[] labels = new String[symbols.length()];
+		
+		for (int i = 0; i < symbols.length(); i++) {
+			IConstructor elem = (IConstructor) symbols.get(i);
+			if (elem.getType() == Factory.Symbol_Label) {
+				labels[i] = ((IString) elem.get("name")).getValue();
+				elem = (IConstructor) elem.get("symbol");
+			}
+			else {
+				allLabels = false;
+			}
+			
+			types[i] = symbolToType(elem, store);
+		}
+		
+		if (allLabels) {
+			return tf.tupleType(types, labels);
+		}
+		else {
+			return tf.tupleType(types);
+		}
+	}
+	
+	private Type mapToType(IConstructor symbol, TypeStore store) {
+		IConstructor from = (IConstructor) symbol.get("from");
+		IConstructor to = (IConstructor) symbol.get("to");
+		String fromLabel = null;
+		String toLabel = null;
+		
+		if (SymbolAdapter.isLabel(from)) {
+			fromLabel = SymbolAdapter.getLabel(from);
+			from = (IConstructor) from.get("symbol");
+		}
+		if (SymbolAdapter.isLabel(to)) {
+			toLabel = SymbolAdapter.getLabel(to);
+			to = (IConstructor) to.get("symbol");
+		}
+		if (fromLabel != null && toLabel != null) {
+			return tf.mapType(symbolToType(from, store), fromLabel, symbolToType(to, store), toLabel);
+		}
+		else {
+			return tf.mapType(symbolToType(from, store), symbolToType(to, store));
+		}
+	}
+
+	private Type funcToType(IConstructor symbol, TypeStore store) {
+		Type returnType = symbolToType((IConstructor) symbol.get("ret"), store);
+		Type parameters = symbolsToTupleType((IList) symbol.get("parameters"), store);
+		return RascalTypeFactory.getInstance().functionType(returnType, parameters);
+	}
+
+	private Type consToType(IConstructor symbol, TypeStore store) {
+		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
+		IList parameters = (IList) symbol.get("parameters");
+		String name = ((IString) symbol.get("name")).getValue();
+		
+		// here we assume the store has the declaration already
+		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
+	}
+
+	private Type aliasToType(IConstructor symbol, TypeStore store) {
+		String name = ((IString) symbol.get("name")).getValue();
+		Type aliased = symbolToType((IConstructor) symbol.get("aliased"), store);
+		IList parameters = (IList) symbol.get("parameters");
+		return tf.aliasType(store, name, aliased,  symbolsToTupleType(parameters, store));
+	}
+
+	private Type adtToType(IConstructor symbol, TypeStore store) {
+		String name = ((IString) symbol.get("name")).getValue();
+		Type adt = store.lookupAbstractDataType(name);
+		
+		if (adt == null) {
+			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
+			if (params.isVoidType() || params.getArity() == 0) {
+				adt = tf.abstractDataType(store, name);
+			}
+			else {
+				adt = tf.abstractDataTypeFromTuple(store, name, params);
+			}
+		}
+		
+		return adt;
+	}
+
+	private IConstructor reify(Type t, final Map<IConstructor, IConstructor> definitions, final IEvaluatorContext ctx, final TypeStore store) {
+		return (IConstructor) t.accept(new ITypeVisitor<IValue>() {
+			private Map<Type,IValue> cache = new HashMap<Type, IValue>();
+			
+			@Override
+			public IValue visitReal(Type type) {
+				return Factory.Symbol_Real.make(vf);
+			}
+
+			@Override
+			public IValue visitInteger(Type type) {
+				return Factory.Symbol_Int.make(vf);
+			}
+
+			@Override
+			public IValue visitRational(Type type) {
+				return Factory.Symbol_Rat.make(vf);
+			}
+
+			@Override
+			public IValue visitList(Type type) {
+				return Factory.Symbol_List.make(vf, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IValue visitMap(Type type) {
+				if (type.hasFieldNames()) {
+					return Factory.Symbol_Map.make(vf, type.getKeyType().accept(this), vf.string(type.getKeyLabel()), type.getValueType().accept(this), vf.string(type.getValueLabel()));
+				}
+				else {
+					return Factory.Symbol_Map.make(vf, type.getKeyType().accept(this), type.getValueType().accept(this));
+				}
+			}
+
+			@Override
+			public IValue visitNumber(Type type) {
+				return Factory.Symbol_Num.make(vf);
+			}
+
+			@Override
+			public IValue visitAlias(Type type) {
+				IListWriter w = vf.listWriter();
+				Type params = type.getTypeParameters();
+				
+				if (params.getArity() > 0) {
+					for (Type t : params) {
+						w.append(t.accept(this));
+					}
+				}
+				
+				return Factory.Symbol_Alias.make(vf, vf.string(type.getName()), w.done(), type.getAliased().accept(this));
+			}
+
+			@Override
+			public IValue visitRelationType(Type type) {
+				IListWriter w = vf.listWriter();
+
+				if (type.hasFieldNames()) {
+					for (int i = 0; i < type.getArity(); i++) {
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+					}
+				}
+				else {
+					for (Type f : type.getFieldTypes()) {
+						w.append(f.accept(this));
+					}
+				}
+				
+				return Factory.Symbol_Rel.make(vf, w.done());
+			}
+
+			@Override
+			public IValue visitSet(Type type) {
+				return Factory.Symbol_Set.make(vf, type.getElementType().accept(this));
+			}
+
+			@Override
+			public IValue visitSourceLocation(Type type) {
+				return Factory.Symbol_Loc.make(vf);
+			}
+
+			@Override
+			public IValue visitString(Type type) {
+				return Factory.Symbol_Str.make(vf);
+			}
+
+			@Override
+			public IValue visitNode(Type type) {
+				return Factory.Symbol_Node.make(vf);
+			}
+
+			@Override
+			public IValue visitConstructor(Type type) {
+				IValue adt = cache.get(type.getAbstractDataType());
+				
+				if (adt == null) {
+					visitAbstractData(type.getAbstractDataType());
+				}
+				
+				IValue result = cache.get(type);
+				
+				if (result == null) {
+					IListWriter w = vf.listWriter();
+
+					if (type.hasFieldNames()) {
+						for (int i = 0; i < type.getArity(); i++) {
+							w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+						}
+					}
+					else {
+						for (Type field : type.getFieldTypes()) {
+							w.append(field.accept(this));
+						}
+					}
+					result = Factory.Symbol_Cons.make(vf, Factory.Symbol_Label.make(vf, vf.string(type.getName()), adt), w.done());
+
+					cache.put(type, result);
+					addConstructorDefinition((IConstructor) result, type);
+				}
+				
+				return result;
+			}
+
+			private void addConstructorDefinition(IConstructor result, Type type) {
+				IConstructor adt = (IConstructor) type.getAbstractDataType().accept(this);
+				
+				IConstructor choice = definitions.get(adt);
+				ISetWriter alts = vf.setWriter();
+				
+				if (choice != null) {
+					alts.insertAll((ISet) choice.get("alternatives"));
+				}
+				
+				IListWriter w = vf.listWriter();
+				if (type.hasFieldNames()) {
+					for(int i = 0; i < type.getArity(); i++) {
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+					}
+				}
+				else {
+					for (Type field : type.getFieldTypes()) {
+						w.append(field.accept(this));
+					}
+				}
+				
+				alts.insert(Factory.Production_Cons.make(vf, Factory.Symbol_Label.make(vf,  vf.string(type.getName()), adt), w.done(), vf.set()));
+				choice = (IConstructor) Factory.Production_Choice.make(vf, adt, alts.done());
+				definitions.put(adt, choice);
+			}
+
+			@Override
+			public IValue visitAbstractData(Type type) {
+				IValue sym = cache.get(type);
+				
+				if (sym == null) {
+					IListWriter w = vf.listWriter();
+					Type params = type.getTypeParameters();
+					if (params.getArity() > 0) {
+						for (Type param : params) {
+							w.append(param.accept(this));
+						}
+					}
+					
+					sym = Factory.Symbol_Adt.make(vf, vf.string(type.getName()), w.done());
+					cache.put(type, sym);
+				
+
+					// make sure to find the type by the uninstantiated adt
+					Type adt = store.lookupAbstractDataType(type.getName());
+					for (Type cons : store.lookupAlternatives(adt)) {
+						cons.accept(this);
+					}
+				}
+				
+				return sym;
+			}
+
+			@Override
+			public IValue visitTuple(Type type) {
+				IListWriter w = vf.listWriter();
+				
+				if (type.hasFieldNames()) {
+					for (int i = 0; i < type.getArity(); i++) {
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
+					}
+				}
+				else {
+					for (Type f : type.getFieldTypes()) {
+						w.append(f.accept(this));
+					}
+				}
+
+				return Factory.Symbol_Tuple.make(vf, w.done());
+			}
+
+			@Override
+			public IValue visitValue(Type type) {
+				return Factory.Symbol_Value.make(vf);
+			}
+
+			@Override
+			public IValue visitVoid(Type type) {
+				return Factory.Symbol_Void.make(vf);
+			}
+
+			@Override
+			public IValue visitBool(Type boolType) {
+				return Factory.Symbol_Bool.make(vf);
+			}
+
+			@Override
+			public IValue visitParameter(Type parameterType) {
+				return Factory.Symbol_BoundParameter.make(vf, vf.string(parameterType.getName()), parameterType.getBound().accept(this));
+			}
+
+			@Override
+			public IValue visitExternal(Type externalType) {
+				if (externalType instanceof NonTerminalType) {
+					return visitNonTerminalType((NonTerminalType) externalType);
+				}
+				else if (externalType instanceof ReifiedType) {
+					return visitReifiedType((ReifiedType) externalType);
+				}
+				else if (externalType instanceof FunctionType) {
+					return visitFunctionType((FunctionType) externalType);
+				}
+				
+				throw new ImplementationError("unable to reify " + externalType);
+			}
+
+			private IValue visitFunctionType(FunctionType externalType) {
+				IListWriter w = vf.listWriter();
+				for (Type arg : externalType.getArgumentTypes()) {
+					w.append(arg.accept(this));
+				}
+				
+				return Factory.Symbol_Func.make(vf, externalType.getReturnType().accept(this), w.done());
+			}
+
+			private IValue visitReifiedType(ReifiedType externalType) {
+				return Factory.Symbol_ReifiedType.make(vf, externalType.getTypeParameters().getFieldType(0).accept(this));
+			}
+
+			private IValue visitNonTerminalType(NonTerminalType externalType) {
+				IConstructor gr = ctx.getEvaluator().getGrammar(ctx.getEvaluator().getMonitor(), URI.create("rascal://" + ctx.getCurrentEnvt().getRoot().getName()));
+				IMap rules = (IMap) gr.get("rules");
+				for (IValue sym : rules) {
+					definitions.put((IConstructor) sym, (IConstructor) rules.get(sym));
+				}
+				return externalType.getSymbol();
+			}
+
+			@Override
+			public IValue visitDateTime(Type type) {
+				return Factory.Symbol_Datetime.make(vf);
+			}
+		}); 
+	}
+
 	private static TypeStore constructCompleteTypeStore(Environment env) {
 	  	TypeStore complete = new TypeStore();
 	  	ModuleEnvironment mod = (ModuleEnvironment) env.getRoot();
@@ -135,299 +587,4 @@ public class TypeReifier implements ITypeVisitor<Result<IValue>> {
 			constructCompleteTypeStoreRec(complete, env.getImport(i), done);
 		}
 	}
-	
-
-	/**
-	 * Collects all constructor of the ADT, then builds the rather complex reified representation.
-	 */
-	public Result<IValue> visitAbstractData(Type type) {
-		String name = type.getName();
-		Type adtDefinition = store.lookupAbstractDataType(name);
-		Map<Type,Type> bindings = bind(type);
-		Type staticType;
-		IValue result;
-		IValue stub;
-		
-		staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "adt", tf.stringType(), "name", listCons, "constructors", bindingType, "bindings");
-		stub = staticType.make(vf, vf.string(name), bindingType.make(vf), vf.list());
-		
-		if (visiting.contains(stub)) {
-			// we break an infinite recursion here
-			return makeResult(staticType, stub, ctx);
-		}
-		
-		visiting.add(stub);
-		
-		IListWriter constructorListW = vf.listWriter(cons);
-		for (Type alt : store.lookupAlternatives(adtDefinition)) {
-			constructorListW.append(alt.accept(this).getValue());
-		}
-		IList constructorList = constructorListW.done();
-		
-		visiting.remove(stub);
-		
-		Type formals = adtDefinition.getTypeParameters();
-		Type actuals = type.getTypeParameters();
-		
-		IList bindingList = computeBindingList(formals, actuals);
-		
-		result = staticType.make(vf, vf.string(name),  constructorList, bindingList);
-		
-		return makeResult(staticType.getAbstractDataType(), result, ctx);
-	}
-
-	private IList computeBindingList(Type formals, Type actuals) {
-		IListWriter bindingRepresentation = vf.listWriter(tupleType);
-		int i = 0;
-		if (! formals.isVoidType()) {
-			for (Type key : formals) {
-				Result<IValue> keyRep = key.accept(this);
-				Result<IValue> value = actuals.getFieldType(i++).accept(this);
-				bindingRepresentation.append(vf.tuple(keyRep.getValue(), value.getValue()));
-			}
-		}
-		IList bindingList = bindingRepresentation.done();
-		return bindingList;
-	}
-
-	private IList getTypeParameterList(Type params) {
-		if (params.isVoidType()) {
-			return vf.list();
-		}
-		
-		Type paramListType = tf.listType(valueAdt);
-		IListWriter reifiedW = paramListType.writer(vf);
-		
-		for (Type p : params) {
-			reifiedW.append(p.accept(this).getValue());
-		}
-		
-		IList reifiedParams = reifiedW.done();
-		return reifiedParams;
-	}
-
-	private Map<Type, Type> bind(Type arg) {
-		Map<Type, Type> bindings = new HashMap<Type,Type>();
-		bindings.put(param, arg);
-		return bindings;
-	}
-
-	public Result<IValue> visitAlias(Type type) {
-		String name = type.getName();
-		Type params = type.getTypeParameters();
-		Map<Type,Type> bindings = bind(type);
-		Result<IValue> aliased = type.getAliased().accept(this);
-		Type formals = store.getAlias(name).getTypeParameters();
-		
-		IList bindingList = computeBindingList(formals, params);
-		
-		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "alias", tf.stringType(), "name", aliased.getType(), "aliased", bindingType, "bindings");
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(name), aliased.getValue(), bindingList), ctx);
-	}
-
-	public Result<IValue> visitBool(Type boolType) {
-		Map<Type,Type> bindings = bind(boolType);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "bool", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitConstructor(Type type) {
-		Type argumentTypes = type.getFieldTypes();
-		IListWriter fields = vf.listWriter(fieldType);
-		
-		for (int i = 0; i < type.getArity(); i++) {
-			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-			IValue argLabel = vf.string(argumentTypes.getFieldName(i));
-			fields.append(vf.tuple(argType, argLabel));
-		}
-		
-		Type staticType = tf.constructor(store, cons, "constructor", tf.stringType(), "name", tf.listType(fieldType), "fields");
-
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, vf.string(type.getName()), fields.done()), ctx);
-	}
-
-	public Result<IValue> visitExternal(Type externalType) {
-		if (externalType instanceof FunctionType) {
-			return visitFunction(externalType);
-		}
-		if (externalType instanceof NonTerminalType) {
-			return visitNonTerminal(externalType);
-		}
-		if (externalType instanceof OverloadedFunctionType) {
-			throw new NotYetImplemented("reification of overloaded function types");
-		}
-		
-		throw new ImplementationError("unexpected type to reify: " + externalType);
-	}
-
-	private Result<IValue> visitNonTerminal(Type externalType) {
-		NonTerminalType nt = (NonTerminalType) externalType;
-		Map<Type,Type> bindings = bind(nt);
-		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "non-terminal", Factory.Symbol, "symbol");
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, nt.getSymbol()), ctx);
-	}
-
-	private Result<IValue> visitFunction(Type type) {
-		Type argumentTypes = ((FunctionType) type).getArgumentTypes();
-		IListWriter fields = vf.listWriter(fieldType);
-		
-		for (int i = 0; i < argumentTypes.getArity(); i++) {
-			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-			IValue argLabel = vf.string(argumentTypes.getFieldName(i));
-			fields.append(vf.tuple(argType, argLabel));
-		}
-		
-		IValue[] values = new IValue[argumentTypes.getArity() + 1];
-		values[0] = ((FunctionType) type).getReturnType().accept(this).getValue();
-		for (int j = 0, i = 1; i < values.length; i++, j++) {
-			values[i] = argumentTypes.getFieldType(j).accept(this).getValue();
-		}
-		
-		Type staticType = tf.constructor(store, cons, "fun", typeOfTypes, "return", tf.listType(fieldType), "fields");
-		
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, values), ctx);
-	}
-
-	public Result<IValue> visitInteger(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "int", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitRational(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "rat", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitNumber(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "num", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-	
-	public Result<IValue> visitList(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Result<IValue> elem = type.getElementType().accept(this);
-		TypeStore store = new TypeStore();
-		store.declareAbstractDataType(typeOfTypes);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "list", elem.getType(), "element");
-		return makeResult(cons.getAbstractDataType(), cons.make(vf, elem.getValue()), ctx);
-	}
-
-	public Result<IValue> visitMap(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Result<IValue> key = type.getKeyType().accept(this);
-		Result<IValue> value = type.getValueType().accept(this);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "map", key.getType(), "key", value.getType(), "value");
-		return makeResult(cons.getAbstractDataType(), cons.make(vf, key.getValue(), value.getValue()), ctx);
-	}
-
-	public Result<IValue> visitNode(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "node", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitParameter(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "parameter", tf.stringType(), "name", typeOfTypes, "bound");
-		return makeResult(cons.getAbstractDataType(), cons.make(vf, store, vf.string(type.getName()), type.getBound().accept(this).getValue()), ctx);
-	}
-
-	public Result<IValue> visitReal(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "real", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitRelationType(Type type) {
-		Type argumentTypes = type.getFieldTypes();
-		Map<Type,Type> bindings = bind(type);
-		
-		if (argumentTypes.hasFieldNames()) {
-			IListWriter fields = vf.listWriter(fieldType);
-			for (int i = 0; i < argumentTypes.getArity(); i++) {
-				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-				IValue argLabel = vf.string(argumentTypes.getFieldName(i));
-				fields.append(vf.tuple(argType, argLabel));
-			}
-			
-			Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "rel", tf.listType(fieldType), "fields");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
-		}
-		
-		IListWriter fields = vf.listWriter(typeOfTypes);
-		for (int i = 0; i < argumentTypes.getArity(); i++) {
-			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-			fields.append(argType);
-		}
-		
-		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "rel", tf.listType(typeOfTypes), "arguments");
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
-	}
-
-	public Result<IValue> visitSet(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Result<IValue> elem = type.getElementType().accept(this);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "set", elem.getType(), "element");
-		return makeResult(cons.getAbstractDataType(), cons.make(vf, elem.getValue()), ctx);
-	}
-
-	public Result<IValue> visitSourceLocation(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "loc", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitString(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "str", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitTuple(Type type) {
-		Type argumentTypes = type;
-		Map<Type,Type> bindings = bind(type);
-		
-		if (argumentTypes.hasFieldNames()) {
-			IListWriter fields = vf.listWriter(fieldType);
-			for (int i = 0; i < argumentTypes.getArity(); i++) {
-				IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-				IValue argLabel = vf.string(argumentTypes.getFieldName(i));
-				fields.append(vf.tuple(argType, argLabel));
-			}
-			
-			Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "tuple", tf.listType(fieldType), "fields");
-			return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
-		}
-		
-		IListWriter fields = vf.listWriter(typeOfTypes);
-		for (int i = 0; i < argumentTypes.getArity(); i++) {
-			IValue argType = argumentTypes.getFieldType(i).accept(this).getValue();
-			fields.append(argType);
-		}
-		
-		Type staticType = tf.constructor(store, typeOfTypes.instantiate(bindings), "tuple", tf.listType(typeOfTypes), "arguments");
-		return makeResult(staticType.getAbstractDataType(), staticType.make(vf, fields.done()), ctx);
-	}
-
-	public Result<IValue> visitValue(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "value", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitVoid(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "void", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-
-	public Result<IValue> visitDateTime(Type type) {
-		Map<Type,Type> bindings = bind(type);
-		Type cons = tf.constructor(store, typeOfTypes.instantiate(bindings), "datetime", tf.tupleEmpty());
-		return makeResult(cons.getAbstractDataType(), cons.make(vf), ctx);
-	}
-	
 }
