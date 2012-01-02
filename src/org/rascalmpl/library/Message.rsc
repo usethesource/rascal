@@ -34,7 +34,7 @@ They can be interpreted by IDEs to display type errors and warnings, etc.
 `Message`s are, for instance, used as [AlgebraicDataType] annotations.
 
 The `Message` library provides the following:
-<toc Rascal/Libraries/Message 1>
+<toc Rascal/Libraries/Prelude/Message 1>
 
 
 Examples:

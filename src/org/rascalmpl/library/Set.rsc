@@ -9,7 +9,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module Set
 import List;
-import Math;
+import util::Math;
 @doc{
 Synopsis: Classify elements in a set.
 

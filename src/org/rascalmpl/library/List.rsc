@@ -12,7 +12,7 @@
 module List
 
 import Exception;
-import Math;
+import util::Math;
 import Map;
 
 @doc{
