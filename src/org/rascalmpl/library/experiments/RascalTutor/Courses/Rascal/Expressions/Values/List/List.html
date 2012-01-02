@@ -51,20 +51,21 @@
 	                       
 <div id="Syntax">
 <span class="sectionHead">Syntax</span>  <code>[ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... ]</code>
- <br/>
-<br/>
-
- Library functions: <code>import List</code>;
 
 </div>
 
                            
 <div id="Types">
-<span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left">  <code><i>Exp</i><sub>1</sub></code> </th><th align="left">  <code><i>Exp</i><sub>2</sub></code> </th><th align="left">  ...  </th><th align="left">  <code>[ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... ]</code>   </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>    </td><td align="left"> <code><i>T</i><sub>2</sub></code>    </td><td align="left">  ...  </td><td align="left">  <code>set[lub(<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>, ... )]</code> </td></tr></table>
+<span class="sectionHead">Types</span>  <table><col align="left" /><col align="left" /><col align="left" /><col align="left" /><tr><th align="left">  <code><i>Exp</i><sub>1</sub></code> </th><th align="left">  <code><i>Exp</i><sub>2</sub></code> </th><th align="left">  ...  </th><th align="left">  <code>[ <i>Exp</i><sub>1</sub>, <i>Exp</i><sub>2</sub>, ... ]</code>   </th></tr><tr><td align="left"> <code><i>T</i><sub>1</sub></code>    </td><td align="left"> <code><i>T</i><sub>2</sub></code>    </td><td align="left">  ...  </td><td align="left">  <code>list[lub(<i>T</i><sub>1</sub>, <i>T</i><sub>2</sub>, ... )]</code> </td></tr></table>
 </div>
 
                            
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import List</code>; (included in <a href="/Courses/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>)
+
+</div>
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Expressions/Values/List/Append/Append.html">Append</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">Comprehension</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">Concatenation</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Difference/Difference.html">Difference</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Equal/Equal.html">Equal</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/in/in.html">in</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Insert/Insert.html">Insert</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Intersection/Intersection.html">Intersection</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/NotEqual/NotEqual.html">NotEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/notin/notin.html">notin</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Product/Product.html">Product</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/StrictSubList/StrictSubList.html">StrictSubList</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/StrictSuperList/StrictSuperList.html">StrictSuperList</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/SubList/SubList.html">SubList</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/Subscription/Subscription.html">Subscription</a> &#032 <a href="/Courses/Rascal/Expressions/Values/List/SuperList/SuperList.html">SuperList</a> &#032 
 </div>
@@ -169,14 +170,14 @@ list[value]: [
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="3">
-<label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="0">
-<label for="Rascal/Expressions/Values/List_1_0">The least upperbound of the type of all elements.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="2">
 <label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="5">
+<label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="1">
+<label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

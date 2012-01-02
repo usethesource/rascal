@@ -5,7 +5,7 @@ Synopsis: Set values.
 Syntax:
 `{ $Exp_1$, $Exp_2$, ... }`
 
-Library functions: `import Set`;
+Usage: `import Set`; (included in [Prelude])
 
 Types:
 |  `$Exp_1$` |  `$Exp_2$` |  ...  |  `{ $Exp_1$, $Exp_2$, ... }`   |

@@ -34,7 +34,7 @@ where $StringChar$ may be one of the following:
 | `$StringChars_2$\n '  $StringChars_2$` | A margin character `'` indicates where the next line starts |
 
 
-Library functions: `import String`;
+Usage: `import String`; (included in [Prelude])
 
 Types:
 `str`

@@ -3,10 +3,11 @@ Name: Number
 Synopsis: Numeric values.
 
 Syntax:
-Library functions: `import Number;` (__deprecated__: use `import util::Math;`)
 
 Types:
 `int`, `real`, `num`
+
+Usage: `import Number;` (__deprecated__: use `import util::Math;`)
 
 Function:
 

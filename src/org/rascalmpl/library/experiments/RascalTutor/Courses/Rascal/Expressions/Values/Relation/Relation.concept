@@ -10,6 +10,8 @@ Types:
 |:-----------|:------------|:------|:----------------------------------------|
 | `$T_1$`    |    `$T_2$`  |  ...  |  `rel[$T_1$, $T_2$, ... ]`              |
 
+Usage: `import Relation;` (included in [Prelude])
+
 Function:
 
 Details:

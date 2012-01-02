@@ -7,11 +7,10 @@ Syntax:
 # `$` `$Time$`
 # `$` `$DateTime$`
 
-
-Library functions: `import DateTime;`
-
 Types:
 `datetime`
+
+Usage: `import DateTime;`  (included in [Prelude])
 
 Function:
 

@@ -5,12 +5,12 @@ Synopsis: Node values.
 Syntax:
 `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )`
 
-Library functions: `import Node`;
-
 Types:
 |`$Exp_0$`  | `$Exp_1$` | `$Exp_2$` | ... | `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )` |
 |:----------|:----------|:----------|:----|:------------------------------------|
 | `str`     | `value`   | `value`   | ... | `node`                              |
+
+Usage: `import Node`; (included in [prelude])
 
 Function:
 

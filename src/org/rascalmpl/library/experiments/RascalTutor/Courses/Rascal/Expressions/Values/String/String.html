@@ -65,8 +65,7 @@
 <li> <b>String Interpolation</b>: <br/>
 <br/>
  <table><tr><th align="center"> Form      </th><th align="center"> Description </th></tr><tr><td align="left"> <code>&lt;<i>Exp</i>></code> </td><td align="left"> Interpolate the value of the expression as a string</td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Conditional inclusion of <code><i>Text</i></code>, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code> </td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i><sub>1</sub> ... &lt;} else {>  ... <i>StringChars</i><sub>2</sub> ... &lt;}></code> </td><td align="left"> Conditional inclusion of either <code><i>StringChars</i><sub>1</sub></code> or <code><i>StringChars</i><sub>2</sub></code> </td></tr><tr><td align="left"> <code>&lt;for(<i>Exp</i>){>... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;while(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;do {>... <i>StringChars</i> ... &lt;} while (<i>Exp</i>)></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr></table></li>
-<li> <b>Multiline</b>: <table><tr><th align="center"> Form </th><th align="center"> Description </th></tr><tr><td align="left"> <code><i>StringChars</i><sub>1</sub>\n <i>StringChars</i><sub>2</sub> </code> </td><td align="left"> Strings can be multi-line without an escape or continuation marker </td></tr><tr><td align="left"> <code><i>StringChars</i><sub>2</sub>\n '  <i>StringChars</i><sub>2</sub></code> </td><td align="left"> A margin character <code>'</code> indicates where the next line starts </td></tr></table> Library functions: <code>import String</code>;
-</li>
+<li> <b>Multiline</b>: <table><tr><th align="center"> Form </th><th align="center"> Description </th></tr><tr><td align="left"> <code><i>StringChars</i><sub>1</sub>\n <i>StringChars</i><sub>2</sub> </code> </td><td align="left"> Strings can be multi-line without an escape or continuation marker </td></tr><tr><td align="left"> <code><i>StringChars</i><sub>2</sub>\n '  <i>StringChars</i><sub>2</sub></code> </td><td align="left"> A margin character <code>'</code> indicates where the next line starts </td></tr></table></li>
 </ul>
 </div>
 
@@ -78,6 +77,11 @@
 
                            
                            
+<div id="Usage">
+<span class="sectionHead">Usage</span>  <code>import String</code>; (included in <a href="/Courses/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>)
+
+</div>
+
 <div id="Details">
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Expressions/Values/String/Concatenation/Concatenation.html">Concatenation</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/Equal/Equal.html">Equal</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/GreaterThan/GreaterThan.html">GreaterThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/GreaterThanOrEqual/GreaterThanOrEqual.html">GreaterThanOrEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/LessThan/LessThan.html">LessThan</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/LessThanOrEqual/LessThanOrEqual.html">LessThanOrEqual</a> &#032 <a href="/Courses/Rascal/Expressions/Values/String/NotEqual/NotEqual.html">NotEqual</a> &#032 
 </div>

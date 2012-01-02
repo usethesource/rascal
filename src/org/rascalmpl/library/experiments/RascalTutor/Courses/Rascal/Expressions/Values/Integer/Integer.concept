@@ -5,10 +5,10 @@ Synopsis: Integer values.
 Syntax:
 sequence of digits of arbitrary length.
 
-Library functions: `import Integer`; (__deprecated__ use `import util::Math`;)
-
 Types:
 `int`
+
+Usage: `import Integer`; (__deprecated__ use `import util::Math`;)
 
 Function:
 
