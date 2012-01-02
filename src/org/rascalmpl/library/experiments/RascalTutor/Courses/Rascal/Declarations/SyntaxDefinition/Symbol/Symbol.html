@@ -104,7 +104,7 @@
  <br/>
 <br/>
 
- Character classes have the same escaping conventions as characters in a <span class="inlineError">ambiguous: Rascal:String</span> literal, but spaces and newlines are meaningless and have to be escaped and the <code>[</code> and <code>]</code> brackets as well as the dash <code>-</code> need escaping. For example, one writes <code>[\[ \] \ \n\-]</code> for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in <code>[a-zA-Z0-9]</code>. Please note about character classes that:
+ Character classes have the same escaping conventions as characters in a <a href="/Courses/Rascal/Expressions/Values/String/String.html">String</a> literal, but spaces and newlines are meaningless and have to be escaped and the <code>[</code> and <code>]</code> brackets as well as the dash <code>-</code> need escaping. For example, one writes <code>[\[ \] \ \n\-]</code> for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in <code>[a-zA-Z0-9]</code>. Please note about character classes that:
  <ul><li> the operations on character classes are executed before parser generation time. You will not find explicit representation of these operations in <a href="/Courses/Rascal/Declarations/SyntaxDefinition/ParseTrees/ParseTrees.html">ParseTrees</a>, but rather their net effect as resulting character classes. </li>
 <li> Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.</li>
 <li> Although all <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s are type constructors, the character class operators are not allowed in types.</li>
@@ -188,7 +188,7 @@ ok
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/SyntaxDefinition/Symbol&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

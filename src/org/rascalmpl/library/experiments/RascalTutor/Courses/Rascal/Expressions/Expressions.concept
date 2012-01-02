@@ -14,10 +14,10 @@ Values Operators
 Description:
 The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
 
-* An elementary _literal value_, e.g. constants of the types [Boolean], [Integer], [Real], 
-  [Number], [String], [Location] or [DateTime].
+* An elementary _literal value_, e.g. constants of the types [$Values/Boolean], [$Values/Integer], [$Values/Real], 
+  [$Values/Number], [$Values/String], [$Values/Location] or [$Values/DateTime].
 
-* A _structured value_ for [$Values/List], [$Values/Set], [Map], [$Values/Tuple] or [Relation]. 
+* A _structured value_ for [$Values/List], [$Values/Set], [$Values/Map], [$Values/Tuple] or [$Values/Relation]. 
   The elements are first evaluated before the structured value is built.
 
 * A _variable_ that evaluates to its current value.

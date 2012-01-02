@@ -12,16 +12,16 @@ Details:
 
 Description:
 Rascal provides a rich set of datatypes:
-* [Boolean] (`bool`).
-* Infinite precision [Integer] (`int`), [Real] (`real`), and [Number] (`num`).
-* [String]s (`str`) that can act as templates with embedded expressions and statements. 
-* Source code [Location]s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
-* Date and time values ([DateTime], `datetime`).
+* [$Values/Boolean] (`bool`).
+* Infinite precision [$Values/Integer] (`int`), [$Values/Real] (`real`), and [$Values/Number] (`num`).
+* [$Values/String]s (`str`) that can act as templates with embedded expressions and statements. 
+* Source code [$Values/Location]s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
+* Date and time values ([$Values/DateTime], `datetime`).
 * [$Values/List] (`list`).
 * [$Values/Tuple] (`tuple`).
 * [$Values/Set] (`set`).
-* [Map] (`map`) 
-* [Relation] (`rel`). 
+* [$Values/Map] (`map`) 
+* [$Values/Relation] (`rel`). 
 * Untyped tree structures ([$Values/Node], `node`).  
 * User-defined algebraic datatypes ([Declarations/AlgebraicDataType], `data`) allow the introduction of problem-specific types and are a subtype of node. 
   This makes it possible to have typed

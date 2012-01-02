@@ -5,7 +5,7 @@ Synopsis: Abstract patterns.
 Syntax:<br>
 | Pattern              | Syntax                                                                      |
 |+---------------------|+----------------------------------------------------------------------------|
-| Literal              | [Boolean], [Integer], [Real], [Number], [String], [Location], or [DateTime] |
+| Literal              | [$Values/Boolean], [$Values/Integer], [$Values/Real], [$Values/Number], [$Values/String], [$Values/Location], or [$Values/DateTime] |
 | Variable declaration | `$Type$ $Var$`                                                              |
 | Multi-variable       | `$Var$*`                                                                    |
 | Variable             | `$Var$`                                                                     |

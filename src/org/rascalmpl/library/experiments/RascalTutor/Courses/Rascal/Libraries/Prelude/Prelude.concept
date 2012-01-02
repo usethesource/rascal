@@ -5,7 +5,9 @@ Synopsis: The Rascal standard prelude.
 Description:
 
 The `Prelude` library contains all functions and data types that are available to
-Rascal programs. It provides the following:
+Rascal programs. For numeric functions, see the [Math] library.
+
+`Prelude` provides the following:
 
 <toc Rascal/Libraries/Prelude 2>
 

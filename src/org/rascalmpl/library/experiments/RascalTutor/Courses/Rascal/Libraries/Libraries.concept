@@ -8,13 +8,12 @@ Types:
 
 Function:
 
-Details: util lang
+Details: Prelude util lang Vis
 
 Description:
-The libraries with functions for built-in datatypes are described elsewhere:
-<toc Rascal/Expressions/Values 1>
 
-The libraries described here provide the following additional functionality:
+
+The libraries described here provide the following functionality:
 <toc Rascal/Libraries 1>
 
 
