@@ -53,7 +53,7 @@ The type of a parse tree is the symbol that it's production produces, i.e. `appl
 Each such a non-terminal type has `Tree` as its immediate super-type.
 
 The `ParseTree` library provides:
-<toc Rascal/Libraries/ParseTree 1>
+<toc Rascal/Libraries/Prelude/ParseTree 1>
 
 Examples:
 
