@@ -429,8 +429,30 @@ tuple[tuple[&T el, int occurs] head, list[&T] rest] takeSame(list[&T] lst){
 	return <<h,i>,drop(i,lst)>;
 }
 
+@doc{
+
+Synopsis: Take elements from the front of the list as long as take(element) is true.
+
+Examples:
+<screen>
+import List;
+bool isEven(int a) = a mod 2 == 0;
+takeWhile([2,4,6,8,1,2,3,4,5],isEven);
+</screen>
+
+}
+
+public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
+	i = 0;
+	return while(i < size(lst) && take(lst[i])) {
+		append lst[i];
+		i+=1;
+	}
+}
+
 
 @doc{
+
 Synopsis: Pop top element from list, return a tuple.
 Description:
 This function is identical to [headTail].
