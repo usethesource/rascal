@@ -53,13 +53,6 @@ import org.rascalmpl.ast.BasicType.Map;
 import org.rascalmpl.ast.BasicType.Node;
 import org.rascalmpl.ast.BasicType.Num;
 import org.rascalmpl.ast.BasicType.Real;
-import org.rascalmpl.ast.BasicType.ReifiedAdt;
-import org.rascalmpl.ast.BasicType.ReifiedConstructor;
-import org.rascalmpl.ast.BasicType.ReifiedFunction;
-import org.rascalmpl.ast.BasicType.ReifiedNonTerminal;
-import org.rascalmpl.ast.BasicType.ReifiedReifiedType;
-import org.rascalmpl.ast.BasicType.ReifiedType;
-import org.rascalmpl.ast.BasicType.ReifiedTypeParameter;
 import org.rascalmpl.ast.BasicType.Relation;
 import org.rascalmpl.ast.BasicType.Set;
 import org.rascalmpl.ast.BasicType.Value;
@@ -430,27 +423,7 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return KW("real");
 	}
 
-	public IValue visitBasicTypeReifiedAdt(ReifiedAdt x) {
-		return KW("adt");
-	}
-
-	public IValue visitBasicTypeReifiedConstructor(ReifiedConstructor x) {
-		return KW("constructor");
-	}
-
-	public IValue visitBasicTypeReifiedFunction(ReifiedFunction x) {
-		return KW("fun");
-	}
-
-	public IValue visitBasicTypeReifiedNonTerminal(ReifiedNonTerminal x) {
-		return KW("non-terminal");
-	}
-
-	public IValue visitBasicTypeReifiedReifiedType(ReifiedReifiedType x) {
-		return KW("reified");
-	}
-
-	public IValue visitBasicTypeReifiedType(ReifiedType x) {
+	public IValue visitBasicTypeReifiedType(Type x) {
 		return KW("type");
 	}
 
@@ -3371,11 +3344,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return KW("start");
 	}
 
-	public IValue visitBasicTypeReifiedTypeParameter(ReifiedTypeParameter x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
 	public IValue visitOctalEscapeSequenceAmbiguity(
 			org.rascalmpl.ast.OctalEscapeSequence.Ambiguity x) {
 		// TODO Auto-generated method stub
@@ -3634,6 +3602,11 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	public IValue visitRestAmbiguity(org.rascalmpl.ast.Rest.Ambiguity x) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public IValue visitBasicTypeType(org.rascalmpl.ast.BasicType.Type x) {
+		return KW("type");
 	}
 
 }

@@ -35,32 +35,11 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.Expression getReplacement() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasVisit() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Visit getVisit() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasElseExp() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getElseExp() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasLiteral() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Literal getLiteral() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasLhs() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getLhs() {
     throw new UnsupportedOperationException();
   }
   public boolean hasArguments() {
@@ -70,18 +49,11 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasExpression() {
+  public boolean hasArgument() {
     return false;
   }
 
-  public org.rascalmpl.ast.Expression getExpression() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasLast() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getLast() {
+  public org.rascalmpl.ast.Expression getArgument() {
     throw new UnsupportedOperationException();
   }
   public boolean hasQualifiedName() {
@@ -91,60 +63,11 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.QualifiedName getQualifiedName() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasArgument() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getArgument() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasFirst() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getFirst() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasThenExp() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getThenExp() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasElements() {
     return false;
   }
 
   public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasName() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Name getName() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasBasicType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.BasicType getBasicType() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasType() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Type getType() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasPattern() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getPattern() {
     throw new UnsupportedOperationException();
   }
   public boolean hasParameters() {
@@ -168,13 +91,6 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.Name getKey() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasResult() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getResult() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasSecond() {
     return false;
   }
@@ -182,25 +98,11 @@ public abstract class Expression extends AbstractAST {
   public org.rascalmpl.ast.Expression getSecond() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasMappings() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Mapping_Expression> getMappings() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasLabel() {
     return false;
   }
 
   public org.rascalmpl.ast.Label getLabel() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasRhs() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Expression getRhs() {
     throw new UnsupportedOperationException();
   }
   public boolean hasInit() {
@@ -231,6 +133,118 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasDefinitions() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getDefinitions() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasSymbol() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getSymbol() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasComprehension() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Comprehension getComprehension() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasVisit() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Visit getVisit() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasLiteral() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Literal getLiteral() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasLhs() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getLhs() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasExpression() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasLast() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getLast() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasFirst() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getFirst() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasThenExp() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getThenExp() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasName() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Name getName() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasType() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Type getType() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasPattern() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getPattern() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasResult() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getResult() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasMappings() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Mapping_Expression> getMappings() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasRhs() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getRhs() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasField() {
     return false;
   }
@@ -243,13 +257,6 @@ public abstract class Expression extends AbstractAST {
   }
 
   public org.rascalmpl.ast.Expression getValue() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasComprehension() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Comprehension getComprehension() {
     throw new UnsupportedOperationException();
   }
   public boolean hasFields() {
@@ -1166,54 +1173,6 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
-      return true;
-    }	
-  }
-  public boolean isReifiedType() {
-    return false;
-  }
-
-  static public class ReifiedType extends Expression {
-    // Production: sig("ReifiedType",[arg("org.rascalmpl.ast.BasicType","basicType"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","arguments")])
-  
-    
-    private final org.rascalmpl.ast.BasicType basicType;
-    private final java.util.List<org.rascalmpl.ast.Expression> arguments;
-  
-    public ReifiedType(IConstructor node , org.rascalmpl.ast.BasicType basicType,  java.util.List<org.rascalmpl.ast.Expression> arguments) {
-      super(node);
-      
-      this.basicType = basicType;
-      this.arguments = arguments;
-    }
-  
-    @Override
-    public boolean isReifiedType() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionReifiedType(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.BasicType getBasicType() {
-      return this.basicType;
-    }
-  
-    @Override
-    public boolean hasBasicType() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
-      return this.arguments;
-    }
-  
-    @Override
-    public boolean hasArguments() {
       return true;
     }	
   }
@@ -2780,6 +2739,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isReifiedType() {
+    return false;
+  }
+
+  static public class ReifiedType extends Expression {
+    // Production: sig("ReifiedType",[arg("org.rascalmpl.ast.Expression","symbol"),arg("org.rascalmpl.ast.Expression","definitions")])
+  
+    
+    private final org.rascalmpl.ast.Expression symbol;
+    private final org.rascalmpl.ast.Expression definitions;
+  
+    public ReifiedType(IConstructor node , org.rascalmpl.ast.Expression symbol,  org.rascalmpl.ast.Expression definitions) {
+      super(node);
+      
+      this.symbol = symbol;
+      this.definitions = definitions;
+    }
+  
+    @Override
+    public boolean isReifiedType() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionReifiedType(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getDefinitions() {
+      return this.definitions;
+    }
+  
+    @Override
+    public boolean hasDefinitions() {
       return true;
     }	
   }

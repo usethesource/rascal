@@ -38,6 +38,11 @@ public class ReifiedType extends Type {
 
 
 	@Override
+	public boolean isNodeType() {
+		return true;
+	}
+	
+	@Override
 	public boolean isAbstractDataType() {
 		return true;
 	}
