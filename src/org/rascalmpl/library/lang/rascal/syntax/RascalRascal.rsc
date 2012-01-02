@@ -187,7 +187,7 @@ syntax Expression
 	| VoidClosure    : Parameters parameters "{" Statement* statements "}" 
 	| Visit          : Label label Visit visit 
 	| Reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
-	| ReifiedType    : BasicType basicType "(" {Expression ","}* arguments ")" 
+	| ReifiedType    : "type" "(" Pattern symbol "," Pattern definitions ")"  
 	| CallOrTree     : Expression expression "(" {Expression ","}* arguments ")"
 	| Literal        : Literal literal 
 	| Any            : "any" "(" {Expression ","}+ generators ")" 
@@ -583,8 +583,7 @@ syntax Bound
 	| Empty: ;
 
 keyword RascalKeywords
-	= "adt"
-	| "int"
+	= "int"
 	| "break"
 	| "continue"
 	| "rat" 
@@ -603,7 +602,6 @@ keyword RascalKeywords
 	| BasicType
 	| "extend" 
 	| "append" 
-	| "repeat" 
 	| "rel" 
 	| "void" 
 	| "non-assoc" 
@@ -650,9 +648,6 @@ keyword RascalKeywords
 	| "throw" 
 	| "set" 
 	| "start"
-	| "fun" 
-	| "non-terminal" 
-	| "constructor" 
 	| "datetime" 
 	| "value" 
 	;
@@ -744,26 +739,20 @@ syntax BasicType
 	| Loc: "loc" 
 	| Node: "node" 
 	| Num: "num" 
-	| ReifiedType: "type" 
+	| Type: "type" 
 	| Bag: "bag" 
 	| Int: "int"
 	| Rational: "rat" 
 	| Relation: "rel" 
-	| ReifiedTypeParameter: "parameter" 
 	| Real: "real" 
-	| ReifiedFunction: "fun" 
 	| Tuple: "tuple" 
 	| String: "str" 
 	| Bool: "bool" 
-	| ReifiedReifiedType: "reified" 
 	| Void: "void" 
-	| ReifiedNonTerminal: "non-terminal" 
 	| DateTime: "datetime" 
 	| Set: "set" 
 	| Map: "map" 
-	| ReifiedConstructor: "constructor" 
 	| List: "list" 
-	| ReifiedAdt: "adt" 
 	;
 
 lexical Char
@@ -814,7 +803,7 @@ syntax Pattern
 	| Tuple               : "\<" {Pattern ","}+ elements "\>" 
 	| TypedVariable       : Type type Name name 
 	| Map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
-	| ReifiedType         : BasicType basicType "(" {Pattern ","}* arguments ")" 
+	| ReifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
 	| CallOrTree          : Pattern expression "(" {Pattern ","}* arguments ")" 
 	> VariableBecomes     : Name name ":" Pattern pattern
 	| AsType              : "[" Type type "]" Pattern argument 

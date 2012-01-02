@@ -47,7 +47,7 @@ public void bootstrap() {
   bootRootParser(gr);
   bootObjectParser(gr);
   
-  gr.rules[lex("Rest")] = choice(lex("Rest"),{});
+ 
   bootMetaParser(gr);
   bootAST(gr);
 }
@@ -90,6 +90,8 @@ public void bootObjectParser(Grammar gr) {
 }
 
 public void bootMetaParser(Grammar gr) {
+  gr.rules -= (lex("Rest") : choice(lex("Rest"),{}));
+  gr.rules -= (sort("PreModule") : choice(sort("PreModule"),{}));
   println("generating assimilated rascal for rascal parser");
   source = generateMetaParser(package, metaName, objectName, gr);
   println("writing assimilated parser");
