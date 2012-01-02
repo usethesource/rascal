@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.uptr.Factory;
 
 public class ResultFactory {
@@ -181,6 +182,10 @@ public class ResultFactory {
 			
 			if (externalType instanceof NonTerminalType) {
 				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
+			}
+			
+			if (externalType instanceof ReifiedType) {
+				return new ConstructorResult(externalType, (IConstructor) value, ctx);
 			}
 			/* TODO: hope this is OK.... -anya
 			 * 

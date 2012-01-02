@@ -79,7 +79,7 @@ public class TypeReifier {
 		for (IConstructor key : definitions.keySet()) {
 			defs.put(key, definitions.get(key));
 		}
-		IValue result = Factory.Type_Reified.make(vf, symbol, defs.done());
+		IValue result = Factory.Type_Reified.instantiate(bindings).make(vf, symbol, defs.done());
 		
 		return ResultFactory.makeResult(typeType, result, ctx);
 	}
@@ -118,10 +118,12 @@ public class TypeReifier {
 		for (IValue key : definitions) {
 			IConstructor def = (IConstructor) definitions.get(key);
 			
-			if (def.getType() == Factory.Production_Choice) {
+			
+			
+			if (def.getConstructorType() == Factory.Production_Choice) {
 				IConstructor defined = (IConstructor) def.get("def");
 				
-				if (defined.getType() == Factory.Symbol_Adt) {
+				if (defined.getConstructorType() == Factory.Symbol_Adt) {
 					Type adt = adtToType(defined, store);
 				
 					for (IValue alt : (ISet) def.get("alternatives")) {
@@ -134,7 +136,7 @@ public class TypeReifier {
 
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
 		IConstructor defined = (IConstructor) alt.get("def");
-		String name = SymbolAdapter.getLabelName(defined);
+		String name = ((IString) defined.get("name")).getValue();
 		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 	}
 
@@ -296,7 +298,12 @@ public class TypeReifier {
 		
 		if (adt == null) {
 			Type params = symbolsToTupleType((IList) symbol.get("parameters"), store);
-			adt = tf.abstractDataTypeFromTuple(store, name, params);
+			if (params.isVoidType() || params.getArity() == 0) {
+				adt = tf.abstractDataType(store, name);
+			}
+			else {
+				adt = tf.abstractDataTypeFromTuple(store, name, params);
+			}
 		}
 		
 		return adt;
@@ -361,7 +368,7 @@ public class TypeReifier {
 
 				if (type.hasFieldNames()) {
 					for (int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, type.getFieldType(i).accept(this), vf.string(type.getFieldName(i))));
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -408,7 +415,7 @@ public class TypeReifier {
 
 					if (type.hasFieldNames()) {
 						for (int i = 0; i < type.getArity(); i++) {
-							w.append(Factory.Symbol_Label.make(vf, type.getFieldType(i).accept(this), vf.string(type.getFieldName(i))));
+							w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 						}
 					}
 					else {
@@ -416,7 +423,7 @@ public class TypeReifier {
 							w.append(field.accept(this));
 						}
 					}
-					result = Factory.Symbol_Cons.make(vf, Factory.Symbol_Label.make(vf, adt, vf.string(type.getName())), w.done());
+					result = Factory.Symbol_Cons.make(vf, Factory.Symbol_Label.make(vf, vf.string(type.getName()), adt), w.done());
 
 					cache.put(type, result);
 					addConstructorDefinition((IConstructor) result, type);
@@ -438,7 +445,7 @@ public class TypeReifier {
 				IListWriter w = vf.listWriter();
 				if (type.hasFieldNames()) {
 					for(int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, type.getFieldType(i).accept(this), vf.string(type.getFieldName(i))));
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {
@@ -447,7 +454,7 @@ public class TypeReifier {
 					}
 				}
 				
-				alts.insert(Factory.Production_Cons.make(vf, Factory.Symbol_Label.make(vf, adt, vf.string(type.getName())), w.done(), vf.set()));
+				alts.insert(Factory.Production_Cons.make(vf, Factory.Symbol_Label.make(vf,  vf.string(type.getName()), adt), w.done(), vf.set()));
 				choice = (IConstructor) Factory.Production_Choice.make(vf, adt, alts.done());
 				definitions.put(adt, choice);
 			}
@@ -485,7 +492,7 @@ public class TypeReifier {
 				
 				if (type.hasFieldNames()) {
 					for (int i = 0; i < type.getArity(); i++) {
-						w.append(Factory.Symbol_Label.make(vf, type.getFieldType(i).accept(this), vf.string(type.getFieldName(i))));
+						w.append(Factory.Symbol_Label.make(vf, vf.string(type.getFieldName(i)), type.getFieldType(i).accept(this)));
 					}
 				}
 				else {

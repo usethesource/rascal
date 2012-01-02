@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -37,7 +38,11 @@ public class Factory {
 	private static final Type str = tf.stringType();
 	
 	public static final Type TypeParam = tf.parameterType("T");
-	public static final Type Type = tf.abstractDataType(uptr, "type", TypeParam);
+	public static final Type Type = new ReifiedType(TypeParam);
+	
+	static {
+		uptr.declareAbstractDataType(Type);
+	}
 
 	public static final Type Tree = tf.abstractDataType(uptr, "Tree");
 	public static final Type Production = tf.abstractDataType(uptr, "Production");
