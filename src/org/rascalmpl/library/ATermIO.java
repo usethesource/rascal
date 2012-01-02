@@ -38,9 +38,9 @@ public class ATermIO{
 		this.values = values;
 	}
 	
-	public IValue readTextATermFile(IConstructor type, ISourceLocation loc, IEvaluatorContext ctx){
+	public IValue readTextATermFile(IValue type, ISourceLocation loc, IEvaluatorContext ctx){
 		TypeStore store = new TypeStore();
-		Type start = new TypeReifier(ctx.getValueFactory()).valueToType(type, store);
+		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
 		
 		InputStream in = null;
 		try{
