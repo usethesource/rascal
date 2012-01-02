@@ -163,54 +163,28 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isReifiedAdt() {
+  public boolean isType() {
     return false;
   }
 
-  static public class ReifiedAdt extends BasicType {
-    // Production: sig("ReifiedAdt",[])
+  static public class Type extends BasicType {
+    // Production: sig("Type",[])
   
     
   
-    public ReifiedAdt(IConstructor node ) {
+    public Type(IConstructor node ) {
       super(node);
       
     }
   
     @Override
-    public boolean isReifiedAdt() { 
+    public boolean isType() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedAdt(this);
-    }
-  
-    	
-  }
-  public boolean isReifiedReifiedType() {
-    return false;
-  }
-
-  static public class ReifiedReifiedType extends BasicType {
-    // Production: sig("ReifiedReifiedType",[])
-  
-    
-  
-    public ReifiedReifiedType(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedReifiedType() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedReifiedType(this);
+      return visitor.visitBasicTypeType(this);
     }
   
     	
@@ -267,84 +241,6 @@ public abstract class BasicType extends AbstractAST {
   
     	
   }
-  public boolean isReifiedTypeParameter() {
-    return false;
-  }
-
-  static public class ReifiedTypeParameter extends BasicType {
-    // Production: sig("ReifiedTypeParameter",[])
-  
-    
-  
-    public ReifiedTypeParameter(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedTypeParameter() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedTypeParameter(this);
-    }
-  
-    	
-  }
-  public boolean isReifiedFunction() {
-    return false;
-  }
-
-  static public class ReifiedFunction extends BasicType {
-    // Production: sig("ReifiedFunction",[])
-  
-    
-  
-    public ReifiedFunction(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedFunction() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedFunction(this);
-    }
-  
-    	
-  }
-  public boolean isReifiedNonTerminal() {
-    return false;
-  }
-
-  static public class ReifiedNonTerminal extends BasicType {
-    // Production: sig("ReifiedNonTerminal",[])
-  
-    
-  
-    public ReifiedNonTerminal(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedNonTerminal() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedNonTerminal(this);
-    }
-  
-    	
-  }
   public boolean isValue() {
     return false;
   }
@@ -393,32 +289,6 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeString(this);
-    }
-  
-    	
-  }
-  public boolean isReifiedType() {
-    return false;
-  }
-
-  static public class ReifiedType extends BasicType {
-    // Production: sig("ReifiedType",[])
-  
-    
-  
-    public ReifiedType(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedType() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedType(this);
     }
   
     	
@@ -653,32 +523,6 @@ public abstract class BasicType extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitBasicTypeSet(this);
-    }
-  
-    	
-  }
-  public boolean isReifiedConstructor() {
-    return false;
-  }
-
-  static public class ReifiedConstructor extends BasicType {
-    // Production: sig("ReifiedConstructor",[])
-  
-    
-  
-    public ReifiedConstructor(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isReifiedConstructor() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitBasicTypeReifiedConstructor(this);
     }
   
     	

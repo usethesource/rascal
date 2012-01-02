@@ -28,15 +28,12 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
-import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.interpreter.BasicTypeEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -91,6 +88,7 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
@@ -1875,55 +1873,37 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 	static public class ReifiedType extends
 			org.rascalmpl.ast.Expression.ReifiedType {
-
-		public ReifiedType(IConstructor __param1, BasicType __param2,
-				java.util.List<org.rascalmpl.ast.Expression> __param3) {
+		private static final Type defType = TypeFactory.getInstance().mapType(Factory.Symbol, Factory.Production);
+		
+		public ReifiedType(IConstructor __param1,
+				org.rascalmpl.ast.Expression __param2,
+				org.rascalmpl.ast.Expression __param3
+				) {
 			super(__param1, __param2, __param3);
 		}
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-
-			BasicType basic = this.getBasicType();
-			java.util.List<IMatchingResult> args = buildMatchers(this
-					.getArguments(), eval);
-
-			return new ReifiedTypePattern(eval, this, basic, args);
-
+			return new ReifiedTypePattern(eval, this, getSymbol().buildMatcher(eval), getDefinitions().buildMatcher(eval));
 		}
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+			Result<IValue> symbol = getSymbol().interpret(__eval);
+			Result<IValue> declarations = getDefinitions().interpret(__eval);
 
-			BasicType basic = this.getBasicType();
-			java.util.List<org.rascalmpl.ast.Expression> args = this
-					.getArguments();
-			Type[] fieldTypes = new Type[args.size()];
-			IValue[] fieldValues = new IValue[args.size()];
-
-			int i = 0;
-			boolean valued = false;
-			for (org.rascalmpl.ast.Expression a : args) {
-				Result<IValue> argResult = a.interpret(__eval);
-				Type argType = argResult.getType();
-
-				if (argType instanceof org.rascalmpl.interpreter.types.ReifiedType) {
-					fieldTypes[i] = argType.getTypeParameters().getFieldType(0);
-					i++;
-				} else {
-					valued = true;
-					fieldValues[i] = argResult.getValue();
-					i++;
-				}
+			if (!symbol.getType().isSubtypeOf(Factory.Symbol)) {
+				throw new UnexpectedTypeError(Factory.Symbol, symbol.getType(), getSymbol());
 			}
-
-			Type type = basic.__evaluate(new BasicTypeEvaluator(__eval
-					.getCurrentEnvt(),
-					valued ? null : TF.tupleType(fieldTypes),
-					valued ? fieldValues : null));
-
-			return new TypeReifier(__eval.__getVf()).typeToValue(type, __eval);
-
+			if (!declarations.getType().isSubtypeOf(defType)) {
+				throw new UnexpectedTypeError(defType, declarations.getType(), getSymbol());
+			}
+			
+			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(Factory.TypeParam, TF.valueType());
+			IValue val = Factory.Type_Reified.instantiate(bindings).make(VF, symbol.getValue(), declarations.getValue());
+			Type typ = Factory.Type.instantiate(bindings);
+			return ResultFactory.makeResult(typ, val, __eval);
 		}
 
 		@Override
