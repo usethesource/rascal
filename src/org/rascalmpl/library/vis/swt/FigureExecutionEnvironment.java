@@ -142,7 +142,9 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		long startTime = System.nanoTime();
 		Result<IValue> result = null;
 		try {
-			result = ((ICallableValue) callback).call(argTypes, argVals);
+			synchronized (ctx) {
+				result = ((ICallableValue) callback).call(argTypes, argVals);
+			}
 		} catch (Throw e) {
 			e.printStackTrace();
 			System.err.printf("Callback error: " + e.getMessage() + ""
