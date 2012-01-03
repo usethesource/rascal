@@ -61,6 +61,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \cons(name,_) : return resolveType (name);
       case \set(ti) :  return "tf.setType(<type2FactoryCall(ti)>)";  
       case \list(ti) :  return "tf.listType(<type2FactoryCall(ti)>)";
+      case \map(label(l1,ti),label(l2, ti2)) : return "tf.mapType(<type2FactoryCall(ti)>,\"<l1>\", <type2FactoryCall(ti2)>, \"<l2>\")";
       case \map(ti,ti2) : return "tf.mapType(<type2FactoryCall(ti)>,<type2FactoryCall(ti2)>)";
       case \tuple(tis) : return "tf.tupleType(<typeList2FactoryVarArgs(tis)>)";
       case \rel(tis) : return "tf.relType(<typeList2FactoryVarArgs(tis)>)";
