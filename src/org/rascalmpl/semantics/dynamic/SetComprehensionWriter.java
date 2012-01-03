@@ -29,15 +29,20 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 			this.elementType1 = TF.voidType();
 
 			for (Expression resExpr : this.resultExprs) {
-				this.rawElements[k] = resExpr.interpret(this.ev);
-				org.eclipse.imp.pdb.facts.type.Type elementType = this.rawElements[k]
-						.getType();
-
-				if (elementType.isSetType() && !resExpr.isSet()) {
-					elementType = elementType.getElementType();
-					this.splicing[k] = true;
+				
+				org.eclipse.imp.pdb.facts.type.Type elementType;
+				this.splicing[k] = false;
+				
+				if(resExpr.isSplice() || resExpr.isSplicePlus()){
+					this.rawElements[k] = resExpr.getArgument().interpret(this.ev);
+					elementType = this.rawElements[k].getType();
+					if (elementType.isSetType()) {
+						elementType = elementType.getElementType();
+						this.splicing[k] = true;
+					}
 				} else {
-					this.splicing[k] = false;
+					this.rawElements[k] = resExpr.interpret(this.ev);
+					elementType = this.rawElements[k].getType();
 				}
 				this.elementType1 = this.elementType1.lub(elementType);
 				k++;
@@ -50,7 +55,7 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 		else {
 			int k = 0;
 			for (Expression resExpr : this.resultExprs) {
-				this.rawElements[k++] = resExpr.interpret(this.ev);
+				this.rawElements[k++] = (resExpr.isSplice() || resExpr.isSplicePlus()) ? resExpr.getArgument().interpret(this.ev) : resExpr.interpret(this.ev);
 			}
 		}
 
@@ -77,8 +82,7 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 					((ISetWriter) this.writer).insert(val);
 				}
 			} else {
-				this.check(this.rawElements[k], this.elementType1, "list",
-						resExpr);
+				this.check(this.rawElements[k], this.elementType1, "set",						resExpr);
 				((ISetWriter) this.writer).insert(this.rawElements[k]
 						.getValue());
 			}

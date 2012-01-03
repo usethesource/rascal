@@ -53,6 +53,7 @@ import XMLIO;
 import vis::Figure;
 */
 
+
 data DA = A();
 data DB = B();
 data DC = C();
@@ -64,6 +65,7 @@ data DH = H();
 data DI = I();
 data DJ = J();
           
+
 public int fac(bool N) = 0;
 public int fac(real N) = 0;
 public int fac(str N) = 0;
@@ -74,6 +76,20 @@ public int fac(list[int] N) = 0;
 public int fac(set[int] N) = 0;
 public int fac(map[int,int] N) = 0;
 public int fac(rel[int,int] N) = 0;
+
+
+public int fac(DA N) = 0;
+public int fac(DB N) = 0;
+public int fac(DC N) = 0;
+public int fac(DD N) = 0;
+public int fac(DE N) = 0;
+public int fac(DF N) = 0;
+public int fac(DG N) = 0;
+public int fac(DH N) = 0;
+public int fac(DI N) = 0;
+public int fac(DJ N) = 0;
+
+
 
 
 /*
@@ -88,17 +104,6 @@ public int fac(int N)
 		return N * fac(N - 1);
 }
 
-
-public int fac(DA N) = 0;
-public int fac(DB N) = 0;
-public int fac(DC N) = 0;
-public int fac(DD N) = 0;
-public int fac(DE N) = 0;
-public int fac(DF N) = 0;
-public int fac(DG N) = 0;
-public int fac(DH N) = 0;
-public int fac(DI N) = 0;
-public int fac(DJ N) = 0;
 
 
 

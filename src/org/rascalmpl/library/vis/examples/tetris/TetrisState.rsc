@@ -12,7 +12,7 @@ module vis::examples::tetris::TetrisState
 import vis::examples::tetris::PlayField;
 import vis::examples::tetris::PlacedTetromino;
 import vis::examples::tetris::Tetromino;
-import Maybe;
+import util::Maybe;
 import Integer;
 import List;
 import Number;

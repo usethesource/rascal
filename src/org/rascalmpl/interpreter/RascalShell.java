@@ -72,6 +72,7 @@ public class RascalShell {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		importPrelude();
 		running = true;
 	}
 	
@@ -80,6 +81,7 @@ public class RascalShell {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		importPrelude();
 		running = true;
 	}
 	
@@ -88,7 +90,14 @@ public class RascalShell {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap, classLoaders, uriResolver);
+		importPrelude();
 		running = true;
+	}
+	
+	private void importPrelude(){
+		//synchronized(evaluator){
+		//	evaluator.doImport(null, "Prelude");
+		//}
 	}
 	
 	public void run() throws IOException {

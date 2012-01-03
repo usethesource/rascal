@@ -53,12 +53,12 @@ private Symbol rl = layouts("$QUOTES");
 private Symbol bt = layouts("$BACKTICKS");
 
 public set[Production] fromRascal(Grammar object) {
-  return  { untypedQuotes(nont), typedQuotes(nont) | Symbol nont <- object.rules, isNonterminal(nont), !isRegular(nont)}
-        + { typedQuotes(nont) | Symbol nont <- object.rules, isRegular(nont) }
-        + { typedQuotes(\iter-star(s)) | \iter(s) <- object.rules }
-        + { typedQuotes(\iter(s)) | \iter-star(s) <- object.rules }
-        + { typedQuotes(\iter-star-seps(s,l)) | \iter-seps(s, l) <- object.rules }
-        + { typedQuotes(\iter-seps(s,l)) | \iter-star-seps(s, l) <- object.rules } 
+  return  { *untypedQuotes(nont), *typedQuotes(nont) | Symbol nont <- object.rules, isNonterminal(nont), !isRegular(nont)} // SPLICE
+        + { *typedQuotes(nont) | Symbol nont <- object.rules, isRegular(nont) } // SPLICE
+        + { *typedQuotes(\iter-star(s)) | \iter(s) <- object.rules } // SPLICE
+        + { *typedQuotes(\iter(s)) | \iter-star(s) <- object.rules } // SPLICE
+        + { *typedQuotes(\iter-star-seps(s,l)) | \iter-seps(s, l) <- object.rules }// SPLICE
+        + { *typedQuotes(\iter-seps(s,l)) | \iter-star-seps(s, l) <- object.rules } // SPLICE
         + { literal(L) | Symbol nont <- object.rules, lit(L) <- symbolLiterals(nont) }
         ; 
 }
@@ -69,8 +69,8 @@ public set[Production] untypedQuotes(Symbol nont) =
   };
   
 public set[Production] typedQuotes(Symbol nont) =
-    {prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{}),
-     prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{})
+    {prod(label("ConcreteTypedQuoted",meta(sort("Expression"))),[lit("("),rl,*symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{}),  // SPLICE
+     prod(label("ConcreteTypedQuoted",meta(sort("Pattern"))),[lit("("),rl,*symLits,rl,lit(")"),rl,lit("`"),bt,nont,bt,lit("`")],{})      // SPLICE
     |  symLits := symbolLiterals(nont)};  
 
 // TODO: this does not generate productions for bound parameterized symbols
@@ -86,25 +86,25 @@ private list[Symbol] symbolLiterals(Symbol sym) {
     case \conditional(s,_) : return symbolLiterals(s);
     case \keywords(n): return [lit(n)];
     case \empty() : return [lit("("), rl, lit(")")];
-    case \opt(s) : return [symbolLiterals(s),rl,lit("?")];
-    case \start(s) : return [lit("start"),rl,lit("["),rl,symbolLiterals(s),rl,lit("]")];
+    case \opt(s) : return [*symbolLiterals(s),rl,lit("?")]; // SPLICE
+    case \start(s) : return [lit("start"),rl,lit("["),rl,*symbolLiterals(s),rl,lit("]")]; //SPLICE
     case \label(n,s) : return symbolLiterals(s); 
     case \lit(n) : return [lit(quote(n))];
     case \cilit(n) : return [lit(ciquote(n))]; 
     case \layouts(n) : return [];
-    case \iter(s) : return [symbolLiterals(s),rl,lit("+")];
-    case \iter-star(s) : return [symbolLiterals(s),rl,lit("*")];
-    case \iter-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("+")];
-    case \iter-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,symbolLiterals(s),rl,symbolLiterals(sep),rl,lit("}"),rl,lit("+")];
-    case \iter-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")];
-    case \iter-star-seps(s, [layouts(_)]) : return [symbolLiterals(s),rl,lit("*")];
-    case \iter-star-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,symbolLiterals(s),rl,symbolLiterals(sep),rl,lit("}"),rl,lit("*")];
-    case \iter-star-seps(s, seps) : return [lit("{"),rl,symbolLiterals(s),rl,tail([rl,symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")];
-    case \alt(alts) : return [lit("("),rl,tail(tail(tail([rl,lit("|"),rl,symbolLiterals(t) | t <- alts ]))),rl,lit(")")];
-    case \seq(elems) : return [lit("("),rl,tail([rl,symbolLiterals(t) | t <- elems]),rl,lit(")")];  
-    case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,tail(tail(tail([rl,lit(","),rl,symbolLiterals(p) | p <- params]))),rl,lit("]")]; 
+    case \iter(s) : return [*symbolLiterals(s),rl,lit("+")]; //SPLICE
+    case \iter-star(s) : return [*symbolLiterals(s),rl,lit("*")];  // SPLICE
+    case \iter-seps(s, [layouts(_)]) : return [*symbolLiterals(s),rl,lit("+")]; //SPLICE
+    case \iter-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,*symbolLiterals(s),rl,*symbolLiterals(sep),rl,lit("}"),rl,lit("+")];  // SPLICE
+    case \iter-seps(s, seps) : return [lit("{"),rl,*symbolLiterals(s),rl,*tail([rl,*symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("+")]; // SPLICE
+    case \iter-star-seps(s, [layouts(_)]) : return [*symbolLiterals(s),rl,lit("*")]; // SPLICE
+    case \iter-star-seps(s, [layouts(_),sep,layouts(_)]) : return [lit("{"),rl,*symbolLiterals(s),rl,*symbolLiterals(sep),rl,lit("}"),rl,lit("*")]; // SPLICE
+    case \iter-star-seps(s, seps) : return [lit("{"),rl,*symbolLiterals(s),rl,*tail([rl,*symbolLiterals(t) | t <- seps]),rl,lit("}"),rl,lit("*")]; // SPLICE
+    case \alt(alts) : return [lit("("),rl,*tail(tail(tail([rl,lit("|"),rl,*symbolLiterals(t) | t <- alts ]))),rl,lit(")")]; // SPLICE
+    case \seq(elems) : return [lit("("),rl,*tail([rl,*symbolLiterals(t) | t <- elems]),rl,lit(")")];  // SPLICE
+    case \parameterized-sort(n, params) : return [lit(n),rl,lit("["),rl,*tail(tail(tail([rl,lit(","),rl,*symbolLiterals(p) | p <- params]))),rl,lit("]")]; //SPLICE
     case \parameter(n) : return [lit("&"),rl,lit(n)];
-    case \char-class(list[CharRange] ranges) : return [lit("["),rl,tail([rl,rangeLiterals(r) | r <- ranges]),rl,lit("]")];
+    case \char-class(list[CharRange] ranges) : return [lit("["),rl,*tail([rl,*rangeLiterals(r) | r <- ranges]),rl,lit("]")];    // SPLICE
     default: throw "unsupported symbol <sym>";
   }
 }

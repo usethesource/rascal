@@ -1220,19 +1220,25 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			int skip = 0;
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
-				Result<IValue> resultElem = expr.interpret(__eval);
+				boolean isSplicedElem = expr.isSplice() || expr.isSplicePlus();
+				
+				Type resultType = null;
+				Result<IValue> resultElem = null;
+				if(!isSplicedElem){
+					resultElem = expr.interpret(__eval);
 
-				if (resultElem.getType().isVoidType()) {
-					throw new NonVoidTypeRequired(expr);
+					if (resultElem.getType().isVoidType()) {
+						throw new NonVoidTypeRequired(expr);
+					}
+
+					if (skip > 0) {
+						skip--;
+						continue;
+					}
+
+					resultType = resultElem.getType();
 				}
-
-				if (skip > 0) {
-					skip--;
-					continue;
-				}
-
-				Type resultType = resultElem.getType();
-				if (splicing && resultType instanceof NonTerminalType) {
+				if (!isSplicedElem && splicing && resultType instanceof NonTerminalType) {
 					IConstructor sym = ((NonTerminalType) resultType)
 							.getSymbol();
 
@@ -1275,24 +1281,47 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 				} else {
 					/* = no concrete syntax */
-					if (resultElem.getType().isListType()
-							&& !expr.isList()
-							&& elementType.isSubtypeOf(resultElem.getType()
-									.getElementType())) {
-						/*
-						 * Splice elements in list if element types permit
-						 * __eval
-						 */
-						for (IValue val : ((IList) resultElem.getValue())) {
-							elementType = elementType.lub(val.getType());
-							results.add(val);
+					if(isSplicedElem){
+						resultElem = expr.getArgument().interpret(__eval);
+						if (resultElem.getType().isVoidType()) {
+							throw new NonVoidTypeRequired(expr);
 						}
-					} else {
-						elementType = elementType.lub(resultElem.getType());
 
-						results.add(results.size(), resultElem.getValue());
+						if(resultElem.getType().isListType()){
+							/*
+							 * Splice elements in list
+							 */
+							for (IValue val : ((IList) resultElem.getValue())) {
+								elementType = elementType.lub(val.getType());
+								results.add(val);
+							}
+							first = false;
+							continue;
+						} 
 					}
+					
+					elementType = elementType.lub(resultElem.getType());
+					results.add(results.size(), resultElem.getValue());
 				}
+//					if (resultElem.getType().isListType()
+//							&& !expr.isList()
+//							&& elementType.isSubtypeOf(resultElem.getType()
+//									.getElementType())) {
+//						/*
+//						 * Splice elements in list if element types permit
+//						 * __eval
+//						 */
+//						for (IValue val : ((IList) resultElem.getValue())) {
+//							elementType = elementType.lub(val.getType());
+//							results.add(val);
+//						}
+//						System.err.println("AUTOMATIC LIST SPLICING: " + __eval.getCurrentAST().getLocation());
+//					} else {
+//						elementType = elementType.lub(resultElem.getType());
+//
+//						results.add(results.size(), resultElem.getValue());
+//					}
+//				}
 
 				first = false;
 			}
@@ -1499,6 +1528,50 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 			return new MultiVariablePattern(eval, this, getQualifiedName());
+		}
+
+		@Override
+		public Result<IValue> interpret(Evaluator __eval) {
+			Name name = this.getName();
+			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
+
+			if (variable == null) {
+				throw new UndeclaredVariableError(
+						org.rascalmpl.interpreter.utils.Names.name(name), name);
+			}
+
+			if (variable.getValue() == null) {
+				throw new UninitializedVariableError(
+						org.rascalmpl.interpreter.utils.Names.name(name), name);
+			}
+
+			return variable;
+		}
+
+		@Override
+		public Type typeOf(Environment env) {
+			// we return the element type here, such that lub at a higher level
+			// does the right thing!
+			return getQualifiedName().typeOf(env);
+		}
+
+	}
+	
+	static public class Splice extends
+	org.rascalmpl.ast.Expression.Splice {
+
+		public Splice(IConstructor __param1,
+				org.rascalmpl.ast.Expression __param2) {
+			super(__param1, __param2);
+		}
+
+		@Override
+		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+			org.rascalmpl.ast.Expression arg = this.getArgument();
+			if(arg.hasQualifiedName()){
+				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
+			}
+			throw new ImplementationError(null);
 		}
 
 		@Override
@@ -1965,27 +2038,33 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<IValue> results = new ArrayList<IValue>();
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
-				Result<IValue> resultElem = expr.interpret(__eval);
-				if (resultElem.getType().isVoidType()) {
-					throw new NonVoidTypeRequired(expr);
-				}
+				Result<IValue> resultElem;
+				
+				if(expr.isSplice() || expr.isSplicePlus()){
+					resultElem = expr.getArgument().interpret(__eval);
+					if (resultElem.getType().isVoidType()) {
+						throw new NonVoidTypeRequired(expr.getArgument());
+					}
 
-				if (resultElem.getType().isSetType()
-						&& !expr.isSet()
-						&& elementType.isSubtypeOf(resultElem.getType()
-								.getElementType())) {
-					/*
-					 * Splice the elements in the set if element types permit
-					 * __eval.
-					 */
-					for (IValue val : ((ISet) resultElem.getValue())) {
-						elementType = elementType.lub(val.getType());
-						results.add(val);
+					if (resultElem.getType().isSetType()){
+						/*
+						 * Splice the elements in the set
+						 * __eval.
+						 */
+						for (IValue val : ((ISet) resultElem.getValue())) {
+							elementType = elementType.lub(val.getType());
+							results.add(val);
+						}
+					continue;
 					}
 				} else {
-					elementType = elementType.lub(resultElem.getType());
-					results.add(results.size(), resultElem.getValue());
+					resultElem = expr.interpret(__eval);
+					if (resultElem.getType().isVoidType()) {
+						throw new NonVoidTypeRequired(expr);
+					}
 				}
+				elementType = elementType.lub(resultElem.getType());
+				results.add(results.size(), resultElem.getValue());
 			}
 			Type resultType = TF.setType(elementType);
 			ISetWriter w = resultType.writer(__eval.__getVf());

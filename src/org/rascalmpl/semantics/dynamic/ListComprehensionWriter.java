@@ -30,15 +30,20 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 			this.elementType1 = TF.voidType();
 
 			for (Expression resExpr : this.resultExprs) {
-				this.rawElements[k] = resExpr.interpret(this.ev);
-				org.eclipse.imp.pdb.facts.type.Type elementType = this.rawElements[k]
-						.getType();
-
-				if (elementType.isListType() && !resExpr.isList()) {
-					elementType = elementType.getElementType();
-					this.splicing[k] = true;
+			
+				org.eclipse.imp.pdb.facts.type.Type elementType;
+				this.splicing[k] = false;
+				
+				if(resExpr.isSplice() || resExpr.isSplicePlus()){
+					this.rawElements[k] = resExpr.getArgument().interpret(this.ev);
+					elementType = this.rawElements[k].getType();
+					if(elementType.isListType()){
+						elementType = elementType.getElementType();
+						this.splicing[k] = true;
+					}
 				} else {
-					this.splicing[k] = false;
+					this.rawElements[k] = resExpr.interpret(this.ev);
+					elementType = this.rawElements[k].getType();
 				}
 				this.elementType1 = this.elementType1.lub(elementType);
 				k++;
@@ -51,7 +56,7 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 		else {
 			int k = 0;
 			for (Expression resExpr : this.resultExprs) {
-				this.rawElements[k++] = resExpr.interpret(this.ev);
+				this.rawElements[k++] = (resExpr.isSplice() || resExpr.isSplicePlus()) ? resExpr.getArgument().interpret(this.ev) : resExpr.interpret(this.ev);
 			}
 		}
 
