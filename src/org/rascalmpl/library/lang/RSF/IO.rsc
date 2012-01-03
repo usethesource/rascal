@@ -7,7 +7,7 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::RSF::IO
+module lang::rsf::IO
 
 
 @doc{Read an RSF file.
