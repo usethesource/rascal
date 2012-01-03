@@ -66,7 +66,6 @@ public class ReifiedType extends Type {
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other instanceof ReifiedType) {
-			// used to be: return true;
 			return arg.isSubtypeOf(((ReifiedType) other).arg);
 		}
 		
