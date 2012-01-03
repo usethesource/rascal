@@ -75,6 +75,45 @@ public class ValueIOTests extends TestFramework {
 		}
 	}
 	
+	@Test public void binParametrizedADT(){
+		try{
+			prepare("data Maybe[&T] = none() | some(&T t);");
+			prepareMore("import ValueIO;");
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, none());");
+			assertTrue(runTestInSameEvaluator("{ Maybe[void] N := readBinaryValueFile(#Maybe[value],|file:///tmp/xxx|) && N == none();}"));
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, some(1));");
+			assertTrue(runTestInSameEvaluator("{ Maybe[int] N := readBinaryValueFile(#Maybe[int], |file:///tmp/xxx|) && N == some(1);}"));
+
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
+	}
+	
+	@Test public void binParamAliasInt() {
+		try {
+			prepare("alias X[&T] = list[&T];");
+			prepareMore("import ValueIO;");
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, [1]);");
+			assertTrue(runTestInSameEvaluator("{X[int] N := readBinaryValueFile(#X[int],|file:///tmp/xxx|) && N == [1];}"));
+	
+		}
+		finally {
+			removeTempFile();
+		}
+	}
+	
+	@Test public void binAliasInt() {
+		try {
+			prepare("alias X = int;");
+			prepareMore("import ValueIO;");
+			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, 1);");
+			assertTrue(runTestInSameEvaluator("{int N := readBinaryValueFile(#X, |file:///tmp/xxx|) && N == 1;}"));
+		}
+		finally {
+			removeTempFile();
+		}
+	}
 	private boolean textWriteRead(String type, String exp){
 		boolean success = false;
 		try{
