@@ -176,7 +176,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \str() :  result =  "IString";
       case \datetime() : result =  "IDateTime";
       case \tuple(_) : result =   "ITuple";     
-      case \func(returnType, args): result = "IValue";
+      case \func(returnType, args): result = "ICallableValue";
       case \alias(_,_,a) : result = typeToJavaType(a);
       default : result = "IValue";
     }
