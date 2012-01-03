@@ -306,7 +306,7 @@ public class TypeReifier {
 			return tf.aliasType(store, name, aliased);
 		}
 		else {
-			return tf.aliasType(store, name, aliased,  symbolsToTupleType(parameters, store));
+			return tf.aliasTypeFromTuple(store, name, aliased,  symbolsToTupleType(parameters, store));
 		}
 	}
 
