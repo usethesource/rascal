@@ -1,12 +1,13 @@
 package org.rascalmpl.parser.gtd.stack.edge;
 
-import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 
 public class EdgesSet{
+	public final static int DEFAULT_RESULT_STORE_ID = -1;
+	
 	private final static int DEFAULT_SIZE = 4;
 	
 	private AbstractStackNode[] edges;
@@ -74,7 +75,7 @@ public class EdgesSet{
 	}
 	
 	public void setLastVisistedLevel(int level, int resultStoreId){
-		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID){
+		if(resultStoreId == DEFAULT_RESULT_STORE_ID){
 			lastVisitedLevel = level;
 		}else{
 			if(lastVisitedFilteredLevel == null){
@@ -86,7 +87,7 @@ public class EdgesSet{
 	}
 	
 	public int getLastVisistedLevel(int resultStoreId){
-		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID) return lastVisitedLevel;
+		if(resultStoreId == DEFAULT_RESULT_STORE_ID) return lastVisitedLevel;
 		
 		if(lastVisitedFilteredLevel == null){
 			lastVisitedFilteredLevel = new IntegerMap();
@@ -96,7 +97,7 @@ public class EdgesSet{
 	}
 	
 	public void setLastResult(AbstractContainerNode lastResult, int resultStoreId){
-		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID){
+		if(resultStoreId == DEFAULT_RESULT_STORE_ID){
 			lastResults = lastResult;
 		}else{
 			if(lastFilteredResults == null){
@@ -108,7 +109,7 @@ public class EdgesSet{
 	}
 	
 	public AbstractContainerNode getLastResult(int resultStoreId){
-		if(resultStoreId == SGTDBF.DEFAULT_RESULT_STORE_ID) return lastResults;
+		if(resultStoreId == DEFAULT_RESULT_STORE_ID) return lastResults;
 		
 		if(lastFilteredResults == null){
 			lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();

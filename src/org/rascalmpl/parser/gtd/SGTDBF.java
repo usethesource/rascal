@@ -46,8 +46,6 @@ import org.rascalmpl.parser.gtd.util.Stack;
  * This is the core of the parser; it drives the parse process.
  */
 public abstract class SGTDBF implements IGTD{
-	public final static int DEFAULT_RESULT_STORE_ID = -1;
-	
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
 	private AbstractStackNode startNode;
@@ -479,7 +477,7 @@ public abstract class SGTDBF implements IGTD{
 	 */
 	private void handleEdgeList(EdgesSet edgeSet, String name, Object production, Link resultLink, int startLocation){
 		AbstractContainerNode resultStore = null;
-		int resultStoreId = DEFAULT_RESULT_STORE_ID;
+		int resultStoreId = EdgesSet.DEFAULT_RESULT_STORE_ID;
 		if(edgeSet.getLastVisistedLevel(resultStoreId) != location){
 			AbstractStackNode edge = edgeSet.get(0);
 			
@@ -759,7 +757,7 @@ public abstract class SGTDBF implements IGTD{
 	 * Retrieves the resultstore id associated with the given id.
 	 */
 	protected int getResultStoreId(int id){
-		return DEFAULT_RESULT_STORE_ID; // Default implementation; intended to be overwritten in sub-classes.
+		return EdgesSet.DEFAULT_RESULT_STORE_ID; // Default implementation; intended to be overwritten in sub-classes.
 	}
 	
 	/**
