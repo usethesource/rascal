@@ -510,7 +510,7 @@ public class TypeReifier {
 					}
 				}
 				else {
-					for (Type f : type.getFieldTypes()) {
+					for (Type f : type) {
 						w.append(f.accept(this));
 					}
 				}
