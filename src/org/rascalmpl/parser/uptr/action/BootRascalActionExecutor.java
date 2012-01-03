@@ -167,10 +167,16 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	
 	private IConstructor filterExpression(IConstructor tree, IConstructor prod) {
 		tree = filterArg(tree, prod, "Subscript", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
-		if (tree == null) 
+		if (tree == null) { 
 			return null;
+		}
 		
-		return filterArg(tree, prod, "CallOrTree", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		tree = filterArg(tree, prod, "CallOrTree", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		if (tree == null) {
+			return null;
+		}
+		
+		return filterArg(tree, prod, "FieldProject", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
 	}
 
 	private IConstructor filterType(IConstructor tree, IConstructor prod) {
