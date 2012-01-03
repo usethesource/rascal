@@ -76,7 +76,7 @@ public class ReifiedType extends Type {
 			return this;
 		}
 		
-		if (other.isNodeType()) {
+		if (other == TypeFactory.getInstance().nodeType()) {
 			return other;
 		}
 		
