@@ -30,7 +30,6 @@ import experiments::RascalTutor::RascalUtils;
 import experiments::RascalTutor::ValueGenerator;
 import experiments::RascalTutor::CourseCompiler;
 import ValueIO;
-//import util::Diff;
 
 import IO;
 import util::Eval;
