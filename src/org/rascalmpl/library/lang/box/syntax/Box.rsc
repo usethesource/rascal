@@ -18,19 +18,21 @@ syntax Boxx
         | "LBL" "[" StrCon "," Boxx "]"
         | "REF" "[" StrCon "," Boxx "]"
         | "CNT" "[" StrCon "," StrCon "]"
-       /* | "O" SOptions "[" Boxx BoxString Boxx "]" */
+     // | "O" SOptions "[" Boxx BoxString Boxx "]" 
  ;
  
 
-syntax StrCon
-	= lex [\"] StrChar* chars [\"] ;
+lexical StrCon
+	= [\"] StrChar* chars [\"] 
+	;
 	
-syntax StrChar
-    = lex "\\" [\" \' \< \> \\ b f n r t] 
-    | lex ![\" \' \< \> \\] ;
+lexical StrChar
+    = "\\" [\" \' \< \> \\ b f n r t] 
+    | ![\" \' \< \> \\] 
+    ;
 	
 
-syntax NatCon = lex [0-9]+ ;
+lexical NatCon = [0-9]+ ;
 
 syntax BoxOperator
         = "A" AlignmentOptions alignments SpaceOption* options
@@ -47,9 +49,9 @@ syntax BoxOperator
         | "G" GroupOption* options
         | "SL" GroupOption* options
         */
- ;
+        ;
  
- syntax FontOperator
+syntax FontOperator
         = "KW"
         | "VAR"
         | "NUM"
@@ -57,27 +59,28 @@ syntax BoxOperator
         | "ESC"
         | "COMM"
         | "STRING"
- ;
+        ;
  
 syntax AlignmentOption
         = "l" SpaceOption* options
         | "c" SpaceOption* options
         | "r" SpaceOption* options
- ;
+        ;
+        
 syntax AlignmentOptions
-        =
-        "(" {AlignmentOption ","}* ")"
- ;
+        = "(" {AlignmentOption ","}* ")"
+        ;
+        
 syntax SpaceSymbol
         = "hs"
         | "vs"
         | "is"
         | "ts"
- ;
+        ;
+ 
 syntax SpaceOption
-        =
-        SpaceSymbol "=" NatCon
- ;
+        = SpaceSymbol "=" NatCon
+        ;
 
 syntax Context
         = "H"
@@ -105,15 +108,16 @@ syntax FontParam
 syntax GroupOption
         = "gs" "=" NatCon
         | "op" "=" BoxOperator
- ;
+        ;
  
- layout WhiteSpace =
+layout WhiteSpace =
             WhitespaceAndComment*
-            #[\ \t\n\r]
-            #"%"
+            !>> [\ \t\n\r]
+            !>> "%"
             ;
             
-syntax WhitespaceAndComment= lex [\ \t\n\r]
-                           | lex "%" [!%]* "%"
-                           | lex "%%" [!\n]* "\n"
-                           ;
+lexical WhitespaceAndComment 
+  = [\ \t\n\r]
+  | "%" [!%]* "%"
+  | "%%" [!\n]* "\n"
+  ;
