@@ -71,7 +71,7 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(fillColor("Purple")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
-render(grid([[row1], [row2]]));
+render(grid([row1, row2]));
 </pre> gives:
  <br/>
 <br/>
@@ -89,7 +89,7 @@ row2 = [ box(ellipse(fillColor("Yellow"),shrink(0.5)),fillColor("Green")),
          box(fillColor("Purple"),hshrink(0.5)),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
-render(grid([[row1], [row2]]));
+render(grid([row1, row2]));
 </pre> gives:
  <br/>
 <br/>
@@ -107,7 +107,7 @@ row2 = [ box(fillColor("Green"),resizable(false),size(40)),
          box(fillColor("Purple"),vresizable(false),vsize(15),top()),
          box(fillColor("Orange"),vresizable(false),vsize(30),bottom())
        ];
-b = box(grid([[row1], [row2]]),size(200));
+b = box(grid([row1, row2]),size(200));
 render(b);
 </pre> Gives
  <br/>
@@ -126,7 +126,7 @@ render(b);
          box(hshrink(0.5)),
          box(text("jada"))
        ];
-render(grid([[row1]]));
+render(grid([row1]));
 </pre> Gives
  <br/>
 <br/>
@@ -147,7 +147,7 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(fillColor("Purple")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
-render(grid([[row1], [row2]],hgrow(1.1),vgrow(1.3)));
+render(grid([row1, row2],hgrow(1.1),vgrow(1.3)));
 </pre> <br/>
 <br/>
 
@@ -172,7 +172,7 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(fillColor("Purple")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
-render(grid([[row1], [row2]],hgap(10),vgap(15)));
+render(grid([row1, row2],hgap(10),vgap(15)));
 </pre> Gives
  <br/>
 <br/>
@@ -197,7 +197,7 @@ row2 = [ box(fillColor("Green")),
          box(fillColor("Orange"))
        ];
 row3 = [ box(fillColor("Silver"))];
-render(grid([[row1], [row2], [row3]]));
+render(grid([row1, row2, row3]));
 </pre> Gives
  <br/>
 <br/>
@@ -225,7 +225,7 @@ row2 = [ box(fillColor("Green")),
          box(fillColor("Orange"))
        ];
 row3 = [ box(fillColor("Silver"))];
-render(grid([[row1], [row2], [row3]]));
+render(grid([row1, row2, row3]));
 </pre> gives:
  <br/>
 <br/>
@@ -247,7 +247,7 @@ row2 = [ box(fillColor("Green")),
          box(fillColor("Orange"))
        ];
 row3 = [ box(fillColor("Silver"))];
-render(grid([[row1], [row2], [row3]]));
+render(grid([row1, row2, row3]));
 </pre> gives:
  <br/>
 <br/>
@@ -258,31 +258,6 @@ render(grid([[row1], [row2], [row3]]));
 
   	                       
   	                       
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  
-  Be aware of <i>list splicing</i>! By default, Rascal flattens lists by splicing sublists in the containing list, e.g.
-  introduce a list s
-
-<pre class="screen"><b>rascal></b>s = [3, 4];
-list[int]: [3,4]
-</pre>
-  include it in a larger list and observe the elements of <code>s</code> have been spliced into the containing list
-
-<pre class="screen"><b>rascal></b>[1, 2, s, 5];
-list[int]: [1,2,3,4,5]
-</pre>
-  the behaviour can be changed by including <code>s</code> in a extra list level:
-
-<pre class="screen"><b>rascal></b>[1, 2, [s], 5];
-list[value]: [
-  1,
-  2,
-  [3,4],
-  5
-]
-</pre>
-</div>
-
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/grid&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/grid&new=true"><b>New Subconcept</b></a>] |

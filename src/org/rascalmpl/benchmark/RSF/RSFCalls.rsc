@@ -14,9 +14,9 @@ import Relation;
 import Integer;
 import Set;
 import Graph;
-import RSF;
+import lang::RSF::IO;
 import IO;
-import Benchmark;
+import util::Benchmark;
 
 public bool measure(){
   return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);

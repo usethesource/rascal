@@ -31,7 +31,7 @@ public DoNotNest doNotNest(Production p) {
     case prod(s,[list[Symbol] o,t],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, size(o), p>};
     case choice(_, set[Production] alts) : 
-      return {doNotNest(a) | a <- alts};
+      return {*doNotNest(a) | a <- alts}; // SPLICE
     case \lookahead(_,_,q) :
       return doNotNest(q); 
     case priority(_, list[Production] levels) : 
@@ -67,8 +67,8 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
       }
     } 
   }
-  
-  return result + {doNotNest(x) | x <- alts};
+  println("associativity: <result + {*doNotNest(x) | x <- alts}>");
+  return result + {*doNotNest(x) | x <- alts};  //SPLICE
 }
 
 DoNotNest priority(list[Production] levels) {
@@ -125,5 +125,5 @@ DoNotNest priority(list[Production] levels) {
   }
   
   // and we recurse to find the nested associativity declarations
-  return result + {doNotNest(l) | l <- levels};
+  return result + {*doNotNest(l) | l <- levels};  // SPLICE
 }

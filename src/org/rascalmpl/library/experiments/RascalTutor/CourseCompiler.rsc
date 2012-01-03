@@ -28,7 +28,7 @@ import experiments::RascalTutor::ValueGenerator;
 import util::Eval;
 import util::Reflective;
 import experiments::RascalTutor::RascalUtils;
-import Benchmark;
+import util::Benchmark;
 
 // ------------------------ compile a course ----------------------------------------
 

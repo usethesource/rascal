@@ -14,7 +14,7 @@ import vis::examples::tetris::Tetromino;
 import vis::Figure;
 import vis::Render;
 import vis::KeySym;
-import Maybe;
+import util::Maybe;
 import List;
 import Integer;
 import ToString;

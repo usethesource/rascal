@@ -27,7 +27,7 @@ searchTerms[","] = new Array("Tutor/Concept/Details","Tutor/Markup/QuestionMarku
 
 searchTerms["...]"] = new Array("Tutor/Markup/QuestionMarkup/TypeDescriptor");
 
-searchTerms[":"] = new Array("Tutor/Markup/QuestionMarkup/Text","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Concept/Details","Tutor/Concept/Syntax","Tutor/Markup/QuestionMarkup/Choice","Tutor/Concept/Synopsis","Tutor/Concept/Function","Tutor/Concept/Examples","Tutor/Concept/Types","Tutor/Concept/Name","Tutor/Concept/Description","Tutor/Concept/Benefits","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/Value","Tutor/Concept");
+searchTerms[":"] = new Array("Tutor/Markup/QuestionMarkup/Text","Tutor/Concept/Details","Tutor/Markup/InlineMarkup/ReferenceToConcept","Tutor/Concept/Syntax","Tutor/Concept/Synopsis","Tutor/Markup/QuestionMarkup/Choice","Tutor/Concept/Function","Tutor/Concept/Examples","Tutor/Concept/Types","Tutor/Concept/Name","Tutor/Concept/Description","Tutor/Concept/Benefits","Tutor/Concept/Pitfalls","Tutor/Concept/Questions","Tutor/Markup/QuestionMarkup/Type","Tutor/Markup/QuestionMarkup/Value","Tutor/Concept");
 
 searchTerms["<"] = new Array("Tutor/Markup/StructureMarkup/figure","Tutor/Markup/StructureMarkup/warning","Tutor/Markup/StructureMarkup/TableOfContents","Tutor/Markup/StructureMarkup/screen");
 

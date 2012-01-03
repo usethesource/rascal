@@ -861,7 +861,7 @@ public Figure overlap(Figure under,Figure over, FProperty props ...){
 }
 
 public Figure hcat(Figures figs, FProperty props ...){
-  return _grid([[figs]],props);
+  return _grid([figs],props);  // SPLICING:  return _grid([[figs]],props);
 }
 
 public Figure tree(Figure root, Figures children, FProperty props...){
@@ -987,10 +987,11 @@ public Figure normalize(Figure f){
 	f = outermost visit(f){
 		case Figure f : {
 			if([x*,unpack(y),z*] := f.props){
-				f.props = x + y + z; 				// TEMP CHANGE FOR AUTOMATIC SPLICING: f.props = [x,y,z];
+			    //println("x = <x>, y = <y>, z=<z>, concat: <[*x,*y,*z]>");
+				f.props = [*x,*y,*z]; // SPLICING, was: f.props = [x,y,z];
 				insert f;
 			} else if([x*,std(unpack(y)),z*] := f.props){
-				f.props = x + z + [std(p) | p <- y]; // TEMP CHANGE FOR AUTOMATIC SPLICING: f.props = [x,z] + [std(p) | p <- y];
+				f.props = [*x,*z] + [std(p) | p <- y];  // SPLICING:  f.props = [x,z] + [std(p) | p <- y];
 				insert f;
 			} else {
 				fail;
@@ -1055,6 +1056,7 @@ public Figure palleteKey (str name, str key,FProperty props...){
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
  		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.05),vgrow(1.1));
+ 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)-1]],hgrow(1.05),vgrow(1.1));
  		return vcat([
  		text(name,fontSize(13)),
  		box(

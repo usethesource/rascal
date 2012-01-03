@@ -97,7 +97,7 @@ public Symbol \conditional(\conditional(Symbol s, set[Condition] cs1), set[Condi
 public Symbol \conditional(Symbol s, {Condition c, set[Condition] cs}) {
   // if there is a nested conditional, lift the nested conditions toplevel and make the nested symbol unconditional.
   if (c has symbol, c.symbol is conditional) {
-     return \conditional(s, {c[symbol=c.symbol.symbol], c.symbol.conditions, cs}); 
+     return \conditional(s, {c[symbol=c.symbol.symbol], *c.symbol.conditions, *cs}); //SPLICING
   }
   else fail;
 }             

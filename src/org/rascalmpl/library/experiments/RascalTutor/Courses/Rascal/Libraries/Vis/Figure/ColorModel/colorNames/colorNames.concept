@@ -34,7 +34,7 @@ Or a color table with the color names in colored boxes:
 import List;
 // Define an auxiliary function to split a list in a list of lists each of length n:
 public list[list[&T]] split(list[&T] elms, int n){
-  return (size(elms) < n) ? [[elms]] : [[take(n, elms)]] + split(drop(n, elms), n);
+  return (size(elms) < n) ? [elms] : [take(n, elms)] + split(drop(n, elms), n);
 }
 boxes = [ box(text(col, left()), fillColor(col)) | col <- colorNames() ];
 render(grid(split(boxes, 3))); 

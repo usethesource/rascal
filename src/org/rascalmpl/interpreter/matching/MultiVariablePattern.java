@@ -21,6 +21,10 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		super(ctx, x, name);
 	}
 	
+	public MultiVariablePattern(IEvaluatorContext ctx, Expression.Splice x, org.rascalmpl.ast.QualifiedName name) {
+		super(ctx, x, name);
+	}
+	
 	@Override
 	public boolean next(){
 		checkInitialized();

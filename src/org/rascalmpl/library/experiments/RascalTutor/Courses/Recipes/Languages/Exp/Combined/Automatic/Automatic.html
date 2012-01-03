@@ -102,19 +102,19 @@ public Exp parse(str txt) = parse(#Exp, txt);
 ok
 <b>rascal></b>parse(&quot;2+3*4&quot;);
 `2+3*4`
-Exp: appl(
-  prod(
-    label(
-      &quot;add&quot;,
-      sort(&quot;Exp&quot;)),
-    [
-      sort(&quot;Exp&quot;),
-      layouts(&quot;LAYOUTLIST&quot;),
-      lit(&quot;+&quot;),
-      layouts(&quot;LAYOUTLIST&quot;),
-      sort(&quot;Exp&quot;)
-    ],
-    {assoc(left...
+Exp: amb({
+    appl(
+      prod(
+        label(
+          &quot;mul&quot;,
+          sort(&quot;Exp&quot;)),
+        [
+          sort(&quot;Exp&quot;),
+          layouts(&quot;LAYOUTLIST&quot;),
+          lit(&quot;*&quot;),
+          layouts(&quot;LAYOUTLI...
+
+*** Rascal killed after timeout ***
 </pre> We can use <code>parse</code> to define <code>load</code>:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Load
 
@@ -132,18 +132,58 @@ public demo::lang::Exp::Abstract::Syntax::Exp load(str txt) =
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Load;
 ok
 <b>rascal></b>load(&quot;2+3*4&quot;);
-Exp: add(
-  con(2)[
-    @location=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)
-  ],
-  mul(
-    con(3)[
-      @location=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)
-    ],
-    con(4)[
-      @location=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)
-    ])[
- ...
+Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:8,56: IllegalArgument(amb({appl(pr&raquo;
+od(label(&quot;mul&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{as&raquo;
+soc(left())}),[appl(prod(label(&quot;add&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;+&quot;),layouts(&quot;LAYOUTL&raquo;
+IST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod&raquo;
+(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))&raquo;
+),[char(50)])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&raquo;
+&gt;,&lt;1,1&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([ran&raquo;
+ge(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&raquo;
+&lt;1,1&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([range(43,43)])],{}),[char(4&raquo;
+3)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,&raquo;
+10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,0,&lt;1,2&gt;&raquo;
+,&lt;1,2&gt;)]])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[a&raquo;
+ppl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(4&raquo;
+8,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(&raquo;
+2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(0,3,&lt;1,0&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(&raquo;
+lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-s&raquo;
+tar(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)],appl(prod(lit(&quot;*&raquo;
+&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;&raquo;
+LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(l&raquo;
+ex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)],appl(prod(label(&quot;con&quot;&raquo;
+,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))]&raquo;
+,{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|fi&raquo;
+le://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)],appl(prod(la&raquo;
+bel(&quot;add&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;+&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(l&raquo;
+eft())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[ite&raquo;
+r(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://&raquo;
+-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)],appl(prod(layouts&raquo;
+(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range&raquo;
+(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)]])[@loc=|file:&raquo;
+//-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts(&quot;LAY&raquo;
+OUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,3&raquo;
+2)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)]])[@loc=|file://-|(&raquo;
+2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(label(&quot;mul&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYO&raquo;
+UTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(p&raquo;
+rod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)&raquo;
+]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;&raquo;
+1,2&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([&raquo;
+range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(3&raquo;
+,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)],appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[cha&raquo;
+r(42)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range&raquo;
+(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1&raquo;
+,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)],appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{})&raquo;
+,[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([rang&raquo;
+e(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://&raquo;
+-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(2,3,&lt;1,2&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)]})[@loc=|file://-|&raquo;
+(0,5,&lt;1,0&gt;,&lt;1,5&gt;)],&quot;Ambiguous node should match with set and not Exp&quot;)
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.ParseTree.implode(org.eclipse.&raquo;
+imp.pdb.facts.IValue,org.eclipse.imp.pdb.facts.IConstructor)
+    somewhere in: load
+    somewhere in: $shell$
+
+*** Rascal killed after timeout ***
 </pre> Remains the definition of the <code>eval</code> function:
  <pre class="listing">module demo::lang::Exp::Combined::Automatic::Eval
 
@@ -156,7 +196,59 @@ public int eval(str txt) = eval(load(txt));
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Combined::Automatic::Eval;
 ok
 <b>rascal></b>eval(&quot;2+3*4&quot;);
-int: 14
+Uncaught Rascal Exception: std:///demo/lang/Exp/Combined/Automatic/Load.rsc:8,56: IllegalArgument(amb({appl(pr&raquo;
+od(label(&quot;mul&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{as&raquo;
+soc(left())}),[appl(prod(label(&quot;add&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;+&quot;),layouts(&quot;LAYOUTL&raquo;
+IST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod&raquo;
+(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))&raquo;
+),[char(50)])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&raquo;
+&gt;,&lt;1,1&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([ran&raquo;
+ge(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&raquo;
+&lt;1,1&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([range(43,43)])],{}),[char(4&raquo;
+3)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,&raquo;
+10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,0,&lt;1,2&gt;&raquo;
+,&lt;1,2&gt;)]])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[a&raquo;
+ppl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(4&raquo;
+8,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(&raquo;
+2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(0,3,&lt;1,0&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(&raquo;
+lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-s&raquo;
+tar(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)],appl(prod(lit(&quot;*&raquo;
+&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;&raquo;
+LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(l&raquo;
+ex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)],appl(prod(label(&quot;con&quot;&raquo;
+,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))]&raquo;
+,{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|fi&raquo;
+le://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)],appl(prod(la&raquo;
+bel(&quot;add&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;+&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(l&raquo;
+eft())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(prod(lex(&quot;IntegerLiteral&quot;),[ite&raquo;
+r(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://&raquo;
+-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)]])[@loc=|file://-|(0,1,&lt;1,0&gt;,&lt;1,1&gt;)],appl(prod(layouts&raquo;
+(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range&raquo;
+(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)]])[@loc=|file:&raquo;
+//-|(1,0,&lt;1,1&gt;,&lt;1,1&gt;)],appl(prod(lit(&quot;+&quot;),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts(&quot;LAY&raquo;
+OUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,3&raquo;
+2)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(2,0,&lt;1,2&gt;,&lt;1,2&gt;)]])[@loc=|file://-|(&raquo;
+2,0,&lt;1,2&gt;,&lt;1,2&gt;)],appl(prod(label(&quot;mul&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYO&raquo;
+UTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{}),[appl(p&raquo;
+rod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)&raquo;
+]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;1,2&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(2,1,&lt;&raquo;
+1,2&gt;,&lt;1,3&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([&raquo;
+range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(3&raquo;
+,0,&lt;1,3&gt;,&lt;1,3&gt;)]])[@loc=|file://-|(3,0,&lt;1,3&gt;,&lt;1,3&gt;)],appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[cha&raquo;
+r(42)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range&raquo;
+(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(4,0,&lt;1&raquo;
+,4&gt;,&lt;1,4&gt;)]])[@loc=|file://-|(4,0,&lt;1,4&gt;,&lt;1,4&gt;)],appl(prod(label(&quot;con&quot;,sort(&quot;Exp&quot;)),[lex(&quot;IntegerLiteral&quot;)],{})&raquo;
+,[appl(prod(lex(&quot;IntegerLiteral&quot;),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([rang&raquo;
+e(48,57)]))),[char(52)])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://&raquo;
+-|(4,1,&lt;1,4&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(2,3,&lt;1,2&gt;,&lt;1,5&gt;)]])[@loc=|file://-|(0,5,&lt;1,0&gt;,&lt;1,5&gt;)]})[@loc=|file://-|&raquo;
+(0,5,&lt;1,0&gt;,&lt;1,5&gt;)],&quot;Ambiguous node should match with set and not Exp&quot;)
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.ParseTree.implode(org.eclipse.&raquo;
+imp.pdb.facts.IValue,org.eclipse.imp.pdb.facts.IConstructor)
+    somewhere in: load
+    somewhere in: eval
+    somewhere in: $shell$
+
+*** Rascal killed after timeout ***
 </pre>
 </div>
 
@@ -166,7 +258,7 @@ int: 14
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Automatic&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Exp/Combined/Automatic&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

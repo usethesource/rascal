@@ -31,8 +31,8 @@ An _author_ of a course can:
 * Edit a concept directly using a wiki-like form of [Markup] that makes it easy to create good looking concept pages.
 * Add code examples that are actually executed when the concept is turned into an HTML page.
 * Add interactive exercises.
-* Save a concept after editing: this will recompile that concept only.
-* Compile (only changed concepts) or Recompile (all concepts) the whole course.
+* Save a concept after editing: this will recompile that concept only, but eill update the gloabl search idnex, global warnings, and the like.
+* Recompile all concepts in the whole course.
 * Inspect the warnings that are generated for a concept or for the whole course in order to 
   control the quality of the concept descriptions.
 

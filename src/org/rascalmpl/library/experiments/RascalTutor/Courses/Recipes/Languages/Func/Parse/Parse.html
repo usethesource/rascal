@@ -99,30 +99,14 @@ Prog: appl(
   [appl(
       regular(\iter-star-seps(
          ...
+
+*** Rascal killed after timeout ***
 </pre>
   This must be defined as success: we get the original program and its parse tree back.
   Next, we try the same from a file. We use the scheme <code>std</code> that refers to files that reside in the Rascal library.
   See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:location</a> for further details on other schemes.
 
-<pre class="screen"><b>rascal></b>parse(|std:///demo/lang/Func/programs/F0.func|);
-`fact(n) = if n &lt;= 1 then
-             1 
-          else 
-             n * fact(n-1)
-          end`
-Prog: appl(
-  prod(
-    label(
-      &quot;prog&quot;,
-      sort(&quot;Prog&quot;)),
-    [\iter-star-seps(
-        sort(&quot;Func&quot;),
-        [layouts(&quot;LAYOUTLIST&quot;)])],
-    {}),
-  [appl(
-      regular(\iter-star-seps(
-         ...
-</pre>
+
 </div>
 
   	                       
@@ -131,7 +115,7 @@ Prog: appl(
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Parse&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Parse&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

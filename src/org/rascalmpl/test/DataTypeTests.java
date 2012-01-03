@@ -624,22 +624,59 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void listSplicing(){
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1] == [1,2];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,3] == [1,2,3];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,L2] == [1,2,3,4];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,L2,5] == [1,2,3,4,5];}"));
+		assertTrue(runTest("{[1,2,3] == [1,2,3];}"));
+		assertTrue(runTest("{[*1,2,3] == [1,2,3];}"));
+		assertTrue(runTest("{[1,*2,3] == [1,2,3];}"));
+		assertTrue(runTest("{[1,2,*3] == [1,2,3];}"));
+		assertTrue(runTest("{[*1,*2,3] == [1,2,3];}"));
 		
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1]] == [[1,2]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1],3] == [[1,2],3];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1],[L2]] == [[1,2],[3,4]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[L2]] == [1,2,[3,4]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[L2],5] == [1,2,[3,4],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1] == [[1,2]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1] == [1,2];}"));
 		
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[int]] L3 = [[L1]]; L3 == [[1,2]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [[L1],3]; L3 == [[1,2],3];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[int]] L3 = [[L1],[L2]]; L3 == [[1,2],[3,4]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2]]; L3 == [1,2,[3,4]];}"));
-		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2],5]; L3 == [1,2,[3,4],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,3] == [[1,2],3];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,3] == [1,2,3];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,L2] == [[1,2],[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,L2] == [1,2,[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,*L2] == [[1,2],3,4];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,*L2] == [1,2,3,4];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,L2,5] == [[1,2],[3,4],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,L2,5] == [1,2,[3,4],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,*L2,5] == [[1,2],3,4,5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,*L2,5] == [1,2,3,4,5];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1]] == [[[1,2]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[*L1]] == [[1,2]];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1],3] == [[[1,2]],3];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[*L1],3] == [[1,2],3];}"));	
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1],[L2]] == [[[1,2]],[[3,4]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[*L1],[L2]] == [[1,2],[[3,4]]];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[L1],[*L2]] == [[[1,2]],[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[*L1],[*L2]] == [[1,2],[3,4]];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*[*L1],[*L2]] == [1,2,[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [[*L1],*[*L2]] == [[1,2],3,4];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*[*L1],*[*L2]] == [1,2,3,4];}"));
+	
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[L2]] == [[1,2],[[3,4]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,[L2]] == [1,2,[[3,4]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[*L2]] == [[1,2],[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,[*L2]] == [1,2,[3,4]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,*[*L2]] == [1,2,3,4];}"));
+
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[L2],5] == [[1,2],[[3,4]],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [*L1,[L2],5] == [1,2,[[3,4]],5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; [L1,[*L2],5] == [[1,2],[3,4],5];}"));
+		
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[list[int]]] L3 = [[L1]]; L3 == [[[1,2]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [[L1],3]; L3 == [[[1,2]],3];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[list[int]]] L3 = [[L1],[L2]]; L3 == [[[1,2]],[[3,4]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2]]; L3 == [[1,2],[[3,4]]];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2],5]; L3 == [[1,2],[[3,4]],5];}"));
 	}
 	
 	@Test
@@ -891,7 +928,7 @@ public class DataTypeTests extends TestFramework {
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
 			           "for(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), TYPESET tset1, set[TYPESET] rest1 }) := ts){" +
-			                "if(tset == tset1) return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset1, rest1 }));" +
+			                "if(tset == tset1) return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset1, *rest1 }));" +
 			                "else  fail;" +
 			           "}" +
 			           "return ts;" +
@@ -910,7 +947,7 @@ public class DataTypeTests extends TestFramework {
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
 			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) := ts){" +
-			                "return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 }));" +
+			                "return simp(INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, *rest1 }));" +
 			           "}" +
 			           "return ts;" +
 		            "}");
@@ -929,7 +966,7 @@ public class DataTypeTests extends TestFramework {
 		
 		prepareMore("public TYPESET simp(TYPESET ts){" +
 			           "if(INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) := ts){" +
-			                "return simp(INTERSECT({ SUBTYPES(simp(INTERSECT(rest))), tset, rest1 }));" +
+			                "return simp(INTERSECT({ SUBTYPES(simp(INTERSECT(rest))), tset, *rest1 }));" +
 			           "}" +
 			           "return ts;" +
 		            "}");
@@ -947,7 +984,7 @@ public class DataTypeTests extends TestFramework {
 		prepare("data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);");
 		
 		prepareMore("public TYPESET INTERSECT({ SUBTYPES(INTERSECT({ TYPESET tset, set[TYPESET] rest})), tset, set[TYPESET] rest1 }) {" +
-		               " return INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, rest1 });" +
+		               " return INTERSECT({ SUBTYPES(INTERSECT(rest)), tset, *rest1 });" +
 				    "}");
 
 		funTests();
@@ -999,22 +1036,57 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void setSplicing(){
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1} == {1,2};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,3} == {1,2,3};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,S2} == {1,2,3,4};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,S2,5} == {1,2,3,4,5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1} == {{1,2}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1} == {1,2};}"));
 		
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1}} == {{1,2}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1},3} == {{1,2},3};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1},{S2}} == {{1,2},{3,4}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{S2}} == {1,2,{3,4}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{S2},5} == {1,2,{3,4},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,3} == {{1,2},3};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,3} == {1,2,3};}"));
 		
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[int]] S3 = {{S1}}; S3 == {{1,2}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {{S1},3}; S3 == {{1,2},3};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[int]] S3 = {{S1},{S2}}; S3 == {{1,2},{3,4}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2}}; S3 == {1,2,{3,4}};}"));
-		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2},5}; S3 == {1,2,{3,4},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,S2} == {{1,2},{3,4}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,S2} == {1,2,{3,4}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,*S2} == {{1,2},3,4};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,*S2} == {1,2,3,4};}"));
+	
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,S2,5} == {{1,2},{3,4},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,S2,5} == {1,2,{3,4},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,*S2,5} == {{1,2},3,4,5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,*S2,5} == {1,2,3,4,5};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1}} == {{{1,2}}};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{*S1}} == {{1,2}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{*S1}} == {1,2};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1},3} == {{{1,2}},3};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{S1},3} == {{1,2},3};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{*S1},3} == {1,2,3};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{*S1},2} == {1,2};}"));
+	
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1},{S2}} == {{{1,2}},{{3,4}}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{S1},{S2}} == {{1,2},{{3,4}}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {{S1},*{S2}} == {{{1,2}},{3,4}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{S1},*{S2}} == {{1,2},{3,4}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*{*S1},*{*S2}} == {1,2,3,4};}"));
+		
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{S2}} == {{1,2},{{3,4}}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{*S2}} == {{1,2},{3,4}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,*{*S2}} == {{1,2},3,4};}"));
+		
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{S2},5} == {{1,2},{{3,4}},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,{*S2},5} == {{1,2},{3,4},5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {S1,*{*S2},5} == {{1,2},3,4,5};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; {*S1,*{*S2},5} == {1,2,3,4,5};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[set[int]]] S3 = {{S1}}; S3 == {{{1,2}}};}"));
+		
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {{S1},3}; S3 == {{{1,2}},3};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[set[int]]] S3 = {{S1},{S2}}; S3 == {{{1,2}},{{3,4}}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2}}; S3 == {{1,2},{{3,4}}};}"));
+		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2},5}; S3 == {{1,2},{{3,4}},5};}"));
 	}
 	
 	@Test

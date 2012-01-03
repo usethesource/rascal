@@ -10,12 +10,12 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module BubbleSort::BubbleSort
 
-import Benchmark;
+import util::Benchmark;
 import IO;
 
 data Bubble = bubble(list[int] elements);
 
-public Bubble bubble([list[int] Nums1, int P, int Q, list[int] Nums2]) = bubble([Nums1, Q, P, Nums2])
+public Bubble bubble([list[int] Nums1, int P, int Q, list[int] Nums2]) = bubble([*Nums1, Q, P, *Nums2])
        		when P > Q;
        
 public bool measure() {

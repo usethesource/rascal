@@ -193,7 +193,132 @@ ok
 <b>rascal></b>import demo::lang::Func::programs::F2;
 ok
 <b>rascal></b>eval2(&quot;fact&quot;, [10], load(F2));
-Result: &lt;(&quot;n&quot;:3628800),3628800&gt;
+Uncaught Rascal Exception: std:///demo/lang/Func/Load.rsc:10,7: IllegalArgument(amb({appl(prod(label(&quot;mul&quot;,sor&raquo;
+t(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[app&raquo;
+l(prod(label(&quot;assign&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;:=&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Ex&raquo;
+p&quot;)],{assoc(right())}),[appl(prod(label(&quot;var&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-c&raquo;
+lass([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)&raquo;
+])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-&raquo;
+star(\char-class([range(48,57),range(65,90),range(97,122)]))),[])[@loc=|file://-|(70,0,&lt;4,11&gt;,&lt;4,11&gt;)]])[@loc=&raquo;
+|file://-|(69,1,&lt;4,10&gt;,&lt;4,11&gt;)]])[@loc=|file://-|(69,1,&lt;4,10&gt;,&lt;4,11&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[condit&raquo;
+ional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[app&raquo;
+l(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(13,13),range(32,&raquo;
+32)])],{}),[char(32)])[@loc=|file://-|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)]])[@loc=|file://-|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)]])[@loc=|fil&raquo;
+e://-|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)],appl(prod(lit(&quot;:=&quot;),[\char-class([range(58,58)]),\char-class([range(61,61)])],{}),&raquo;
+[char(58),char(61)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char&raquo;
+-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(le&raquo;
+x(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(13,13),range(32,32)])],{}),[char(32)])[@loc=|file://-|(73,1,&lt;4,14&gt;&raquo;
+,&lt;4,15&gt;)]])[@loc=|file://-|(73,1,&lt;4,14&gt;,&lt;4,15&gt;)]])[@loc=|file://-|(73,1,&lt;4,14&gt;,&lt;4,15&gt;)],appl(prod(label(&quot;var&quot;,&raquo;
+sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,90),range(97,122)]),conditional&raquo;
+(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),ran&raquo;
+ge(65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),ra&raquo;
+nge(97,122)]))),[])[@loc=|file://-|(75,0,&lt;4,16&gt;,&lt;4,16&gt;)]])[@loc=|file://-|(74,1,&lt;4,15&gt;,&lt;4,16&gt;)]])[@loc=|file:/&raquo;
+/-|(74,1,&lt;4,15&gt;,&lt;4,16&gt;)]])[@loc=|file://-|(69,6,&lt;4,10&gt;,&lt;4,16&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\&raquo;
+iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regul&raquo;
+ar(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(13,13),range(32,32)])],&raquo;
+{}),[char(32)])[@loc=|file://-|(75,1,&lt;4,16&gt;,&lt;4,17&gt;)]])[@loc=|file://-|(75,1,&lt;4,16&gt;,&lt;4,17&gt;)]])[@loc=|file://-|(&raquo;
+75,1,&lt;4,16&gt;,&lt;4,17&gt;)],appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(prod(layouts(&quot;LAYOU&raquo;
+TLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)&raquo;
+]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(1&raquo;
+3,13),range(32,32)])],{}),[char(32)])[@loc=|file://-|(77,1,&lt;4,18&gt;,&lt;4,19&gt;)]])[@loc=|file://-|(77,1,&lt;4,18&gt;,&lt;4,19&raquo;
+&gt;)]])[@loc=|file://-|(77,1,&lt;4,18&gt;,&lt;4,19&gt;)],appl(prod(label(&quot;call&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;),layouts(&quot;LAYOUTLI&raquo;
+ST&quot;),lit(&quot;(&quot;),layouts(&quot;LAYOUTLIST&quot;),\iter-star-seps(sort(&quot;Exp&quot;),[layouts(&quot;LAYOUTLIST&quot;),lit(&quot;,&quot;),layouts(&quot;LAYOU&raquo;
+TLIST&quot;)]),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;)&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,90),range(97,122)&raquo;
+]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([ra&raquo;
+nge(48,57),range(65,90),range(97,122)]))})],{}),[char(102),appl(regular(\iter-star(\char-class([range(48,57),r&raquo;
+ange(65,90),range(97,122)]))),[char(97),char(99),char(116)])[@loc=|file://-|(79,3,&lt;4,20&gt;,&lt;4,23&gt;)]])[@loc=|file&raquo;
+://-|(78,4,&lt;4,19&gt;,&lt;4,23&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow&raquo;
+(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@lo&raquo;
+c=|file://-|(82,0,&lt;4,23&gt;,&lt;4,23&gt;)]])[@loc=|file://-|(82,0,&lt;4,23&gt;,&lt;4,23&gt;)],appl(prod(lit(&quot;(&quot;),[\char-class([rang&raquo;
+e(40,40)])],{}),[char(40)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follo&raquo;
+w(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@l&raquo;
+oc=|file://-|(83,0,&lt;4,24&gt;,&lt;4,24&gt;)]])[@loc=|file://-|(83,0,&lt;4,24&gt;,&lt;4,24&gt;)],appl(regular(\iter-star-seps(sort(&quot;E&raquo;
+xp&quot;),[layouts(&quot;LAYOUTLIST&quot;),lit(&quot;,&quot;),layouts(&quot;LAYOUTLIST&quot;)])),[appl(prod(label(&quot;sub&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;)&raquo;
+,layouts(&quot;LAYOUTLIST&quot;),lit(&quot;-&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;var&quot;,sor&raquo;
+t(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,90),range(97,122)]),conditional(\i&raquo;
+ter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(&raquo;
+65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range&raquo;
+(97,122)]))),[])[@loc=|file://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)]])[@loc=|file://-|(83,1,&lt;4,24&gt;,&lt;4,25&gt;)]])[@loc=|file://-|&raquo;
+(83,1,&lt;4,24&gt;,&lt;4,25&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\cha&raquo;
+r-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|fi&raquo;
+le://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)]])[@loc=|file://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)],appl(prod(lit(&quot;-&quot;),[\char-class([range(45,&raquo;
+45)])],{}),[char(45)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\ch&raquo;
+ar-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|f&raquo;
+ile://-|(85,0,&lt;4,26&gt;,&lt;4,26&gt;)]])[@loc=|file://-|(85,0,&lt;4,26&gt;,&lt;4,26&gt;)],appl(prod(label(&quot;nat&quot;,sort(&quot;Exp&quot;)),[lex(&quot;&raquo;
+Natural&quot;)],{}),[appl(prod(lex(&quot;Natural&quot;),[conditional(iter(\char-class([range(48,57)])),{\not-follow(\char-cla&raquo;
+ss([range(48,57)]))})],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(49)])[@loc=|file://-|(85,1,&lt;&raquo;
+4,26&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(85,1,&lt;4,26&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(85,1,&lt;4,26&gt;,&lt;4,27&gt;)]])[@loc=|file://-|&raquo;
+(83,3,&lt;4,24&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(83,3,&lt;4,24&gt;,&lt;4,27&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\ite&raquo;
+r-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(&raquo;
+\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(86,0,&lt;4,27&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(86,0,&lt;4,27&gt;,&lt;4,27&gt;)],app&raquo;
+l(prod(lit(&quot;)&quot;),[\char-class([range(41,41)])],{}),[char(41)])])[@loc=|file://-|(78,9,&lt;4,19&gt;,&lt;4,28&gt;)]])[@loc=|f&raquo;
+ile://-|(69,18,&lt;4,10&gt;,&lt;4,28&gt;)],appl(prod(label(&quot;assign&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;:&raquo;
+=&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(right())}),[appl(prod(label(&quot;var&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}&raquo;
+),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range&raquo;
+(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],&raquo;
+{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[])[@loc=|file&raquo;
+://-|(70,0,&lt;4,11&gt;,&lt;4,11&gt;)]])[@loc=|file://-|(69,1,&lt;4,10&gt;,&lt;4,11&gt;)]])[@loc=|file://-|(69,1,&lt;4,10&gt;,&lt;4,11&gt;)],appl(&raquo;
+prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(&raquo;
+13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([&raquo;
+range(9,10),range(13,13),range(32,32)])],{}),[char(32)])[@loc=|file://-|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)]])[@loc=|file://-&raquo;
+|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)]])[@loc=|file://-|(70,1,&lt;4,11&gt;,&lt;4,12&gt;)],appl(prod(lit(&quot;:=&quot;),[\char-class([range(58,58)])&raquo;
+,\char-class([range(61,61)])],{}),[char(58),char(61)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star&raquo;
+(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-&raquo;
+star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(13,13),range(32,32)])],{}),[char&raquo;
+(32)])[@loc=|file://-|(73,1,&lt;4,14&gt;,&lt;4,15&gt;)]])[@loc=|file://-|(73,1,&lt;4,14&gt;,&lt;4,15&gt;)]])[@loc=|file://-|(73,1,&lt;4,1&raquo;
+4&gt;,&lt;4,15&gt;)],appl(prod(label(&quot;mul&quot;,sort(&quot;Exp&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;*&quot;),layouts(&quot;LAYOUTLIST&raquo;
+&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(prod(label(&quot;var&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;&raquo;
+),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),ran&raquo;
+ge(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(110),appl(regu&raquo;
+lar(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[])[@loc=|file://-|(75,0,&lt;4,16&gt;,&lt;4,16&gt;&raquo;
+)]])[@loc=|file://-|(74,1,&lt;4,15&gt;,&lt;4,16&gt;)]])[@loc=|file://-|(74,1,&lt;4,15&gt;,&lt;4,16&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&raquo;
+&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})&raquo;
+],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([range(9,10),range(13,13)&raquo;
+,range(32,32)])],{}),[char(32)])[@loc=|file://-|(75,1,&lt;4,16&gt;,&lt;4,17&gt;)]])[@loc=|file://-|(75,1,&lt;4,16&gt;,&lt;4,17&gt;)]])&raquo;
+[@loc=|file://-|(75,1,&lt;4,16&gt;,&lt;4,17&gt;)],appl(prod(lit(&quot;*&quot;),[\char-class([range(42,42)])],{}),[char(42)]),appl(pr&raquo;
+od(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13&raquo;
+,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[appl(prod(lex(&quot;LAYOUT&quot;),[\char-class([ra&raquo;
+nge(9,10),range(13,13),range(32,32)])],{}),[char(32)])[@loc=|file://-|(77,1,&lt;4,18&gt;,&lt;4,19&gt;)]])[@loc=|file://-|(&raquo;
+77,1,&lt;4,18&gt;,&lt;4,19&gt;)]])[@loc=|file://-|(77,1,&lt;4,18&gt;,&lt;4,19&gt;)],appl(prod(label(&quot;call&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;),&raquo;
+layouts(&quot;LAYOUTLIST&quot;),lit(&quot;(&quot;),layouts(&quot;LAYOUTLIST&quot;),\iter-star-seps(sort(&quot;Exp&quot;),[layouts(&quot;LAYOUTLIST&quot;),lit(&quot;,&raquo;
+&quot;),layouts(&quot;LAYOUTLIST&quot;)]),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;)&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,&raquo;
+90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follo&raquo;
+w(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(102),appl(regular(\iter-star(\char-clas&raquo;
+s([range(48,57),range(65,90),range(97,122)]))),[char(97),char(99),char(116)])[@loc=|file://-|(79,3,&lt;4,20&gt;,&lt;4,2&raquo;
+3&gt;)]])[@loc=|file://-|(78,4,&lt;4,19&gt;,&lt;4,23&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOU&raquo;
+T&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;L&raquo;
+AYOUT&quot;))),[])[@loc=|file://-|(82,0,&lt;4,23&gt;,&lt;4,23&gt;)]])[@loc=|file://-|(82,0,&lt;4,23&gt;,&lt;4,23&gt;)],appl(prod(lit(&quot;(&quot;),[&raquo;
+\char-class([range(40,40)])],{}),[char(40)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYO&raquo;
+UT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;&raquo;
+LAYOUT&quot;))),[])[@loc=|file://-|(83,0,&lt;4,24&gt;,&lt;4,24&gt;)]])[@loc=|file://-|(83,0,&lt;4,24&gt;,&lt;4,24&gt;)],appl(regular(\iter-&raquo;
+star-seps(sort(&quot;Exp&quot;),[layouts(&quot;LAYOUTLIST&quot;),lit(&quot;,&quot;),layouts(&quot;LAYOUTLIST&quot;)])),[appl(prod(label(&quot;sub&quot;,sort(&quot;Ex&raquo;
+p&quot;)),[sort(&quot;Exp&quot;),layouts(&quot;LAYOUTLIST&quot;),lit(&quot;-&quot;),layouts(&quot;LAYOUTLIST&quot;),sort(&quot;Exp&quot;)],{assoc(left())}),[appl(pro&raquo;
+d(label(&quot;var&quot;,sort(&quot;Exp&quot;)),[lex(&quot;Ident&quot;)],{}),[appl(prod(lex(&quot;Ident&quot;),[\char-class([range(65,90),range(97,122)&raquo;
+]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([ra&raquo;
+nge(48,57),range(65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),r&raquo;
+ange(65,90),range(97,122)]))),[])[@loc=|file://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)]])[@loc=|file://-|(83,1,&lt;4,24&gt;,&lt;4,25&gt;)]]&raquo;
+)[@loc=|file://-|(83,1,&lt;4,24&gt;,&lt;4,25&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),&raquo;
+{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOUT&raquo;
+&quot;))),[])[@loc=|file://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)]])[@loc=|file://-|(84,0,&lt;4,25&gt;,&lt;4,25&gt;)],appl(prod(lit(&quot;-&quot;),[\char&raquo;
+-class([range(45,45)])],{}),[char(45)]),appl(prod(layouts(&quot;LAYOUTLIST&quot;),[conditional(\iter-star(lex(&quot;LAYOUT&quot;))&raquo;
+,{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex(&quot;LAYOU&raquo;
+T&quot;))),[])[@loc=|file://-|(85,0,&lt;4,26&gt;,&lt;4,26&gt;)]])[@loc=|file://-|(85,0,&lt;4,26&gt;,&lt;4,26&gt;)],appl(prod(label(&quot;nat&quot;,so&raquo;
+rt(&quot;Exp&quot;)),[lex(&quot;Natural&quot;)],{}),[appl(prod(lex(&quot;Natural&quot;),[conditional(iter(\char-class([range(48,57)])),{\not&raquo;
+-follow(\char-class([range(48,57)]))})],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(49)])[@loc=&raquo;
+|file://-|(85,1,&lt;4,26&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(85,1,&lt;4,26&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(85,1,&lt;4,26&gt;,&lt;4,27&gt;)]]&raquo;
+)[@loc=|file://-|(83,3,&lt;4,24&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(83,3,&lt;4,24&gt;,&lt;4,27&gt;)],appl(prod(layouts(&quot;LAYOUTLIST&quot;),&raquo;
+[conditional(\iter-star(lex(&quot;LAYOUT&quot;)),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{&raquo;
+}),[appl(regular(\iter-star(lex(&quot;LAYOUT&quot;))),[])[@loc=|file://-|(86,0,&lt;4,27&gt;,&lt;4,27&gt;)]])[@loc=|file://-|(86,0,&lt;4&raquo;
+,27&gt;,&lt;4,27&gt;)],appl(prod(lit(&quot;)&quot;),[\char-class([range(41,41)])],{}),[char(41)])])[@loc=|file://-|(78,9,&lt;4,19&gt;,&lt;&raquo;
+4,28&gt;)]])[@loc=|file://-|(74,13,&lt;4,15&gt;,&lt;4,28&gt;)]])[@loc=|file://-|(69,18,&lt;4,10&gt;,&lt;4,28&gt;)]})[@loc=|file://-|(69,1&raquo;
+8,&lt;4,10&gt;,&lt;4,28&gt;)],&quot;Ambiguous node should match with set and not Exp&quot;)
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.ParseTree.implode(org.eclipse.&raquo;
+imp.pdb.facts.IValue,org.eclipse.imp.pdb.facts.IConstructor)
+    somewhere in: implode
+    somewhere in: load
+    somewhere in: $shell$
+
+*** Rascal killed after timeout ***
 </pre>
 </div>
 
@@ -203,7 +328,7 @@ Result: &lt;(&quot;n&quot;:3628800),3628800&gt;
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/Eval2&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/Eval2&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

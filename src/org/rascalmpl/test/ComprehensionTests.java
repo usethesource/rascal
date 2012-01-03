@@ -267,10 +267,22 @@ public class ComprehensionTests extends TestFramework {
 	@Test
 	public void setComprehension4(){
 		prepare("set[int] f(int n) { return {n, 3*n}; }");
-		assertTrue(runTestInSameEvaluator("{f(n) | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{f(n) | n <- [ 1 .. 3 ]} == {{1,3},{2,6},{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{*f(n) | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		
 		assertTrue(runTestInSameEvaluator("{{n, 3*n} | n <- [ 1 .. 3 ]} == {{1,3},{2,6},{3,9}};"));
-		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
-		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+		assertTrue(runTestInSameEvaluator("{*{n, 3*n} | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{n, 3*n | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+	
+		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
+		
+		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,{1,3}},{10,{2,6}},{15,{3,9}}};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, *f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,{1,3},10,{2,6},15,{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, *f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
 	}
 	
 	@Test
@@ -352,8 +364,9 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test public void listComprehension3()  {
 		
-		assertTrue(runTest("[ [Y] | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
-		assertTrue(runTest("[ Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ 1,2,3, 10,20,30,100,200,300];"));
+		assertTrue(runTest("[ [Y] | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ [[1,2,3]], [[10,20,30]],[[100,200,300]]];"));
+		assertTrue(runTest("[ Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
+		assertTrue(runTest("[ *Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ 1,2,3, 10,20,30,100,200,300];"));
 		
 		assertTrue(runTest("[1 | 3 > 2] == [1] ;"));
 		assertTrue(runTest("[1 | 2 > 3] == [] ;"));
@@ -378,10 +391,16 @@ public class ComprehensionTests extends TestFramework {
 	@Test
 	public void listComprehension4(){
 		prepare("list[int] f(int n) { return [n, 3*n]; }");
-		assertTrue(runTestInSameEvaluator("[f(n) | n <- [ 1 .. 3 ]] == [1,3,2,6,3,9];"));
+		assertTrue(runTestInSameEvaluator("[f(n) | n <- [ 1 .. 3 ]] == [[1,3],[2,6],[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[*f(n) | n <- [ 1 .. 3 ]] == [1,3,2,6,3,9];"));
+
 		assertTrue(runTestInSameEvaluator("[[n, 3*n] | n <- [ 1 .. 3 ]] == [[1,3],[2,6],[3,9]];"));
-		assertTrue(runTestInSameEvaluator("[5*n, f(n) | n <- [ 1 .. 3 ]] == [5,1,3,10,2,6,15,3,9];"));
-		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 3 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
+		
+		assertTrue(runTestInSameEvaluator("[5*n, f(n) | n <- [ 1 .. 3 ]] == [5,[1,3],10,[2,6],15,[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[5*n, *f(n) | n <- [ 1 .. 3 ]] == [5,1,3,10,2,6,15,3,9];"));
+		
+		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 3 ]] == [[5,[1,3]],[10,[2,6]],[15,[3,9]]];"));
+		assertTrue(runTestInSameEvaluator("[[5*n, *f(n)] | n <- [ 1 .. 3 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
 	}
 	
 	@Test
