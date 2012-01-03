@@ -112,6 +112,17 @@ public class TypeReifier {
 	}
 	
 	/**
+	 * Reconstruct a type from a reified type value, but declare all types used first using the given definitions 
+	 * @param typeValue the type value to restore
+	 * @param definitions the definition
+	 */
+	public Type symbolToType(IConstructor symbol, IMap definitions) {
+		TypeStore store = new TypeStore();
+		declareAbstractDataTypes(definitions, store);
+		return symbolToType(symbol, store);
+	}
+	
+	/**
 	 * This method assumes that all types that are used have been defined.
 	 */
 	private void declareAbstractDataTypes(IMap definitions, TypeStore store) {

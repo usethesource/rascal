@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -1891,18 +1892,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(Evaluator __eval) {
 			Result<IValue> symbol = getSymbol().interpret(__eval);
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
-
+			
 			if (!symbol.getType().isSubtypeOf(Factory.Symbol)) {
 				throw new UnexpectedTypeError(Factory.Symbol, symbol.getType(), getSymbol());
 			}
+			
 			if (!declarations.getType().isSubtypeOf(defType)) {
 				throw new UnexpectedTypeError(defType, declarations.getType(), getSymbol());
 			}
 			
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(Factory.TypeParam, TF.valueType());
+			bindings.put(Factory.TypeParam, new TypeReifier(VF).symbolToType((IConstructor) symbol.getValue(), (IMap) declarations.getValue()));
+			
 			IValue val = Factory.Type_Reified.instantiate(bindings).make(VF, symbol.getValue(), declarations.getValue());
+			
+			bindings.put(Factory.TypeParam, TF.valueType());
 			Type typ = Factory.Type.instantiate(bindings);
+			
 			return ResultFactory.makeResult(typ, val, __eval);
 		}
 
