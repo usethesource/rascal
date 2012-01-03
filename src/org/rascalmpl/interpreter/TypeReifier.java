@@ -7,7 +7,6 @@
  *
  * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
@@ -17,7 +16,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
