@@ -59,7 +59,7 @@ public class ReifiedType extends Type {
 			return arg.isSubtypeOf(((ReifiedType) other).arg);
 		}
 		
-		if (other.isNodeType()) {
+		if (other == TypeFactory.getInstance().nodeType()) {
 			return true;
 		}
 		
