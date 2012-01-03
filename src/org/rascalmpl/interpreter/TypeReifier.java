@@ -348,7 +348,7 @@ public class TypeReifier {
 			@Override
 			public IValue visitMap(Type type) {
 				if (type.hasFieldNames()) {
-					return Factory.Symbol_Map.make(vf, type.getKeyType().accept(this), vf.string(type.getKeyLabel()), type.getValueType().accept(this), vf.string(type.getValueLabel()));
+					return Factory.Symbol_Map.make(vf, Factory.Symbol_Label.make(vf, vf.string(type.getKeyLabel()), type.getKeyType().accept(this)), Factory.Symbol_Label.make(vf, vf.string(type.getValueLabel()), type.getValueType().accept(this)));
 				}
 				else {
 					return Factory.Symbol_Map.make(vf, type.getKeyType().accept(this), type.getValueType().accept(this));
