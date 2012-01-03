@@ -14,9 +14,11 @@ package org.rascalmpl.interpreter.types;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -36,7 +38,16 @@ public class ReifiedType extends Type {
 		return "type";
 	}
 
-
+	@Override
+	public boolean hasField(String fieldName) {
+		return fieldName.equals("symbol") || fieldName.equals("definitions"); 
+	}
+	
+	@Override
+	public boolean isParameterized() {
+		return true;
+	}
+	
 	@Override
 	public boolean isNodeType() {
 		return true;
@@ -124,5 +135,15 @@ public class ReifiedType extends Type {
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitExternal(this);
+	}
+	
+	@Override
+	public boolean declaresAnnotation(TypeStore store, String label) {
+		return false;
+	}
+	
+	@Override
+	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
+		throw new UndeclaredAnnotationException(this, label);
 	}
 }
