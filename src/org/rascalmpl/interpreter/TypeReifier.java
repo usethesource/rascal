@@ -301,7 +301,13 @@ public class TypeReifier {
 		String name = ((IString) symbol.get("name")).getValue();
 		Type aliased = symbolToType((IConstructor) symbol.get("aliased"), store);
 		IList parameters = (IList) symbol.get("parameters");
-		return tf.aliasType(store, name, aliased,  symbolsToTupleType(parameters, store));
+		
+		if (parameters.isEmpty()) {
+			return tf.aliasType(store, name, aliased);
+		}
+		else {
+			return tf.aliasType(store, name, aliased,  symbolsToTupleType(parameters, store));
+		}
 	}
 
 	private Type adtToType(IConstructor symbol, TypeStore store) {
