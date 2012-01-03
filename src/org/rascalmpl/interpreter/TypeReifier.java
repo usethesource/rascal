@@ -211,6 +211,9 @@ public class TypeReifier {
 		else if (cons == Factory.Symbol_Set) {
 			return tf.setType(symbolToType((IConstructor) symbol.get("symbol"), store));
 		}
+		else if (cons == Factory.Symbol_List) {
+			return tf.listType(symbolToType((IConstructor) symbol.get("symbol"), store));
+		}
 		else if (cons == Factory.Symbol_Str) {
 			return tf.stringType();
 		}
