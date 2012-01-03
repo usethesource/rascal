@@ -41,14 +41,9 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   }
   
   
-  public str declareConstructor(value t,str typeName){
-    switch (t) {
-      case cons(label(str cname, _), list[Symbol] args) : {
-        return "public static final Type <typeName>_<cname> 
-               '  = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
-      }
-    }
-  }
+  public str declareConstructor(Production::cons(label(str cname, Symbol _), list[Symbol] args, set[Attr] _), str typeName) 
+    = "public static final Type <typeName>_<cname> 
+      '  = tf.constructor(typestore,<typeName>,\"<cname>\"<typeNameTuples2FactoryCallArgs(args)>);";
   
   public str type2FactoryCall(Symbol t){
     switch(t){
@@ -82,24 +77,23 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   }
   
   str typeParamsVarArgs(list[Symbol] p:[_*,label(_,_),_*]) {
-     return toExtraArgs([ type2FactoryCall(t[0]) | t <- p]);
+     return toExtraArgs([ type2FactoryCall(t) | label(_,t) <- p]);
   }
   
   default str typeParamsVarArgs(list[Symbol] p) {
      return toExtraArgs([ type2FactoryCall(t[0]) | t <- p]);
   }
   
-  str typeAndLabelsList2FactoryVarArgs(list[tuple[type[value] \type, str label]] typesAndLabels){
-    return toExtraArgs([type2FactoryCall(arg.\type),"\"<arg.label>\"" | arg <- typesAndLabels ]);
+  str typeAndLabelsList2FactoryVarArgs(list[Symbol] typesAndLabels){
+    return toExtraArgs([type2FactoryCall(typ),"\"<label>\"" | label(label,typ) <- typesAndLabels ]);
   }
   
-  str typeList2FactoryVarArgs(list[type[value]] tss){
-    println("HALLOO!");
-    if(tss == []) { return "";}
+  str typeList2FactoryVarArgs(list[Symbol] tss){
+    if (tss == []) { return "";}
     else { return toExtraArgs([ type2FactoryCall(t) | t <- tss]); }
   }
   
-  str typeList2FactoryVarArgsFirstPos(list[type[value]] tss){
+  str typeList2FactoryVarArgsFirstPos(list[Symbol] tss){
     return intercalate(",",[ type2FactoryCall(t) | t <- tss]);
   }
   
@@ -107,8 +101,8 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
     ("" | "<it>,<s>" | s <- strs);
   
   
-  str typeNameTuples2FactoryCallArgs(list[tuple[type[value],str]] args){
-    return toExtraArgs([type2FactoryCall(t),"\"" + n + "\"" | <t,n> <- args]);
+  str typeNameTuples2FactoryCallArgs(list[Symbol] args) {
+    return toExtraArgs([type2FactoryCall(t),"\"" + n + "\"" | label(n,t) <- args]);
   } 
   
   str resolveType(str s){
@@ -130,16 +124,13 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
   
   
   
-  str declareConstructorGetters(Production p, str typeName){
-    switch(t){
-      case cons(label(str cname,_), list[Symbol] args) : {
-        if(size(args) == 0) return "";
-        return   "<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i][0])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
-                 '  return <javaResult(args[i][0],"c.get(<i>)")>;
-                 '} 
-                 '<}>";
-      }
-    }
+  str declareConstructorGetters(Production::cons(label(str cname,_), list[Symbol] args, set[Attr] _), str typeName){
+     if(size(args) == 0) 
+       return "";
+     return   "<for(i <- [0..size(args)-1]) {>public static <typeToSimpleJavaType(args[i])> <typeName>_<cname>_<args[i][1]>(IConstructor c){
+              '  return <javaResult(args[i],"c.get(<i>)")>;
+              '} 
+              '<}>";
   }
   
   str typeToSimpleJavaType(Symbol t){
@@ -149,6 +140,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \num() : return "double";
       case \bool() : return "boolean";
       case \str() :  return "String";
+      case \label(_, x) : return typeToSimpleJavaType(x);
       default : return typeToJavaType(t);
     }
   }
@@ -160,6 +152,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \num() : return "<access> instanceof IInteger ? (double)((IInteger)<access>).intValue() : ((IReal)<access>).doubleValue()";
       case \bool() : return "((IBool)<access>).getValue()";
       case \str() :  return "((IString)<access>).getValue()";
+      case \label(_,x) : return javaResult(x, access);
       default : return "(<typeToJavaType(t)>)<access>";
     }
   }
