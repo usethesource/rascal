@@ -204,7 +204,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
            '  <declareType(t)>
            '  <}>
            '  <for(type[value] t <- allTypes, t.symbol in t.definitions, choice(_,cs) := t.definitions[t.symbol]) {> 
-           '    <declareGetters(t.symbol,cs)> <}>
+           '  <declareGetters(t.symbol,cs)> <}>
            '  private static final class InstanceHolder {
            '    public final static <apiName> factory = new <apiName>();
            '  }
