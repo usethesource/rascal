@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -45,20 +46,28 @@ public abstract class Replacement extends AbstractAST {
 
   static public class Ambiguity extends Replacement {
     private final java.util.List<org.rascalmpl.ast.Replacement> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Replacement> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Replacement> getAlternatives() {
@@ -105,6 +114,7 @@ public abstract class Replacement extends AbstractAST {
       return this.replacementExpression;
     }
   
+  
     @Override
     public boolean hasReplacementExpression() {
       return true;
@@ -144,6 +154,7 @@ public abstract class Replacement extends AbstractAST {
       return this.replacementExpression;
     }
   
+  
     @Override
     public boolean hasReplacementExpression() {
       return true;
@@ -152,6 +163,7 @@ public abstract class Replacement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
       return this.conditions;
     }
+  
   
     @Override
     public boolean hasConditions() {

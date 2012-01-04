@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -66,20 +67,28 @@ public abstract class Class extends AbstractAST {
 
   static public class Ambiguity extends Class {
     private final java.util.List<org.rascalmpl.ast.Class> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Class> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Class> getAlternatives() {
@@ -128,6 +137,8 @@ public abstract class Class extends AbstractAST {
       return this.lhs;
     }
   
+   
+  
     @Override
     public boolean hasLhs() {
       return true;
@@ -136,6 +147,7 @@ public abstract class Class extends AbstractAST {
     public org.rascalmpl.ast.Class getRhs() {
       return this.rhs;
     }
+  
   
     @Override
     public boolean hasRhs() {
@@ -176,6 +188,7 @@ public abstract class Class extends AbstractAST {
       return this.lhs;
     }
   
+  
     @Override
     public boolean hasLhs() {
       return true;
@@ -184,6 +197,7 @@ public abstract class Class extends AbstractAST {
     public org.rascalmpl.ast.Class getRhs() {
       return this.rhs;
     }
+  
   
     @Override
     public boolean hasRhs() {
@@ -221,6 +235,7 @@ public abstract class Class extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Range> getRanges() {
       return this.ranges;
     }
+  
   
     @Override
     public boolean hasRanges() {
@@ -261,6 +276,8 @@ public abstract class Class extends AbstractAST {
       return this.lhs;
     }
   
+  
+  
     @Override
     public boolean hasLhs() {
       return true;
@@ -269,6 +286,7 @@ public abstract class Class extends AbstractAST {
     public org.rascalmpl.ast.Class getRhs() {
       return this.rhs;
     }
+  
   
     @Override
     public boolean hasRhs() {
@@ -307,6 +325,7 @@ public abstract class Class extends AbstractAST {
       return this.charClass;
     }
   
+  
     @Override
     public boolean hasCharClass() {
       return true;
@@ -343,6 +362,7 @@ public abstract class Class extends AbstractAST {
     public org.rascalmpl.ast.Class getCharclass() {
       return this.charclass;
     }
+  
   
     @Override
     public boolean hasCharclass() {

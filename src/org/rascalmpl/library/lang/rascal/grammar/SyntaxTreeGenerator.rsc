@@ -133,7 +133,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '
          'public abstract class <ast.name> extends AbstractAST {
          '  public <ast.name>(IConstructor node) {
-         '    super(node);
+         '    super();
          '  }
          '
          '  <for (arg(typ, lab) <- allArgs) { clabel = capitalize(lab); >
@@ -177,6 +177,19 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return visitor.visit<super><sig.name>(this);
          '  }
          '
+         '  @Override
+         '  public AbstractAST findNode(int offset) {
+         '    if (src.getOffset() \<= offset && offset \< src.getOffset() + src.getLength()) {
+         '      return this;
+         '    }
+         '    ISourceLocation loc;
+         '    <for (arg(typ, name) <- sig.args) {>loc = <name>.getLocation();
+         '    if (offset \<= loc.getOffset() + loc.getLength()) {
+         '      return <name>.findNode(offset);
+         '    } 
+         '    <}>
+         '    return null;
+         '  }
          '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
          '  @Override
          '  public <typ> get<cname>() {
@@ -193,20 +206,32 @@ public str classForProduction(str pkg, str super, Sig sig) {
 public str ambiguityClass(str pkg, str name) {
   return "static public class Ambiguity extends <name> {
          '  private final java.util.List\<<pkg>.<name>\> alternatives;
-         '
+         '  private final IConstructor node;
+         
          '  public Ambiguity(IConstructor node, java.util.List\<<pkg>.<name>\> alternatives) {
          '    super(node);
+         '    this.node = node;
          '    this.alternatives = java.util.Collections.unmodifiableList(alternatives);
          '  }
          '  
          '  @Override
+         '  public IConstructor getTree() {
+         '    return node;
+         '  }
+         '
+         '  @Override
+         '  public AbstractAST findNode(int offset) {
+         '    return null;
+         '  }
+         '
+         '  @Override
          '  public Result\<IValue\> interpret(Evaluator __eval) {
-         '    throw new Ambiguous(this.getTree());
+         '    throw new Ambiguous(node);
          '  }
          '    
          '  @Override
          '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-         '    throw new Ambiguous(this.getTree());
+         '    throw new Ambiguous(node);
          '  }
          '  
          '  public java.util.List\<<pkg>.<name>\> getAlternatives() {
@@ -230,6 +255,15 @@ public str lexicalClass(str name) {
          '  public java.lang.String getString() {
          '    return string;
          '  }
+         '
+         '  @Override
+         '  public AbstractAST findNode(int offset) {
+         '    if (src.getOffset() \<= offset && offset \< src.getOffset() + src.getLength()) {
+         '      return this;
+         '    }
+         '    return null;
+         '  }
+         '
          '  public java.lang.String toString() {
          '    return string;
          '  }

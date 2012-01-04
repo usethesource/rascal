@@ -22,16 +22,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.ast.MidStringChars.Lexical;
 import org.rascalmpl.ast.StringLiteral.NonInterpolated;
 import org.rascalmpl.ast.StringMiddle.Ambiguity;
 import org.rascalmpl.ast.StringMiddle.Interpolated;
@@ -58,22 +59,22 @@ public class StringTemplateConverter {
 		super();
 	}
 	
-	private Statement surroundWithSingleIterForLoop(IConstructor src, Name label, Statement body) {
-		Name dummy = ASTBuilder.make("Name","Lexical",src, "_");
-		Expression var = ASTBuilder.make("Expression","QualifiedName",src, ASTBuilder.make("QualifiedName", src, Arrays.asList(dummy)));
-		Expression truth = ASTBuilder.make("Expression","Literal",src, ASTBuilder.make("Literal","Boolean",src, ASTBuilder.make("BooleanLiteral","Lexical",src, "true")));
-		Expression list = ASTBuilder.make("Expression","List", src, Arrays.asList(truth));
-		Expression enumerator = ASTBuilder.make("Expression","Enumerator",src, var, list);
-		Statement stat = ASTBuilder.make("Statement","For",src, ASTBuilder.make("Label","Default", src, label), Arrays.asList(enumerator), body);
+	private Statement surroundWithSingleIterForLoop(ISourceLocation loc, Name label, Statement body) {
+		Name dummy = ASTBuilder.make("Name","Lexical",loc, "_");
+		Expression var = ASTBuilder.make("Expression","QualifiedName",loc, ASTBuilder.make("QualifiedName", loc, Arrays.asList(dummy)));
+		Expression truth = ASTBuilder.make("Expression","Literal",loc, ASTBuilder.make("Literal","Boolean",loc, ASTBuilder.make("BooleanLiteral","Lexical",loc, "true")));
+		Expression list = ASTBuilder.make("Expression","List", loc, Arrays.asList(truth));
+		Expression enumerator = ASTBuilder.make("Expression","Enumerator",loc, var, list);
+		Statement stat = ASTBuilder.make("Statement","For",loc, ASTBuilder.make("Label","Default", loc, label), Arrays.asList(enumerator), body);
 		return stat;
 	}
 
 
 	public Statement convert(org.rascalmpl.ast.StringLiteral str) {
-		final Name label= ASTBuilder.make("Name","Lexical", str.getTree(), "#" + labelCounter);
+		final Name label= ASTBuilder.make("Name","Lexical", str.getLocation(), "#" + labelCounter);
 		labelCounter++;
 		Statement stat = str.accept(new Visitor(label));
-		return surroundWithSingleIterForLoop(str.getTree(), label, stat);
+		return surroundWithSingleIterForLoop(str.getLocation(), label, stat);
 	}
 	
 	private static class Visitor extends NullASTVisitor<Statement> {
@@ -83,21 +84,22 @@ public class StringTemplateConverter {
 			this.label = label;
 		}
 
-		private Statement makeBlock(IConstructor src, Statement ...stats) {
+		private Statement makeBlock(ISourceLocation src, Statement ...stats) {
 			return makeBlock(src, Arrays.asList(stats));
 		}
 		
-		private Statement makeBlock(IConstructor src, List<Statement> stats) {
-			return ASTBuilder.make("Statement","NonEmptyBlock",src, ASTBuilder.make("Label", "Empty", src),
+		private Statement makeBlock(ISourceLocation loc, List<Statement> stats) {
+			return ASTBuilder.make("Statement","NonEmptyBlock",loc, ASTBuilder.make("Label", "Empty", loc),
 					stats);
 		}
 
 		
 		private class IndentingAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 
-			public IndentingAppend(IConstructor __param1, DataTarget __param2,
+			public IndentingAppend(ISourceLocation __param1, DataTarget __param2,
 					Statement __param3) {
-				super(__param1, __param2, __param3);
+				super(null, __param2, __param3);
+				setSourceLocation(__param1);
 			} 
 			
 			@Override
@@ -149,8 +151,9 @@ public class StringTemplateConverter {
 			private static final Pattern MARGIN = Pattern.compile("^[ \t]*'", Pattern.MULTILINE);
 			protected final IString str;
 
-			public ConstAppend(IConstructor __param1, DataTarget __param2, String arg) {
-				super(__param1, __param2, null);
+			public ConstAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
+				super(null, __param2, null);
+				setSourceLocation(__param1);
 				str = initString(preprocess(arg));
 			}
 			
@@ -189,7 +192,7 @@ public class StringTemplateConverter {
 			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'[^']*$");
 			private int indent;
 			
-			public IndentingStringFragmentAppend(IConstructor __param1, DataTarget __param2, String arg) {
+			public IndentingStringFragmentAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -214,7 +217,7 @@ public class StringTemplateConverter {
 		}
 
 		private static class PreAppend extends IndentingStringFragmentAppend {
-			public PreAppend(IConstructor __param1, DataTarget __param2, String arg) {
+			public PreAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -228,7 +231,7 @@ public class StringTemplateConverter {
 
 		private static class MidAppend extends IndentingStringFragmentAppend {
 
-			public MidAppend(IConstructor __param1, DataTarget __param2, String arg) {
+			public MidAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -242,7 +245,7 @@ public class StringTemplateConverter {
 		}
 
 		private static class PostAppend extends ConstAppend {
-			public PostAppend(IConstructor __param1, DataTarget __param2, String arg) {
+			public PostAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
 			}
 			
@@ -256,28 +259,29 @@ public class StringTemplateConverter {
 		}		
 		
 		
-		private Statement makeConstAppend(IConstructor tree, String str) {
-			return new ConstAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		private Statement makeConstAppend(ISourceLocation tree, String str) {
+			return new ConstAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
-		private Statement makePostAppend(IConstructor tree, String str) {
-			return new PostAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		private Statement makePostAppend(ISourceLocation tree, String str) {
+			return new PostAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
-		private Statement makePreAppend(IConstructor tree, String str) {
-			return new PreAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		private Statement makePreAppend(ISourceLocation tree, String str) {
+			return new PreAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
-		private Statement makeMidAppend(IConstructor tree, String str) {
-			return new MidAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label), str); 
+		private Statement makeMidAppend(ISourceLocation tree, String str) {
+			return new MidAppend(tree, ASTBuilder.<DataTarget>make("DataTarget","Labeled", tree, label), str); 
 		}
 
 		private Statement makeIndentingAppend(Expression exp) {
-			return new IndentingAppend(exp.getTree(), ASTBuilder.<DataTarget>make("DataTarget","Labeled", null, label),
-					ASTBuilder.<Statement>make("Statement","Expression", exp.getTree(), exp)); 
+			ISourceLocation loc = exp.getLocation();
+			return new IndentingAppend(exp.getLocation(), ASTBuilder.<DataTarget>make("DataTarget","Labeled", loc, label),
+					ASTBuilder.<Statement>make("Statement","Expression", loc, exp)); 
 		}
 		
-		private  Statement combinePreBodyPost(IConstructor src, List<Statement> pre, Statement body, List<Statement> post) {
+		private  Statement combinePreBodyPost(ISourceLocation src, List<Statement> pre, Statement body, List<Statement> post) {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(pre);
 			stats.add(body);
@@ -291,12 +295,12 @@ public class StringTemplateConverter {
 			Statement pre = x.getPre().accept(this);
 			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), pre, exp, tail);
+			return makeBlock(x.getLocation(), pre, exp, tail);
 		}
 		
 		@Override
 		public Statement visitStringLiteralNonInterpolated(NonInterpolated x) {
-			return makeConstAppend(x.getTree(), ((StringConstant.Lexical)x.getConstant()).getString());
+			return makeConstAppend(x.getLocation(), ((StringConstant.Lexical)x.getConstant()).getString());
 		}
 		
 		@Override
@@ -305,46 +309,46 @@ public class StringTemplateConverter {
 			Statement pre = x.getPre().accept(this);
 			Statement template = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), pre, template, tail);
+			return makeBlock(x.getLocation(), pre, template, tail);
 		}
 		
 	
 		@Override
 		public Statement visitStringTemplateDoWhile(DoWhile x) {
 			Statement body = x.getBody().accept(this);
-			return ASTBuilder.makeStat("DoWhile", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
+			return ASTBuilder.makeStat("DoWhile", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()) , x.getCondition());
 		}
 
 		@Override
 		public Statement visitStringTemplateFor(For x) {
 			Statement body = x.getBody().accept(this);
-			return ASTBuilder.makeStat("For", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), x.getGenerators(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
+			return ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThen(IfThen x) {
 			Statement body = x.getBody().accept(this);
-			return ASTBuilder.makeStat("IfThen", x.getTree(), ASTBuilder.make("Label", "Empty", x.getTree()), x.getConditions(), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
+			return ASTBuilder.makeStat("IfThen", x.getLocation(), ASTBuilder.make("Label", "Empty", x.getLocation()), x.getConditions(), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
 		public Statement visitStringTemplateIfThenElse(IfThenElse x) {
 			Statement t = x.getThenString().accept(this);
 			Statement e = x.getElseString().accept(this);
-			return ASTBuilder.makeStat("IfThenElse", x.getTree(), ASTBuilder.make("Label","Empty",x.getTree()), 
+			return ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 
 					x.getConditions(), 
-						combinePreBodyPost(x.getTree(), x.getPreStatsThen(), t, x.getPostStatsThen()),
-						combinePreBodyPost(x.getTree(), x.getPreStatsElse(), e, x.getPostStatsElse()));
+						combinePreBodyPost(x.getLocation(), x.getPreStatsThen(), t, x.getPostStatsThen()),
+						combinePreBodyPost(x.getLocation(), x.getPreStatsElse(), e, x.getPostStatsElse()));
 		}
 
 		@Override
 		public Statement visitStringTemplateWhile(While x) {
 			Statement body = x.getBody().accept(this);
-			return ASTBuilder.makeStat("While", x.getTree(), ASTBuilder.make("Label","Empty", x.getTree()), Collections.singletonList(x.getCondition()), 
-					combinePreBodyPost(x.getTree(), x.getPreStats(), body, x.getPostStats()));
+			return ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
+					combinePreBodyPost(x.getLocation(), x.getPreStats(), body, x.getPostStats()));
 		}
 
 		@Override
@@ -352,7 +356,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, exp, tail);
+			return makeBlock(x.getLocation(), mid, exp, tail);
 		}
 
 		@Override
@@ -360,7 +364,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement tmp = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, tmp, tail);
+			return makeBlock(x.getLocation(), mid, tmp, tail);
 		}
 		
 		@Override
@@ -370,19 +374,19 @@ public class StringTemplateConverter {
 
 		@Override
 		public Statement visitMidStringCharsLexical(Lexical x) {
-			return makeMidAppend(x.getTree(), x.getString());
+			return makeMidAppend(x.getLocation(), x.getString());
 		}
 
 		@Override
 		public Statement visitPreStringCharsLexical(
 				org.rascalmpl.ast.PreStringChars.Lexical x) {
-			return makePreAppend(x.getTree(), x.getString());
+			return makePreAppend(x.getLocation(), x.getString());
 		}
 		
 		@Override
 		public Statement visitPostStringCharsLexical(
 				org.rascalmpl.ast.PostStringChars.Lexical x) {
-			return makePostAppend(x.getTree(), x.getString());
+			return makePostAppend(x.getLocation(), x.getString());
 		}
 
 		@Override
@@ -391,13 +395,13 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement exp = makeIndentingAppend(x.getExpression());
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, exp, tail);
+			return makeBlock(x.getLocation(), mid, exp, tail);
 		}
 
 		@Override
 		public Statement visitStringConstantLexical(
 				org.rascalmpl.ast.StringConstant.Lexical x) {
-			return makeConstAppend(x.getTree(), x.getString());
+			return makeConstAppend(x.getLocation(), x.getString());
 		}
 		
 		@Override
@@ -406,7 +410,7 @@ public class StringTemplateConverter {
 			Statement mid = x.getMid().accept(this);
 			Statement template = x.getTemplate().accept(this);
 			Statement tail = x.getTail().accept(this);
-			return makeBlock(x.getTree(), mid, template, tail);
+			return makeBlock(x.getLocation(), mid, template, tail);
 		}
 		
 		@Override

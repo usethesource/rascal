@@ -86,6 +86,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -1678,8 +1679,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-			return ASTBuilder.make("Statement", "NonEmptyBlock", this.getTree(),
-					ASTBuilder.make("Label", "Empty", this.getTree()),
+			return ASTBuilder.make("Statement", "NonEmptyBlock", this.getLocation(),
+					ASTBuilder.make("Label", "Empty", this.getLocation()),
 					this.getStatements()).interpret(__eval);
 		}
 	}
@@ -2172,15 +2173,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for (int i = 0; i < nSubs; i++) {
 				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts()
 						.get(i);
-				subscripts[i] = isWildCard(subsExpr.toString()) ? null
+				subscripts[i] = isWildCard(subsExpr) ? null
 						: subsExpr.interpret(__eval);
 			}
 			return expr.subscript(subscripts);
 
 		}
 		
-		private boolean isWildCard(String fieldName) {
-			return fieldName.equals("_");
+		private boolean isWildCard(org.rascalmpl.ast.Expression fieldName) {
+			if (fieldName.isQualifiedName()) {
+				return Names.name(Names.lastName(fieldName.getQualifiedName())).equals("_");
+			}
+			return false;
 		}
 
 	}
@@ -2430,7 +2434,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			IMatchingResult pat = this.getPattern().buildMatcher(eval);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
-			IMatchingResult var = new QualifiedNamePattern(eval, this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make("QualifiedName", "Default", this.getTree(), names));
+			IMatchingResult var = new QualifiedNamePattern(eval, this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make("QualifiedName", "Default", this.getLocation(), names));
 			return new VariableBecomesPattern(eval, this, var, pat);
 
 		}

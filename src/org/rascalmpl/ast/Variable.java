@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -45,20 +46,28 @@ public abstract class Variable extends AbstractAST {
 
   static public class Ambiguity extends Variable {
     private final java.util.List<org.rascalmpl.ast.Variable> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Variable> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Variable> getAlternatives() {
@@ -107,6 +116,7 @@ public abstract class Variable extends AbstractAST {
       return this.name;
     }
   
+  
     @Override
     public boolean hasName() {
       return true;
@@ -115,6 +125,7 @@ public abstract class Variable extends AbstractAST {
     public org.rascalmpl.ast.Expression getInitial() {
       return this.initial;
     }
+  
   
     @Override
     public boolean hasInitial() {
@@ -152,6 +163,7 @@ public abstract class Variable extends AbstractAST {
     public org.rascalmpl.ast.Name getName() {
       return this.name;
     }
+  
   
     @Override
     public boolean hasName() {

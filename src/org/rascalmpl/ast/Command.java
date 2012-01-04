@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -66,20 +67,28 @@ public abstract class Command extends AbstractAST {
 
   static public class Ambiguity extends Command {
     private final java.util.List<org.rascalmpl.ast.Command> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Command> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Command> getAlternatives() {
@@ -126,6 +135,7 @@ public abstract class Command extends AbstractAST {
       return this.command;
     }
   
+  
     @Override
     public boolean hasCommand() {
       return true;
@@ -162,6 +172,7 @@ public abstract class Command extends AbstractAST {
     public org.rascalmpl.ast.Import getImported() {
       return this.imported;
     }
+  
   
     @Override
     public boolean hasImported() {
@@ -200,6 +211,7 @@ public abstract class Command extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -237,6 +249,7 @@ public abstract class Command extends AbstractAST {
       return this.statement;
     }
   
+  
     @Override
     public boolean hasStatement() {
       return true;
@@ -273,6 +286,7 @@ public abstract class Command extends AbstractAST {
     public org.rascalmpl.ast.Declaration getDeclaration() {
       return this.declaration;
     }
+  
   
     @Override
     public boolean hasDeclaration() {

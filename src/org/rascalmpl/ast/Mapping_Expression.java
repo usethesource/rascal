@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -45,20 +46,32 @@ public abstract class Mapping_Expression extends AbstractAST {
 
   static public class Ambiguity extends Mapping_Expression {
     private final java.util.List<org.rascalmpl.ast.Mapping_Expression> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Mapping_Expression> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Mapping_Expression> getAlternatives() {
@@ -107,6 +120,8 @@ public abstract class Mapping_Expression extends AbstractAST {
       return this.from;
     }
   
+    
+  
     @Override
     public boolean hasFrom() {
       return true;
@@ -114,6 +129,20 @@ public abstract class Mapping_Expression extends AbstractAST {
     @Override
     public org.rascalmpl.ast.Expression getTo() {
       return this.to;
+    }
+  
+    @Override
+    public AbstractAST findNode(int offset) {
+      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
+        return this;
+      }
+      ISourceLocation loc;
+      loc = to.getLocation();
+      if (offset <= loc.getOffset() + loc.getLength()) {
+        return to.findNode(offset);
+      } 
+      
+      return null;
     }
   
     @Override

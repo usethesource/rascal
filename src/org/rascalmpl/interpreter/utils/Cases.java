@@ -20,6 +20,7 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -125,7 +126,7 @@ public class Cases  {
 		
 		void add(Case c) {
 			Expression pattern = c.getPatternWithAction().getPattern();
-			IConstructor key = TreeAdapter.getProduction(pattern.getTree());
+			IConstructor key = ((Tree.Appl) pattern).getProduction();
 			List<DefaultBlock> same = table.get(key);
 			if (same == null) {
 				same = new LinkedList<DefaultBlock>();

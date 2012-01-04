@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -52,20 +53,28 @@ public abstract class PatternWithAction extends AbstractAST {
 
   static public class Ambiguity extends PatternWithAction {
     private final java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PatternWithAction> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.PatternWithAction> getAlternatives() {
@@ -114,6 +123,7 @@ public abstract class PatternWithAction extends AbstractAST {
       return this.pattern;
     }
   
+  
     @Override
     public boolean hasPattern() {
       return true;
@@ -122,6 +132,7 @@ public abstract class PatternWithAction extends AbstractAST {
     public org.rascalmpl.ast.Replacement getReplacement() {
       return this.replacement;
     }
+  
   
     @Override
     public boolean hasReplacement() {
@@ -162,6 +173,7 @@ public abstract class PatternWithAction extends AbstractAST {
       return this.pattern;
     }
   
+  
     @Override
     public boolean hasPattern() {
       return true;
@@ -170,6 +182,7 @@ public abstract class PatternWithAction extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {

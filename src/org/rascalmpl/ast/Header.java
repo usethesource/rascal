@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -59,21 +60,19 @@ public abstract class Header extends AbstractAST {
 
   static public class Ambiguity extends Header {
     private final java.util.List<org.rascalmpl.ast.Header> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Header> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
+  
     
     public java.util.List<org.rascalmpl.ast.Header> getAlternatives() {
       return alternatives;
@@ -125,6 +124,7 @@ public abstract class Header extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -133,6 +133,7 @@ public abstract class Header extends AbstractAST {
     public org.rascalmpl.ast.QualifiedName getName() {
       return this.name;
     }
+  
   
     @Override
     public boolean hasName() {
@@ -143,6 +144,7 @@ public abstract class Header extends AbstractAST {
       return this.params;
     }
   
+  
     @Override
     public boolean hasParams() {
       return true;
@@ -151,6 +153,7 @@ public abstract class Header extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Import> getImports() {
       return this.imports;
     }
+  
   
     @Override
     public boolean hasImports() {
@@ -193,6 +196,7 @@ public abstract class Header extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -202,6 +206,7 @@ public abstract class Header extends AbstractAST {
       return this.name;
     }
   
+  
     @Override
     public boolean hasName() {
       return true;
@@ -210,6 +215,7 @@ public abstract class Header extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Import> getImports() {
       return this.imports;
     }
+  
   
     @Override
     public boolean hasImports() {

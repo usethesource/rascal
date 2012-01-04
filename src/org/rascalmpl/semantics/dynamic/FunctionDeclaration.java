@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -33,7 +34,6 @@ import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 
 public abstract class FunctionDeclaration extends
@@ -167,7 +167,7 @@ public abstract class FunctionDeclaration extends
 						null, this, null);
 			}
 
-			IConstructor src = this.getTree();
+			ISourceLocation src = this.getLocation();
 			AbstractAST ret = ASTBuilder.makeStat("Return", src, ASTBuilder.makeStat("Expression", src, getExpression()));
 			AbstractAST fail = ASTBuilder.makeStat("Fail", src, ASTBuilder.make("Target", "Labeled", src, getSignature().getName()));
 			AbstractAST ite = ASTBuilder.makeStat("IfThenElse", src, ASTBuilder.make("Label", "Empty", src), getConditions(), ret, fail);

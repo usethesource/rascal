@@ -43,7 +43,7 @@ set[Production] expand(set[Production] prods) {
     for (\parameterized-sort(name,actuals) <- uses, def <- defs, \parameterized-sort(name,formals) := def.def) {
        instantiated += {\parameterized-sort(name,actuals)};
        substs = (formals[i]:actuals[i] | int i <- domain(actuals) & domain(formals));
-       instances = {instances, visit (def) {
+       instances = {*instances, visit (def) {
          case Symbol par:\parameter(_) => substs[par]?par
        }}; 
     }

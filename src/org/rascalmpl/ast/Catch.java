@@ -16,15 +16,16 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Catch extends AbstractAST {
   public Catch(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -45,20 +46,28 @@ public abstract class Catch extends AbstractAST {
 
   static public class Ambiguity extends Catch {
     private final java.util.List<org.rascalmpl.ast.Catch> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Catch> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Catch> getAlternatives() {
@@ -105,6 +114,7 @@ public abstract class Catch extends AbstractAST {
       return this.body;
     }
   
+  
     @Override
     public boolean hasBody() {
       return true;
@@ -144,6 +154,8 @@ public abstract class Catch extends AbstractAST {
       return this.pattern;
     }
   
+   
+  
     @Override
     public boolean hasPattern() {
       return true;
@@ -152,6 +164,7 @@ public abstract class Catch extends AbstractAST {
     public org.rascalmpl.ast.Statement getBody() {
       return this.body;
     }
+  
   
     @Override
     public boolean hasBody() {

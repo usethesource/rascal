@@ -77,32 +77,32 @@ public class ASTBuilder {
 		
 		if(dummyEmptyTree == null){
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
-			dummyEmptyTree = makeAmb("Expression", (IConstructor) Factory.Tree_Amb.make(vf, vf.list()), Collections.<Expression>emptyList());
+			dummyEmptyTree = makeAmb("Expression", vf.sourceLocation("/dev/null"), Collections.<Expression>emptyList());
 		}
 	}
 	
-	public static <T extends AbstractAST> T make(String sort, IConstructor src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Default", src, args);
 	}
 	
-	public static  <T extends Expression> T makeExp(String cons, IConstructor src, Object... args) {
+	public static  <T extends Expression> T makeExp(String cons, ISourceLocation src, Object... args) {
 		return make("Expression", cons, src, args);
 	}
 	
-	public static <T extends Statement> T makeStat(String cons, IConstructor src, Object... args) {
+	public static <T extends Statement> T makeStat(String cons, ISourceLocation src, Object... args) {
 		return make("Statement", cons, src, args);
 	}
 	
-	public static <T extends AbstractAST> T makeAmb(String sort, IConstructor src, Object... args) {
+	public static <T extends AbstractAST> T makeAmb(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Ambiguity", src, args);
 	}
 	
-	public static <T extends AbstractAST> T makeLex(String sort, IConstructor src, Object... args) {
+	public static <T extends AbstractAST> T makeLex(String sort, ISourceLocation src, Object... args) {
 		return make(sort, "Lexical", src, args);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends AbstractAST> T make(String sort, String cons, IConstructor src, Object... args) {
+	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
 		Class<?>[] formals = new Class<?>[args.length];
 		for (int i = 0; i < args.length; i++) {
 			Class<?> clazz = args[i].getClass();
@@ -146,7 +146,7 @@ public class ASTBuilder {
 				IList moduleArgs = (IList) tree.get(1);
 				IConstructor headerTree = (IConstructor) moduleArgs.get(0);
 				Header header = (Header) buildValue(headerTree);
-				return make("Module", tree, header, make("Body","Toplevels", (IConstructor) moduleArgs.get(2), Collections.<Toplevel>emptyList())); 
+				return make("Module", TreeAdapter.getLocation(tree), header, make("Body","Toplevels", (ISourceLocation) ((IConstructor) moduleArgs.get(2)).getAnnotation("loc"), Collections.<Toplevel>emptyList())); 
 			}
 			return buildSort(parseTree, MODULE_SORT);
 		}
@@ -555,7 +555,7 @@ public class ASTBuilder {
 			return null;
 		}
 		
-		return makeAmb("Expression", antiQuote, result);
+		return makeAmb("Expression", TreeAdapter.getLocation(antiQuote), result);
 	}
 
 	private AbstractAST lift(IConstructor tree, boolean match) {
@@ -884,8 +884,16 @@ public class ASTBuilder {
 	private boolean isRascalSort(String sort) {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
+
+	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], ISourceLocation src, Object actuals[]) {
+		return callMakerMethod(sort, cons, formals, src, null, actuals);
+	}
 	
-	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], IConstructor src, Object actuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], IConstructor tree, Object actuals[]) {
+		return callMakerMethod(sort, cons, formals, TreeAdapter.getLocation(tree), tree, actuals);
+	}
+	
+	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], ISourceLocation src, IConstructor tree, Object actuals[]) {
 		try {
 			String name = sort + "$" + cons;
 			Class<?> clazz = astClasses.get(name);
@@ -911,9 +919,14 @@ public class ASTBuilder {
 			System.arraycopy(formals, 0, realForms, 1, formals.length);
 			Constructor<?> make = clazz.getConstructor(realForms);
 			Object[] params = new Object[actuals.length + 1];
-			params[0] = src;
+			params[0] = tree;
 			System.arraycopy(actuals, 0, params, 1, actuals.length);
-			return (AbstractAST) make.newInstance(params);
+			AbstractAST result = (AbstractAST) make.newInstance(params);
+			if (src != null) {
+				result.setSourceLocation(src);
+			}
+			return result;
+			
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (NoSuchMethodException e) {

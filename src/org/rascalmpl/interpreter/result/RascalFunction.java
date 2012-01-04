@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
@@ -81,7 +81,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				(FunctionType) func.getSignature().typeOf(env),
 				varargs, isDefault(func),
-				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getTree(), ASTBuilder.makeStat("Expression", func.getTree(), func.getExpression()))}),
+				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
 		this.name = Names.name(func.getSignature().getName());
 		this.isTest = hasTestMod(func.getSignature());
@@ -122,13 +122,13 @@ public class RascalFunction extends NamedFunction {
 			Expression last = formals.get(formals.size() - 1);
 			if (last.isTypedVariable()) {
 				org.rascalmpl.ast.Type oldType = last.getType();
-				IConstructor origin = last.getTree();
+				ISourceLocation origin = last.getLocation();
 				Structured newType = ASTBuilder.make("Type","Structured", origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg","Default", origin,oldType))));
 				last = ASTBuilder.make("Expression","TypedVariable",origin, newType, last.getName());
 				formals = replaceLast(formals, last);
 			}
 			else if (last.isQualifiedName()) {
-				IConstructor origin = last.getTree();
+				ISourceLocation origin = last.getLocation();
 				org.rascalmpl.ast.Type newType = ASTBuilder.make("Type","Structured",origin, ASTBuilder.make("StructuredType",origin, ASTBuilder.make("BasicType","List", origin), Arrays.asList(ASTBuilder.make("TypeArg",origin, ASTBuilder.make("Type","Basic", origin, ASTBuilder.make("BasicType","Value", origin))))));
 				last = ASTBuilder.makeExp("TypedVariable", origin, newType, Names.lastName(last.getQualifiedName()));
 				formals = replaceLast(formals, last);

@@ -14,6 +14,7 @@ package org.rascalmpl.interpreter.matching;
 
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.Names;
 
 public class MultiVariablePattern extends QualifiedNamePattern {
 
@@ -33,7 +34,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		
 		// If not anonymous, store the value.
 		if(!anonymous) {
-			ctx.getCurrentEnvt().storeVariable(name.toString(), subject);
+			ctx.getCurrentEnvt().storeVariable(Names.name(Names.lastName(name)), subject);
 		}
 		return true;
 	}
