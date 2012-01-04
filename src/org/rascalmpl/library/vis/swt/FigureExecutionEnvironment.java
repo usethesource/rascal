@@ -146,8 +146,8 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 				result = ((ICallableValue) callback).call(argTypes, argVals);
 			}
 		} catch (Throw e) {
-			e.printStackTrace();
-			System.err.printf("Callback error: " + e.getMessage() + ""
+			e.printStackTrace(ctx.getStdErr());
+			ctx.getStdErr().printf("Callback error: " + e.getMessage() + ""
 					+ e.getTrace());
 		}
 		if(profile) rascalTime += System.nanoTime() - startTime;
