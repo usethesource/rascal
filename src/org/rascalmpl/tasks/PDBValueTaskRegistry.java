@@ -16,21 +16,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> implements ITaskRegistry<Type, IValue, IValue> {
-	private static  PDBValueTaskRegistry instance = null;
+	private static volatile PDBValueTaskRegistry instance = null;
 	private Map<Type,Map<Type,ITask<Type,IValue,IValue>>> keyedProducers = new HashMap<Type,Map<Type,ITask<Type,IValue,IValue>>>();
 
 	public static PDBValueTaskRegistry getRegistry() {
-		if(instance == null)
-			instance = new PDBValueTaskRegistry();
+		if(instance == null) {
+			synchronized(PDBValueTaskRegistry.class) {
+				if(instance == null)
+					instance = new PDBValueTaskRegistry();
+			}
+		}
 		return instance;
 	}
 
