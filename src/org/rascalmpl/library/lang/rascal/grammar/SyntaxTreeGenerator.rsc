@@ -177,19 +177,6 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return visitor.visit<super><sig.name>(this);
          '  }
          '
-         '  @Override
-         '  public AbstractAST findNode(int offset) {
-         '    if (src.getOffset() \<= offset && offset \< src.getOffset() + src.getLength()) {
-         '      return this;
-         '    }
-         '    ISourceLocation loc;
-         '    <for (arg(typ, name) <- sig.args) {>loc = <name>.getLocation();
-         '    if (offset \<= loc.getOffset() + loc.getLength()) {
-         '      return <name>.findNode(offset);
-         '    } 
-         '    <}>
-         '    return null;
-         '  }
          '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
          '  @Override
          '  public <typ> get<cname>() {
