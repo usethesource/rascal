@@ -33,10 +33,9 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	protected final IConstructor node;
+	protected ISourceLocation src;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
@@ -45,12 +44,29 @@ public abstract class AbstractAST implements IVisitable {
 	protected IMatchingResult matcher;
 	protected IBooleanResult backtracker;
 	
+	AbstractAST() {
+	
+	}
+	
 	AbstractAST(IConstructor node) {
-		this.node = node;
+		
 	}
 	
 	public Type _getType() {
 	  return _type;
+	}
+	
+	public AbstractAST findNode(int offset) {
+		if (src.getOffset() <= offset
+				&& offset < src.getOffset() + src.getLength()) {
+			return this;
+		}
+		
+		return null;
+	}
+	
+	public void setSourceLocation(ISourceLocation src) {
+		this.src = src;
 	}
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
@@ -74,7 +90,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	public ISourceLocation getLocation() {
-		return TreeAdapter.getLocation(node);
+		return src;
 	}
 
 	public ASTStatistics getStats() {
@@ -94,33 +110,33 @@ public abstract class AbstractAST implements IVisitable {
 
 			AbstractAST other = (AbstractAST) obj;
 
-			if (other.node == node) {
+			if (other.src == src) {
 				return true;
 			}
 
-			if (other.node.equals(node)) {
-				return other.node.getAnnotation("loc").isEqual(
-						node.getAnnotation("loc"));
-			}
+			return other.src.isEqual(src);
 		}
 		return false;
 	}
 
+	@Deprecated
 	public IConstructor getTree() {
-		return node;
+		throw new NotYetImplemented(this);
 	}
 
 	@Override
 	public int hashCode() {
-		return node.hashCode();
+		return src.hashCode();
 	}
 
 	@Override
+	@Deprecated
 	/**
+	 * @deprecated because this does not print the actual source code of the AST anymore! Use getString() instead on lexicals.
 	 * For debugging purposes
 	 */
 	public String toString() {
-		return TreeAdapter.yield(node);
+		return src + ":" + getClass();
 	}
 
 	public Result<IValue> interpret(Evaluator eval) {
@@ -167,4 +183,6 @@ public abstract class AbstractAST implements IVisitable {
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
 		return buildBacktracker(ctx);
 	}
+
+	
 }

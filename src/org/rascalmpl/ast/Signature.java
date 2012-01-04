@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -66,21 +67,19 @@ public abstract class Signature extends AbstractAST {
 
   static public class Ambiguity extends Signature {
     private final java.util.List<org.rascalmpl.ast.Signature> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Signature> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
+  
     
     public java.util.List<org.rascalmpl.ast.Signature> getAlternatives() {
       return alternatives;
@@ -132,6 +131,7 @@ public abstract class Signature extends AbstractAST {
       return this.modifiers;
     }
   
+  
     @Override
     public boolean hasModifiers() {
       return true;
@@ -140,6 +140,7 @@ public abstract class Signature extends AbstractAST {
     public org.rascalmpl.ast.Type getType() {
       return this.type;
     }
+  
   
     @Override
     public boolean hasType() {
@@ -150,6 +151,7 @@ public abstract class Signature extends AbstractAST {
       return this.name;
     }
   
+  
     @Override
     public boolean hasName() {
       return true;
@@ -158,6 +160,7 @@ public abstract class Signature extends AbstractAST {
     public org.rascalmpl.ast.Parameters getParameters() {
       return this.parameters;
     }
+  
   
     @Override
     public boolean hasParameters() {
@@ -204,6 +207,7 @@ public abstract class Signature extends AbstractAST {
       return this.modifiers;
     }
   
+  
     @Override
     public boolean hasModifiers() {
       return true;
@@ -212,6 +216,7 @@ public abstract class Signature extends AbstractAST {
     public org.rascalmpl.ast.Type getType() {
       return this.type;
     }
+  
   
     @Override
     public boolean hasType() {
@@ -222,6 +227,7 @@ public abstract class Signature extends AbstractAST {
       return this.name;
     }
   
+  
     @Override
     public boolean hasName() {
       return true;
@@ -231,6 +237,7 @@ public abstract class Signature extends AbstractAST {
       return this.parameters;
     }
   
+  
     @Override
     public boolean hasParameters() {
       return true;
@@ -239,6 +246,7 @@ public abstract class Signature extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Type> getExceptions() {
       return this.exceptions;
     }
+  
   
     @Override
     public boolean hasExceptions() {

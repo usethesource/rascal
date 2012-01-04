@@ -14,14 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Assignable;
@@ -31,9 +27,7 @@ import org.rascalmpl.ast.Catch;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Label;
 import org.rascalmpl.ast.LocalVariableDeclaration;
-import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.Accumulator;
@@ -53,22 +47,18 @@ import org.rascalmpl.interpreter.staticErrors.AppendWithoutLoop;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 	static public class Append extends org.rascalmpl.ast.Statement.Append {
-
-		public Append(IConstructor __param1, DataTarget __param2,
+		public Append(IConstructor node, DataTarget __param2,
 				org.rascalmpl.ast.Statement __param3) {
-			super(__param1, __param2, __param3);
+			super(node, __param2, __param3);
 		}
-
+		
 		protected Accumulator getTarget(Evaluator __eval) {
 			if (__eval.__getAccumulators().empty()) { 
 				throw new AppendWithoutLoop(this);

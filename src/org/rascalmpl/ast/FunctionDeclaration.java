@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -73,21 +74,19 @@ public abstract class FunctionDeclaration extends AbstractAST {
 
   static public class Ambiguity extends FunctionDeclaration {
     private final java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.FunctionDeclaration> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
+  
     
     public java.util.List<org.rascalmpl.ast.FunctionDeclaration> getAlternatives() {
       return alternatives;
@@ -137,6 +136,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -146,6 +146,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.visibility;
     }
   
+  
     @Override
     public boolean hasVisibility() {
       return true;
@@ -154,6 +155,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.Signature getSignature() {
       return this.signature;
     }
+  
   
     @Override
     public boolean hasSignature() {
@@ -200,6 +202,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -208,6 +211,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.Visibility getVisibility() {
       return this.visibility;
     }
+  
   
     @Override
     public boolean hasVisibility() {
@@ -218,6 +222,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.signature;
     }
   
+  
     @Override
     public boolean hasSignature() {
       return true;
@@ -227,6 +232,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -235,6 +241,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
       return this.conditions;
     }
+  
   
     @Override
     public boolean hasConditions() {
@@ -279,6 +286,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -287,6 +295,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.Visibility getVisibility() {
       return this.visibility;
     }
+  
   
     @Override
     public boolean hasVisibility() {
@@ -297,6 +306,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.signature;
     }
   
+  
     @Override
     public boolean hasSignature() {
       return true;
@@ -305,6 +315,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
+  
   
     @Override
     public boolean hasExpression() {
@@ -349,6 +360,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.tags;
     }
   
+  
     @Override
     public boolean hasTags() {
       return true;
@@ -357,6 +369,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.Visibility getVisibility() {
       return this.visibility;
     }
+  
   
     @Override
     public boolean hasVisibility() {
@@ -367,6 +380,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
       return this.signature;
     }
   
+  
     @Override
     public boolean hasSignature() {
       return true;
@@ -375,6 +389,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
     public org.rascalmpl.ast.FunctionBody getBody() {
       return this.body;
     }
+  
   
     @Override
     public boolean hasBody() {

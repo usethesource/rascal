@@ -27,11 +27,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -44,11 +44,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private final Type myType;
 	private boolean isLiteral;
 
-	public ConcreteApplicationPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
+	public ConcreteApplicationPattern(IEvaluatorContext ctx, Tree.Appl x, List<IMatchingResult> list) {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = TreeAdapter.getProduction(getAST().getTree());
+		this.production = x.getProduction();
 		
 		// use a tuple pattern to match the children of this pattern
 		this.tupleMatcher = new TuplePattern(ctx, x, list);

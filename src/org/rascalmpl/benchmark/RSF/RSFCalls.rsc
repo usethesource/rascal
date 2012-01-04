@@ -14,7 +14,7 @@ import Relation;
 import Integer;
 import Set;
 import Graph;
-import lang::RSF::IO;
+import lang::rsf::IO;
 import IO;
 import util::Benchmark;
 

@@ -386,13 +386,13 @@ test bool tF38() = F3[sort("T1")] == {empty()} + F3[lit("*")];
 test bool tF39() = F3[lit("(")] == {\char-class([range(40,40)])};
 test bool tF310() = F3[lit(")")] == {\char-class([range(41,41)])};
       
-public SymbolUse Fol3 = follow(G3, first(G3));
+public SymbolUse Fol3() = follow(G3, first(G3));
  
-test bool tFol31() = Fol3[sort("E")] == {\char-class([range(41,41)]), eoi()};
-test bool tFol32() = Fol3[sort("E1")] == {\char-class([range(41,41)]), eoi()};
-test bool tFol33() = Fol3[sort("T")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
-test bool tFol34() = Fol3[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
-test bool tFol35() = Fol3[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
+test bool tFol31() = Fol3()[sort("E")] == {\char-class([range(41,41)]), eoi()};
+test bool tFol32() = Fol3()[sort("E1")] == {\char-class([range(41,41)]), eoi()};
+test bool tFol33() = Fol3()[sort("T")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test bool tFol34() = Fol3()[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
+test bool tFol35() = Fol3()[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
        
 public Grammar Session = simple({sort("Session")},
 {

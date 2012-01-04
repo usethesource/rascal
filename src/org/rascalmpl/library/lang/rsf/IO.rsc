@@ -17,5 +17,5 @@ in the following format:
 	RelationName Arg1 Arg2
 where each field is separated by a tabulation character (\t). One file may contain tuples for more than one relation. readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps each relation name to the actual relation.
 }
-@javaClass{org.rascalmpl.library.lang.RSF.RSFIO}
+@javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 public java map[str, rel[str,str]] readRSF(str nameRSFFile);

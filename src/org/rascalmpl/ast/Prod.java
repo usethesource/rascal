@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -87,20 +88,28 @@ public abstract class Prod extends AbstractAST {
 
   static public class Ambiguity extends Prod {
     private final java.util.List<org.rascalmpl.ast.Prod> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Prod> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Prod> getAlternatives() {
@@ -149,6 +158,7 @@ public abstract class Prod extends AbstractAST {
       return this.lhs;
     }
   
+  
     @Override
     public boolean hasLhs() {
       return true;
@@ -157,6 +167,7 @@ public abstract class Prod extends AbstractAST {
     public org.rascalmpl.ast.Prod getRhs() {
       return this.rhs;
     }
+  
   
     @Override
     public boolean hasRhs() {
@@ -197,6 +208,7 @@ public abstract class Prod extends AbstractAST {
       return this.lhs;
     }
   
+  
     @Override
     public boolean hasLhs() {
       return true;
@@ -205,6 +217,7 @@ public abstract class Prod extends AbstractAST {
     public org.rascalmpl.ast.Prod getRhs() {
       return this.rhs;
     }
+  
   
     @Override
     public boolean hasRhs() {
@@ -245,6 +258,7 @@ public abstract class Prod extends AbstractAST {
       return this.modifiers;
     }
   
+  
     @Override
     public boolean hasModifiers() {
       return true;
@@ -253,6 +267,7 @@ public abstract class Prod extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
       return this.args;
     }
+  
   
     @Override
     public boolean hasArgs() {
@@ -295,6 +310,7 @@ public abstract class Prod extends AbstractAST {
       return this.modifiers;
     }
   
+  
     @Override
     public boolean hasModifiers() {
       return true;
@@ -304,6 +320,7 @@ public abstract class Prod extends AbstractAST {
       return this.name;
     }
   
+  
     @Override
     public boolean hasName() {
       return true;
@@ -312,6 +329,7 @@ public abstract class Prod extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Sym> getArgs() {
       return this.args;
     }
+  
   
     @Override
     public boolean hasArgs() {
@@ -349,6 +367,7 @@ public abstract class Prod extends AbstractAST {
     public org.rascalmpl.ast.Name getReferenced() {
       return this.referenced;
     }
+  
   
     @Override
     public boolean hasReferenced() {
@@ -415,6 +434,7 @@ public abstract class Prod extends AbstractAST {
       return this.associativity;
     }
   
+  
     @Override
     public boolean hasAssociativity() {
       return true;
@@ -423,6 +443,7 @@ public abstract class Prod extends AbstractAST {
     public org.rascalmpl.ast.Prod getGroup() {
       return this.group;
     }
+  
   
     @Override
     public boolean hasGroup() {

@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -59,21 +60,19 @@ public abstract class ProtocolTail extends AbstractAST {
 
   static public class Ambiguity extends ProtocolTail {
     private final java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.ProtocolTail> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
+  
     
     public java.util.List<org.rascalmpl.ast.ProtocolTail> getAlternatives() {
       return alternatives;
@@ -119,6 +118,7 @@ public abstract class ProtocolTail extends AbstractAST {
       return this.post;
     }
   
+  
     @Override
     public boolean hasPost() {
       return true;
@@ -160,6 +160,7 @@ public abstract class ProtocolTail extends AbstractAST {
       return this.mid;
     }
   
+  
     @Override
     public boolean hasMid() {
       return true;
@@ -169,6 +170,7 @@ public abstract class ProtocolTail extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -177,6 +179,7 @@ public abstract class ProtocolTail extends AbstractAST {
     public org.rascalmpl.ast.ProtocolTail getTail() {
       return this.tail;
     }
+  
   
     @Override
     public boolean hasTail() {

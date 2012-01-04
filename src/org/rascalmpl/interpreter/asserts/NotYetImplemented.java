@@ -22,6 +22,6 @@ public final class NotYetImplemented extends AssertionError {
 	}
 	
 	public NotYetImplemented(AbstractAST ast) {
-		super(ast.toString());
+		super("Operation not yet implemented on " + ast.getClass());
 	}
 }

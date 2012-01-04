@@ -22,11 +22,19 @@ public abstract class SyntaxDefinition extends
 	}
 
 	public static class Language extends org.rascalmpl.ast.SyntaxDefinition.Language {
+		private final IConstructor node;
+
 		public Language(IConstructor node, Start start, Sym defined,
 				Prod production) {
 			super(node, start, defined, production);
+			this.node = node;
 		}
 
+		@Override
+		public IConstructor getTree() {
+			return node;
+		}
+		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			Sym type = getDefined();
@@ -43,10 +51,18 @@ public abstract class SyntaxDefinition extends
 	}
 	
 	public static class Lexical extends org.rascalmpl.ast.SyntaxDefinition.Lexical {
+		private final IConstructor node;
+
 		public Lexical(IConstructor node, Sym defined, Prod production) {
 			super(node, defined, production);
+			this.node = node;
 		}
 
+		@Override
+		public IConstructor getTree() {
+			return node;
+		}
+		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			Sym type = getDefined();
@@ -63,11 +79,19 @@ public abstract class SyntaxDefinition extends
 	}
 	
 	public static class Layout extends org.rascalmpl.ast.SyntaxDefinition.Layout {
+		private final IConstructor node;
+
 		public Layout(IConstructor node, Visibility vis, Sym defined,
 				Prod production) {
 			super(node, vis, defined, production);
+			this.node = node;
 		}
 
+		@Override
+		public IConstructor getTree() {
+			return node;
+		}
+		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			Sym type = getDefined();
@@ -84,8 +108,16 @@ public abstract class SyntaxDefinition extends
 	}
 	
 	public static class Keyword extends org.rascalmpl.ast.SyntaxDefinition.Keyword {
+		private final IConstructor node;
+
 		public Keyword(IConstructor node, Sym defined, Prod production) {
 			super(node, defined, production);
+			this.node = node;
+		}
+		
+		@Override
+		public IConstructor getTree() {
+			return node;
 		}
 
 		@Override

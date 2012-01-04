@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -28,6 +27,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -39,11 +39,11 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 	private final IConstructor production;
 	private final IMatchingResult optArg;
 
-	public ConcreteOptPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
+	public ConcreteOptPattern(IEvaluatorContext ctx, Tree.Appl x, List<IMatchingResult> list) {
 		super(ctx, x);
 		
 		// retrieve the static value of the production of this pattern
-		this.production = TreeAdapter.getProduction(getAST().getTree());
+		this.production = x.getProduction();
 		
 		if (list.size() == 0) {
 			type = Opt.NotExist;

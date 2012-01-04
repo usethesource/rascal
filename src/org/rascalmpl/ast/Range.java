@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -52,20 +53,28 @@ public abstract class Range extends AbstractAST {
 
   static public class Ambiguity extends Range {
     private final java.util.List<org.rascalmpl.ast.Range> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Range> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.Range> getAlternatives() {
@@ -114,6 +123,7 @@ public abstract class Range extends AbstractAST {
       return this.start;
     }
   
+  
     @Override
     public boolean hasStart() {
       return true;
@@ -122,6 +132,7 @@ public abstract class Range extends AbstractAST {
     public org.rascalmpl.ast.Char getEnd() {
       return this.end;
     }
+  
   
     @Override
     public boolean hasEnd() {
@@ -159,6 +170,7 @@ public abstract class Range extends AbstractAST {
     public org.rascalmpl.ast.Char getCharacter() {
       return this.character;
     }
+  
   
     @Override
     public boolean hasCharacter() {

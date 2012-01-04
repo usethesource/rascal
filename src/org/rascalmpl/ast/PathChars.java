@@ -16,9 +16,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -31,20 +31,28 @@ public abstract class PathChars extends AbstractAST {
 
   static public class Ambiguity extends PathChars {
     private final java.util.List<org.rascalmpl.ast.PathChars> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.PathChars> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
+    public IConstructor getTree() {
+      return node;
+    }
+  
+  
+    @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
+      throw new Ambiguous(node);
     }
     
     public java.util.List<org.rascalmpl.ast.PathChars> getAlternatives() {
@@ -64,6 +72,14 @@ public abstract class PathChars extends AbstractAST {
   }
   public java.lang.String getString() {
     return string;
+  }
+
+  @Override
+  public AbstractAST findNode(int offset) {
+    if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
+      return this;
+    }
+    return null;
   }
   public java.lang.String toString() {
     return string;

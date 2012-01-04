@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -101,22 +102,19 @@ public abstract class Assignable extends AbstractAST {
 
   static public class Ambiguity extends Assignable {
     private final java.util.List<org.rascalmpl.ast.Assignable> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Assignable> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
-    
+  
     public java.util.List<org.rascalmpl.ast.Assignable> getAlternatives() {
       return alternatives;
     }
@@ -161,6 +159,7 @@ public abstract class Assignable extends AbstractAST {
       return this.elements;
     }
   
+  
     @Override
     public boolean hasElements() {
       return true;
@@ -197,6 +196,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
       return this.qualifiedName;
     }
+  
   
     @Override
     public boolean hasQualifiedName() {
@@ -237,6 +237,8 @@ public abstract class Assignable extends AbstractAST {
       return this.receiver;
     }
   
+  
+  
     @Override
     public boolean hasReceiver() {
       return true;
@@ -245,6 +247,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.Expression getDefaultExpression() {
       return this.defaultExpression;
     }
+  
   
     @Override
     public boolean hasDefaultExpression() {
@@ -285,6 +288,8 @@ public abstract class Assignable extends AbstractAST {
       return this.receiver;
     }
   
+   
+  
     @Override
     public boolean hasReceiver() {
       return true;
@@ -293,6 +298,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.Expression getSubscript() {
       return this.subscript;
     }
+  
   
     @Override
     public boolean hasSubscript() {
@@ -330,6 +336,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.Assignable getArg() {
       return this.arg;
     }
+  
   
     @Override
     public boolean hasArg() {
@@ -370,6 +377,8 @@ public abstract class Assignable extends AbstractAST {
       return this.name;
     }
   
+    
+  
     @Override
     public boolean hasName() {
       return true;
@@ -379,6 +388,7 @@ public abstract class Assignable extends AbstractAST {
       return this.arguments;
     }
   
+   
     @Override
     public boolean hasArguments() {
       return true;
@@ -418,6 +428,7 @@ public abstract class Assignable extends AbstractAST {
       return this.receiver;
     }
   
+    
     @Override
     public boolean hasReceiver() {
       return true;
@@ -426,6 +437,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.Name getField() {
       return this.field;
     }
+  
   
     @Override
     public boolean hasField() {
@@ -466,6 +478,8 @@ public abstract class Assignable extends AbstractAST {
       return this.receiver;
     }
   
+    
+  
     @Override
     public boolean hasReceiver() {
       return true;
@@ -474,6 +488,7 @@ public abstract class Assignable extends AbstractAST {
     public org.rascalmpl.ast.Name getAnnotation() {
       return this.annotation;
     }
+  
   
     @Override
     public boolean hasAnnotation() {

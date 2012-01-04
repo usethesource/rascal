@@ -32,8 +32,8 @@ private loc inputFolder = |rascal:///lang/rascal/syntax|;
 //private loc outputFolder = |project://RascalLibrary/src/lang/rascal/syntax|;
 //private loc astFolder = |project://RascalLibrary/src/org/rascalmpl/ast|;
 private loc outputFolder = |boot:///src/org/rascalmpl/library/lang/rascal/syntax|;
-private loc astFolder = |boot:///src/org/rascalmpl/ast|;
-// private loc astFolder = |home:///Sources/Rascal/rascal/src/org/rascalmpl/ast|;
+//private loc astFolder = |boot:///src/org/rascalmpl/ast|;
+ private loc astFolder = |home:///Workspace/rascal/src/org/rascalmpl/ast|;
 //private loc outputFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/library/lang/rascal/syntax|;
 //private loc astFolder = |home:///Workspace/rascal-ngb1/src/org/rascalmpl/ast|;
 

@@ -16,9 +16,10 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -206,21 +207,19 @@ public abstract class Statement extends AbstractAST {
 
   static public class Ambiguity extends Statement {
     private final java.util.List<org.rascalmpl.ast.Statement> alternatives;
-  
+    private final IConstructor node;
+           
     public Ambiguity(IConstructor node, java.util.List<org.rascalmpl.ast.Statement> alternatives) {
       super(node);
+      this.node = node;
       this.alternatives = java.util.Collections.unmodifiableList(alternatives);
     }
     
     @Override
-    public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(this.getTree());
+    public IConstructor getTree() {
+      return node;
     }
-      
-    @Override
-    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(this.getTree());
-    }
+  
     
     public java.util.List<org.rascalmpl.ast.Statement> getAlternatives() {
       return alternatives;
@@ -266,6 +265,7 @@ public abstract class Statement extends AbstractAST {
       return this.declaration;
     }
   
+  
     @Override
     public boolean hasDeclaration() {
       return true;
@@ -307,6 +307,7 @@ public abstract class Statement extends AbstractAST {
       return this.variables;
     }
   
+  
     @Override
     public boolean hasVariables() {
       return true;
@@ -316,6 +317,7 @@ public abstract class Statement extends AbstractAST {
       return this.bound;
     }
   
+  
     @Override
     public boolean hasBound() {
       return true;
@@ -324,6 +326,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getBody() {
       return this.body;
     }
+  
   
     @Override
     public boolean hasBody() {
@@ -364,6 +367,7 @@ public abstract class Statement extends AbstractAST {
       return this.type;
     }
   
+  
     @Override
     public boolean hasType() {
       return true;
@@ -372,6 +376,7 @@ public abstract class Statement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.QualifiedName> getNames() {
       return this.names;
     }
+  
   
     @Override
     public boolean hasNames() {
@@ -414,6 +419,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -423,6 +429,7 @@ public abstract class Statement extends AbstractAST {
       return this.generators;
     }
   
+  
     @Override
     public boolean hasGenerators() {
       return true;
@@ -431,6 +438,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getBody() {
       return this.body;
     }
+  
   
     @Override
     public boolean hasBody() {
@@ -473,6 +481,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -482,6 +491,7 @@ public abstract class Statement extends AbstractAST {
       return this.conditions;
     }
   
+  
     @Override
     public boolean hasConditions() {
       return true;
@@ -490,6 +500,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getBody() {
       return this.body;
     }
+  
   
     @Override
     public boolean hasBody() {
@@ -530,6 +541,7 @@ public abstract class Statement extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -538,6 +550,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Expression getMessage() {
       return this.message;
     }
+  
   
     @Override
     public boolean hasMessage() {
@@ -602,6 +615,7 @@ public abstract class Statement extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -643,6 +657,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -652,6 +667,7 @@ public abstract class Statement extends AbstractAST {
       return this.body;
     }
   
+  
     @Override
     public boolean hasBody() {
       return true;
@@ -660,6 +676,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Expression getCondition() {
       return this.condition;
     }
+  
   
     @Override
     public boolean hasCondition() {
@@ -702,6 +719,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -711,6 +729,7 @@ public abstract class Statement extends AbstractAST {
       return this.conditions;
     }
   
+  
     @Override
     public boolean hasConditions() {
       return true;
@@ -719,6 +738,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getThenStatement() {
       return this.thenStatement;
     }
+  
   
     @Override
     public boolean hasThenStatement() {
@@ -757,6 +777,7 @@ public abstract class Statement extends AbstractAST {
       return this.target;
     }
   
+  
     @Override
     public boolean hasTarget() {
       return true;
@@ -793,6 +814,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {
@@ -835,6 +857,7 @@ public abstract class Statement extends AbstractAST {
       return this.assignable;
     }
   
+  
     @Override
     public boolean hasAssignable() {
       return true;
@@ -844,6 +867,7 @@ public abstract class Statement extends AbstractAST {
       return this.operator;
     }
   
+  
     @Override
     public boolean hasOperator() {
       return true;
@@ -852,6 +876,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {
@@ -889,6 +914,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Target getTarget() {
       return this.target;
     }
+  
   
     @Override
     public boolean hasTarget() {
@@ -933,6 +959,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -941,6 +968,7 @@ public abstract class Statement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
       return this.conditions;
     }
+  
   
     @Override
     public boolean hasConditions() {
@@ -951,6 +979,7 @@ public abstract class Statement extends AbstractAST {
       return this.thenStatement;
     }
   
+  
     @Override
     public boolean hasThenStatement() {
       return true;
@@ -959,6 +988,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getElseStatement() {
       return this.elseStatement;
     }
+  
   
     @Override
     public boolean hasElseStatement() {
@@ -996,6 +1026,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.FunctionDeclaration getFunctionDeclaration() {
       return this.functionDeclaration;
     }
+  
   
     @Override
     public boolean hasFunctionDeclaration() {
@@ -1038,6 +1069,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -1047,6 +1079,7 @@ public abstract class Statement extends AbstractAST {
       return this.expression;
     }
   
+  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1055,6 +1088,7 @@ public abstract class Statement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Case> getCases() {
       return this.cases;
     }
+  
   
     @Override
     public boolean hasCases() {
@@ -1095,6 +1129,7 @@ public abstract class Statement extends AbstractAST {
       return this.dataTarget;
     }
   
+  
     @Override
     public boolean hasDataTarget() {
       return true;
@@ -1103,6 +1138,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {
@@ -1143,6 +1179,7 @@ public abstract class Statement extends AbstractAST {
       return this.dataTarget;
     }
   
+  
     @Override
     public boolean hasDataTarget() {
       return true;
@@ -1151,6 +1188,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {
@@ -1191,6 +1229,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -1199,6 +1238,7 @@ public abstract class Statement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
       return this.statements;
     }
+  
   
     @Override
     public boolean hasStatements() {
@@ -1236,6 +1276,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
+  
   
     @Override
     public boolean hasStatement() {
@@ -1278,6 +1319,7 @@ public abstract class Statement extends AbstractAST {
       return this.body;
     }
   
+  
     @Override
     public boolean hasBody() {
       return true;
@@ -1287,6 +1329,7 @@ public abstract class Statement extends AbstractAST {
       return this.handlers;
     }
   
+  
     @Override
     public boolean hasHandlers() {
       return true;
@@ -1295,6 +1338,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Statement getFinallyBody() {
       return this.finallyBody;
     }
+  
   
     @Override
     public boolean hasFinallyBody() {
@@ -1332,6 +1376,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
+  
   
     @Override
     public boolean hasExpression() {
@@ -1398,6 +1443,7 @@ public abstract class Statement extends AbstractAST {
       return this.body;
     }
   
+  
     @Override
     public boolean hasBody() {
       return true;
@@ -1406,6 +1452,7 @@ public abstract class Statement extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Catch> getHandlers() {
       return this.handlers;
     }
+  
   
     @Override
     public boolean hasHandlers() {
@@ -1443,6 +1490,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Target getTarget() {
       return this.target;
     }
+  
   
     @Override
     public boolean hasTarget() {
@@ -1483,6 +1531,7 @@ public abstract class Statement extends AbstractAST {
       return this.label;
     }
   
+  
     @Override
     public boolean hasLabel() {
       return true;
@@ -1491,6 +1540,7 @@ public abstract class Statement extends AbstractAST {
     public org.rascalmpl.ast.Visit getVisit() {
       return this.visit;
     }
+  
   
     @Override
     public boolean hasVisit() {

@@ -56,6 +56,7 @@ public abstract class Tree {
 	protected final java.util.List<org.rascalmpl.ast.Expression> args;
 	protected final Type type;
 	protected final boolean constant;
+	protected final IConstructor node;
 
 	public Appl(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node);
@@ -63,8 +64,13 @@ public abstract class Tree {
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.args = args;
 		this.constant = isConstant(args);
+		this.node = this.constant ? node : null;
 	}
 
+	public IConstructor getProduction() {
+		return production;
+	}
+	
 	@Override
 	public Type _getType() {
 		return type;
@@ -231,12 +237,14 @@ public abstract class Tree {
 	private final Type type;
 	private final java.util.List<org.rascalmpl.ast.Expression> alts;
 	private final boolean constant;
+	protected final IConstructor node;
 
 	public Amb(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> alternatives) {
 		super(node);
 		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
 		this.alts = alternatives;
 		this.constant = isConstant(alternatives);
+		this.node = this.constant ? node : null;
 	}
 	
 	@Override
@@ -284,8 +292,11 @@ public abstract class Tree {
   }
   
   static public class Char extends  org.rascalmpl.ast.Expression {
+	  private final IConstructor node;
+
 	  public Char(IConstructor node) {
 		  super(node);
+		  this.node = node;
 	  }
 
 	  @Override
@@ -293,12 +304,12 @@ public abstract class Tree {
 		  // TODO allow override
 		  return makeResult(Factory.Tree, node, eval);
 	  }
-	  
+
 	  @Override
 	  public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 		  return new LiteralPattern(eval, this,  node);
 	  }
-	  
+
 	  @Override
 	  public Type typeOf(Environment env) {
 		  return Factory.Tree;
@@ -307,10 +318,12 @@ public abstract class Tree {
   
   static public class Cycle extends  org.rascalmpl.ast.Expression {
 	  private final int length;
+	  private final IConstructor node;
 
 	  public Cycle(IConstructor node, int length) {
 		  super(node);
 		  this.length = length;
+		  this.node = node;
 	  }
 
 	  @Override
