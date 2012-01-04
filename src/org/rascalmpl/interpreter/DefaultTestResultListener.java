@@ -47,53 +47,49 @@ public class DefaultTestResultListener implements ITestResultListener{
 	}
 	
 	public void report(boolean successful, String test, ISourceLocation loc){
-		synchronized(err){
-			err.print(loc.getURI());
-			err.print(":");
-			err.print(loc.getBeginLine());
-			err.print(",");
-			err.print(loc.getBeginColumn());
-			err.print(":");
-			err.print(successful ? "success : " : "failed  : ");
-			if(successful)
-				successes++;
-			else
-				failures++;
-		    
-			if(test.length() <= 50){
-				err.println(test);
-			}else{
-				err.print(test.substring(0, 47));
-				err.println("...");
-			}
-			
-			err.flush();
+		err.print(loc.getURI());
+		err.print(":");
+		err.print(loc.getBeginLine());
+		err.print(",");
+		err.print(loc.getBeginColumn());
+		err.print(":");
+		err.print(successful ? "success : " : "failed  : ");
+		if(successful)
+			successes++;
+		else
+			failures++;
+	    
+		if(test.length() <= 50){
+			err.println(test);
+		}else{
+			err.print(test.substring(0, 47));
+			err.println("...");
 		}
+		
+		err.flush();
 	}
 	
 	public void report(boolean successful, String test, ISourceLocation loc, Throwable t){
-		synchronized(err){
-			err.print(loc.getURI());
-			err.print(":");
-			err.print(loc.getBeginLine());
-			err.print(",");
-			err.print(loc.getBeginColumn());
-			err.print(":");
-			err.print(successful ? "success : " : "failed  : ");
-			if(successful)
-				successes++;
-			else
-				errors++;
-			if(test.length() <= 50){
-				err.println(test);
-			}else{
-				err.print(test.substring(0, 47));
-				err.println("...");
-			}
-			err.print("\t" + t.getMessage() + "\n");
-//			t.printStackTrace(err);
-			err.flush();
+		err.print(loc.getURI());
+		err.print(":");
+		err.print(loc.getBeginLine());
+		err.print(",");
+		err.print(loc.getBeginColumn());
+		err.print(":");
+		err.print(successful ? "success : " : "failed  : ");
+		if(successful)
+			successes++;
+		else
+			errors++;
+		if(test.length() <= 50){
+			err.println(test);
+		}else{
+			err.print(test.substring(0, 47));
+			err.println("...");
 		}
+		err.print("\t" + t.getMessage() + "\n");
+//			t.printStackTrace(err);
+		err.flush();
 	}
 	
 	public int getNumberOfTests(){

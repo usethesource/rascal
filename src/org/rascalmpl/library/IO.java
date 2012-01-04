@@ -54,18 +54,16 @@ public class IO {
 	public void print(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
-		synchronized(currentOutStream){
-			try{
-				if(arg.getType().isStringType()){
-					currentOutStream.print(((IString) arg).getValue().toString());
-				}else if(arg.getType().isSubtypeOf(Factory.Tree)){
-					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-				}else{
-					currentOutStream.print(arg.toString());
-				}
-			}finally{
-				currentOutStream.flush();
+		try{
+			if(arg.getType().isStringType()){
+				currentOutStream.print(((IString) arg).getValue().toString());
+			}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+			}else{
+				currentOutStream.print(arg.toString());
 			}
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 	
@@ -73,16 +71,14 @@ public class IO {
 		PrintWriter currentOutStream = eval.getStdOut();
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
-		synchronized(currentOutStream){
-			try{
-				ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-				w.write(arg, bytes);
-				currentOutStream.print(bytes.toString());
-			} catch (IOException e) {
-				// does not happen in byte array outputstreams
-			}finally{
-				currentOutStream.flush();
-			}
+		try{
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+			w.write(arg, bytes);
+			currentOutStream.print(bytes.toString());
+		} catch (IOException e) {
+			// does not happen in byte array outputstreams
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 	
@@ -90,61 +86,53 @@ public class IO {
 		PrintWriter currentOutStream = eval.getStdOut();
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
-		synchronized(currentOutStream){
-			try{
-				ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-				w.write(arg, bytes);
-				currentOutStream.print(bytes.toString());
-				currentOutStream.println();
-			} catch (IOException e) {
-				// does not happen in byte array outputstreams
-			}finally{
-				currentOutStream.flush();
-			}
+		try{
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
+			w.write(arg, bytes);
+			currentOutStream.print(bytes.toString());
+			currentOutStream.println();
+		} catch (IOException e) {
+			// does not happen in byte array outputstreams
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 	
 	public void println(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
-		synchronized(currentOutStream){
-			try{
-				if(arg.getType().isStringType()){
-					currentOutStream.print(((IString) arg).getValue().toString());
-				}else if(arg.getType().isSubtypeOf(Factory.Tree)){
-					currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-				}else{
-					currentOutStream.print(arg.toString());
-				}
-				currentOutStream.println();
-			}finally{
-				currentOutStream.flush();
+		try{
+			if(arg.getType().isStringType()){
+				currentOutStream.print(((IString) arg).getValue().toString());
+			}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+			}else{
+				currentOutStream.print(arg.toString());
 			}
+			currentOutStream.println();
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 	
 	public void rprintln(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
-		synchronized(currentOutStream){
-			try{
-				currentOutStream.print(arg.toString());
-				currentOutStream.println();
-			}finally{
-				currentOutStream.flush();
-			}
+		try{
+			currentOutStream.print(arg.toString());
+			currentOutStream.println();
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 	
 	public void rprint(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
-		synchronized(currentOutStream){
-			try{
-				currentOutStream.print(arg.toString());
-			}finally{
-				currentOutStream.flush();
-			}
+		try{
+			currentOutStream.print(arg.toString());
+		}finally{
+			currentOutStream.flush();
 		}
 	}
 
