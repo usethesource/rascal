@@ -2,8 +2,8 @@ package org.rascalmpl.parser.gtd.stack.edge;
 
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
+import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
 public class EdgesSet{
 	public final static int DEFAULT_RESULT_STORE_ID = -1;
@@ -17,7 +17,7 @@ public class EdgesSet{
 	private IntegerMap lastVisitedFilteredLevel;
 	
 	private AbstractContainerNode lastResults;
-	private IntegerKeyedHashMap<AbstractContainerNode> lastFilteredResults;
+	private IntegerObjectList<AbstractContainerNode> lastFilteredResults;
 	
 	public EdgesSet(){
 		super();
@@ -101,10 +101,10 @@ public class EdgesSet{
 			lastResults = lastResult;
 		}else{
 			if(lastFilteredResults == null){
-				lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
+				lastFilteredResults = new IntegerObjectList<AbstractContainerNode>(DEFAULT_SIZE);
 			}
 			
-			lastFilteredResults.put(resultStoreId, lastResult);
+			lastFilteredResults.add(resultStoreId, lastResult);
 		}
 	}
 	
@@ -112,10 +112,10 @@ public class EdgesSet{
 		if(resultStoreId == DEFAULT_RESULT_STORE_ID) return lastResults;
 		
 		if(lastFilteredResults == null){
-			lastFilteredResults = new IntegerKeyedHashMap<AbstractContainerNode>();
+			lastFilteredResults = new IntegerObjectList<AbstractContainerNode>(DEFAULT_SIZE);
 			return null;
 		}
-		return lastFilteredResults.get(resultStoreId);
+		return lastFilteredResults.findValue(resultStoreId);
 	}
 	
 	public int size(){
