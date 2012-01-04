@@ -91,10 +91,8 @@ public class Resource {
 		TypeStore ts = ctx.getCurrentEnvt().getStore();
 		Type alias2t = TypeFactory.getInstance().aliasType(ts, tagStr + "Type", t);
 		
-		synchronized(currentOutStream){
-			currentOutStream.println("Generated type alias " + alias2t.toString() + ": " + alias2t.getAliased().toString());
-			currentOutStream.flush();
-		}		
+		currentOutStream.println("Generated type alias " + alias2t.toString() + ": " + alias2t.getAliased().toString());
+		currentOutStream.flush();
 		
 		// Declare a function that just uses the given URI. This way, if we provide
 		// the complete URI up front, we don't need to keep providing it later.
@@ -108,9 +106,7 @@ public class Resource {
 		Result<IValue> fun0 = ctx.getEvaluator().eval(ctx.getEvaluator().getMonitor(), cmd);
 		ctx.unwind(env);
 
-		synchronized(currentOutStream){
-			currentOutStream.println("Generated function " + fun0.toString());
-			currentOutStream.flush();
-		}		
+		currentOutStream.println("Generated function " + fun0.toString());
+		currentOutStream.flush();
 	}
 }
