@@ -182,7 +182,7 @@ public class Util {
 	public static String intercalate(String between,String[] s){
 		StringBuffer b = new StringBuffer();
 		for(int i = 0 ; i < s.length ; i++){
-			b.append(s);
+			b.append(s[i]);
 			if(i != s.length-1){
 				b.append(between);
 			}

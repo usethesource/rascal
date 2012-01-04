@@ -173,7 +173,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 				}
 				for(IDependencyListener dl : f.listeners)
 					dl.changed(f, MOVED_TO, this);
-				f.listeners.addAll(f.listeners);
+				listeners.addAll(f.listeners);
 			}
 			
 

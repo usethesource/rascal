@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -120,7 +121,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
