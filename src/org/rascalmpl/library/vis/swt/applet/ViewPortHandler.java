@@ -5,6 +5,7 @@ import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -419,7 +420,8 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			OutputStream to = new FileOutputStream(filepath);
 			writeScreenShot(to);
 		} catch(FileNotFoundException e){
-			System.err.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
+			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getStdErr();
+			stdErr.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
 		}
 	}
 

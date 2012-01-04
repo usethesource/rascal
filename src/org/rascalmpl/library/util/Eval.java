@@ -92,7 +92,7 @@ public class Eval {
 			if(result.endsWith(prompt))
 					result = result.substring(0, result.length()- prompt.length());
 			if(timer.hasExpired()){
-				System.err.println("Timeout");
+				ctx.getStdErr().println("Timeout");
 				// Remove stack trace due to killing the shell
 				int k = result.lastIndexOf("Unexpected exception");
 				if (k != -1) {
@@ -106,16 +106,16 @@ public class Eval {
 				w.append(values.string(line));
 			return w.done();
 		} catch (Throwable e) {
-			System.err.println("unexpected error: " + e.getMessage());
+			ctx.getStdErr().println("unexpected error: " + e.getMessage());
 			if (shell != null) {
-				System.err.println(shell.getEvaluator().getStackTrace());
+				ctx.getStdErr().println(shell.getEvaluator().getStackTrace());
 				shell.stop();
 			}
 			if(timer != null){
 				timer.cancel();
 			}
-			System.err.println("caused by:");
-			e.printStackTrace();
+			ctx.getStdErr().println("caused by:");
+			e.printStackTrace(ctx.getStdErr());
 			return values.string("unexpected error: " + e.getMessage());
 		} finally {
 			out.close();
@@ -169,8 +169,8 @@ public class Eval {
 	}
 	
 	private Result<IValue> doEval (IList commands, IInteger duration, IEvaluatorContext ctx) {
-		PrintWriter err = new PrintWriter(System.err); // TODO ?
-		PrintWriter out = new PrintWriter(System.out);
+		PrintWriter err = ctx.getStdErr();
+		PrintWriter out = ctx.getStdOut();
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___scripting___", ctx.getHeap()));
