@@ -9,7 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.lang.RSF;
+package org.rascalmpl.library.lang.rsf;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
