@@ -152,6 +152,8 @@ public class Profiler extends Thread {
  
         	out.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", uri, range, ticks, perc, source);
         }
+        // Make sure that our output is seen:
+        out.flush();
         
 	}
 
