@@ -69,7 +69,7 @@ public class ASTBuilder {
     private PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
     private ISourceLocation lastSuccess = null;
     
-    private final static HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
+    private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
     
 	public ASTBuilder(){
@@ -896,37 +896,39 @@ public class ASTBuilder {
 	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], ISourceLocation src, IConstructor tree, Object actuals[]) {
 		try {
 			String name = sort + "$" + cons;
-			Class<?> clazz = astClasses.get(name);
+			Constructor<?> constructor = astConstructors.get(name);
 			
-			if (clazz == null) {
+			if (constructor == null) {
+				Class<?> clazz = null;
+				
 				try {
 					clazz = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
 				}
 				catch (ClassNotFoundException e) {
 					// it happens
 				}
+				
 				if (clazz == null) {
 					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
 				}
-				if (clazz == null) {
-					throw new ImplementationError("can not find AST class for " + name);
-				}
-				astClasses.put(name, clazz);
+				
+				Class<?>[] realForms = new Class<?>[formals.length + 1];
+				realForms[0] = IConstructor.class;
+				System.arraycopy(formals, 0, realForms, 1, formals.length);
+				constructor = clazz.getConstructor(realForms);
+				constructor.setAccessible(true);
+				
+				astConstructors.put(name, constructor);
 			}
 
-			Class<?>[] realForms = new Class<?>[formals.length + 1];
-			realForms[0] = IConstructor.class;
-			System.arraycopy(formals, 0, realForms, 1, formals.length);
-			Constructor<?> make = clazz.getConstructor(realForms);
 			Object[] params = new Object[actuals.length + 1];
 			params[0] = tree;
 			System.arraycopy(actuals, 0, params, 1, actuals.length);
-			AbstractAST result = (AbstractAST) make.newInstance(params);
+			AbstractAST result = (AbstractAST) constructor.newInstance(params);
 			if (src != null) {
 				result.setSourceLocation(src);
 			}
 			return result;
-			
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (NoSuchMethodException e) {
