@@ -15,9 +15,8 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import java.io.ByteArrayOutputStream;
+import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -219,9 +218,9 @@ public class TreeAdapter {
 	}
 
 	private static class Unparser extends TreeVisitor {
-		private final OutputStream fStream;
+		private final CharArrayWriter fStream;
 
-		public Unparser(OutputStream stream) {
+		public Unparser(CharArrayWriter stream) {
 			fStream = stream;
 		}
 		
@@ -244,12 +243,8 @@ public class TreeAdapter {
 		}
 		
 		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
-			try {
-				fStream.write(((IInteger) arg.get("character")).intValue());
-				return arg;
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+			fStream.write(((IInteger) arg.get("character")).intValue());
+			return arg;
 		}
 		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
@@ -267,14 +262,9 @@ public class TreeAdapter {
 			}
 			
 			IList rest = (IList) arg.get("rest");
-			try{
-				for(IValue character : rest){
-					fStream.write(((IInteger) character).intValue());
-				}
-			}catch(IOException ioex){
-				throw new VisitorException(ioex);
+			for(IValue character : rest){
+				fStream.write(((IInteger) character).intValue());
 			}
-			
 			return arg;
 		}
 
@@ -388,7 +378,7 @@ public class TreeAdapter {
 		return null;
 	}
 
-	public static void unparse(IConstructor tree, OutputStream stream)
+	public static void unparse(IConstructor tree, CharArrayWriter stream)
 			throws IOException, FactTypeUseException {
 		try {
 			if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
@@ -411,7 +401,7 @@ public class TreeAdapter {
 
 	public static String yield(IConstructor tree) throws FactTypeUseException {
 		try {
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			CharArrayWriter stream = new CharArrayWriter();
 			unparse(tree, stream);
 			return stream.toString();
 		} catch (IOException e) {
