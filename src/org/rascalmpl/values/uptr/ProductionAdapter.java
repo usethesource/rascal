@@ -118,6 +118,10 @@ public class ProductionAdapter {
 	public static boolean isLexical(IConstructor tree) {
 		return SymbolAdapter.isLex(getType(tree));
 	}
+	
+	public static boolean isSort(IConstructor tree) {
+		return SymbolAdapter.isSort(getType(tree));
+	}
 
 	public static boolean isKeyword(IConstructor tree) {
 		return SymbolAdapter.isKeyword(getType(tree));

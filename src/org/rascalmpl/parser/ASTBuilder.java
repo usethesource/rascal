@@ -38,9 +38,12 @@ import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Toplevel;
+import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -604,7 +607,7 @@ public class ASTBuilder {
 				return stats(tree, result, stats);
 			}
 
-			boolean lex = TreeAdapter.isLexical(tree);
+			boolean lex = lexicalFather ? !TreeAdapter.isSort(tree) : TreeAdapter.isLexical(tree);
 			boolean inj = TreeAdapter.isInjectionOrSingleton(tree);
 			boolean star = TreeAdapter.isNonEmptyStarList(tree);
 			
