@@ -86,8 +86,8 @@ str: &quot;zebra&quot;
 
 <pre class="screen"><b>rascal></b>head([]);
 Uncaught Rascal Exception: prompt:///:1,0: EmptyList()
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.List.head(org.eclipse.imp.pdb.&raquo;
-facts.IList)
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.p&raquo;
+db.facts.IList)
     somewhere in: $shell$
 </pre>
   Get the first n elements:
@@ -101,8 +101,8 @@ list[str]: [&quot;zebra&quot;,&quot;elephant&quot;]
 
 <pre class="screen"><b>rascal></b>head([1, 2, 3, 5], 5);
 Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(4)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.List.head(org.eclipse.imp.pdb.&raquo;
-facts.IList,org.eclipse.imp.pdb.facts.IInteger) throws java.lang.IndexOutOfBoundsException
+    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.p&raquo;
+db.facts.IList,org.eclipse.imp.pdb.facts.IInteger) throws java.lang.IndexOutOfBoundsException
     somewhere in: $shell$
 </pre>
 </div>

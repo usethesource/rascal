@@ -1,3 +1,9 @@
+*****************************/
+/* DEPRECATED                */
+/* Use lang::java::Javac     */
+/* DO NOT EDIT               */
+/*****************************/
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -7,8 +13,10 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+
+@deprecated{Use "import lang::java::Javac;" instead.}
 module Javac
 
-@javaClass{org.rascalmpl.library.Javac}
+@javaClass{org.rascalmpl.library.lang.java.Javac}
 public java list[str] compile(list[str] opts);
 

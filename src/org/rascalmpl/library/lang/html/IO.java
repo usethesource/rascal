@@ -9,7 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,10 +32,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class HTMLIO {
+public class IO {
 	private final IValueFactory factory;
 
-	public HTMLIO(IValueFactory factory) {
+	public IO(IValueFactory factory) {
 		this.factory = factory;
 	}
 	

@@ -25,7 +25,7 @@ Benefits:
 <tt>arbInt</tt> is a convenient generator for arbitrary binary choices.
 }
 
-@javaClass{org.rascalmpl.library.Boolean}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool arbBool();
 
 @deprecated{Useless function that will be removed}

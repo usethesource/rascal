@@ -1,6 +1,6 @@
 /*****************************/
 /* DEPRECATED                */
-/* Use util/Reflective.rsc   */
+/* Use util::Reflective      */
 /* DO NOT EDIT               */
 /*****************************/
 

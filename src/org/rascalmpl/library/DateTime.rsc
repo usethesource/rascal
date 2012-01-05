@@ -23,7 +23,7 @@ import DateTime;
 now();
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime now();
 
 @doc{
@@ -35,7 +35,7 @@ import DateTime;
 createDate(2012,1,1);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime createDate(int year, int month, int day);
 
 
@@ -49,11 +49,11 @@ createTime(8,15,30,55);
 createTime(8,15,30,55,2,0);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime createTime(int hour, int minute, int second, int millisecond);
 
 // Create a new time with the given numeric timezone offset.
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime createTime(int hour, int minute, int second, int millisecond, 
                                 int timezoneHourOffset, int timezoneMinuteOffset);
                                 
@@ -67,12 +67,12 @@ createDateTime(2012,1,1,8,15,30,55);
 createDateTime(2012,1,1,8,15,30,55,2,0);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime createDateTime(int year, int month, int day, int hour, int minute, 
                                     int second, int millisecond);
 
 // Create a new datetime with the given numeric timezone offset.
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime createDateTime(int year, int month, int day, int hour, int minute, 
                                     int second, int millisecond, int timezoneHourOffset, 
                                     int timezoneMinuteOffset);
@@ -88,7 +88,7 @@ T = createTime(8, 15, 45, 30);
 joinDateAndTime(D, T);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime joinDateAndTime(datetime date, datetime time);
 
 @doc{
@@ -102,7 +102,7 @@ N = now();
 splitDateTime(N);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java tuple[datetime date, datetime time] splitDateTime(datetime dt);
 
 
@@ -117,7 +117,7 @@ incrementYears(N);
 incrementYears(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementYears(datetime dt, int n);
 
 // Increment the years by 1.
@@ -138,7 +138,7 @@ incrementMonths(N);
 incrementMonths(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMonths(datetime dt, int n);
 
 // Increment the months by 1.
@@ -157,7 +157,7 @@ incrementDays(N);
 incrementDays(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementDays(datetime dt, int n);
 
 // Increment the days by 1.
@@ -176,7 +176,7 @@ incrementHours(N);
 incrementHours(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementHours(datetime dt, int n);
 
 //  Increment the hours by 1.
@@ -196,7 +196,7 @@ incrementMinutes(N);
 incrementMinutes(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMinutes(datetime dt, int n);
 
 // Increment the minutes by 1.
@@ -216,7 +216,7 @@ incrementSeconds(N);
 incrementSeconds(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementSeconds(datetime dt, int n);
 
 // Increment the seconds by 1.
@@ -236,7 +236,7 @@ incrementMilliseconds(N);
 incrementMilliseconds(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMilliseconds(datetime dt, int n);
 
 // Increment the milliseconds by 1.
@@ -256,7 +256,7 @@ decrementYears(N);
 decrementYears(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementYears(datetime dt, int n);
 
 // Decrement the years by 1.
@@ -275,7 +275,7 @@ decrementMonths(N);
 decrementMonths(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMonths(datetime dt, int n);
 
 // Decrement the months by 1.
@@ -295,7 +295,7 @@ decrementDays(N);
 decrementDays(N, 3);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementDays(datetime dt, int n);
 
 // Decrement the days by 1.
@@ -314,7 +314,7 @@ decrementHours(N);
 decrementHours(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementHours(datetime dt, int n);
 
 // Decrement the hours by 1.
@@ -333,7 +333,7 @@ decrementMinutes(N);
 decrementMinutes(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMinutes(datetime dt, int n);
 
 
@@ -353,7 +353,7 @@ decrementSeconds(N);
 decrementSeconds(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementSeconds(datetime dt, int n);
 
 
@@ -373,7 +373,7 @@ decrementMilliseconds(N);
 decrementMilliseconds(N, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMilliseconds(datetime dt, int n);
 
 // Decrement the milliseconds by 1.
@@ -407,7 +407,7 @@ Synopsis: A duration of time, measured in individual years, months, etc.
 }
 data duration = Duration(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds);
 
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 private java tuple[int,int,int,int,int,int,int] createDurationInternal(datetime begin, datetime end);
 
 // TODO: Add an exception for the non-matching case
@@ -465,7 +465,7 @@ E = incrementDays(B, 2);
 daysDiff(B, E);
 </screen>
 } 
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int daysDiff(datetime begin, datetime end);
 
 @doc{
@@ -506,13 +506,13 @@ parseDate("2011-12-23", "YYYY-MM-DD");
 parseDate("20111223", "YYYYMMDD");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDate(str inputDate, str formatString);
 
 @doc{
 Synopsis: Parse an input date given as a string using a specific locale and format string.
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDateInLocale(str inputDate, str formatString, str locale);
 
 @doc{
@@ -525,13 +525,13 @@ parseTime("11:21:19.860+01:00", "HH:mm:ss.SSSZZ");
 parseTime("11/21/19", "HH/mm/ss");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseTime(str inputTime, str formatString);
 
 @doc{
 Synopsis: Parse an input time given as a string using a specific locale and format string.
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseTimeInLocale(str inputTime, str formatString, str locale);
 
 @doc{
@@ -544,13 +544,13 @@ parseDateTime("2011-12-23T11:19:54.501+01:00", "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
 parseDateTime("2011/12/23/11/19/54", "YYYY/MM/dd/HH/mm/ss");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDateTime(str inputDateTime, str formatString);
 
 @doc{
 Synopsis: Parse an input datetime given as a string using a specific locale and format string.
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDateTimeInLocale(str inputDateTime, str formatString, str locale);
 
 @doc{
@@ -563,11 +563,11 @@ printDate(now());
 printDate(now(), "YYYYMMdd");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDate(datetime inputDate, str formatString);
 
 // Print an input date using a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDate(datetime inputDate);
 
 @doc{
@@ -580,11 +580,11 @@ printDateInLocale(now(), "Europe/Netherlands");
 printDateInLocale(now(), "French");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateInLocale(datetime inputDate, str formatString, str locale);
 
 // Print an input date using a specific locale and a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateInLocale(datetime inputDate, str locale);
 
 @doc{
@@ -598,21 +598,21 @@ printTime(N);
 printTime(N, "HH/mm/ss");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printTime(datetime inputTime, str formatString);
 
 // Print an input time using a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printTime(datetime inputTime);
 
 @doc{
 Synopsis: Print an input time using a specific locale and format string.
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printTimeInLocale(datetime inputTime, str formatString, str locale);
 
 // Print an input time using a specific locale and a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printTimeInLocale(datetime inputTime, str locale);
 
 @doc{
@@ -627,19 +627,19 @@ printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
 printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
 </screen>
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTime(datetime inputDateTime, str formatString);
 
 // Print an input datetime using a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTime(datetime inputDateTime);
 
 @doc{
 Synopsis: Print an input datetime using a specific locale and format string.
 }
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTimeInLocale(datetime inputDateTime, str formatString, str locale);
 
 // Print an input datetime using a specific locale and a default format string
-@javaClass{org.rascalmpl.library.DateTime}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTimeInLocale(datetime inputDateTime, str locale);

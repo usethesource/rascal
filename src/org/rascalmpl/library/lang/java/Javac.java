@@ -9,7 +9,7 @@
 
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.java;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

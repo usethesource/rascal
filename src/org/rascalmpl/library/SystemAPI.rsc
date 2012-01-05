@@ -1,3 +1,9 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use util::SystemAPI       */
+/* DO NOT EDIT               */
+/*****************************/
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -7,6 +13,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+
+@deprecated use "import util::SystemAPI;" instead.}
 module SystemAPI
 
 import Exception;

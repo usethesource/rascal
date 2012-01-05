@@ -139,7 +139,7 @@ Description:
 # Real time in milliseconds needed to execute the code `block`.
 
 Pitfalls:
-This function is a competitor for the [now] function that provides a [datetime] value for the current time.
+This function is a competitor for the [now] function that provides a [$Values/datetime] value for the current time.
 }
 
 @javaImport{import java.lang.System;}

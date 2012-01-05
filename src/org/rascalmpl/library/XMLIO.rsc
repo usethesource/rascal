@@ -1,3 +1,9 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use lang::xml::IO    */
+/* DO NOT EDIT               */
+/*****************************/
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -8,8 +14,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+
+@deprecated{Use "import lang::xml::IO;" instead.}
 module XMLIO
 
-@javaClass{org.rascalmpl.library.XMLIO}
+@javaClass{org.rascalmpl.library.lang.xml.IO}
 @reflect{Uses URI Resolver Registry}
 public java node readXMLFile(loc file);

@@ -1,3 +1,10 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use util::SourceHierarchy */
+/* DO NOT EDIT               */
+/*****************************/
+
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -6,6 +13,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+
+@deprecated{Use "import util::SourceHierarchy ;" instead.}
 module SourceHierarchy
 
 @doc{Labels are used to refer to source code entities in the UI of the IDE}

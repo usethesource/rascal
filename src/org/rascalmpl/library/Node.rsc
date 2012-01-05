@@ -19,7 +19,7 @@ arity("f"(10, "abc"));
 arity("f"(10, "abc", false));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int arity(node T);
 
 @doc{
@@ -32,7 +32,7 @@ F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
 delAnnotation(F, "size");
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node delAnnotation(&T <: node x, str label);
 
 @doc{
@@ -45,7 +45,7 @@ F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
 delAnnotations(F);
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node  delAnnotations(&T <: node x);
 
 @doc{
@@ -59,7 +59,7 @@ F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
 delAnnotationsRec(F);
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public &T delAnnotationsRec(&T v) {
   return visit(v) { case m: node n => delAnnotations(m) };
 }
@@ -81,7 +81,7 @@ getAnnotations(F);
 F@color;
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getAnnotations(node x);
 
 @doc{Synopsis: Get the children of a node.
@@ -91,7 +91,7 @@ import Node;
 getChildren("f"(10, "abc"));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[value] getChildren(node T);
 
 @doc{
@@ -103,7 +103,7 @@ import Node;
 getName("f"(10, "abc"));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str getName(node T);
 
 @doc{
@@ -115,16 +115,10 @@ import Node;
 makeNode("f", [10, "abc"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java node makeNode(str N, value V...);
 
-@doc{
-Synopsis: Read an ATerm from a named file.
 
-<warning>Move this function to ATermIO?</warning>
-}
-@javaClass{org.rascalmpl.library.Node}
-public java value readATermFromFile(str fileName);
 
 @doc{
 Synopsis: Add a map of annotations to a node value.
@@ -145,7 +139,7 @@ Pitfalls:
   you store a value with a label that has an incomparable annotation type
   declared.
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
 
 
@@ -159,7 +153,7 @@ F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
 toString(F);
 </screen>
 }
-@javaClass{org.rascalmpl.library.Node}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toString(node T);
 
 

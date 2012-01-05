@@ -47,7 +47,7 @@ getOneFrom({1,2,3,4});
 getOneFrom({1,2,3,4});
 </screen>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st) throws EmptySet;
 
 
@@ -114,7 +114,7 @@ isEmpty({1, 2, 3});
 isEmpty({});
 </screen>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(set[&T] st);
 
 @doc{
@@ -262,7 +262,7 @@ make: N = int[0,5]
 hint: <N> values separated by commas
 test: size({ <?> }) == <N>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int size(set[&T] st);
 
 @doc{
@@ -294,7 +294,7 @@ takeOneFrom({1, 2, 3, 4});
 takeOneFrom({1, 2, 3, 4});
 </screen>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, set[&T]] takeOneFrom(set[&T] st) throws EmptySet;
   
 @doc{
@@ -310,7 +310,7 @@ toList({"elephant", "zebra", "snake"});
 Pitfalls:
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting list.
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] toList(set[&T] st);
 
 @doc{
@@ -326,7 +326,7 @@ import Set;
 toMap({<"a", 1>, <"b", 2>, <"a", 10>});
 </screen>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,set[&B]] toMap(rel[&A, &B] st);
 
 @doc{
@@ -343,7 +343,7 @@ toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
 toMapUnique({<"a", 1>, <"b", 2>, <"a", 10>});
 </screen>
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(rel[&A, &B] st) throws MultipleKey;
 
 @doc{
@@ -359,6 +359,6 @@ toString({"elephant", "zebra", "snake"});
 Pitfalls:
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.
 }
-@javaClass{org.rascalmpl.library.Set}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toString(set[&T] st);
 

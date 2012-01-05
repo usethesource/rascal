@@ -403,7 +403,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	  out = shell(["import vis::Figure;", 
 	               "import vis::Render;"] + 
 	              lines, 
-	              50000);
+	              100000);
 	  println("**** shell output ****\n<out>");
 	  errors = lookForErrors(out);
 	  if(errors != "") println("errors = <errors>");
@@ -429,7 +429,7 @@ private str markupScreen(list[str] lines, bool generatesError){
 //   if(!generating)
 //      return "";
    stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
-   result_lines = shell(stripped_code, 25000);
+   result_lines = shell(stripped_code, 50000);
    if(!generatesError)
    		lookForErrors(result_lines);
    

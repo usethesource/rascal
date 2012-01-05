@@ -69,7 +69,6 @@ data Production
      ;
 data Attr 
      = \assoc(Associativity \assoc) <img src="/Courses/images/4.png">
-     | \tag(value \tag) 
      | \bracket() 
      ;
 data Associativity 
@@ -88,7 +87,6 @@ data Symbol
      | \keywords(str name)
      | \parameterized-sort(str name, list[Symbol] parameters)  
      | \parameter(str name)
-     | \label(str name, Symbol symbol)
      ;
 data Symbol 
      = \lit(str string) <img src="/Courses/images/10.png">

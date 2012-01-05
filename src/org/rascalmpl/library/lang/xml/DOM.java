@@ -10,7 +10,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.xml;
 
 import java.io.CharArrayReader;
 import java.io.IOException;
@@ -45,10 +45,10 @@ import org.jdom.output.XMLOutputter;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.xml.Factory;
 
-public class XMLDOM {
+public class DOM {
 	private final IValueFactory vf;
 	
-	public XMLDOM(IValueFactory vf) {
+	public DOM(IValueFactory vf) {
 		this.vf = vf;
 	}
 	

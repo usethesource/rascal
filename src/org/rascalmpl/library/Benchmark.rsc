@@ -1,6 +1,6 @@
 /*****************************/
 /* DEPRECATED                */
-/* Use util/Benchmark.rsc    */
+/* Use util::Benchmark       */
 /* DO NOT EDIT               */
 /*****************************/
 

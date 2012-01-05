@@ -9,5 +9,5 @@
 module ToString
 
 @doc{Convert a value to a string}
-@javaClass{org.rascalmpl.library.ToString}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toString(value v);

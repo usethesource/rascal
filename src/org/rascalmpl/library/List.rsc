@@ -29,7 +29,7 @@ delete([1, 2, 3], 1);
 delete(["zebra", "elephant", "snake", "owl"], 2);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] delete(list[&T] lst, int n);
 
 @doc{
@@ -48,7 +48,7 @@ domain(["zebra", "elephant", "snake", "owl"]);
 index([1, 3, 5]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java set[int] domain(list[&T] lst);
 
 @doc{
@@ -66,7 +66,7 @@ drop(10, [5, 1, 7, 3]);
 drop(2, ["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] drop(int n, list[&T] lst) ;
 
 @doc{
@@ -100,7 +100,7 @@ getOneFrom(["zebra", "elephant", "snake", "owl"]);
 getOneFrom(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(list[&T] lst);
 
 @doc{
@@ -125,11 +125,11 @@ head(["zebra", "elephant", "snake", "owl"], 2);
 head([1, 2, 3, 5], 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T head(list[&T] lst) throws EmptyList;
 
 // Get the first n elements of a list
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 
@@ -213,7 +213,7 @@ insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
 insertAt([1,2,3], 10, 5);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
 
 @doc{
@@ -244,7 +244,7 @@ isEmpty([]);
 isEmpty([1, 2, 3]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(list[&T] lst);
 
 @doc{
@@ -481,7 +481,7 @@ prefix([]);
 prefix(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] prefix(list[&T] lst) ;
 
 @doc{
@@ -541,7 +541,7 @@ reverse([1,4,2,3]);
 reverse(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] reverse(list[&T] lst);
 
 @doc{
@@ -570,7 +570,7 @@ import List;
 text = ["abc", "def", "ghi"];
 test: <?>(text) == 3;
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[&T] lst);
 
 @doc{
@@ -586,7 +586,7 @@ slice([10, 20, 30, 40, 50, 60], 2, 3);
 slice(["zebra", "elephant", "snake", "owl"], 1, 2);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{
@@ -625,7 +625,7 @@ sort(fruits, bool(str a, str b){ return size(a) >= size(b); });
 public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a <= b; } );
 	
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) lessOrEqual) ;
 
 @doc{
@@ -658,10 +658,10 @@ tail([10, 20, 30, 40, 50, 60], 3);
 tail([10, 20, 30, 40, 50, 60], 10);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] tail(list[&T] lst);
  
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBoundsError;
 
 @doc{
@@ -679,7 +679,7 @@ take(6, [3, 1, 4, 5]);
 take(2, ["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] take(int n, list[&T] lst);
 
 @doc{
@@ -704,7 +704,7 @@ takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 @doc{
@@ -725,7 +725,7 @@ Pitfalls:
 Contrast this with `toMapUnique` that associates each first tuple value with the second tuple value,
 but imposes the constraint that those keys are unique.
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws DuplicateKey;
 
 @doc{
@@ -746,7 +746,7 @@ Pitfalls:
 The keys in a map are unique by definition.
 `toMapUnique` throws a `MultipleKey` exception when the list contains more than one tuple with the same first value.
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey;
 
 @doc{
@@ -762,7 +762,7 @@ toSet([10, 20, 30, 40]);
 toSet(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java set[&T] toSet(list[&T] lst);
 
 @doc{
@@ -793,7 +793,7 @@ import List;
 upTill(10);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[int] upTill(int n);
 
 @doc{
@@ -826,7 +826,7 @@ toString([10, 20, 30]);
 toString(["zebra", "elephant", "snake", "owl"]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.List}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toString(list[&T] lst);
 
 @doc{

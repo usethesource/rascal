@@ -24,7 +24,7 @@ Append a textual representation of some values to an existing or a newly created
 * All other values are printed as-is.
 * Each value is terminated by a newline character.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
@@ -78,7 +78,7 @@ import IO;
 exists(|std:///IO.rsc|);
 </screen>
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java bool exists(loc file);
 
@@ -107,7 +107,7 @@ Synopsis: Check whether a given location is a directory.
 Description:
 Check whether the location `file` is a directory.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java bool isDirectory(loc file);
 
@@ -126,7 +126,7 @@ iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 </screen>
 }
 @reflect{for getting IO streams}
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 public java void iprint(value arg); 
 
 
@@ -182,7 +182,7 @@ iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 </screen>
 }
 @reflect{for getting IO streams}
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 public java void iprintln(value arg); 
 
 @doc{
@@ -191,7 +191,7 @@ Synopsis: Check whether a given location is actually a file (and not a directory
 Description:
 Check whether location `file` is actually a file.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java bool isFile(loc file);
 
@@ -209,7 +209,7 @@ import IO;
 lastModified(|std:///IO.rsc|);
 </screen>
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java datetime lastModified(loc file);
 
@@ -227,7 +227,7 @@ import IO;
 listEntries(|std:///|);
 </screen>
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] listEntries(loc file);
 
@@ -238,7 +238,7 @@ Synopsis: Create a new directory.
 Description:
 Create a directory at location `file`.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void mkDirectory(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
@@ -261,7 +261,7 @@ import IO;
 print("Hello World");
 </screen>
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{for getting IO streams}
 public java void print(value arg);
 
@@ -307,7 +307,7 @@ println(L);
 println("<S>: <L>");
 </screen>
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{for getting IO streams}
 public java void println(value arg);
 
@@ -342,7 +342,7 @@ Description: Raw print of a value on the output stream, does not convert parse t
 Pitfalls:
 This function is only available for internal use in the Rascal development team.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{for getting IO streams}
 public java void rprint(value arg);
 
@@ -355,7 +355,7 @@ Description: Raw print of a value on the output stream followed by newline, does
 Pitfalls:
 This function is only available for internal use in the Rascal development team.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{for getting IO streams}
 public java void rprintln(value arg);
 
@@ -370,20 +370,20 @@ Pitfalls:
 The second version of `readFile` with a string argument is __deprecated__.
 }
 
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
 
 @deprecated{Use @see str readFile(loc file)}
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFile(str filename)
 throws NoSuchFileError(str msg), IOError(str msg);
 
 @doc{
 Synopsis: Read the contents of a file and return it as a list of bytes.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[int] readFileBytes(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
@@ -396,7 +396,7 @@ Description:
 Return the contents of a file location as a list of lines.
 Also see [readFile].
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
@@ -417,7 +417,7 @@ Write a textual representation of some values to a file:
 * All other values are printed as-is.
 * Each value is terminated by a newline character.
 }
-@javaClass{org.rascalmpl.library.IO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
