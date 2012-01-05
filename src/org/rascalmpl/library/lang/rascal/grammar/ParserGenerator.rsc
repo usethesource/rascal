@@ -288,7 +288,7 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations
-  dnn       = {doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
+  dnn       = {*doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
   
   // finally we produce a relation between item id for use in the internals of the parser
   return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
