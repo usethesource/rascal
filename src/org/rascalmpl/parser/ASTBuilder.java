@@ -103,30 +103,9 @@ public class ASTBuilder {
 	
 	@SuppressWarnings("unchecked")
 	public static <T extends AbstractAST> T make(String sort, String cons, ISourceLocation src, Object... args) {
-		Class<?>[] formals = new Class<?>[args.length];
-		for (int i = 0; i < args.length; i++) {
-			Class<?> clazz = args[i].getClass();
-			
-			if (args[i] instanceof java.util.List) {
-				formals[i] = java.util.List.class;
-			}
-			else if (args[i] instanceof java.lang.String) {
-				formals[i] = java.lang.String.class;
-			}
-			else {
-				String pkg = clazz.getPackage().getName();
-				if (pkg.contains(".ast")) {
-					formals[i] = clazz.getSuperclass();
-				} else if (pkg.contains(".dynamic")) {
-					formals[i] = clazz.getSuperclass().getSuperclass();
-				}
-				else {
-					formals[i] = clazz.getSuperclass().getSuperclass().getSuperclass();
-				}
-			}
-		}
-		
-		return (T) callMakerMethod(sort, cons, formals, src, args);
+		Object[] newArgs = new Object[args.length + 1];
+		System.arraycopy(args, 0, newArgs, 1, args.length);
+		return (T) callMakerMethod(sort, cons, src, newArgs);
 	}
 
 	public ISourceLocation getLastSuccessLocation() {
@@ -300,18 +279,16 @@ public class ASTBuilder {
 
 		IList args = getASTArgs(tree);
 		int arity = args.length();
-		Class<?> formals[] = new Class<?>[arity];
-		Object actuals[] = new Object[arity];
-
+		Object actuals[] = new Object[arity+1];
+		actuals[0] = tree;
 		ASTStatistics total = new ASTStatistics();
 
-		int i = 0;
+		int i = 1;
 		for (IValue arg : args) {
 			IConstructor argTree = (IConstructor) arg;
 
 			if (TreeAdapter.isList(argTree)) {
 				actuals[i] = buildList((IConstructor) arg);
-				formals[i] = List.class;
 
 				if (actuals[i] == null) { // filtered
 					return null;
@@ -323,7 +300,6 @@ public class ASTBuilder {
 			}
 			else if (TreeAdapter.isAmbiguousList(argTree)) {
 				actuals[i] = filterList(argTree);
-				formals[i] = List.class;
 
 				if (actuals[i] == null) { // filtered
 					return null;
@@ -339,17 +315,6 @@ public class ASTBuilder {
 				if (actuals[i] == null) { // filtered
 					return null;
 				}
-				// TODO: find a better way to ensure we get the right class back
-                if (actuals[i].getClass().getPackage().getName().contains(".ast")) {
-                    formals[i] = actuals[i].getClass().getSuperclass();
-                } 
-                else if (actuals[i].getClass().getName().contains("dynamic.Tree")) {
-                	formals[i] = org.rascalmpl.ast.Expression.class;
-                }
-                else {
-                	formals[i] = actuals[i].getClass().getSuperclass().getSuperclass();
-                }
-
 
 				ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
 				total.add(stats);
@@ -364,7 +329,7 @@ public class ASTBuilder {
 //			}
 //		}
 		
-		AbstractAST ast = callMakerMethod(sort, cons, formals, tree, actuals);
+		AbstractAST ast = callMakerMethod(sort, cons, actuals);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
 		// be a concrete syntax pattern, but is not recognized as such because of the
@@ -394,10 +359,9 @@ public class ASTBuilder {
 		if (sort.length() == 0) {
 			throw new ImplementationError("could not retrieve sort name for " + tree);
 		}
-		Class<?> formals[] = new Class<?>[] {String.class };
-		Object actuals[] = new Object[] { new String(TreeAdapter.yield(tree)) };
+		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", formals, tree, actuals);
+		AbstractAST result = callMakerMethod(sort, "Lexical", actuals);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -450,10 +414,9 @@ public class ASTBuilder {
 		// Concrete syntax is lifted to Expression
 		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
-		Class<?> formals[] = new Class<?>[]  { List.class };
-		Object actuals[] = new Object[] {  altsOut };
+		Object actuals[] = new Object[] {  tree, altsOut };
 
-		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, tree, actuals);
+		AbstractAST ast = callMakerMethod(sort, "Ambiguity", actuals);
 		
 		ast.setStats(ref != null ? ref : new ASTStatistics());
 		
@@ -885,17 +848,17 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], ISourceLocation src, Object actuals[]) {
-		return callMakerMethod(sort, cons, formals, src, null, actuals);
+//	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[]) {
+//		return callMakerMethod(sort, cons, src, null, actuals);
+//	}
+	
+	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[]) {
+		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), actuals);
 	}
 	
-	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], IConstructor tree, Object actuals[]) {
-		return callMakerMethod(sort, cons, formals, TreeAdapter.getLocation(tree), tree, actuals);
-	}
-	
-	private static AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], ISourceLocation src, IConstructor tree, Object actuals[]) {
+	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[]) {
 		try {
-			String name = sort + "$" + cons;
+			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
 			
 			if (constructor == null) {
@@ -912,26 +875,17 @@ public class ASTBuilder {
 					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
 				}
 				
-				Class<?>[] realForms = new Class<?>[formals.length + 1];
-				realForms[0] = IConstructor.class;
-				System.arraycopy(formals, 0, realForms, 1, formals.length);
-				constructor = clazz.getConstructor(realForms);
+				constructor = clazz.getConstructors()[0];
 				constructor.setAccessible(true);
-				
 				astConstructors.put(name, constructor);
 			}
 
-			Object[] params = new Object[actuals.length + 1];
-			params[0] = tree;
-			System.arraycopy(actuals, 0, params, 1, actuals.length);
-			AbstractAST result = (AbstractAST) constructor.newInstance(params);
+			AbstractAST result = (AbstractAST) constructor.newInstance(actuals);
 			if (src != null) {
 				result.setSourceLocation(src);
 			}
 			return result;
 		} catch (SecurityException e) {
-			throw unexpectedError(e);
-		} catch (NoSuchMethodException e) {
 			throw unexpectedError(e);
 		} catch (IllegalArgumentException e) {
 			throw unexpectedError(e);
