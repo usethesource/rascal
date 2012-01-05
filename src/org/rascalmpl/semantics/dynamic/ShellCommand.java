@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
@@ -98,7 +99,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			String name = "rascal." + this.getName().toString();
+			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
 			String value = this.getExpression().interpret(__eval).getValue()
 					.toString();
 
