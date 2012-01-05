@@ -241,7 +241,7 @@ public class TypeReifier {
 		
 		for (int i = 0; i < symbols.length(); i++) {
 			IConstructor elem = (IConstructor) symbols.get(i);
-			if (elem.getType() == Factory.Symbol_Label) {
+			if (elem.getConstructorType() == Factory.Symbol_Label) {
 				labels[i] = ((IString) elem.get("name")).getValue();
 				elem = (IConstructor) elem.get("symbol");
 			}
@@ -292,9 +292,12 @@ public class TypeReifier {
 		Type adt = symbolToType((IConstructor) symbol.get("adt"), store);
 		IList parameters = (IList) symbol.get("parameters");
 		String name = ((IString) symbol.get("name")).getValue();
-		
+		System.err.println("Cons in: " + symbol);
 		// here we assume the store has the declaration already
-		return store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
+		Type t = store.lookupConstructor(adt, name, symbolsToTupleType(parameters, store));
+		System.err.println("Cons out: " + t);
+		return t;
+		
 	}
 
 	private Type aliasToType(IConstructor symbol, TypeStore store) {
