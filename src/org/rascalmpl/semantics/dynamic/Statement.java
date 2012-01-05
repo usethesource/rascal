@@ -154,12 +154,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
-				IString msg = __eval.__getVf().string(
-						org.rascalmpl.interpreter.utils.StringUtils.unescape(
-								msgValue.getValue().toString(), this, __eval
-										.getCurrentEnvt()));
+//				IString msg = __eval.__getVf().string(
+//						org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(msgValue.getValue().toString());
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-						.assertionFailed(msg, __eval.getCurrentAST(), __eval
+						.assertionFailed((IString) msgValue.getValue(), __eval.getCurrentAST(), __eval
 								.getStackTrace());
 			}
 			return r;

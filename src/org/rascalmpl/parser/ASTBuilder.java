@@ -44,6 +44,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
