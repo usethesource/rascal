@@ -17,7 +17,7 @@ import java.io.OutputStream;
 
 public class LimitedResultOutputStream extends OutputStream{
 	private final int limit;
-	private final byte[] data;
+	private final char[] data;
 	private int position;
 	private boolean limitReached;
 	
@@ -25,7 +25,7 @@ public class LimitedResultOutputStream extends OutputStream{
 		super();
 		
 		this.limit = limit;
-		data = new byte[limit];
+		data = new char[limit];
 		position = 0;
 		limitReached = false;
 	}
@@ -36,7 +36,7 @@ public class LimitedResultOutputStream extends OutputStream{
 			throw new IOLimitReachedException();
 		}
 		
-		data[position++] = (byte) b;
+		data[position++] = (char) b;
 	}
 	
 	public String toString(){
