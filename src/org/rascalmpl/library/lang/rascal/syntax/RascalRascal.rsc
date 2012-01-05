@@ -60,8 +60,11 @@ syntax Strategy
 	| Innermost: "innermost" ;
 
 lexical UnicodeEscape
-	= "\\" [u]+ [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] ;
-
+	= utf16: "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
+    | utf32: "\\" [U] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
+    | ascii: "\\" [0-7] [0-9A-Fa-f]
+    ;
+    
 syntax Variable
 	= Initialized: Name name "=" Expression initial 
 	| UnInitialized: Name name ;
@@ -187,7 +190,7 @@ syntax Expression
 	| VoidClosure    : Parameters parameters "{" Statement* statements "}" 
 	| Visit          : Label label Visit visit 
 	| Reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
-	| ReifiedType    : "type" "(" Pattern symbol "," Pattern definitions ")"  
+	| ReifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
 	| CallOrTree     : Expression expression "(" {Expression ","}* arguments ")"
 	| Literal        : Literal literal 
 	| Any            : "any" "(" {Expression ","}+ generators ")" 
@@ -370,7 +373,6 @@ syntax DataTarget
 lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
-	| OctalEscapeSequence 
 	| ![\" \' \< \> \\]
 	| [\n][\ \t]* [\'] // margin 
 	;
@@ -728,11 +730,7 @@ syntax TypeVar
 	= Free: "&" Name name 
 	| Bounded: "&" Name name "\<:" Type bound ;
 
-lexical OctalEscapeSequence
-	= "\\" [0-7] [0-7] !>> [0-7] 
-	| "\\" [0-3] [0-7] [0-7] 
-	| "\\" [0-7] !>> [0-7]
-	;
+
 
 syntax BasicType
 	= Value: "value" 
@@ -759,8 +757,8 @@ lexical Char
 	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
 	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
 	| @category="Constant" UnicodeEscape 
-	| @category="Constant" OctalEscapeSequence ;
-
+    ; 
+    
 syntax Prod
 	= Reference: ":" Name referenced
 	| Labeled: ProdModifier* modifiers Name name ":" Sym* args 
