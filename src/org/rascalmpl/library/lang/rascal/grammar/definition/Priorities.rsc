@@ -13,7 +13,7 @@ import lang::rascal::grammar::definition::Symbols;
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
-  return {doNotNest(g.rules[s]) | s <- g.rules};
+  return {*doNotNest(g.rules[s]) | s <- g.rules};
 }
 
 public DoNotNest doNotNest(Production p) {
@@ -68,7 +68,7 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
     } 
   }
   println("associativity: <result + {*doNotNest(x) | x <- alts}>");
-  return result + {*doNotNest(x) | x <- alts};  //SPLICE
+  return result + {*doNotNest(x) | x <- alts};  
 }
 
 DoNotNest priority(list[Production] levels) {
@@ -125,5 +125,5 @@ DoNotNest priority(list[Production] levels) {
   }
   
   // and we recurse to find the nested associativity declarations
-  return result + {*doNotNest(l) | l <- levels};  // SPLICE
+  return result + {*doNotNest(l) | l <- levels};  
 }
