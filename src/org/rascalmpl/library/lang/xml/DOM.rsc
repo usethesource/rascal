@@ -1,9 +1,3 @@
-/*****************************/
-/* DEPRECATED                */
-/* Use lang::xml::DOM         */
-/* DO NOT EDIT               */
-/*****************************/
-
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -15,8 +9,7 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 
 
-@deprecated{Use "import lang::xml::DOM;" instead.}
-module XMLDOM
+module lang::xml::DOM
 
 
 data Namespace = namespace(str prefix, str uri)
@@ -38,40 +31,40 @@ public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOM(str src);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOMTrim(str src);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlRaw(Node x);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlCompact(Node x);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlPretty(Node x);
 
 
 // TODO: remove these; use Rascal stdlib for IO
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 @reflect{Uses URI Resolver Registry}
 public java void writeXMLRaw(loc file, Node x);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 @reflect{Uses URI Resolver Registry}
 public java Node readXMLDOM(loc file);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 @reflect{Uses URI Resolver Registry}
 public java Node readXMLDOMTrim(loc file);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 @reflect{Uses URI Resolver Registry}
 public java void writeXMLCompact(loc file, Node x);
 
-@javaClass{org.rascalmpl.library.lang.xml.XMLDOM}
+@javaClass{org.rascalmpl.library.lang.xml.DOM}
 @reflect{Uses URI Resolver Registry}
 public java void writeXMLPretty(loc file, Node x);
 

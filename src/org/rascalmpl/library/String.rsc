@@ -52,7 +52,7 @@ charAt("abc", 0);
 stringChar(charAt("abc", 0));
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int charAt(str s, int i) throws out_of_range(str msg);
 
 @doc{
@@ -68,7 +68,7 @@ contains("abracadabra", "bra");
 contains("abracadabra", "e");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool contains(str input, str find);
 
 @doc{
@@ -83,7 +83,7 @@ import String;
 endsWith("Hello.rsc", ".rsc");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool endsWith(str subject, str suffix);
 
 @doc{
@@ -102,7 +102,7 @@ L = escape("\"Good Morning\", he said", ("\"": "\\\""));
 println(L);
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str escape(str subject, map[str,str] mapping);
 
 
@@ -123,7 +123,7 @@ findAll("abracadabra", "bra");
 findAll("abracadabra", "e");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[int] findAll(str subject, str find);
 
 @doc{
@@ -143,7 +143,7 @@ findFirst("abracadabra", "bra");
 findFirst("abracadabra", "e");
 </screen>       
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int findFirst(str subject, str find);
 
 @doc{
@@ -163,7 +163,7 @@ findLast("abracadabra", "bra");
 findLast("abracadabra", "e");
 </screen> 
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int findLast(str subject, str find);
 
 @doc{
@@ -179,7 +179,7 @@ isEmpty("");
 isEmpty("abc");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(str s);
 
 @doc{
@@ -225,7 +225,7 @@ Pitfalls:
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str replaceAll(str subject, str find, str replacement);
 
 @doc{
@@ -246,7 +246,7 @@ replaceFirst("abracadabra", "cra", "CRA");
 Pitfalls:
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str replaceFirst(str subject, str find, str replacement);
 
 @doc{
@@ -267,7 +267,7 @@ replaceLast("abracadabra", "cra", "CRA");
 Pitfalls:
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str replaceLast(str subject, str find, str replacement);
 
 @doc{
@@ -282,7 +282,7 @@ import String;
 reverse("abc");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str reverse(str s);
 
 
@@ -334,7 +334,7 @@ size("abc");
 size("");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int size(str s);
 
 @doc{
@@ -349,20 +349,20 @@ import String;
 startsWith("Hello.rsc", "Hell");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool startsWith(str subject, str prefix);
 
 
 @doc{
 Synopsis: Convert a character code into a string.
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str stringChar(int char);
 
 @doc{
 Synopsis: Convert a list of character codes into a string.
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str stringChars(list[int] chars);
 
 
@@ -380,10 +380,10 @@ substring("abcdef", 2);
 substring("abcdef", 2, 4);
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str substring(str s, int begin);
 
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str substring(str s, int begin, int end);
 
 
@@ -406,10 +406,10 @@ toInt("11", 8);
 toInt("abc");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int toInt(str s) throws IllegalArgument;
 
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int toInt(str s, int r) throws IllegalArgument;
 
 @doc{
@@ -424,7 +424,7 @@ import String;
 toLowerCase("AaBbCc123");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toLowerCase(str s);
 
 
@@ -442,7 +442,7 @@ toReal("123");
 toReal("abc");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java real toReal(str s);
 
 @doc{
@@ -459,7 +459,7 @@ import String;
 toUpperCase("AaBbCc123");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toUpperCase(str s);
 
 @doc{
@@ -472,17 +472,17 @@ trim("  jelly
 beans  ");
 </screen>
 }
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str trim(str s);
 
 /* 
  * Return string of length n, with s placed according to dir (left/center/right) and padded with pad.
  * Used to implement:left, center and right above.
  */ 
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 private java str format(str s, str dir, int n, str pad);
 
 /* Not yet documented */
 
-@javaClass{org.rascalmpl.library.String}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[tuple[str string, node origin]] origins(str s);

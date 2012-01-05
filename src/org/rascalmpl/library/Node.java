@@ -76,21 +76,7 @@ public class Node {
 		return values.node(N.getValue(), args);
 	}
 	
-	public IValue readATermFromFile(IString fileName){
-	//@doc{readATermFromFile -- read an ATerm from a named file}
-		ATermReader atr = new ATermReader();
-		try {
-			FileInputStream stream = new FileInputStream(fileName.getValue());
-			return atr.read(values, stream);
-		} catch (FactTypeUseException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 
-		}
-	}
 	
 	public IValue toString(INode T)
 	//@doc{toString -- convert a node to a string}

@@ -11,16 +11,19 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.aterm;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.ATermWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -29,10 +32,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class ATermIO{
+public class IO{
 	private final IValueFactory values;
 	
-	public ATermIO(IValueFactory values){
+	public IO(IValueFactory values){
 		super();
 		
 		this.values = values;
@@ -56,6 +59,22 @@ public class ATermIO{
 					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 				}
 			}
+		}
+	}
+	
+	public IValue readATermFromFile(IString fileName){
+	//@doc{readATermFromFile -- read an ATerm from a named file}
+		ATermReader atr = new ATermReader();
+		try {
+			FileInputStream stream = new FileInputStream(fileName.getValue());
+			return atr.read(values, stream);
+		} catch (FactTypeUseException e) {
+			e.printStackTrace();
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+
 		}
 	}
 	

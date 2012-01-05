@@ -1,6 +1,6 @@
 /*****************************/
 /* DEPRECATED                */
-/* Use util/Eval.rsc         */
+/* Use util::Eval            */
 /* DO NOT EDIT               */
 /*****************************/
 

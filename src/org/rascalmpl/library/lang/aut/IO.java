@@ -9,7 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.aut;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,12 +28,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
-public class AUT{
+public class IO{
 	private static final TypeFactory types = TypeFactory.getInstance();
 	
 	private final IValueFactory values;
 	
-	public AUT(IValueFactory values){
+	public IO(IValueFactory values){
 		super();
 		
 		this.values = values;

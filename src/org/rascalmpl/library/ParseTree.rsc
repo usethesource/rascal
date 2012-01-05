@@ -258,15 +258,15 @@ import ParseTree;
 // Checking that `parse` returns a parse tree:
 parse(#Exp, "2+3");
 }
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, loc input);
 
@@ -294,15 +294,15 @@ parseWithErrorTree(#Exp, "2+");
 <warning>Something wrong here</warning>
 }
 
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input);
 
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
 
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, loc input);
 
@@ -325,7 +325,7 @@ import ParseTree;
 unparse(parse(#Exp, "2+3"));
 
 }
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
 
 @doc{
@@ -448,7 +448,7 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 </listing>
 }
-@javaClass{org.rascalmpl.library.ParseTree}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T<:node implode(type[&T<:node] t, Tree tree);
 
 @doc{

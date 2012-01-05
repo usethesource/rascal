@@ -18,7 +18,7 @@ public value readValueFile(loc file) {
 
 
 @doc{Read a typed value from a binary file.}
-@javaClass{org.rascalmpl.library.ValueIO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java &T readBinaryValueFile(type[&T] result, loc file);
 
@@ -27,7 +27,7 @@ public value readBinaryValueFile(loc file) {
 }
 
 @doc{Read a typed value from a text file.}
-@javaClass{org.rascalmpl.library.ValueIO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java &T readTextValueFile(type[&T] result, loc file);
 
@@ -41,15 +41,15 @@ public value readTextValueString(str input) {
 }
 
 @doc{Parse a textual string representation of a value and validate it against the given type}
-@javaClass{org.rascalmpl.library.ValueIO}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &T readTextValueString(type[&T] result, str input);
 	
 @doc{Write a value to a file using an efficient binary file format}
-@javaClass{org.rascalmpl.library.ValueIO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeBinaryValueFile(loc file, value val);
 	
 @doc{Write a value to a file using a textual file format}
-@javaClass{org.rascalmpl.library.ValueIO}
+@javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeTextValueFile(loc file, value val);

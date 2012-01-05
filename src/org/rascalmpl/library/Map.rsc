@@ -35,7 +35,7 @@ import Map;
 domain(("apple": 1, "pear": 2));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java set[&K] domain(map[&K, &V] M);
 
 @doc{
@@ -98,7 +98,7 @@ getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java &K getOneFrom(map[&K, &V] M)  ;
 
 @doc{
@@ -114,7 +114,7 @@ import Map;
 invert(("apple": 1, "pear": 2, "orange": 1));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&V, set[&K]] invert(map[&K, &V] M)  ;
 
 @doc{
@@ -136,7 +136,7 @@ invertUnique(("apple": 1, "pear": 2, "orange": 3));
 invertUnique(("apple": 1, "pear": 2, "orange": 1));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java map[&V, &K] invertUnique(map[&K, &V] M)  ;
 
 @doc{
@@ -152,7 +152,7 @@ isEmpty(());
 isEmpty(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(map[&K, &V] M);
 
 @doc{
@@ -186,7 +186,7 @@ import Map;
 range(("apple": 1, "pear": 2));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java set[&V] range(map[&K, &V] M);
 
 @doc{
@@ -247,7 +247,7 @@ import Map;
 size(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int size(map[&K, &V] M);
 
 
@@ -260,7 +260,7 @@ import Map;
 toList(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[tuple[&K, &V]] toList(map[&K, &V] M);
 
 @doc{
@@ -272,7 +272,7 @@ import Map;
 toRel(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java rel[&K, &V] toRel(map[&K, &V] M);
   
 @doc{
@@ -284,7 +284,7 @@ import Map;
 toString(("apple": 1, "pear": 2, "orange": 3));
 </screen>
 }
-@javaClass{org.rascalmpl.library.Map}
+@javaClass{org.rascalmpl.library.Prelude}
 public java str toString(map[&K, &V] M);
 
 

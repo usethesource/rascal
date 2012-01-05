@@ -1,9 +1,3 @@
-/*****************************/
-/* DEPRECATED                */
-/* Use lang::aterm::IO       */
-/* DO NOT EDIT               */
-/*****************************/
-
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -16,8 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 
 
-@deprecated{Use "import lang::aterm::IO;" instead.}
-module ATermIO
+module lang::aterm::IO
 
 @doc{read an ATerm from a text file}
 @javaClass{org.rascalmpl.library.lang.aterm.IO}

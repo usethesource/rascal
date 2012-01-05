@@ -11,7 +11,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.lang.xml;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,10 +149,10 @@ class XMLIOThing{
 	}*/
 }
 
-public class XMLIO{
+public class IO{
 	private final IValueFactory vf;
 	
-	public XMLIO(IValueFactory vf){
+	public IO(IValueFactory vf){
 		super();
 		
 		this.vf = vf;
