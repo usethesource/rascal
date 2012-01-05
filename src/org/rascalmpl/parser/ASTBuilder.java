@@ -322,13 +322,6 @@ public class ASTBuilder {
 			i++;
 		}
 
-		// TODO throw away code!
-//		if (sort.equals("Type") && cons.equals("Symbol")) {
-//			if (actuals.length == 2 && (actuals[1] instanceof Sym.Nonterminal || actuals[1] instanceof Sym.Labeled || actuals[1] instanceof Sym.Parameter)) {
-//				return null; // filtered
-//			}
-//		}
-		
 		AbstractAST ast = callMakerMethod(sort, cons, actuals);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
