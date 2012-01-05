@@ -116,14 +116,22 @@ Prog: prog([func(
           ],
           nat(1)[
             @location=|file:/...
-
-*** Rascal killed after timeout ***
 </pre>
   We get the original program and its <b>abstract syntax tree</b> of type <code>Prog</code> back.
   In case of doubt, compare this with the result in <a href="/Courses/Recipes/Languages/Func/Parse/Parse.html">Func/Parse</a> where we did obtain a parse tree.
   Next, we try the same from a file:
 
-
+<pre class="screen"><b>rascal></b>load(|std:///demo/lang/Func/programs/F0.func|);
+Prog: prog([func(
+      &quot;fact&quot;,
+      [&quot;n&quot;],
+      cond(
+        leq(
+          var(&quot;n&quot;)[
+            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,&lt;1,13&gt;,&lt;1,14&gt;)
+          ],
+          nat(1)[...
+</pre>
 </div>
 
   	                       
@@ -132,7 +140,7 @@ Prog: prog([func(
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Recipes/Languages/Func/LoadAST&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Recipes/Languages/Func/LoadAST&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Recipes"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Recipes/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
