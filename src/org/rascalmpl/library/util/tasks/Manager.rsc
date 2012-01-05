@@ -69,6 +69,7 @@ public bool hasFact(Transaction tr, type[&T] key, value name) {
 	return queryFact(tr, key, name)?;
 }
 
+@reflect{For producing exceptions with stack traces}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void removeFact(Transaction tr, type[&T] key, value name);
 

@@ -82,34 +82,48 @@ public class Manager {
 		transaction(tr).abandon();
 	}
 	
-	public IValue getFact(IValue tr, IConstructor key, IValue name, IEvaluatorContext ctx) {
-		IValue fact = transaction(tr).getFact(ctx, typeReifier.valueToType(key), name);
+	public IValue getFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+		if(!(key instanceof IConstructor))
+			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+
+		IValue fact = transaction(tr).getFact(ctx, typeReifier.valueToType((IConstructor) key), name);
 		if(fact == null)
 			fact = null; // <- put breakpoint here!
-		return check(fact, key, name, ctx);
-		
+		return check(fact, (IConstructor) key, name, ctx);
 	}
 
-	private IValue check(IValue fact, IConstructor key, IValue name, IEvaluatorContext ctx) {
+	private IValue check(IValue fact, IValue key, IValue name, IEvaluatorContext ctx) {
+		if(!(key instanceof IConstructor))
+			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+
 		if(fact == null)
-			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType(key).toString() + ":" + name.toString()), 
+			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()), 
 					ctx.getCurrentAST(), ctx.getStackTrace());
-		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType(key)))
-			throw new UnexpectedTypeError(typeReifier.valueToType(key), fact.getType(), ctx.getCurrentAST());
+		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key)))
+			throw new UnexpectedTypeError(typeReifier.valueToType((IConstructor) key), fact.getType(), ctx.getCurrentAST());
 		else
 			return fact;
 	}
 
-	public IValue queryFact(IValue tr, IConstructor key, IValue name, IEvaluatorContext ctx) {
-		return check(transaction(tr).queryFact(typeReifier.valueToType(key), name), key, name, ctx);
+	public IValue queryFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+		if(!(key instanceof IConstructor))
+			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+
+		return check(transaction(tr).queryFact(typeReifier.valueToType((IConstructor) key), name), key, name, ctx);
 	}
 
-	public void removeFact(IValue tr, IConstructor key, IValue name) {
-		transaction(tr).removeFact(typeReifier.valueToType(key), name);
+	public void removeFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+		if(!(key instanceof IConstructor))
+			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+
+		transaction(tr).removeFact(typeReifier.valueToType((IConstructor) key), name);
 	}
 
-	public void setFact(IValue tr, IConstructor key, IValue name, IValue value, IEvaluatorContext ctx) {
-		Type keyType = typeReifier.valueToType(key);
+	public void setFact(IValue tr, IValue key, IValue name, IValue value, IEvaluatorContext ctx) {
+		if(!(key instanceof IConstructor))
+			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+
+		Type keyType = typeReifier.valueToType((IConstructor) key);
 		if(!value.getType().isSubtypeOf(keyType))
 			throw new UnexpectedTypeError(keyType, value.getType(), ctx.getCurrentAST());
 		else
@@ -137,7 +151,7 @@ public class Manager {
 	}
 
 	protected IConstructor reify(IEvaluatorContext ctx, Type type) {
-		return (IConstructor) new TypeReifier(ctx.getValueFactory()).typeToValue(type, ctx).getValue();
+		return (IConstructor) typeReifier.typeToValue(type, ctx).getValue();
 	}
 	/**
 	 *  Cast an IValue to ITransaction 
