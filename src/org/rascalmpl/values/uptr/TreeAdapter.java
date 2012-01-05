@@ -156,6 +156,11 @@ public class TreeAdapter {
 		return isAppl(tree) ? ProductionAdapter.isLexical(getProduction(tree))
 				: false;
 	}
+	
+	public static boolean isSort(IConstructor tree) {
+		return isAppl(tree) ? ProductionAdapter.isSort(getProduction(tree))
+				: false;
+	}
 
 	public static boolean isLayout(IConstructor tree) {
 		return isAppl(tree) ? ProductionAdapter.isLayout(getProduction(tree))

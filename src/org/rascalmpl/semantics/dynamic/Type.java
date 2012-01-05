@@ -103,7 +103,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval) {
+		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
 			// TODO: !!! where to get the right layout name for this non-terminal? It depends on where it was/is used when parsing whatever
 			// is being analyzed here...
 			// TODO AND: we always assume this non-terminal is not a lexical one here for some reason.

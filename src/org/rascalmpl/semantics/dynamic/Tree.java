@@ -61,7 +61,7 @@ public abstract class Tree {
 	public Appl(IConstructor node, java.util.List<org.rascalmpl.ast.Expression> args) {
 		super(node);
 		this.production = TreeAdapter.getProduction(node);
-		this.type = RascalTypeFactory.getInstance().nonTerminalType(node);
+		this.type = RascalTypeFactory.getInstance().nonTerminalType(production);
 		this.args = args;
 		this.constant = isConstant(args);
 		this.node = this.constant ? node : null;

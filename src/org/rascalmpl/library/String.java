@@ -46,17 +46,19 @@ public class String {
 	
 	
 	public IValue stringChar(IInteger i){
-		byte ccode[] = { (byte) i.intValue()};
-		return values.string(new java.lang.String(ccode));
+		StringBuilder b = new StringBuilder(1);
+		b.append((char) i.intValue());
+		return values.string(b.toString());
 	}
 	
 	public IValue stringChars(IList lst){
-		int n = lst.length();
-		byte ccodes[] = new byte[n];
-		for(int i = 0; i < n; i ++){
-			ccodes[i] = (byte) ((IInteger) lst.get(i)).intValue();
+		StringBuilder b = new StringBuilder(lst.length());
+		
+		for(int i = 0; i < lst.length(); i ++) {
+			b.append((char) ((IInteger) lst.get(i)).intValue());
 		}
-		return values.string(new java.lang.String(ccodes));
+		
+		return values.string(b.toString());
 	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException

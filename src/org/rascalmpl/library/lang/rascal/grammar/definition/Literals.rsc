@@ -14,6 +14,7 @@ import lang::rascal::grammar::definition::Modules;
 import Grammar;
 import ParseTree;
 import String;
+import IO;
 
 public Grammar literals(Grammar g) {
   return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
@@ -23,7 +24,6 @@ public Production literal(str s) = prod(lit(s),str2syms(s),{});
 public Production ciliteral(str s) = prod(cilit(s),cistr2syms(s),{});
 
 public list[Symbol] str2syms(str x) {
-  // TODO: escaping?
   if (x == "") return [];
   return [\char-class([range(c,c)]) | i <- [0..size(x)-1], int c:= charAt(x,i)]; 
 }
@@ -40,18 +40,44 @@ private list[Symbol] cistr2syms(str x) {
 }
 
 public str unescape(CaseInsensitiveStringConstant s) {
-   if ([CaseInsensitiveStringConstant] /\'<rest:.*>\'/ := s) {
-     return unescape(rest);
-   }
-   throw "unexpected string format: <s>";
+   if ((CaseInsensitiveStringConstant) `'<StringCharacter* x>'` := s) {
+    Tree y = x; // workaround for buggy matching in lexicals
+    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
+  }
+  throw "unexpected string constant <s>";
 }
 
+public test bool quoteTest() = unescape((StringConstant) `"\\\""`) == "\\\"";
+
+
 public str unescape(StringConstant s) {
-   if ([StringConstant] /\"<rest:.*>\"/ := s) {
-     return unescape(rest);
-   }
-   throw "unexpected string format: <s>";
+  if ((StringConstant) `"<StringCharacter* x>"` := s) {
+    Tree y = x; // workaround for buggy matching in lexicals
+    return "<for (StringCharacter ch <- y.args) {><character(ch)><}>";
+  }
+  throw "unexpected string constant <s>";
 }
+
+private str character(StringCharacter c) {
+  switch (c) {
+    case [StringCharacter] /\\n/ : return "\n";
+    case [StringCharacter] /\\t/ : return "\t";
+    case [StringCharacter] /\\b/ : return "\b";
+    case [StringCharacter] /\\r/ : return "\r";
+    case [StringCharacter] /\\f/ : return "\f";
+    case [StringCharacter] /\\\>/ : return "\>";
+    case [StringCharacter] /\\\</ : return "\<";
+    case [StringCharacter] /<ch:[^"'\\\>\< ]>/        : return "<ch>"; 
+    case [StringCharacter] /\\<esc:["'\\ ]>/        : return "<esc>";
+    case [StringCharacter] /\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
+    case [StringCharacter] /\\<oct:[0-3][0-7][0-7]>/ : return stringChar(toInt("0<oct>"));
+    case [StringCharacter] /\\<oct:[0-7][0-7]>/      : return stringChar(toInt("0<oct>"));
+    case [StringCharacter] /\\<oct:[0-7]>/           : return stringChar(toInt("0<oct>"));
+    case [StringCharacter] /\n[\ \t]* \'/            : return "\n";
+    default: throw "missed a case <c>";
+  }
+}
+
 
 
 public str unescape(str s) {
