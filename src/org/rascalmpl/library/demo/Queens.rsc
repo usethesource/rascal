@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module demo::Queens
 
-import Integer;
+import util::Math;
 import List;
 import IO;
 

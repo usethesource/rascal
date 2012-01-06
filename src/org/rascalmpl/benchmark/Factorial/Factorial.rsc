@@ -11,7 +11,7 @@
 module Factorial::Factorial
 
 import IO;
-import Benchmark;
+import util::Benchmark;
 
 /*
 import Ambiguity;

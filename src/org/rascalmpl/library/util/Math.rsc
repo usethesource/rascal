@@ -70,7 +70,7 @@ Benefits:
 @javaClass{org.rascalmpl.library.util.Math}
 public java int arbInt();
 
-@javaClass{org.rascalmpl.library.Integer}
+@javaClass{org.rascalmpl.library.util.Math}
 public java int arbInt(int limit);
 
 @doc{
@@ -484,6 +484,8 @@ toString(3.14)
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);
+
+
 
 
 

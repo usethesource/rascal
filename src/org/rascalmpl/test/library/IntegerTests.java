@@ -23,7 +23,7 @@ public class IntegerTests extends TestFramework {
 	@Test
 	public void abs() {
 
-		prepare("import Integer;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("{abs(0) == 0;}"));
 		assertTrue(runTestInSameEvaluator("{abs(-1) == 1;}"));
@@ -33,9 +33,7 @@ public class IntegerTests extends TestFramework {
 	@Test
 	public void arbInt() {
 
-		prepare("import Integer;");
-
-		assertTrue(runTestInSameEvaluator("{int N = Integer::arbInt(10); (N >= 0) && (N < 10);}"));
+		prepare("import util::Math;");
 		assertTrue(runTestInSameEvaluator("{int N = arbInt(10); (N >= 0) && (N < 10);}"));
 
 		assertTrue(runTestInSameEvaluator("{int N = arbInt(); true;}"));
@@ -44,38 +42,33 @@ public class IntegerTests extends TestFramework {
 	@Test
 	public void max() {
 
-		prepare("import Integer;");
+		prepare("import util::Math;");
 
-		assertTrue(runTestInSameEvaluator("Integer::max(3, 10) == 10;"));
 		assertTrue(runTestInSameEvaluator("max(3, 10) == 10;"));
-		assertTrue(runTestInSameEvaluator("Integer::max(10, 10) == 10;"));
+		assertTrue(runTestInSameEvaluator("max(10, 10) == 10;"));
 	}
 
 	@Test
 	public void min() {
 
-		prepare("import Integer;");
-
-		assertTrue(runTestInSameEvaluator("Integer::min(3, 10) == 3;"));
+		prepare("import util::Math;");
+		
 		assertTrue(runTestInSameEvaluator("min(3, 10) == 3;"));
-		assertTrue(runTestInSameEvaluator("Integer::min(10, 10) == 10;"));
+		assertTrue(runTestInSameEvaluator("min(10, 10) == 10;"));
 	}
 
 	@Test
 	public void toReal() {
 
-		prepare("import Integer;");
+		prepare("import util::Math;");
 
-		assertTrue(runTestInSameEvaluator("Integer::toReal(3) == 3.0;"));
 		assertTrue(runTestInSameEvaluator("toReal(3) == 3.0;"));
 	}
 
 	@Test
 	public void testToString() {
 
-		prepare("import Integer;");
-
-		assertTrue(runTestInSameEvaluator("Integer::toString(314) == \"314\";"));
+		prepare("import util::Math;");
 		assertTrue(runTestInSameEvaluator("toString(314) == \"314\";"));
 	}
 

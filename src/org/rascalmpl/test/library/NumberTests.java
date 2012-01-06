@@ -23,7 +23,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void abs() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("{abs(0) == 0;}"));
 		assertTrue(runTestInSameEvaluator("{abs(0r) == 0r;}"));
@@ -39,7 +39,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void arbInt() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("{int N = arbInt(10); (N >= 0) && (N < 10);}"));
 
@@ -107,14 +107,14 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void arbReal() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 		assertTrue(runTestInSameEvaluator("{real D = arbReal(); (D >= 0.0) && (D <= 1.0);}"));
 	}
 
 	@Test
 	public void max() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("max(3, 10) == 10;"));
 		assertTrue(runTestInSameEvaluator("max(10, 10) == 10;"));
@@ -128,7 +128,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void min() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("min(3, 10) == 3;"));
 		assertTrue(runTestInSameEvaluator("min(10, 10) == 10;"));
@@ -145,7 +145,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void toInt() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 
 		assertTrue(runTestInSameEvaluator("toInt(3) == 3;"));
 		assertTrue(runTestInSameEvaluator("toInt(3.14) == 3;"));
@@ -156,7 +156,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void toReal() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 		assertTrue(runTestInSameEvaluator("toReal(3) == 3.0;"));
 		assertTrue(runTestInSameEvaluator("toReal(3.14) == 3.14;"));
 	}
@@ -164,7 +164,7 @@ public class NumberTests extends TestFramework {
 	@Test
 	public void testToString() {
 
-		prepare("import Number;");
+		prepare("import util::Math;");
 		assertTrue(runTestInSameEvaluator("toString(314) == \"314\";"));
 		assertTrue(runTestInSameEvaluator("toString(3.14) == \"3.14\";"));
 		assertTrue(runTestInSameEvaluator("toString(4r8) == \"1r2\";"));

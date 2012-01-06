@@ -10,8 +10,8 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Reverse::Reverse
 
-import Integer;
-import Benchmark;
+import util::Math;
+import util::Benchmark;
 import List;
 import IO;
 

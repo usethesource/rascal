@@ -11,7 +11,7 @@
 module RSF::RSFCalls
 
 import Relation;
-import Integer;
+import util::Math;
 import Set;
 import Graph;
 import lang::rsf::IO;
