@@ -47,12 +47,12 @@ public int min(int n, int m)
 
 @doc{Convert an integer value to a real value.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real toReal(int n);
+public java real toReal(num n);
 
 @doc{Convert an integer value to a rational value.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real toRational(int n);
+public java real toRational(num n);
 
 @doc{Convert an integer value to a string.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java str toString(int n);
+public java str toString(num n);
