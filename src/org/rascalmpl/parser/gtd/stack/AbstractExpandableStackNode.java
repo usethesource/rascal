@@ -43,7 +43,7 @@ public abstract class AbstractExpandableStackNode extends AbstractStackNode{
 		return false;
 	}
 	
-	public AbstractNode match(char[] input, int location){
+	public AbstractNode match(int[] input, int location){
 		throw new UnsupportedOperationException();
 	}
 	

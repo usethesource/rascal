@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class PatternWithAction extends AbstractAST {
   public PatternWithAction(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -66,6 +65,10 @@ public abstract class PatternWithAction extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -123,7 +126,6 @@ public abstract class PatternWithAction extends AbstractAST {
       return this.pattern;
     }
   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -132,7 +134,6 @@ public abstract class PatternWithAction extends AbstractAST {
     public org.rascalmpl.ast.Replacement getReplacement() {
       return this.replacement;
     }
-  
   
     @Override
     public boolean hasReplacement() {
@@ -173,7 +174,6 @@ public abstract class PatternWithAction extends AbstractAST {
       return this.pattern;
     }
   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -182,7 +182,6 @@ public abstract class PatternWithAction extends AbstractAST {
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
     }
-  
   
     @Override
     public boolean hasStatement() {

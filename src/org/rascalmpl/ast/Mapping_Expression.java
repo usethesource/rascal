@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Mapping_Expression extends AbstractAST {
   public Mapping_Expression(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -120,8 +119,6 @@ public abstract class Mapping_Expression extends AbstractAST {
       return this.from;
     }
   
-    
-  
     @Override
     public boolean hasFrom() {
       return true;
@@ -129,20 +126,6 @@ public abstract class Mapping_Expression extends AbstractAST {
     @Override
     public org.rascalmpl.ast.Expression getTo() {
       return this.to;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = to.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return to.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

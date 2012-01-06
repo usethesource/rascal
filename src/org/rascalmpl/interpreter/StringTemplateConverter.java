@@ -48,7 +48,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
   
@@ -111,15 +110,10 @@ public class StringTemplateConverter {
 				IValueFactory vf = ValueFactoryFactory.getValueFactory();
 				IValue v = result.getValue();
 				if (!(v instanceof IString)) {
-					if (vf instanceof OriginValueFactory) {
-						v = ((OriginValueFactory)vf).expression(getLocation(), result.getValue().toString());
-					}
-					else {
-						// Ensure that values that are trees are yielding the appropriate string value
-						StringBuilder sb = new StringBuilder(500);
-						appendToString(v, sb);
-						v = vf.string(sb.toString());
-					}
+					// Ensure that values that are trees are yielding the appropriate string value
+					StringBuilder sb = new StringBuilder(500);
+					appendToString(v, sb);
+					v = vf.string(sb.toString());
 				}
 				int indent = __eval.getCurrentIndent();
 				char[] arr = new char[indent];

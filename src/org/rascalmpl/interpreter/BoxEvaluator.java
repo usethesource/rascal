@@ -3344,18 +3344,6 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 		return KW("start");
 	}
 
-	public IValue visitOctalEscapeSequenceAmbiguity(
-			org.rascalmpl.ast.OctalEscapeSequence.Ambiguity x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
-	public IValue visitOctalEscapeSequenceLexical(
-			org.rascalmpl.ast.OctalEscapeSequence.Lexical x) {
-		// TODO Auto-generated method stub
-		return L(x.getClass().toString());
-	}
-
 //	public IValue visitParameterizedNonterminalAmbiguity(
 //			org.rascalmpl.ast.ParameterizedNonterminal.Ambiguity x) {
 //		// TODO Auto-generated method stub

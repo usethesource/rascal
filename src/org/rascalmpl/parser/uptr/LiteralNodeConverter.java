@@ -40,7 +40,7 @@ public class LiteralNodeConverter{
 		IConstructor result = cache.get(node);
 		if(result != null) return result;
 		
-		char[] content = node.getContent();
+		int[] content = node.getContent();
 		
 		int numberOfCharacters = content.length;
 		

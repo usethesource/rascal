@@ -21,7 +21,7 @@ public interface IEnterFilter{
 	 * Checks whether or not the indicated location in the input string matches
 	 * this filter.
 	 */
-	boolean isFiltered(char[] input, int start, PositionStore positionStore);
+	boolean isFiltered(int[] input, int start, PositionStore positionStore);
 	
 	/**
 	 * Checks filter equality.

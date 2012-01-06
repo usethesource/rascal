@@ -54,7 +54,7 @@ public class Epsilon extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, new char[]{}, new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, new int[]{}, new NodeToUPTR());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

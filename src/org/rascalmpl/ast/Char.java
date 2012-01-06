@@ -16,15 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Char extends AbstractAST {
   public Char(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -85,6 +85,7 @@ public abstract class Char extends AbstractAST {
     }
     return null;
   }
+
   public java.lang.String toString() {
     return string;
   }

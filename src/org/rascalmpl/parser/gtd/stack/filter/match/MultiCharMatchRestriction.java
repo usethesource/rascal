@@ -19,21 +19,21 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
  * any of the, with this filter associated, series of characters.
  */
 public class MultiCharMatchRestriction implements ICompletionFilter{
-	private final char[][] characters;
+	private final int[][] characters;
 	
-	public MultiCharMatchRestriction(char[][] characters){
+	public MultiCharMatchRestriction(int[][] characters){
 		super();
 
 		this.characters = characters;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
 		if((end - start) != characters.length) return false;
 		
 		OUTER : for(int i = characters.length - 1; i >= 0; --i){
-			char next = input[start + i];
+			int next = input[start + i];
 			
-			char[] alternatives = characters[i];
+			int[] alternatives = characters[i];
 			for(int j = alternatives.length - 1; j >= 0; --j){
 				if(next == alternatives[j]){
 					continue OUTER;
@@ -50,16 +50,16 @@ public class MultiCharMatchRestriction implements ICompletionFilter{
 		
 		MultiCharMatchRestriction otherMultiCharMatchFilter = (MultiCharMatchRestriction) otherCompletionFilter;
 		
-		char[][] otherCharacters = otherMultiCharMatchFilter.characters;
+		int[][] otherCharacters = otherMultiCharMatchFilter.characters;
 		if(characters.length != otherCharacters.length) return false;
 		
 		for(int i = characters.length - 1; i >= 0; --i){
-			char[] chars = characters[i];
-			char[] otherChars = otherCharacters[i];
+			int[] chars = characters[i];
+			int[] otherChars = otherCharacters[i];
 			if(chars.length != otherChars.length) return false;
 			
 			POS: for(int j = chars.length - 1; j <= 0; --j){
-				char c = chars[j];
+				int c = chars[j];
 				for(int k = otherChars.length - 1; k <= 0; --k){
 					if(c == otherChars[k]) continue POS;
 				}

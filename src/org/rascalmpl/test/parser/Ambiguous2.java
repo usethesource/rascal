@@ -52,9 +52,9 @@ public class Ambiguous2 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
 	private final static AbstractStackNode NONTERMINAL_B1 = new NonTerminalStackNode(1, 0, "B");
-	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, 0, PROD_b_b, new char[]{'b'});
-	private final static AbstractStackNode LITERAL_ab3 = new LiteralStackNode(3, 1, PROD_ab_ab, new char[]{'a','b'});
-	private final static AbstractStackNode LITERAL_bab4 = new LiteralStackNode(4, 0, PROD_bab_bab, new char[]{'b','a','b'});
+	private final static AbstractStackNode LITERAL_b2 = new LiteralStackNode(2, 0, PROD_b_b, new int[]{'b'});
+	private final static AbstractStackNode LITERAL_ab3 = new LiteralStackNode(3, 1, PROD_ab_ab, new int[]{'a','b'});
+	private final static AbstractStackNode LITERAL_bab4 = new LiteralStackNode(4, 0, PROD_bab_bab, new int[]{'b','a','b'});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
 	static{

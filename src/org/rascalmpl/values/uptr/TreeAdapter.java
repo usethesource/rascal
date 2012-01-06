@@ -17,6 +17,7 @@ package org.rascalmpl.values.uptr;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -218,9 +219,9 @@ public class TreeAdapter {
 	}
 
 	private static class Unparser extends TreeVisitor {
-		private final CharArrayWriter fStream;
+		private final Writer fStream;
 
-		public Unparser(CharArrayWriter stream) {
+		public Unparser(Writer stream) {
 			fStream = stream;
 		}
 		
@@ -243,7 +244,11 @@ public class TreeAdapter {
 		}
 		
 		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
-			fStream.write(((IInteger) arg.get("character")).intValue());
+			try {
+				fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
+			} catch (IOException e) {
+				throw new VisitorException(e);
+			}
 			return arg;
 		}
 		
@@ -261,11 +266,17 @@ public class TreeAdapter {
 				child.accept(this);
 			}
 			
-			IList rest = (IList) arg.get("rest");
-			for(IValue character : rest){
-				fStream.write(((IInteger) character).intValue());
+			try {
+				IList rest = (IList) arg.get("rest");
+				for(IValue character : rest){
+					fStream.write(((IInteger) character).intValue());
+				}
+				
+				return arg;
 			}
-			return arg;
+			catch (IOException e) {
+				throw new VisitorException(e);
+			}
 		}
 
 		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
@@ -378,7 +389,7 @@ public class TreeAdapter {
 		return null;
 	}
 
-	public static void unparse(IConstructor tree, CharArrayWriter stream)
+	public static void unparse(IConstructor tree, Writer stream)
 			throws IOException, FactTypeUseException {
 		try {
 			if (tree.getType().isSubtypeOf(Factory.Tree)) { // == Factory.Tree) {
@@ -401,7 +412,7 @@ public class TreeAdapter {
 
 	public static String yield(IConstructor tree) throws FactTypeUseException {
 		try {
-			CharArrayWriter stream = new CharArrayWriter();
+			Writer stream = new CharArrayWriter();
 			unparse(tree, stream);
 			return stream.toString();
 		} catch (IOException e) {

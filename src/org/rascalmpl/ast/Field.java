@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Field extends AbstractAST {
   public Field(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -119,20 +118,6 @@ public abstract class Field extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = fieldName.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return fieldName.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasFieldName() {
       return true;
     }	
@@ -167,20 +152,6 @@ public abstract class Field extends AbstractAST {
     @Override
     public org.rascalmpl.ast.IntegerLiteral getFieldIndex() {
       return this.fieldIndex;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = fieldIndex.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return fieldIndex.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

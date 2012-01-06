@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Commands extends AbstractAST {
   public Commands(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -52,6 +51,20 @@ public abstract class Commands extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(node);
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(node);
+    }
     
     public java.util.List<org.rascalmpl.ast.Commands> getAlternatives() {
       return alternatives;
@@ -96,7 +109,6 @@ public abstract class Commands extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Command> getCommands() {
       return this.commands;
     }
-  
   
     @Override
     public boolean hasCommands() {

@@ -709,13 +709,11 @@ public interface IASTVisitor<T> {
 
   public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
 
-  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
-
   public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
 
-  public T visitDatePartLexical(DatePart.Lexical x);
+  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
 
-  public T visitOctalEscapeSequenceLexical(OctalEscapeSequence.Lexical x);
+  public T visitDatePartLexical(DatePart.Lexical x);
 
   public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x);
 
@@ -812,7 +810,6 @@ public interface IASTVisitor<T> {
   public T visitToplevelAmbiguity(Toplevel.Ambiguity x);
   public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x);
   public T visitAssignmentAmbiguity(Assignment.Ambiguity x);
-  public T visitOctalEscapeSequenceAmbiguity(OctalEscapeSequence.Ambiguity x);
   public T visitTypeVarAmbiguity(TypeVar.Ambiguity x);
   public T visitPostStringCharsAmbiguity(PostStringChars.Ambiguity x);
   public T visitHexIntegerLiteralAmbiguity(HexIntegerLiteral.Ambiguity x);
@@ -824,15 +821,15 @@ public interface IASTVisitor<T> {
   public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
   public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
   public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x);
+  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
   public T visitDatePartAmbiguity(DatePart.Ambiguity x);
   public T visitBoundAmbiguity(Bound.Ambiguity x);
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
   public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x);
   public T visitJustDateAmbiguity(JustDate.Ambiguity x);
-  public T visitFieldAmbiguity(Field.Ambiguity x);
   public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
+  public T visitFieldAmbiguity(Field.Ambiguity x);
   public T visitTypeAmbiguity(Type.Ambiguity x);
   public T visitPathPartAmbiguity(PathPart.Ambiguity x);
   public T visitClassAmbiguity(Class.Ambiguity x);

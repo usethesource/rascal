@@ -462,17 +462,17 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
     
     if (conditional(_, conds) := sym) {
       conds = expandKeywords(grammar, conds);
-      exits += ["new CharFollowRequirement(new char[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
-      exits += ["new StringFollowRequirement(new char[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
-      exits += ["new CharFollowRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
-      exits += ["new StringFollowRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
-      exits += ["new CharMatchRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
-      exits += ["new StringMatchRestriction(new char[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
+      exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
+      exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
+      exits += ["new CharFollowRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
+      exits += ["new StringFollowRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
+      exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
+      exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
-      enters += ["new CharPrecedeRequirement(new char[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
-      enters += ["new StringPrecedeRequirement(new char[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
-      enters += ["new CharPrecedeRestriction(new char[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
-      enters += ["new StringPrecedeRestriction(new char[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
+      enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
+      enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
+      enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
+      enters += ["new StringPrecedeRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
       enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
@@ -513,11 +513,11 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
             if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
-                return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
+                return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
             if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
-                return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)>, new char[] {<literals2ints(chars)>}, <filters>)",itemId>;
+                return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
             return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
@@ -543,7 +543,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
             return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym))>, new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
-            return <"new CharStackNode(<itemId>, <dot>, new char[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
+            return <"new CharStackNode(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
         default: 
             throw "unexpected symbol <sym> while generating parser code";
     }

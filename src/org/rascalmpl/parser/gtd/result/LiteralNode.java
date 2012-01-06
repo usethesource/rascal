@@ -18,9 +18,9 @@ public class LiteralNode extends AbstractNode{
 	public final static int ID = 3;
 	
 	private final Object production;
-	private final char[] content;
+	private final int[] content;
 	
-	public LiteralNode(Object production, char[] content){
+	public LiteralNode(Object production, int[] content){
 		super();
 		
 		this.production = production;
@@ -41,7 +41,7 @@ public class LiteralNode extends AbstractNode{
 	/**
 	 * Returns the substring this literal matched.
 	 */
-	public char[] getContent(){
+	public int[] getContent(){
 		return content;
 	}
 	

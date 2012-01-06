@@ -1135,10 +1135,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private char[] getResourceContent(URI location) throws IOException{
 		char[] data;
 		InputStream inputStream = null;
-		try{
+		
+		try {
 			inputStream = resolverRegistry.getInputStream(location);
 			data = InputConverter.toChar(inputStream);
-		}finally{
+		}
+		finally{
 			if(inputStream != null){
 				inputStream.close();
 			}

@@ -638,7 +638,7 @@ public abstract class AbstractStackNode{
 	 * Matches the symbol associated with this node to the input at the specified location.
 	 * This operation is only available on matchable nodes.
 	 */
-	public abstract AbstractNode match(char[] input, int location);
+	public abstract AbstractNode match(int[] input, int location);
 	
 	/**
 	 * Returns the length of this node (only applies to matchables).

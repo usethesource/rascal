@@ -19,11 +19,11 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 public final class CaseInsensitiveLiteralStackNode extends AbstractMatchableStackNode{
 	private final Object production;
 	
-	private final char[][] ciLiteral;
+	private final int[][] ciLiteral;
 	
 	private final AbstractNode result;
 	
-	public CaseInsensitiveLiteralStackNode(int id, int dot, Object production, char[] ciLiteral){
+	public CaseInsensitiveLiteralStackNode(int id, int dot, Object production, int[] ciLiteral){
 		super(id, dot);
 		
 		this.production = production;
@@ -33,7 +33,7 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractMatchableStac
 		result = null;
 	}
 	
-	public CaseInsensitiveLiteralStackNode(int id, int dot, Object production, char[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public CaseInsensitiveLiteralStackNode(int id, int dot, Object production, int[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -63,18 +63,18 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractMatchableStac
 		this.result = result;
 	}
 	
-	private char[][] fill(char[] ciLiteral){
+	private int[][] fill(int[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
-		char[][] ciLiteralResult = new char[nrOfCharacters][];
+		int[][] ciLiteralResult = new int[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){
-			char character = ciLiteral[i];
+			int character = ciLiteral[i];
 			int type = Character.getType(character);
 			if(type == Character.LOWERCASE_LETTER){
-				ciLiteralResult[i] = new char[]{character, Character.toUpperCase(character)};
+				ciLiteralResult[i] = new int[]{character, Character.toUpperCase(character)};
 			}else if(type == Character.UPPERCASE_LETTER){
-				ciLiteralResult[i] = new char[]{character, Character.toLowerCase(character)};
+				ciLiteralResult[i] = new int[]{character, Character.toLowerCase(character)};
 			}else{
-				ciLiteralResult[i] = new char[]{character};
+				ciLiteralResult[i] = new int[]{character};
 			}
 		}
 		return ciLiteralResult;
@@ -84,13 +84,13 @@ public final class CaseInsensitiveLiteralStackNode extends AbstractMatchableStac
 		return false;
 	}
 	
-	public AbstractNode match(char[] input, int location){
+	public AbstractNode match(int[] input, int location){
 		int literalLength = ciLiteral.length;
-		char[] resultLiteral = new char[literalLength];
+		int[] resultLiteral = new int[literalLength];
 		OUTER : for(int i = literalLength - 1; i >= 0; --i){
-			char[] ciLiteralPart = ciLiteral[i];
+			int[] ciLiteralPart = ciLiteral[i];
 			for(int j = ciLiteralPart.length - 1; j >= 0; --j){
-				char character = ciLiteralPart[j];
+				int character = ciLiteralPart[j];
 				if(character == input[location + i]){
 					resultLiteral[i] = character;
 					continue OUTER;

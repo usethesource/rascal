@@ -19,15 +19,15 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
  * a specific string.
  */
 public class StringMatchRestriction implements ICompletionFilter{
-	private final char[] string;
+	private final int[] string;
 	
-	public StringMatchRestriction(char[] string){
+	public StringMatchRestriction(int[] string){
 		super();
 		
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
 		if((end - start) != string.length) return false;
 		
 		for(int i = string.length - 1; i >= 0; --i){
@@ -42,7 +42,7 @@ public class StringMatchRestriction implements ICompletionFilter{
 		
 		StringMatchRestriction otherStringMatchFilter = (StringMatchRestriction) otherCompletionFilter;
 		
-		char[] otherString = otherStringMatchFilter.string;
+		int[] otherString = otherStringMatchFilter.string;
 		if(string.length != otherString.length) return false;
 		
 		for(int i = string.length - 1; i >= 0; --i){

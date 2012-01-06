@@ -44,9 +44,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -89,7 +89,6 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.OriginValueFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -785,7 +784,7 @@ public class Prelude {
 		
 		try{
 			if(arg.getType().isStringType()){
-				currentOutStream.print(((IString) arg).getValue().toString());
+				currentOutStream.print(((IString) arg).getValue());
 			}else if(arg.getType().isSubtypeOf(Factory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
 			}else{
@@ -2103,33 +2102,25 @@ public class Prelude {
 	 * String
 	 */
 	
-
-	public IList origins(IString str) {
-		return ((OriginValueFactory.TString)str).getOrigins();
-	}
-	
-	
 	public IValue stringChar(IInteger i){
-		StringBuilder b = new StringBuilder(1);
-		b.append((char) i.intValue());
-		return values.string(b.toString());
+		return values.string(i.intValue());
 	}
 	
 	public IValue stringChars(IList lst){
-		StringBuilder b = new StringBuilder(lst.length());
+		int[] chars = new int[lst.length()];
 		
-		for(int i = 0; i < lst.length(); i ++) {
-			b.append((char) ((IInteger) lst.get(i)).intValue());
+		for (int i = 0; i < lst.length(); i ++) {
+			chars[i] = ((IInteger) lst.get(0)).intValue();
 		}
 		
-		return values.string(b.toString());
+		return values.string(chars);
 	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
 	{
 	  try {
-	    return values.integer(s.getValue().charAt(i.intValue()));
+		return values.integer(s.charAt(i.intValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
 	    throw RuntimeExceptionFactory.indexOutOfBounds(i, null, null);
@@ -2199,20 +2190,13 @@ public class Prelude {
 	public IValue reverse(IString s)
 	//@doc{reverse -- return string with all characters in reverse order.}
 	{
-	   java.lang.String sval = s.getValue();
-	   char [] chars = new char[sval.length()];
-	   int n = sval.length();
-
-	   for(int i = 0; i < n; i++){
-	     chars[n - i  - 1] = sval.charAt(i);
-	   }
-	   return values.string(new java.lang.String(chars));
+	   return s.reverse();
 	}
 
 	public IValue size(IString s)
 	//@doc{size -- return the length of string s.}
 	{
-	  return values.integer(s.getValue().length());
+	  return values.integer(s.length());
 	}
 
 	public IValue startsWith(IString s, IString prefix)
@@ -2222,27 +2206,21 @@ public class Prelude {
 	}
 
 	public IValue substring(IString s, IInteger begin) {
-		if (s instanceof OriginValueFactory.TString) {
-			return ((OriginValueFactory.TString)s).substring(begin.intValue(), ((OriginValueFactory.TString)s).length());
-		}
 		try {
-			return values.string(s.getValue().substring(begin.intValue()));
+			return s.substring(begin.intValue());
 		} catch (IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(begin, null, null);
 		}
 	}
 	
 	public IValue substring(IString s, IInteger begin, IInteger end) {
-		if (s instanceof OriginValueFactory.TString) {
-			return ((OriginValueFactory.TString)s).substring(begin.intValue(), end.intValue());
-		}
 		try {
-			return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
+			return s.substring(begin.intValue(),end.intValue());
 		} catch (IndexOutOfBoundsException e) {
 			int bval = begin.intValue();
-			IInteger culprit = (bval < 0 || bval >= s.getValue().length()) ? begin : end;
+			IInteger culprit = (bval < 0 || bval >= s.length()) ? begin : end;
 		    throw RuntimeExceptionFactory.indexOutOfBounds(culprit, null, null);
-		  }
+		}
 	
 	}
 	
@@ -2320,9 +2298,6 @@ public class Prelude {
 	public IValue toUpperCase(IString s)
 	//@doc{toUpperCase -- convert all characters in string s to uppercase.}
 	{
-		if (s instanceof OriginValueFactory.TString) {
-			return ((OriginValueFactory.TString)s).toUpperCase();
-		}
 	  return values.string(s.getValue().toUpperCase());
 	}
 	
@@ -2458,7 +2433,7 @@ public class Prelude {
 		}
 		return values.integer(-1);
 	}
-	
+		
 	/*
 	 * ToString
 	 */

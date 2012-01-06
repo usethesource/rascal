@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StringTail extends AbstractAST {
   public StringTail(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -80,6 +79,10 @@ public abstract class StringTail extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -139,7 +142,6 @@ public abstract class StringTail extends AbstractAST {
       return this.mid;
     }
   
-  
     @Override
     public boolean hasMid() {
       return true;
@@ -149,7 +151,6 @@ public abstract class StringTail extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -158,7 +159,6 @@ public abstract class StringTail extends AbstractAST {
     public org.rascalmpl.ast.StringTail getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {
@@ -201,7 +201,6 @@ public abstract class StringTail extends AbstractAST {
       return this.mid;
     }
   
-  
     @Override
     public boolean hasMid() {
       return true;
@@ -211,7 +210,6 @@ public abstract class StringTail extends AbstractAST {
       return this.template;
     }
   
-  
     @Override
     public boolean hasTemplate() {
       return true;
@@ -220,7 +218,6 @@ public abstract class StringTail extends AbstractAST {
     public org.rascalmpl.ast.StringTail getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {
@@ -258,7 +255,6 @@ public abstract class StringTail extends AbstractAST {
     public org.rascalmpl.ast.PostStringChars getPost() {
       return this.post;
     }
-  
   
     @Override
     public boolean hasPost() {

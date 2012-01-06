@@ -21,7 +21,7 @@ public interface ICompletionFilter{
 	 * Checks whether or not the indicated position in the input string matches
 	 * this filter.
 	 */
-	boolean isFiltered(char[] input, int start, int end, PositionStore positionStore);
+	boolean isFiltered(int[] input, int start, int end, PositionStore positionStore);
 	
 	/**
 	 * Checks filter equality.

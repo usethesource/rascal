@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StructuredType extends AbstractAST {
   public StructuredType(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -59,6 +58,10 @@ public abstract class StructuredType extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -116,7 +119,6 @@ public abstract class StructuredType extends AbstractAST {
       return this.basicType;
     }
   
-  
     @Override
     public boolean hasBasicType() {
       return true;
@@ -125,7 +127,6 @@ public abstract class StructuredType extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
       return this.arguments;
     }
-  
   
     @Override
     public boolean hasArguments() {

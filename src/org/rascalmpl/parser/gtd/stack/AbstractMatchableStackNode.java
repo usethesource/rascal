@@ -27,7 +27,7 @@ public abstract class AbstractMatchableStackNode extends AbstractStackNode{
 	 * constructs the result in case the match was successful. Null will
 	 * be returned otherwise. 
 	 */
-	public abstract AbstractNode match(char[] input, int location);
+	public abstract AbstractNode match(int[] input, int location);
 	
 	/**
 	 * Returns the length (in number of characters) of the matchable.
