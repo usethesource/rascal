@@ -51,7 +51,12 @@ public java real toReal(num n);
 
 @doc{Convert an integer value to a rational value.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real toRational(num n);
+java real toRat(int n,int b);
+
+public real toRational(int n){
+	return toRat(n,1);
+}
+	
 
 @doc{Convert an integer value to a string.}
 @javaClass{org.rascalmpl.library.util.Math}
