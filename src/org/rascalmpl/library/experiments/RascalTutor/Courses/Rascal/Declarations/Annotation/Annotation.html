@@ -93,14 +93,36 @@
 </pre> Given a graph datatype, one can define an annotation with name <code>LayoutStrategy</code> that defines which 
  graph layout algorithm to apply to a particular graph, e.g.,
  <pre class="screen"><b>rascal></b>data Graph = vertex(str name, int x, int y) | edge(str from, str to);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,69,&lt;1,0&gt;,&lt;1,69&gt;
 ok
 <b>rascal></b>data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,73,&lt;1,0&gt;,&lt;1,73&gt;
+prompt:///          1       1    50.0%  |prompt:///|(0,69,&lt;1,0&gt;,&lt;1,69&gt;
 ok
 <b>rascal></b>anno LayoutStrategy Graph @ strategy;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 <b>rascal></b>G = vertex(&quot;root&quot;, 0, 0);
+PROFILE: 1 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(11,6,&lt;1,11&gt;,&lt;1,17
 Graph: vertex(&quot;root&quot;,0,0)
 <b>rascal></b>G @ strategy = fisheye();
+PROFILE: 2 data points, 23 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      22    95.7%  |prompt:///|(15,9,&lt;1,15&gt;,&lt;1,24
+prompt:///          1       1     4.3%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
+PROFILE: 2 data points, 23 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      22    95.7%  |prompt:///|(15,9,&lt;1,15&gt;,&lt;1,24
+prompt:///          1       1     4.3%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
 Graph: vertex(&quot;root&quot;,0,0)[
   @strategy=fisheye()
 ]

@@ -74,13 +74,29 @@
   Introduce a list, assign it to L and retrieve the element with index 1:
 
 <pre class="screen"><b>rascal></b>L = [10, 20, 30];
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 list[int]: [10,20,30]
 <b>rascal></b>L[1];
+PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
+PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
 int: 20
 </pre>
   Explore an error case:
 
 <pre class="screen"><b>rascal></b>L[5];
+PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
+PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
 Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(5)
     somewhere in: $shell$
 </pre>

@@ -97,14 +97,24 @@
   Two explicit variable declarations:
 
 <pre class="screen"><b>rascal></b>int max = 100;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 100
 <b>rascal></b>min = 0;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 0
 </pre>
   An implicit variable declaration
 
 <pre class="screen"><b>rascal></b>day = {&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;, &lt;&quot;wed&quot;,3&gt;, 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;       &lt;&quot;thu&quot;, 4&gt;, &lt;&quot;fri&quot;, 5&gt;, &lt;&quot;sat&quot;,6&gt;, &lt;&quot;sun&quot;,7&gt;};
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 rel[str, int]: {
   &lt;&quot;thu&quot;,4&gt;,
   &lt;&quot;mon&quot;,1&gt;,
@@ -118,8 +128,16 @@ rel[str, int]: {
   Variable declaration and assignment leading to type error
 
 <pre class="screen"><b>rascal></b>int month = 12;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 12
 <b>rascal></b>month =&quot;December&quot;;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 Static Error: prompt:///:1,7: Expected int, but got str
 </pre>
 </div>
@@ -131,8 +149,20 @@ Static Error: prompt:///:1,7: Expected int, but got str
 <br/>
 <br/>
  <pre class="screen"><b>rascal></b>if( 4 &gt; 3){ x = &quot;abc&quot;; } else { x = &quot;def&quot;;}
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(12,10,&lt;1,12&gt;,&lt;1,2
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(12,10,&lt;1,12&gt;,&lt;1,2
 str: &quot;abc&quot;
 <b>rascal></b>x;
+PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
+PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
 Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
 </pre></li>
 </ul>

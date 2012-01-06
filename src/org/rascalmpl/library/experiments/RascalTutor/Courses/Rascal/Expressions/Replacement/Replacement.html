@@ -67,21 +67,58 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>anno str node @ color;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 <b>rascal></b>anno str node @ size;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,22,&lt;1,0&gt;,&lt;1,22&gt;
 ok
 <b>rascal></b>F = &quot;fn&quot;(123, &quot;abc&quot;);
+PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    33.3%  |prompt:///|(14,5,&lt;1,14&gt;,&lt;1,19
+prompt:///          1       1    33.3%  |prompt:///|(4,4,&lt;1,4&gt;,&lt;1,8&gt;):
+prompt:///          1       1    33.3%  |prompt:///|(0,21,&lt;1,0&gt;,&lt;1,21&gt;
+PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    33.3%  |prompt:///|(14,5,&lt;1,14&gt;,&lt;1,19
+prompt:///          1       1    33.3%  |prompt:///|(4,4,&lt;1,4&gt;,&lt;1,8&gt;):
+prompt:///          1       1    33.3%  |prompt:///|(0,21,&lt;1,0&gt;,&lt;1,21&gt;
 node: fn(123,&quot;abc&quot;)
 <b>rascal></b>F = F[@color=&quot;red&quot;];
+PROFILE: 2 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    50.0%  |prompt:///|(13,5,&lt;1,13&gt;,&lt;1,18
+prompt:///          1       2    50.0%  |prompt:///|(0,20,&lt;1,0&gt;,&lt;1,20&gt;
+PROFILE: 2 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    50.0%  |prompt:///|(13,5,&lt;1,13&gt;,&lt;1,18
+prompt:///          1       2    50.0%  |prompt:///|(0,20,&lt;1,0&gt;,&lt;1,20&gt;
 node: fn(123,&quot;abc&quot;)[
   @color=&quot;red&quot;
 ]
 <b>rascal></b>F = F[@size=&quot;10&quot;];
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
+prompt:///          1       1    33.3%  |prompt:///|(12,4,&lt;1,12&gt;,&lt;1,16
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
+prompt:///          1       1    33.3%  |prompt:///|(12,4,&lt;1,12&gt;,&lt;1,16
 node: fn(123,&quot;abc&quot;)[
   @color=&quot;red&quot;,
   @size=&quot;10&quot;
 ]
 <b>rascal></b>F@color;
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
 str: &quot;red&quot;
 </pre>
 </div>

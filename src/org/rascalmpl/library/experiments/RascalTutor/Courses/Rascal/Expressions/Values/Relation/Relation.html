@@ -103,6 +103,9 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>{&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;}
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
 rel[int, int]: {
   &lt;2,20&gt;,
   &lt;1,10&gt;,
@@ -113,12 +116,19 @@ rel[int, int]: {
   remember that these types are interchangeable.
 
 <pre class="screen"><b>rascal></b>{&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;}
+PROFILE: 2 data points, 5 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4    80.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
+prompt:///          1       1    20.0%  |prompt:///|(2,3,&lt;1,2&gt;,&lt;1,5&gt;):
 rel[str, int]: {
   &lt;&quot;b&quot;,20&gt;,
   &lt;&quot;a&quot;,10&gt;,
   &lt;&quot;c&quot;,30&gt;
 }
 <b>rascal></b>{&lt;&quot;a&quot;, 1, &quot;b&quot;&gt;, &lt;&quot;c&quot;, 2, &quot;d&quot;&gt;}
+PROFILE: 1 data points, 11 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      11   100.0%  |prompt:///|(22,3,&lt;1,22&gt;,&lt;1,25
 rel[str, int, str]: {
   &lt;&quot;c&quot;,2,&quot;d&quot;&gt;,
   &lt;&quot;a&quot;,1,&quot;b&quot;&gt;
@@ -155,11 +165,8 @@ rel[str, int, str]: {
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_6" value="6">
 <label for="Rascal/Expressions/Values/Relation_1_6">Can contain duplicates.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="3">
-<label for="Rascal/Expressions/Values/Relation_1_3">Is a list of tuples.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="4">
-<label for="Rascal/Expressions/Values/Relation_1_4">Is a tuple of tuples.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="5">
+<label for="Rascal/Expressions/Values/Relation_1_5">Has ordered elements.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="0">
 <label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples.</label><br/>

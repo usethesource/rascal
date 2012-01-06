@@ -110,22 +110,41 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <h1> Set types </h1>
  <pre class="screen"><b>rascal></b>{1, 2, 3};
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 set[int]: {3,2,1}
 <b>rascal></b>{&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;};
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
 rel[int, int]: {
   &lt;2,20&gt;,
   &lt;1,10&gt;,
   &lt;3,30&gt;
 }
 <b>rascal></b>{1, &quot;b&quot;, 3};
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 set[value]: {3,&quot;b&quot;,1}
 <b>rascal></b>{&lt;&quot;a&quot;, 10&gt;, &lt;&quot;b&quot;, 20&gt;, &lt;&quot;c&quot;, 30&gt;}
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,33,&lt;1,0&gt;,&lt;1,33&gt;
 rel[str, int]: {
   &lt;&quot;b&quot;,20&gt;,
   &lt;&quot;a&quot;,10&gt;,
   &lt;&quot;c&quot;,30&gt;
 }
 <b>rascal></b>{{&quot;a&quot;, &quot;b&quot;}, {&quot;c&quot;, &quot;d&quot;, &quot;e&quot;}}
+PROFILE: 1 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 set[set[str]]: {
   {&quot;b&quot;,&quot;a&quot;},
   {&quot;e&quot;,&quot;d&quot;,&quot;c&quot;}
@@ -138,11 +157,21 @@ set[set[str]]: {
  Introduce a set variable <tt>S</tt>
 
 <pre class="screen"><b>rascal></b>S = {1, 2, 3};
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 set[int]: {3,2,1}
 </pre>
   and observe how <code>S</code> is spliced in another set
 
 <pre class="screen"><b>rascal></b>{10, S, 20};
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 set[value]: {
   10,
   20,
@@ -152,6 +181,12 @@ set[value]: {
  or becomes a subset when it is surrounded with extra braces
 
 <pre class="screen"><b>rascal></b>{10, {S}, 20};
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 set[value]: {
   10,
   20,
@@ -186,14 +221,14 @@ set[value]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
-<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
 <label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
-<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
+<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -222,8 +257,8 @@ set[value]: {
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_0" value="0">
 <label for="Rascal/Expressions/Values/Set_2_0">The least upperbound of the type of all elements.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_3" value="3">
-<label for="Rascal/Expressions/Values/Set_2_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_4" value="4">
+<label for="Rascal/Expressions/Values/Set_2_4">The least upperbound of the type of two arbitrary elements.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2">
 <label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set.</label><br/>
@@ -274,8 +309,8 @@ set[value]: {
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{&quot;Bert&quot;, &quot;Boba Fett&quot;, &quot;Tibor&quot;}">
-The type of <tt>{&quot;Bert&quot;, &quot;Boba Fett&quot;, &quot;Tibor&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{false}">
+The type of <tt>{false}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -299,10 +334,10 @@ The type of <tt>{&quot;Bert&quot;, &quot;Boba Fett&quot;, &quot;Tibor&quot;}</tt
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-5">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Prince Charming&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="18">
-The type of <tt>{-5, &quot;Prince Charming&quot;, 18}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="15">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Blackcurrant&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="15">
+The type of <tt>{15, &quot;Blackcurrant&quot;, 15}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

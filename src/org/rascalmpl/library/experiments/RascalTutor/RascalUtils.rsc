@@ -18,6 +18,7 @@ import List;
 import lang::rascal::syntax::RascalRascal;
 import util::Reflective;
 import ParseTree;
+import Node;
 
 // Rascal utilities
 // ------------------ Extract and replace concepts from Rascal sources external to the Tutor ----------------
@@ -57,7 +58,7 @@ str makeUsage(str name){
 // Return the content of the doc tag in a list of tags.
 
 private str getDoc(Tags tags){
-	visit(tags){
+	top-down-break visit(tags){
      case Tag t: 
         if("<t.name>" == "doc") {
            return stripBraces("<t.contents>");
@@ -98,7 +99,7 @@ private bool isSimilarFunction(str functionName, Declaration decl){
 }
 
 private str getFunctionSignature(FunctionDeclaration decl){
-  return visit("<decl.signature>"){
+  return top-down-break visit("<decl.signature>"){
            case /java\s*/ => ""
            case /\s*\n\s*/ => " "
          }
@@ -275,12 +276,35 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 
 public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   println("extractRemoteConcepts: <L>, <root>");
-  M = parseModule(readFile(L), L);
-  //rprintln(M);
+  Module M = parseModule(readFile(L), L);
+ 
   moduleName = "";
   declarations = [];
   contentMap = ();
   libRoot = root;
+  println("HERE!");
+  println("Name of M is <getName(M)>");
+  if(M is Tree)
+     println("M is a Tree");
+  if(M is Default)
+  	println("M is a Default");
+  if(M is Module)
+     println("M is a module");
+  if(M has header)
+     println("M has header");
+  
+  Header header = M.header;
+  moduleName = normalizeName("<header.name>"); 
+  doc =  getModuleDoc(header);
+  println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
+  if(doc != ""){  		
+     writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
+     contentMap["<root>/<moduleName>"] = doc;
+  }
+  
+  declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
+  
+  /*
   top-down visit(M){
     case Header header: {
        moduleName = normalizeName("<header.name>"); 
@@ -294,6 +318,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
      }
      case Declaration d: { declarations += d; }
   }
+  */
 
   int i = 0;
   while(i < size(declarations)){

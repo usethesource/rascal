@@ -74,18 +74,27 @@
   Introduce two aliases <code>ModuleId</code> and <code>Frequency</code> for the type str.
 
 <pre class="screen"><b>rascal></b>alias ModuleId = str;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 <b>rascal></b>alias Frequency = int;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
   Another example is an alias definition for a graph containing integer nodes:
 
 <pre class="screen"><b>rascal></b>alias IntGraph = rel[int,int];
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
  Note that the Rascal Standard Library provides a graph data type that is defined as follows:
 
 <pre class="screen"><b>rascal></b>alias Graph[&amp;T] = rel[&amp;T, &amp;T];
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,30,&lt;1,0&gt;,&lt;1,30&gt;
 ok
 </pre> In other words the standard graph datatype can be parameterized with any element type.
  <br/>

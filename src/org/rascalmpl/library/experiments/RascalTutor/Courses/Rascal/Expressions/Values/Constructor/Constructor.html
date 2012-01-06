@@ -91,11 +91,22 @@
   First, define a datatype <code>WF</code> for word frequencies:
 
 <pre class="screen"><b>rascal></b>data WF = wf(str word, int freq);
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,33,&lt;1,0&gt;,&lt;1,33&gt;
 ok
 </pre>
   Then construct a new WF value by calling the constructor <code>wf</code> with appropriate arguments:
 
 <pre class="screen"><b>rascal></b>wf(&quot;Rascal&quot;, 10000);
+PROFILE: 2 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3    75.0%  |prompt:///|(0,19,&lt;1,0&gt;,&lt;1,19&gt;
+prompt:///          1       1    25.0%  |prompt:///|(0,20,&lt;1,0&gt;,&lt;1,20&gt;
+PROFILE: 2 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3    75.0%  |prompt:///|(0,19,&lt;1,0&gt;,&lt;1,19&gt;
+prompt:///          1       1    25.0%  |prompt:///|(0,20,&lt;1,0&gt;,&lt;1,20&gt;
 WF: wf(&quot;Rascal&quot;,10000)
 </pre>
 </div>

@@ -76,10 +76,37 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::Eval;
+PROFILE: 1 data points, 48 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      48   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 ok
 <b>rascal></b>evalType(&quot;2 * 3&quot;);
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 2 data points, 13 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7    53.8%  |prompt:///|(9,7,&lt;1,9&gt;,&lt;1,16&gt;)
+prompt:///          1       6    46.2%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
+PROFILE: 2 data points, 13 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       7    53.8%  |prompt:///|(9,7,&lt;1,9&gt;,&lt;1,16&gt;)
+prompt:///          1       6    46.2%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
 str: &quot;int&quot;
 <b>rascal></b>evalType(&quot;[1, 2, 3];&quot;);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;)
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;)
+PROFILE: 2 data points, 11 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      10    90.9%  |prompt:///|(9,12,&lt;1,9&gt;,&lt;1,21&gt;
+prompt:///          1       1     9.1%  |prompt:///|(0,23,&lt;1,0&gt;,&lt;1,23&gt;
+PROFILE: 2 data points, 11 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      10    90.9%  |prompt:///|(9,12,&lt;1,9&gt;,&lt;1,21&gt;
+prompt:///          1       1     9.1%  |prompt:///|(0,23,&lt;1,0&gt;,&lt;1,23&gt;
 str: &quot;list[int]&quot;
 </pre>
 </div>

@@ -78,11 +78,34 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::Eval;
+PROFILE: 1 data points, 60 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      60   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 ok
 <b>rascal></b>shell(&quot;2 * 3&quot;);
-list[str]: [&quot;rascal\&gt;2 * 3&quot;,&quot;int: 6&quot;]
+PROFILE: 2 data points, 9 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       8    88.9%  |prompt:///|(6,7,&lt;1,6&gt;,&lt;1,13&gt;)
+prompt:///          1       1    11.1%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
+PROFILE: 2 data points, 9 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       8    88.9%  |prompt:///|(6,7,&lt;1,6&gt;,&lt;1,13&gt;)
+prompt:///          1       1    11.1%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
+list[str]: [&quot;rascal\&gt;2 * 3&quot;,&quot;PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs&quot;,&quot; Source File      Lines   T&raquo;
+icks        %  Source&quot;,&quot;int: 6&quot;]
 <b>rascal></b>shell([&quot;X = 2 * 3;&quot;, &quot;X + 5;&quot;]);
-list[str]: [&quot;rascal\&gt;X = 2 * 3;&quot;,&quot;int: 6&quot;,&quot;rascal\&gt;X + 5;&quot;,&quot;int: 11&quot;]
+PROFILE: 3 data points, 21 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      19    90.5%  |prompt:///|(21,8,&lt;1,21&gt;,&lt;1,29
+prompt:///          1       1     4.8%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
+prompt:///          1       1     4.8%  |prompt:///|(0,32,&lt;1,0&gt;,&lt;1,32&gt;
+PROFILE: 3 data points, 21 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      19    90.5%  |prompt:///|(21,8,&lt;1,21&gt;,&lt;1,29
+prompt:///          1       1     4.8%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
+prompt:///          1       1     4.8%  |prompt:///|(0,32,&lt;1,0&gt;,&lt;1,32&gt;
+list[str]: [&quot;rascal\&gt;X = 2 * 3;&quot;,&quot;PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs&quot;,&quot; Source File      Line&raquo;
+s   Ticks        %  Source&quot;,&quot;PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs&quot;,&quot; Source File   ...
 </pre>
 </div>
 

@@ -84,11 +84,29 @@ int x &lt;- [ 1 .. 10 ]
 
  Let's practice some of these examples.
   <pre class="screen"><b>rascal></b>int x &lt;- {};
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 bool: false
 </pre> The enumerator does not produce any value and returns <code>false</code>.
   <pre class="screen"><b>rascal></b>int x &lt;- {1, 3, 5, 7, 11 };
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
 bool: true
 <b>rascal></b>x;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
 Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
 </pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
  Apparently, we cannot inspect the value of the variable <code>x</code> that was bound.
@@ -97,6 +115,12 @@ Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
 
  Another example that results in an error:
  <pre class="screen"><b>rascal></b>str x &lt;- {1, 3, 5, 7, 11 };
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
 Static Error: prompt:///:1,0: Expected int, but got str
 </pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
  and an error results.
@@ -105,11 +129,20 @@ Static Error: prompt:///:1,0: Expected int, but got str
 
  A more satisfying use is as follows:
  <pre class="screen"><b>rascal></b>{ x * x | int x &lt;- {1, 3, 5, 7, 11 }};
+PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3   100.0%  |prompt:///|(0,38,&lt;1,0&gt;,&lt;1,38&gt;
+PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       3   100.0%  |prompt:///|(0,38,&lt;1,0&gt;,&lt;1,38&gt;
 set[int]: {9,25,121,1,49}
 </pre> When used inside <a href="/Courses/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>, or <a href="/Courses/Rascal/Statements/For/For.html">For</a>, <a href="/Courses/Rascal/Statements/Do/Do.html">Do</a>, or <a href="/Courses/Rascal/Statements/While/While.html">While</a> statement, all values of the generator will be produced and used.
  The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
  Here is a similar example:
  <pre class="screen"><b>rascal></b>import IO;
+PROFILE: 1 data points, 217 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1     217   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 ok
 <b>rascal></b>for(int x &lt;- {1, 3, 5, 7, 11 })
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;    println(&quot;x = &lt;x&gt;&quot;);
@@ -118,6 +151,16 @@ x = 7
 x = 5
 x = 3
 x = 1
+PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       1..2       1    33.3%  |prompt:///|(0,55,&lt;1,0&gt;,&lt;2,23&gt;
+prompt:///          2       1    33.3%  |prompt:///|(51,2,&lt;2,19&gt;,&lt;2,21
+prompt:///          2       1    33.3%  |prompt:///|(36,18,&lt;2,4&gt;,&lt;2,22
+PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       1..2       1    33.3%  |prompt:///|(0,55,&lt;1,0&gt;,&lt;2,23&gt;
+prompt:///          2       1    33.3%  |prompt:///|(51,2,&lt;2,19&gt;,&lt;2,21
+prompt:///          2       1    33.3%  |prompt:///|(36,18,&lt;2,4&gt;,&lt;2,22
 list[void]: []
 </pre>
 </div>

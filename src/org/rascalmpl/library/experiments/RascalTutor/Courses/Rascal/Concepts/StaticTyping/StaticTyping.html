@@ -77,25 +77,58 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Some example can illustrate the above.
  <pre class="screen"><b>rascal></b>int I = 3;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 3
 </pre>
   Since I is declared as type <code>int</code>, we cannot assign a <code>real</code> value to it:
 
 <pre class="screen"><b>rascal></b>I = 3.5;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
 Static Error: prompt:///:1,0: Expected int, but got real
 </pre> <pre class="screen"><b>rascal></b>num N = 3;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 num: 3
 </pre>
   Since N is declared as type <code>num</code>, we can assign both <code>int</code> and <code>real</code> values to it:
 
 <pre class="screen"><b>rascal></b>N = 3.5;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
 num: 3.5
 </pre> Since all types are a subtype of type <code>value</code>, one can assign values of any type to a variable declared as <code>value</code>:
  <pre class="screen"><b>rascal></b>value V = 3;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 value: 3
 <b>rascal></b>V = &quot;abc&quot;;
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(4,5,&lt;1,4&gt;,&lt;1,9&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(4,5,&lt;1,4&gt;,&lt;1,9&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 value: &quot;abc&quot;
 <b>rascal></b>V = false;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 value: false
 </pre>
   We can use pattern matching to classify the actual type of a value:
@@ -107,26 +140,57 @@ value: false
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;    default: return &quot;Another type&quot;; 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;  }
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+PROFILE: 1 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 str (value): str classify(value);
 <b>rascal></b>classify(V);
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       2..6       2    66.7%  |prompt:///|(25,123,&lt;2,2&gt;,&lt;6,3
+prompt:///          1       1    33.3%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       2..6       2    66.7%  |prompt:///|(25,123,&lt;2,2&gt;,&lt;6,3
+prompt:///          1       1    33.3%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 str: &quot;A Boolean&quot;
 <b>rascal></b>V = 3.5;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
 value: 3.5
 <b>rascal></b>classify(V);
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+prompt:///       2..6       1    33.3%  |prompt:///|(25,123,&lt;2,2&gt;,&lt;6,3
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+prompt:///       2..6       1    33.3%  |prompt:///|(25,123,&lt;2,2&gt;,&lt;6,3
 str: &quot;Another type&quot;
 </pre> In addition to these standard examples, it is interesting that all <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>s are subtypes of type <code>node</code>.
  Let's introduce a simple <code>Color</code> data type:
  <pre class="screen"><b>rascal></b>data Color = red(int level) | blue(int level);
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
   Unsurprisingly, we have:
 
 <pre class="screen"><b>rascal></b>Color C = red(3);
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 Color: red(3)
 </pre>
   Due to subtyping, we can also have:
 
 <pre class="screen"><b>rascal></b>node ND = red(3);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(10,6,&lt;1,10&gt;,&lt;1,16
 node: red(3)
 </pre> One example of the actual application of subtypes can be found in <a href="/Courses/Recipes/Common/CountConstructors/CountConstructors.html">Recipes:CountConstructors</a>.
 

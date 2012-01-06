@@ -144,7 +144,7 @@ Synopsis: Determine the shortest path between two graph nodes.
 Description:
 Returns the shortest path between nodes `From` and `To` in Graph `G`.
 }
-@javaClass{org.rascalmpl.library.Graph}
+@javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] shortestPathPair(Graph[&T] G, &T From, &T To);
 
 /* TODO: replace upper builtin by lower code, but refactor it to not

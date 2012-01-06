@@ -69,8 +69,13 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>12 % 5
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 2
 <b>rascal></b>12 % 6
+PROFILE: 1 data points, 12 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      12   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
 int: 0
 </pre>
 </div>
@@ -80,6 +85,9 @@ int: 0
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  Remainder is only defined on integers:
  <pre class="screen"><b>rascal></b>13.5 % 6
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,8,&lt;1,0&gt;,&lt;1,8&gt;):
 Static Error: prompt:///:1,0: remainder not supported on real and int
 </pre>
 </div>
@@ -106,9 +114,9 @@ Static Error: prompt:///:1,0: remainder not supported on real and int
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Remainder_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_1:A" value="17">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_1:A" value="-18">
 <input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_1:B" value="-17">
-The type of <tt>17 % -17</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Remainder_1:answer" class="answerText"><br/>
+The type of <tt>-18 % -17</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Remainder_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -132,9 +140,9 @@ The type of <tt>17 % -17</tt> is <input type="text" size="30" name="Rascal_Expre
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Remainder_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_2:A" value="-5">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_2:B" value="15">
-<pre class="prequestion">-5 % 15 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Remainder_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_2:A" value="-19">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_2:B" value="7">
+<pre class="prequestion">-19 % 7 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Remainder_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Remainder_2:another" value="yes">

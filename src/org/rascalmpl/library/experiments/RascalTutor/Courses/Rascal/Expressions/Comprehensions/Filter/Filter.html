@@ -74,13 +74,29 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Adding a filter to a comprehension, may restrict the values that are included in the result of the comprehension:
  <pre class="screen"><b>rascal></b>[ X * X | int X &lt;- [1, 2, 3, 4, 5, 6] ];
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,40,&lt;1,0&gt;,&lt;1,40&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,40,&lt;1,0&gt;,&lt;1,40&gt;
 list[int]: [1,4,9,16,25,36]
 <b>rascal></b>[ X * X | int X &lt;- [1, 2, 3, 4, 5, 6], X % 3 == 0 ];
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,52,&lt;1,0&gt;,&lt;1,52&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,52,&lt;1,0&gt;,&lt;1,52&gt;
 list[int]: [9,36]
 </pre>
   Filters can also be applied to values produced by several generators:
 
 <pre class="screen"><b>rascal></b>[&lt;X, Y&gt; | int X &lt;- [0 .. 10], int Y &lt;- [0 .. 10], X + Y == 10]
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,62,&lt;1,0&gt;,&lt;1,62&gt;
+prompt:///          1       1    33.3%  |prompt:///|(2,5,&lt;1,2&gt;,&lt;1,7&gt;):
 list[tuple[int,int]]: [
   &lt;0,10&gt;,
   &lt;1,9&gt;,

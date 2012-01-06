@@ -129,41 +129,63 @@
   A character class that defines all alphanumeric characters:
 
 <pre class="screen"><b>rascal></b>lexical AlphaNumeric = [a-zA-Z0-9];
+PROFILE: 1 data points, 637 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1     637   100.0%  |prompt:///|(0,35,&lt;1,0&gt;,&lt;1,35&gt;
 ok
 </pre>
   A character class that defines anything except quotes:
 
 <pre class="screen"><b>rascal></b>lexical AnythingExceptQuote = ![\&quot;];
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
   An identifier class with longest match (can not be followed immediately by [a-z]):
 
 <pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z];
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
 ok
 </pre>
   An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
 
 <pre class="screen"><b>rascal></b>lexical Id = [a-z] !&lt;&lt; [a-z]+ !&gt;&gt; [a-z];
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
   An identifier class with some reserved keywords and longest match:
 
 <pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z] \ &quot;if&quot; \ &quot;else&quot; \ &quot;fi&quot;;
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(0,40,&lt;1,0&gt;,&lt;1,40&gt;
+prompt:///          1       1    33.3%  |prompt:///|(0,53,&lt;1,0&gt;,&lt;1,53&gt;
 ok
 </pre>
   An optional else branch coded using sequence and optional symbols:
 
 <pre class="screen"><b>rascal></b>syntax Statement = &quot;if&quot; Expression &quot;then&quot; Statement (&quot;else&quot; Statement)? &quot;fi&quot;;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 ok
 </pre>
   A block of statements separated by semicolons:
 
 <pre class="screen"><b>rascal></b>syntax Statement = &quot;{&quot; {Statement &quot;;&quot;}* &quot;}&quot;;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2   100.0%  |prompt:///|(0,77,&lt;1,0&gt;,&lt;1,77&gt;
 ok
 </pre>
   A declaration with an embedded list of alternative modifiers and a list of typed parameters:
 
 <pre class="screen"><b>rascal></b>syntax Declaration = (&quot;public&quot; | &quot;private&quot; | &quot;static&quot; | &quot;final&quot;)* Type Id &quot;(&quot; {(Type Id) &quot;,&quot;}* &quot;)&quot; Statement;
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,44,&lt;1,0&gt;,&lt;1,44&gt;
 ok
 </pre>
 </div>

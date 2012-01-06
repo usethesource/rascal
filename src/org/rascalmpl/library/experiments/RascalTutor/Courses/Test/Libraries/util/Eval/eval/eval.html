@@ -76,10 +76,47 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::Eval;
+PROFILE: 1 data points, 52 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      52   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 ok
 <b>rascal></b>eval(&quot;2 * 3;&quot;);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):c
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):c
+PROFILE: 2 data points, 6 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4    66.7%  |prompt:///|(5,8,&lt;1,5&gt;,&lt;1,13&gt;)
+prompt:///          1       2    33.3%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
+PROFILE: 2 data points, 6 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4    66.7%  |prompt:///|(5,8,&lt;1,5&gt;,&lt;1,13&gt;)
+prompt:///          1       2    33.3%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
 value: 6
 <b>rascal></b>eval([&quot;X = 2 * 3;&quot;, &quot;X + 5;&quot;]);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;)
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+stdin:///          1       1   100.0%  |stdin:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;)
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 3 data points, 17 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      15    88.2%  |prompt:///|(20,8,&lt;1,20&gt;,&lt;1,28
+prompt:///          1       1     5.9%  |prompt:///|(0,30,&lt;1,0&gt;,&lt;1,30&gt;
+prompt:///          1       1     5.9%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
+PROFILE: 3 data points, 17 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1      15    88.2%  |prompt:///|(20,8,&lt;1,20&gt;,&lt;1,28
+prompt:///          1       1     5.9%  |prompt:///|(0,30,&lt;1,0&gt;,&lt;1,30&gt;
+prompt:///          1       1     5.9%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
 value: 11
 </pre>
 </div>

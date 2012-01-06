@@ -71,10 +71,26 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>tuple[int key, str val] T = &lt;1, &quot;abc&quot;&gt;;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 tuple[int key,str val]: &lt;1,&quot;abc&quot;&gt;
 <b>rascal></b>T[val = &quot;def&quot;];
+PROFILE: 2 data points, 5 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4    80.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
+prompt:///          1       1    20.0%  |prompt:///|(8,5,&lt;1,8&gt;,&lt;1,13&gt;)
+PROFILE: 2 data points, 5 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4    80.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
+prompt:///          1       1    20.0%  |prompt:///|(8,5,&lt;1,8&gt;,&lt;1,13&gt;)
 tuple[int key,str val]: &lt;1,&quot;def&quot;&gt;
 <b>rascal></b> T;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(1,2,&lt;1,1&gt;,&lt;1,3&gt;):
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(1,2,&lt;1,1&gt;,&lt;1,3&gt;):
 tuple[int key,str val]: &lt;1,&quot;abc&quot;&gt;
 </pre> Observe that field assignment creates a new value with an updated field. The old value remains unchanged as can be seen from the unchanged value of T in the above example.
 

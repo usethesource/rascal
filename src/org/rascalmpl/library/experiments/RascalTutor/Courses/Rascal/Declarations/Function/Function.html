@@ -132,11 +132,23 @@
 <pre class="screen"><b>rascal></b>rel[int, int] invert(rel[int,int] R){
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;   return {&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- R };
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 rel[int, int] (rel[int, int]): rel[int, int] invert(rel[int, int]);
 </pre>
   Call it
 
 <pre class="screen"><b>rascal></b>invert({&lt;1,10&gt;, &lt;2,20&gt;});
+PROFILE: 3 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    50.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
+prompt:///          2       1    25.0%  |prompt:///|(49,6,&lt;2,11&gt;,&lt;2,17
+prompt:///          1       1    25.0%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
+PROFILE: 3 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    50.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
+prompt:///          2       1    25.0%  |prompt:///|(49,6,&lt;2,11&gt;,&lt;2,17
+prompt:///          1       1    25.0%  |prompt:///|(0,25,&lt;1,0&gt;,&lt;1,25&gt;
 rel[int, int]: {
   &lt;20,2&gt;,
   &lt;10,1&gt;
@@ -146,16 +158,30 @@ rel[int, int]: {
  <pre class="screen"><b>rascal></b>rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1,&amp;T2] R){  
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;   return {&lt;Y, X&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; &lt;- R };
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 rel[&amp;T2, &amp;T1] (rel[&amp;T1, &amp;T2]): rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1, &amp;T2]);
 </pre>
  Now apply it to relations with different types:
 
 <pre class="screen"><b>rascal></b>invert2({&lt;1,10&gt;, &lt;2,20&gt;});
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,26,&lt;1,0&gt;,&lt;1,26&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,26,&lt;1,0&gt;,&lt;1,26&gt;
 rel[int, int]: {
   &lt;20,2&gt;,
   &lt;10,1&gt;
 }
 <b>rascal></b>invert2({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,34,&lt;1,0&gt;,&lt;1,34&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,34,&lt;1,0&gt;,&lt;1,34&gt;
 rel[int, str]: {
   &lt;1,&quot;mon&quot;&gt;,
   &lt;2,&quot;tue&quot;&gt;
@@ -165,43 +191,117 @@ rel[int, str]: {
   (also see <a href="/Courses/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Tuple/Subscription</a>):
 
 <pre class="screen"><b>rascal></b>tuple[&amp;T2, &amp;T1] swap(tuple[&amp;T1, &amp;T2] TP) { return &lt;TP[1], TP[0]&gt;;}
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(22,5,&lt;1,22&gt;,&lt;1,27
 tuple[&amp;T2,&amp;T1] (tuple[&amp;T1,&amp;T2]): tuple[&amp;T2,&amp;T1] swap(tuple[&amp;T1,&amp;T2]);
 <b>rascal></b>swap(&lt;1, 2&gt;);
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
+PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       4   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 tuple[int,int]: &lt;2,1&gt;
 <b>rascal></b>swap(&lt;&quot;wed&quot;, 3&gt;);
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(6,5,&lt;1,6&gt;,&lt;1,11&gt;)
+prompt:///          1       1    33.3%  |prompt:///|(43,22,&lt;1,43&gt;,&lt;1,6
+PROFILE: 2 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       2    66.7%  |prompt:///|(6,5,&lt;1,6&gt;,&lt;1,11&gt;)
+prompt:///          1       1    33.3%  |prompt:///|(43,22,&lt;1,43&gt;,&lt;1,6
 tuple[int,str]: &lt;3,&quot;wed&quot;&gt;
 </pre> Here we use an overloaded definition with incomparable patterns:
  <pre class="screen"><b>rascal></b>int f(int i) = 1;
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int (int): int f(int);
 <b>rascal></b>int f(real r) = 2;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 int (real): int f(real);
 <b>rascal></b>f(0);
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
 int: 1
 <b>rascal></b>f(0.0);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
 int: 2
 </pre> And we may use <code>default</code>, as in:
  <pre class="screen"><b>rascal></b>int f(0) = 1;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,13,&lt;1,0&gt;,&lt;1,13&gt;
 int (int): int f(int);
 <b>rascal></b>default int f(int n) = n * f(n - 1);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,13,&lt;1,0&gt;,&lt;1,13&gt;
 int (int): int f(int);
 <b>rascal></b>f(0);
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
 int: 1
 <b>rascal></b>f(2);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
 int: 2
 </pre> In combination with an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>, which defines <code>default</code> functions implicitly for every alternative, we can define canonicalization functions. The same holds for <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s, see <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s.
  
   This definition implies a default function for t(), f() and neg(B):
 
 <pre class="screen"><b>rascal></b>data B = t() | f() | neg(B);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,28,&lt;1,0&gt;,&lt;1,28&gt;
 ok
 </pre>
   the following definition will remove any nested neg before it is even constructed:
 
 <pre class="screen"><b>rascal></b>B neg(neg(B b)) = b;
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1   100.0%  |prompt:///|(0,28,&lt;1,0&gt;,&lt;1,28&gt;
 B (B): B neg(B);
 <b>rascal></b>neg(t());
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(4,3,&lt;1,4&gt;,&lt;1,7&gt;):
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
+prompt:///          1       1    50.0%  |prompt:///|(4,3,&lt;1,4&gt;,&lt;1,7&gt;):
 B: neg(t())
 <b>rascal></b>neg(neg(f()));
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
+prompt:///          1       1    50.0%  |prompt:///|(8,3,&lt;1,8&gt;,&lt;1,11&gt;)
+PROFILE: 2 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1       1    50.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
+prompt:///          1       1    50.0%  |prompt:///|(8,3,&lt;1,8&gt;,&lt;1,11&gt;)
 B: f()
 </pre>
 </div>

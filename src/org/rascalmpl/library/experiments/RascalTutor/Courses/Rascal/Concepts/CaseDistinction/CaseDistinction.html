@@ -74,9 +74,17 @@
  <pre class="screen"><b>rascal></b>data ColoredTree = leaf(int N)      
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;                 | red(ColoredTree left, ColoredTree right) 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;                 | black(ColoredTree left, ColoredTree right);
+PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       1..3       1   100.0%  |prompt:///|(0,160,&lt;1,0&gt;,&lt;3,62
 ok
 <b>rascal></b>ColoredTree CT 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;       = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          2       1    33.3%  |prompt:///|(67,23,&lt;2,51&gt;,&lt;2,7
+prompt:///          2       1    33.3%  |prompt:///|(25,66,&lt;2,9&gt;,&lt;2,75
+prompt:///          2       1    33.3%  |prompt:///|(56,7,&lt;2,40&gt;,&lt;2,47
 ColoredTree: red(
   black(
     leaf(1),
@@ -87,6 +95,9 @@ ColoredTree: red(
     leaf(3),
     leaf(4)))
 <b>rascal></b>import IO;
+PROFILE: 1 data points, 169 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///          1     169   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 ok
 <b>rascal></b>switch (CT){
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;case red(_, _):
@@ -95,6 +106,12 @@ ok
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;     black(&quot;A black rood node&quot;);
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;}
 A red root node
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       1..6       2   100.0%  |prompt:///|(0,114,&lt;1,0&gt;,&lt;6,1&gt;
+PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
+ Source File      Lines   Ticks        %  Source
+prompt:///       1..6       2   100.0%  |prompt:///|(0,114,&lt;1,0&gt;,&lt;6,1&gt;
 ok
 </pre>
 </div>
