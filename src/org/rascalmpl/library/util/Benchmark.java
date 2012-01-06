@@ -14,6 +14,7 @@ package org.rascalmpl.library.util;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.rascalmpl.interpreter.utils.Timing;
 
 public class Benchmark {
@@ -47,5 +48,13 @@ public class Benchmark {
 	// @doc{realTime -- current time in milliseconds since January 1, 1970 GMT.}
 	{
 		return values.integer(System.currentTimeMillis());
+	}
+	
+	public IValue getNanoTime(){
+		return ValueFactory.getInstance().integer(System.nanoTime());
+	}
+	
+	public IValue getMilliTime(){
+		return ValueFactory.getInstance().integer(System.currentTimeMillis());
 	}
 }

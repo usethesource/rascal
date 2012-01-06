@@ -9,7 +9,7 @@
 
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
 *******************************************************************************/
-package org.rascalmpl.library;
+package org.rascalmpl.library.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;

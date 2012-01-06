@@ -188,4 +188,22 @@ public map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)
 	return measurements;
 }
 
+@doc{
+Synopsis: Current time in __nanoseconds__ (10$^-9$ sec) since January 1, 1970 GMT.
+
+
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+public java int getNanoTime();
+
+@doc{
+Synopsis: Current time in __milliseconds__ (10$^-3$ sec) since January 1, 1970 GMT.
+
+Description:
+This function is a synonym for [realTime].
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+public java int getMilliTime();
+
+
 

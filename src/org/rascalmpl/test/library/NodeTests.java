@@ -76,7 +76,7 @@ public class NodeTests extends TestFramework {
 			outStream.print(atermString);
 			outStream.close();
 			prepare("import Node;");
-			prepareMore("import ATermIO;");
+			prepareMore("import lang::aterm::IO;");
 			if(!dataDefs.equals(""))
 				prepareMore(dataDefs);
 			String fileString = TMP_DIR.replace('\\', '/'); // Windows fix. File.toURI doesn't work properly on windows unfortunately.

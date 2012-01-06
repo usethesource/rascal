@@ -112,8 +112,7 @@ public class Prelude {
 	 * Boolean
 	 */
 	
-	public IValue arbBool()
-	//@doc{arbBool -- get an arbitrary boolean value.}
+	public IValue arbBool()  // get an arbitrary boolean value.}
 	{
 	  return values.bool(random.nextInt(2) == 1);
 	}
@@ -2091,17 +2090,19 @@ public class Prelude {
 	
 	
 	public IValue stringChar(IInteger i){
-		byte ccode[] = { (byte) i.intValue()};
-		return values.string(new java.lang.String(ccode));
+		StringBuilder b = new StringBuilder(1);
+		b.append((char) i.intValue());
+		return values.string(b.toString());
 	}
 	
 	public IValue stringChars(IList lst){
-		int n = lst.length();
-		byte ccodes[] = new byte[n];
-		for(int i = 0; i < n; i ++){
-			ccodes[i] = (byte) ((IInteger) lst.get(i)).intValue();
+		StringBuilder b = new StringBuilder(lst.length());
+		
+		for(int i = 0; i < lst.length(); i ++) {
+			b.append((char) ((IInteger) lst.get(i)).intValue());
 		}
-		return values.string(new java.lang.String(ccodes));
+		
+		return values.string(b.toString());
 	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
@@ -2557,8 +2558,8 @@ public class Prelude {
 
 // Utilities used by Graph
 //TODO: Why is this code in the library? This should be done in pure Rascal.
-/*
-private class Distance{
+
+class Distance{
 	public int intval;
 	
 	Distance(int n){
@@ -2566,7 +2567,7 @@ private class Distance{
 	}
 }
 
-private class NodeComparator implements Comparator<IValue> {
+class NodeComparator implements Comparator<IValue> {
 	private final HashMap<IValue,Distance> distance;
 	
 	NodeComparator(HashMap<IValue,Distance> distance){
@@ -2580,4 +2581,3 @@ private class NodeComparator implements Comparator<IValue> {
 		return d0 < d1 ? -1 : ((d0 == d1) ? 0 : 1);
 	}
 }
-*/
