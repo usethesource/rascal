@@ -146,6 +146,18 @@ public class Math {
 	{
 	  return values.string(d.toString());
 	}
+	
+	public IValue toReal(IRational n)
+	//@doc{toReal -- convert a rational value to a real value.}
+	{
+	  return n.toReal();
+	}
+
+	public IValue toInt(IRational n)
+	//@doc{toReal -- convert a rational value to a integer value.}
+	{
+	  return n.toInteger();
+	}
 
 	
 }

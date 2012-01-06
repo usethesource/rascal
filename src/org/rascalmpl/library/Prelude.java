@@ -57,6 +57,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -1944,6 +1945,25 @@ public class Prelude {
 	}
 	
 	/*
+	 * Rational
+	 */
+
+	public IValue numerator(IRational n)
+	{
+		return n.numerator();
+	}
+
+	public IValue denominator(IRational n)
+	{
+	  return n.denominator();
+	}
+
+	public IValue remainder(IRational n)
+	{
+	  return n.remainder();
+	}
+	
+	/*
 	 * Relation
 	 */
 	
@@ -2068,7 +2088,7 @@ public class Prelude {
 			if(seenKeys.contains(key)) 
 				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
 			seenKeys.add(key);
-			w.put(t.get(0), t.get(1));
+			w.put(key, val);
 		}
 		return w.done();
 	}

@@ -1,3 +1,9 @@
+/*****************************/
+/* DEPRECATED                */
+/* Use util::Math            */
+/* DO NOT EDIT               */
+/*****************************/
+
 @license{
   Copyright (c) 2009-2011 CWI
   All rights reserved. This program and the accompanying materials
@@ -10,7 +16,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Rational
 
-/* Moved to util::Math
+/*** Moved to util::Math
 @doc{An arbitrary rational.}
 public rat arbRat() {
 	n = arbInt();
@@ -39,23 +45,23 @@ public rat min(rat n, rat m)
 */
 
 @doc{Convert a rational value to an integer value. (Will round or truncate.)}
-@javaClass{org.rascalmpl.library.Rational}
-public java int toInteger(rat n);
+@javaClass{org.rascalmpl.library.util.Math}
+public java int toInt(rat n);
 
 @doc{Return the rational's numerator}
-@javaClass{org.rascalmpl.library.Rational}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int numerator(rat n);
 
 @doc{Return the rational's denominator}
-@javaClass{org.rascalmpl.library.Rational}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int denominator(rat n);
 
 @doc{Return the remainder of dividing the numerator by the denominator}
-@javaClass{org.rascalmpl.library.Rational}
+@javaClass{org.rascalmpl.library.Prelude}
 public java int remainder(rat n);
 
 @doc{Convert a given numerator and denominator to a rational value.}
-@javaClass{org.rascalmpl.library.Rational}
+@javaClass{org.rascalmpl.library.util.Math}
 public java real toRat(int numerator, int denominator);
 
 @doc{Convert a rational value to a real value.}
@@ -63,5 +69,5 @@ public java real toRat(int numerator, int denominator);
 public java real toReal(rat n);
 
 @doc{Convert a rational value to a string.}
-@javaClass{org.rascalmpl.library.Rational}
+@javaClass{org.rascalmpl.library.util.Math}
 public java str toString(rat n);
