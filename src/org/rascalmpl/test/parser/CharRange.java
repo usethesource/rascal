@@ -36,7 +36,7 @@ public class CharRange extends SGTDBF implements IParserTest{
 	private final static IConstructor PROD_PLUSLISTa_z_a_z = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_char_a_z), VF.set());
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode CHAR_a0 = new CharStackNode(0, 0, new char[][]{{'a','z'}});
+	private final static AbstractStackNode CHAR_a0 = new CharStackNode(0, 0, new int[][]{{'a','z'}});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
 	static{

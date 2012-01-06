@@ -1401,19 +1401,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x) { 
-    return null; 
-  }
-
   public T visitNamedRegExpLexical(NamedRegExp.Lexical x) { 
     return null; 
   }
 
-  public T visitDatePartLexical(DatePart.Lexical x) { 
+  public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x) { 
     return null; 
   }
 
-  public T visitOctalEscapeSequenceLexical(OctalEscapeSequence.Lexical x) { 
+  public T visitDatePartLexical(DatePart.Lexical x) { 
     return null; 
   }
 
@@ -1642,10 +1638,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitOctalEscapeSequenceAmbiguity(OctalEscapeSequence.Ambiguity x) { 
-    return null; 
-  }
-
   public T visitTypeVarAmbiguity(TypeVar.Ambiguity x) { 
     return null; 
   }
@@ -1690,11 +1682,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) { 
+  public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x) { 
     return null; 
   }
 
-  public T visitPreProtocolCharsAmbiguity(PreProtocolChars.Ambiguity x) { 
+  public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) { 
     return null; 
   }
 
@@ -1706,11 +1698,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
     return null; 
   }
 
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
     return null; 
   }
 
@@ -1718,11 +1710,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitFieldAmbiguity(Field.Ambiguity x) { 
+  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
     return null; 
   }
 
-  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
+  public T visitFieldAmbiguity(Field.Ambiguity x) { 
     return null; 
   }
 

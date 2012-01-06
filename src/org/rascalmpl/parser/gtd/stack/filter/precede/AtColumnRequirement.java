@@ -26,7 +26,7 @@ public class AtColumnRequirement implements IEnterFilter{
 		this.column = column;
 	}
 	
-	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, PositionStore positionStore){
 		return positionStore.isAtColumn(start, column);
 	}
 	

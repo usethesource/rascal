@@ -19,9 +19,9 @@ public class CharNode extends AbstractNode{
 	
 	private final static CharNode[] charNodeConstants = new CharNode[128];
 	
-	private final char character;
+	private final int character;
 	
-	public CharNode(char character){
+	public CharNode(int character){
 		super();
 		
 		this.character = character;
@@ -34,7 +34,7 @@ public class CharNode extends AbstractNode{
 	/**
 	 * Retrieve the character in this result.
 	 */
-	public char getCharacter(){
+	public int getCharacter(){
 		return character;
 	}
 	
@@ -56,7 +56,7 @@ public class CharNode extends AbstractNode{
 	 * Create a new character node.
 	 * If it's a 7 bit ascii character cache it as well, so we can reuse it.
 	 */
-	public static CharNode createCharNode(char character){
+	public static CharNode createCharNode(int character){
 		if(character < charNodeConstants.length){
 			CharNode charNode = charNodeConstants[character];
 			if(charNode != null) return charNode;

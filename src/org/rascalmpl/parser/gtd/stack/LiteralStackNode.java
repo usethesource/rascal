@@ -17,12 +17,12 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public final class LiteralStackNode extends AbstractMatchableStackNode{
-	private final char[] literal;
+	private final int[] literal;
 	private final Object production;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, int dot, Object production, char[] literal){
+	public LiteralStackNode(int id, int dot, Object production, int[] literal){
 		super(id, dot);
 		
 		this.literal = literal;
@@ -31,7 +31,7 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		result = new LiteralNode(production, literal);
 	}
 	
-	public LiteralStackNode(int id, int dot, Object production, char[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public LiteralStackNode(int id, int dot, Object production, int[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.literal = literal;
@@ -53,7 +53,7 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		return false;
 	}
 	
-	public AbstractNode match(char[] input, int location){
+	public AbstractNode match(int[] input, int location){
 		for(int i = literal.length - 1; i >= 0; --i){
 			if(literal[i] != input[location + i]) return null; // Did not match.
 		}
@@ -79,7 +79,9 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(new String(literal));
+		for (int i : literal) {
+			sb.appendCodePoint(i);
+		}
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);

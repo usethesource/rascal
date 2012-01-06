@@ -55,10 +55,10 @@ public class SplitAndMerge3 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, 0, "B");
 	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, 0, "B");
 	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, 0, "C");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 1, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, 0, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, 1, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 1, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, 1, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 0, PROD_a_a, new int[]{'a'});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
 	static{

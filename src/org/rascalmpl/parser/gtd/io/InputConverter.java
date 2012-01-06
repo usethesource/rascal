@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.io;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,11 +31,11 @@ public class InputConverter{
 	
 	// NOTE: The user has to close the stream.
 	public static char[] toChar(InputStream inputStream) throws IOException{
-		return toChar(new InputStreamReader(inputStream));
+		return toChar(new InputStreamReader(inputStream, "UTF8"));
 	}
 	
 	// NOTE: The user has to close the stream.
-	public static char[] toChar(Reader reader) throws IOException{
+	private static char[] toChar(Reader reader) throws IOException {
 		ArrayList<char[]> segments = new ArrayList<char[]>();
 		
 		// Gather segments.
@@ -66,21 +63,6 @@ public class InputConverter{
 			System.arraycopy(segment, 0, input, (i * STREAM_READ_SEGMENT_SIZE), STREAM_READ_SEGMENT_SIZE);
 		}
 		
-		return input;
-	}
-	
-	public static char[] toChar(File inputFile) throws IOException{
-		int inputFileLength = (int) inputFile.length();
-		char[] input = new char[inputFileLength];
-		Reader in = null;
-		try{
-			in = new BufferedReader(new FileReader(inputFile));
-			in.read(input, 0, inputFileLength);
-		}finally{
-			if(in != null){
-				in.close();
-			}
-		}
 		return input;
 	}
 }

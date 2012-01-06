@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class DateTimeLiteral extends AbstractAST {
   public DateTimeLiteral(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -66,6 +65,10 @@ public abstract class DateTimeLiteral extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -122,20 +125,6 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = dateAndTime.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return dateAndTime.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasDateAndTime() {
       return true;
     }	
@@ -173,20 +162,6 @@ public abstract class DateTimeLiteral extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = time.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return time.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasTime() {
       return true;
     }	
@@ -221,20 +196,6 @@ public abstract class DateTimeLiteral extends AbstractAST {
     @Override
     public org.rascalmpl.ast.JustDate getDate() {
       return this.date;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = date.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return date.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

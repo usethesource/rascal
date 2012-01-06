@@ -19,34 +19,44 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
  * associated with this filter.
  */
 public class StringFollowRequirement implements ICompletionFilter{
-	private final char[] string;
+	private final int[] string;
 	
-	public StringFollowRequirement(char[] string){
+	public StringFollowRequirement(int[] string){
 		super();
 		
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
-		if((end + string.length - 1) >= input.length) return true;
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
+		if((end + string.length - 1) >= input.length) {
+			return true;
+		}
 		
 		for(int i = string.length - 1; i >= 0; --i){
-			if(input[end + i] != string[i]) return true;
+			if(input[end + i] != string[i]) {
+				return true;
+			}
 		}
 		
 		return false;
 	}
 	
 	public boolean isEqual(ICompletionFilter otherCompletionFilter){
-		if(!(otherCompletionFilter instanceof StringFollowRequirement)) return false;
+		if(!(otherCompletionFilter instanceof StringFollowRequirement)) {
+			return false;
+		}
 		
 		StringFollowRequirement otherStringFollowFilter = (StringFollowRequirement) otherCompletionFilter;
 		
-		char[] otherString = otherStringFollowFilter.string;
-		if(string.length != otherString.length) return false;
+		int[] otherString = otherStringFollowFilter.string;
+		if(string.length != otherString.length) {
+			return false;
+		}
 		
 		for(int i = string.length - 1; i >= 0; --i){
-			if(string[i] != otherString[i]) return false;
+			if(string[i] != otherString[i]) {
+				return false;
+			}
 		}
 		
 		return true;

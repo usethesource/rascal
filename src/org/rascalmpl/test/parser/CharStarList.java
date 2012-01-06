@@ -39,7 +39,7 @@ public class CharStarList extends SGTDBF implements IParserTest{
 	private final static IConstructor PROD_STARLISTa_z = VF.constructor(Factory.Production_Regular, SYMBOL_STAR_LIST_a_z);
 	
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode CHAR0 = new CharStackNode(0, 0, new char[][]{{'a', 'z'}});
+	private final static AbstractStackNode CHAR0 = new CharStackNode(0, 0, new int[][]{{'a', 'z'}});
 	private final static AbstractStackNode LIST1 = new ListStackNode(1, 0, PROD_STARLISTa_z, CHAR0, false);
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];

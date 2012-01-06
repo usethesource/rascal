@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Toplevel extends AbstractAST {
   public Toplevel(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -109,20 +108,6 @@ public abstract class Toplevel extends AbstractAST {
     @Override
     public org.rascalmpl.ast.Declaration getDeclaration() {
       return this.declaration;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = declaration.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return declaration.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

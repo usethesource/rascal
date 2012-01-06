@@ -438,4 +438,14 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public IReal e(int precision) {
 		return cachedReals.cache(valueFactory.e(precision));
 	}
+
+	@Override
+	public IString string(int[] chars) {
+		return cachedStrings.cache(valueFactory.string(chars));
+	}
+
+	@Override
+	public IString string(int ch) {
+		return cachedStrings.cache(valueFactory.string(ch));
+	}
 }

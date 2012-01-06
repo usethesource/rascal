@@ -60,6 +60,7 @@ public str unescape(StringConstant s) {
 
 private str character(StringCharacter c) {
   switch (c) {
+    case [StringCharacter] /^<ch:[^"'\\\>\< ]>/        : return "<ch>";
     case [StringCharacter] /^\\n/ : return "\n";
     case [StringCharacter] /^\\t/ : return "\t";
     case [StringCharacter] /^\\b/ : return "\b";
@@ -67,12 +68,10 @@ private str character(StringCharacter c) {
     case [StringCharacter] /^\\f/ : return "\f";
     case [StringCharacter] /^\\\>/ : return "\>";
     case [StringCharacter] /^\\\</ : return "\<";
-    case [StringCharacter] /^<ch:[^"'\\\>\< ]>/        : return "<ch>"; 
     case [StringCharacter] /^\\<esc:["'\\ ]>/        : return "<esc>";
-    case [StringCharacter] /^\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>")); 
-    case [StringCharacter] /^\\<oct:[0-3][0-7][0-7]>/ : return stringChar(toInt("0<oct>"));
-    case [StringCharacter] /^\\<oct:[0-7][0-7]>/      : return stringChar(toInt("0<oct>"));
-    case [StringCharacter] /^\\<oct:[0-7]>/           : return stringChar(toInt("0<oct>"));
+    case [StringCharacter] /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
+    case [StringCharacter] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
+    case [StringCharacter] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>")); 
     case [StringCharacter] /^\n[\ \t]* \'/            : return "\n";
     default: throw "missed a case <c>";
   }

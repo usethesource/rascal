@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Body extends AbstractAST {
   public Body(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -50,6 +49,11 @@ public abstract class Body extends AbstractAST {
     @Override
     public IConstructor getTree() {
       return node;
+    }
+  
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
     }
   
     @Override
@@ -105,7 +109,6 @@ public abstract class Body extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Toplevel> getToplevels() {
       return this.toplevels;
     }
-  
   
     @Override
     public boolean hasToplevels() {

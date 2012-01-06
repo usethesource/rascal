@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StringMiddle extends AbstractAST {
   public StringMiddle(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -73,6 +72,10 @@ public abstract class StringMiddle extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -132,7 +135,6 @@ public abstract class StringMiddle extends AbstractAST {
       return this.mid;
     }
   
-  
     @Override
     public boolean hasMid() {
       return true;
@@ -142,7 +144,6 @@ public abstract class StringMiddle extends AbstractAST {
       return this.template;
     }
   
-  
     @Override
     public boolean hasTemplate() {
       return true;
@@ -151,7 +152,6 @@ public abstract class StringMiddle extends AbstractAST {
     public org.rascalmpl.ast.StringMiddle getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {
@@ -189,7 +189,6 @@ public abstract class StringMiddle extends AbstractAST {
     public org.rascalmpl.ast.MidStringChars getMid() {
       return this.mid;
     }
-  
   
     @Override
     public boolean hasMid() {
@@ -232,7 +231,6 @@ public abstract class StringMiddle extends AbstractAST {
       return this.mid;
     }
   
-  
     @Override
     public boolean hasMid() {
       return true;
@@ -242,7 +240,6 @@ public abstract class StringMiddle extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -251,7 +248,6 @@ public abstract class StringMiddle extends AbstractAST {
     public org.rascalmpl.ast.StringMiddle getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {

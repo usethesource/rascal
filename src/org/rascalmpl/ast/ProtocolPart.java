@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class ProtocolPart extends AbstractAST {
   public ProtocolPart(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -73,6 +72,20 @@ public abstract class ProtocolPart extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(node);
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(node);
+    }
     
     public java.util.List<org.rascalmpl.ast.ProtocolPart> getAlternatives() {
       return alternatives;
@@ -118,7 +131,6 @@ public abstract class ProtocolPart extends AbstractAST {
       return this.protocolChars;
     }
   
-  
     @Override
     public boolean hasProtocolChars() {
       return true;
@@ -160,7 +172,6 @@ public abstract class ProtocolPart extends AbstractAST {
       return this.pre;
     }
   
-  
     @Override
     public boolean hasPre() {
       return true;
@@ -170,7 +181,6 @@ public abstract class ProtocolPart extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -179,7 +189,6 @@ public abstract class ProtocolPart extends AbstractAST {
     public org.rascalmpl.ast.ProtocolTail getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {

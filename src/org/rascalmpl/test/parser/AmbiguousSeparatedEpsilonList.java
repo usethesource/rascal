@@ -36,7 +36,7 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
 	private final static AbstractStackNode NONTERMINAL_SEP1 = new NonTerminalStackNode(1, 1, "SEP");
 	private final static AbstractStackNode LIST2 = new SeparatedListStackNode(2, 0, PROD_PLUSLISTSEPA, NONTERMINAL_A0, new AbstractStackNode[]{NONTERMINAL_SEP1}, true);
-	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, 0, PROD_a_a, new int[]{'a'});
 	private final static AbstractStackNode EPSILON4 = new EpsilonStackNode(4, 0);
 	private final static AbstractStackNode EPSILON5 = new EpsilonStackNode(5, 0);
 	

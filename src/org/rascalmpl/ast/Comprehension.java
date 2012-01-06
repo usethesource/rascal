@@ -16,10 +16,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -73,6 +72,10 @@ public abstract class Comprehension extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -130,8 +133,6 @@ public abstract class Comprehension extends AbstractAST {
       return this.results;
     }
   
-  
-  
     @Override
     public boolean hasResults() {
       return true;
@@ -140,8 +141,6 @@ public abstract class Comprehension extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
       return this.generators;
     }
-  
-   
   
     @Override
     public boolean hasGenerators() {
@@ -184,7 +183,6 @@ public abstract class Comprehension extends AbstractAST {
       return this.from;
     }
   
-  
     @Override
     public boolean hasFrom() {
       return true;
@@ -194,8 +192,6 @@ public abstract class Comprehension extends AbstractAST {
       return this.to;
     }
   
-    
-  
     @Override
     public boolean hasTo() {
       return true;
@@ -204,8 +200,6 @@ public abstract class Comprehension extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
       return this.generators;
     }
-  
-   
   
     @Override
     public boolean hasGenerators() {
@@ -246,8 +240,6 @@ public abstract class Comprehension extends AbstractAST {
       return this.results;
     }
   
-  
-  
     @Override
     public boolean hasResults() {
       return true;
@@ -256,8 +248,6 @@ public abstract class Comprehension extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
       return this.generators;
     }
-  
-   
   
     @Override
     public boolean hasGenerators() {

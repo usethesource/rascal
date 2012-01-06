@@ -94,14 +94,10 @@ public final class StringUtils {
 				case '5':
 				case '6':
 				case '7':
-					b = (char) (chars[i] - '0');
-					if (i < chars.length - 1 && Character.isDigit(chars[i+1])) {
-						b = (char) (b * 8 + (chars[++i] - '0'));
-						
-						if (i < chars.length - 1 && Character.isDigit(chars[i+1])) {
-							b = (char) (b * 8 + (chars[++i] - '0'));
-						}
-					}
+					StringBuilder a = new StringBuilder();
+					a.append(chars[i]);
+					a.append(chars[++i]);
+					b = (char) Integer.parseInt(a.toString(), 16);
 					break;
 				case 'u':
 					StringBuilder u = new StringBuilder();
@@ -111,6 +107,17 @@ public final class StringUtils {
 					u.append(chars[++i]);
 					b = (char) Integer.parseInt(u.toString(), 16);
 					break;
+				case 'U':
+					StringBuilder U = new StringBuilder();
+					U.append(chars[++i]);
+					U.append(chars[++i]);
+					U.append(chars[++i]);
+					U.append(chars[++i]);
+					U.append(chars[++i]);
+					U.append(chars[++i]);
+					int cp = Integer.parseInt(U.toString(), 16);
+					result.appendCodePoint(cp);
+					continue;
 				default:
 				    b = '\\';	
 				}

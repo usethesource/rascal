@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Declarator extends AbstractAST {
   public Declarator(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -59,6 +58,10 @@ public abstract class Declarator extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {

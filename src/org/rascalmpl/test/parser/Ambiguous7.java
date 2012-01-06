@@ -41,7 +41,7 @@ public class Ambiguous7 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
 	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 0, "A");
 	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, 1, "A");
-	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a3 = new LiteralStackNode(3, 0, PROD_a_a, new int[]{'a'});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
 	static{

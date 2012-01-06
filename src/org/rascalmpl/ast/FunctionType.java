@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class FunctionType extends AbstractAST {
   public FunctionType(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -120,8 +119,6 @@ public abstract class FunctionType extends AbstractAST {
       return this.type;
     }
   
-    
-  
     @Override
     public boolean hasType() {
       return true;
@@ -130,8 +127,6 @@ public abstract class FunctionType extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.TypeArg> getArguments() {
       return this.arguments;
     }
-  
-   
   
     @Override
     public boolean hasArguments() {

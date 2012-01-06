@@ -16,10 +16,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -59,6 +58,10 @@ public abstract class Catch extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -114,7 +117,6 @@ public abstract class Catch extends AbstractAST {
       return this.body;
     }
   
-  
     @Override
     public boolean hasBody() {
       return true;
@@ -154,8 +156,6 @@ public abstract class Catch extends AbstractAST {
       return this.pattern;
     }
   
-   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -164,7 +164,6 @@ public abstract class Catch extends AbstractAST {
     public org.rascalmpl.ast.Statement getBody() {
       return this.body;
     }
-  
   
     @Override
     public boolean hasBody() {

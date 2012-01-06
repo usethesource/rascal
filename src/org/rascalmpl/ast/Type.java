@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Type extends AbstractAST {
   public Type(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -161,20 +160,6 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = basic.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return basic.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasBasic() {
       return true;
     }	
@@ -209,20 +194,6 @@ public abstract class Type extends AbstractAST {
     @Override
     public org.rascalmpl.ast.FunctionType getFunction() {
       return this.function;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = function.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return function.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -263,20 +234,6 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = structured.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return structured.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasStructured() {
       return true;
     }	
@@ -311,20 +268,6 @@ public abstract class Type extends AbstractAST {
     @Override
     public org.rascalmpl.ast.TypeVar getTypeVar() {
       return this.typeVar;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = typeVar.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return typeVar.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -365,20 +308,6 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = type.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return type.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasType() {
       return true;
     }	
@@ -413,20 +342,6 @@ public abstract class Type extends AbstractAST {
     @Override
     public org.rascalmpl.ast.DataTypeSelector getSelector() {
       return this.selector;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = selector.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return selector.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -467,20 +382,6 @@ public abstract class Type extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = symbol.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return symbol.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasSymbol() {
       return true;
     }	
@@ -515,20 +416,6 @@ public abstract class Type extends AbstractAST {
     @Override
     public org.rascalmpl.ast.UserType getUser() {
       return this.user;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = user.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return user.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

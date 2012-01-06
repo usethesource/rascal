@@ -19,20 +19,20 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
  * characters in the set of ranges.
  */
 public class CharFollowRequirement implements ICompletionFilter{
-	private final char[][] ranges;
+	private final int[][] ranges;
 	
-	public CharFollowRequirement(char[][] ranges){
+	public CharFollowRequirement(int[][] ranges){
 		super();
 		
 		this.ranges = ranges;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
 		if(end >= input.length) return true;
 		
-		char next = input[end];
+		int next = input[end];
 		for(int i = ranges.length - 1; i >= 0; --i){
-			char[] range = ranges[i];
+			int[] range = ranges[i];
 			if(next >= range[0] && next <= range[1]){
 				return false;
 			}
@@ -46,13 +46,15 @@ public class CharFollowRequirement implements ICompletionFilter{
 		
 		CharFollowRequirement otherCharFollowFilter = (CharFollowRequirement) otherCompletionFilter;
 		
-		char[][] otherRanges = otherCharFollowFilter.ranges;
+		int[][] otherRanges = otherCharFollowFilter.ranges;
 		
 		OUTER: for(int i = ranges.length - 1; i >= 0; --i){
-			char[] range = ranges[i];
+			int[] range = ranges[i];
 			for(int j = otherRanges.length - 1; j >= 0; --j){
-				char[] otherRange = otherRanges[j];
-				if(range[0] == otherRange[0] && range[1] == otherRange[1]) continue OUTER;
+				int[] otherRange = otherRanges[j];
+				if(range[0] == otherRange[0] && range[1] == otherRange[1]) {
+					continue OUTER;
+				}
 			}
 			return false; // Could not find a certain range.
 		}

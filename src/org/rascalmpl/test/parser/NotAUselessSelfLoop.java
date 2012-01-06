@@ -62,8 +62,8 @@ public class NotAUselessSelfLoop extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_C8 = new NonTerminalStackNode(8, 1, "C");
 	private final static AbstractStackNode NONTERMINAL_C9 = new NonTerminalStackNode(9, 0, "C");
 	private final static AbstractStackNode NONTERMINAL_C10 = new NonTerminalStackNode(10, 1, "C");
-	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, 0, PROD_a_a, new char[]{'a'});
-	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, 0, PROD_a_a, new int[]{'a'});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
 	static{

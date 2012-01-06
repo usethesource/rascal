@@ -49,7 +49,7 @@ public class AmbiguousEpsilonList extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
 	private final static AbstractStackNode LIST1 = new ListStackNode(1, 0, PROD_PLUSLISTA, NONTERMINAL_A0, true);
-	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a2 = new LiteralStackNode(2, 0, PROD_a_a, new int[]{'a'});
 	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3, 0);
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];

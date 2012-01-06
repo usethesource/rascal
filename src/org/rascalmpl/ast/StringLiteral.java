@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StringLiteral extends AbstractAST {
   public StringLiteral(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -80,6 +79,20 @@ public abstract class StringLiteral extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(node);
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(node);
+    }
     
     public java.util.List<org.rascalmpl.ast.StringLiteral> getAlternatives() {
       return alternatives;
@@ -125,7 +138,6 @@ public abstract class StringLiteral extends AbstractAST {
       return this.constant;
     }
   
-  
     @Override
     public boolean hasConstant() {
       return true;
@@ -167,7 +179,6 @@ public abstract class StringLiteral extends AbstractAST {
       return this.pre;
     }
   
-  
     @Override
     public boolean hasPre() {
       return true;
@@ -177,7 +188,6 @@ public abstract class StringLiteral extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -186,7 +196,6 @@ public abstract class StringLiteral extends AbstractAST {
     public org.rascalmpl.ast.StringTail getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {
@@ -229,7 +238,6 @@ public abstract class StringLiteral extends AbstractAST {
       return this.pre;
     }
   
-  
     @Override
     public boolean hasPre() {
       return true;
@@ -239,7 +247,6 @@ public abstract class StringLiteral extends AbstractAST {
       return this.template;
     }
   
-  
     @Override
     public boolean hasTemplate() {
       return true;
@@ -248,7 +255,6 @@ public abstract class StringLiteral extends AbstractAST {
     public org.rascalmpl.ast.StringTail getTail() {
       return this.tail;
     }
-  
   
     @Override
     public boolean hasTail() {

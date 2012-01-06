@@ -19,15 +19,15 @@ import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
  * string associated with this filter.
  */
 public class StringFollowRestriction implements ICompletionFilter{
-	private final char[] string;
+	private final int[] string;
 	
-	public StringFollowRestriction(char[] string){
+	public StringFollowRestriction(int[] string){
 		super();
 		
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
 		if((end + string.length - 1) >= input.length) return false;
 			
 		for(int i = string.length - 1; i >= 0; --i){
@@ -42,7 +42,7 @@ public class StringFollowRestriction implements ICompletionFilter{
 		
 		StringFollowRestriction otherStringFollowFilter = (StringFollowRestriction) otherCompletionFilter;
 		
-		char[] otherString = otherStringFollowFilter.string;
+		int[] otherString = otherStringFollowFilter.string;
 		if(string.length != otherString.length) return false;
 		
 		for(int i = string.length - 1; i >= 0; --i){

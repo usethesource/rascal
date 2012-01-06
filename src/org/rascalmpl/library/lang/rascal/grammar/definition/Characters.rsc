@@ -181,7 +181,7 @@ public CharRange intersect(CharRange r1, CharRange r2) {
 }
 
 public list[CharRange] complement(list[CharRange] s) {
-  return difference([range(0,0xFFFF)],s);
+  return difference([range(0,0xFFFFFF)],s);
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
@@ -385,6 +385,7 @@ private CharRange range(Range r) {
  
 private int character(Char c) {
   switch (c) {
+    case [Char] /^<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /^\\n/ : return charAt("\n", 0);
     case [Char] /^\\t/ : return charAt("\t", 0);
     case [Char] /^\\b/ : return charAt("\b", 0);
@@ -392,12 +393,10 @@ private int character(Char c) {
     case [Char] /^\\f/ : return charAt("\f", 0);
     case [Char] /^\\\>/ : return charAt("\>", 0);
     case [Char] /^\\\</ : return charAt("\<", 0);
-    case [Char] /^<ch:[^"'\-\[\]\\\>\< ]>/        : return charAt(ch, 0); 
     case [Char] /^\\<esc:["'\-\[\]\\ ]>/        : return charAt(esc, 0);
-    case [Char] /^\\[u]+<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
-    case [Char] /^\\<oct:[0-3][0-7][0-7]>/ : return toInt("0<oct>");
-    case [Char] /^\\<oct:[0-7][0-7]>/      : return toInt("0<oct>");
-    case [Char] /^\\<oct:[0-7]>/           : return toInt("0<oct>");
+    case [Char] /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return toInt("0x<hex>");
+    case [Char] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
+    case [Char] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return toInt("0x<hex>");
     default: throw "missed a case <c>";
   }
 }

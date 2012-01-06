@@ -50,7 +50,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	private AbstractStackNode startNode;
 	private URI inputURI;
-	private char[] input;
+	private int[] input;
 	
 	private final PositionStore positionStore;
 	
@@ -67,7 +67,7 @@ public abstract class SGTDBF implements IGTD{
 	
 	private int location;
 	
-	protected char lookAheadChar;
+	protected int lookAheadChar;
 	
 	private final HashMap<String, Method> methodCache;
 	
@@ -896,7 +896,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Initiates parsing.
 	 */
-	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, char[] input){
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
 		}
@@ -964,10 +964,30 @@ public abstract class SGTDBF implements IGTD{
 		throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
 	
+	private int[] charsToInts(char[] input) {
+		int[] result = new int[Character.codePointCount(input, 0, input.length)];
+		int j = 0;
+		
+		for (int i = 0; i < input.length; i++) {
+			if (i == 0 || !Character.isHighSurrogate(input[i-1])) {
+				result[j++] = Character.codePointAt(input, i);
+			}
+		}
+		
+		return result;
+	}
+	
 	/**
 	 * Parses with post parse filtering.
 	 */
 	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
+		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter);
+	}
+	
+	/**
+	 * Parses with post parse filtering.
+	 */
+	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 		return buildResult(result, converter, actionExecutor);
 	}
@@ -976,6 +996,10 @@ public abstract class SGTDBF implements IGTD{
 	 * Parses without post parse filtering.
 	 */
 	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
+		return parse(nonterminal, inputURI, charsToInts(input), converter);
+	}
+	
+	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}
@@ -984,6 +1008,13 @@ public abstract class SGTDBF implements IGTD{
 	 * Parses without post parse filtering.
 	 */
 	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
+		return parse(startNode, inputURI, charsToInts(input), converter);
+	}
+	
+	/**
+	 * Parses without post parse filtering.
+	 */
+	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter){
 		AbstractNode result = parse(startNode, inputURI, input);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}

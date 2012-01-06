@@ -24,7 +24,7 @@ public class AtStartOfLineRequirement implements IEnterFilter{
 		super();
 	}
 	
-	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, PositionStore positionStore){
 		return !positionStore.startsLine(start);
 	}
 	

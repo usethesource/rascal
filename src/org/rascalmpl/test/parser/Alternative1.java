@@ -48,11 +48,11 @@ public class Alternative1 extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[3];
 	static{
-		S_EXPECT_1[0] = new LiteralStackNode(1, 0, PROD_a_a, new char[]{'a'});
+		S_EXPECT_1[0] = new LiteralStackNode(1, 0, PROD_a_a, new int[]{'a'});
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1] = new AlternativeStackNode(4, 1, PROD_ALTbc, new AbstractStackNode[]{new LiteralStackNode(2, 0, PROD_b_b, new char[]{'b'}), new LiteralStackNode(3, 1, PROD_c_c, new char[]{'c'})});
+		S_EXPECT_1[1] = new AlternativeStackNode(4, 1, PROD_ALTbc, new AbstractStackNode[]{new LiteralStackNode(2, 0, PROD_b_b, new int[]{'b'}), new LiteralStackNode(3, 1, PROD_c_c, new int[]{'c'})});
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2] = new LiteralStackNode(5, 2, PROD_d_d, new char[]{'d'});
+		S_EXPECT_1[2] = new LiteralStackNode(5, 2, PROD_d_d, new int[]{'d'});
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2].setParentProduction(PROD_S_a_ALTbc_d);
 	}

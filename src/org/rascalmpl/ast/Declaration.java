@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Declaration extends AbstractAST {
   public Declaration(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -136,6 +135,10 @@ public abstract class Declaration extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
@@ -197,8 +200,6 @@ public abstract class Declaration extends AbstractAST {
       return this.tags;
     }
   
-  
-  
     @Override
     public boolean hasTags() {
       return true;
@@ -207,8 +208,6 @@ public abstract class Declaration extends AbstractAST {
     public org.rascalmpl.ast.Visibility getVisibility() {
       return this.visibility;
     }
-  
-   
   
     @Override
     public boolean hasVisibility() {
@@ -219,7 +218,7 @@ public abstract class Declaration extends AbstractAST {
       return this.user;
     }
   
-      @Override
+    @Override
     public boolean hasUser() {
       return true;
     }
@@ -228,7 +227,6 @@ public abstract class Declaration extends AbstractAST {
       return this.base;
     }
   
-    
     @Override
     public boolean hasBase() {
       return true;
@@ -336,7 +334,6 @@ public abstract class Declaration extends AbstractAST {
       return this.functionDeclaration;
     }
   
-  
     @Override
     public boolean hasFunctionDeclaration() {
       return true;
@@ -382,7 +379,6 @@ public abstract class Declaration extends AbstractAST {
       return this.tags;
     }
   
-    
     @Override
     public boolean hasTags() {
       return true;
@@ -391,8 +387,6 @@ public abstract class Declaration extends AbstractAST {
     public org.rascalmpl.ast.Visibility getVisibility() {
       return this.visibility;
     }
-  
-  
   
     @Override
     public boolean hasVisibility() {

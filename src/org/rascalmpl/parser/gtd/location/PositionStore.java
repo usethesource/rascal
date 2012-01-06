@@ -12,8 +12,8 @@
 package org.rascalmpl.parser.gtd.location;
 
 public class PositionStore{
-	private final static char LINE_FEED_CHAR = '\n';
-	private final static char CARRIAGE_RETURN_CHAR = '\r';
+	private final static int LINE_FEED_CHAR = '\n';
+	private final static int CARRIAGE_RETURN_CHAR = '\r';
 	
 	private final static int DEFAULT_SIZE = 8;
 	
@@ -36,14 +36,14 @@ public class PositionStore{
 		System.arraycopy(oldOffsets, 0, offsets, 0, size);
 	}
 	
-	public void index(char[] input){
+	public void index(int[] input){
 		add(0);
 		
 		endOfFile = input.length;
 		
 		boolean encounteredCarriageReturn = false;
 		for(int i = 0; i < endOfFile; ++i){
-			char character = input[i];
+			int character = input[i];
 			if(character == CARRIAGE_RETURN_CHAR){
 				encounteredCarriageReturn = true;
 			}else if(character == LINE_FEED_CHAR){

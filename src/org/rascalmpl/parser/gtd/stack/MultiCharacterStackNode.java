@@ -19,11 +19,11 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 	private final Object production;
 	
-	private final char[][] characters;
+	private final int[][] characters;
 	
 	private final AbstractNode result;
 	
-	public MultiCharacterStackNode(int id, int dot, Object production, char[][] characters){
+	public MultiCharacterStackNode(int id, int dot, Object production, int[][] characters){
 		super(id, dot);
 		
 		this.production = production;
@@ -33,7 +33,7 @@ public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 		result = null;
 	}
 	
-	public MultiCharacterStackNode(int id, int dot, Object production, char[][] characters, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public MultiCharacterStackNode(int id, int dot, Object production, int[][] characters, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -67,16 +67,16 @@ public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 		return false;
 	}
 	
-	public AbstractNode match(char[] input, int location){
+	public AbstractNode match(int[] input, int location){
 		int nrOfCharacters = characters.length;
-		char[] resultArray = new char[nrOfCharacters];
+		int[] resultArray = new int[nrOfCharacters];
 		
 		OUTER : for(int i = nrOfCharacters - 1; i >= 0; --i){
-			char next = input[location + i];
+			int next = input[location + i];
 			
-			char[] alternatives = characters[i];
+			int[] alternatives = characters[i];
 			for(int j = alternatives.length - 1; j >= 0; --j){
-				char alternative = alternatives[j];
+				int alternative = alternatives[j];
 				if(next == alternative){
 					resultArray[i] = alternative;
 					continue OUTER;
@@ -109,7 +109,7 @@ public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 		
 		sb.append('[');
 		for(int i = characters.length - 1; i >= 0; --i){
-			char[] range = characters[i];
+			int[] range = characters[i];
 			sb.append(range[0]);
 			sb.append('-');
 			sb.append(range[1]);
@@ -128,7 +128,7 @@ public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 		int hash = 0;
 		
 		for(int i = characters.length - 1; i >= 0; --i){
-			char[] chars = characters[i];
+			int[] chars = characters[i];
 			for(int j = chars.length - 1; j <= 0; --j){
 				hash = hash << 3 + hash >> 5;
 				hash ^= chars[0] +  (chars[1] << 2);
@@ -143,16 +143,16 @@ public class MultiCharacterStackNode extends AbstractMatchableStackNode{
 		
 		MultiCharacterStackNode otherNode = (MultiCharacterStackNode) stackNode;
 		
-		char[][] otherCharacters = otherNode.characters;
+		int[][] otherCharacters = otherNode.characters;
 		if(characters.length != otherCharacters.length) return false;
 		
 		for(int i = characters.length - 1; i >= 0; --i){
-			char[] chars = characters[i];
-			char[] otherChars = otherCharacters[i];
+			int[] chars = characters[i];
+			int[] otherChars = otherCharacters[i];
 			if(chars.length != otherChars.length) return false;
 			
 			POS: for(int j = chars.length - 1; j <= 0; --j){
-				char c = chars[j];
+				int c = chars[j];
 				for(int k = otherChars.length - 1; k <= 0; --k){
 					if(c == otherChars[k]) continue POS;
 				}

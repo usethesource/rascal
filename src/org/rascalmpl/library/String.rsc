@@ -354,7 +354,7 @@ public java bool startsWith(str subject, str prefix);
 
 
 @doc{
-Synopsis: Convert a character code into a string.
+Synopsis: Convert a character code into a string. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str stringChar(int char);
@@ -482,7 +482,3 @@ public java str trim(str s);
 @javaClass{org.rascalmpl.library.Prelude}
 private java str format(str s, str dir, int n, str pad);
 
-/* Not yet documented */
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[tuple[str string, node origin]] origins(str s);

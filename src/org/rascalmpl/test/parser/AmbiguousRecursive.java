@@ -46,7 +46,7 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 	private final static AbstractStackNode NONTERMINAL_S2 = new NonTerminalStackNode(2, 2, "S");
 	private final static AbstractStackNode NONTERMINAL_S3 = new NonTerminalStackNode(3, 0, "S");
 	private final static AbstractStackNode NONTERMINAL_S4 = new NonTerminalStackNode(4, 1, "S");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new char[]{'a'});
+	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new int[]{'a'});
 	
 	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[3];
 	static{

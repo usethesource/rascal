@@ -43,13 +43,13 @@ public class ErrorResultBuilder{
 	private final SGTDBF parser;
 	private final AbstractStackNode startNode;
 	
-	private final char[] input;
+	private final int[] input;
 	private final int location;
 	private final URI inputURI;
 	
 	private final DoubleStack<AbstractStackNode, AbstractNode> errorNodes;
 	
-	public ErrorResultBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, char[] input, int location, URI inputURI){
+	public ErrorResultBuilder(IErrorBuilderHelper errorBuilderHelper, SGTDBF parser, AbstractStackNode startNode, int[] input, int location, URI inputURI){
 		super();
 		
 		this.errorBuilderHelper = errorBuilderHelper;

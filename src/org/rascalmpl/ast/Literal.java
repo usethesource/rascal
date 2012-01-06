@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Literal extends AbstractAST {
   public Literal(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -161,20 +160,6 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = rationalLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return rationalLiteral.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasRationalLiteral() {
       return true;
     }	
@@ -209,20 +194,6 @@ public abstract class Literal extends AbstractAST {
     @Override
     public org.rascalmpl.ast.LocationLiteral getLocationLiteral() {
       return this.locationLiteral;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = locationLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return locationLiteral.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -263,20 +234,6 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = stringLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return stringLiteral.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasStringLiteral() {
       return true;
     }	
@@ -311,20 +268,6 @@ public abstract class Literal extends AbstractAST {
     @Override
     public org.rascalmpl.ast.RegExpLiteral getRegExpLiteral() {
       return this.regExpLiteral;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = regExpLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return regExpLiteral.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -365,20 +308,6 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = booleanLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return booleanLiteral.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasBooleanLiteral() {
       return true;
     }	
@@ -413,20 +342,6 @@ public abstract class Literal extends AbstractAST {
     @Override
     public org.rascalmpl.ast.RealLiteral getRealLiteral() {
       return this.realLiteral;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = realLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return realLiteral.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override
@@ -467,20 +382,6 @@ public abstract class Literal extends AbstractAST {
     }
   
     @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = dateTimeLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return dateTimeLiteral.findNode(offset);
-      } 
-      
-      return null;
-    }
-  
-    @Override
     public boolean hasDateTimeLiteral() {
       return true;
     }	
@@ -515,20 +416,6 @@ public abstract class Literal extends AbstractAST {
     @Override
     public org.rascalmpl.ast.IntegerLiteral getIntegerLiteral() {
       return this.integerLiteral;
-    }
-  
-    @Override
-    public AbstractAST findNode(int offset) {
-      if (src.getOffset() <= offset && offset < src.getOffset() + src.getLength()) {
-        return this;
-      }
-      ISourceLocation loc;
-      loc = integerLiteral.getLocation();
-      if (offset <= loc.getOffset() + loc.getLength()) {
-        return integerLiteral.findNode(offset);
-      } 
-      
-      return null;
     }
   
     @Override

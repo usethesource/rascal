@@ -19,15 +19,15 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * associated with this filter.
  */
 public class StringPrecedeRequirement implements IEnterFilter{
-	private final char[] string;
+	private final int[] string;
 	
-	public StringPrecedeRequirement(char[] string){
+	public StringPrecedeRequirement(int[] string){
 		super();
 		
 		this.string = string;
 	}
 	
-	public boolean isFiltered(char[] input, int start, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, PositionStore positionStore){
 		int startLocation = start - string.length;
 		if(startLocation < 0) return true;
 		
@@ -43,7 +43,7 @@ public class StringPrecedeRequirement implements IEnterFilter{
 		
 		StringPrecedeRequirement otherStringPrecedeFilter = (StringPrecedeRequirement) otherEnterFilter;
 		
-		char[] otherString = otherStringPrecedeFilter.string;
+		int[] otherString = otherStringPrecedeFilter.string;
 		if(string.length != otherString.length) return false;
 		
 		for(int i = string.length - 1; i >= 0; --i){

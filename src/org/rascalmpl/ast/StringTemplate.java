@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class StringTemplate extends AbstractAST {
   public StringTemplate(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -129,6 +128,20 @@ public abstract class StringTemplate extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(node);
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(node);
+    }
     
     public java.util.List<org.rascalmpl.ast.StringTemplate> getAlternatives() {
       return alternatives;
@@ -180,7 +193,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.conditions;
     }
   
-  
     @Override
     public boolean hasConditions() {
       return true;
@@ -189,7 +201,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
       return this.preStats;
     }
-  
   
     @Override
     public boolean hasPreStats() {
@@ -200,7 +211,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.body;
     }
   
-  
     @Override
     public boolean hasBody() {
       return true;
@@ -209,7 +219,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
       return this.postStats;
     }
-  
   
     @Override
     public boolean hasPostStats() {
@@ -260,7 +269,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.conditions;
     }
   
-  
     @Override
     public boolean hasConditions() {
       return true;
@@ -269,7 +277,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPreStatsThen() {
       return this.preStatsThen;
     }
-  
   
     @Override
     public boolean hasPreStatsThen() {
@@ -280,7 +287,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.thenString;
     }
   
-  
     @Override
     public boolean hasThenString() {
       return true;
@@ -289,7 +295,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPostStatsThen() {
       return this.postStatsThen;
     }
-  
   
     @Override
     public boolean hasPostStatsThen() {
@@ -300,7 +305,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.preStatsElse;
     }
   
-  
     @Override
     public boolean hasPreStatsElse() {
       return true;
@@ -310,7 +314,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.elseString;
     }
   
-  
     @Override
     public boolean hasElseString() {
       return true;
@@ -319,7 +322,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPostStatsElse() {
       return this.postStatsElse;
     }
-  
   
     @Override
     public boolean hasPostStatsElse() {
@@ -364,7 +366,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.condition;
     }
   
-  
     @Override
     public boolean hasCondition() {
       return true;
@@ -373,7 +374,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
       return this.preStats;
     }
-  
   
     @Override
     public boolean hasPreStats() {
@@ -384,7 +384,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.body;
     }
   
-  
     @Override
     public boolean hasBody() {
       return true;
@@ -393,7 +392,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
       return this.postStats;
     }
-  
   
     @Override
     public boolean hasPostStats() {
@@ -438,7 +436,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.preStats;
     }
   
-  
     @Override
     public boolean hasPreStats() {
       return true;
@@ -447,7 +444,6 @@ public abstract class StringTemplate extends AbstractAST {
     public org.rascalmpl.ast.StringMiddle getBody() {
       return this.body;
     }
-  
   
     @Override
     public boolean hasBody() {
@@ -458,7 +454,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.postStats;
     }
   
-  
     @Override
     public boolean hasPostStats() {
       return true;
@@ -467,7 +462,6 @@ public abstract class StringTemplate extends AbstractAST {
     public org.rascalmpl.ast.Expression getCondition() {
       return this.condition;
     }
-  
   
     @Override
     public boolean hasCondition() {
@@ -512,7 +506,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.generators;
     }
   
-  
     @Override
     public boolean hasGenerators() {
       return true;
@@ -521,7 +514,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPreStats() {
       return this.preStats;
     }
-  
   
     @Override
     public boolean hasPreStats() {
@@ -532,7 +524,6 @@ public abstract class StringTemplate extends AbstractAST {
       return this.body;
     }
   
-  
     @Override
     public boolean hasBody() {
       return true;
@@ -541,7 +532,6 @@ public abstract class StringTemplate extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
       return this.postStats;
     }
-  
   
     @Override
     public boolean hasPostStats() {

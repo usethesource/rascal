@@ -49,7 +49,7 @@ public final class EpsilonStackNode extends AbstractMatchableStackNode{
 		return true;
 	}
 	
-	public AbstractNode match(char[] input, int location){
+	public AbstractNode match(int[] input, int location){
 		return EPSILON_RESULT;
 	}
 	

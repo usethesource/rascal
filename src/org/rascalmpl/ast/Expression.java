@@ -16,16 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Expression extends AbstractAST {
   public Expression(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -283,6 +282,20 @@ public abstract class Expression extends AbstractAST {
       return node;
     }
   
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
+    }
+  
+    @Override
+    public Result<IValue> interpret(Evaluator __eval) {
+      throw new Ambiguous(node);
+    }
+      
+    @Override
+    public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
+      throw new Ambiguous(node);
+    }
     
     public java.util.List<org.rascalmpl.ast.Expression> getAlternatives() {
       return alternatives;
@@ -330,7 +343,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -339,7 +351,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -380,7 +391,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -389,7 +399,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -430,7 +439,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -439,7 +447,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -519,7 +526,6 @@ public abstract class Expression extends AbstractAST {
       return this.first;
     }
   
-  
     @Override
     public boolean hasFirst() {
       return true;
@@ -529,7 +535,6 @@ public abstract class Expression extends AbstractAST {
       return this.second;
     }
   
-  
     @Override
     public boolean hasSecond() {
       return true;
@@ -538,7 +543,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getLast() {
       return this.last;
     }
-  
   
     @Override
     public boolean hasLast() {
@@ -579,7 +583,6 @@ public abstract class Expression extends AbstractAST {
       return this.pattern;
     }
   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -588,7 +591,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
-  
   
     @Override
     public boolean hasExpression() {
@@ -629,7 +631,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -638,7 +639,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -679,7 +679,6 @@ public abstract class Expression extends AbstractAST {
       return this.pattern;
     }
   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -688,7 +687,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
-  
   
     @Override
     public boolean hasExpression() {
@@ -777,7 +775,6 @@ public abstract class Expression extends AbstractAST {
       return this.type;
     }
   
-  
     @Override
     public boolean hasType() {
       return true;
@@ -786,7 +783,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Name getName() {
       return this.name;
     }
-  
   
     @Override
     public boolean hasName() {
@@ -824,7 +820,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Comprehension getComprehension() {
       return this.comprehension;
     }
-  
   
     @Override
     public boolean hasComprehension() {
@@ -865,8 +860,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -875,8 +868,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
-   
   
     @Override
     public boolean hasRhs() {
@@ -965,7 +956,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -974,7 +964,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Name getField() {
       return this.field;
     }
-  
   
     @Override
     public boolean hasField() {
@@ -1012,7 +1001,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getElements() {
       return this.elements;
     }
-  
   
     @Override
     public boolean hasElements() {
@@ -1053,7 +1041,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1062,7 +1049,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Field> getFields() {
       return this.fields;
     }
-  
   
     @Override
     public boolean hasFields() {
@@ -1103,7 +1089,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -1112,7 +1097,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -1153,7 +1137,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -1162,7 +1145,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -1201,7 +1183,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1238,7 +1219,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getArgument() {
       return this.argument;
     }
-  
   
     @Override
     public boolean hasArgument() {
@@ -1279,7 +1259,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -1288,7 +1267,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -1326,7 +1304,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
       return this.statements;
     }
-  
   
     @Override
     public boolean hasStatements() {
@@ -1367,7 +1344,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1376,7 +1352,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
       return this.arguments;
     }
-  
   
     @Override
     public boolean hasArguments() {
@@ -1417,7 +1392,6 @@ public abstract class Expression extends AbstractAST {
       return this.first;
     }
   
-  
     @Override
     public boolean hasFirst() {
       return true;
@@ -1426,7 +1400,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getLast() {
       return this.last;
     }
-  
   
     @Override
     public boolean hasLast() {
@@ -1467,7 +1440,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1476,7 +1448,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Name getName() {
       return this.name;
     }
-  
   
     @Override
     public boolean hasName() {
@@ -1517,7 +1488,6 @@ public abstract class Expression extends AbstractAST {
       return this.name;
     }
   
-  
     @Override
     public boolean hasName() {
       return true;
@@ -1526,7 +1496,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getPattern() {
       return this.pattern;
     }
-  
   
     @Override
     public boolean hasPattern() {
@@ -1569,7 +1538,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -1579,7 +1547,6 @@ public abstract class Expression extends AbstractAST {
       return this.key;
     }
   
-  
     @Override
     public boolean hasKey() {
       return true;
@@ -1588,7 +1555,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getReplacement() {
       return this.replacement;
     }
-  
   
     @Override
     public boolean hasReplacement() {
@@ -1627,7 +1593,6 @@ public abstract class Expression extends AbstractAST {
       return this.argument;
     }
   
-  
     @Override
     public boolean hasArgument() {
       return true;
@@ -1664,7 +1629,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Literal getLiteral() {
       return this.literal;
     }
-  
   
     @Override
     public boolean hasLiteral() {
@@ -1707,7 +1671,6 @@ public abstract class Expression extends AbstractAST {
       return this.type;
     }
   
-  
     @Override
     public boolean hasType() {
       return true;
@@ -1717,7 +1680,6 @@ public abstract class Expression extends AbstractAST {
       return this.parameters;
     }
   
-  
     @Override
     public boolean hasParameters() {
       return true;
@@ -1726,7 +1688,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
       return this.statements;
     }
-  
   
     @Override
     public boolean hasStatements() {
@@ -1764,7 +1725,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getArgument() {
       return this.argument;
     }
-  
   
     @Override
     public boolean hasArgument() {
@@ -1805,7 +1765,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -1814,7 +1773,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -1852,7 +1810,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Mapping_Expression> getMappings() {
       return this.mappings;
     }
-  
   
     @Override
     public boolean hasMappings() {
@@ -1895,7 +1852,6 @@ public abstract class Expression extends AbstractAST {
       return this.type;
     }
   
-  
     @Override
     public boolean hasType() {
       return true;
@@ -1905,7 +1861,6 @@ public abstract class Expression extends AbstractAST {
       return this.name;
     }
   
-  
     @Override
     public boolean hasName() {
       return true;
@@ -1914,7 +1869,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getPattern() {
       return this.pattern;
     }
-  
   
     @Override
     public boolean hasPattern() {
@@ -1952,7 +1906,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getPattern() {
       return this.pattern;
     }
-  
   
     @Override
     public boolean hasPattern() {
@@ -1993,7 +1946,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2002,7 +1954,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2043,7 +1994,6 @@ public abstract class Expression extends AbstractAST {
       return this.pattern;
     }
   
-  
     @Override
     public boolean hasPattern() {
       return true;
@@ -2052,7 +2002,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getExpression() {
       return this.expression;
     }
-  
   
     @Override
     public boolean hasExpression() {
@@ -2093,7 +2042,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2102,7 +2050,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2143,7 +2090,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2152,7 +2098,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2193,7 +2138,6 @@ public abstract class Expression extends AbstractAST {
       return this.parameters;
     }
   
-  
     @Override
     public boolean hasParameters() {
       return true;
@@ -2202,7 +2146,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
       return this.statements;
     }
-  
   
     @Override
     public boolean hasStatements() {
@@ -2243,7 +2186,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2252,7 +2194,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2293,7 +2234,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2302,7 +2242,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2343,7 +2282,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2352,7 +2290,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2390,7 +2327,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
       return this.generators;
     }
-  
   
     @Override
     public boolean hasGenerators() {
@@ -2431,7 +2367,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2440,7 +2375,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2481,7 +2415,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2490,7 +2423,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2533,7 +2465,6 @@ public abstract class Expression extends AbstractAST {
       return this.condition;
     }
   
-  
     @Override
     public boolean hasCondition() {
       return true;
@@ -2543,7 +2474,6 @@ public abstract class Expression extends AbstractAST {
       return this.thenExp;
     }
   
-  
     @Override
     public boolean hasThenExp() {
       return true;
@@ -2552,7 +2482,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getElseExp() {
       return this.elseExp;
     }
-  
   
     @Override
     public boolean hasElseExp() {
@@ -2593,7 +2522,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -2602,7 +2530,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getSubscripts() {
       return this.subscripts;
     }
-  
   
     @Override
     public boolean hasSubscripts() {
@@ -2643,7 +2570,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2652,7 +2578,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2691,7 +2616,6 @@ public abstract class Expression extends AbstractAST {
       return this.type;
     }
   
-  
     @Override
     public boolean hasType() {
       return true;
@@ -2728,7 +2652,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getPattern() {
       return this.pattern;
     }
-  
   
     @Override
     public boolean hasPattern() {
@@ -2769,7 +2692,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -2778,7 +2700,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Name getName() {
       return this.name;
     }
-  
   
     @Override
     public boolean hasName() {
@@ -2867,7 +2788,6 @@ public abstract class Expression extends AbstractAST {
       return this.symbol;
     }
   
-  
     @Override
     public boolean hasSymbol() {
       return true;
@@ -2876,7 +2796,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getDefinitions() {
       return this.definitions;
     }
-  
   
     @Override
     public boolean hasDefinitions() {
@@ -2917,7 +2836,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -2926,7 +2844,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -2965,7 +2882,6 @@ public abstract class Expression extends AbstractAST {
       return this.elements;
     }
   
-  
     @Override
     public boolean hasElements() {
       return true;
@@ -3002,7 +2918,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
       return this.qualifiedName;
     }
-  
   
     @Override
     public boolean hasQualifiedName() {
@@ -3043,7 +2958,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -3052,7 +2966,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Name getName() {
       return this.name;
     }
-  
   
     @Override
     public boolean hasName() {
@@ -3091,7 +3004,6 @@ public abstract class Expression extends AbstractAST {
       return this.argument;
     }
   
-  
     @Override
     public boolean hasArgument() {
       return true;
@@ -3128,7 +3040,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getElements() {
       return this.elements;
     }
-  
   
     @Override
     public boolean hasElements() {
@@ -3169,7 +3080,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -3178,7 +3088,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -3219,7 +3128,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -3228,7 +3136,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -3295,7 +3202,6 @@ public abstract class Expression extends AbstractAST {
       return this.lhs;
     }
   
-  
     @Override
     public boolean hasLhs() {
       return true;
@@ -3304,7 +3210,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getRhs() {
       return this.rhs;
     }
-  
   
     @Override
     public boolean hasRhs() {
@@ -3343,7 +3248,6 @@ public abstract class Expression extends AbstractAST {
       return this.argument;
     }
   
-  
     @Override
     public boolean hasArgument() {
       return true;
@@ -3380,7 +3284,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.QualifiedName getQualifiedName() {
       return this.qualifiedName;
     }
-  
   
     @Override
     public boolean hasQualifiedName() {
@@ -3419,7 +3322,6 @@ public abstract class Expression extends AbstractAST {
       return this.argument;
     }
   
-  
     @Override
     public boolean hasArgument() {
       return true;
@@ -3456,7 +3358,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getArgument() {
       return this.argument;
     }
-  
   
     @Override
     public boolean hasArgument() {
@@ -3499,7 +3400,6 @@ public abstract class Expression extends AbstractAST {
       return this.init;
     }
   
-  
     @Override
     public boolean hasInit() {
       return true;
@@ -3509,7 +3409,6 @@ public abstract class Expression extends AbstractAST {
       return this.result;
     }
   
-  
     @Override
     public boolean hasResult() {
       return true;
@@ -3518,7 +3417,6 @@ public abstract class Expression extends AbstractAST {
     public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
       return this.generators;
     }
-  
   
     @Override
     public boolean hasGenerators() {
@@ -3559,7 +3457,6 @@ public abstract class Expression extends AbstractAST {
       return this.label;
     }
   
-  
     @Override
     public boolean hasLabel() {
       return true;
@@ -3568,7 +3465,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Visit getVisit() {
       return this.visit;
     }
-  
   
     @Override
     public boolean hasVisit() {
@@ -3611,7 +3507,6 @@ public abstract class Expression extends AbstractAST {
       return this.expression;
     }
   
-  
     @Override
     public boolean hasExpression() {
       return true;
@@ -3621,7 +3516,6 @@ public abstract class Expression extends AbstractAST {
       return this.name;
     }
   
-  
     @Override
     public boolean hasName() {
       return true;
@@ -3630,7 +3524,6 @@ public abstract class Expression extends AbstractAST {
     public org.rascalmpl.ast.Expression getValue() {
       return this.value;
     }
-  
   
     @Override
     public boolean hasValue() {

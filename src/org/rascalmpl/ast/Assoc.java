@@ -16,15 +16,15 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Assoc extends AbstractAST {
   public Assoc(IConstructor node) {
-    super(node);
+    super();
   }
 
   
@@ -42,6 +42,11 @@ public abstract class Assoc extends AbstractAST {
     @Override
     public IConstructor getTree() {
       return node;
+    }
+  
+    @Override
+    public AbstractAST findNode(int offset) {
+      return null;
     }
   
     @Override
