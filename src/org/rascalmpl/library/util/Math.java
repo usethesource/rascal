@@ -158,6 +158,12 @@ public class Math {
 	{
 	  return n.toInteger();
 	}
+	
+	public IValue toReal(IInteger n)
+	//@doc{toReal -- convert a rational value to a integer value.}
+	{
+	  return values.real(n.intValue());
+	}
 
 	
 }
