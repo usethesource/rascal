@@ -117,7 +117,7 @@ LLConstraints toLLConstraints(Constraints cs, list[str] indexVar) =
 	{ toLLConstraint(c,indexVar) | c <- cs }; 
 	
 list[str] getIndexVar(Constraints cons,ObjectiveFun f) =
-	toList({domain(con.coefficients) | con <- cons} 
+	toList({*domain(con.coefficients) | con <- cons} 
 		   + domain(f.coefficients));
 
 
