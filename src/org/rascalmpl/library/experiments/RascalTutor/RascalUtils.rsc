@@ -282,6 +282,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   declarations = [];
   contentMap = ();
   libRoot = root;
+  /*
   println("HERE!");
   println("Name of M is <getName(M)>");
   if(M is Tree)
@@ -303,8 +304,8 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   }
   
   declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
+  */
   
-  /*
   top-down visit(M){
     case Header header: {
        moduleName = normalizeName("<header.name>"); 
@@ -318,7 +319,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
      }
      case Declaration d: { declarations += d; }
   }
-  */
+  
 
   int i = 0;
   while(i < size(declarations)){
