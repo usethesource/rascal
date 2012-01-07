@@ -13,48 +13,73 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.StringWriter;
 
-public class LimitedResultOutputStream extends OutputStream{
+public class LimitedResultWriter extends StringWriter {
 	private final int limit;
-	private final char[] data;
 	private int position;
 	private boolean limitReached;
 	
-	public LimitedResultOutputStream(int limit){
+	public LimitedResultWriter(int limit){
 		super();
-		
 		this.limit = limit;
-		data = new char[limit];
 		position = 0;
-		limitReached = false;
 	}
 	
-	public void write(int b) throws IOException{
-		if(limit == position){
+	@Override
+	public void write(char[] cbuf, int off, int len) {
+		if (position + len >= limit) {
+			super.write(cbuf, off, len - (limit - position));
 			limitReached = true;
 			throw new IOLimitReachedException();
 		}
-		
-		data[position++] = (char) b;
+		position += len;
+		super.write(cbuf, off, len);
+	}
+	
+	@Override
+	public void write(char[] cbuf) throws IOException {
+		write(cbuf, 0, cbuf.length);
+	}
+	
+	@Override
+	public void write(int b) {
+		if (position + 1 >= limit) {
+			limitReached = true;
+			throw new IOLimitReachedException();
+		}
+		position++;
+		super.write(b);
 	}
 	
 	public String toString(){
-		if(limitReached){
-			int length = data.length;
-			data[length - 3] = '.';
-			data[length - 2] = '.';
-			data[length - 1] = '.';
-		}
+		String result = super.toString();
 		
-		return new String(data, 0, position);
+		if (limitReached){
+			return result + "...";
+		}
+		else {
+			return result;
+		}
 	}
 	
-	public static class IOLimitReachedException extends IOException{
+	public static class IOLimitReachedException extends RuntimeException {
 		private static final long serialVersionUID = -1396788285349799099L;
 
 		public IOLimitReachedException(){
 			super("Limit reached");
 		}
 	}
+
+	@Override
+	public void close() throws IOException {
+		
+	}
+
+	@Override
+	public void flush() {
+		
+	}
+
+	
 }

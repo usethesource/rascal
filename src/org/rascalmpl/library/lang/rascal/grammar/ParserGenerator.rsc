@@ -123,8 +123,8 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     
     return "package <package>;
            '
-           'import java.io.ByteArrayInputStream;
            'import java.io.IOException;
+           'import java.io.StringReader;
            '
            'import org.eclipse.imp.pdb.facts.type.TypeFactory;
            'import org.eclipse.imp.pdb.facts.IConstructor;

@@ -36,8 +36,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.utils.LimitedResultOutputStream;
-import org.rascalmpl.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.uptr.Factory;
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
@@ -119,12 +119,15 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	public String toString(int length){
 		StandardTextWriter stw = new StandardTextWriter(true);
-		LimitedResultOutputStream lros = new LimitedResultOutputStream(length);
-		try{
+		LimitedResultWriter lros = new LimitedResultWriter(length);
+		
+		try {
 			stw.write(getValue(), lros);
-		}catch(IOLimitReachedException iolrex){
+		}
+		catch (IOLimitReachedException iolrex){
 			// This is fine, ignore.
-		}catch(IOException ioex){
+		}
+		catch (IOException ioex) {
 			// This can never happen.
 		}
 		

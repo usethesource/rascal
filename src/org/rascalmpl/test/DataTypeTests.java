@@ -406,7 +406,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("\"\\<\" == \"\\<\";"));
 		assertTrue(runTest("\"\\>\" == \"\\>\";"));
 		
-		assertTrue(runTest("\"\\123\" == \"\\123\";"));
+		assertTrue(runTest("\"\\a20\" == \"\\a20\";"));
 	}
 	
 	@Test

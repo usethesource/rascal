@@ -24,8 +24,6 @@ package org.rascalmpl.library;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -33,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -69,8 +69,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
-import org.eclipse.imp.pdb.facts.io.PBFReader;
-import org.eclipse.imp.pdb.facts.io.PBFWriter;
+import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
+import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -749,33 +749,31 @@ public class Prelude {
 	}
 	
 	public void iprint(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
-		try{
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-			w.write(arg, bytes);
-			currentOutStream.print(bytes.toString());
-		} catch (IOException e) {
-			// does not happen in byte array outputstreams
-		}finally{
-			currentOutStream.flush();
+		try {
+			w.write(arg, eval.getStdOut());
+		} 
+		catch (IOException e) {
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
+		}
+		finally{
+			eval.getStdOut().flush();
 		}
 	}
 	
 	public void iprintln(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
-		try{
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream(10000);
-			w.write(arg, bytes);
-			currentOutStream.print(bytes.toString());
-			currentOutStream.println();
-		} catch (IOException e) {
-			// does not happen in byte array outputstreams
-		}finally{
-			currentOutStream.flush();
+		try {
+			w.write(arg, eval.getStdOut());
+			eval.getStdOut().println();
+		} 
+		catch (IOException e) {
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
+		}
+		finally{
+			eval.getStdOut().flush();
 		}
 	}
 	
@@ -2461,7 +2459,7 @@ public class Prelude {
 		InputStream in = null;
 		try{
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			return new PBFReader().read(values, store, start, in);
+			return new BinaryValueReader().read(values, store, start, in);
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}catch(Exception e){
@@ -2485,7 +2483,7 @@ public class Prelude {
 		InputStream in = null;
 		try{
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			return new StandardTextReader().read(values, store, start, in);
+			return new StandardTextReader().read(values, store, start, new InputStreamReader(in, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
@@ -2503,7 +2501,7 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		ByteArrayInputStream in = new ByteArrayInputStream(input.getValue().getBytes());
+		StringReader in = new StringReader(input.getValue());
 		try {
 			return new StandardTextReader().read(values, store, start, in);
 		} catch (FactTypeUseException e) {
@@ -2517,7 +2515,7 @@ public class Prelude {
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false); 
-			new PBFWriter().write(value, out);
+			new BinaryValueWriter().write(value, out);
 		}catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}finally{
@@ -2535,7 +2533,7 @@ public class Prelude {
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
-			new StandardTextWriter().write(value, out);
+			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
