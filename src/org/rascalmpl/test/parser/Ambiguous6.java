@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -184,7 +184,7 @@ public class Ambiguous6 extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "amb({appl(prod(sort(\"S\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\")],{}),[appl(prod(sort(\"B\"),[sort(\"C\")],{}),[appl(prod(sort(\"C\"),[sort(\"D\")],{}),[amb({appl(prod(sort(\"D\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),appl(prod(sort(\"D\"),[sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"F\")],{}),[appl(prod(sort(\"F\"),[sort(\"G\")],{}),[appl(prod(sort(\"G\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])])])})])])])]),appl(prod(sort(\"S\"),[sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"F\")],{}),[appl(prod(sort(\"F\"),[sort(\"G\")],{}),[appl(prod(sort(\"G\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])])])})";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

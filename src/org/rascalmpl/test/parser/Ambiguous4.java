@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -108,7 +108,7 @@ public class Ambiguous4 extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "amb({appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])]),appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[amb({appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])}),amb({appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])])})]),appl(prod(sort(\"S\"),[sort(\"A\"),sort(\"A\")],{}),[appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])]),appl(prod(sort(\"B\"),[lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)])])]),appl(prod(sort(\"A\"),[sort(\"B\"),sort(\"B\")],{}),[appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])]),appl(prod(sort(\"B\"),[lit(\"bb\")],{}),[appl(prod(lit(\"bb\"),[\\char-class([single(98)]),\\char-class([single(98)])],{}),[char(98),char(98)])])])])})";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

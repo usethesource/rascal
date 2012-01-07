@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -78,7 +78,7 @@ public class Sequence1 extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[lit(\"a\"),seq([lit(\"b\"),lit(\"c\")]),lit(\"d\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)]),appl(regular(seq([lit(\"b\"),lit(\"c\")])),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)]),appl(prod(lit(\"c\"),[\\char-class([single(99)])],{}),[char(99)])]),appl(prod(lit(\"d\"),[\\char-class([single(100)])],{}),[char(100)])])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

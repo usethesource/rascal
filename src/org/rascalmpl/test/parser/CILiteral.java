@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -66,7 +66,7 @@ public class CILiteral extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"A\")],{}),[appl(prod(cilit(\"bla\"),[\\char-class([single(98)]),\\char-class([single(108)]),\\char-class([single(97)])],{}),[char(66),char(108),char(97)])])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 
 	public static void main(String[] args){

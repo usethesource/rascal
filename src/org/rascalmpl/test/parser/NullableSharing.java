@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -92,7 +92,7 @@ public class NullableSharing extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"N\"),sort(\"N\")],{}),[appl(prod(sort(\"N\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[empty()],{}),[])]),appl(prod(sort(\"N\"),[sort(\"A\")],{}),[appl(prod(sort(\"A\"),[empty()],{}),[])])])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

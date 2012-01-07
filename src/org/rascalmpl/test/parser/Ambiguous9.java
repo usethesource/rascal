@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -94,7 +94,7 @@ public class Ambiguous9 extends SGTDBF implements IParserTest{
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[sort(\"E\")],{}),[amb({appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])])]),appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[sort(\"E\"),lit(\"+\"),sort(\"E\")],{}),[appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])]),appl(prod(lit(\"+\"),[\\char-class([single(43)])],{}),[char(43)]),appl(prod(sort(\"E\"),[lit(\"1\")],{}),[appl(prod(lit(\"1\"),[\\char-class([single(49)])],{}),[char(49)])])])})])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

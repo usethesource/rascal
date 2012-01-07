@@ -27,8 +27,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.PBFReader;
-import org.eclipse.imp.pdb.facts.io.PBFWriter;
+import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
+import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Module;
@@ -111,7 +111,7 @@ public class MakeBox {
 	private IValue launchRascalProgram(String resultName, boolean richText) {
 		execute("import lang::box::util::Box2Text;");
 		try {
-			IValue v = new PBFReader().read(
+			IValue v = new BinaryValueReader().read(
 					ValueFactoryFactory.getValueFactory(), ts, adt, data.get());
 			store(v, varName);
 			if (resultName == null) {
@@ -135,7 +135,7 @@ public class MakeBox {
 			String ext2) {
 		execute("import lang::box::util::Box2Text;");
 		try {
-			IValue d = new PBFReader().read(values, ts, adt, data.get());
+			IValue d = new BinaryValueReader().read(values, ts, adt, data.get());
 			store(d, "d");
 			ISourceLocation v = values.sourceLocation(src), w = values
 					.sourceLocation(dest);
@@ -241,7 +241,7 @@ public class MakeBox {
 		try {
 			IValue box = computeBox(src);
 			data = new Data();
-			new PBFWriter().write(box, data, ts);
+			new BinaryValueWriter().write(box, data, ts);
 			return launchRascalProgramExport(cmd, src, dest, ext2);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -259,7 +259,7 @@ public class MakeBox {
 		try {
 			IValue box = computeBox(uri);
 			data = new Data();
-			new PBFWriter().write(box, data, ts);
+			new BinaryValueWriter().write(box, data, ts);
 			return text2String(launchRascalProgram("c", true));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -270,7 +270,7 @@ public class MakeBox {
 	public String box2String(IValue box) {
 		data = new Data();
 		try {
-			new PBFWriter().write(box, data, ts);
+			new BinaryValueWriter().write(box, data, ts);
 			return text2String(launchRascalProgram("c", false));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

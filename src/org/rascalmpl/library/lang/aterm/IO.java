@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -82,7 +83,7 @@ public class IO{
 		OutputStream out = null;
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
-			new ATermWriter().write(value, out);
+			new ATermWriter().write(value, new OutputStreamWriter(out, "UTF8"));
 		}catch(IOException e){
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{

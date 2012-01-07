@@ -1,7 +1,7 @@
 package org.rascalmpl.test.parser;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -90,7 +90,7 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[\\iter-seps(sort(\"A\"),[sort(\"Sep\")])],{}),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)})])})])";
-		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new ByteArrayInputStream(expectedInput.getBytes()));
+		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 	
 	public static void main(String[] args){

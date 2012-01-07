@@ -1,7 +1,7 @@
 package org.rascalmpl.library.lang.rascal.syntax;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -26,7 +26,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF {
   
   protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
     try {
-      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new ByteArrayInputStream(s.getBytes()));
+      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.Factory.uptr, type, new StringReader(s));
     }
     catch (FactTypeUseException e) {
       throw new RuntimeException("unexpected exception in generated parser", e);  
