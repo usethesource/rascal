@@ -8,7 +8,7 @@ Syntax:
 # `$constraint$ !<< $Symbol$`
 
 
-where a $constraint$ is any character class, a literal or a keyword non-terminal [Symbol].
+where a $constraint$ is any character class, a literal or a keyword non-terminal [$SyntaxDefinition/Symbol].
 
 Types:
 

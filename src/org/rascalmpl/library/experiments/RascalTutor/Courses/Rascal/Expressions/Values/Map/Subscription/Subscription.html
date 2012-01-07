@@ -74,41 +74,15 @@
 
 <pre class="screen"><b>rascal></b>colors = (&quot;hearts&quot;:&quot;red&quot;, &quot;clover&quot;:&quot;black&quot;, 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;          &quot;trumps&quot;:&quot;black&quot;, &quot;clubs&quot;:&quot;red&quot;);
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///       1..2       3   100.0%  |prompt:///|(0,88,&lt;1,0&gt;,&lt;2,43&gt;
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///       1..2       3   100.0%  |prompt:///|(0,88,&lt;1,0&gt;,&lt;2,43&gt;
 map[str, str]: (&quot;clubs&quot;:&quot;red&quot;,&quot;clover&quot;:&quot;black&quot;,&quot;hearts&quot;:&quot;red&quot;,&quot;trumps&quot;:&quot;black&quot;)
 <b>rascal></b>colors[&quot;trumps&quot;];
-PROFILE: 1 data points, 5 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       5   100.0%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
-PROFILE: 1 data points, 5 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       5   100.0%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
 str: &quot;black&quot;
 </pre>
   Explore some erroneous subscription expressions:
 
 <pre class="screen"><b>rascal></b>colors[0];
-PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       7   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
-PROFILE: 1 data points, 7 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       7   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 Static Error: prompt:///:1,0: Expected str, but got int
 <b>rascal></b>colors[&quot;square&quot;];
-PROFILE: 2 data points, 90 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      88    97.8%  |prompt:///|(7,8,&lt;1,7&gt;,&lt;1,15&gt;)
-prompt:///          1       2     2.2%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
-PROFILE: 2 data points, 90 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      88    97.8%  |prompt:///|(7,8,&lt;1,7&gt;,&lt;1,15&gt;)
-prompt:///          1       2     2.2%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
 Uncaught Rascal Exception: prompt:///:1,7: NoSuchKey(&quot;square&quot;)
     somewhere in: $shell$
 </pre>

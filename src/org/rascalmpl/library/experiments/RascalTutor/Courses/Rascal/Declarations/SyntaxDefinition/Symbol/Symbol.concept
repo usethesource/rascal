@@ -36,7 +36,7 @@ The following operations on character classes can be composed arbitrarily:
 
 
 
-The following regular expressions can be constructed over [Symbol]s:
+The following regular expressions can be constructed over [$SyntaxDefinition/Symbol]s:
 
 
 | Symbol                             | Description                                                         |
@@ -85,7 +85,7 @@ Then we have literals and character classes to define the _terminals_ of a gramm
 Character classes have the same escaping conventions as characters in a [$Values/String] literal, but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets as well as the dash `-` need escaping. For example, one writes `[\[ \] \ \n\-]` for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
 * the operations on character classes are executed before parser generation time. You will not find explicit representation of these operations in [ParseTrees], but rather their net effect as resulting character classes. 
 * Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.
-* Although all [Symbol]s are type constructors, the character class operators are not allowed in types.
+* Although all [$SyntaxDefinition/Symbol]s are type constructors, the character class operators are not allowed in types.
 
 
 The other symbols either _generate_ for you parts of the construction of a grammar, or they _constrain_ the rules of the grammar to generate a smaller set of trees as [Disambiguation]s.

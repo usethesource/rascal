@@ -82,66 +82,32 @@
   A list comprehension:
 
 <pre class="screen"><b>rascal></b>[ 3 * X | int X &lt;- [1 .. 10] ];
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,31,&lt;1,0&gt;,&lt;1,31&gt;
 list[int]: [3,6,9,12,15,18,21,24,27,30]
 </pre>
   A list comprehension with a filter:
 
 <pre class="screen"><b>rascal></b>[ 3 * X | int X &lt;- [1 .. 10], X &gt; 5];
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,37,&lt;1,0&gt;,&lt;1,37&gt;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,37,&lt;1,0&gt;,&lt;1,37&gt;
 list[int]: [18,21,24,27,30]
 </pre>
   A list comprehension with multiple contributing expressions:
 
 <pre class="screen"><b>rascal></b>[X, X * X | int X &lt;- [1, 2, 3, 4, 5], X &gt;= 3];
-PROFILE: 1 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       6   100.0%  |prompt:///|(0,46,&lt;1,0&gt;,&lt;1,46&gt;
-PROFILE: 1 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       6   100.0%  |prompt:///|(0,46,&lt;1,0&gt;,&lt;1,46&gt;
 list[int]: [3,9,4,16,5,25]
 </pre>
   A set comprehension with a filter:
 
 <pre class="screen"><b>rascal></b>{X | int X &lt;- {1, 2, 3, 4, 5}, X &gt;= 3};
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,39,&lt;1,0&gt;,&lt;1,39&gt;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,39,&lt;1,0&gt;,&lt;1,39&gt;
 set[int]: {5,4,3}
 </pre>
   A set comprehension that constructs a relation:
 
 <pre class="screen"><b>rascal></b>{&lt;X, Y&gt; | int X &lt;- {1, 2, 3}, int Y &lt;- {2, 3, 4}, X &gt;= Y};
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,58,&lt;1,0&gt;,&lt;1,58&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,58,&lt;1,0&gt;,&lt;1,58&gt;
 rel[int, int]: {
   &lt;2,2&gt;,
   &lt;3,3&gt;,
   &lt;3,2&gt;
 }
 <b>rascal></b>{&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- {&lt;1,10&gt;, &lt;2,20&gt;}};
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 rel[int, int]: {
   &lt;20,2&gt;,
   &lt;10,1&gt;
@@ -150,26 +116,8 @@ rel[int, int]: {
   Introduce a map of <code>fruits</code> and use a map comprehension to filter fruits with an associated value larger than 10:
 
 <pre class="screen"><b>rascal></b>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
-PROFILE: 4 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1    25.0%  |prompt:///|(0,77,&lt;1,0&gt;,&lt;1,77&gt;
-prompt:///          1       1    25.0%  |prompt:///|(35,8,&lt;1,35&gt;,&lt;1,43
-prompt:///          1       1    25.0%  |prompt:///|(63,8,&lt;1,63&gt;,&lt;1,71
-prompt:///          1       1    25.0%  |prompt:///|(49,7,&lt;1,49&gt;,&lt;1,56
-PROFILE: 4 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1    25.0%  |prompt:///|(0,77,&lt;1,0&gt;,&lt;1,77&gt;
-prompt:///          1       1    25.0%  |prompt:///|(35,8,&lt;1,35&gt;,&lt;1,43
-prompt:///          1       1    25.0%  |prompt:///|(63,8,&lt;1,63&gt;,&lt;1,71
-prompt:///          1       1    25.0%  |prompt:///|(49,7,&lt;1,49&gt;,&lt;1,56
 map[str, int]: (&quot;orange&quot;:35,&quot;apple&quot;:3,&quot;pear&quot;:1,&quot;berry&quot;:25,&quot;banana&quot;:0)
 <b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,62,&lt;1,0&gt;,&lt;1,62&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,62,&lt;1,0&gt;,&lt;1,62&gt;
 map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
 </pre> See <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a>, <a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Set/Comprehension</a>, or <a href="/Courses/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Map/Comprehension</a> for more examples.
 

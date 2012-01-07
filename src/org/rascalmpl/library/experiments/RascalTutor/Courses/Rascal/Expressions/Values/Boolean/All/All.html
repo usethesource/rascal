@@ -72,23 +72,11 @@
   Are all integers 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 even?
 
 <pre class="screen"><b>rascal></b>all(int n &lt;- [1 .. 10], n % 2 == 0);
-PROFILE: 1 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       6   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
-PROFILE: 1 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       6   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
 bool: false
 </pre>
   Are all integers 0, 2, 4, 6, 8, 10 even?
 
 <pre class="screen"><b>rascal></b>all(int n &lt;- [0, 2 .. 10], n % 2 == 0);
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,39,&lt;1,0&gt;,&lt;1,39&gt;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,39,&lt;1,0&gt;,&lt;1,39&gt;
 bool: true
 </pre>
 </div>
@@ -98,12 +86,6 @@ bool: true
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  When one of the <code><i>Exp</i><sub>i</sub></code> enumerates the elements of an empty list, <code>all</code> always returns <code>false</code>:
  <pre class="screen"><b>rascal></b>all(int n &lt;- [], n &gt; 0);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,24,&lt;1,0&gt;,&lt;1,24&gt;
 bool: false
 </pre>
 </div>

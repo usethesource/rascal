@@ -112,62 +112,31 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Locations with specific position information should always be generated automatically but for the curious here is an example:
  <pre class="screen"><b>rascal></b>|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
 </pre> Note that this is equivalent to using the <code>home</code> scheme:
  <pre class="screen"><b>rascal></b>|home://pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |home://pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
 </pre> Accessing a file <code>META-INF/MANIFEST.MF</code> in a project with the name <code>org.eclipse.imp.pdb.values</code> in the currently running Eclipse is done as follows:
  <pre class="screen"><b>rascal></b>|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
 </pre> Reading the <code>demo/Hello.rsc</code> from the Rascal library can be done using:
  <pre class="screen"><b>rascal></b>|std://demo/basic/Hello.rsc|
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |std://demo/basic/Hello.rsc|
 </pre> You could read a webpage:
  <pre class="screen"><b>rascal></b>import IO;
-PROFILE: 1 data points, 297 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     297   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 ok
 <b>rascal></b>readFileLines(|http://www.rascal-mpl.org|)
-PROFILE: 1 data points, 970 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     970   100.0%  |prompt:///|(0,42,&lt;1,0&gt;,&lt;1,42&gt;
 list[str]: [&quot;\&lt;!DOCTYPE html PUBLIC \&quot;-//W3C//DTD XHTML 1.0 Strict//EN\&quot;&quot;,&quot;\t \&quot;http://www.w3.org/TR/xhtml1/DT&raquo;
 D/xhtml1-strict.dtd\&quot;\&gt;&quot;,&quot;\&lt;p /\&gt;&quot;,&quot;\&lt;html xmlns=\&quot;http://www.w3.org/1999/xhtml\&quot; xml:lang=\&quot;en\&quot; ...
 </pre> Addition on locations creates longer paths:
  <pre class="screen"><b>rascal></b>x = |tmp://myTempDirectory|;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,28,&lt;1,0&gt;,&lt;1,28&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,28,&lt;1,0&gt;,&lt;1,28&gt;
 loc: |tmp://myTempDirectory|
 <b>rascal></b>x += &quot;myTempFile.txt&quot;;
-PROFILE: 2 data points, 56 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      55    98.2%  |prompt:///|(5,16,&lt;1,5&gt;,&lt;1,21&gt;
-prompt:///          1       1     1.8%  |prompt:///|(0,22,&lt;1,0&gt;,&lt;1,22&gt;
-PROFILE: 2 data points, 56 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      55    98.2%  |prompt:///|(5,16,&lt;1,5&gt;,&lt;1,21&gt;
-prompt:///          1       1     1.8%  |prompt:///|(0,22,&lt;1,0&gt;,&lt;1,22&gt;
 loc: |tmp://myTempDirectory/myTempFile.txt|
 </pre> Check the contents of a folder:
  <pre class="screen"><b>rascal></b>|std:///|.ls
-PROFILE: 1 data points, 61 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      61   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 list[loc]: [|std:///.project|,|std:///.svn|,|std:///Ambiguity.rsc|,|std:///APIGen.rsc|,|std:///ATermIO.rsc|,|s&raquo;
-td:///AUT.rsc|,|std:///Benchmark.rsc|,|std:///Boolean.class|,|std:///Boolean.java|,|std:///Boolean...
+td:///AUT.rsc|,|std:///Benchmark.rsc|,|std:///Boolean.rsc|,|std:///box|,|std:///DateTime.rsc|,|std...
 </pre>
 </div>
 

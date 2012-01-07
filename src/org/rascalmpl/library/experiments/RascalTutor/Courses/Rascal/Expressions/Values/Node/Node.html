@@ -94,23 +94,11 @@
   A node with name "my_node" and three arguments
 
 <pre class="screen"><b>rascal></b>&quot;my_node&quot;(1, true, &quot;abc&quot;);
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       3   100.0%  |prompt:///|(0,26,&lt;1,0&gt;,&lt;1,26&gt;
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       3   100.0%  |prompt:///|(0,26,&lt;1,0&gt;,&lt;1,26&gt;
 node: my_node(1,true,&quot;abc&quot;)
 </pre>
   A nested node structure:
 
 <pre class="screen"><b>rascal></b>&quot;my_node1&quot;(1, &quot;my_node2&quot;(3.5, [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]), true);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(41,3,&lt;1,41&gt;,&lt;1,44
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(41,3,&lt;1,41&gt;,&lt;1,44
 node: my_node1(
   1,
   my_node2(

@@ -69,11 +69,6 @@
  <pre class="screen"><b>rascal></b>rel[str day, int daynum, int length] Traffic = 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;{&lt;&quot;mon&quot;, 1, 100&gt;, &lt;&quot;tue&quot;, 2, 150&gt;, &lt;&quot;wed&quot;, 3, 125&gt;, 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; &lt;&quot;thur&quot;, 4, 110&gt;, &lt;&quot;fri&quot;, 5, 90&gt;};
-PROFILE: 3 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          3       1    33.3%  |prompt:///|(121,5,&lt;3,20&gt;,&lt;3,2
-prompt:///          2       1    33.3%  |prompt:///|(84,5,&lt;2,36&gt;,&lt;2,41
-prompt:///          2       1    33.3%  |prompt:///|(50,5,&lt;2,2&gt;,&lt;2,7&gt;)
 rel[str day, int daynum, int length]: {
   &lt;&quot;wed&quot;,3,125&gt;,
   &lt;&quot;mon&quot;,1,100&gt;,
@@ -82,12 +77,6 @@ rel[str day, int daynum, int length]: {
   &lt;&quot;tue&quot;,2,150&gt;
 }
 <b>rascal></b>Traffic&lt;length,daynum&gt;;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,23,&lt;1,0&gt;,&lt;1,23&gt;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,23,&lt;1,0&gt;,&lt;1,23&gt;
 rel[int length, int daynum]: {
   &lt;150,2&gt;,
   &lt;100,1&gt;,
@@ -96,12 +85,6 @@ rel[int length, int daynum]: {
   &lt;90,5&gt;
 }
 <b>rascal></b>Traffic&lt;2,day&gt;;
-PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
-PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
 rel[int length, str day]: {
   &lt;100,&quot;mon&quot;&gt;,
   &lt;90,&quot;fri&quot;&gt;,

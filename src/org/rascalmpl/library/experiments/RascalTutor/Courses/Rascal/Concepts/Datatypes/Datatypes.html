@@ -118,92 +118,32 @@
           ;
 </pre> Here are some examples how Rascal responds to values of the above built-in datatypes:
  <pre class="screen"><b>rascal></b>true;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
 bool: true
 <b>rascal></b>101;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 int: 101
 <b>rascal></b>3.14;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,5,&lt;1,0&gt;,&lt;1,5&gt;):
 real: 3.14
 <b>rascal></b>&quot;Rascal&quot;;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
 str: &quot;Rascal&quot;
 <b>rascal></b>|file:///etc/passwd|;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |file:///etc/passwd|
 <b>rascal></b>$2101-09-05;
-PROFILE: 1 data points, 192 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     192   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
-PROFILE: 1 data points, 192 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     192   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 datetime: $2101-09-05
 <b>rascal></b>[30, 20, 10];
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [30,20,10]
 <b>rascal></b>&lt;&quot;Rascal&quot;, 100000&gt;;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 tuple[str,int]: &lt;&quot;Rascal&quot;,100000&gt;
 <b>rascal></b>{&quot;apples&quot;, &quot;oranges&quot;, &quot;bananas&quot;};
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,33,&lt;1,0&gt;,&lt;1,33&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,33,&lt;1,0&gt;,&lt;1,33&gt;
 set[str]: {&quot;bananas&quot;,&quot;apples&quot;,&quot;oranges&quot;}
 <b>rascal></b>{&lt;&quot;apples&quot;, 10, 15&gt;, &lt;&quot;oranges&quot;, 5, 7&gt;, &lt;&quot;bananas&quot;, 9, 11&gt;};
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 rel[str, int, int]: {
   &lt;&quot;bananas&quot;,9,11&gt;,
   &lt;&quot;oranges&quot;,5,7&gt;,
   &lt;&quot;apples&quot;,10,15&gt;
 }
 <b>rascal></b>(&quot;apples&quot; : 100, &quot;oranges&quot;: 150, &quot;bananas&quot;: 75);
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 map[str, int]: (&quot;bananas&quot;:75,&quot;apples&quot;:100,&quot;oranges&quot;:150)
 <b>rascal></b>&quot;abc&quot;(1, 2, 3);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
 node: abc(1,2,3)
 </pre>
 </div>

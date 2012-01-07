@@ -93,56 +93,27 @@
   We can assign an integer value to an integer variable:
 
 <pre class="screen"><b>rascal></b>int i = 3;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 int: 3
 </pre>
   But assigning a string value gives an error:
 
 <pre class="screen"><b>rascal></b>int j = &quot;abc&quot;;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 Static Error: prompt:///:1,4: Expected int, but got str
 </pre>
   The <code>num</code> type accepts integer and real values:
 
 <pre class="screen"><b>rascal></b>num n = i;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(8,5,&lt;1,8&gt;,&lt;1,13&gt;)
 num: 3
 <b>rascal></b>n = 3.14;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
 num: 3.14
 </pre>
   A variable of type <code>value</code> accepts all possible values:
 
 <pre class="screen"><b>rascal></b>value v = true;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,9,&lt;1,0&gt;,&lt;1,9&gt;):
 value: true
 <b>rascal></b>v = &quot;abc&quot;;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 value: &quot;abc&quot;
 <b>rascal></b>v = [1, 2, 3];
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 value: [1,2,3]
 </pre>
 </div>

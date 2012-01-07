@@ -82,7 +82,10 @@
 ok
 <b>rascal></b>invertUnique((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;orange&quot;: 3));
 map[int, str]: (3:&quot;orange&quot;,2:&quot;pear&quot;,1:&quot;apple&quot;)
-<b>rascal></b>invertUnique((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;orange&quot;: 1));
+</pre>
+ Here is an examples that generates an exception:
+
+<pre class="screen"><b>rascal></b>invertUnique((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;orange&quot;: 1));
 Uncaught Rascal Exception: prompt:///:1,37: MultipleKey(1)
     somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.invertUnique(org.eclip&raquo;
 se.imp.pdb.facts.IMap)

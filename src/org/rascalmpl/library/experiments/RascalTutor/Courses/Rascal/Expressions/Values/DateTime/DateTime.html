@@ -114,66 +114,24 @@
  Examples of <code>datetime</code> values are:
 
 <pre class="screen"><b>rascal></b>$2010-07-15;
-PROFILE: 1 data points, 11 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      11   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
-PROFILE: 1 data points, 11 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      11   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 datetime: $2010-07-15
 <b>rascal></b>$T09:15:23.123;
-PROFILE: 1 data points, 61 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      61   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
-PROFILE: 1 data points, 61 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      61   100.0%  |prompt:///|(0,15,&lt;1,0&gt;,&lt;1,15&gt;
 datetime: $T09:15:23.123+0100
 </pre>
   Now introduce a <code>datetime</code> value and assign it to <code>DT</code>.
 
 <pre class="screen"><b>rascal></b>DT = $2010-07-15T09:15:23.123+03:00;
-PROFILE: 1 data points, 10 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      10   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
-PROFILE: 1 data points, 10 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      10   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
 datetime: $2010-07-15T08:15:23.123+0200
 </pre>
   Here are examples of some <code>datatime</code> fields:
 
 <pre class="screen"><b>rascal></b>DT.isDateTime;
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       3   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
-PROFILE: 1 data points, 3 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       3   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 bool: true
 <b>rascal></b>DT.justDate;
-PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
-PROFILE: 1 data points, 4 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 datetime: $2010-07-15
 <b>rascal></b>DT.justTime;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,12,&lt;1,0&gt;,&lt;1,12&gt;
 datetime: $T07:15:23.123+0100
 <b>rascal></b>DT.century;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,11,&lt;1,0&gt;,&lt;1,11&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,11,&lt;1,0&gt;,&lt;1,11&gt;
 int: 20
 </pre>
 </div>

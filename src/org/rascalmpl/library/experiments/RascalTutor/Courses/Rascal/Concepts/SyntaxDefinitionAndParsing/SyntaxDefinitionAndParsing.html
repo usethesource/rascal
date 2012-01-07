@@ -96,24 +96,10 @@ start syntax Exp
   ;
 </pre> Now you may parse and manipulate programs in the EXP language. Let's demonstrate parsing an expression:
  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
-PROFILE: 1 data points, 716 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     716   100.0%  |prompt:///|(0,53,&lt;1,0&gt;,&lt;1,53&gt;
 ok
 <b>rascal></b>import ParseTree;
-PROFILE: 1 data points, 635 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     635   100.0%  |prompt:///|(0,17,&lt;1,0&gt;,&lt;1,17&gt;
 ok
 <b>rascal></b>parse(#start[Exp], &quot;2+3*4&quot;);
-PROFILE: 2 data points, 43565 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1   39954    91.7%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
-prompt:///          1    3611     8.3%  |prompt:///|(19,7,&lt;1,19&gt;,&lt;1,26
-PROFILE: 2 data points, 43565 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1   39954    91.7%  |prompt:///|(0,27,&lt;1,0&gt;,&lt;1,27&gt;
-prompt:///          1    3611     8.3%  |prompt:///|(19,7,&lt;1,19&gt;,&lt;1,26
 `2+3*4`
 start[Exp]: appl(
   prod(
@@ -130,8 +116,6 @@ start[Exp]: appl(
     appl(
       prod(
     ...
-
-*** Rascal killed after timeout ***
 </pre> First we import the syntax definition and the  <a href="/Courses/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> module that provides the parsing functionality.
  Finally, we parse <code>2+3*4</code> using the start symbol <code>Exp</code>.
  <br/>
@@ -158,7 +142,7 @@ start[Exp]: appl(
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/SyntaxDefinitionAndParsing&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/SyntaxDefinitionAndParsing&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

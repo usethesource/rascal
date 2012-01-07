@@ -81,20 +81,11 @@
   and constructor functions <code>conj</code> and <code>disj</code>.
 
 <pre class="screen"><b>rascal></b>data Bool = tt() | ff() | conj(Bool L, Bool R)  | disj(Bool L, Bool R);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,71,&lt;1,0&gt;,&lt;1,71&gt;
 ok
 </pre>
   terms of type <code>Bool</code> can be constructed using the defined constructors:
 
 <pre class="screen"><b>rascal></b>conj(tt(),ff());
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,16,&lt;1,0&gt;,&lt;1,16&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,16,&lt;1,0&gt;,&lt;1,16&gt;
 Bool: conj(
   tt(),
   ff())

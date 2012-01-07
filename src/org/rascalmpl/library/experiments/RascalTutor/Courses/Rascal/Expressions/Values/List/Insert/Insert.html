@@ -69,17 +69,10 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>1 + []
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [1]
 <b>rascal></b>1 + [2]
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [1,2]
 <b>rascal></b>1 + [2,3]
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,7,&lt;1,0&gt;,&lt;1,7&gt;):
 list[int]: [1,2,3]
 </pre>
 </div>
@@ -93,15 +86,11 @@ list[int]: [1,2,3]
   This is concatenation:
 
 <pre class="screen"><b>rascal></b>[1] + [2]
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [1,2]
 </pre>
   To insert a list as an element, use extra brackets:
 
 <pre class="screen"><b>rascal></b>[[1]] + [2]
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[value]: [
   [1],
   2

@@ -70,16 +70,9 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>|tmp:///myDir| + &quot;myFile&quot;;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 loc: |tmp:///myDir/myFile|
 </pre> To get the original back, you can use the <code>parent</code> field:
  <pre class="screen"><b>rascal></b>(|tmp:///myDir| + &quot;myFile&quot;).parent
-PROFILE: 1 data points, 10 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1      10   100.0%  |prompt:///|(0,34,&lt;1,0&gt;,&lt;1,34&gt;
 loc: |tmp:///myDir|
 </pre>
 </div>

@@ -76,49 +76,23 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  First we, create a list value and assign it to two variables <code>L</code> and <code>M</code>.
  <pre class="screen"><b>rascal></b>L = [1, 2, 3];
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 list[int]: [1,2,3]
 <b>rascal></b>M = L;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
 list[int]: [1,2,3]
 </pre>
   Next we assign a new value to the first element of the list. The effect is that a new list value <code>[10, 2, 3]</code> is constructed.
 
 <pre class="screen"><b>rascal></b>L[0] = 10;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 list[int]: [10,2,3]
 </pre>
   L is now associated with this new value:
 
 <pre class="screen"><b>rascal></b>L;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [10,2,3]
 </pre>
   But <code>M</code> is still associated with the original, unmodified, value.
 
 <pre class="screen"><b>rascal></b>M;
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 list[int]: [1,2,3]
 </pre>
   In pointer-based languages and in object-oriented languages the change to the original value of <code>L</code> would also be visible
@@ -126,62 +100,21 @@ list[int]: [1,2,3]
 
  String values are, like all other values, also immutable. Let's experiment with the <a href="/Courses/Rascal/Libraries/Prelude/String/replaceAll/replaceAll.html">replaceAll</a> function:
  <pre class="screen"><b>rascal></b>import String;
-PROFILE: 1 data points, 134 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1     134   100.0%  |prompt:///|(0,14,&lt;1,0&gt;,&lt;1,14&gt;
 ok
 <b>rascal></b>replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,36,&lt;1,0&gt;,&lt;1,36&gt;
 str: &quot;AbrAcAdAbrA&quot;
 </pre>
   Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
 
 <pre class="screen"><b>rascal></b>S = &quot;abracadabra&quot;;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,18,&lt;1,0&gt;,&lt;1,18&gt;
 str: &quot;abracadabra&quot;
 <b>rascal></b>T = S;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,6,&lt;1,0&gt;,&lt;1,6&gt;):
 str: &quot;abracadabra&quot;
 <b>rascal></b>S = replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
-PROFILE: 2 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4    66.7%  |prompt:///|(4,35,&lt;1,4&gt;,&lt;1,39&gt;
-prompt:///          1       2    33.3%  |prompt:///|(0,40,&lt;1,0&gt;,&lt;1,40&gt;
-PROFILE: 2 data points, 6 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4    66.7%  |prompt:///|(4,35,&lt;1,4&gt;,&lt;1,39&gt;
-prompt:///          1       2    33.3%  |prompt:///|(0,40,&lt;1,0&gt;,&lt;1,40&gt;
 str: &quot;AbrAcAdAbrA&quot;
 <b>rascal></b>S;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
 str: &quot;AbrAcAdAbrA&quot;
 <b>rascal></b>T;
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
-PROFILE: 1 data points, 2 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       2   100.0%  |prompt:///|(0,2,&lt;1,0&gt;,&lt;1,2&gt;):
 str: &quot;abracadabra&quot;
 </pre> To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
 

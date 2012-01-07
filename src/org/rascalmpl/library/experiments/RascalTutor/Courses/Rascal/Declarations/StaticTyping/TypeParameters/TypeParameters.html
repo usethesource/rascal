@@ -80,22 +80,10 @@
  The following function <code>swap</code> returns a tuple in which its arguments are swapped and can be applied to arbitrary values 
  in a type safe manner:
  <pre class="screen"><b>rascal></b>tuple[&amp;B, &amp;A] swap(&amp;A a, &amp;B b) { return &lt;b, a&gt;; }
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 tuple[&amp;B,&amp;A] (&amp;A, &amp;B): tuple[&amp;B,&amp;A] swap(&amp;A, &amp;B);
 <b>rascal></b>swap(1,2);
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,10,&lt;1,0&gt;,&lt;1,10&gt;
 tuple[int,int]: &lt;2,1&gt;
 <b>rascal></b>swap(&quot;abc&quot;, 3);
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 tuple[int,str]: &lt;3,&quot;abc&quot;&gt;
 </pre> Observe that the type parameters that are used in the return type should be defined in the declarations of the formal parameter of the function.
  <br/>
@@ -103,22 +91,14 @@ tuple[int,str]: &lt;3,&quot;abc&quot;&gt;
 
  An <a href="/Courses/Rascal/Declarations/Alias/Alias.html">Alias</a> declaration may also be parameterized. So we can generalize graphs as follows:
  <pre class="screen"><b>rascal></b>alias Graph[&amp;Node] = rel[&amp;Node, &amp;Node];
-PROFILE: 0 data points, 0 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
 ok
 <b>rascal></b>Graph[int] GI = {&lt;1,2&gt;, &lt;3,4&gt;, &lt;4,1&gt;};
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,39,&lt;1,0&gt;,&lt;1,39&gt;
 Graph[int]: {
   &lt;1,2&gt;,
   &lt;3,4&gt;,
   &lt;4,1&gt;
 }
 <b>rascal></b>Graph[str] GS = {&lt;&quot;a&quot;, &quot;b&quot;&gt;, &lt;&quot;c&quot;,&quot;d&quot;&gt;, &lt;&quot;d&quot;, &quot;a&quot;&gt;};
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,38,&lt;1,0&gt;,&lt;1,38&gt;
 Graph[str]: {
   &lt;&quot;a&quot;,&quot;b&quot;&gt;,
   &lt;&quot;c&quot;,&quot;d&quot;&gt;,

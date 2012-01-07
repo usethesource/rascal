@@ -93,22 +93,8 @@
 <li> <code>int N &lt;- 17</code>, will only generate the value <code>17</code>.</li>
 </ul> Here are examples of enumerators in action:
  <pre class="screen"><b>rascal></b>[ N * N | int N &lt;- [1, 2, 3, 4, 5] ];
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,37,&lt;1,0&gt;,&lt;1,37&gt;
-PROFILE: 1 data points, 1 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       1   100.0%  |prompt:///|(0,37,&lt;1,0&gt;,&lt;1,37&gt;
 list[int]: [1,4,9,16,25]
 <b>rascal></b>{&lt;N, K&gt; | &lt;str K, int N&gt; &lt;- {&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;}};
-PROFILE: 2 data points, 5 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4    80.0%  |prompt:///|(0,60,&lt;1,0&gt;,&lt;1,60&gt;
-prompt:///          1       1    20.0%  |prompt:///|(50,3,&lt;1,50&gt;,&lt;1,53
-PROFILE: 2 data points, 5 ticks, tick = 1 milliSecs
- Source File      Lines   Ticks        %  Source
-prompt:///          1       4    80.0%  |prompt:///|(0,60,&lt;1,0&gt;,&lt;1,60&gt;
-prompt:///          1       1    20.0%  |prompt:///|(50,3,&lt;1,50&gt;,&lt;1,53
 rel[int, str]: {
   &lt;20,&quot;b&quot;&gt;,
   &lt;10,&quot;a&quot;&gt;,

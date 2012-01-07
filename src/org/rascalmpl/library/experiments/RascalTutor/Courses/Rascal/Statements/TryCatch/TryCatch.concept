@@ -20,7 +20,7 @@ Function:
 Details:
 
 Description:
-A try catch statement has as purpose to catch any [Exception]s that are raised during the execution of $Statement_1$.
+A try catch statement has as purpose to catch any [$Prelude/Exception]s that are raised during the execution of $Statement_1$.
 These exceptions may caused by:
 
 * The execution of an explicit [Throw] statement.
