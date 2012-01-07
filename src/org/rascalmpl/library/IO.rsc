@@ -221,7 +221,7 @@ List the entries in directory `file`.
 
 Examples:
 
-<screen>
+<screen errors>
 import IO;
 // List all entries in the standard library:
 listEntries(|std:///|);
