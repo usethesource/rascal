@@ -86,16 +86,9 @@ public final class StringUtils {
 					b = '>';
 					break;
 				
-				case '0':
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
+				case 'a':
 					StringBuilder a = new StringBuilder();
-					a.append(chars[i]);
+					a.append(chars[++i]);
 					a.append(chars[++i]);
 					b = (char) Integer.parseInt(a.toString(), 16);
 					break;
