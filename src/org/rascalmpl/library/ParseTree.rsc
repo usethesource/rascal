@@ -283,7 +283,7 @@ Description:
 In all the above cases, the parse tree may contain error nodes.
 
 Examples:
-<screen>
+<screen errors>
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
 // First, parse an incorrect expression and get an error message:

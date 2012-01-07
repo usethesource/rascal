@@ -158,6 +158,7 @@ function produces the dynamic type of a value, represented by a symbol.
 
 Examples:
 <screen>
+import Type;
 value x = 1;
 typeOf(x)
 </screen>

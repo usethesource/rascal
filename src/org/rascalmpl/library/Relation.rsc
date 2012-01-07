@@ -342,7 +342,7 @@ range({<"mon", 1>, <"tue", 2>});
 
 Questions:
 
-QUse: Rascal/Expressions/Values/Relation/domain 1
+QUse: Rascal/Libraries/Prelude/Relation/domain 1
 
 }
 public set[&T1] range (rel[&T0,&T1] R)

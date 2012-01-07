@@ -36,15 +36,15 @@ public real min(real n, real m)
 
 @doc{Convert a real to integer.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java int toInt(real d);
+public java int toInt(num d);
 
 @doc{Convert a real to a string.}
 @javaClass{org.rascalmpl.library.util.Math}
-public java str toString(real d);
+public java str toString(num d);
 
 @doc{Round to the nearest integer}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real round(real d);
+public java real round(num d);
 
 @doc{Returns the constant PI}
 @javaClass{org.rascalmpl.library.util.Math}
@@ -56,43 +56,43 @@ public java real E();
 
 @doc{Computes the power of x by y}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real pow(real x, int y);
+public java real pow(num x, int y);
 
 @doc{Computes exp(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real exp(real x);
+public java real exp(num x);
 
 @doc{Computes sin(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real sin(real x);
+public java real sin(num x);
 
 @doc{Computes cos(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real cos(real x);
+public java real cos(num x);
 
 @doc{Computes tan(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real tan(real x);
+public java real tan(num x);
 
 @doc{Computes sqrt(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real sqrt(real x);
+public java real sqrt(num x);
 
 @doc{Computes the n-th root of x}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real nroot(real x, int n);
+public java real nroot(num x, int n);
 
 @doc{Computes the natural ln(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real ln(real x);
+public java real ln(num x);
 
 @doc{Computes the log_base(x)}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real log(real x, real base);
+public java real log(num x, num base);
 
 @doc{Computes the 10 based log(x)}
-public real log10(real x) = log(x, 10.0);
+public real log10(num x) = log(x, 10.0);
 
 @doc{Computes the 2 based log(x)}
-public real log2(real x) = log(x, 2.0);
+public real log2(num x) = log(x, 2.0);
 

@@ -127,12 +127,13 @@ the `MultipleKey` exception is raised since
 an attempt is made to create a map where more than one 
 value would be associated with the same key.
 
-Also see [Map/invert] and [Exception].
+Also see [Map/invert] and [$Prelude/Exception].
 
 Examples:
 <screen errors>
 import Map;
 invertUnique(("apple": 1, "pear": 2, "orange": 3));
+//Here is an examples that generates an exception:
 invertUnique(("apple": 1, "pear": 2, "orange": 1));
 </screen>
 }

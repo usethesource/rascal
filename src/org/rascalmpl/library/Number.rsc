@@ -28,15 +28,15 @@ public &T <: num abs(&T <: num N)
 }
 
 @doc{Return an arbitrary integer value.}
-@javaClass{org.rascalmpl.library.Number}
+@javaClass{org.rascalmpl.library.util.Math}
 public java int arbInt();
 
 @doc{Return an arbitrary integer value in the interval [0, limit).}
-@javaClass{org.rascalmpl.library.Integer}
+@javaClass{org.rascalmpl.library.util.Math}
 public java int arbInt(int limit);
 
 @doc{Returns an arbitrary real value in the interval [0.0,1.0).}
-@javaClass{org.rascalmpl.library.Real}
+@javaClass{org.rascalmpl.library.util.Math}
 public java real arbReal();
 
 @doc{Round to the nearest integer}
@@ -57,27 +57,27 @@ public &T <: num min(&T <: num N, &T <: num M)
 }
 
 @doc{Convert a number to an integer.}
-@javaClass{org.rascalmpl.library.Number}
+@javaClass{org.rascalmpl.library.util.Math}
 public java int toInt(num N);
 
 @doc{Convert a number value to a real value.}
-@javaClass{org.rascalmpl.library.Number}
+@javaClass{org.rascalmpl.library.util.Math}
 public java real toReal(num N);
 
 //@doc{Convert a number value to a rational value (not supported on reals).}
-//@javaClass{org.rascalmpl.library.Number}
+//@javaClass{org.rascalmpl.library.util.Math}
 //public java rat toRational(num N);
 
 @doc{Convert a number value to a string.}
-@javaClass{org.rascalmpl.library.Number}
+@javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);
 
 @doc{pi -- returns the constant PI}
-@javaClass{org.rascalmpl.library.Real}
+@javaClass{org.rascalmpl.library.util.Math}
 public java real PI();
 
 @doc{e -- returns the constant E}
-@javaClass{org.rascalmpl.library.Real}
+@javaClass{org.rascalmpl.library.util.Math}
 public java real E();
 
 @doc{computes the power of x by y}
