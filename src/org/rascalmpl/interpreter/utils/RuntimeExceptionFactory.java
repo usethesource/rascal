@@ -51,6 +51,8 @@ public class RuntimeExceptionFactory {
 	public static Type EmptyMap = TF.constructor(TS,Exception,"EmptyMap");
 	public static Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
 	public static Type IllegalArgument = TF.constructor(TS,Exception,"IllegalArgument",TF.valueType(), "v", TF.stringType(), "message");
+	public static Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
+
 	public static Type AnonymousIllegalArgument = TF.constructor(TS,Exception,"IllegalArgument");
 	public static Type IO = TF.constructor(TS,Exception,"IO",TF.stringType(), "message");
 	public static Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
@@ -121,6 +123,14 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, String trace) {
 		return new Throw(IllegalArgument.make(VF,v), ast, trace);	
+	}
+	
+	public static Throw illegalTypeArgument(String type, AbstractAST ast, String trace, String message){
+		return new Throw(IllegalTypeArgument.make(VF,VF.string(type),VF.string(message)), ast, trace);	
+	}
+	
+	public static Throw illegalTypeArgument(String type, AbstractAST ast, String trace){
+		return new Throw(IllegalTypeArgument.make(VF,VF.string(type)), ast, trace);	
 	}
 	
 	public static Throw illegalArgument(AbstractAST ast, String trace) {
