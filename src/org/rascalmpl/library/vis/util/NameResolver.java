@@ -11,13 +11,14 @@ import org.rascalmpl.library.vis.figure.Figure;
 
 public class NameResolver {
 	
-	NameResolver parent;
-	HashMap<String, Object> localFigures;
-	HashMap<String,NameResolver> children;
-	IEvaluatorContext ctx;
+	private final NameResolver parent;
+	private final HashMap<String, Object> localFigures;
+	private final HashMap<String,NameResolver> children;
+	private final IEvaluatorContext ctx;
 	
 	public NameResolver(NameResolver parent, IEvaluatorContext ctx){
 		this.parent = parent;
+		this.ctx = ctx;
 		localFigures = new HashMap<String, Object>();
 		children = new HashMap<String, NameResolver>();
 	}
