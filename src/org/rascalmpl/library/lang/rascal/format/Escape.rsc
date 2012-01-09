@@ -20,39 +20,39 @@ public list[str] ascii =
 [
 //Decimal   Value   Description
 //-------  -------  --------------------------------
-/* 000 */  "\\000", // NUL   (Null char.)
-/* 001 */  "\\001", // SOH   (Start of Header)
-/* 002 */  "\\002", // STX   (Start of Text)
-/* 003 */  "\\003", // ETX   (End of Text)
-/* 004 */  "\\004", // EOT   (End of Transmission)
-/* 005 */  "\\005", // ENQ   (Enquiry)
-/* 006 */  "\\006", // ACK   (Acknowledgment)
-/* 007 */  "\\007", // BEL   (Bell)
+/* 000 */  "\\a00", // NUL   (Null char.)
+/* 001 */  "\\a01", // SOH   (Start of Header)
+/* 002 */  "\\a02", // STX   (Start of Text)
+/* 003 */  "\\a03", // ETX   (End of Text)
+/* 004 */  "\\a04", // EOT   (End of Transmission)
+/* 005 */  "\\a05", // ENQ   (Enquiry)
+/* 006 */  "\\a06", // ACK   (Acknowledgment)
+/* 007 */  "\\a07", // BEL   (Bell)
 /* 008 */    "\\b", // BS    (Backspace)
 /* 009 */    "\\t", // HT    (Horizontal Tab)
 /* 010 */    "\\n", // LF    (Line Feed)
-/* 011 */  "\\013", // VT    (Vertical Tab)
-/* 012 */    "\\f", // FF    (Form Feed)
-/* 013 */    "\\r", // CR    (Carriage Return)
-/* 014 */  "\\016", // SO    (Shift Out)
-/* 015 */  "\\017", // SI    (Shift In)
-/* 016 */  "\\020", // DLE   (Data Link Escape)
-/* 017 */  "\\021", // DC1   (Device Control 1)
-/* 018 */  "\\022", // DC2   (Device Control 2)
-/* 019 */  "\\023", // DC3   (Device Control 3)
-/* 020 */  "\\024", // DC4   (Device Control 4)
-/* 021 */  "\\025", // NAK   (Negative Acknowledgemnt)
-/* 022 */  "\\026", // SYN   (Synchronous Idle)
-/* 023 */  "\\027", // ETB   (End of Trans. Block)
-/* 024 */  "\\030", // CAN   (Cancel)
-/* 025 */  "\\031", // EM    (End of Medium)
-/* 026 */  "\\032", // SUB   (Substitute)
-/* 027 */  "\\033", // ESC   (Escape)
-/* 028 */  "\\034", // FS    (File Separator)
-/* 029 */  "\\035", // GS    (Group Separator)
-/* 030 */  "\\036", // RS    (Reqst to Send)(Rec. Sep.)
-/* 031 */  "\\037", // US    (Unit Separator)
-/* 032 */      " ", // SP    (Space)
+/* 011 */  "\\a0B", // VT    (Vertical Tab)
+/* 012 */    "\\a0C", // FF    (Form Feed)
+/* 013 */    "\\a0D", // CR    (Carriage Return)
+/* 014 */  "\\a0E", // SO    (Shift Out)
+/* 015 */  "\\a0F", // SI    (Shift In)
+/* 016 */  "\\a10", // DLE   (Data Link Escape)
+/* 017 */  "\\a11", // DC1   (Device Control 1)
+/* 018 */  "\\a12", // DC2   (Device Control 2)
+/* 019 */  "\\a13", // DC3   (Device Control 3)
+/* 020 */  "\\a14", // DC4   (Device Control 4)
+/* 021 */  "\\a16", // NAK   (Negative Acknowledgemnt)
+/* 022 */  "\\a16", // SYN   (Synchronous Idle)
+/* 023 */  "\\a17", // ETB   (End of Trans. Block)
+/* 024 */  "\\a18", // CAN   (Cancel)
+/* 025 */  "\\a19", // EM    (End of Medium)
+/* 026 */  "\\a1A", // SUB   (Substitute)
+/* 027 */  "\\a1A", // ESC   (Escape)
+/* 028 */  "\\a1B", // FS    (File Separator)
+/* 029 */  "\\a1C", // GS    (Group Separator)
+/* 030 */  "\\a1D", // RS    (Reqst to Send)(Rec. Sep.)
+/* 031 */  "\\a1E", // US    (Unit Separator)
+/* 032 */     " ", // SP    (Space)
 /* 033 */      "!", //  !    (exclamation mark)
 /* 034 */   "\\\"", //  "    (double quote)
 /* 035 */      "#", //  #    (number sign)
@@ -147,7 +147,7 @@ public list[str] ascii =
 /* 124 */      "|", //  |    (vertical bar)
 /* 125 */      "}", //  }    (right/closing brace)
 /* 126 */      "~", //  ~    (tilde)
-/* 127 */  "\\177"  //DEL    (delete)
+/* 127 */  "\\a7F"  //DEL    (delete)
 ];
 
 @doc{
@@ -175,18 +175,21 @@ public str makeStringChar(int ch) {
      return ascii[ch];
   }
   
-  if (ch < 256) {
-    d1 = ch % 8; r1 = ch / 8;
-    d2 = r1 % 8; r2 = r1 / 8;
-    d3 = r2;
-    return "\\<d3><d2><d1>";
+  if (ch >= 128 && ch <= 0xFFFF) {
+    d1 = ch % 16; r1 = ch / 16;
+    d2 = r1 % 16; r2 = r1 / 16;
+    d3 = r2 % 16; r3 = r2 / 16;
+    d3 = r3;
+    return "\\u<d4><d3><d2><d1>";
   }
        
   d1 = ch % 16; r1 = ch / 16;
   d2 = r1 % 16; r2 = r1 / 16;
   d3 = r2 % 16; r3 = r2 / 16;
-  d4 = r3;
-  return "\\u<hex[d4]><hex[d3]><hex[d2]><hex[d1]>";
+  d4 = r3 % 16; r4 = r3 / 16;
+  d5 = r4 % 15; r5 = r4 / 16;
+  d6 = r5;
+  return "\\U<hex[d6]><hex[d5]><hex[d4]><hex[d3]><hex[d2]><hex[d1]>";
 }
 
 test bool testA() = makeStringChar(97) 	== "a";
