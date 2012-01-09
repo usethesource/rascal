@@ -43,12 +43,12 @@ public class LinearProgramming {
 		this.values = values;
 	}
 
-	public static TypeStore typestore = new TypeStore(
+	public static final TypeStore typestore = new TypeStore(
 			org.rascalmpl.values.errors.Factory.getStore(),
 			org.rascalmpl.values.locations.Factory.getStore());
 
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
+	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 
 	public static final Type LLVariableVals = tf.listType(tf.numberType());
 

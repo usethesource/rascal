@@ -7,11 +7,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class Timer {
-	public static TypeStore typestore = new TypeStore(
+	public static final TypeStore typestore = new TypeStore(
 		org.rascalmpl.values.errors.Factory.getStore(), 
 		org.rascalmpl.values.locations.Factory.getStore());
 
-	private static TypeFactory tf = TypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
 
 	
 	public static final Type TimerAction = tf.abstractDataType(typestore, "TimerAction");

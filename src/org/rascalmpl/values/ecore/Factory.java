@@ -16,11 +16,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class Factory {
-	public static TypeStore ecore = new TypeStore(
+	public static final TypeStore ecore = new TypeStore(
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
 	
-	private static TypeFactory tf = TypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
 	
 	public static final Type ECore = tf.abstractDataType(ecore, "ECore");
 	public static final Type Classifier = tf.abstractDataType(ecore, "Classifier");

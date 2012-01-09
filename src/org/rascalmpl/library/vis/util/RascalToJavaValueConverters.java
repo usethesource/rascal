@@ -18,14 +18,16 @@ public class RascalToJavaValueConverters {
 	}
 	
 	public static class ConvertBool implements Convert<Boolean>{
-		public static ConvertBool instance = new ConvertBool();
+		public static final ConvertBool instance = new ConvertBool();
+		@Override
 		public Boolean convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return ((IBool) val).getValue();
 		}
 	}
 	
 	public static class ConvertInt implements Convert<Integer>{
-		public static ConvertInt instance = new ConvertInt();
+		public static final ConvertInt instance = new ConvertInt();
+		@Override
 		public Integer convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return ((IInteger) val).intValue();
 		}
@@ -33,7 +35,8 @@ public class RascalToJavaValueConverters {
 	
 
 	public static class ConvertColor implements Convert<Integer>{
-		public static ConvertColor instance = new ConvertColor();
+		public static final ConvertColor instance = new ConvertColor();
+		@Override
 		public Integer convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			if(val instanceof IString){
 				String name = ((IString)val).getValue().toLowerCase();
@@ -49,7 +52,8 @@ public class RascalToJavaValueConverters {
 	}
 	
 	public static class ConvertReal implements Convert<Double>{
-		public static ConvertReal instance = new ConvertReal();
+		public static final ConvertReal instance = new ConvertReal();
+		@Override
 		public Double convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return (val instanceof IInteger) ? ((IInteger) val).intValue() : ((IReal) val).doubleValue();
 		}
@@ -57,7 +61,8 @@ public class RascalToJavaValueConverters {
 	
 
 	public static class ConvertStr implements Convert<String>{
-		public static ConvertStr instance = new ConvertStr();
+		public static final ConvertStr instance = new ConvertStr();
+		@Override
 		public String convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return ((IString) val).getValue();
 		}
@@ -65,21 +70,24 @@ public class RascalToJavaValueConverters {
 	
 
 	public static class ConvertFig implements Convert<Figure>{
-		public static ConvertFig instance = new ConvertFig();
+		public static final ConvertFig instance = new ConvertFig();
+		@Override
 		public Figure convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return FigureFactory.make(env, (IConstructor)val, null, null);
 		}
 	}
 	
 	public static class DoNotConvert implements Convert<IValue>{
-		public static DoNotConvert instance = new DoNotConvert();
+		public static final DoNotConvert instance = new DoNotConvert();
+		@Override
 		public IValue convert(IValue val, PropertyManager pm, IFigureConstructionEnv env){
 			return val;
 		}
 	}
 	
 	public static class ConvertNum implements Convert<Double>{
-		public static ConvertNum instance = new ConvertNum();
+		public static final ConvertNum instance = new ConvertNum();
+		@Override
 		public Double convert(IValue val, PropertyManager pm,IFigureConstructionEnv env) {
 			if(val instanceof IReal){
 				return ConvertReal.instance.convert(val, pm, env);
