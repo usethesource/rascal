@@ -904,5 +904,9 @@ public class DebuggingDecorator<T> extends NullASTVisitor<T> implements IEvaluat
 	public void todo(int work) {
 		evaluator.todo(work);
 	}
+	
+	public boolean isCanceled() {
+		return evaluator.isCanceled();
+	}
 
 }

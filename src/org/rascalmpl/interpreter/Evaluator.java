@@ -265,6 +265,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			monitor.todo(work);
 	}
 	
+	public boolean isCanceled() {
+		if(monitor == null)
+			return false;
+		else
+			return monitor.isCanceled();
+	}
+	
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
 		constructorDeclaredListeners.add(new WeakReference<IConstructorDeclared>(iml));
 	}

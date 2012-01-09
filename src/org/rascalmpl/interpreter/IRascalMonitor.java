@@ -65,6 +65,11 @@ public interface IRascalMonitor {
 	public int endJob(boolean succeeded);
 	
 	/**
+	 * @return True if cancellation has been requested for this job
+	 */
+	public boolean isCanceled();
+	
+	/**
 	 * Set the estimated remaining work for the current (sub)job.
 	 * 
 	 * @param work Amount of work remaining to be done, or 0 for unknown.
