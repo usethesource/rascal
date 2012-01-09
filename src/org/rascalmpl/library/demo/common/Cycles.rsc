@@ -23,7 +23,7 @@ public bool isProperCycle(rel[int,int] Graph, int N, set[int] C){
 }
 
 public set[set[int]] subCycles (rel[int,int] Graph, int N, set[int] Cycle){
-	return { {B} | set[int] B <- power1(Cycle), N in B, isProperCycle(Graph, N, B) };
+	return { B | set[int] B <- power1(Cycle), N in B, isProperCycle(Graph, N, B) };
 }
 
 public rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycles) {
