@@ -14,28 +14,41 @@
 package org.rascalmpl.interpreter;
 
 public class NullRascalMonitor implements IRascalMonitor {
+	@Override
 	public int endJob(boolean succeeded) {
 		return 0;
 	}
 
+	@Override
 	public void event(String name) {
 	}
 
+	@Override
 	public void event(String name, int inc) {
 	}
 
+	@Override
 	public void event(int inc) {
 	}
 
+	@Override
 	public void startJob(String name, int totalWork) {
 	}
 	
+	@Override
 	public void startJob(String name) {
 	}
 	
+	@Override
 	public void startJob(String name, int workShare, int totalWork) {
 	}
 	
+	@Override
 	public void todo(int work) {
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return false;
 	}
 }
