@@ -131,7 +131,7 @@ public class Environment {
 	 * Look up a variable, traversing the parents of the current scope
 	 * until it is found.
 	 * @param name
-	 * @return
+	 * @return value of variable
 	 */
 	public Result<IValue> getVariable(QualifiedName name) {
 		if (name.getNames().size() > 1) {
@@ -613,13 +613,16 @@ public class Environment {
 		return vars;
 	}
 
-	public List<Entry<String, OverloadedFunctionResult>> getFunctions() {
-		ArrayList<Entry<String, OverloadedFunctionResult>> functions = new ArrayList<Entry<String, OverloadedFunctionResult>>();
+	public List<Pair<String, OverloadedFunctionResult>> getFunctions() {
+		ArrayList<Pair<String, OverloadedFunctionResult>> functions = new ArrayList<Pair<String, OverloadedFunctionResult>>();
 		if (parent != null) {
 			functions.addAll(parent.getFunctions());
 		}
 		if (functionEnvironment != null) {
-			functions.addAll(functionEnvironment.entrySet());
+			// don't just add the Map.Entries, as they may not live outside the iteration
+			for(Entry<String, OverloadedFunctionResult> entry : functionEnvironment.entrySet()) {
+				functions.add(new Pair<String, OverloadedFunctionResult>(entry.getKey(), entry.getValue()));
+			}
 		}
 		return functions;
 	}
