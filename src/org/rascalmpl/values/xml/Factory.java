@@ -16,11 +16,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class Factory {
-	public static TypeStore xml = new TypeStore(
+	public static final TypeStore xml = new TypeStore(
 			org.rascalmpl.values.errors.Factory.getStore(), 
 			org.rascalmpl.values.locations.Factory.getStore());
 	
-	private static TypeFactory tf = TypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
 	
 	public static final Type Node = tf.abstractDataType(xml, "Node");
 	public static final Type Namespace = tf.abstractDataType(xml, "Namespace");

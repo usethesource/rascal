@@ -8,12 +8,12 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.*;
 
 public class Maybe {
-	public static TypeStore typestore = new TypeStore(
+	public static final TypeStore typestore = new TypeStore(
 		org.rascalmpl.values.errors.Factory.getStore(), 
 		org.rascalmpl.values.locations.Factory.getStore());
 
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private static RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+	private static final TypeFactory tf = TypeFactory.getInstance();
+	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 
 	
 	public static final Type Maybe = tf.abstractDataType(typestore, "Maybe",tf.parameterType("A",tf.valueType()));

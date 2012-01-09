@@ -10,7 +10,7 @@ import java.util.ListIterator;
 public class BogusList<T> implements List<T>{
 
 	@SuppressWarnings("rawtypes")
-	public static BogusList instance = new BogusList();
+	public static final BogusList instance = new BogusList();
 	
 	@Override
 	public boolean add(T arg0) {

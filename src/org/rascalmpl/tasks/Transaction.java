@@ -100,7 +100,7 @@ IExpirationListener<IValue> {
 	public IValue getFact(IRascalMonitor monitor, Type key, IValue name) {
 		IFact<IValue> fact = null;
 		try {
-			System.err.println("GetFact: " + formatKey(key, name));
+			// System.err.println("GetFact: " + formatKey(key, name));
 			boolean status = false;
 			synchronized (this) {
 				Key k = new Key(key, name);

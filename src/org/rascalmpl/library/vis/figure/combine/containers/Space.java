@@ -26,7 +26,7 @@ import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
  */
 public class Space extends Container {
 
-	public static Space empty = new Space(null, new PropertyManager());
+	public static final Space empty = new Space(null, new PropertyManager());
 	
 	public Space(Figure inside, PropertyManager properties) {
 		super(inside, properties);

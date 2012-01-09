@@ -33,10 +33,11 @@ public class FigureColorUtils {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public FigureColorUtils(IValueFactory factory) {
+		// TODO: this code is weird; should vf be non-static, perhaps?
 		vf = factory;
 	}
 
-	public static HashMap<String, IInteger> colorNames = new HashMap<String, IInteger>() {
+	public static final HashMap<String, IInteger> colorNames = new HashMap<String, IInteger>() {
 		/**
 			 * 
 			 */
@@ -195,9 +196,9 @@ public class FigureColorUtils {
 	};
 	
 	
-	public static int WHITE = colorNames.get("white").intValue();
-	public static int BLACK = colorNames.get("black").intValue();
-	public static int LIGHTGRAY = colorNames.get("lightgray").intValue();
+	public static final int WHITE = colorNames.get("white").intValue();
+	public static final int BLACK = colorNames.get("black").intValue();
+	public static final int LIGHTGRAY = colorNames.get("lightgray").intValue();
 
 	static IInteger rgb(int r, int g, int b) {
 		return vf.integer(figureColor(r, g, b));
@@ -370,7 +371,7 @@ public class FigureColorUtils {
 	/**
 	 * List of default colors for errors
 	 */
-	protected static int errorColors[] = { figureColor(65, 105, 225), // royalblue
+	protected static final int errorColors[] = { figureColor(65, 105, 225), // royalblue
 			figureColor(246, 211, 87), // gold (like)
 			figureColor(255, 0, 0) // red
 	};
@@ -405,7 +406,7 @@ public class FigureColorUtils {
 	 * List of default colors for highlights
 	 */
 
-	public static int highlightColors[] = { figureColor(255, 192, 203), // pink
+	public static final int highlightColors[] = { figureColor(255, 192, 203), // pink
 			figureColor(255, 255, 0), // yellow
 			figureColor(255, 0, 255), // magenta
 			figureColor(0, 255, 255), // aqua
