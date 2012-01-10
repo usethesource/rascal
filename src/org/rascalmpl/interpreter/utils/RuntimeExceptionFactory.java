@@ -67,6 +67,7 @@ public class RuntimeExceptionFactory {
 	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
 	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
+	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
 	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
 	public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "uri");
 	public static final Type NoParent = TF.constructor(TS, Exception, "NoParent", TF.sourceLocationType(), "uri");
@@ -245,5 +246,9 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw figureException(String message, IValue v, AbstractAST ast, String trace) {
 		return new Throw(Figure.make(VF, VF.string(message), v), ast, trace);
+	}
+
+	public static Throw illegalCharacter(IInteger i, AbstractAST ast, String trace) {
+		return new Throw(IllegalChar.make(VF, i), ast, trace);
 	}
 }
