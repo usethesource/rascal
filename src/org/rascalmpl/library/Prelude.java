@@ -2103,6 +2103,10 @@ public class Prelude {
 	 * String
 	 */
 	
+	public IBool isValidCharacter(IInteger i) {
+		return values.bool(Character.isValidCodePoint(i.intValue()));
+	}
+	
 	public IValue stringChar(IInteger i) {
 		int intValue = i.intValue();
 		if (Character.isValidCodePoint(intValue)) {

@@ -357,14 +357,19 @@ public java bool startsWith(str subject, str prefix);
 Synopsis: Convert a character code into a string. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChar(int char) throws IllegalCharacter(int ch);
+public java str stringChar(int char) throws IllegalCharacter(int character);
 
 @doc{
 Synopsis: Convert a list of character codes into a string.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChars(list[int] chars) throws IllegalCharacter(int ch);
+public java str stringChars(list[int] chars) throws IllegalCharacter(int character);
 
+@doc{
+Synopsis: Returns true if and only if ch is a valid Unicode code point
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isValidCharacter(int ch);
 
 @doc{
 Synopsis: Extract a substring from a string value.
