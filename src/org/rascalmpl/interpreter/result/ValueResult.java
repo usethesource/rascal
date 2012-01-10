@@ -15,8 +15,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
+
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -43,6 +46,29 @@ public class ValueResult extends ElementResult<IValue> {
 		return equals(that).negate();
 	}
 
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+		return bool((((IInteger) compare(that).getValue()).intValue() < 0), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(
+			Result<V> that) {
+		return bool((((IInteger) compare(that).getValue()).intValue() <= 0), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(
+			Result<V> that) {
+		return bool((((IInteger) compare(that).getValue()).intValue() > 0), ctx);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(
+			Result<V> that) {
+		return bool((((IInteger) compare(that).getValue()).intValue() >= 0), ctx);
+	}
+	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that) {
 		// the default fall back implementation for IValue-based results
