@@ -278,43 +278,6 @@ public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 @reflect{uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, loc input);
 
-
-@doc{
-Synopsis: Parse input text (from a string or a location) and return a parse tree which can contain error nodes.
-
-Description:
-# Parse a string and return a parse tree.
-# Parse a string and return a parse tree, `origin` defines the original location of the input.
-# Parse the contents of resource input and return a parse tree.
-
-
-In all the above cases, the parse tree may contain error nodes.
-
-Examples:
-<screen errors>
-import demo::lang::Exp::Concrete::NoLayout::Syntax;
-import ParseTree;
-// First, parse an incorrect expression and get an error message:
-parse(#Exp, "2+");
-// Next, parse an incorrect expression and get an error tree:
-parseWithErrorTree(#Exp, "2+");
-</screen>
-<warning>Something wrong here</warning>
-}
-
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input);
-
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, str input, loc origin);
-
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parseWithErrorTree(type[&T<:Tree] begin, loc input);
-
-
 @doc{
 Synopsis: Yield the string of characters that form the leafs of the given parse tree.
 
