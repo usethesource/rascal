@@ -38,11 +38,14 @@ type(\int(),())
 
 module Type
 
+import List;
+
 @doc{Symbols are values that represent Rascal's types. These are the atomic types.}  
 data Symbol
   = \int()
   | \bool()
   | \real()
+  | \rat()
   | \str()
   | \num()
   | \node()
@@ -117,17 +120,13 @@ public default bool subtype(Symbol s, Symbol t) = false;
 public bool subtype(Symbol _, \value()) = true;
 public bool subtype(\void(), Symbol _) = true;
 public bool subtype(Symbol::\cons(Symbol a, list[Symbol] _), a) = true;
-public bool subtype(\adt(str _), \node()) = true;
 public bool subtype(\adt(str _, list[Symbol] _), \node()) = true;
 public bool subtype(\adt(str n, list[Symbol] l), \adt(n, list[Symbol] r)) = subtype(l, r);
 public bool subtype(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = subtype(aliased, r);
 public bool subtype(Symbol l, \alias(str _, Symbol aliased)) = subtype(l, aliased);
 public bool subtype(\int(), \num()) = true;
+public bool subtype(\rat(), \num()) = true;
 public bool subtype(\real(), \num()) = true;
-public bool subtype(Symbol l, \tuple(list[tuple[Symbol typ, str label]]  fields)) = subtype(l, \tuple([e | <_,e> <- fields]));
-public bool subtype(Symbol l, \rel(list[tuple[Symbol typ, str label]]  fields)) = subtype(l, \rel([e | <_,e> <- fields])); 
-public bool subtype(\tuple(list[tuple[Symbol typ, str label]]  fields), Symbol r) = subtype(\tuple([e | <_,e> <- fields]), r);
-public bool subtype(\rel(list[tuple[Symbol typ, str label]]  fields), Symbol r) = subtype(\rel([e | <_,e> <- fields]), r); 
 public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l, r);
 public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
 public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);  
@@ -135,9 +134,87 @@ public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
 public bool subtype(\bag(Symbol s), \bag(Symbol t)) = subtype(s, t);  
 public bool subtype(\map(Symbol from1, Symbol to1), \map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
-
+public bool subtype(\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
+public bool subtype(Symbol l, \parameter(str _, Symbol bound)) = subtype(l, bound);
+public bool subtype(\label(str _, Symbol s), Symbol t) = subtype(s,t);
+public bool subtype(Symbol s, \label(str _, Symbol t)) = subtype(s,t);
 public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- [0..size(l) - 1], subtype(l[i], r[i])) when size(l) == size(r);
 public default bool subtype(list[Symbol] l, list[Symbol] r) = false;
+
+//data Symbol 
+//  | \func(Symbol ret, list[Symbol] parameters)
+//  ;
+
+@doc{
+  This function documents and implements the lub operation of Rascal's type system. 
+}
+public Symbol lub(Symbol s, s) = s;
+public default Symbol lub(Symbol s, Symbol t) = \value();
+
+public Symbol lub(\value(), Symbol t) = \value();
+public Symbol lub(Symbol s, \value()) = \value();
+public Symbol lub(\void(), Symbol t) = t;
+public Symbol lub(Symbol s, \void()) = s;
+public Symbol lub(\int(), \num()) = \num();
+public Symbol lub(\int(), \real()) = \num();
+public Symbol lub(\int(), \rat()) = \num();
+public Symbol lub(\rat(), \num()) = \num();
+public Symbol lub(\rat(), \real()) = \num();
+public Symbol lub(\rat(), \int()) = \num();
+public Symbol lub(\real(), \num()) = \num();
+public Symbol lub(\real(), \int()) = \num();
+public Symbol lub(\real(), \rat()) = \num();
+public Symbol lub(\num(), \int()) = \num();
+public Symbol lub(\num(), \real()) = \num();
+public Symbol lub(\num(), \rat()) = \num();
+
+public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
+public Symbol lub(\set(Symbol _), \rel(list[Symbol] _)) = \set(\value());  
+public Symbol lub(\rel(list[Symbol] _), \set(Symbol _)) = \set(\value());
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(l, r)) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(l, r)) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\list(Symbol s), \list(Symbol t)) = \list(lub(s, t));  
+public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
+public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt)) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol lub(\map(Symbol lf, Symbol lt), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
+public Symbol lub(\map(Symbol lf, Symbol lt), \map(Symbol rf, Symbol rt)) = \map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol lub(\bag(Symbol s), \bag(Symbol t)) = \bag(lub(s, t));
+public Symbol lub(\adt(str n, list[Symbol] _), \node()) = \node();
+public Symbol lub(\node(), \adt(str n, list[Symbol] _)) = \node();
+public Symbol lub(\adt(str n, list[Symbol] lp), \adt(n, list[Symbol] rp)) = \adt(n, addParamLabels(lub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp);
+public Symbol lub(\adt(str n, list[Symbol] lp), \adt(str m, list[Symbol] rp)) = \node() when n != m;
+public Symbol lub(\adt(str ln, list[Symbol] lp), Symbol::\cons(Symbol b, list[Symbol] _)) = lub(\adt(ln,lp),b);
+public Symbol lub(Symbol::\cons(Symbol la, list[Symbol] _), Symbol::\cons(Symbol ra, list[Symbol] _)) = lub(la,ra);
+public Symbol lub(Symbol::\cons(Symbol a, list[Symbol] lp), \adt(str n, list[Symbol] rp)) = lub(a,\adt(n,rp));
+public Symbol lub(Symbol::\cons(Symbol _, list[Symbol] _), \node()) = \node();
+public Symbol lub(\alias(str _, list[Symbol] _, Symbol aliased), Symbol r) = lub(aliased, r);
+public Symbol lub(Symbol l, \alias(str _, list[Symbol] _, Symbol aliased)) = lub(l, aliased);
+public Symbol lub(\parameter(str _, Symbol bound), Symbol r) = lub(bound, r);
+public Symbol lub(Symbol l, \parameter(str _, Symbol bound)) = lub(l, bound);
+public Symbol lub(\reified(Symbol l), \reified(Symbol r)) = \reified(lub(l,r));
+public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = Symbol::\func(lub(lr,lp), lp) when subtype(lp,rp);
+public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = Symbol::\func(lub(lr,lp), rp) when subtype(rp,lp);
+public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = \value() when !subtype(lp,rp) && !subtype(rp,lp);
+
+public list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [lub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
+public default list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [\value()]; 
+
+private bool allLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) := l[i]);
+private bool noneLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) !:= l[i]);
+private list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
+private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ \label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
+private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; } 
+
+private list[str] getParamLabels(list[Symbol] l) = [ s | li <- l, \parameter(s,_) := li ];
+private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ \parameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
+private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
 
 data Exception 
   = typeCastException(type[value] from, type[value] to);
@@ -170,3 +247,35 @@ since values may escape the scope in which they've been constructed leaving thei
 @javaClass{org.rascalmpl.library.Type}
 @reflect
 public java Symbol typeOf(value v);
+
+@doc{Tests to make sure a lub a == a.}
+test bool lubIdent01() = lub(\int(), \int()) == \int();
+test bool lubIdent02() = lub(\real(), \real()) == \real();
+test bool lubIdent03() = lub(\num(), \num()) == \num();
+test bool lubIdent04() = lub(\datetime(), \datetime()) == \datetime();
+test bool lubIdent05() = lub(\str(), \str()) == \str();
+
+@doc{Tests for numeric lubs.}
+test bool lubNumeric01() = lub(\int(), \real()) == \num();
+test bool lubNumeric02() = lub(\int(), \rat()) == \num();
+test bool lubNumeric03() = lub(\int(), \num()) == \num();
+test bool lubNumeric04() = lub(\real(), \int()) == \num();
+test bool lubNumeric05() = lub(\real(), \num()) == \num();
+test bool lubNumeric06() = lub(\real(), \rat()) == \num();
+test bool lubNumeric07() = lub(\num(), \int()) == \num();
+test bool lubNumeric08() = lub(\num(), \real()) == \num();
+test bool lubNumeric09() = lub(\num(), \rat()) == \num();
+test bool lubNumeric10() = lub(\rat(), \int()) == \num();
+test bool lubNumeric11() = lub(\rat(), \real()) == \num();
+test bool lubNumeric12() = lub(\rat(), \num()) == \num();
+
+@doc{Tests for lubs of incomparable types.}
+test bool lubIncomp01() = lub(\num(), \str()) == \value();
+test bool lubIncomp02() = lub(\num(), \datetime()) == \value();
+test bool lubIncomp03() = lub(\num(), \bool()) == \value();
+test bool lubIncomp04() = lub(\num(), \node()) == \value();
+
+@doc{Tests for lubs against parameters.}
+test bool lubParam01() = lub(\num(), \parameter("t", \node())) == \value();
+test bool lubParam02() = lub(\num(), \parameter("t", \int())) == \num();
+test bool lubParam03() = lub(\int(), \parameter("t", \num())) == \num();
