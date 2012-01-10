@@ -475,10 +475,45 @@ beans  ");
 @javaClass{org.rascalmpl.library.Prelude}
 public java str trim(str s);
 
+@doc{
+Synopsis: Squeezes repeated occurrences of characters.
+Description: 
+Squeezes repeated occurrences in `src` of characters in `charSet` removed.
+See 
+  http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html
+for the allowed syntax in `charSet`.
+
+Examples:
+<screen>
+import String;
+squeeze("hello", "el");
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str squeeze(str src, str charSet);
+
+
+@doc{
+Synopsis: Split a string into a list of strings based on a literal separator.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[str] split(str sep, str src);
+
+@doc{
+Synopsis: word wrap a string to fit in a certain width.
+Description:
+  Inserts newlines in a string in order to fit the string 
+  in a certain width. It only breaks on spaces (' '). 
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str wrap(str src, int wrapLength);
+
+
 /* 
  * Return string of length n, with s placed according to dir (left/center/right) and padded with pad.
  * Used to implement:left, center and right above.
  */ 
 @javaClass{org.rascalmpl.library.Prelude}
 private java str format(str s, str dir, int n, str pad);
+
 
