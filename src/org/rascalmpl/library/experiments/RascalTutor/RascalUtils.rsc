@@ -276,23 +276,11 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 
 public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   println("extractRemoteConcepts: <L>, <root>");
-  Module M = parseModule(readFile(L), L);
+  Module M = parseModule(readFile(L), L).top;
  
-  moduleName = "";
   declarations = [];
   contentMap = ();
   libRoot = root;
-  /*
-  println("HERE!");
-  println("Name of M is <getName(M)>");
-  if(M is Tree)
-     println("M is a Tree");
-  if(M is Default)
-  	println("M is a Default");
-  if(M is Module)
-     println("M is a module");
-  if(M has header)
-     println("M has header");
   
   Header header = M.header;
   moduleName = normalizeName("<header.name>"); 
@@ -304,22 +292,6 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   }
   
   declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
-  */
-  
-  top-down visit(M){
-    case Header header: {
-       moduleName = normalizeName("<header.name>"); 
-       doc =  getModuleDoc(header);
-       println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
-     
-       if(doc != ""){  		
-   	      writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
-  	      contentMap["<root>/<moduleName>"] = doc;
-       }
-     }
-     case Declaration d: { declarations += d; }
-  }
-  
 
   int i = 0;
   while(i < size(declarations)){
@@ -348,14 +320,14 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 public str extractDoc(loc L, str itemName){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
   println("extractDoc: <L1>, <itemName>");
-  M = parseModule(readFile(L1), L1);
-  moduleName = "";
-  declarations = [];
+  Module M = parseModule(readFile(L1), L1).top;
+  Header header = M.header;
+  moduleName = basename(normalizeName("<header.name>")); 
+  if(moduleName == itemName) 
+  	 return getModuleDoc(header);
+
+  declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
   contentMap = ();
-  top-down visit(M){
-		case Header header: { moduleName = basename(normalizeName("<header.name>")); println("moduleName: <moduleName>"); if(moduleName == itemName) return getModuleDoc(header); }
-		case Declaration d: { declarations += d; }
-  }
   
   int i = 0;
   while(i < size(declarations)){
