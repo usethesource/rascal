@@ -473,9 +473,9 @@ bool changeHV2H(list[Box] hv) {
 Box removeHV(Box b) {
 return innermost visit(b) {
      case t:HV(list[Box] hv) => {
-                     int h = t@hs?-1;
-                     int i =   t@is?-1;
-                     int v =   t@vs?-1;
+                     int h = (t@hs)?(-1);
+                     int i =   (t@is)?(-1);
+                     int v =   (t@vs)?(-1);
                      Box r = H(hv);
                      if (h>=0) r@hs = h;
                      if (i>=0)  r@is = i;
@@ -489,9 +489,9 @@ return innermost visit(b) {
 Box removeHOV(Box b) {
 return innermost visit(b) {
      case t:HOV(list[Box] hov) => {
-                     int h = t@hs?-1;
-                     int i =   t@is?-1;
-                     int v =   t@vs?-1;
+                     int h = (t@hs)?(-1);
+                     int i =   (t@is)?(-1);
+                     int v =   (t@vs)?(-1);
                      Box r = changeHV2H(hov)?H(hov):V(hov);
                      if (h>=0) r@hs = h;
                      if (i>=0)  r@is = i;
