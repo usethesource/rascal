@@ -115,7 +115,9 @@ start[Exp]: appl(
   [
     appl(
       prod(
-    ...
+        layouts(&quot;Whitespace&quot;),
+        [\iter-star(\char-class([
+               ...
 </pre> First we import the syntax definition and the  <a href="/Courses/Rascal/Libraries/Prelude/ParseTree/ParseTree.html">ParseTree</a> module that provides the parsing functionality.
  Finally, we parse <code>2+3*4</code> using the start symbol <code>Exp</code>.
  <br/>

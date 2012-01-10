@@ -28,7 +28,7 @@ A set is an unordered sequence of values and has the following properties:
 The type of a set has the form `set[$T$]`,
 where `$T$` is an arbitrary type.
 
-When variables of type set occur inside a set, their elements are automatically _spliced_ into the surrounding set. This can be prevented by surrounding them with extra `{` and `}` brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
+When a value or variable of type lsetist occurs inside a set, that set value is inserted as set element. To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set, it has to be prefixed by the splice operator *.
 
 The following functions are provided on sets:
 
@@ -54,10 +54,10 @@ Note that
 <screen>
 //Introduce a set variable <tt>S</tt>
 S = {1, 2, 3};
-// and observe how `S` is spliced in another set
+// and observe how the value of `S` is added as single element in another set:
 {10, S, 20};
-//or becomes a subset when it is surrounded with extra braces
-{10, {S}, 20};
+//or how its elements are added as elements to the other set:
+{10, *S, 20};
 </screen>
 
 Benefits:

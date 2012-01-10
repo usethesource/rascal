@@ -128,7 +128,7 @@ x += "myTempFile.txt";
 </screen>
 
 Check the contents of a folder:
-<screen>
+<screen errors>
 |std:///|.ls
 </screen>
 Benefits:

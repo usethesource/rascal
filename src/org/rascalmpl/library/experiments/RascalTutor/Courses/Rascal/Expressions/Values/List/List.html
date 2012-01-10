@@ -80,7 +80,9 @@
  <br/>
 <br/>
 
- When variables of type list occur inside a list, their elements are automatically <i>spliced</i> into the surrounding set. This can be prevented by surrounding them with extra <code>[</code> and <code>]</code> brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
+ When a value or variable of type list occurs inside a list, that list value is inserted as list element.
+ To achieve <i>splicing</i> of these elements, i.e., the insertion of the elements of the list value rather than the whole list,
+ it has to be prefixed by the splice operator <code>*</code>.
  <br/>
 <br/>
 
@@ -130,7 +132,7 @@ list[list[str]]: [
   [&quot;a&quot;,&quot;b&quot;],
   [&quot;c&quot;,&quot;d&quot;,&quot;e&quot;]
 ]
-</pre> List splicing works as follows:
+</pre> List splicing works as follows: by prefixing <code>L</code> by the splice operator, its elements are included as elements in the enclosing list:
  <pre class="screen"><b>rascal></b>L = [1, 2, 3];
 list[int]: [1,2,3]
 <b>rascal></b>[10, L, 20];
@@ -139,12 +141,8 @@ list[value]: [
   [1,2,3],
   20
 ]
-<b>rascal></b>[10, [L], 20];
-list[value]: [
-  10,
-  [[1,2,3]],
-  20
-]
+<b>rascal></b>[10, *L, 20];
+list[int]: [10,1,2,3,20]
 </pre>
 </div>
 
@@ -177,11 +175,11 @@ list[value]: [
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="5">
 <label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="4">
-<label for="Rascal/Expressions/Values/List_1_4">The least upperbound of the type of two arbitrary elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_0" value="0">
+<label for="Rascal/Expressions/Values/List_1_0">The least upperbound of the type of all elements.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="1">
-<label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="3">
+<label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

@@ -175,7 +175,15 @@ set[Constraint]: {
     (&quot;asia&quot;:1,&quot;europe&quot;:6),
     geq(),
     12),
-  constraint(...
+  constraint(
+    (&quot;europe&quot;:1),
+    leq(),
+    7),
+  constraint(
+    (&quot;asia&quot;:1),
+    leq(),
+    7)
+...
 <b>rascal></b>cost = linearExp((&quot;europe&quot; : 180000, &quot;asia&quot; : 160000));
 ObjectiveFun: linearExp(
   (&quot;asia&quot;:160000,&quot;europe&quot;:180000),

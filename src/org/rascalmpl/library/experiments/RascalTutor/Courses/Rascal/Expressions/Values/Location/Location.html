@@ -127,7 +127,7 @@ loc: |std://demo/basic/Hello.rsc|
 ok
 <b>rascal></b>readFileLines(|http://www.rascal-mpl.org|)
 list[str]: [&quot;\&lt;!DOCTYPE html PUBLIC \&quot;-//W3C//DTD XHTML 1.0 Strict//EN\&quot;&quot;,&quot;\t \&quot;http://www.w3.org/TR/xhtml1/DT&raquo;
-D/xhtml1-strict.dtd\&quot;\&gt;&quot;,&quot;\&lt;p /\&gt;&quot;,&quot;\&lt;html xmlns=\&quot;http://www.w3.org/1999/xhtml\&quot; xml:lang=\&quot;en\&quot; ...
+D/xhtml1-strict.dtd\&quot;\&gt;&quot;,&quot;\&lt;p /\&gt;&quot;,&quot;\&lt;html xmlns=\&quot;http://www.w3.org/1999/xhtml\&quot; xml:lang=\&quot;en\&quot; la...
 </pre> Addition on locations creates longer paths:
  <pre class="screen"><b>rascal></b>x = |tmp://myTempDirectory|;
 loc: |tmp://myTempDirectory|
@@ -136,7 +136,16 @@ loc: |tmp://myTempDirectory/myTempFile.txt|
 </pre> Check the contents of a folder:
  <pre class="screen"><b>rascal></b>|std:///|.ls
 list[loc]: [|std:///.project|,|std:///.svn|,|std:///Ambiguity.rsc|,|std:///APIGen.rsc|,|std:///ATermIO.rsc|,|s&raquo;
-td:///AUT.rsc|,|std:///Benchmark.rsc|,|std:///Boolean.rsc|,|std:///box|,|std:///DateTime.rsc|,|std...
+td:///AUT.rsc|,|std:///Benchmark.rsc|,|std:///Boolean.rsc|,|std:///box|,|std:///DateTime.rsc|,|std:///demo|,|s&raquo;
+td:///Distance.class|,|std:///Exception.rsc|,|std:///experiments|,|std:///FileSystem.rsc|,|std:///Grammar.rsc|&raquo;
+,|std:///Graph.rsc|,|std:///HTMLIO.rsc|,|std:///Integer.rsc|,|std:///IO.rsc|,|std:///Javac.rsc|,|std:///lang|,&raquo;
+|std:///List.rsc|,|std:///Map.rsc|,|std:///Message.rsc|,|std:///Node.rsc|,|std:///NodeComparator.class|,|std:/&raquo;
+//Number.rsc|,|std:///Origins.rsc|,|std:///ParseTree.rsc|,|std:///Prelude$1.class|,|std:///Prelude.class|,|std&raquo;
+:///Prelude.java|,|std:///Prelude.rsc|,|std:///Rational.rsc|,|std:///Real.rsc|,|std:///Reflective.rsc|,|std://&raquo;
+/Relation.rsc|,|std:///Scripting.rsc|,|std:///Set.rsc|,|std:///SourceHierarchy.rsc|,|std:///Strategy.class|,|s&raquo;
+td:///Strategy.java|,|std:///Strategy.rsc|,|std:///String.rsc|,|std:///SystemAPI.rsc|,|std:///Time.rsc|,|std:/&raquo;
+//TopologicalStrategy.rsc|,|std:///ToString.rsc|,|std:///Type.class|,|std:///Type.java|,|std:///Type.rsc|,|std&raquo;
+:///util|,|std:///ValueIO.rsc|,|std:///vis|,|std:///XMLDOM.rsc|,|std:///XMLIO.rsc|]
 </pre>
 </div>
 

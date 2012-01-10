@@ -26,7 +26,9 @@ A list is an ordered sequence of values and has the following properties:
 The type of a list has the form `list[$T$]`,
 where `$T$` is an arbitrary type.
 
-When variables of type list occur inside a list, their elements are automatically _spliced_ into the surrounding set. This can be prevented by surrounding them with extra `[` and `]` brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
+When a value or variable of type list occurs inside a list, that list value is inserted as list element.
+To achieve _splicing_ of these elements, i.e., the insertion of the elements of the list value rather than the whole list,
+it has to be prefixed by the splice operator `*`.
 
 The following functions and operators on lists are provided:
 
@@ -40,11 +42,11 @@ Examples:
 [<"a",10>, <"b",20>, <"c",30>];
 [["a", "b"], ["c", "d", "e"]];
 </screen>
-List splicing works as follows:
+List splicing works as follows: by prefixing `L` by the splice operator, its elements are included as elements in the enclosing list:
 <screen>
 L = [1, 2, 3];
 [10, L, 20];
-[10, [L], 20];
+[10, *L, 20];
 </screen>
 
 Benefits:

@@ -107,7 +107,9 @@ type[B]: type(
             &quot;t&quot;,
             adt(
               &quot;B&quot;,
-         ...
+              [])),
+          [],
+        ...
 <b>rascal></b>syntax A = &quot;a&quot;;
 ok
 <b>rascal></b>#A;
@@ -123,7 +125,11 @@ type[A]: type(
     empty():choice(
       empty(),
       {prod(
-          empt...
+          empty(),
+          [],
+          {})}),
+    layouts(&quot;$default$&quot;):choice(
+    ...
 <b>rascal></b>type(\int(),())
 type[value]: type(
   int(),

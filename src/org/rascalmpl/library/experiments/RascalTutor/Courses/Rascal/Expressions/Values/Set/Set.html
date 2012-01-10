@@ -81,7 +81,7 @@
  <br/>
 <br/>
 
- When variables of type set occur inside a set, their elements are automatically <i>spliced</i> into the surrounding set. This can be prevented by surrounding them with extra <code>{</code> and <code>}</code> brackets. Note that this approach is atypical: in Rascal splicing is implicit while in other languages it has to be indicated explicitly by the programmer.
+ When a value or variable of type lsetist occurs inside a set, that set value is inserted as set element. To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set, it has to be prefixed by the splice operator *.
  <br/>
 <br/>
 
@@ -140,7 +140,7 @@ set[set[str]]: {
 <pre class="screen"><b>rascal></b>S = {1, 2, 3};
 set[int]: {3,2,1}
 </pre>
-  and observe how <code>S</code> is spliced in another set
+  and observe how the value of <code>S</code> is added as single element in another set:
 
 <pre class="screen"><b>rascal></b>{10, S, 20};
 set[value]: {
@@ -149,14 +149,10 @@ set[value]: {
   {3,2,1}
 }
 </pre>
- or becomes a subset when it is surrounded with extra braces
+ or how its elements are added as elements to the other set:
 
-<pre class="screen"><b>rascal></b>{10, {S}, 20};
-set[value]: {
-  10,
-  20,
-  {{3,2,1}}
-}
+<pre class="screen"><b>rascal></b>{10, *S, 20};
+set[int]: {10,20,3,2,1}
 </pre>
 </div>
 
@@ -186,11 +182,11 @@ set[value]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
-<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
 <label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
+<label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
 <label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
@@ -219,14 +215,14 @@ set[value]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2">
-<label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_5" value="5">
+<label for="Rascal/Expressions/Values/Set_2_5">The type of two arbitrary elements.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_4" value="4">
-<label for="Rascal/Expressions/Values/Set_2_4">The least upperbound of the type of two arbitrary elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="1">
+<label for="Rascal/Expressions/Values/Set_2_1">The types of all the elements in the set.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_0" value="0">
-<label for="Rascal/Expressions/Values/Set_2_0">The least upperbound of the type of all elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_3" value="3">
+<label for="Rascal/Expressions/Values/Set_2_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -274,8 +270,8 @@ set[value]: {
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
-The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}">
+The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -299,10 +295,10 @@ The type of <tt>{|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;), |fi
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="7">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Garlic&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-15">
-The type of <tt>{7, &quot;Garlic&quot;, -15}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-2">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Ginger&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-12">
+The type of <tt>{-2, &quot;Ginger&quot;, -12}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
