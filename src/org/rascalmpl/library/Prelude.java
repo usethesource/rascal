@@ -2103,8 +2103,14 @@ public class Prelude {
 	 * String
 	 */
 	
-	public IValue stringChar(IInteger i){
-		return values.string(i.intValue());
+	public IValue stringChar(IInteger i) {
+		int intValue = i.intValue();
+		if (Character.isValidCodePoint(intValue)) {
+			return values.string(intValue);
+		}
+		else {
+			throw RuntimeExceptionFactory.illegalCharacter(i, null, null);
+		}
 	}
 	
 	public IValue stringChars(IList lst){
@@ -2112,6 +2118,9 @@ public class Prelude {
 		
 		for (int i = 0; i < lst.length(); i ++) {
 			chars[i] = ((IInteger) lst.get(0)).intValue();
+			if (!Character.isValidCodePoint(chars[i])) {
+				throw RuntimeExceptionFactory.illegalCharacter(values.integer(chars[i]), null, null);
+			}
 		}
 		
 		return values.string(chars);
