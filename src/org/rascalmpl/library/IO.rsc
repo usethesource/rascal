@@ -305,6 +305,8 @@ L = ["a", "b", "c"];
 println(L);
 // Use a string template to print several values:
 println("<S>: <L>");
+// Just print a newline
+println();
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
