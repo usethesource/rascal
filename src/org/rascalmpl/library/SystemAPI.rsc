@@ -14,7 +14,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 
-@deprecated use "import util::SystemAPI;" instead.}
+@deprecated{use "import util::SystemAPI;" instead.}
 module SystemAPI
 
 import Exception;
