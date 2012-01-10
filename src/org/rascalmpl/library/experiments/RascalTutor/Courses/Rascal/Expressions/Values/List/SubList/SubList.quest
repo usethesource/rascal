@@ -1,0 +1,1 @@
+[tvQuestion("Rascal/Expressions/Values/List/SubList","1",typeOfExpr(),details(" ",[],"","","\<A:set[arb]\> \<= \<B:same[A]\>","",false,false,[<"A",set(arb(0,[bool(),int(-20,20),real(-20,20),num(-20,20),str(),\loc(),datetime()]))>,<"B",same("A")>],[],void(),""))]

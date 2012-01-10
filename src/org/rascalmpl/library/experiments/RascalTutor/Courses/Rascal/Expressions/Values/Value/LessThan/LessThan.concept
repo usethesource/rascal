@@ -26,7 +26,6 @@ Less than yields `true` if the value of $Exp_1$ is strictly less
 than (according to the ordering defined above) the value of $Exp_2$, and `false` otherwise.
 
 Examples:
-<warning>Rascal implementation: broken</warning>
 <screen>
 // Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
 value X = "abc";

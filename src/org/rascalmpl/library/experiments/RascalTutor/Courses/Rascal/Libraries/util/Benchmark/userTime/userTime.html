@@ -81,16 +81,16 @@ ok
   Here we measure time by using separate calls to <code>userTime</code> before and after a call to <code>fac</code>.
 
 <pre class="screen"><b>rascal></b>before = userTime();
-int: 280963806000
+int: 251249922000
 <b>rascal></b>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 <b>rascal></b>userTime() - before;
-int: 2677000
+int: 3554000
 </pre>
   The code to be measured can also be passed as a function parameter to <code>userTime</code>:
 
 <pre class="screen"><b>rascal></b>userTime( void() { fac(50); } );
-int: 399000
+int: 428000
 </pre>
 </div>
 

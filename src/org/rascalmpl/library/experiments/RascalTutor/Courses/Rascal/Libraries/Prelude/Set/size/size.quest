@@ -1,0 +1,1 @@
+[tvQuestion("Rascal/Libraries/Prelude/Set/size","1",valueOfExpr(),details(" ",["import Set;"],"","","size({ "," }) == \<N\>",false,true,[<"N",int(0,5)>],[],void(),"\<N\> values separated by commas"))]
