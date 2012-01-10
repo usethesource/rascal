@@ -13,8 +13,10 @@ where $StringChar$ may be one of the following:
 ** `\r`: carriage return
 ** `\b`: backspace
 ** `\f`: vertical feed
-** `\u$hexDigit_1$$hexDigit_2$$hexDigit_3$$hexDigit_4$` : hexadecimal escapes with four digit indexes into UTF8.
-** `\0$octalDigits$` : octal escapes into ASCII.
+** `\u$hexDigit_1$$hexDigit_2$$hexDigit_3$$hexDigit_4$` : hexadecimal escapes with four digit indexes into UNICODE.
+** `\U$hexDigit_1$$hexDigit_2$$hexDigit_3$$hexDigit_4$$hexDigit_5$$hexDigit_6$` : hexadecimal escapes with six digit indexes into UNICODE.
+** `\a$hexDigit_1$$hexDigit_2$`:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).
+
 
 * __String Interpolation__: 
 
