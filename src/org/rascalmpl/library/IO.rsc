@@ -311,7 +311,9 @@ println("<S>: <L>");
 @reflect{for getting IO streams}
 public java void println(value arg);
 
-
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{for getting IO streams}
+public java void println();
 
 @doc{
 Synopsis: Print a value followed by a newline and return it as result.

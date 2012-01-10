@@ -780,6 +780,11 @@ public class Prelude {
 		}
 	}
 	
+	public void println(IEvaluatorContext eval) {
+		eval.getStdOut().println();
+		eval.getStdOut().flush();
+	}
+	
 	public void println(IValue arg, IEvaluatorContext eval){
 		PrintWriter currentOutStream = eval.getStdOut();
 		
