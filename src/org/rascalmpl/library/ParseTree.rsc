@@ -255,8 +255,16 @@ Examples:
 <screen>
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
-// Checking that `parse` returns a parse tree:
+// Seeing that `parse` returns a parse tree:
 parse(#Exp, "2+3");
+// Catching a parse error:
+import IO;
+try {
+  Exp e = parse(#Exp, "2@3");
+}
+catch ParseError(loc l): {
+  println("Parse error at line <l.begin.line>, column <l.begin.column>");
+}
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
