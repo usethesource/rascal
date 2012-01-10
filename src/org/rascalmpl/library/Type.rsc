@@ -171,17 +171,20 @@ public Symbol lub(\num(), \rat()) = \num();
 public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
 public Symbol lub(\set(Symbol _), \rel(list[Symbol] _)) = \set(\value());  
 public Symbol lub(\rel(list[Symbol] _), \set(Symbol _)) = \set(\value());
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(l, r),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(l, r)) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \set(\value()) when size(l) != size(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(l, r),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
-public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(l, r)) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(r))) when size(l) == size(r) && noneLabeled(l) && allLabeled(r);
+public Symbol lub(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = \tuple(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && !allLabeled(l) && !allLabeled(r);
 public Symbol lub(\list(Symbol s), \list(Symbol t)) = \list(lub(s, t));  
 public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
+public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
 public Symbol lub(\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), \map(Symbol rf, Symbol rt)) = \map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
 public Symbol lub(\map(Symbol lf, Symbol lt), \map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = \map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
 public Symbol lub(\map(Symbol lf, Symbol lt), \map(Symbol rf, Symbol rt)) = \map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
@@ -210,7 +213,8 @@ private bool allLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) := l[i]
 private bool noneLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) !:= l[i]);
 private list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
 private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ \label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
-private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; } 
+private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; }
+private list[Symbol] stripLabels(list[Symbol] l) = [ (\label(_,v) := li) ? v : li | li <- l ]; 
 
 private list[str] getParamLabels(list[Symbol] l) = [ s | li <- l, \parameter(s,_) := li ];
 private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ \parameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
@@ -279,3 +283,10 @@ test bool lubIncomp04() = lub(\num(), \node()) == \value();
 test bool lubParam01() = lub(\num(), \parameter("t", \node())) == \value();
 test bool lubParam02() = lub(\num(), \parameter("t", \int())) == \num();
 test bool lubParam03() = lub(\int(), \parameter("t", \num())) == \num();
+
+@doc{Tests lubs of tuples.}
+test bool lubTuple01() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f2",\bool())])) == \tuple([\label("f1",\int()),\label("f2",\bool())]);
+test bool lubTuple02() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\int()),\label("f3",\bool())])) == \tuple([\int(),\bool()]);
+test bool lubTuple03() = lub(\tuple([\label("f1",\int()),\label("f2",\bool())]),\tuple([\label("f1",\real()),\label("f2",\str())])) == \tuple([\label("f1",\num()),\label("f2",\value())]);
+
+
