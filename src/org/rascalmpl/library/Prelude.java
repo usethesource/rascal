@@ -47,7 +47,10 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.CharSetUtils;
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -2133,6 +2136,26 @@ public class Prelude {
 	
 	public IString trim(IString s) {
 		return values.string(s.getValue().trim());
+	}
+	
+	public IString squeeze(IString src, IString charSet) {
+		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
+		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
+		return values.string(s);
+	}
+	
+	public IList split(IString sep, IString src) {
+		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
+		IListWriter lw = values.listWriter(types.stringType());
+		for (String s: lst) {
+			lw.append(values.string(s));
+		}
+		return lw.done();
+	}
+	
+	public IString wrap(IString src, IInteger wrapLength) {
+		String s = WordUtils.wrap(src.getValue(), wrapLength.intValue());
+		return values.string(s);
 	}
 
 	public IValue format(IString s, IString dir, IInteger n, IString pad)
