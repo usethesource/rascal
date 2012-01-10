@@ -2534,14 +2534,18 @@ public class Prelude {
 		try{
 			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 			new StandardTextWriter().write(value, new OutputStreamWriter(out, "UTF8"));
-		}catch(IOException e){
+		}
+		 catch(IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}finally{
-			if(out != null){
-				try{
+		}
+		finally {
+			if (out != null) {
+				try {
+					out.flush();
 					out.close();
-				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+				catch(IOException ioex) {
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), ctx.getCurrentAST(), ctx.getStackTrace());
 				}
 			}
 		}
