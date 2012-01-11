@@ -21,6 +21,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -85,14 +86,14 @@ public class RascalTutor {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
 		
-		context.addServlet(TutorDefaultHttpServlet.class, "/");
-		context.addServlet(Show.class, "/show");
-		context.addServlet(ValidateExam.class, "/validateExam");
-		context.addServlet(Validate.class, "/validate");
-		context.addServlet(Eval.class, "/eval");
-		context.addServlet(Edit.class, "/edit");
-		context.addServlet(Save.class, "/save");
-		context.addServlet(Compile.class, "/compile");
+		context.addServlet(new ServletHolder(new TutorDefaultHttpServlet()), "/");
+		context.addServlet(new ServletHolder(new Show()), "/show");
+		context.addServlet(new ServletHolder(new ValidateExam()), "/validateExam");
+		context.addServlet(new ServletHolder(new Validate()), "/validate");
+		context.addServlet(new ServletHolder(new Eval()), "/eval");
+		context.addServlet(new ServletHolder(new Edit()), "/edit");
+		context.addServlet(new ServletHolder(new Save()), "/save");
+		context.addServlet(new ServletHolder(new Compile()), "/compile");
 
 		System.err.println("BASE = " + BASE);
 		
