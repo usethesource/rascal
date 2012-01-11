@@ -156,17 +156,20 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	//////// The iterator interface
 	
+	@Override
 	public boolean hasNext(){
 		return iterator != null && iterator.hasNext();
 	}
 	
+	@Override
 	public Result<IValue> next(){
 		if(iterator == null){
-			new ImplementationError("next called on Result with null iterator");
+			throw new ImplementationError("next called on Result with null iterator");
 		}
 		return iterator.next(); //??? last = iterator.next();
 	}
 
+	@Override
 	public void remove() {
 		throw new ImplementationError("remove() not implemented for (iterable) result");		
 	}
