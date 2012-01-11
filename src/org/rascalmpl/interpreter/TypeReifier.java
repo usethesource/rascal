@@ -74,8 +74,8 @@ public class TypeReifier {
 		Type typeType = Factory.Type.instantiate(bindings);
 		
 		IMapWriter defs = vf.mapWriter(Factory.Symbol, Factory.Production);
-		for (IConstructor key : definitions.keySet()) {
-			defs.put(key, definitions.get(key));
+		for (Map.Entry<IConstructor, IConstructor> entry : definitions.entrySet()) {
+			defs.put(entry.getKey(), entry.getValue());
 		}
 		IValue result = Factory.Type_Reified.instantiate(bindings).make(vf, symbol, defs.done());
 		
@@ -90,7 +90,7 @@ public class TypeReifier {
 	 * Reconstruct a type from a reified type value and declare all types used.
 	 * @param typeValue the type value to restore
 	 * @param store     a possibly empty store that will be filled with the relevant type declarations.
-	 * @return
+	 * @return the type corresponding to the reified type value 
 	 */
 	public Type valueToType(IConstructor typeValue, TypeStore store) {
 		if (typeValue.getType() instanceof ReifiedType) {

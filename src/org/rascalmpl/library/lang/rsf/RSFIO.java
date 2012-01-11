@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -79,8 +80,8 @@ public class RSFIO {
 
 		IMapWriter mw = values.mapWriter(strType, types.relType(strType, strType));
 
-		for (java.lang.String key : table.keySet()) {
-			mw.insert(values.tuple(values.string(key), table.get(key).done()));
+		for (Map.Entry<java.lang.String, IRelationWriter> entry : table.entrySet()) {
+			mw.insert(values.tuple(values.string(entry.getKey()), entry.getValue().done()));
 		}
 		return mw.done();
 	}
