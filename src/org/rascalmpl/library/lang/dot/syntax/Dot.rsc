@@ -9,16 +9,9 @@ syntax AttrTag = "graph"|"node"|"edge";
 
 syntax Nod = NodeId|Subgraph;
 
-syntax StringConstantContent = /* lex [\\] ![] | */
-                               lex ![\\\"]
-                               ;
-
-syntax Id = lex [a-zA-Z0-9_]+
-                    - Keyword
-                    # [a-zA-Z0-9_]
-             | [\"] StringConstantContent* [\"]
+lexical Id = [a-zA-Z0-9_]+ !>> [a-zA-Z0-9_] \ Keyword 
+           | [\"] (![\"] | "\\\"")* [\"]
              ;
-
                     
 syntax StatementList = StatementOptional*;
                     
@@ -62,31 +55,19 @@ syntax DotAttr = Id "=" Id | Id "=" Id "," ;
 
 syntax AttrStatement = AttrTag AttrList;
 
-syntax Subgraph = "{" StatementList "}" |  SubgraphTag "{" StatementList "}";
+syntax Subgraph = ("subgraph" Id ","?)? "{" StatementList "}";
 
-syntax SubgraphTag = "subgraph" Id| "subgraph" Id ",";
+lexical Comment = "/*" (![*] | [*] !>> "/")* "*/"
+                | "//" ![\n]* $
+                ;
 
-
-syntax Comment = lex [/][*] MultiLineCommentBodyToken* [*][/] |
-                 lex "//" ![\n]* [\n]
-                 ;
-
-syntax MultiLineCommentBodyToken = lex ![*] |
-                                   lex Asterisk
-                                   ;
-
-syntax Asterisk = lex [*]
-                  # [/]
-                  ;
-                  
-layout LAYOUTLIST = LAYOUT*
-                    # [\ \t\n\r]
+layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r] !>> "//" !>> "/*"
                     ;
                    
 
-syntax LAYOUT = lex Whitespace: [\ \t\n\r] |
-                @category="Comment" lex Comment: Comment
-                ;
+lexical LAYOUT = Whitespace: [\ \t\n\r] 
+               | @category="Comment" Comment
+               ;
 
  
 /*                  
