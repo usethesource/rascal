@@ -85,7 +85,7 @@ public class SystemAPI {
 				java.lang.String[] f = e.split(regex_replacement[0]);
 				StringBuffer a = new StringBuffer();
 				for (int i = 0; i < f.length; i++) {
-					if (i % 2 == 1) {
+					if (i % 2 != 0) {
 						a.append(regex_replacement[1]);
 						if (found!=null) {
 							// System.err.println("found"+found);

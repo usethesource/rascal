@@ -35,7 +35,7 @@ public class Util {
 		int minIndex = -1; // lowest index of an intervalBorder <= toFind
 		int maxIndex = intervalBorders.length ;// highest index of an intervalBorder > toFind
 		while(maxIndex - minIndex > 1){
-			int mid = ( maxIndex + minIndex ) / 2;
+			int mid = ( maxIndex + minIndex ) >>> 1;
 			if(toFind <= intervalBorders[mid]) maxIndex = mid;
 			else minIndex = mid; 
 		}
