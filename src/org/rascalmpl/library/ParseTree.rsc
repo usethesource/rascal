@@ -17,7 +17,7 @@ Synopsis: Functions on parse trees.
 Description:
 
 A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
-represents the syntactic structure of a string according to some formal grammar. In a parse tree, the interior nodes are labeled by non-terminals of the grammar, while the leaf nodes are labeled by terminals of the grammar. 
+represents the syntactic structure of a string according to some formal grammar. In Rascal parse trees, the interior nodes are labeled by rules of the grammar, while the leaf nodes are labeled by terminals (characters) of the grammar. 
 
 `Tree` is the universal parse tree data type in Rascal and can be used to represent parse trees for any language. 
 * `Tree` is a subtype of the type [$Values/Node].
