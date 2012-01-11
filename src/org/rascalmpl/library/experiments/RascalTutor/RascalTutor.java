@@ -52,7 +52,7 @@ public class RascalTutor {
 		SelectChannelConnector connector=new SelectChannelConnector();
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
-		connector.setHeaderBufferSize(1000*1000);
+		connector.setResponseHeaderSize(1000*1000);
 		connector.setRequestBufferSize(1000*1000);
 		connector.setConfidentialPort(8443);
 		server.setConnectors(new Connector[]{connector});
