@@ -50,9 +50,9 @@ public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> imp
 				Type nameType = name.getType();
 				if(producerMap.containsKey(nameType))
 					return producerMap.get(nameType);
-				for(Type t : producerMap.keySet()) {
-					if(nameType.isSubtypeOf(t))
-						return producerMap.get(t);
+				for(Map.Entry<Type, ITask<Type, IValue, IValue>> t : producerMap.entrySet()) {
+					if(nameType.isSubtypeOf(t.getKey()))
+						return t.getValue();
 				}
 			}
 			throw new ImplementationError("No suitable producer found for " + key + "(" + name + ")");
@@ -65,6 +65,7 @@ public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> imp
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.tasks.ITaskRegistry#produce(org.rascalmpl.interpreter.IRascalMonitor, org.rascalmpl.tasks.ITransaction, Type, IValue)
 	 */
+	@Override
 	public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr, Type key, IValue name) {
 		ITask<Type, IValue, IValue> producer = null;
 		lock.lock();
@@ -118,9 +119,9 @@ public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> imp
 					Type key1 = key.getFieldType(0);
 					Map<Type, ITask<Type, IValue, IValue>> map = keyedProducers.get(key1);
 					if(map != null) {
-						for(Type k : map.keySet()) {
-							if(map.get(k).equals(producer))
-								map.remove(k);
+						for(Map.Entry<Type, ITask<Type,IValue,IValue>> entry : map.entrySet()) {
+							if(entry.getValue().equals(producer))
+								map.remove(entry.getKey());
 						}
 						if(map.isEmpty())
 							keyedProducers.remove(key1);
