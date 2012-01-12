@@ -53,7 +53,7 @@ public class HTMLGenerator {
 			content = toResult(result);
 		}
 		catch (ParseError pe) {
-			content = toParseError(command.getValue(), pe);
+			content = toParseError(command.getValue(), "eval", pe);
 			ISourceLocation sourceLocation = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw new Throw(ShellParseError.make(values, values.string(content), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
 		}

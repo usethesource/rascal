@@ -48,9 +48,9 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String toParseError(String command, ParseError pe) {
+	public static String toParseError(String command, String scheme, ParseError pe) {
 		String content = "";
-		if (pe.getLocation().getScheme().equals("eval")) {
+		if (pe.getLocation().getScheme().equals(scheme)) {
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
