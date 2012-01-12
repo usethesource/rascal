@@ -133,7 +133,7 @@ public class RascalShell {
 				console.printNewline();
 			}
 			catch (ParseError pe) {
-				console.printString(parseErrorMessage(input.toString(), "stdin", pe));
+				console.printString(parseErrorMessage(input.toString(), "prompt", pe));
 			}
 			catch (StaticError e) {
 				console.printString(staticErrorMessage(e));
