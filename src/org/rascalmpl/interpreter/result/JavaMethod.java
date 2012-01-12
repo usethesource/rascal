@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -109,6 +110,7 @@ public class JavaMethod extends NamedFunction {
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
 			Type resultType = getReturnType().instantiate(env.getTypeBindings());
+			
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
 		catch (Throw t) {

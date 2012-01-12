@@ -7,6 +7,5 @@
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry kind="output" path="src"/>
 </classpath>
