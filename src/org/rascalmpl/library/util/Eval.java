@@ -54,7 +54,6 @@ public class Eval {
 
 	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
 		ModuleEnvironment mod = new ModuleEnvironment("eval" + evalCount , eval.getHeap());
-		mod.addImport("Prelude", eval.getHeap().getModule("Prelude"));
 		return mod;
 	}
 
@@ -63,7 +62,6 @@ public class Eval {
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = new ModuleEnvironment("***eval***", heap);
 			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
-			eval.doImport(null, "Prelude");
 		}
 		
 		return this.eval;
@@ -71,42 +69,42 @@ public class Eval {
 	
 	
 	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
-		return doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration, ctx).getValue();
+		return doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx)).getValue();
 	}
 	
 	public IValue eval (IValue typ, IString input, IEvaluatorContext ctx) {
-		return eval(typ, input, duration, ctx);
+		return eval(typ, input, duration,  getSharedEvaluator(ctx));
 	}
 
 	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		return doEval(typ, commands, duration, ctx).getValue();
+		return doEval(typ, commands, duration,  getSharedEvaluator(ctx)).getValue();
 	}
 	
 	public IValue eval (IValue typ, IList commands, IEvaluatorContext ctx) {
-		return eval(typ, commands, duration, ctx);
+		return eval(typ, commands, duration,  getSharedEvaluator(ctx));
 	}
 	
 	public IValue evalType (IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result =  doEval(null, values.list(input), duration, ctx);
+		Result<IValue> result =  doEval(null, values.list(input), duration,  getSharedEvaluator(ctx));
 		// Make sure redundant spaces are removed from the type.
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
 	public IValue evalType (IString input, IEvaluatorContext ctx) {
-		return evalType(input, duration, ctx);
+		return evalType(input, duration,  getSharedEvaluator(ctx));
 	}
 	
 	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(null, commands, duration, ctx);
+		Result<IValue> result = doEval(null, commands, duration,  getSharedEvaluator(ctx));
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
 	public IValue evalType (IList commands, IEvaluatorContext ctx) {
-		return evalType(commands, duration, ctx);
+		return evalType(commands, duration, getSharedEvaluator(ctx));
 	}
 	
 	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Evaluator evaluator = getSharedEvaluator(ctx);
+		Evaluator evaluator = ctx.getEvaluator();
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 
 		Result<IValue> result = null;

@@ -43,10 +43,10 @@ public class ReadEvalPrintDialogMessages {
 				}
 				content += "Tree: " + lros.toString();
 			} else {
-				content = result.toString(4096);
+				content = result.toString(4096) + "\n";
 			}
 		} else {
-			content = "ok";
+			content = "ok\n";
 		}
 		return content;
 	}
