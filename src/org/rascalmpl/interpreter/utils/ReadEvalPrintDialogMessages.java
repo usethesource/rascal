@@ -19,6 +19,9 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
+	public static String PROMPT = "rascal>";
+	public static final String CONTINUE_PROMPT = ">>>>>>>";
+	
 	public static String resultMessage(Result<IValue> result) {
 		String content;
 		IValue value = result.getValue();
@@ -61,7 +64,7 @@ public class ReadEvalPrintDialogMessages {
 			else {
 				content = "";
 				int i = 0;
-				for ( ; i < pe.getEndColumn() + "rascal>".length(); i++) {
+				for ( ; i < pe.getEndColumn() + PROMPT.length(); i++) {
 					content += " ";
 				}
 				content += "^ ";
