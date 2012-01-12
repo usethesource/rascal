@@ -58,7 +58,7 @@ public class HTMLGenerator {
 	private Evaluator createEvaluator(IEvaluatorContext ctx) {
 		if (this.evaluator == null) {
 			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("***screen***", heap);
+			ModuleEnvironment root = new ModuleEnvironment("___SCREEN___", heap);
 			errString = new StringWriter();
 			outString = new StringWriter();
 			err = new PrintWriter(errString);
