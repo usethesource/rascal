@@ -117,11 +117,6 @@ public class ReadEvalPrintDialogMessages {
 	}
 
 	public static String staticErrorMessage(StaticError e) {
-		String content;
-		content = e.getMessage();
-		ByteArrayOutputStream trace = new ByteArrayOutputStream();
-		e.printStackTrace(new PrintStream(trace));
-		content += "\n" + trace.toString();
-		return content;
+		return e.getMessage();
 	}
 }
