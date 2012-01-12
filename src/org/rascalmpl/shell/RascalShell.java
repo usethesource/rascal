@@ -134,18 +134,22 @@ public class RascalShell {
 			}
 			catch (ParseError pe) {
 				console.printString(parseErrorMessage(input.toString(), "prompt", pe));
+				console.printNewline();
 			}
 			catch (StaticError e) {
 				console.printString(staticErrorMessage(e));
+				console.printNewline();
 			}
 			catch (Throw e) {
 				console.printString(throwMessage(e));
+				console.printNewline();
 			}
 			catch (QuitException q) {
 				break next;
 			}
 			catch (Throwable e) {
 				console.printString(throwableMessage(e, evaluator.getStackTrace()));
+				console.printNewline();
 			}
 		}
 	}
