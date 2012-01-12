@@ -499,6 +499,9 @@ private str markupScreen(list[str] lines, bool generatesError){
          addWarning("screen command failed: \"<first>\"");
        }
      }
+     catch value x: {
+        addWarning("screen command failed: \"<first>\", with exception: <x>");
+     }
    } 
 
    codeLines += "\</pre\>";
