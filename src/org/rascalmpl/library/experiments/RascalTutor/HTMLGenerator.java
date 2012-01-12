@@ -1,12 +1,12 @@
 package org.rascalmpl.library.experiments.RascalTutor;
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toAmbiguous;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toInterruptedException;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toParseError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toResult;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toStaticError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrow;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrowable;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.ambiguousMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.interruptedExceptionMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.resultMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -50,10 +50,10 @@ public class HTMLGenerator {
 		
 		try {
 			Result<IValue> result = eval.doEval(valueType, values.list(command), duration, ctx);
-			content = toResult(result);
+			content = resultMessage(result);
 		}
 		catch (ParseError pe) {
-			content = toParseError(command.getValue(), "eval", pe);
+			content = parseErrorMessage(command.getValue(), "eval", pe);
 			ISourceLocation sourceLocation = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw new Throw(ShellParseError.make(values, values.string(content), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -61,22 +61,22 @@ public class HTMLGenerator {
 			content = "";
 		}
 		catch(InterruptException i) {
-			content = toInterruptedException(i);
+			content = interruptedExceptionMessage(i);
 		}
 		catch (Ambiguous e) {
-			content = toAmbiguous(e);
+			content = ambiguousMessage(e);
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(StaticError e){
-			content = toStaticError(e);
+			content = staticErrorMessage(e);
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throw e){
-			content = toThrow(e);
+			content = throwMessage(e);
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throwable e){
-			content = toThrowable(e, eval != null ? ctx.getStackTrace() : "");
+			content = throwableMessage(e, eval != null ? ctx.getStackTrace() : "");
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		

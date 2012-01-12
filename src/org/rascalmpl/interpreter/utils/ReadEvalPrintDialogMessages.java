@@ -19,7 +19,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
-	public static String toResult(Result<IValue> result) {
+	public static String resultMessage(Result<IValue> result) {
 		String content;
 		IValue value = result.getValue();
 		
@@ -48,7 +48,7 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String toParseError(String command, String scheme, ParseError pe) {
+	public static String parseErrorMessage(String command, String scheme, ParseError pe) {
 		String content = "";
 		if (pe.getLocation().getScheme().equals(scheme)) {
 			String[] commandLines = command.split("\n");
@@ -80,19 +80,19 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String toInterruptedException(InterruptException i) {
+	public static String interruptedExceptionMessage(InterruptException i) {
 		String content;
 		content = i.getMessage();
 		return content;
 	}
 
-	public static String toAmbiguous(Ambiguous e) {
+	public static String ambiguousMessage(Ambiguous e) {
 		String content;
 		content = e.getMessage();
 		return content;
 	}
 
-	public static String toThrowable(Throwable e, String rascalTrace) {
+	public static String throwableMessage(Throwable e, String rascalTrace) {
 		String content;
 		content = "internal exception: " + e.toString();
 		content += rascalTrace;
@@ -102,7 +102,7 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String toThrow(Throw e) {
+	public static String throwMessage(Throw e) {
 		String content;
 		content = "exception:" + e.getException().toString() + "\n";
 		String trace = e.getTrace();
@@ -112,7 +112,7 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String toStaticError(StaticError e) {
+	public static String staticErrorMessage(StaticError e) {
 		String content;
 		content = e.getMessage();
 		ByteArrayOutputStream trace = new ByteArrayOutputStream();
