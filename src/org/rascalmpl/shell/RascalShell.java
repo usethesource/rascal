@@ -15,10 +15,10 @@ package org.rascalmpl.shell;
 *******************************************************************************/
 
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toParseError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toStaticError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrow;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrowable;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -133,19 +133,19 @@ public class RascalShell {
 				console.printNewline();
 			}
 			catch (ParseError pe) {
-				console.printString(toParseError(input.toString(), "stdin", pe));
+				console.printString(parseErrorMessage(input.toString(), "stdin", pe));
 			}
 			catch (StaticError e) {
-				console.printString(toStaticError(e));
+				console.printString(staticErrorMessage(e));
 			}
 			catch (Throw e) {
-				console.printString(toThrow(e));
+				console.printString(throwMessage(e));
 			}
 			catch (QuitException q) {
 				break next;
 			}
 			catch (Throwable e) {
-				console.printString(toThrowable(e, evaluator.getStackTrace()));
+				console.printString(throwableMessage(e, evaluator.getStackTrace()));
 			}
 		}
 	}
