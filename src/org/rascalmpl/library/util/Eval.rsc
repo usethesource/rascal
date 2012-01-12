@@ -34,24 +34,35 @@ eval(["X = 2 * 3;", "X + 5;"]);
 // -- Give input string to the Rascal evaluator and return its value
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java value eval(str command) throws Timeout;
+public java &T eval(type[&T] typ, str command) throws Timeout;
+public value eval(str command) throws Timeout = eval(#value, command);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java value eval(list[str] commands) throws Timeout;
+public java &T eval(type[&T] typ, list[str] commands) throws Timeout;
+public value eval(list[str] commands) throws Timeout = eval(#value, commands);
 
 // --- eval with given duration (in milliseconds)
 
 // -- Give input string to the Rascal evaluator and return its value within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java value eval(str command, int duration) throws Timeout;
+public java &T eval(type[&T] typ, str command, int duration) throws Timeout;
+public value eval(str command, int duration) throws Timeout = eval(#value, command, duration);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java value eval(list[str] commands, int duration) throws Timeout;
+public java &T eval(type[&T] typ, list[str] commands, int duration) throws Timeout;
+public value eval(list[str] commands, int duration) throws Timeout = eval(#value, commands, duration);
+
+@doc{
+Synopsis: executes a list of commands and simulates the printed output of the read-eval-print-loop
+}
+@javaClass{org.rascalmpl.library.util.Eval}
+@reflect
+public java str shell(str command, int duration) throws Timeout, ShellParseError, ShellError;
 
 @doc{
 Synopsis: Evaluate a (list of) Rascal commands and return the type of the last command.
@@ -91,47 +102,4 @@ public java str evalType(str command, int duration) throws Timeout;
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
 public java str evalType(list[str] commands, int duration) throws Timeout;
-
-@doc{
-Synopsis: Execute a string containing Rascal commands and return the output of the RascalShell.
-
-Description:
-Given a single string containing command, or a list of strings containing
-successive lines with commands, the commands are fed into the RascalShell
-and the output is returned as a list of strings.
-An optional `duration` argument may be present to limit the time
-(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
-
-Examples:
-
-<screen>
-import util::Eval;
-shell("2 * 3");
-shell(["X = 2 * 3;", "X + 5;"]);
-</screen>
-}
-// --- shell with default duration (1000 ms)
-
-// -- Give input string to the RascalShell and return its output.
-@javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java list[str] shell(str commands);
-
-// -- Give a list of input strings to the RascalShell and return its output.
-@javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java list[str] shell(list[str] commands);
-
-// -- shell with given duration (in milliseconds)
-
-// -- Give input string to the RascalShell and return its output within duration ms.
-@javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java list[str] shell(str commands, int duration);
-
-// -- Give a list of input strings to the RascalShell and return its output within duration ms.
-@javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java list[str] shell(list[str] commands, int duration);
-
 

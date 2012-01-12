@@ -57,7 +57,6 @@ public class RascalTutor {
 		connector.setRequestBufferSize(1000*1000);
 		connector.setConfidentialPort(8443);
 		server.setConnectors(new Connector[]{connector});
-		
 		server.setHandler(getTutorHandler());
 		server.start();
 	}
@@ -85,7 +84,7 @@ public class RascalTutor {
 	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
-		
+		context.setLogger(null);
 		context.addServlet(new ServletHolder(new TutorDefaultHttpServlet()), "/");
 		context.addServlet(new ServletHolder(new Show()), "/show");
 		context.addServlet(new ServletHolder(new ValidateExam()), "/validateExam");

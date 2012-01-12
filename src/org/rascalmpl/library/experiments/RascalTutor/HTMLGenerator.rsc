@@ -425,59 +425,79 @@ private str markupRascalPrompt(list[str] lines){
 
 // Do screen markup
 
-private str markupScreen(list[str] lines, bool generatesError){
-//   if(!generating)
-//      return "";
-   stripped_code = "<for(line <- lines){><(startsWith(line, "//")) ? "" : (line + "\n")><}>";
-   result_lines = shell(stripped_code, 50000);
-   if(!generatesError)
-   		lookForErrors(result_lines);
-   
-   int i = 0; int upbi = size(lines);
-   int j = 0; int upbj = size(result_lines);
-   pre_open = "\<pre class=\"screen\"\>";
-   codeLines = pre_open;
-   inPre = true;
-   prompt =       "rascal\>";
-   continuation = "\>\>\>\>\>\>\>";
-   continuationHTML = "\<span class=\"continuation\"\><continuation>\</span\>";
-   while(i < upbi && j < upbj){
-   		 if(i < upbi && startsWith(lines[i], "//")){
-           startLine = i;
-           while(i < upbi && startsWith(lines[i], "//")){
-               lines[i] = substring(lines[i], 2);
-               i += 1;
-           }
-           codeLines += "\</pre\>\n<markup(slice(lines, startLine, i - startLine))>\n<pre_open>";
-         }
-         if(i <upbi) {
-         	codeLines += b(prompt) + limitWidth(lines[i], 110) + "\n";
-         	i += 1; j += 1;
-         }
-         while(j < upbj && !startsWith(result_lines[j], prompt)){
-           //if(startsWith(result_lines[j], continuation))
-          //    codeLines += "\</pre\><continuationHTML><pre_open><limitWidth(replaceFirst(result_lines[j], continuation, ""), 110)>\n";
-          // else
-              codeLines += limitWidth(result_lines[j], 110) + "\n";
-           if(i < upbi && startsWith(result_lines[j], continuation)){
-              i += 1;
-             }
-           j += 1;
-         }
-         
-         if(i < upbi && startsWith(lines[i], "//")){
-           startLine = i;
-           while(i < upbi && startsWith(lines[i], "//")){
-               lines[i] = substring(lines[i], 2);
-               i += 1;
-           }
-           codeLines += "\</pre\>\n<markup(slice(lines, startLine, i - startLine))>\n<pre_open>";
-         }
+private str printShellInput(str input) = printShellInput(split("\n",input));
+  
+private str printShellInput(list[str] input) = { println("input was: <input>");
+  "\<span class=\"prompt\"\>rascal\>\</span\><head(input)>
+  '<for (cont <- tail(input)) {>\<span class=\"continuation\"\>\>\>\>\>\>\>\>\</span\><markupCode(cont)>
+  '<}>"; };
 
-   }
+data ShellException = parseError(str message, loc location) | error(str message);
+
+private str markupScreen(list[str] lines, bool generatesError){
+   todo = lines;
+   
+   codeLines = "\<pre class=\"screen\"\>";
+ 
+   while (todo != []) {
+     <first,todo> = headTail(todo);
+   
+     // first collect comment lines and mark them up
+     commentMarkup = [];
+     while (startsWith(first, "//")) {
+       commentMarkup += [substring(first,2)];
+       if (todo == []) {
+         return "<markup(commentMarkup)>\</pre\>"; // screen ended in comments
+       }
+       <first,todo> = headTail(todo);
+     }
+
+     if (commentMarkup != []) {
+        codeLines += "\</pre\>";
+        codeLines += markup(commentMarkup);
+        codeLines += "\<pre class=\"screen\"\>";
+     }
+          
+     if (first == "") {
+       codeLines += printShellInput(first); 
+       codeLines += "cancelled\n";
+       continue;
+     }
+     
+     // deal with normal command
+     try {
+       result = shell(first, 50000);
+       codeLines += printShellInput(first); 
+       codeLines += markupCode(result);
+     }
+     catch parseError(str msg, loc x) : {
+        if (x.offset >= size(first) && todo != []) {
+          <next,todo> = headTail(todo);
+          if (next == "") {
+            codeLines += printShellInput("<first>\n<next>"); 
+            codeLines += "\ncancelled\n";
+          }
+          else {
+            todo = "<first>\n<next>" + todo;
+          }
+        }
+        else {
+          codeLines += printShellInput(first);
+          codeLines += markupCode(msg);
+        }
+     }
+     catch error(str msg) : {
+       codeLines += printShellInput(first);
+       codeLines += markupCode(msg);
+       if (!generatesError) {
+         addWarning("screen command failed: \"<first>\"");
+       }
+     }
+   } 
+
    codeLines += "\</pre\>";
-   codeLines = replaceAll(codeLines, "\<pre class=\"screen\"\>\</pre\>", "");
-   return codeLines;
+
+   return replaceAll(codeLines, "\<pre class=\"screen\"\>\</pre\>", "");
 }
 
 public str limitWidth(str txt, int limit){

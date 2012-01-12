@@ -280,8 +280,8 @@ public Concept compileConcept(ConceptName conceptName){
 	    throw ConceptError(conceptName, "Missing section \"<e>\"");
 	  catch IOError(e):
 	    throw ConceptError(conceptName, "<e>");
-	  catch e: 
-	    throw ConceptError(conceptName, "Uncaught exception <e>");
+	 // catch e: 
+	 //   throw ConceptError(conceptName, "Uncaught exception <e>");
 }
 
 public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
