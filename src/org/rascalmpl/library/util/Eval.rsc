@@ -57,12 +57,6 @@ public value eval(str command, int duration) throws Timeout = eval(#value, comma
 public java &T eval(type[&T] typ, list[str] commands, int duration) throws Timeout;
 public value eval(list[str] commands, int duration) throws Timeout = eval(#value, commands, duration);
 
-@doc{
-Synopsis: executes a list of commands and simulates the printed output of the read-eval-print-loop
-}
-@javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java str shell(str command, int duration) throws Timeout, ShellParseError, ShellError;
 
 @doc{
 Synopsis: Evaluate a (list of) Rascal commands and return the type of the last command.
