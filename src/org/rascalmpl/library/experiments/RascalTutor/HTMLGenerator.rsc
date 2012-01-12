@@ -391,31 +391,33 @@ private str markupFigure(list[str] lines, int width, int height, str file){
   n = size(lines);
   str renderCall = lines[n-1];
   errors = "";
-  if(/\s*render\(<arg:.*>\);/ := renderCall){
+  if (/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
  
 	  path = courseDir[path = courseDir.path + "<conceptPath>/<file>"];
 	  lines[n-1] = (width > 0 && height > 0) ? "renderSave(<arg>, <width>, <height>, <path>);"
 	                                         : "renderSave(<arg>, <path>);";
 	  
-	  for(line <- lines)
-	    println("shell input: <line>");
-	  out = shell(["import vis::Figure;", 
-	               "import vis::Render;"] + 
-	              lines, 
-	              100000);
-	  println("**** shell output ****\n<out>");
-	  errors = lookForErrors(out);
-	  if(errors != "") println("errors = <errors>");
+	    println("shell input: <for (line <- lines) {><line>
+	            '<}>");
+
+    try {
+	     eval(["import vis::Figure;","import vis::Render;"] + lines, 100000);
+	  }
+	  catch value x: 
+	    errors += "<x>\n";
+	    
 	  // Restore original call for listing
 	  lines[n-1] = renderCall;
-  } else
+  } 
+  else {
     errors = "Last line should be a call to \"render\"";
-
-  if(errors != ""){
+  }
+  
+  if (errors != ""){
     errors = "\<warning\>" + errors + "\</warning\>";
     addWarning(errors);
-   }
+  }
   return errors + markupListing(lines);
 }
 

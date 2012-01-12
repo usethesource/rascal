@@ -548,7 +548,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
      vars = [];
      auxVars = [];
      hint = "";
-     rtype = \void();
+     rtype = RascalType::\void();
      listing = "";
 	 cndBefore = "";
 	 cndAfter = "";
@@ -589,7 +589,7 @@ public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qn
 	      }
 	      
 	    case /^type:\s*<tp:.*>$/: {
-	        rtype = \void();
+	        rtype = RascalType::\void();
 			try { rtype = parseType(tp); }
 			catch:
 			     throw ConceptError(cname, "Question <qname>: cannot parse type of expected type");
@@ -684,7 +684,7 @@ Type    +      +         +      0   ERROR
      if((cndBefore + cndAfter) == "" && !(holeInLst))
         throw ConceptError(cname, "Question <qname> has no test");
         
-     if(kind == typeOfExpr() && holeInCnd && rtype == \void())
+     if(kind == typeOfExpr() && holeInCnd && rtype == RascalType::\void())
            throw ConceptError(cname, "Type question <qname> has condition with a hole and requires an expected type");
      
      if(usedVars - definedVars != {})
@@ -843,7 +843,7 @@ public str showQuestion(ConceptName cpid, Question q){
          exp1 = subst(exp, env);
          //println("exp1 = <exp1>");
          try {
-           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
+           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1).val>">;
          } catch: throw "Error in computing <name>, <exp>";
       }
       //println("env = <env>");

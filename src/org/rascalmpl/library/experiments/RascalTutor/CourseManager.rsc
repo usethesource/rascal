@@ -259,7 +259,12 @@ public str validateAnswer1(map[str,str] params){
 	    for(<name, exp> <- auxVars){
           exp1 = subst(exp, env) + ";";
           //println("exp1 = <exp1>");
-          env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1)>">;
+          if (\value(value res) := eval(setup + exp1)) {
+            env[name] = <parseType("<evalType(setup + exp1)>"), "<res>">;
+          }
+          else {
+            env[name] = <parseType("<evalType(setup + exp1)>"), "ok">;
+          }
         }
         
         lstBefore = subst(lstBefore, env);
@@ -273,9 +278,9 @@ public str validateAnswer1(map[str,str] params){
 	            if(lstBefore + lstAfter == ""){
 	              //println("YES!");
 	              if(holeInCnd){
-	                 computedAnswer = eval(setup + (cndBefore + answer + cndAfter + ";"));
-	                 if(computedAnswer == true)
+	                 if (\value(true) := eval(setup + (cndBefore + answer + cndAfter + ";"))) {
 	                   return correctAnswer(cpid, qid);
+	                 }
 	                 wrongAnswer(cpid, qid, hint);
 	              } else {
 	                 //println("YES2");
@@ -289,7 +294,7 @@ public str validateAnswer1(map[str,str] params){
 	                   if(computedAnswer == givenAnswer)
 	                      return correctAnswer(cpid, qid);     
 	                 }
-	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer>.");
+	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer.val>.");
 	               } 
 	            }
 	            validate = (holeInLst) ? lstBefore + answer + lstAfter + cndBefore	             
@@ -297,31 +302,22 @@ public str validateAnswer1(map[str,str] params){
 	                                                    : lstBefore + cndBefore + "==" + answer);
 	            
 	            //println("Evaluating validate: <validate>");
-	            output =  shell(setup + validate);
-	            //println("result is <output>");
-	            
-	            a = size(output) -1;
-	            while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
-	               a -= 1;
-	               
-	            errors = [line | line <- output, /[Ee]rror/ := line];
-	            
-	            if(size(errors) == 0 && cndBefore == "")
-	               return correctAnswer(cpid, qid);
-	               
-	            if(size(errors) == 0 && output[a] == "bool: true")
-	              return correctAnswer(cpid, qid);
-	            if(hint != ""){
-	               return wrongAnswer(cpid, qid, "I expected <subst(hint, env)>.");
-	            }
-	            //if(!(holeInLst || holeInCnd)){
-	           //    return wrongAnswer(cpid, qid, "I expected <eval(subst(cndBefore, env))>.");
-	           // }  
-	            return wrongAnswer(cpid, qid, "I have no expected answer for you.");
-	          } catch:
+	              res = shell(setup + validate);
+	              switch (res) {
+	                case \void(): if (cndBefore == "") return correctAnswer(cpid, qid);
+	                case \value(true): return correctAnswer(cpid, qid);
+	                default: 
+	                  if (hint != "") {
+	                    return wrongAnswer(cpid, qid, "I expected <subst(hint, env)>.");
+	                  }
+	                  else {
+                       return wrongAnswer(cpid, qid, "I have no expected answer for you.");	                
+	                  }
+	              }
+	          } 
+	          catch:
 	             return wrongAnswer(cpid, qid, "Something went wrong!");
-	      }
-
+          }
           case typeOfExpr(): {
 	          try {
 	            if(lstBefore == ""){ // Type question without listing
