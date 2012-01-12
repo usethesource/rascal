@@ -68,7 +68,7 @@ public class HTMLGenerator {
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(StaticError e){
-			content = staticErrorMessage(e);
+			content = staticErrorMessage(e); 
 			throw new Throw(ShellError.make(values, values.string(content)), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throw e){
