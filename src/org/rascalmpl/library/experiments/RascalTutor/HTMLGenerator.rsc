@@ -435,7 +435,7 @@ private str printShellInput(list[str] input) = { println("input was: <input>");
 data ShellException = parseError(str message, loc location) | error(str message);
 
 @javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
-@reflective
+@reflect{to access the evaluator}
 public java str shell(str command, int duration) throws Timeout, ShellException, ShellException;
 
 private str markupScreen(list[str] lines, bool generatesError){
