@@ -72,38 +72,30 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-</pre>
-  Get the first element:
-
-<pre class="screen"><b>rascal></b>head([1, 2, 3]);
+</pre>  Get the first element:
+<pre class="screen"><span class="prompt">rascal></span>head([1, 2, 3]);
 int: 1
-<b>rascal></b>head([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-str: &quot;zebra&quot;
-</pre>
-  An exception is thrown when taking the head of an empty list:
-
-<pre class="screen"><b>rascal></b>head([]);
-Uncaught Rascal Exception: prompt:///:1,0: EmptyList()
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.p&raquo;
-db.facts.IList)
-    somewhere in: $shell$
-</pre>
-  Get the first n elements:
-
-<pre class="screen"><b>rascal></b>head([1, 2, 3, 4], 2);
+<span class="prompt">rascal></span>head(["zebra", "elephant", "snake", "owl"]);
+str: "zebra"
+</pre>  An exception is thrown when taking the head of an empty list:
+<pre class="screen"><span class="prompt">rascal></span>head([]);
+exception:EmptyList()
+stacktrace:|eval:///?command=head%28%5B%5D%29%3B|(0,8,&lt;1,0>,&lt;1,8>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.pdb.facts.IList)
+	somewhere in: ***screen***
+</pre>  Get the first n elements:
+<pre class="screen"><span class="prompt">rascal></span>head([1, 2, 3, 4], 2);
 list[int]: [1,2]
-<b>rascal></b>head([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 2);
-list[str]: [&quot;zebra&quot;,&quot;elephant&quot;]
-</pre>
-  An exception is thrown when the second argument exceeds the length of the list:
-
-<pre class="screen"><b>rascal></b>head([1, 2, 3, 5], 5);
-Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(4)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.p&raquo;
-db.facts.IList,org.eclipse.imp.pdb.facts.IInteger) throws java.lang.IndexOutOfBoundsException
-    somewhere in: $shell$
+<span class="prompt">rascal></span>head(["zebra", "elephant", "snake", "owl"], 2);
+list[str]: ["zebra","elephant"]
+</pre>  An exception is thrown when the second argument exceeds the length of the list:
+<pre class="screen"><span class="prompt">rascal></span>head([1, 2, 3, 5], 5);
+exception:IndexOutOfBounds(4)
+stacktrace:|eval:///?command=head%28%5B1%2C+2%2C+3%2C+5%5D%2C+5%29%3B|(0,21,&lt;1,0>,&lt;1,21>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.head(org.eclipse.imp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger) throws java.lang.IndexOutOfBoundsException
+	somewhere in: ***screen***
 </pre>
 </div>
 

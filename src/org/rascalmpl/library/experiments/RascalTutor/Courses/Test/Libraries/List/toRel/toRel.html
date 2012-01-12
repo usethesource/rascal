@@ -71,19 +71,19 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>toRel([3, 1, 4, 5]);
+<span class="prompt">rascal></span>toRel([3, 1, 4, 5]);
 rel[int, int]: {
-  &lt;3,1&gt;,
-  &lt;4,5&gt;,
-  &lt;1,4&gt;
+  &lt;3,1>,
+  &lt;4,5>,
+  &lt;1,4>
 }
-<b>rascal></b>toRel([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
+<span class="prompt">rascal></span>toRel(["zebra", "elephant", "snake", "owl"]);
 rel[str, str]: {
-  &lt;&quot;snake&quot;,&quot;owl&quot;&gt;,
-  &lt;&quot;elephant&quot;,&quot;snake&quot;&gt;,
-  &lt;&quot;zebra&quot;,&quot;elephant&quot;&gt;
+  &lt;"snake","owl">,
+  &lt;"elephant","snake">,
+  &lt;"zebra","elephant">
 }
 </pre>
 </div>

@@ -17,6 +17,8 @@ package org.rascalmpl.library.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -25,6 +27,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -44,6 +48,12 @@ public class Eval {
 	private int evalCount = 0;
 
 	private final TypeReifier tr;
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private final TypeStore store = new TypeStore();
+	private final Type param = tf.parameterType("T");
+	public final Type Result = tf.abstractDataType(store, "Result", param);
+	public final Type Result_void = tf.constructor(store, Result, "void");
+	public final Type Result_value = tf.constructor(store, Result, "value", param, "val");
 	
 	public Eval(IValueFactory values){
 		super();
@@ -69,7 +79,16 @@ public class Eval {
 	
 	
 	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
-		return doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx)).getValue();
+		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx));
+		
+		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
+			return Result_void.make(values);
+		}
+		else {
+			Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(param, result.getType());
+			return Result_value.instantiate(bindings).make(values, result.getValue());
+		}
 	}
 	
 	public IValue eval (IValue typ, IString input, IEvaluatorContext ctx) {
@@ -77,7 +96,16 @@ public class Eval {
 	}
 
 	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		return doEval(typ, commands, duration,  getSharedEvaluator(ctx)).getValue();
+		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx));
+		
+		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
+			return Result_void.make(values);
+		}
+		else {
+			Map<Type,Type> bindings = new HashMap<Type,Type>();
+			bindings.put(param, result.getType());
+			return Result_value.instantiate(bindings).make(values, result.getValue());
+		}
 	}
 	
 	public IValue eval (IValue typ, IList commands, IEvaluatorContext ctx) {

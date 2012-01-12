@@ -71,19 +71,19 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>zip([3, 1, 4], [&quot;thirty&quot;, &quot;ten&quot;, &quot;forty&quot;]);
+<span class="prompt">rascal></span>zip([3, 1, 4], ["thirty", "ten", "forty"]);
 list[tuple[int first,str second]]: [
-  &lt;3,&quot;thirty&quot;&gt;,
-  &lt;1,&quot;ten&quot;&gt;,
-  &lt;4,&quot;forty&quot;&gt;
+  &lt;3,"thirty">,
+  &lt;1,"ten">,
+  &lt;4,"forty">
 ]
-<b>rascal></b>zip([3, 1, 4], [&quot;thirty&quot;, &quot;ten&quot;, &quot;forty&quot;], [300, 100, 400]);
+<span class="prompt">rascal></span>zip([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 list[tuple[int first,str second,int third]]: [
-  &lt;3,&quot;thirty&quot;,300&gt;,
-  &lt;1,&quot;ten&quot;,100&gt;,
-  &lt;4,&quot;forty&quot;,400&gt;
+  &lt;3,"thirty",300>,
+  &lt;1,"ten",100>,
+  &lt;4,"forty",400>
 ]
 </pre>
 </div>

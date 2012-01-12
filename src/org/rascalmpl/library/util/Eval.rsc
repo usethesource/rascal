@@ -12,6 +12,8 @@
 
 module util::Eval
 
+public data Result[&T] = \void() | \value(&T val);
+ 
 @doc{
 Synopsis: Evaluate a (list of) Rascal commands and return the value of the last command.
 
@@ -34,28 +36,28 @@ eval(["X = 2 * 3;", "X + 5;"]);
 // -- Give input string to the Rascal evaluator and return its value
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java &T eval(type[&T] typ, str command) throws Timeout;
-public value eval(str command) throws Timeout = eval(#value, command);
+public java Result[&T] eval(type[&T] typ, str command) throws Timeout;
+public Result[value] eval(str command) throws Timeout = eval(#value, command);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java &T eval(type[&T] typ, list[str] commands) throws Timeout;
-public value eval(list[str] commands) throws Timeout = eval(#value, commands);
-
+public java Result[&T] eval(type[&T] typ, list[str] commands) throws Timeout;
+public Result[value] eval(list[str] commands) throws Timeout = eval(#value, commands);
+ 
 // --- eval with given duration (in milliseconds)
 
 // -- Give input string to the Rascal evaluator and return its value within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java &T eval(type[&T] typ, str command, int duration) throws Timeout;
-public value eval(str command, int duration) throws Timeout = eval(#value, command, duration);
+public java Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout;
+public Result[value] eval(str command, int duration) throws Timeout = eval(#value, command, duration);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
 @reflect
-public java &T eval(type[&T] typ, list[str] commands, int duration) throws Timeout;
-public value eval(list[str] commands, int duration) throws Timeout = eval(#value, commands, duration);
+public java Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout;
+public Result[value] eval(list[str] commands, int duration) throws Timeout = eval(#value, commands, duration);
 
 
 @doc{

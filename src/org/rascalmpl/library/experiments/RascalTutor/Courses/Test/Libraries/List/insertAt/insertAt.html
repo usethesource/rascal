@@ -70,21 +70,18 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>insertAt([1,2,3], 1, 5);
+<span class="prompt">rascal></span>insertAt([1,2,3], 1, 5);
 list[int]: [1,5,2,3]
-<b>rascal></b>insertAt([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 2, &quot;eagle&quot;);
-list[str]: [&quot;zebra&quot;,&quot;elephant&quot;,&quot;eagle&quot;,&quot;snake&quot;,&quot;owl&quot;]
-</pre>
- An exception is thrown when the index position is outside the list:
-
-<pre class="screen"><b>rascal></b>insertAt([1,2,3], 10, 5);
-Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(10)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.insertAt(org.eclipse.i&raquo;
-mp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.Index&raquo;
-OutOfBoundsException
-    somewhere in: $shell$
+<span class="prompt">rascal></span>insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
+list[str]: ["zebra","elephant","eagle","snake","owl"]
+</pre> An exception is thrown when the index position is outside the list:
+<pre class="screen"><span class="prompt">rascal></span>insertAt([1,2,3], 10, 5);
+exception:IndexOutOfBounds(10)
+stacktrace:|eval:///?command=insertAt%28%5B1%2C2%2C3%5D%2C+10%2C+5%29%3B|(0,24,&lt;1,0>,&lt;1,24>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.insertAt(org.eclipse.imp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.IndexOutOfBoundsException
+	somewhere in: ***screen***
 </pre>
 </div>
 

@@ -72,28 +72,24 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  All but first element:
-
-<pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>    All but first element:
+<pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>tail([10,20,30]);
+<span class="prompt">rascal></span>tail([10,20,30]);
 list[int]: [20,30]
-<b>rascal></b>tail([]);
-Uncaught Rascal Exception: prompt:///:1,0: EmptyList()
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.p&raquo;
-db.facts.IList)
-    somewhere in: $shell$
-</pre>
-  Last n elements:
-
-<pre class="screen"><b>rascal></b>tail([10, 20, 30, 40, 50, 60], 3);
+<span class="prompt">rascal></span>tail([]);
+exception:EmptyList()
+stacktrace:|eval:///?command=tail%28%5B%5D%29%3B|(0,8,&lt;1,0>,&lt;1,8>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.pdb.facts.IList)
+	somewhere in: ***screen***
+</pre>  Last n elements:
+<pre class="screen"><span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 3);
 list[int]: [40,50,60]
-<b>rascal></b>tail([10, 20, 30, 40, 50, 60], 10);
-Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(4)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.p&raquo;
-db.facts.IList,org.eclipse.imp.pdb.facts.IInteger)
-    somewhere in: $shell$
+<span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 10);
+exception:IndexOutOfBounds(4)
+stacktrace:|eval:///?command=tail%28%5B10%2C+20%2C+30%2C+40%2C+50%2C+60%5D%2C+10%29%3B|(0,34,&lt;1,0>,&lt;1,34>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger)
+	somewhere in: ***screen***
 </pre>
 </div>
 

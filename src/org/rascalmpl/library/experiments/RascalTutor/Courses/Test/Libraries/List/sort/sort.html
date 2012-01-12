@@ -73,18 +73,18 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>import String;
+<span class="prompt">rascal></span>import String;
 ok
-<b>rascal></b>sort([10, 4, -2, 11, 100, 5]);
+<span class="prompt">rascal></span>sort([10, 4, -2, 11, 100, 5]);
 list[int]: [-2,4,5,10,11,100]
-<b>rascal></b>fruits = [&quot;mango&quot;, &quot;strawberry&quot;, &quot;pear&quot;, &quot;pineapple&quot;, &quot;banana&quot;, &quot;grape&quot;, &quot;kiwi&quot;];
-list[str]: [&quot;mango&quot;,&quot;strawberry&quot;,&quot;pear&quot;,&quot;pineapple&quot;,&quot;banana&quot;,&quot;grape&quot;,&quot;kiwi&quot;]
-<b>rascal></b>sort(fruits);
-list[str]: [&quot;banana&quot;,&quot;grape&quot;,&quot;kiwi&quot;,&quot;mango&quot;,&quot;pear&quot;,&quot;pineapple&quot;,&quot;strawberry&quot;]
-<b>rascal></b>sort(fruits, bool(str a, str b){ return size(a) &gt;= size(b); });
-list[str]: [&quot;strawberry&quot;,&quot;pineapple&quot;,&quot;banana&quot;,&quot;mango&quot;,&quot;grape&quot;,&quot;pear&quot;,&quot;kiwi&quot;]
+<span class="prompt">rascal></span>fruits = ["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"];
+list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
+<span class="prompt">rascal></span>sort(fruits);
+list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
+<span class="prompt">rascal></span>sort(fruits, bool(str a, str b){ return size(a) >= size(b); });
+list[str]: ["strawberry","pineapple","banana","mango","grape","pear","kiwi"]
 </pre>
 </div>
 

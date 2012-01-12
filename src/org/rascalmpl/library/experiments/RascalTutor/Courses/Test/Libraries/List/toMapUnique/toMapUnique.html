@@ -70,18 +70,16 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>toMapUnique([&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
+<span class="prompt">rascal></span>toMapUnique([<1,10>, <2, 20>, <3, 30>]);
 map[int, int]: (3:30,2:20,1:10)
-</pre>
- Let's explore an error case:
-
-<pre class="screen"><b>rascal></b>toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-Uncaught Rascal Exception: prompt:///:1,0: MultipleKey(1)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclips&raquo;
-e.imp.pdb.facts.IList)
-    somewhere in: $shell$
+</pre> Let's explore an error case:
+<pre class="screen"><span class="prompt">rascal></span>toMapUnique([<1,10>, <1, 11>, <2, 20>, <3, 30>]);
+exception:MultipleKey(1)
+stacktrace:|eval:///?command=toMapUnique%28%5B%3C1%2C10%3E%2C+%3C1%2C+11%3E%2C+%3C2%2C+20%3E%2C+%3C3%2C+30%3E%5D%29%3B|(0,48,&lt;1,0>,&lt;1,48>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclipse.imp.pdb.facts.IList)
+	somewhere in: ***screen***
 </pre>
 </div>
 
