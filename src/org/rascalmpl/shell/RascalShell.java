@@ -51,14 +51,13 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalShell {
-	private final static String PROMPT = "rascal>";
-	private final static String CONTINUE_PROMPT = ">>>>>>>";
 	private final static int LINE_LIMIT = 200;
 	private static final String SHELL_MODULE = "$shell$";
 	
@@ -110,7 +109,7 @@ public class RascalShell {
 		next:while (running) {
 			try {
 				input.delete(0, input.length());
-				String prompt = PROMPT;
+				String prompt = ReadEvalPrintDialogMessages.PROMPT;
 
 				do {
 					line = console.readLine(prompt);
@@ -125,7 +124,7 @@ public class RascalShell {
 					}
 					
 					input.append((input.length() > 0 ? "\n" : "") + line);
-					prompt = CONTINUE_PROMPT;
+					prompt = ReadEvalPrintDialogMessages.CONTINUE_PROMPT;
 				} while (!completeStatement(input.toString()));
 
 				String output = handleInput(input.toString());
