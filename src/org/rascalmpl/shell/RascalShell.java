@@ -15,6 +15,11 @@ package org.rascalmpl.shell;
 *******************************************************************************/
 
 
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toParseError;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toStaticError;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrow;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrowable;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -39,9 +44,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
-import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -130,46 +133,19 @@ public class RascalShell {
 				console.printNewline();
 			}
 			catch (ParseError pe) {
-				URI uri = pe.getLocation();
-				if (uri.getScheme().equals("stdin")) {
-					console.printString("Parse error in command from <"+(pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
-				}
-				else {
-					console.printString("Parse error in " + uri + " from <" + (pe.getBeginLine() + 1)+","+pe.getBeginColumn()+"> to <"+(pe.getEndLine() + 1)+","+pe.getEndColumn()+">\n");
-				}
+				console.printString(toParseError(input.toString(), "stdin", pe));
 			}
 			catch (StaticError e) {
-				console.printString("Static Error: " + e.getMessage() + "\n");
-				e.printStackTrace(); // for debugging only
+				console.printString(toStaticError(e));
 			}
 			catch (Throw e) {
-				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
-				String trace = e.getTrace();
-				if (trace != null) {
-					console.printString(trace);
-				}
-				else {
-//					e.printStackTrace(); // for debugging only
-				}
-			}
-			catch(Insert e){
-				console.printString("Error: insert statement outside visit\n");
-			}
-			catch (Return e){
-				console.printString("Error: return statement outside function body\n");
-			}
-			catch (ImplementationError e) {
-				e.printStackTrace();
-				console.printString("ImplementationError: " + e.getMessage() + "\n");
-				printStacktrace(console, e);
+				console.printString(toThrow(e));
 			}
 			catch (QuitException q) {
 				break next;
 			}
 			catch (Throwable e) {
-				console.printString("Unexpected exception (generic Throwable): " + e.getMessage() + "\n");
-				console.printString(evaluator.getStackTrace());
-				printStacktrace(console, e);
+				console.printString(toThrowable(e, evaluator.getStackTrace()));
 			}
 		}
 	}
@@ -181,22 +157,6 @@ public class RascalShell {
 	
 	public Evaluator getEvaluator() {
 		return evaluator;
-	}
-	
-	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
-		String message = e.getMessage();
-		console.printString("stacktrace: " + (message != null ? message : "" )+ "\n");
-		StackTraceElement[] stackTrace = e.getStackTrace();
-		if (stackTrace != null) {
-			for (StackTraceElement elem : stackTrace) {
-				console.printString("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
-			}
-		}
-		Throwable cause = e.getCause();
-		if (cause != null) {
-			console.printString("caused by:\n");
-			printStacktrace(console, cause);
-		}
 	}
 	
 	private String handleInput(String statement){
