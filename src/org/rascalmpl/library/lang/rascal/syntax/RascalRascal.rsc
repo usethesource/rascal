@@ -474,9 +474,14 @@ syntax Visit
 	| DefaultStrategy: "visit" "(" Expression subject ")" "{" Case+ cases "}" ;
 
 start syntax Commands
-	= List: Command+ commands
+	= List: EvalCommand+ commands
 	;
 
+start syntax EvalCommand
+  = Declaration: Declaration declaration  
+  | Statement: Statement statement 
+  | Import: Import imported ;
+  
 start syntax Command
 	= Expression: Expression expression 
 	| Declaration: Declaration declaration 
