@@ -46,7 +46,7 @@ public class TutorDefaultHttpServlet extends DefaultServlet{
 	
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		System.err.println("TutorDefaultHttpServlet, doGet: " + request.getRequestURI());
+//		System.err.println("TutorDefaultHttpServlet, doGet: " + request.getRequestURI());
 		String rname = request.getRequestURI();
 		if(rname.equals("/"))
 			rname = "/Courses/index.html";

@@ -100,6 +100,18 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitEvalCommandImport(EvalCommand.Import x) { 
+    return null; 
+  }
+
+  public T visitEvalCommandStatement(EvalCommand.Statement x) { 
+    return null; 
+  }
+
+  public T visitEvalCommandDeclaration(EvalCommand.Declaration x) { 
+    return null; 
+  }
+
   public T visitLiteralRational(Literal.Rational x) { 
     return null; 
   }
@@ -1288,6 +1300,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitCommandsList(Commands.List x) { 
+    return null; 
+  }
+
   public T visitTypeArgNamed(TypeArg.Named x) { 
     return null; 
   }
@@ -1301,10 +1317,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitPathPartInterpolated(PathPart.Interpolated x) { 
-    return null; 
-  }
-
-  public T visitCommandsList(Commands.List x) { 
     return null; 
   }
 
@@ -1630,6 +1642,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitEvalCommandAmbiguity(EvalCommand.Ambiguity x) { 
+    return null; 
+  }
+
   public T visitProdModifierAmbiguity(ProdModifier.Ambiguity x) { 
     return null; 
   }
@@ -1698,11 +1714,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
+  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
     return null; 
   }
 
-  public T visitMidProtocolCharsAmbiguity(MidProtocolChars.Ambiguity x) { 
+  public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) { 
     return null; 
   }
 
@@ -1710,11 +1726,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
+  public T visitFieldAmbiguity(Field.Ambiguity x) { 
     return null; 
   }
 
-  public T visitFieldAmbiguity(Field.Ambiguity x) { 
+  public T visitDeclarationAmbiguity(Declaration.Ambiguity x) { 
     return null; 
   }
 

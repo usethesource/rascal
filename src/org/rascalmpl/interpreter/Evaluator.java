@@ -42,7 +42,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
+import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
+import org.rascalmpl.ast.EvalCommand;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
@@ -53,6 +55,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
+import org.rascalmpl.ast.TagString.Lexical;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -74,6 +77,7 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -747,6 +751,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			setMonitor(old);
 		}
 	}
+	
+	/**
+	 * Parse and evaluate a command in the current execution environment
+	 * 
+	 * @param command
+	 * @return
+	 */
+	public Result<IValue> evalMore(IRascalMonitor monitor, String commands, URI location) {
+		IRascalMonitor old = setMonitor(monitor);
+		try {
+			return evalMore(commands, location);
+		}
+		finally {
+			setMonitor(old);
+		}
+	}
 
 	private Result<IValue> eval(String command, URI location)
 			throws ImplementationError {
@@ -763,6 +783,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 
 		Command stat = getBuilder().buildCommand(tree);
+		
+		if (stat == null) {
+			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
+		}
+
+		return eval(stat);
+	}
+	
+	private Result<IValue> evalMore(String command, URI location)
+			throws ImplementationError {
+		__setInterrupt(false);
+		IConstructor tree;
+		
+		if (noBacktickOutsideStringConstant(command)) {
+			IActionExecutor actionExecutor = new BootRascalActionExecutor();
+			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+		} else {
+			IActionExecutor actionExecutor =  new BootRascalActionExecutor();
+			IGTD rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			tree = (IConstructor) rp.parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new NodeToUPTR());
+		}
+
+		Commands stat = getBuilder().buildCommands(tree);
+		
 		if (stat == null) {
 			throw new ImplementationError("Disambiguation failed: it removed all alternatives");
 		}
@@ -843,6 +887,29 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 	
+	private Result<IValue> eval(Commands commands) {
+		__setInterrupt(false);
+		if (Evaluator.doProfiling) {
+			profiler = new Profiler(this);
+			profiler.start();
+
+		}
+		try {
+			Result<IValue> last = ResultFactory.nothing();
+			for (EvalCommand command : commands.getCommands()) {
+				last = command.interpret(this);
+			}
+			return last;
+		} finally {
+			if (Evaluator.doProfiling) {
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
+				}
+			}
+		}
+	}
+	
 	private Result<IValue> eval(Command command) {
 		__setInterrupt(false);
 		if (Evaluator.doProfiling) {
@@ -878,7 +945,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				return r;
 			}
 
-			throw new NotYetImplemented(declaration.toString());
+			throw new NotYetImplemented(declaration);
 		}
 		finally {
 			setMonitor(old);
@@ -1322,7 +1389,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public String getDeprecatedMessage(Module preModule){
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
-				String contents = tag.getContents().toString();
+				String contents = ((Lexical) tag.getContents()).getString();
 				return contents.substring(1, contents.length() -1);
 			}
 		}
@@ -1426,7 +1493,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public String getModuleName(PreModule module) {
-		String name = module.getHeader().getName().toString();
+		String name = Names.fullName(module.getHeader().getName());
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
 		}

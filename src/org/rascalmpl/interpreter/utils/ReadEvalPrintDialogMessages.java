@@ -19,8 +19,9 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
-	public static String PROMPT = "rascal>";
+	public static final String PROMPT = "rascal>";
 	public static final String CONTINUE_PROMPT = ">>>>>>>";
+	public static final String CANCELLED = "cancelled";
 	
 	public static String resultMessage(Result<IValue> result) {
 		String content;

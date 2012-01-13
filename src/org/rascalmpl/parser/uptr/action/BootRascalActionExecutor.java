@@ -35,6 +35,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private static final IConstructor EXP = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Expression"));
 	private static final IConstructor COM = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Command"));
+	private static final IConstructor EVALCOM = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("EvalCommand"));
 	private static final IConstructor PAT = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Pattern"));
 	private static final IConstructor STAT = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Statement"));
 	private static final IConstructor TYPE = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Type"));
@@ -70,6 +71,10 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 		
 		if (sym.isEqual(COM)) {
 			return filterCommand(tree, prod);
+		}
+		
+		if (sym.isEqual(EVALCOM)) {
+			return filterEvalCommand(tree, prod);
 		}
 		
 		// TODO: include basic filtering of embedded concrete syntax fragments here.
@@ -154,6 +159,14 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	}
 
 	private IConstructor filterCommand(IConstructor tree, IConstructor prod) {
+		if (filterArg(tree, prod, "Expression", 0, "NonEmptyBlock") == null) {
+			return null;
+		}
+	
+		return filterArg(tree, prod, "Statement", 0, "VariableDeclaration", "FunctionDeclaration", "Visit");
+	}
+	
+	private IConstructor filterEvalCommand(IConstructor tree, IConstructor prod) {
 		if (filterArg(tree, prod, "Expression", 0, "NonEmptyBlock") == null) {
 			return null;
 		}

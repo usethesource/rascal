@@ -201,40 +201,39 @@ public str validateAnswer(map[str,str] params){
 }
 
 public str validateAnswer1(map[str,str] params){
-
-    ConceptName cpid = params["concept"];
-    QuestionName qid = params["exercise"];
+  ConceptName cpid = params["concept"];
+  QuestionName qid = params["exercise"];
     
-    answer = trim(params["answer"]) ? "";
-    expr = params["exp"] ? "";
-    cheat = params["cheat"] ? "no";
+  answer = trim(params["answer"]) ? "";
+  expr = params["exp"] ? "";
+  cheat = params["cheat"] ? "no";
 	another = params["another"] ? "no";
 	
 	lastQuestion = qid;
 	q = getQuestion(cpid, qid);
 	
-	//println("Validate: <params>");
-	//println("Validate: <q>");
-	if(cheat == "yes")
-	   return showCheat(cpid, qid, q, params);
-	if(another == "yes")
+	if(cheat == "yes") {
+	  return showCheat(cpid, qid, q, params);
+	}
+	
+	if(another == "yes") {
 	   return showAnother(cpid, qid, q);
+	}
 	   
-	switch(q){
-      case choiceQuestion(cid,qid,descr,choices): {
-        try {
+	switch (q) {
+    case choiceQuestion(cid,qid,descr,choices): {
+      try {
            int c = toInt(answer);
            expected = [txt | good(str txt) <- choices];
            return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, expected[0]);
-        } catch:
-           return wrongAnswer(cpid, qid, "");
-      }
+      } 
+      catch: return wrongAnswer(cpid, qid, "");
+    }
+    
+    case textQuestion(cid,qid,descr,replies):
+      return (toLowerCase(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
       
-      case textQuestion(cid,qid,descr,replies):
-        return (toLowerCase(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
-        
- 
-      case tvQuestion(cid, qid, qkind, qdetails): {
+    case tvQuestion(cid, qid, qkind, qdetails): {
         setup  = qdetails.setup;
         lstBefore = qdetails.lstBefore;
         lstAfter  = qdetails.lstAfter;
@@ -251,26 +250,26 @@ public str validateAnswer1(map[str,str] params){
         
         VarEnv env = ();
         generatedVars = [];
-        for(<name, tp> <- vars){
+        for(<name, tp> <- vars) {
           env[name] = <parseType(evalType(params[name] + ";")), params[name]>;
           generatedVars += name;
-	    }
+	      }
   
-	    for(<name, exp> <- auxVars){
-          exp1 = subst(exp, env) + ";";
-          //println("exp1 = <exp1>");
-          if (\value(value res) := eval(setup + exp1)) {
-            env[name] = <parseType("<evalType(setup + exp1)>"), "<res>">;
-          }
-          else {
-            env[name] = <parseType("<evalType(setup + exp1)>"), "ok">;
-          }
-        }
+		    for(<name, exp> <- auxVars){
+	          exp1 = subst(exp, env) + ";";
+	          //println("exp1 = <exp1>");
+	          if (\value(value res) := eval(setup + [exp1])) {
+	            env[name] = <parseType("<evalType(setup + [exp1])>"), "<res>">;
+	          }
+	          else {
+	            env[name] = <parseType("<evalType(setup + [exp1])>"), "ok">;
+	          }
+	      }
         
         lstBefore = subst(lstBefore, env);
-	    lstAfter = subst(lstAfter, env);
-	    cndBefore = subst(cndBefore, env);
-	    cndAfter = subst(cndAfter, env);
+		    lstAfter = subst(lstAfter, env);
+		    cndBefore = subst(cndBefore, env);
+		    cndAfter = subst(cndAfter, env);
           
         switch(qkind){
           case valueOfExpr(): {
@@ -278,7 +277,7 @@ public str validateAnswer1(map[str,str] params){
 	            if(lstBefore + lstAfter == ""){
 	              //println("YES!");
 	              if(holeInCnd){
-	                 if (\value(true) := eval(setup + (cndBefore + answer + cndAfter + ";"))) {
+	                 if (\value(true) := eval(setup + ["<cndBefore><answer><cndAfter>;"])) {
 	                   return correctAnswer(cpid, qid);
 	                 }
 	                 wrongAnswer(cpid, qid, hint);
@@ -286,37 +285,39 @@ public str validateAnswer1(map[str,str] params){
 	                 //println("YES2");
 	                 if(!endsWith(cndBefore, ";"))
 	                   cndBefore += ";";
-	                 computedAnswer = eval(setup + cndBefore);
+	                 computedAnswer = eval(setup + [cndBefore]);
 	                 if(answer != ""){
 	                    if(!endsWith(answer, ";"))
 	                       answer += ";";
-	                    givenAnswer = eval(setup + answer);
+	                    givenAnswer = eval(setup + [answer]);
 	                   if(computedAnswer == givenAnswer)
 	                      return correctAnswer(cpid, qid);     
 	                 }
 	                 return wrongAnswer(cpid, qid, "I expected <computedAnswer.val>.");
 	               } 
 	            }
-	            validate = (holeInLst) ? lstBefore + answer + lstAfter + cndBefore	             
-	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
-	                                                    : lstBefore + cndBefore + "==" + answer);
+	            validate = (holeInLst) ? "<lstBefore><answer><lstAfter><cndBefore>"	             
+	                                     : ((holeInCnd) ? "<lstBefore><cndBefore><answer><cndAfter>"
+	                                                    : "<lstBefore><cndBefore> == <answer>");
 	            
-	            //println("Evaluating validate: <validate>");
-	              res = shell(setup + validate);
-	              switch (res) {
-	                case \void(): if (cndBefore == "") return correctAnswer(cpid, qid);
-	                case \value(true): return correctAnswer(cpid, qid);
-	                default: 
-	                  if (hint != "") {
-	                    return wrongAnswer(cpid, qid, "I expected <subst(hint, env)>.");
-	                  }
-	                  else {
-                       return wrongAnswer(cpid, qid, "I have no expected answer for you.");	                
-	                  }
+	            println("Setup = <setup>");
+	            println("Evaluating validate: <validate>");
+	            // TODO this code breaks if ; semicolons appear in constant strings or source code comments
+	              res = eval(setup + [validate]);
+	              println("result = <res>");
+	              switch (<res,hint>) {
+	                case <\ok(),_>          : if (cndBefore == "") return correctAnswer(cpid, qid);
+	                case <\result(true),_>  : return correctAnswer(cpid, qid);
+	                case <\result(false),"">: return wrongAnswer(cpid, qid, "The answer is not quite right. I expected <subst(hint, env)>.");
+	                default:                  return wrongAnswer(cpid, qid, "The answer is not quite right and I have no hint to offer.");	                
 	              }
 	          } 
-	          catch:
-	             return wrongAnswer(cpid, qid, "Something went wrong!");
+	          catch ParseError(loc l):
+	             return wrongAnswer(cpid, qid, "There is a parse error in your answer at line <l.begin.line>, column <l.begin.column>");
+	          catch StaticError(str msg, loc l):
+	             return wrongAnswer(cpid, qid, "Your answer triggers a static error: <msg>, at line <l.begin.line>, column <l.begin.column>"); 
+	          catch value x: 
+	             return wrongAnswer(cpid, qid, "Something unexpected went wrong. Message: <x>");
           }
           case typeOfExpr(): {
 	          try {
