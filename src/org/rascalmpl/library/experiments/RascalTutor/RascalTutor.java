@@ -25,6 +25,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -47,8 +49,10 @@ public class RascalTutor {
 		return eval;
 	}
 	
-	public void start(final int port) throws Exception {
-		eval.eval(null, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
+	public void start(final int port, IRascalMonitor monitor) throws Exception {
+		monitor.startJob("Loading Course Manager");
+		eval.eval(monitor, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
+		monitor.endJob(true);
 		
 		Log.setLog(new Logger() {
 
@@ -111,6 +115,8 @@ public class RascalTutor {
 			public void ignore(Throwable ignored) {
 			}
 		});
+		
+		monitor.startJob("Starting Webserver");
 		server = new Server();
 		
 		SelectChannelConnector connector=new SelectChannelConnector();
@@ -123,6 +129,7 @@ public class RascalTutor {
 		server.setConnectors(new Connector[]{connector});
 		server.setHandler(getTutorHandler());
 		server.start();
+		monitor.endJob(true);
 	}
 	
 	public void stop() throws Exception {
@@ -138,7 +145,7 @@ public class RascalTutor {
 	public static void main(String[] args) {
 		RascalTutor tutor = new RascalTutor();
 		try {
-			tutor.start(8081);
+			tutor.start(8081, new NullRascalMonitor());
 		}
 		catch (Exception e) {
 			System.err.println("Cannot set up RascalTutor: " + e.getMessage());
