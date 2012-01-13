@@ -22,6 +22,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -30,7 +32,9 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
 	private final Evaluator eval;
-
+	final static String BASE = "std:///experiments/RascalTutor/";
+	private Server server;
+	
 	public RascalTutor() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___TUTOR___", heap));
@@ -43,11 +47,70 @@ public class RascalTutor {
 		return eval;
 	}
 	
-	final static String BASE = "std:///experiments/RascalTutor/";
-	private Server server;
-	
 	public void start(final int port) throws Exception {
 		eval.eval(null, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
+		
+		Log.setLog(new Logger() {
+
+			@Override
+			public String getName() {
+				return "no logger";
+			}
+
+			@Override
+			public void warn(String msg, Object... args) {
+			}
+
+			@Override
+			public void warn(Throwable thrown) {
+			}
+
+			@Override
+			public void warn(String msg, Throwable thrown) {
+			}
+
+			@Override
+			public void info(String msg, Object... args) {
+			}
+
+			@Override
+			public void info(Throwable thrown) {
+			}
+
+			@Override
+			public void info(String msg, Throwable thrown) {
+			}
+
+			@Override
+			public boolean isDebugEnabled() {
+				return false;
+			}
+
+			@Override
+			public void setDebugEnabled(boolean enabled) {
+			}
+
+			@Override
+			public void debug(String msg, Object... args) {
+			}
+
+			@Override
+			public void debug(Throwable thrown) {
+			}
+
+			@Override
+			public void debug(String msg, Throwable thrown) {
+			}
+
+			@Override
+			public Logger getLogger(String name) {
+				return this;
+			}
+
+			@Override
+			public void ignore(Throwable ignored) {
+			}
+		});
 		server = new Server();
 		
 		SelectChannelConnector connector=new SelectChannelConnector();
@@ -56,6 +119,7 @@ public class RascalTutor {
 		connector.setResponseHeaderSize(1000*1000);
 		connector.setRequestBufferSize(1000*1000);
 		connector.setConfidentialPort(8443);
+
 		server.setConnectors(new Connector[]{connector});
 		server.setHandler(getTutorHandler());
 		server.start();
@@ -84,7 +148,6 @@ public class RascalTutor {
 	private ServletContextHandler getTutorHandler() throws IOException {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setAttribute("RascalEvaluator", eval);
-		context.setLogger(null);
 		context.addServlet(new ServletHolder(new TutorDefaultHttpServlet()), "/");
 		context.addServlet(new ServletHolder(new Show()), "/show");
 		context.addServlet(new ServletHolder(new ValidateExam()), "/validateExam");
@@ -94,8 +157,7 @@ public class RascalTutor {
 		context.addServlet(new ServletHolder(new Save()), "/save");
 		context.addServlet(new ServletHolder(new Compile()), "/compile");
 
-		System.err.println("BASE = " + BASE);
-		
+
 		URI baseURI = getResolverRegistry().getResourceURI(URI.create(BASE));
 		
 		System.err.println("resourceBase = " + baseURI);
@@ -106,19 +168,6 @@ public class RascalTutor {
 		String welcome[] = { BASE + "Courses/index.html"};
 		context.setWelcomeFiles(welcome);
 		
-/*		        
-		WebAppContext wac = new WebAppContext();
-		
-		wac.setAttribute("RascalEvaluator", evaluator);
-		wac.addServlet(DefaultServlet.class, "/");
-		wac.addServlet(ShowConcept.class, "/concept");
-		wac.addServlet(ValidateAnswer.class, "/ValidateAnswer");
-		wac.setResourceBase(BASE); 
-		
-		MimeTypes mimeTypes = new MimeTypes();
-		mimeTypes.addMimeMapping(".css", "text/css");
-		wac.setMimeTypes(mimeTypes);
-*/
 		return context;
 	}
 }

@@ -87,7 +87,10 @@ public class HTMLGenerator {
 			}
 			output = errString.toString();
 			if (output.length() > 0) {
-				content.append(output);
+				for (String line : output.split("\n")) {
+					content.append("debug:");
+					content.append(line);
+				}
 			}
 			content.append(resultMessage(result));
 		}
