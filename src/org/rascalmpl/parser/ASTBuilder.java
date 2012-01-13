@@ -33,18 +33,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.ast.ASTStatistics;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
+import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -162,6 +159,10 @@ public class ASTBuilder {
 	
 	public Command buildCommand(IConstructor parseTree) {
 		return buildSort(parseTree, "Command");
+	}
+	
+	public Commands buildCommands(IConstructor parseTree) {
+		return buildSort(parseTree, "Commands");
 	}
 	
 	@SuppressWarnings("unchecked")

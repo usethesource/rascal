@@ -74,6 +74,7 @@ import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.Declaration.Function;
 import org.rascalmpl.ast.Declaration.Tag;
+import org.rascalmpl.ast.EvalCommand.Import;
 import org.rascalmpl.ast.Expression.All;
 import org.rascalmpl.ast.Expression.And;
 import org.rascalmpl.ast.Expression.Anti;
@@ -3595,6 +3596,33 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	@Override
 	public IValue visitBasicTypeType(org.rascalmpl.ast.BasicType.Type x) {
 		return KW("type");
+	}
+
+	@Override
+	public IValue visitEvalCommandImport(Import x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitEvalCommandStatement(
+			org.rascalmpl.ast.EvalCommand.Statement x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitEvalCommandDeclaration(
+			org.rascalmpl.ast.EvalCommand.Declaration x) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IValue visitEvalCommandAmbiguity(
+			org.rascalmpl.ast.EvalCommand.Ambiguity x) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -32,7 +32,7 @@ public abstract class Commands extends AbstractAST {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Command> getCommands() {
+  public java.util.List<org.rascalmpl.ast.EvalCommand> getCommands() {
     throw new UnsupportedOperationException();
   }
 
@@ -83,12 +83,12 @@ public abstract class Commands extends AbstractAST {
   }
 
   static public class List extends Commands {
-    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.Command\>","commands")])
+    // Production: sig("List",[arg("java.util.List\<org.rascalmpl.ast.EvalCommand\>","commands")])
   
     
-    private final java.util.List<org.rascalmpl.ast.Command> commands;
+    private final java.util.List<org.rascalmpl.ast.EvalCommand> commands;
   
-    public List(IConstructor node , java.util.List<org.rascalmpl.ast.Command> commands) {
+    public List(IConstructor node , java.util.List<org.rascalmpl.ast.EvalCommand> commands) {
       super(node);
       
       this.commands = commands;
@@ -106,7 +106,7 @@ public abstract class Commands extends AbstractAST {
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.Command> getCommands() {
+    public java.util.List<org.rascalmpl.ast.EvalCommand> getCommands() {
       return this.commands;
     }
   

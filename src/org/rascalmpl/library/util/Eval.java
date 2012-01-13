@@ -23,6 +23,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -32,12 +33,15 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
@@ -52,9 +56,11 @@ public class Eval {
 	private final TypeStore store = new TypeStore();
 	private final Type param = tf.parameterType("T");
 	public final Type Result = tf.abstractDataType(store, "Result", param);
-	public final Type Result_void = tf.constructor(store, Result, "void");
-	public final Type Result_value = tf.constructor(store, Result, "value", param, "val");
-	
+	public final Type Result_void = tf.constructor(store, Result, "ok");
+	public final Type Result_value = tf.constructor(store, Result, "result", param, "val");
+	public final Type Exception = tf.abstractDataType(store, "Exception");
+	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "messages", tf.sourceLocationType(), "location");
+			
 	public Eval(IValueFactory values){
 		super();
 		this.values = values;
@@ -63,14 +69,14 @@ public class Eval {
 	}
 
 	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
-		ModuleEnvironment mod = new ModuleEnvironment("eval" + evalCount , eval.getHeap());
+		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount , eval.getHeap());
 		return mod;
 	}
 
 	private Evaluator getSharedEvaluator(IEvaluatorContext ctx) {
 		if (this.eval == null) {
 			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("***eval***", heap);
+			ModuleEnvironment root = new ModuleEnvironment("___EVAL___", heap);
 			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
 		}
 		
@@ -142,9 +148,10 @@ public class Eval {
 		try {
 			timer.start();
 			
+			evaluator.setCurrentEnvt(env);
 			if(!timer.hasExpired() && commands.length() > 0){
 				for(IValue command : commands){
-					result = evaluator.eval(null, ((IString) command).getValue(), URI.create("eval:///?command=" + URLEncoder.encode(((IString) command).getValue(), "UTF8")));
+					result = evaluator.evalMore(null, ((IString) command).getValue(), URI.create("eval:///?command=" + URLEncoder.encode(((IString) command).getValue(), "UTF8")));
 				}
 				timer.cancel();
 				if (timer.hasExpired()) {
@@ -159,6 +166,12 @@ public class Eval {
 				}
 				return result;
 			}
+		}
+		catch (ParseError e) {
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(e.getLocation(), e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()), null, null);
+		}
+		catch (StaticError e) {
+			throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
 		}
 		catch (UnsupportedEncodingException e) {
 			// this should never happen
