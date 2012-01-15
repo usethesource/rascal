@@ -129,9 +129,9 @@ will produce the following files:
 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java void writeCSV(value relation, loc location);
+@reflect{Uses type parameter.}
+public java void writeCSV(&T relation, loc location);
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
-public java void writeCSV(value relation, loc location, map[str,str] options);
+@reflect{Uses type parameter.}
+public java void writeCSV(&T relation, loc location, map[str,str] options);

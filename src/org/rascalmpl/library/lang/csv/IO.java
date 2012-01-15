@@ -189,8 +189,10 @@ public class IO {
 
 		OutputStream out = null;
 		
-		if(!rel.getType().isRelationType()){
-			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + rel.getType(),ctx.getCurrentAST(), 
+		Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
+		
+		if(!paramType.isRelationType()){
+			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType,ctx.getCurrentAST(), 
 					ctx.getStackTrace());
 		}
 		
@@ -203,7 +205,7 @@ public class IO {
 				for(int i = 0; i < nfields; i++){
 					if(i > 0)
 						out.write(separator);
-					String label = irel.getType().getFieldName(i);
+					String label = paramType.getFieldName(i);
 					if(label == null || label.isEmpty())
 						label = "field" + i;
 					writeString(out, label);
