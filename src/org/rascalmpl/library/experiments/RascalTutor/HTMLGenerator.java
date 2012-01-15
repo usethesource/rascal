@@ -78,7 +78,7 @@ public class HTMLGenerator {
 		try {
 			outString.getBuffer().setLength(0);
 			errString.getBuffer().setLength(0);
-			Result<IValue> result = eval.doEval(valueType, values.list(command), duration, evaluator);
+			Result<IValue> result = eval.doEval(valueType, values.list(command), duration, evaluator, false);
 			out.flush();
 			err.flush();
 			String output = outString.toString();
