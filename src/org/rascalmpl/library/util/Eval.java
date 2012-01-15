@@ -85,7 +85,7 @@ public class Eval {
 	
 	
 	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx));
+		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx), true);
 		
 		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
 			return Result_void.make(values);
@@ -102,7 +102,7 @@ public class Eval {
 	}
 
 	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx));
+		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx), true);
 		
 		if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
 			return Result_void.make(values);
@@ -119,7 +119,7 @@ public class Eval {
 	}
 	
 	public IValue evalType (IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result =  doEval(null, values.list(input), duration,  getSharedEvaluator(ctx));
+		Result<IValue> result =  doEval(null, values.list(input), duration,  getSharedEvaluator(ctx), true);
 		// Make sure redundant spaces are removed from the type.
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
@@ -129,7 +129,7 @@ public class Eval {
 	}
 	
 	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(null, commands, duration,  getSharedEvaluator(ctx));
+		Result<IValue> result = doEval(null, commands, duration,  getSharedEvaluator(ctx), true);
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
@@ -137,7 +137,7 @@ public class Eval {
 		return evalType(commands, duration, getSharedEvaluator(ctx));
 	}
 	
-	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx) {
+	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx, boolean forRascal) {
 		Evaluator evaluator = ctx.getEvaluator();
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 
@@ -168,21 +168,30 @@ public class Eval {
 			}
 		}
 		catch (ParseError e) {
-			throw RuntimeExceptionFactory.parseError(values.sourceLocation(e.getLocation(), e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()), null, null);
+			if (forRascal) 
+				throw RuntimeExceptionFactory.parseError(values.sourceLocation(e.getLocation(), e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()), null, null);
+			throw e;
 		}
 		catch (StaticError e) {
-			throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
+			if (forRascal)
+				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
+			throw e;
 		}
 		catch (UnsupportedEncodingException e) {
 			// this should never happen
-			throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
+			if (forRascal)
+				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
+			throw new RuntimeException(e.getMessage(), e);
 		}
 		finally {
 			evaluator.getHeap().removeModule(env);
 			evaluator.setCurrentEnvt(old);
 		}
 		
-		throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
+		if (forRascal) 
+			throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
+		
+		throw new IllegalArgumentException();
 	}
 	
 
