@@ -2,13 +2,13 @@ package org.rascalmpl.library.lang.csv;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -27,7 +27,8 @@ public class IO {
 	private static final TypeFactory types = TypeFactory.getInstance();
 	
 	private final IValueFactory values;
-	private String separator;
+	private int separator;  	// The separator to be used between fields
+	private boolean header;		// Does the file start with a line defining field names?
 
 	private TypeReifier tr;
 	
@@ -36,67 +37,124 @@ public class IO {
 		
 		this.values = values;
 		this.tr = new TypeReifier(values);
-		separator = ";";
+		separator = ',';
+		header = true;
 	}
 	
-	public IValue readCSV(IValue result, ISourceLocation loc, IString sep, IEvaluatorContext ctx){
-		separator = sep.getValue();
-		return readCSV(result, loc, ctx);
+	/**
+	 * @param options	map with options may contain:
+	 * 					- "header" (Possible values "true" or "false", as string!)
+	 * 					- "separator" (Possible value a single character string)
+	 * 					When map is null, the defaults are reset.
+	 */
+	private void setOptions(IMap options){
+		
+		IString separatorKey = values.string("separator");
+		IString headerKey = values.string("header");
+		
+		IString iseparator = null;
+		IString iheader = null;
+		
+		if(options != null){
+			iseparator = (IString)options.get(separatorKey);
+			iheader = (IString)options.get(headerKey);
+		}
+			
+		separator = (iseparator == null) ? ',' : iseparator.getValue().charAt(0);
+		header = (iheader == null) ? true : iheader.toString().equals("true");
+	}
+	
+	/*
+	 * Read a CSV file
+	 */
+	
+	public IValue readCSV(IValue result, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
+		setOptions(options);
+		return read(result, loc, ctx);
 	}
 	
 	public IValue readCSV(IValue result, ISourceLocation loc, IEvaluatorContext ctx){
+		setOptions(null);
+		return read(result, loc, ctx);
+	}
+	
+	public IValue read(IValue result, ISourceLocation loc, IEvaluatorContext ctx){
 		TypeStore store = new TypeStore();
 		Type requestedType = tr.valueToType((IConstructor) result, store);
 
 		InputStream in = null;
-		System.err.println("requestedType = " + requestedType + ": " + requestedType.isRelationType());
-		if(!requestedType.isRelationType()){
-			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + requestedType.toString(), ctx.getCurrentAST(), ctx.getStackTrace(), "XXX");
-		}
 	
 		try{
 			in = ctx.getResolverRegistry().getInputStream(loc.getURI());
-			String header = readLine(in);
-			java.lang.String[] labels = header.split(separator);
-			int nfields = labels.length;
-			Type fieldType[] = new Type[nfields];
-			
-			for(int i = 0; i < nfields; i++){
-				fieldType[i] = types.voidType();
-				labels[i] = normalizeLabel(labels[i], i);
-			}
-			
+			FieldReader reader = new FieldReader(in, separator);
+			ArrayList<String> labels = new ArrayList<String>();
 			ArrayList<Record> records = new ArrayList<Record>();
-			String line = readLine(in);
-			while(line != null){
-				Record ri = new Record(nfields, separator, line);
-				Type ftypes[] = ri.getFieldTypes();
-				for(int i = 0; i < nfields; i++){
-					fieldType[i] = fieldType[i].lub(ftypes[i]);
-					if(fieldType[i].isValueType())
-						fieldType[i] = types.stringType();
+			int nfields = 0;
+			if(header){
+				while(reader.hasField()){
+					String label = normalizeLabel(reader.getField(), nfields);
+					labels.add(label);
+					nfields++;
+				}
+			}
+	
+			ArrayList<Type> fieldType = new ArrayList<Type>();
+			
+			while(reader.hasRecord()){
+				Record ri = new Record(reader);
+				ArrayList<Type> ftypes = ri.getFieldTypes();
+				for(int i = 0; i < ftypes.size(); i++){
+					if(i < fieldType.size()){
+						fieldType.set(i, fieldType.get(i).lub(ftypes.get(i)));
+						if(fieldType.get(i).isValueType())
+							fieldType.set(i, types.stringType());
+					} else {
+						fieldType.add(ftypes.get(i));
+					}
 				}
 				records.add(ri);
-				line = readLine(in);
 			}
-			Type tupleType = types.tupleType(fieldType, labels);
-			Type relType = types.relType(tupleType);
+			nfields = fieldType.size();
+			
+			/*
+			 * Lift inferred field types to string when that was requested
+			 */
+			if(requestedType.isRelationType()){
+				for(int i = 0; i < nfields; i++){
+					if(!fieldType.get(i).isSubtypeOf(requestedType.getFieldType(i)) &&
+							requestedType.getFieldType(i).isStringType()){
+						fieldType.set(i, types.stringType());
+					}
+				}
+			}
+			
+			Type fieldTypeArray[] = new Type[nfields];
+			String labelArray[] = new String[nfields];
+			for(int i = 0; i < nfields; i++){
+				fieldTypeArray[i] = fieldType.get(i);
+				if(header)
+					labelArray[i] = labels.get(i);
+				else
+					labelArray[i] = "field" + i;
+			}
+			Type tupleType = types.tupleType(fieldTypeArray, labelArray);
+			Type relType = types.setType(tupleType);
+			
+			ctx.getStdOut().println("readCSV inferred the relation type: " + relType);
+			ctx.getStdOut().flush();
 			
 			if(!relType.isSubtypeOf(requestedType)){
 				int ra = requestedType.getArity();
 				if(ra != nfields)
 					throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (" + nfields + " vs " + ra + ")", ctx.getCurrentAST(), ctx.getStackTrace());
 				for(int i = 0; i < nfields; i++)
-					if(!fieldType[i].isSubtypeOf(requestedType.getFieldType(i)))
-						throw RuntimeExceptionFactory.illegalTypeArgument("Actual field " + fieldType[i] + " " + labels[i] +" is not a subtype of requested field " + requestedType.getFieldType(i) + " " + requestedType.getFieldName(i), ctx.getCurrentAST(), ctx.getStackTrace());
+					if(!fieldType.get(i).isSubtypeOf(requestedType.getFieldType(i)))
+						throw RuntimeExceptionFactory.illegalTypeArgument("Actual field " + fieldType.get(i) + " " + labels.get(i) +" is not a subtype of requested field " + requestedType.getFieldType(i) + " " + requestedType.getFieldName(i), ctx.getCurrentAST(), ctx.getStackTrace());
 			}
-			System.err.println("tupleType = " + tupleType);
-			//IRelationWriter rw = values.relationWriter(tupleType);
 			IRelationWriter rw = values.relationWriter(tupleType);
 			
 			for(Record r : records){
-				ITuple tp = r.getTuple(fieldType);
-				rw.insert(tp);
+				rw.insert(r.getTuple(fieldTypeArray));
 			}
 			
 			return rw.done();
@@ -114,6 +172,90 @@ public class IO {
 		}
 	}
 	
+	/*
+	 * Write a CSV file.
+	 */
+	public void writeCSV(IValue rel, ISourceLocation loc, IMap options, IEvaluatorContext ctx){
+		setOptions(options);
+		write(rel, loc, ctx);
+	}
+	
+	public void writeCSV(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
+		setOptions(null);
+		write(rel, loc, ctx);
+	}
+	
+	public void write(IValue rel, ISourceLocation loc, IEvaluatorContext ctx){
+
+		OutputStream out = null;
+		
+		if(!rel.getType().isRelationType()){
+			throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + rel.getType(),ctx.getCurrentAST(), 
+					ctx.getStackTrace());
+		}
+		
+		try{
+			out = ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+			IRelation irel = (IRelation) rel;
+			
+			int nfields = irel.arity();
+			if(header){
+				for(int i = 0; i < nfields; i++){
+					if(i > 0)
+						out.write(separator);
+					String label = irel.getType().getFieldName(i);
+					if(label == null || label.isEmpty())
+						label = "field" + i;
+					writeString(out, label);
+				}
+				out.write('\n');
+			}
+			
+			for(IValue v : irel){
+				ITuple tup = (ITuple) v;
+				int sep = 0;
+				for(IValue w : tup){
+					if(sep == 0)
+						sep = separator;
+					else
+						out.write(sep);
+					if(w.getType().isStringType()){
+						String s = ((IString)w).getValue();
+						if(s.contains("\n") || s.contains("\"")){
+							s = s.replaceAll("\"", "\"\"");
+							out.write('"');
+							writeString(out,s);
+							out.write('"');
+						} else
+							writeString(out, s);
+					} else {
+						writeString(out, w.toString());
+					}
+				}
+				out.write('\n');
+			}
+			out.flush();
+			out.close();
+		}
+		catch(IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}finally{
+			if(out != null){
+				try{
+					out.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Normalize a label in the header for use in the relation type.
+	 * @param label	The string found in the header
+	 * @param pos	Position in the header
+	 * @return		The label (with non-fieldname characters removed) or "field<pos>" when empty
+	 */
 	private String normalizeLabel(String label, int pos){
 		label = label.replaceAll("[^a-zA-Z0-9]+", "");
 		if(label.isEmpty())
@@ -121,82 +263,182 @@ public class IO {
 		return label;
 	}
 	
-	private String readLine(InputStream in) throws IOException{
+	/**
+	 * Write a string to the output stream.
+	 * @param out	The output stream.
+	 * @param txt	The string to be written.
+	 * @throws IOException
+	 */
+	private void writeString(OutputStream out, String txt) throws IOException{
+		for(char c : txt.toCharArray()){
+			out.write((byte)c);
+		}
+	}
+}
+
+/**
+ * Auxiliary class to read fields from an input stream.
+ *
+ */
+class FieldReader {
+	int lastChar = ';';
+	int separator = ';';
+	InputStream in;
+	boolean startOfLine = true;
+	
+	FieldReader(InputStream in, int sep) throws IOException{
+		this.in = in;
+		this.separator = sep;
+		startOfLine = true;
+		lastChar = in.read();
+	}
+	
+	/**
+	 * @return true if the current record has another field left to be read.
+	 * @throws IOException
+	 */
+	boolean hasField() throws IOException{
+		if(startOfLine)
+			return true;
+		if(lastChar == separator){
+			lastChar = in.read();
+			return lastChar != -1;
+		}
+		return false;
+	}
+	
+	/**
+	 * @return true if the current stream has another record to be read.
+	 * @throws IOException
+	 */
+	boolean hasRecord() throws IOException{
+		if(startOfLine)
+			return true;
+		while(lastChar == '\n' || lastChar == '\r')
+			lastChar = in.read();
+		startOfLine = true;
+		return lastChar != -1;
+	}
+	
+	/**
+	 * @return The next field from the input stream.
+	 * @throws IOException
+	 */
+	String getField() throws IOException{
+		startOfLine = false;
 		StringWriter sw = new StringWriter();
-		
-		int lastChar = in.read();
-		
-		while (lastChar != -1 && lastChar != '\n'){
+		if(lastChar == '"'){
+			lastChar = in.read();
+			while (lastChar != -1){
+				if(lastChar == '"'){
+					lastChar = in.read();
+					if(lastChar == '"'){
+						sw.append('"');
+						lastChar = in.read();
+					} else
+						break;
+				} else {
+					sw.append((char)lastChar);
+					lastChar = in.read();
+				}
+			}
+			assert lastChar == separator || lastChar == '\n' || lastChar == -1;
+			return sw.toString();
+		}
+		while ((lastChar != -1) && (lastChar != separator) && (lastChar != '\n')){
 			sw.append((char)lastChar);
 			lastChar = in.read();
 		}
-		if(lastChar == -1)
-			return null;
 		return sw.toString();
 	}
 }
 
+/**
+ * Auxiliary class to read and represent records in the file.
+ *
+ */
 class Record {
 	private static final TypeFactory types = TypeFactory.getInstance();
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
-	IValue rfields [];
-	Type fieldTypes[];
+	ArrayList<IValue> rfields = new ArrayList<IValue>();
+	ArrayList<Type> fieldTypes = new ArrayList<Type>();
 	
-	Record(int nfields, String separator, String line){
-		rfields = new IValue[nfields];
-		fieldTypes = new Type[nfields];
-		for(int i = 0; i < nfields; i++)
-			fieldTypes[i] = types.voidType();
+	/**
+	 * Create a record by reader all its fields using reader
+	 * @param reader to be used.
+	 * @throws IOException
+	 */
+	Record(FieldReader reader) throws IOException{
 		
-		Scanner scan = new Scanner(line);
-		scan.useDelimiter(separator);
-		
-		int i = 0;
-		do {
-			if(scan.hasNextInt()){
-				rfields[i] = values.integer(scan.nextInt());
-				fieldTypes[i] = types.integerType();
+		while(reader.hasField()) {
+			String field = reader.getField();
+			//System.err.print("field = " + field);
+			
+			if(field.isEmpty()){
+				rfields.add(null);
+				fieldTypes.add(types.voidType());
+				//System.err.println(" void");
 			} else
-			if(scan.hasNextFloat()){
-				rfields[i] = values.real(scan.nextFloat());
-				fieldTypes[i] = types.realType();
+			if(field.matches("[+-]?[0-9]+")){
+				int n = Integer.parseInt(field);
+				rfields.add(values.integer(n));
+				fieldTypes.add(types.integerType());
+				//System.err.println(" int");
 			} else
-			if(scan.hasNextBoolean()){
-				rfields[i] = values.bool(scan.nextBoolean());
-				fieldTypes[i] = types.boolType();
+			if(field.matches("[+-]?[0-9]+\\.[0-9]*")){
+				double d = Double.parseDouble(field);
+				rfields.add(values.real(d));
+				fieldTypes.add(types.realType());
+				//System.err.println(" real");
+			} else
+			if(field.equals("true") || field.equals("false")){
+				rfields.add(values.bool(field.equals("true")));
+				fieldTypes.add(types.boolType());
+				//System.err.println(" bool");
 			} else {
-				rfields[i] = values.string(scan.next());
-				fieldTypes[i] = types.stringType();
+				rfields.add(values.string(field));
+				fieldTypes.add(types.stringType());
+				//System.err.println(" str");
 			}
-			if(i == 3 && !fieldTypes[i].isIntegerType()) System.err.println(line + ": i = " + i + ", type = " + fieldTypes[i] + ", value = " + rfields[i]);
-			i++;
-		} while(i < nfields && scan.hasNext());
+		}
 	}
 	
+	/**
+	 * @return the type of this record.
+	 */
 	Type getType(){
 		return types.tupleType(fieldTypes);
 	}
 	
-	Type[] getFieldTypes(){
+	/**
+	 * @return a list of the types of the fields of this record.
+	 */
+	ArrayList<Type> getFieldTypes(){
 		return fieldTypes;
 	}
 	
+	/**
+	 * @param fieldTypes as inferred for the whole relation.
+	 * @return The tuple value for this record
+	 */
 	ITuple getTuple(Type[] fieldTypes){
-		for(int i = 0; i < rfields.length; i++){
-			if(rfields[i] == null){
+		IValue  fieldValues[] = new IValue[rfields.size()];
+		for(int i = 0; i < rfields.size(); i++){
+			if(rfields.get(i) == null){
 				if(fieldTypes[i].isBoolType())
-					rfields[i] = values.bool(false);
+					rfields.set(i, values.bool(false));
 				else if(fieldTypes[i].isIntegerType())
-					rfields[i] = values.integer(0);
+					rfields.set(i, values.integer(0));
 				else if(fieldTypes[i].isRealType())
-					rfields[i] = values.real(0);
+					rfields.set(i, values.real(0));
 				else
-					rfields[i] = values.string("");
+					rfields.set(i, values.string(""));
 			}
-			if(fieldTypes[i].isStringType() && !rfields[i].getType().isStringType())
-				rfields[i] = values.string(rfields[i].toString());
+			if(fieldTypes[i].isStringType() && !rfields.get(i).getType().isStringType())
+				rfields.set(i, values.string(rfields.get(i).toString()));
+			fieldValues[i] = rfields.get(i);
 		}
-		return values.tuple(rfields);
+		return values.tuple(fieldValues);
 	}
 	
 }
