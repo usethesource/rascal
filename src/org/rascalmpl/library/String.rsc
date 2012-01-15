@@ -366,7 +366,7 @@ Synopsis: Convert a list of character codes into a string.
 public java str stringChars(list[int] chars) throws IllegalCharacter(int character);
 
 @doc{
-Synopsis: Returns true if and only if ch is a valid Unicode code point
+Synopsis: Check that a given integer value is a valid Unicode code point.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isValidCharacter(int ch);
@@ -481,11 +481,10 @@ beans  ");
 public java str trim(str s);
 
 @doc{
-Synopsis: Squeezes repeated occurrences of characters.
+Synopsis: Squeeze repeated occurrences of characters.
 Description: 
-Squeezes repeated occurrences in `src` of characters in `charSet` removed.
-See 
-  http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html
+Squeeze repeated occurrences in `src` of characters in `charSet` removed.
+See [Apache](http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html)
 for the allowed syntax in `charSet`.
 
 Examples:

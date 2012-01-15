@@ -252,7 +252,7 @@ Description:
 # Parse the contents of resource input and return a parse tree.
 
 Examples:
-<screen>
+<screen errors>
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
 // Seeing that `parse` returns a parse tree:
@@ -263,8 +263,9 @@ try {
   Exp e = parse(#Exp, "2@3");
 }
 catch ParseError(loc l): {
-  println("Parse error at line <l.begin.line>, column <l.begin.column>");
+  println("I found a parse error at line <l.begin.line>, column <l.begin.column>");
 }
+</screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
