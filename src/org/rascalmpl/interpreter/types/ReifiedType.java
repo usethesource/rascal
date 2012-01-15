@@ -73,7 +73,7 @@ public class ReifiedType extends Type {
 			return true;
 		}
 		
-		if (other.isAliasType()) {
+		if (other.isAliasType() && !other.isVoidType()) {
 			return isSubtypeOf(other.getAliased());
 		}
 
