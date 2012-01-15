@@ -98,8 +98,6 @@ public class JavaMethod extends NamedFunction {
 		try {
 			ctx.pushEnv();
 
-			IValue result = invoke(oActuals);
-
 			if (hasVarArgs) {
 				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
 			}
@@ -109,6 +107,9 @@ public class JavaMethod extends NamedFunction {
 
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
+			
+			IValue result = invoke(oActuals);
+			
 			Type resultType = getReturnType().instantiate(env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, result, eval);
