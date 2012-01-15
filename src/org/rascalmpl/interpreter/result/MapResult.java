@@ -87,12 +87,12 @@ public class MapResult extends ElementResult<IMap> {
 
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		if (type.getKeyLabel().equals(name)) {
+		if (name.equals(type.getKeyLabel())) {
 			ISetWriter w = getValueFactory().setWriter(type.getKeyType());
 			w.insertAll(value);
 			return makeResult(getTypeFactory().setType(type.getKeyType()), w.done(), ctx);
 		}
-		else if (type.getValueLabel().equals(name)) {
+		else if (name.equals(type.getValueLabel())) {
 			ISetWriter w = getValueFactory().setWriter(type.getValueType());
 			Iterator<IValue> it = value.valueIterator();
 			while (it.hasNext()) {
@@ -100,7 +100,7 @@ public class MapResult extends ElementResult<IMap> {
 			}
 			return makeResult(getTypeFactory().setType(type.getValueType()), w.done(), ctx);
 		}
-		
+
 		throw new UndeclaredFieldException(type, name);
 	}
 	
