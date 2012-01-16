@@ -503,6 +503,9 @@ Synopsis: Split a string into a list of strings based on a literal separator.
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] split(str sep, str src);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str capitalize(str src);
+
 @doc{
 Synopsis: word wrap a string to fit in a certain width.
 Description:
