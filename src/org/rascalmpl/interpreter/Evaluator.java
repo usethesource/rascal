@@ -1327,7 +1327,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw pe;
 		}
 		finally {
-			monitor.endJob(true);
+			endJob(true);
 		}
 		
 		return result;
