@@ -72,8 +72,14 @@
  <pre class="screen"><span class="prompt">rascal></span>str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
 str (str, str): str conc(str, str);
 <span class="prompt">rascal></span>conc("fairy", "tale");
-Undeclared variable, function or constructor: conc<span class="prompt">rascal></span>conc("foot", "ball");
-Undeclared variable, function or constructor: conc</pre>
+str: "fairytale"
+<span class="prompt">rascal></span>conc("foot", "ball");
+exception:"I hate balls"
+stacktrace:|stdin:///|(51,14,&lt;1,51>,&lt;1,65>)
+	somewhere in: conc
+	somewhere in: ___SCREEN_INSTANCE___444
+
+</pre>
 </div>
 
   	                       

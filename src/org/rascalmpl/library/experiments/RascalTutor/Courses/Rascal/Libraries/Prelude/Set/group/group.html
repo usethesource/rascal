@@ -80,7 +80,14 @@ int (str): int nLegs(str);
 bool (str, str): bool similar(str, str);
 </pre>  Now group a set of animals:
 <pre class="screen"><span class="prompt">rascal></span>group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
-Undeclared variable, function or constructor: group</pre>
+set[set[str]]: {
+  {"millepede"},
+  {"dog","cat"},
+  {"zebra"},
+  {"spider","crab"},
+  {"human","bird"}
+}
+</pre>
 </div>
 
   	                       
@@ -89,7 +96,7 @@ Undeclared variable, function or constructor: group</pre>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/group&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/group&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

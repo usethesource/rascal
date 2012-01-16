@@ -103,10 +103,24 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{<1,10>, <2,20>, <3,30>}
-<span class="continuation">>>>>>>></span>// instead of rel[int,int] we can also give `set[tuple[int,int]]` as type of the above expression
-<span class="continuation">>>>>>>></span>// remember that these types are interchangeable.
-<span class="continuation">>>>>>>></span>{&lt;"a",10>, &lt;"b",20>, &lt;"c",30>}
-       ^ parse error here<span class="prompt">rascal></span>{<"a", 1, "b">, <"c", 2, "d">}
+rel[int, int]: {
+  &lt;2,20>,
+  &lt;1,10>,
+  &lt;3,30>
+}
+</pre>  instead of rel[int,int] we can also give <code>set[tuple[int,int]]</code> as type of the above expression
+  remember that these types are interchangeable.
+<pre class="screen"><span class="prompt">rascal></span>{<"a",10>, <"b",20>, <"c",30>}
+rel[str, int]: {
+  &lt;"b",20>,
+  &lt;"a",10>,
+  &lt;"c",30>
+}
+<span class="prompt">rascal></span>{<"a", 1, "b">, <"c", 2, "d">}
+rel[str, int, str]: {
+  &lt;"c",2,"d">,
+  &lt;"a",1,"b">
+}
 </pre>
 </div>
 
@@ -136,14 +150,14 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_2" value="2">
+<label for="Rascal/Expressions/Values/Relation_1_2">Can not contain duplicates.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="5">
+<label for="Rascal/Expressions/Values/Relation_1_5">Has ordered elements.</label><br/>
+
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="3">
 <label for="Rascal/Expressions/Values/Relation_1_3">Is a list of tuples.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="0">
-<label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="4">
-<label for="Rascal/Expressions/Values/Relation_1_4">Is a tuple of tuples.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

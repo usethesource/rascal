@@ -93,8 +93,10 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>tuple[str first, str last, int age] P = <"Jo","Jones",35>;
 tuple[str first,str last,int age]: &lt;"Jo","Jones",35>
 <span class="prompt">rascal></span>P.first;
-Undeclared variable, function or constructor: P<span class="prompt">rascal></span>P.first = "Bo";
-Uninitialized variable: |eval:///?command=P.first+%3D+%22Bo%22%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre>
+str: "Jo"
+<span class="prompt">rascal></span>P.first = "Bo";
+tuple[str first,str last,int age]: &lt;"Bo","Jones",35>
+</pre>
 </div>
 
   	                       
@@ -123,14 +125,14 @@ Uninitialized variable: |eval:///?command=P.first+%3D+%22Bo%22%3B|(0,1,&lt;1,0>,
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Tuple_1:answer" id="Rascal/Expressions/Values/Tuple_1_1" value="1">
-<label for="Rascal/Expressions/Values/Tuple_1_1">The number of elements is not fixed.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Tuple_1:answer" id="Rascal/Expressions/Values/Tuple_1_4" value="4">
+<label for="Rascal/Expressions/Values/Tuple_1_4">The number of elements is fixed.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Tuple_1:answer" id="Rascal/Expressions/Values/Tuple_1_3" value="3">
 <label for="Rascal/Expressions/Values/Tuple_1_3">All elements should have the same type.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Tuple_1:answer" id="Rascal/Expressions/Values/Tuple_1_5" value="5">
-<label for="Rascal/Expressions/Values/Tuple_1_5">The order of the elements is not relevant.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Tuple_1:answer" id="Rascal/Expressions/Values/Tuple_1_2" value="2">
+<label for="Rascal/Expressions/Values/Tuple_1_2">The order of the elements is relevant.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -149,7 +151,7 @@ Uninitialized variable: |eval:///?command=P.first+%3D+%22Bo%22%3B|(0,1,&lt;1,0>,
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Tuple&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Tuple&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

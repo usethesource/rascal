@@ -63,13 +63,18 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  A literal pattern matches with a value that is equal to it:
  <pre class="screen"><span class="prompt">rascal></span>123 := 123
-<span class="continuation">>>>>>>></span>"abc" := "abc"
-       ^ parse error here</pre> A literal pattern does not match with a value that is not equal to it:
+bool: true
+<span class="prompt">rascal></span>"abc" := "abc"
+bool: true
+</pre> A literal pattern does not match with a value that is not equal to it:
  <pre class="screen"><span class="prompt">rascal></span>123 := 456
-<span class="continuation">>>>>>>></span>"abc" := "def"
-       ^ parse error here</pre> A literal pattern should be of the same type as the subject it is matched with:
+bool: false
+<span class="prompt">rascal></span>"abc" := "def"
+bool: false
+</pre> A literal pattern should be of the same type as the subject it is matched with:
  <pre class="screen"><span class="prompt">rascal></span>123 := "abc";
-Expected int, but got str</pre>
+Expected int, but got str
+</pre>
 </div>
 
   	                       

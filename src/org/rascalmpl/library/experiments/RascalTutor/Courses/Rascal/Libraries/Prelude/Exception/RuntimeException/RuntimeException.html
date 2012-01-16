@@ -113,15 +113,22 @@ ok
 <pre class="screen"><span class="prompt">rascal></span>weekend = ("saturday": 1, "sunday": 2);
 map[str, int]: ("saturday":1,"sunday":2)
 <span class="prompt">rascal></span>weekend["monday"];
-Undeclared variable, function or constructor: weekend</pre>  Repeat this, but catch the exception. We use variable <code>N</code> to track what happened:
+exception:NoSuchKey("monday")
+stacktrace:|stdin:///|(8,8,&lt;1,8>,&lt;1,16>)
+	somewhere in: ___SCREEN_INSTANCE___217
+
+</pre>  Repeat this, but catch the exception. We use variable <code>N</code> to track what happened:
 <pre class="screen"><span class="prompt">rascal></span>N = 1;
 int: 1
 <span class="prompt">rascal></span>try {
 <span class="continuation">>>>>>>></span>   N = weekend["monday"];
 <span class="continuation">>>>>>>></span>} catch NoSuchKey(v):
 <span class="continuation">>>>>>>></span>  N = 100;
-Undeclared variable, function or constructor: weekend<span class="prompt">rascal></span>println(N);
-Undeclared variable, function or constructor: println</pre>
+ok
+<span class="prompt">rascal></span>println(N);
+100
+ok
+</pre>
 </div>
 
   	                       

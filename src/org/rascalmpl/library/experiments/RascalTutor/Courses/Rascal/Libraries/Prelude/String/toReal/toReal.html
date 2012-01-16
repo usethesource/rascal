@@ -73,9 +73,16 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import String;
 ok
 <span class="prompt">rascal></span>toReal("2.5e-3");
-Undeclared variable, function or constructor: toReal<span class="prompt">rascal></span>toReal("123");
-Undeclared variable, function or constructor: toReal<span class="prompt">rascal></span>toReal("abc");
-Undeclared variable, function or constructor: toReal</pre>
+real: 0.0025
+<span class="prompt">rascal></span>toReal("123");
+real: 123.
+<span class="prompt">rascal></span>toReal("abc");
+exception:IllegalArgument()
+stacktrace:|stdin:///|(7,5,&lt;1,7>,&lt;1,12>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toReal(org.eclipse.imp.pdb.facts.IString)
+	somewhere in: ___SCREEN_INSTANCE___360
+
+</pre>
 </div>
 
   	                       

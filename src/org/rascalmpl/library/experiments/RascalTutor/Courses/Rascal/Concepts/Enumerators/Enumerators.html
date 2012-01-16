@@ -89,14 +89,16 @@ bool: false
   <pre class="screen"><span class="prompt">rascal></span>int x <- {1, 3, 5, 7, 11 };
 bool: true
 <span class="prompt">rascal></span>x;
-Undeclared variable, function or constructor: x</pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
+Undeclared variable, function or constructor: x
+</pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
  Apparently, we cannot inspect the value of the variable <code>x</code> that was bound.
  <br/>
 <br/>
 
  Another example that results in an error:
  <pre class="screen"><span class="prompt">rascal></span>str x <- {1, 3, 5, 7, 11 };
-Expected int, but got str</pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
+Expected int, but got str
+</pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
  and an error results.
  <br/>
 <br/>
@@ -111,7 +113,13 @@ set[int]: {9,25,121,1,49}
 ok
 <span class="prompt">rascal></span>for(int x <- {1, 3, 5, 7, 11 })
 <span class="continuation">>>>>>>></span>    println("x = &lt;x>");
-Undeclared variable, function or constructor: println</pre>
+x = 11
+x = 7
+x = 5
+x = 3
+x = 1
+list[void]: []
+</pre>
 </div>
 
   	                       
@@ -125,7 +133,7 @@ Undeclared variable, function or constructor: println</pre>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

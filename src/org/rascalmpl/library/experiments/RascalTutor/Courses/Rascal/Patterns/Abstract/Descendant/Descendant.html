@@ -73,10 +73,24 @@ ok
 <span class="continuation">>>>>>>></span>                 | black(ColoredTree left, ColoredTree right);
 ok
 <span class="prompt">rascal></span>T = red(red(black(leaf(1), leaf(2)), black(leaf(3), leaf(4))), black(leaf(5), leaf(4)));
-Undeclared variable, function or constructor: red</pre>  Now we match for <code>black</code> nodes with <code>leaf(4)</code> as second argument:
+ColoredTree: red(
+  red(
+    black(
+      leaf(1),
+      leaf(2)),
+    black(
+      leaf(3),
+      leaf(4))),
+  black(
+    leaf(5),
+    leaf(4)))
+</pre>  Now we match for <code>black</code> nodes with <code>leaf(4)</code> as second argument:
 <pre class="screen"><span class="prompt">rascal></span>for(/black(_,leaf(4)) := T)
 <span class="continuation">>>>>>>></span>    println("Match!");
-Undeclared variable, function or constructor: T</pre>  We use an <b>anonymous variable</b> <code>_</code> at a position where we don't care about the actual value that is matched.
+Match!
+Match!
+list[void]: []
+</pre>  We use an <b>anonymous variable</b> <code>_</code> at a position where we don't care about the actual value that is matched.
   In order to print the actual values of the matches, we would need an <a href="/Courses/Rascal/Patterns/Abstract/Labelled/Labelled.html">Abstract/Labelled</a> pattern.
  <br/>
 <br/>
@@ -84,13 +98,25 @@ Undeclared variable, function or constructor: T</pre>  We use an <b>anonymous va
   Here we match all leaves that occur as second argument of <code>black</code>:
 <pre class="screen"><span class="prompt">rascal></span>for(/black(_,leaf(int N)) := T)
 <span class="continuation">>>>>>>></span>    println("Match &lt;N>");
-Undeclared variable, function or constructor: T</pre>  Here we list all integers that occur in any leaf:
+Match 2
+Match 4
+Match 4
+list[void]: []
+</pre>  Here we list all integers that occur in any leaf:
 <pre class="screen"><span class="prompt">rascal></span>for(/int N := T)
 <span class="continuation">>>>>>>></span>    println("Match &lt;N>");
-Undeclared variable, function or constructor: T</pre>  Rather than printing, we can also collect them in a list using <a href="/Courses/Rascal/Statements/Append/Append.html">Append</a>:
+Match 1
+Match 2
+Match 3
+Match 4
+Match 5
+Match 4
+list[void]: []
+</pre>  Rather than printing, we can also collect them in a list using <a href="/Courses/Rascal/Statements/Append/Append.html">Append</a>:
 <pre class="screen"><span class="prompt">rascal></span>for(/int N := T)
 <span class="continuation">>>>>>>></span>    append N;
-Undeclared variable, function or constructor: T</pre>
+list[int]: [1,2,3,4,5,4]
+</pre>
 </div>
 
   	                       
@@ -99,7 +125,7 @@ Undeclared variable, function or constructor: T</pre>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Patterns/Abstract/Descendant&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Patterns/Abstract/Descendant&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 5 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

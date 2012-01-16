@@ -402,7 +402,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	            '<}>");
 
     try {
-	     eval(["import vis::Figure;","import vis::Render;"] + lines, 100000);
+	     eval(["import vis::Figure;","import vis::Render;"] + ["<for (line <- lines) {><line> <}>"], 100000);
 	  }
 	  catch value x: 
 	    errors += "<x>\n";

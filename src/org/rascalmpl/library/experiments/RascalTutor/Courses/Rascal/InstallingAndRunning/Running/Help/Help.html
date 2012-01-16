@@ -69,7 +69,33 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>:help
-       ^ parse error here</pre>
+Welcome to the Rascal command shell.
+
+Shell commands:
+:help                      Prints this message
+:quit or EOF               Quits the shell
+:declarations              Lists all visible rules, functions and variables
+:set &lt;option> &lt;expression> Sets an option
+e.g. profiling    true/false
+     tracing      true/false
+:edit &lt;modulename>         Opens an editor for that module
+:modules                   Lists all imported modules
+:test                      Runs all unit tests currently loaded
+:unimport &lt;modulename>     Undo an import
+:undeclare &lt;name>          Undeclares a variable or function introduced in the shell
+:history                   Print the command history
+
+Example rascal statements and declarations:
+1 + 1;                     Expressions simply print their output and (static) type
+int a;                     Declarations allocate a name in the current scope
+a = 1;                     Assignments store a value in a (optionally previously declared) variable
+int a = 1;                 Declaration with initialization
+import IO;                 Importing a module makes its public members available
+println("Hello World")     Function calling
+
+Please read the manual for further information
+ok
+</pre>
 </div>
 
   	                       

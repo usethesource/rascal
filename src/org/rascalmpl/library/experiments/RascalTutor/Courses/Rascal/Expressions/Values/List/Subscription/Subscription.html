@@ -74,9 +74,14 @@
 <pre class="screen"><span class="prompt">rascal></span>L = [10, 20, 30];
 list[int]: [10,20,30]
 <span class="prompt">rascal></span>L[1];
-Undeclared variable, function or constructor: L</pre>  Explore an error case:
+int: 20
+</pre>  Explore an error case:
 <pre class="screen"><span class="prompt">rascal></span>L[5];
-Undeclared variable, function or constructor: L</pre>
+exception:IndexOutOfBounds(5)
+stacktrace:|stdin:///|(0,5,&lt;1,0>,&lt;1,5>)
+	somewhere in: ___SCREEN_INSTANCE___80
+
+</pre>
 </div>
 
   	                       

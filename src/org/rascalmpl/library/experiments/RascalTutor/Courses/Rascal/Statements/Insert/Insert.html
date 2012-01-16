@@ -74,15 +74,42 @@
  <pre class="screen"><span class="prompt">rascal></span>data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTree right);
 ok
 <span class="prompt">rascal></span>CTree T = red(green(leaf(1), red(leaf(2), leaf(3))), red(leaf(4), leaf(5)));
-Undeclared type: CTree</pre>  We can now switch the arguments of all red nodes as follows:
+CTree: red(
+  green(
+    leaf(1),
+    red(
+      leaf(2),
+      leaf(3))),
+  red(
+    leaf(4),
+    leaf(5)))
+</pre>  We can now switch the arguments of all red nodes as follows:
 <pre class="screen"><span class="prompt">rascal></span>visit(T){
 <span class="continuation">>>>>>>></span>  case red(CTree l, CTree r): insert red(r,l);
 <span class="continuation">>>>>>>></span>}
-       ^ parse error here</pre>  Since this is a very common idiom, we also have a shorthand for it:
+CTree: red(
+  red(
+    leaf(5),
+    leaf(4)),
+  green(
+    leaf(1),
+    red(
+      leaf(3),
+      leaf(2))))
+</pre>  Since this is a very common idiom, we also have a shorthand for it:
 <pre class="screen"><span class="prompt">rascal></span>visit(T){
 <span class="continuation">>>>>>>></span>  case red(CTree l, CTree r) => red(r,l)
 <span class="continuation">>>>>>>></span>}
-       ^ parse error here</pre>
+CTree: red(
+  red(
+    leaf(5),
+    leaf(4)),
+  green(
+    leaf(1),
+    red(
+      leaf(3),
+      leaf(2))))
+</pre>
 </div>
 
   	                       
@@ -97,7 +124,7 @@ Undeclared type: CTree</pre>  We can now switch the arguments of all red nodes a
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Insert&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Insert&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

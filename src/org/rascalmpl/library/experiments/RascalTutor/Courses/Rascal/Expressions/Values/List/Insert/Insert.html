@@ -69,8 +69,11 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>1 + []
-<span class="continuation">>>>>>>></span>1 + [2]
-       ^ parse error here<span class="prompt">rascal></span>1 + [2,3]
+list[int]: [1]
+<span class="prompt">rascal></span>1 + [2]
+list[int]: [1,2]
+<span class="prompt">rascal></span>1 + [2,3]
+list[int]: [1,2,3]
 </pre>
 </div>
 
@@ -81,8 +84,13 @@
 <br/>
    This is concatenation:
 <pre class="screen"><span class="prompt">rascal></span>[1] + [2]
-<span class="continuation">>>>>>>></span>// To insert a list as an element, use extra brackets:
-<span class="continuation">>>>>>>></span>[[1]] + [2]
+list[int]: [1,2]
+</pre>  To insert a list as an element, use extra brackets:
+<pre class="screen"><span class="prompt">rascal></span>[[1]] + [2]
+list[value]: [
+  [1],
+  2
+]
 </pre></li>
 </ul>
 </div>

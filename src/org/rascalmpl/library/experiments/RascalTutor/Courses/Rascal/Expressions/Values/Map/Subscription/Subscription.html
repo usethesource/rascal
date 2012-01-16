@@ -74,10 +74,16 @@
 <span class="continuation">>>>>>>></span>          "trumps":"black", "clubs":"red");
 map[str, str]: ("clubs":"red","clover":"black","hearts":"red","trumps":"black")
 <span class="prompt">rascal></span>colors["trumps"];
-Undeclared variable, function or constructor: colors</pre>  Explore some erroneous subscription expressions:
+str: "black"
+</pre>  Explore some erroneous subscription expressions:
 <pre class="screen"><span class="prompt">rascal></span>colors[0];
-Undeclared variable, function or constructor: colors<span class="prompt">rascal></span>colors["square"];
-Undeclared variable, function or constructor: colors</pre>
+Expected str, but got int
+<span class="prompt">rascal></span>colors["square"];
+exception:NoSuchKey("square")
+stacktrace:|stdin:///|(7,8,&lt;1,7>,&lt;1,15>)
+	somewhere in: ___SCREEN_INSTANCE___102
+
+</pre>
 </div>
 
   	                       

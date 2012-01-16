@@ -90,9 +90,12 @@ rel[int, int]: {
   &lt;3,30>
 }
 <span class="prompt">rascal></span>R[1];
-Undeclared variable, function or constructor: R<span class="prompt">rascal></span>R[{1}];
-Undeclared variable, function or constructor: R<span class="prompt">rascal></span>R[{1, 2}];
-Undeclared variable, function or constructor: R<span class="prompt">rascal></span>RR = {<1,10,100>,<1,11,101>,<2,20,200>,<2,22,202>,
+set[int]: {11,10}
+<span class="prompt">rascal></span>R[{1}];
+set[int]: {11,10}
+<span class="prompt">rascal></span>R[{1, 2}];
+set[int]: {11,10,21,20}
+<span class="prompt">rascal></span>RR = {<1,10,100>,<1,11,101>,<2,20,200>,<2,22,202>,
 <span class="continuation">>>>>>>></span>              &lt;3,30,300>};
 rel[int, int, int]: {
   &lt;1,11,101>,
@@ -102,8 +105,13 @@ rel[int, int, int]: {
   &lt;2,22,202>
 }
 <span class="prompt">rascal></span>RR[1];
-Undeclared variable, function or constructor: RR<span class="prompt">rascal></span>RR[1,_];
-Undeclared variable, function or constructor: RR</pre>  Introduce a relation with economic data and assign it to <code>GDP</code>:
+rel[int, int]: {
+  &lt;10,100>,
+  &lt;11,101>
+}
+<span class="prompt">rascal></span>RR[1,_];
+set[int]: {101,100}
+</pre>  Introduce a relation with economic data and assign it to <code>GDP</code>:
 <pre class="screen"><span class="prompt">rascal></span>rel[str country, int year, int amount] GDP =
 <span class="continuation">>>>>>>></span>{&lt;"US", 2008, 14264600>, &lt;"EU", 2008, 18394115>,
 <span class="continuation">>>>>>>></span> &lt;"Japan", 2008, 4923761>, &lt;"US", 2007, 13811200>, 
@@ -118,9 +126,14 @@ rel[str country, int year, int amount]: {
 }
 </pre>  and then retrieve the information for the index <code>"Japan"</code>:
 <pre class="screen"><span class="prompt">rascal></span>GDP["Japan"];
-Undeclared variable, function or constructor: GDP</pre>  or rather for the indices <code>"Japan"</code> and <code>2008</code>:
+rel[int, int]: {
+  &lt;2008,4923761>,
+  &lt;2007,4376705>
+}
+</pre>  or rather for the indices <code>"Japan"</code> and <code>2008</code>:
 <pre class="screen"><span class="prompt">rascal></span>GDP["Japan", 2008];
-Undeclared variable, function or constructor: GDP</pre>
+set[int]: {4923761}
+</pre>
 </div>
 
   	                       
@@ -129,7 +142,7 @@ Undeclared variable, function or constructor: GDP</pre>
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Relation/Subscription&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Relation/Subscription&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 7 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -94,17 +94,19 @@
 int: 3
 </pre>  But assigning a string value gives an error:
 <pre class="screen"><span class="prompt">rascal></span>int j = "abc";
-Expected int, but got str</pre>  The <code>num</code> type accepts integer and real values:
+Expected int, but got str
+</pre>  The <code>num</code> type accepts integer and real values:
 <pre class="screen"><span class="prompt">rascal></span>num n = i;
-Undeclared variable, function or constructor: i<span class="prompt">rascal></span>n = 3.14;
-real: 3.14
+num: 3
+<span class="prompt">rascal></span>n = 3.14;
+num: 3.14
 </pre>  A variable of type <code>value</code> accepts all possible values:
 <pre class="screen"><span class="prompt">rascal></span>value v = true;
 value: true
 <span class="prompt">rascal></span>v = "abc";
-str: "abc"
+value: "abc"
 <span class="prompt">rascal></span>v = [1, 2, 3];
-list[int]: [1,2,3]
+value: [1,2,3]
 </pre>
 </div>
 

@@ -77,8 +77,22 @@ rel[str day, int daynum, int length]: {
   &lt;"tue",2,150>
 }
 <span class="prompt">rascal></span>Traffic<length,daynum>;
-Undeclared variable, function or constructor: Traffic<span class="prompt">rascal></span>Traffic<2,day>;
-Undeclared variable, function or constructor: Traffic</pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
+rel[int length, int daynum]: {
+  &lt;150,2>,
+  &lt;100,1>,
+  &lt;110,4>,
+  &lt;125,3>,
+  &lt;90,5>
+}
+<span class="prompt">rascal></span>Traffic<2,day>;
+rel[int length, str day]: {
+  &lt;100,"mon">,
+  &lt;90,"fri">,
+  &lt;150,"tue">,
+  &lt;125,"wed">,
+  &lt;110,"thur">
+}
+</pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
 
 </div>
 
@@ -88,7 +102,7 @@ Undeclared variable, function or constructor: Traffic</pre> Field projection thu
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

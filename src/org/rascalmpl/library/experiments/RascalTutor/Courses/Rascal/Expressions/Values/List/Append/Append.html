@@ -80,8 +80,13 @@ list[int]: [1,2]
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> If both operands of <code>+</code> are a list, then it acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a>    This is concatenation:
 <pre class="screen"><span class="prompt">rascal></span>[1] + [2]
-<span class="continuation">>>>>>>></span>// To append a list to a list, use extra brackets:
-<span class="continuation">>>>>>>></span>[1] + [[2]]
+list[int]: [1,2]
+</pre>  To append a list to a list, use extra brackets:
+<pre class="screen"><span class="prompt">rascal></span>[1] + [[2]]
+list[value]: [
+  1,
+  [2]
+]
 </pre></li>
 </ul>
 </div>

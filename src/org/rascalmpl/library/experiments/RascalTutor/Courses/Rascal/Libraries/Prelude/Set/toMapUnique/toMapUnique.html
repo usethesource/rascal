@@ -73,9 +73,15 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Set;
 ok
 <span class="prompt">rascal></span>toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
-Undeclared variable, function or constructor: toMapUnique</pre>  Now explore an erroneous example:
+map[str, int]: ("c":10,"b":2,"a":1)
+</pre>  Now explore an erroneous example:
 <pre class="screen"><span class="prompt">rascal></span>toMapUnique({<"a", 1>, <"b", 2>, <"a", 10>});
-Undeclared variable, function or constructor: toMapUnique</pre>
+exception:MultipleKey("a")
+stacktrace:|stdin:///|(34,3,&lt;1,34>,&lt;1,37>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclipse.imp.pdb.facts.IRelation)
+	somewhere in: ___SCREEN_INSTANCE___337
+
+</pre>
 </div>
 
   	                       

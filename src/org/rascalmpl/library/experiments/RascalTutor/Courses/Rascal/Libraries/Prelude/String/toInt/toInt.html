@@ -76,10 +76,17 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import String;
 ok
 <span class="prompt">rascal></span>toInt("11");
-Undeclared variable, function or constructor: toInt<span class="prompt">rascal></span>toInt("11", 8);
-Undeclared variable, function or constructor: toInt</pre>  Now try an erroneous argument:
+int: 11
+<span class="prompt">rascal></span>toInt("11", 8);
+int: 9
+</pre>  Now try an erroneous argument:
 <pre class="screen"><span class="prompt">rascal></span>toInt("abc");
-Undeclared variable, function or constructor: toInt</pre>
+exception:IllegalArgument()
+stacktrace:|stdin:///|(6,5,&lt;1,6>,&lt;1,11>)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toInt(org.eclipse.imp.pdb.facts.IString)
+	somewhere in: ___SCREEN_INSTANCE___358
+
+</pre>
 </div>
 
   	                       

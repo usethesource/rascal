@@ -72,17 +72,32 @@
 ok
 <span class="prompt">rascal></span>if([10, list[int] L, 50] := [10, 20, 30, 40, 50])
 <span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
-Undeclared variable, function or constructor: println</pre>  Using a <a href="/Courses/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a> this can be abbreviated to:
+Match succeeded, L = [20,30,40]
+ok
+</pre>  Using a <a href="/Courses/Rascal/Patterns/Abstract/MultiVariable/MultiVariable.html">MultiVariable</a> this can be abbreviated to:
 <pre class="screen"><span class="prompt">rascal></span>if([10, L*, 50] := [10, 20, 30, 40, 50])
 <span class="continuation">>>>>>>></span>   println("Match succeeded, L = &lt;L>");
-Undeclared variable, function or constructor: println</pre>  A list pattern may also be <b>non-linear</b>, i.e., it may contain uses of variables that were bound earlier in the pattern.
+Match succeeded, L = [20,30,40]
+ok
+</pre>  A list pattern may also be <b>non-linear</b>, i.e., it may contain uses of variables that were bound earlier in the pattern.
   Here we see an example, where all pairs of equal elements in a list are printed:
 <pre class="screen"><span class="prompt">rascal></span>for([L1*, int N, L2*, N, L3*] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
 <span class="continuation">>>>>>>></span>    println("N = &lt;N>");
-Undeclared variable, function or constructor: println</pre>  Here we print all ways in which a given list can be partitioned in two lists:
+N = 10
+N = 20
+N = 30
+list[void]: []
+</pre>  Here we print all ways in which a given list can be partitioned in two lists:
 <pre class="screen"><span class="prompt">rascal></span>for([L1*, L2*] := [10, 20, 30, 40, 50]) 
 <span class="continuation">>>>>>>></span>    println("&lt;L1> and &lt;L2>");
-Undeclared variable, function or constructor: println</pre>
+[] and [10,20,30,40,50]
+[10] and [20,30,40,50]
+[10,20] and [30,40,50]
+[10,20,30] and [40,50]
+[10,20,30,40] and [50]
+[10,20,30,40,50] and []
+list[void]: []
+</pre>
 </div>
 
   	                       
@@ -132,7 +147,7 @@ public bool isReplicated(list[str] words){
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Patterns/Abstract/List&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Patterns/Abstract/List&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 4 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

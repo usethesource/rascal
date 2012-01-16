@@ -136,8 +136,14 @@ list[list[str]]: [
  <pre class="screen"><span class="prompt">rascal></span>L = [1, 2, 3];
 list[int]: [1,2,3]
 <span class="prompt">rascal></span>[10, L, 20];
-Undeclared variable, function or constructor: L<span class="prompt">rascal></span>[10, *L, 20];
-Undeclared variable, function or constructor: L</pre>
+list[value]: [
+  10,
+  [1,2,3],
+  20
+]
+<span class="prompt">rascal></span>[10, *L, 20];
+list[int]: [10,1,2,3,20]
+</pre>
 </div>
 
   	                       
@@ -166,14 +172,11 @@ Undeclared variable, function or constructor: L</pre>
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_4" value="4">
-<label for="Rascal/Expressions/Values/List_1_4">The least upperbound of the type of two arbitrary elements.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_2" value="2">
-<label for="Rascal/Expressions/Values/List_1_2">The type of the element that was first added to the list.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_3" value="3">
 <label for="Rascal/Expressions/Values/List_1_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_5" value="5">
+<label for="Rascal/Expressions/Values/List_1_5">The type of two arbitrary elements.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_List_1:answer" id="Rascal/Expressions/Values/List_1_1" value="1">
 <label for="Rascal/Expressions/Values/List_1_1">The types of all the elements in the list.</label><br/>
@@ -223,7 +226,7 @@ public bool isPalindrome(list[str] words){
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/List&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/List&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -81,14 +81,19 @@
  <pre class="screen"><span class="prompt">rascal></span>import String;
 ok
 <span class="prompt">rascal></span>replaceAll("abracadabra", "a", "A");
-Undeclared variable, function or constructor: replaceAll</pre>  Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
+str: "AbrAcAdAbrA"
+</pre>  Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
 <pre class="screen"><span class="prompt">rascal></span>S = "abracadabra";
 str: "abracadabra"
 <span class="prompt">rascal></span>T = S;
-Undeclared variable, function or constructor: S<span class="prompt">rascal></span>S = replaceAll("abracadabra", "a", "A");
-Undeclared variable, function or constructor: replaceAll<span class="prompt">rascal></span>S;
-Undeclared variable, function or constructor: S<span class="prompt">rascal></span>T;
-Undeclared variable, function or constructor: T</pre> To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
+str: "abracadabra"
+<span class="prompt">rascal></span>S = replaceAll("abracadabra", "a", "A");
+str: "AbrAcAdAbrA"
+<span class="prompt">rascal></span>S;
+str: "AbrAcAdAbrA"
+<span class="prompt">rascal></span>T;
+str: "abracadabra"
+</pre> To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
 
 </div>
 
@@ -108,7 +113,7 @@ Undeclared variable, function or constructor: T</pre> To summarize: all values a
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/ImmutableValues&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/ImmutableValues&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 9 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>
