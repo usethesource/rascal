@@ -1269,7 +1269,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IActionExecutor actions = new BootRascalActionExecutor();
 
-		event("Parsing imports and syntax definitions at " + location);
+		startJob("Parsing", 10);
+		event("Pre-parsing: " + location);
 		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new NodeToUPTR());
 
 		if (TreeAdapter.isAmb(prefix)) {
@@ -1302,7 +1303,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 		IGTD parser = null;
 		IConstructor result = null;
-		event("Parsing complete module " + name);
+		event("Parsing: " + name);
 		try {
 			if (needBootstrapParser(preModule)) {
 				parser = new MetaRascalRascal();
@@ -1324,6 +1325,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			}
 			
 			throw pe;
+		}
+		finally {
+			monitor.endJob(true);
 		}
 		
 		return result;
