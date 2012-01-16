@@ -177,7 +177,7 @@ public class HTMLGenerator {
 
 		if(!timer.hasExpired() && commands.length() > 0){
 			for(IValue command : commands){
-				result = evaluator.evalMore(null, ((IString) command).getValue(), URI.create("stdin:///"));
+				result = evaluator.eval(null, ((IString) command).getValue(), URI.create("stdin:///"));
 			}
 			timer.cancel();
 			if (timer.hasExpired()) {
