@@ -88,7 +88,7 @@ An optional `duration` argument may be present to limit the time
 Examples:
 <screen>
 import util::Eval;
-evalType("2 * 3");
+evalType("2 * 3;");
 evalType("[1, 2, 3];");
 </screen>
 }
