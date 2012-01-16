@@ -320,6 +320,7 @@ public str validateAnswer1(map[str,str] params){
 	             return wrongAnswer(cpid, qid, "Something unexpected went wrong. Message: <x>");
           }
           case typeOfExpr(): {
+              println("typeOfExpr");
 	          try {
 	            if(lstBefore == ""){ // Type question without listing
 	               answerType = answer;
@@ -327,14 +328,17 @@ public str validateAnswer1(map[str,str] params){
 	               errorMsg = "";
 	               if(holeInCnd){
 	                  validate = cndBefore + answer + cndAfter;
-	                  //println("Evaluating validate: <validate>");
-	                  answerType = evalType(setup + validate);
+	                  println("EvalType: <setup + validate>");
+	                  answerType = evalType(setup + (validate + ";"));
 	                  expectedType = toString(generateType(rtype, env));
-	               } else
-	                  expectedType = evalType(setup + cndBefore);
+	               } else {
+	                  println("EvalType: <setup + cndBefore>;");
 	                  
-	               //println("answerType is <answerType>");
-	               //println("expectedType is <expectedType>");
+	                  expectedType = evalType(setup + (cndBefore + ";"));
+	               }
+	                  
+	               println("answerType is <answerType>");
+	               println("expectedType is <expectedType>");
 	               if(answerType == expectedType)
 	              		return correctAnswer(cpid, qid);
 	              errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
