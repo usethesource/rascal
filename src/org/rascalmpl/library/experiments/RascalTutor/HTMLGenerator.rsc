@@ -483,10 +483,12 @@ private str markupScreen(list[str] lines, bool generatesError){
      // deal with normal command
      try {
        result = shell(first, 50000);
+       println("result: <result>");
        codeLines += printShellInput(first); 
        codeLines += markupCode(result);
      }
      catch parseError(str msg, loc x) : {
+     println("error: <msg>, <x>");
         if (x.offset >= size(first) && todo != []) {
           <next,todo> = headTail(todo);
           if (next == "") {

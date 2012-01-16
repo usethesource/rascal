@@ -16,6 +16,10 @@ Description:
 
 Examples:
 
+<screen>
+1
+</screen>
+
 <screen errors>
 throw "Hello Error";
 </screen>
