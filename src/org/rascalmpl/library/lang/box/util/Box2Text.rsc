@@ -402,9 +402,9 @@ Box boxSize(Box b, Box c, options o, int m) {
        }
 
 list[list[Box]] RR(list[Box] bl, Box c, options o, int m) {
-     list[list[Box]] g = [[b]|R(list[Box]  b)<-bl];
+     list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
      // println(g);
-     return [[[boxSize(z, c, o, m)|Box z<-[b]] ]|list[Box] b<- g];
+     return [ [ boxSize(z, c, o, m) | Box z <- b ] | list[Box] b<- g];
 }
 
 int maxWidth(list[Box] b) {

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.4.1.qualifier
+Bundle-Version: 0.4.2.qualifier
 Bundle-ClassPath: rascal.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
@@ -39,6 +39,15 @@ Export-Package:
  org.rascalmpl.library.experiments.resource.resources.file,
  org.rascalmpl.library.experiments.resource.results,
  org.rascalmpl.library.experiments.resource.results.buffers,
+ org.rascalmpl.library.lang.aterm,
+ org.rascalmpl.library.lang.aut,
+ org.rascalmpl.library.lang.csv,
+ org.rascalmpl.library.lang.html,
+ org.rascalmpl.library.lang.java,
+ org.rascalmpl.library.lang.jvm.run,
+ org.rascalmpl.library.lang.jvm.transform,
+ org.rascalmpl.library.lang.rascal.syntax,
+ org.rascalmpl.library.lang.rsf,
  org.rascalmpl.library.lang.xml,
  org.rascalmpl.library.util.tasks,
  org.rascalmpl.library.vis,
