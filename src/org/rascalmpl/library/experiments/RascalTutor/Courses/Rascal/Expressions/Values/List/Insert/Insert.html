@@ -68,12 +68,9 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>1 + []
-list[int]: [1]
-<b>rascal></b>1 + [2]
-list[int]: [1,2]
-<b>rascal></b>1 + [2,3]
-list[int]: [1,2,3]
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>1 + []
+<span class="continuation">>>>>>>></span>1 + [2]
+       ^ parse error here<span class="prompt">rascal></span>1 + [2,3]
 </pre>
 </div>
 
@@ -82,19 +79,10 @@ list[int]: [1,2,3]
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> If the first operand before the <code>+</code> is a list, <code>+</code> acts as <a href="/Courses/Rascal/Expressions/Values/List/Concatenation/Concatenation.html">List/Concatenation</a> and not as <a href="/Courses/Rascal/Expressions/Values/List/Insert/Insert.html">List/Insert</a><br/>
 <br/>
- 
-  This is concatenation:
-
-<pre class="screen"><b>rascal></b>[1] + [2]
-list[int]: [1,2]
-</pre>
-  To insert a list as an element, use extra brackets:
-
-<pre class="screen"><b>rascal></b>[[1]] + [2]
-list[value]: [
-  [1],
-  2
-]
+   This is concatenation:
+<pre class="screen"><span class="prompt">rascal></span>[1] + [2]
+<span class="continuation">>>>>>>></span>// To insert a list as an element, use extra brackets:
+<span class="continuation">>>>>>>></span>[[1]] + [2]
 </pre></li>
 </ul>
 </div>

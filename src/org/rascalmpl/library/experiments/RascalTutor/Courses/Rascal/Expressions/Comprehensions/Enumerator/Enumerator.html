@@ -92,13 +92,13 @@
 <li> <code>&lt;str K, 10> &lt;- FREQUENCIES</code>, will only generate pairs with <code>10</code> as second element.</li>
 <li> <code>int N &lt;- 17</code>, will only generate the value <code>17</code>.</li>
 </ul> Here are examples of enumerators in action:
- <pre class="screen"><b>rascal></b>[ N * N | int N &lt;- [1, 2, 3, 4, 5] ];
+ <pre class="screen"><span class="prompt">rascal></span>[ N * N | int N <- [1, 2, 3, 4, 5] ];
 list[int]: [1,4,9,16,25]
-<b>rascal></b>{&lt;N, K&gt; | &lt;str K, int N&gt; &lt;- {&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;}};
+<span class="prompt">rascal></span>{<N, K> | <str K, int N> <- {<"a",10>, <"b",20>, <"c",30>}};
 rel[int, str]: {
-  &lt;20,&quot;b&quot;&gt;,
-  &lt;10,&quot;a&quot;&gt;,
-  &lt;30,&quot;c&quot;&gt;
+  &lt;20,"b">,
+  &lt;10,"a">,
+  &lt;30,"c">
 }
 </pre>
 </div>

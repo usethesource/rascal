@@ -46,7 +46,10 @@
 	                       
                            
 <div id="Types">
-<span class="sectionHead">Types</span>  <pre class="listing">public data Result[&amp;T] = \void() | \value(&amp;T val);
+<span class="sectionHead">Types</span>  <pre class="listing">public data Result[&amp;T] = ok() | result(&amp;T val);
+public data Exception 
+  = StaticError(str message, loc location)
+  ;
 </pre>
 </div>
 

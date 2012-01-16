@@ -163,32 +163,32 @@
 <br/>
 
  Multi-line matching:
- <pre class="screen"><b>rascal></b>/XX$/ := &quot;lineoneXX\nlinetwo&quot;;
+ <pre class="screen"><span class="prompt">rascal></span>/XX$/ := "lineoneXX\nlinetwo";
 bool: false
-<b>rascal></b>/XX$/m := &quot;lineoneXX\nlinetwo&quot;;
+<span class="prompt">rascal></span>/XX$/m := "lineoneXX\nlinetwo";
 bool: true
-<b>rascal></b>/(?m)XX$/ := &quot;lineoneXX\nlinetwo&quot;;
+<span class="prompt">rascal></span>/(?m)XX$/ := "lineoneXX\nlinetwo";
 bool: true
 </pre> Case-insensitive matching:
- <pre class="screen"><b>rascal></b>/XX/ := &quot;some xx&quot;;
+ <pre class="screen"><span class="prompt">rascal></span>/XX/ := "some xx";
 bool: false
-<b>rascal></b>/XX/i := &quot;some xx&quot;;
+<span class="prompt">rascal></span>/XX/i := "some xx";
 bool: true
-<b>rascal></b>/(?i)XX/ := &quot;some xx&quot;;
+<span class="prompt">rascal></span>/(?i)XX/ := "some xx";
 bool: true
 </pre> Single-line mode:
- <pre class="screen"><b>rascal></b>/a.c/ := &quot;abc&quot;;
+ <pre class="screen"><span class="prompt">rascal></span>/a.c/ := "abc";
 bool: true
-<b>rascal></b>/a.c/ := &quot;a\nc&quot;;
+<span class="prompt">rascal></span>/a.c/ := "a\nc";
 bool: false
-<b>rascal></b>/a.c/s := &quot;a\nc&quot;;
+<span class="prompt">rascal></span>/a.c/s := "a\nc";
 bool: true
-<b>rascal></b>/(?s)a.c/ := &quot;a\nc&quot;;
+<span class="prompt">rascal></span>/(?s)a.c/ := "a\nc";
 bool: true
 </pre> Here are examples, how to escape punctuation characters in regular expressions:
- <pre class="screen"><b>rascal></b>/a\/b/ := &quot;a/b&quot;;
+ <pre class="screen"><span class="prompt">rascal></span>/a\/b/ := "a/b";
 bool: true
-<b>rascal></b>/a\+b/ := &quot;a+b&quot;;
+<span class="prompt">rascal></span>/a\+b/ := "a+b";
 bool: true
 </pre>
 </div>

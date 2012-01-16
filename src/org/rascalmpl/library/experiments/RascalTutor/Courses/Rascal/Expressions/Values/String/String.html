@@ -123,73 +123,43 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>N = 13;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>N = 13;
 int: 13
-<b>rascal></b>&quot;The value of N is &lt;N&gt;&quot;;
-str: &quot;The value of N is 13&quot;
-<b>rascal></b>&quot;The value of N*N is &lt;N*N&gt;&quot;;
-str: &quot;The value of N*N is 169&quot;
-<b>rascal></b>&quot;The value is &lt;(N &lt; 10) ? 10 : N*N&gt;&quot;;
-str: &quot;The value is 169&quot;
-</pre>
- As you can see the string value of variables and expressions is interpolated in the result as expected. 
+<span class="prompt">rascal></span>"The value of N is <N>";
+Undeclared variable, function or constructor: N<span class="prompt">rascal></span>"The value of N*N is <N*N>";
+Undeclared variable, function or constructor: N<span class="prompt">rascal></span>"The value is <(N < 10) ? 10 : N*N>";
+Undeclared variable, function or constructor: N</pre> As you can see the string value of variables and expressions is interpolated in the result as expected. 
  <br>
  Some examples of more advances string interpolation 
-
-<pre class="screen"><b>rascal></b>&quot;N is &lt;if(N &lt; 10){&gt; small &lt;} else {&gt; large &lt;}&gt;&quot;;
-str: &quot;N is  large &quot;
-<b>rascal></b>&quot;N is &lt;if(N &lt; 10){&gt; small &lt;} else {&gt; large (&lt;N&gt;)&lt;}&gt;&quot;;
-str: &quot;N is  large (13)&quot;
-<b>rascal></b>&quot;before &lt;for(x&lt;-[1..5]){&gt;a &lt;x&gt; b &lt;}&gt;after&quot;;
-str: &quot;before a 1 b a 2 b a 3 b a 4 b a 5 b after&quot;
-</pre>
-  multi-line string
-
-<pre class="screen"><b>rascal></b>import IO;
+<pre class="screen"><span class="prompt">rascal></span>"N is <if(N < 10){> small <} else {> large <}>";
+Undeclared variable, function or constructor: N<span class="prompt">rascal></span>"N is <if(N < 10){> small <} else {> large (<N>)<}>";
+Undeclared variable, function or constructor: N<span class="prompt">rascal></span>"before <for(x<-[1..5]){>a <x> b <}>after";
+str: "before a 1 b a 2 b a 3 b a 4 b a 5 b after"
+</pre>  multi-line string
+<pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>println(&quot;hello
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;this
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  is
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    new&quot;)
-hello
-this
-  is
-    new
-ok
-</pre>
-  multi-line string with margin:
-
-<pre class="screen"><b>rascal></b>if (true)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  println(&quot;this is
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          'what
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          '  margins
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          'are good for
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          &quot;);
-this is
-what
-  margins
-are good for
-          
-ok
-</pre>
-  auto indent:
-
-<pre class="screen"><b>rascal></b>str genMethod(str n) = &quot;int &lt;n&gt;() {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '  return 0;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;                       '}&quot;;
+<span class="prompt">rascal></span>println("hello
+<span class="continuation">>>>>>>></span>this
+<span class="continuation">>>>>>>></span>  is
+<span class="continuation">>>>>>>></span>    new")
+<span class="continuation">>>>>>>></span>// multi-line string with margin:
+<span class="continuation">>>>>>>></span>if (true)
+         ^ parse error here<span class="prompt">rascal></span>  println("this is
+<span class="continuation">>>>>>>></span>          'what
+<span class="continuation">>>>>>>></span>          '  margins
+<span class="continuation">>>>>>>></span>          'are good for
+<span class="continuation">>>>>>>></span>          ");
+Undeclared variable, function or constructor: println</pre>  auto indent:
+<pre class="screen"><span class="prompt">rascal></span>str genMethod(str n) = "int <n>() {
+<span class="continuation">>>>>>>></span>                       '  return 0;
+<span class="continuation">>>>>>>></span>                       '}";
 str (str): str genMethod(str);
-<b>rascal></b>str genClass() = &quot;class myClass {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 '  &lt;genMethod(&quot;myMethod&quot;)&gt;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;                 '}&quot;;
+<span class="prompt">rascal></span>str genClass() = "class myClass {
+<span class="continuation">>>>>>>></span>                 '  &lt;genMethod("myMethod")>
+<span class="continuation">>>>>>>></span>                 '}";
 str (): str genClass();
-<b>rascal></b>println(genClass());
-class myClass {
-  int myMethod() {
-    return 0;
-  }
-}
-ok
-</pre>
+<span class="prompt">rascal></span>println(genClass());
+Undeclared variable, function or constructor: println</pre>
 </div>
 
   	                       
@@ -204,7 +174,7 @@ ok
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/String&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/String&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 7 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

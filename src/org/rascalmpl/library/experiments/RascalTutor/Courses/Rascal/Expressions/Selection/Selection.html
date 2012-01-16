@@ -69,24 +69,16 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>anno str node @ color;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>anno str node @ color;
 ok
-<b>rascal></b>anno str node @ size;
+<span class="prompt">rascal></span>anno str node @ size;
 ok
-<b>rascal></b>F = &quot;fn&quot;(123, &quot;abc&quot;);
-node: fn(123,&quot;abc&quot;)
-<b>rascal></b>F = F[@color=&quot;red&quot;];
-node: fn(123,&quot;abc&quot;)[
-  @color=&quot;red&quot;
-]
-<b>rascal></b>F = F[@size=&quot;10&quot;];
-node: fn(123,&quot;abc&quot;)[
-  @color=&quot;red&quot;,
-  @size=&quot;10&quot;
-]
-<b>rascal></b>F@color;
-str: &quot;red&quot;
-</pre>
+<span class="prompt">rascal></span>F = "fn"(123, "abc");
+node: fn(123,"abc")
+<span class="prompt">rascal></span>F = F[@color="red"];
+Undeclared variable, function or constructor: F<span class="prompt">rascal></span>F = F[@size="10"];
+Undeclared variable, function or constructor: F<span class="prompt">rascal></span>F@color;
+Undeclared variable, function or constructor: F</pre>
 </div>
 
   	                       
@@ -95,7 +87,7 @@ str: &quot;red&quot;
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Selection&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Selection&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -63,17 +63,17 @@
 <br/>
 
  At the start and after each event (i.e. other callback) the callback <code>ti</code> will be called. This callback should have type <code>TimerAction (TimerInfo)</code>. The callback is given a <code>TimerInfo</code> structure:
- <pre class="screen"><b>rascal></b>data TimerInfo  = stopped(int timeSinceLast) 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;| running(int timeLeft);
+ <pre class="screen"><span class="prompt">rascal></span>data TimerInfo  = stopped(int timeSinceLast) 
+<span class="continuation">>>>>>>></span>		| running(int timeLeft);
 ok
 </pre> This indicates if the timer has stopped and the time since the last execution of the timer (in milliseconds, initialy 0) or if the timer is running and the time that is still left till the callback <code>cbb</code> will be executed.
  <br/>
 <br/>
 
  The callcack <code>ti</code> must then return a <code>TimerAction</code> which indicates what action it want to undertake:
-  <pre class="screen"><b>rascal></b>data TimerAction = restart(int delay)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; | stop()
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; | noChange();
+  <pre class="screen"><span class="prompt">rascal></span>data TimerAction = restart(int delay)
+<span class="continuation">>>>>>>></span>		 | stop()
+<span class="continuation">>>>>>>></span>		 | noChange();
 ok
 </pre> <ul><li> <code>restart(int delay)</code> indicates that the timer is restarted and that the callback <code>cbb</code> will be executed <code>delay</code> milliseconds from now. This can also be used to delay the timer. </li>
 <li> <code>stop()</code> indicates that the timer is cancelled.</li>
@@ -83,7 +83,8 @@ ok
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">c = false;
+<span class="sectionHead">Examples</span>  <warning>ParseError(|eval:///?command=void+executeTimer%28%29%7B|(20,0,<0,20>,<0,20>))
+</warning><pre class="listing">c = false;
 void executeTimer(){
 	c = !c;
 }
@@ -114,7 +115,7 @@ render(e);
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/timer&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Properties/timer&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

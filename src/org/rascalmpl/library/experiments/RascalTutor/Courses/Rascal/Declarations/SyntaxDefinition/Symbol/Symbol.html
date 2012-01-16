@@ -125,45 +125,29 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  A character class that defines all alphanumeric characters:
-
-<pre class="screen"><b>rascal></b>lexical AlphaNumeric = [a-zA-Z0-9];
+<span class="sectionHead">Examples</span>    A character class that defines all alphanumeric characters:
+<pre class="screen"><span class="prompt">rascal></span>lexical AlphaNumeric = [a-zA-Z0-9];
 ok
-</pre>
-  A character class that defines anything except quotes:
-
-<pre class="screen"><b>rascal></b>lexical AnythingExceptQuote = ![\&quot;];
+</pre>  A character class that defines anything except quotes:
+<pre class="screen"><span class="prompt">rascal></span>lexical AnythingExceptQuote = ![\"];
 ok
-</pre>
-  An identifier class with longest match (can not be followed immediately by [a-z]):
-
-<pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z];
+</pre>  An identifier class with longest match (can not be followed immediately by [a-z]):
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !>> [a-z];
 ok
-</pre>
-  An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
-
-<pre class="screen"><b>rascal></b>lexical Id = [a-z] !&lt;&lt; [a-z]+ !&gt;&gt; [a-z];
+</pre>  An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 ok
-</pre>
-  An identifier class with some reserved keywords and longest match:
-
-<pre class="screen"><b>rascal></b>lexical Id = [a-z]+ !&gt;&gt; [a-z] \ &quot;if&quot; \ &quot;else&quot; \ &quot;fi&quot;;
+</pre>  An identifier class with some reserved keywords and longest match:
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !>> [a-z] \ "if" \ "else" \ "fi";
 ok
-</pre>
-  An optional else branch coded using sequence and optional symbols:
-
-<pre class="screen"><b>rascal></b>syntax Statement = &quot;if&quot; Expression &quot;then&quot; Statement (&quot;else&quot; Statement)? &quot;fi&quot;;
+</pre>  An optional else branch coded using sequence and optional symbols:
+<pre class="screen"><span class="prompt">rascal></span>syntax Statement = "if" Expression "then" Statement ("else" Statement)? "fi";
 ok
-</pre>
-  A block of statements separated by semicolons:
-
-<pre class="screen"><b>rascal></b>syntax Statement = &quot;{&quot; {Statement &quot;;&quot;}* &quot;}&quot;;
+</pre>  A block of statements separated by semicolons:
+<pre class="screen"><span class="prompt">rascal></span>syntax Statement = "{" {Statement ";"}* "}";
 ok
-</pre>
-  A declaration with an embedded list of alternative modifiers and a list of typed parameters:
-
-<pre class="screen"><b>rascal></b>syntax Declaration = (&quot;public&quot; | &quot;private&quot; | &quot;static&quot; | &quot;final&quot;)* Type Id &quot;(&quot; {(Type Id) &quot;,&quot;}* &quot;)&quot; Statement;
+</pre>  A declaration with an embedded list of alternative modifiers and a list of typed parameters:
+<pre class="screen"><span class="prompt">rascal></span>syntax Declaration = ("public" | "private" | "static" | "final")* Type Id "(" {(Type Id) ","}* ")" Statement;
 ok
 </pre>
 </div>

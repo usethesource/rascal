@@ -75,48 +75,20 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  First we, create a list value and assign it to two variables <code>L</code> and <code>M</code>.
- <pre class="screen"><b>rascal></b>L = [1, 2, 3];
-list[int]: [1,2,3]
-<b>rascal></b>M = L;
-list[int]: [1,2,3]
-</pre>
-  Next we assign a new value to the first element of the list. The effect is that a new list value <code>[10, 2, 3]</code> is constructed.
-
-<pre class="screen"><b>rascal></b>L[0] = 10;
-list[int]: [10,2,3]
-</pre>
-  L is now associated with this new value:
-
-<pre class="screen"><b>rascal></b>L;
-list[int]: [10,2,3]
-</pre>
-  But <code>M</code> is still associated with the original, unmodified, value.
-
-<pre class="screen"><b>rascal></b>M;
-list[int]: [1,2,3]
-</pre>
-  In pointer-based languages and in object-oriented languages the change to the original value of <code>L</code> would also be visible
+   In pointer-based languages and in object-oriented languages the change to the original value of <code>L</code> would also be visible
   via <code>M</code>.
-
- String values are, like all other values, also immutable. Let's experiment with the <a href="/Courses/Rascal/Libraries/Prelude/String/replaceAll/replaceAll.html">replaceAll</a> function:
- <pre class="screen"><b>rascal></b>import String;
+</pre> String values are, like all other values, also immutable. Let's experiment with the <a href="/Courses/Rascal/Libraries/Prelude/String/replaceAll/replaceAll.html">replaceAll</a> function:
+ <pre class="screen"><span class="prompt">rascal></span>import String;
 ok
-<b>rascal></b>replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
-str: &quot;AbrAcAdAbrA&quot;
-</pre>
-  Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
-
-<pre class="screen"><b>rascal></b>S = &quot;abracadabra&quot;;
-str: &quot;abracadabra&quot;
-<b>rascal></b>T = S;
-str: &quot;abracadabra&quot;
-<b>rascal></b>S = replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
-str: &quot;AbrAcAdAbrA&quot;
-<b>rascal></b>S;
-str: &quot;AbrAcAdAbrA&quot;
-<b>rascal></b>T;
-str: &quot;abracadabra&quot;
-</pre> To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
+<span class="prompt">rascal></span>replaceAll("abracadabra", "a", "A");
+Undeclared variable, function or constructor: replaceAll</pre>  Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
+<pre class="screen"><span class="prompt">rascal></span>S = "abracadabra";
+str: "abracadabra"
+<span class="prompt">rascal></span>T = S;
+Undeclared variable, function or constructor: S<span class="prompt">rascal></span>S = replaceAll("abracadabra", "a", "A");
+Undeclared variable, function or constructor: replaceAll<span class="prompt">rascal></span>S;
+Undeclared variable, function or constructor: S<span class="prompt">rascal></span>T;
+Undeclared variable, function or constructor: T</pre> To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
 
 </div>
 
@@ -136,7 +108,7 @@ str: &quot;abracadabra&quot;
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/ImmutableValues&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/ImmutableValues&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 9 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

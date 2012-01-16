@@ -92,19 +92,14 @@
   <pre class="listing">anno loc Tree @ posinfo;
 </pre> Given a graph datatype, one can define an annotation with name <code>LayoutStrategy</code> that defines which 
  graph layout algorithm to apply to a particular graph, e.g.,
- <pre class="screen"><b>rascal></b>data Graph = vertex(str name, int x, int y) | edge(str from, str to);
+ <pre class="screen"><span class="prompt">rascal></span>data Graph = vertex(str name, int x, int y) | edge(str from, str to);
 ok
-<b>rascal></b>data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
+<span class="prompt">rascal></span>data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
 ok
-<b>rascal></b>anno LayoutStrategy Graph @ strategy;
-ok
-<b>rascal></b>G = vertex(&quot;root&quot;, 0, 0);
-Graph: vertex(&quot;root&quot;,0,0)
-<b>rascal></b>G @ strategy = fisheye();
-Graph: vertex(&quot;root&quot;,0,0)[
-  @strategy=fisheye()
-]
-</pre>
+<span class="prompt">rascal></span>anno LayoutStrategy Graph @ strategy;
+Undeclared type: LayoutStrategy<span class="prompt">rascal></span>G = vertex("root", 0, 0);
+Undeclared variable, function or constructor: vertex<span class="prompt">rascal></span>G @ strategy = fisheye();
+Undeclared variable, function or constructor: fisheye</pre>
 </div>
 
   	                       
@@ -113,7 +108,7 @@ Graph: vertex(&quot;root&quot;,0,0)[
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/Annotation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/Annotation&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

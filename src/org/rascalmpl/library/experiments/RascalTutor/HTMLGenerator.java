@@ -10,8 +10,11 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -23,14 +26,19 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Eval;
+import org.rascalmpl.library.util.Eval.EvalTimer;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
 public class HTMLGenerator {
@@ -48,6 +56,9 @@ public class HTMLGenerator {
 	private StringWriter outString;
 	private PrintWriter err;
 	private PrintWriter out;
+	private int shellCount = 0;
+	private Environment old = null;
+	private ModuleEnvironment env = null;
 
 	public HTMLGenerator(IValueFactory vf) {
 		this.values = vf;
@@ -69,8 +80,32 @@ public class HTMLGenerator {
 		return this.evaluator;
 	}
 	
-	public IString shell(IString command, IInteger duration, IEvaluatorContext ctx) {
+	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
+		ModuleEnvironment mod = new ModuleEnvironment("___SCREEN_INSTANCE___" + shellCount++, eval.getHeap());
+		return mod;
+	}
+	
+	public void startShell(IEvaluatorContext ctx) {
+		if (old != null || env != null) {
+			throw new ImplementationError("Can not nest shell calls! Call endShell before another startShell please.");
+		}
 		evaluator = createEvaluator(ctx);
+		old = evaluator.getCurrentEnvt();
+		env = getUniqueModuleEnvironment(evaluator);
+		evaluator.setCurrentEnvt(env);
+	}
+	
+	public void endShell(IEvaluatorContext ctx) {
+		evaluator.getHeap().removeModule(env);
+		env = null;
+		evaluator.setCurrentEnvt(old);
+		old = null;
+	}
+	
+	public IString shell(IString command, IInteger duration, IEvaluatorContext ctx) {
+		if (evaluator == null || old == null || env == null) {
+			throw new ImplementationError("First call startShell, then shell, then end with endShell");
+		}
 		
 		IValue valueType = tr.typeToValue(TypeFactory.getInstance().valueType(), ctx).getValue();
 		StringBuilder content = new StringBuilder();
@@ -78,7 +113,7 @@ public class HTMLGenerator {
 		try {
 			outString.getBuffer().setLength(0);
 			errString.getBuffer().setLength(0);
-			Result<IValue> result = eval.doEval(valueType, values.list(command), duration, evaluator, false);
+			Result<IValue> result = eval(valueType, values.list(command), duration, evaluator);
 			out.flush();
 			err.flush();
 			String output = outString.toString();
@@ -95,7 +130,8 @@ public class HTMLGenerator {
 			content.append(resultMessage(result));
 		}
 		catch (ParseError pe) {
-			content.append(parseErrorMessage(command.getValue(), "eval", pe));
+			content.append(parseErrorMessage(command.getValue(), "stdin", pe));
+			content.append('\n');
 			ISourceLocation sourceLocation = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw new Throw(ShellParseError.make(values, values.string(content.toString()), sourceLocation), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
@@ -104,24 +140,59 @@ public class HTMLGenerator {
 		}
 		catch(InterruptException i) {
 			content.append(interruptedExceptionMessage(i));
+			content.append('\n');
 		}
 		catch (Ambiguous e) {
 			content.append(ambiguousMessage(e));
+			content.append('\n');
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(StaticError e){
-			content.append(staticErrorMessage(e)); 
+			content.append(staticErrorMessage(e));
+			content.append('\n');
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throw e){
 			content.append(throwMessage(e));
+			content.append('\n');
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch(Throwable e){
 			content.append(throwableMessage(e, eval != null ? ctx.getStackTrace() : ""));
+			content.append('\n');
 			throw new Throw(ShellError.make(values, values.string(content.toString())), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
 		return values.string(content.toString());
+	}
+	
+	
+	private Result<IValue> eval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx) {
+		Evaluator evaluator = ctx.getEvaluator();
+		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
+
+		Result<IValue> result = null;
+		
+		timer.start();
+
+		if(!timer.hasExpired() && commands.length() > 0){
+			for(IValue command : commands){
+				result = evaluator.evalMore(null, ((IString) command).getValue(), URI.create("stdin:///"));
+			}
+			timer.cancel();
+			if (timer.hasExpired()) {
+				throw RuntimeExceptionFactory.timeout(null, null);
+			}
+
+			if (expected != null) {
+				Type typ = tr.valueToType((IConstructor) expected);
+				if (!result.getType().isSubtypeOf(typ)) {
+					throw new UnexpectedTypeError(typ, result.getType(), ctx.getCurrentAST());
+				}
+			}
+			return result;
+		}
+
+		throw new IllegalArgumentException();
 	}
 }

@@ -82,23 +82,22 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is an example taken from <a href="/Courses/Recipes/Basic/Bubble/Bubble.html">Recipes:Bubble</a>. It uses a <code>fail</code> for the case that no unsorted element can be found in the list of numbers.
  As a result, the whole case fails and the default case is used.
- <pre class="screen"><b>rascal></b>import IO;
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>public list[int] sort(list[int] Numbers){
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  switch(Numbers){
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;       if(P &gt; Q){
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          return sort(Nums1 + [Q, P] + Nums2);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;       } else {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;         fail;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;       }
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;     default: return Numbers;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   }
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+<span class="prompt">rascal></span>public list[int] sort(list[int] Numbers){
+<span class="continuation">>>>>>>></span>  switch(Numbers){
+<span class="continuation">>>>>>>></span>    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
+<span class="continuation">>>>>>>></span>       if(P > Q){
+<span class="continuation">>>>>>>></span>          return sort(Nums1 + [Q, P] + Nums2);
+<span class="continuation">>>>>>>></span>       } else {
+<span class="continuation">>>>>>>></span>       	  fail;
+<span class="continuation">>>>>>>></span>       }
+<span class="continuation">>>>>>>></span>     default: return Numbers;
+<span class="continuation">>>>>>>></span>   }
+<span class="continuation">>>>>>>></span>}
 list[int] (list[int]): list[int] sort(list[int]);
-<b>rascal></b>sort([10, 1, 5, 3]);
-list[int]: [1,3,5,10]
-</pre>
+<span class="prompt">rascal></span>sort([10, 1, 5, 3]);
+Undeclared variable, function or constructor: sort</pre>
 </div>
 
   	                       
@@ -107,7 +106,7 @@ list[int]: [1,3,5,10]
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/Fail&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/Fail&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

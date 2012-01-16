@@ -68,15 +68,11 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Are all integers 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 even?
-
-<pre class="screen"><b>rascal></b>all(int n &lt;- [1 .. 10], n % 2 == 0);
+<span class="sectionHead">Examples</span>    Are all integers 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 even?
+<pre class="screen"><span class="prompt">rascal></span>all(int n <- [1 .. 10], n % 2 == 0);
 bool: false
-</pre>
-  Are all integers 0, 2, 4, 6, 8, 10 even?
-
-<pre class="screen"><b>rascal></b>all(int n &lt;- [0, 2 .. 10], n % 2 == 0);
+</pre>  Are all integers 0, 2, 4, 6, 8, 10 even?
+<pre class="screen"><span class="prompt">rascal></span>all(int n <- [0, 2 .. 10], n % 2 == 0);
 bool: true
 </pre>
 </div>
@@ -85,7 +81,7 @@ bool: true
   	                       
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  When one of the <code><i>Exp</i><sub>i</sub></code> enumerates the elements of an empty list, <code>all</code> always returns <code>false</code>:
- <pre class="screen"><b>rascal></b>all(int n &lt;- [], n &gt; 0);
+ <pre class="screen"><span class="prompt">rascal></span>all(int n <- [], n > 0);
 bool: false
 </pre>
 </div>

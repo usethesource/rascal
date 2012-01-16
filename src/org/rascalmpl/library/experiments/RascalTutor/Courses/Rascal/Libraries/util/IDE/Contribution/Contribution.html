@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/util/IDE/Contribution</title>
 
-<meta name="description" content="Rascal/Libraries/util/IDE/Contribution:  Data type to describe contributions to the menus of the IDE.">
+<meta name="description" content="Rascal/Libraries/util/IDE/Contribution: ">
 
 <meta name="keywords" content="Rascal/Libraries/util/IDE/Contribution, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,25 +43,20 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/util/util.html">util</a>/<a href="/Courses/Rascal/Libraries/util/IDE/IDE.html">IDE</a>/<a href="/Courses/Rascal/Libraries/util/IDE/Contribution/Contribution.html">Contribution</a>
 </div>
 
-<div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Data type to describe contributions to the menus of the IDE.
-
-</div>
-
 	                       
                            
 <div id="Types">
 <span class="sectionHead">Types</span>  <pre class="listing">data Contribution
      = popup(Menu menu)
-     | menu(Menu menu)
+  | menu(Menu menu)
      ;
 data Menu 
-     = action(str label, void (Tree tree, loc selection) action)
-     | action(str label, void (str selection, loc selection) handler) // for non rascal menu's
-     | edit(str label, str (Tree tree, loc selection) edit)
-     | group(str label, list[Menu] members)
-     | menu(str label, list[Menu] members)
-     ;
+  = action(str label, void (Tree tree, loc selection) action)
+  | action(str label, void (str selection, loc selection) handler) // for non rascal menu's
+  | edit(str label, str (Tree tree, loc selection) edit)
+  | group(str label, list[Menu] members)
+  | menu(str label, list[Menu] members)
+  ;
 </pre>
 </div>
 
@@ -70,17 +65,13 @@ data Menu
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import util::IDE;</code>
  </AUTOINSERTED>
+ Use this type to add items to the menus of the IDE (unfinished
 
 </div>
 
   	                       
   	                       
   	                       
-<div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  This data type is not yet complete.
-
-</div>
-
   	                       
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/IDE/Contribution&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/IDE/Contribution&new=true"><b>New Subconcept</b></a>] |

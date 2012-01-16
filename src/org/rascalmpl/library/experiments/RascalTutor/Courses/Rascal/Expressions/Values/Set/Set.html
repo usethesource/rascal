@@ -109,51 +109,30 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <h1> Set types </h1>
- <pre class="screen"><b>rascal></b>{1, 2, 3};
+ <pre class="screen"><span class="prompt">rascal></span>{1, 2, 3};
 set[int]: {3,2,1}
-<b>rascal></b>{&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;};
+<span class="prompt">rascal></span>{<1,10>, <2,20>, <3,30>};
 rel[int, int]: {
-  &lt;2,20&gt;,
-  &lt;1,10&gt;,
-  &lt;3,30&gt;
+  &lt;2,20>,
+  &lt;1,10>,
+  &lt;3,30>
 }
-<b>rascal></b>{1, &quot;b&quot;, 3};
-set[value]: {3,&quot;b&quot;,1}
-<b>rascal></b>{&lt;&quot;a&quot;, 10&gt;, &lt;&quot;b&quot;, 20&gt;, &lt;&quot;c&quot;, 30&gt;}
-rel[str, int]: {
-  &lt;&quot;b&quot;,20&gt;,
-  &lt;&quot;a&quot;,10&gt;,
-  &lt;&quot;c&quot;,30&gt;
-}
-<b>rascal></b>{{&quot;a&quot;, &quot;b&quot;}, {&quot;c&quot;, &quot;d&quot;, &quot;e&quot;}}
-set[set[str]]: {
-  {&quot;b&quot;,&quot;a&quot;},
-  {&quot;e&quot;,&quot;d&quot;,&quot;c&quot;}
-}
-</pre> Note that
+<span class="prompt">rascal></span>{1, "b", 3};
+set[value]: {3,"b",1}
+<span class="prompt">rascal></span>{<"a", 10>, <"b", 20>, <"c", 30>}
+<span class="continuation">>>>>>>></span>{{"a", "b"}, {"c", "d", "e"}}
+       ^ parse error here</pre> Note that
  <ul><li> <code>{1, 2, 3}</code> and <code>{3, 2, 1}</code> are identical sets (since order is not relevant).</li>
 <li> <code> {1, 2, 3}</code> and <code>{1, 2, 3, 1}</code> are also identical sets (since duplication is not relevant).</li>
 </ul>  <h1> Set splicing </h1>
- 
- Introduce a set variable <tt>S</tt>
-
-<pre class="screen"><b>rascal></b>S = {1, 2, 3};
+  Introduce a set variable <tt>S</tt>
+<pre class="screen"><span class="prompt">rascal></span>S = {1, 2, 3};
 set[int]: {3,2,1}
-</pre>
-  and observe how the value of <code>S</code> is added as single element in another set:
-
-<pre class="screen"><b>rascal></b>{10, S, 20};
-set[value]: {
-  10,
-  20,
-  {3,2,1}
-}
-</pre>
- or how its elements are added as elements to the other set:
-
-<pre class="screen"><b>rascal></b>{10, *S, 20};
-set[int]: {10,20,3,2,1}
-</pre>
+</pre>  and observe how the value of <code>S</code> is added as single element in another set:
+<pre class="screen"><span class="prompt">rascal></span>{10, S, 20};
+Undeclared variable, function or constructor: S</pre> or how its elements are added as elements to the other set:
+<pre class="screen"><span class="prompt">rascal></span>{10, *S, 20};
+Undeclared variable, function or constructor: S</pre>
 </div>
 
   	                       
@@ -185,11 +164,11 @@ set[int]: {10,20,3,2,1}
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
 <label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
-<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
 <label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
+<label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -215,14 +194,14 @@ set[int]: {10,20,3,2,1}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_0" value="0">
-<label for="Rascal/Expressions/Values/Set_2_0">The least upperbound of the type of all elements.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_4" value="4">
-<label for="Rascal/Expressions/Values/Set_2_4">The least upperbound of the type of two arbitrary elements.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_3" value="3">
 <label for="Rascal/Expressions/Values/Set_2_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_1" value="1">
+<label for="Rascal/Expressions/Values/Set_2_1">The types of all the elements in the set.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_5" value="5">
+<label for="Rascal/Expressions/Values/Set_2_5">The type of two arbitrary elements.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -270,8 +249,8 @@ set[int]: {10,20,3,2,1}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{false, true, true, false}">
-The type of <tt>{false, true, true, false}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{0}">
+The type of <tt>{0}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -295,10 +274,10 @@ The type of <tt>{false, true, true, false}</tt> is <input type="text" size="30" 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="0">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Kiwifruit&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-6">
-The type of <tt>{0, &quot;Kiwifruit&quot;, -6}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-14">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;F&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="9">
+The type of <tt>{-14, &quot;F&quot;, 9}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -317,7 +296,7 @@ The type of <tt>{0, &quot;Kiwifruit&quot;, -6}</tt> is <input type="text" size="
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Set&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Set&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

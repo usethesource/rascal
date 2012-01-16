@@ -153,7 +153,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h = hcat([
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28%5B|(10,0,<0,10>,<0,10>))
+</warning><pre class="listing">h = hcat([
 box(fillColor(color("mediumblue", 0.05))),
 box(fillColor(color("mediumblue", 0.2))),
 box(fillColor(color("mediumblue", 0.4))),
@@ -163,7 +164,8 @@ box(fillColor(color("mediumblue", 1.0)))
 ] );
 render(h);
 </pre> <img class="TutorImg"  title="test" alt="test" src="/Courses/Rascal/Libraries/Vis/TestVis/test19.png">
- <pre class="listing">h = hcat([
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28%5B|(10,0,<0,10>,<0,10>))
+</warning><pre class="listing">h = hcat([
 	         box(fillColor(gray(125, 0.05))),
 	                 box(fillColor(gray(125, 0.2))),
 	                 box(fillColor(gray(125, 0.4))),
@@ -173,14 +175,16 @@ render(h);
 	                ]);
 render(h);
 </pre> <img class="TutorImg"  title="test" alt="test" src="/Courses/Rascal/Libraries/Vis/TestVis/testabc.png">
- <pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28++%5B+box%28vshrink%280.2%29%2Chshrink%280.5%29%2C+fillColor%28%22red%22%29%2Ctop%28%29%29%2C|(68,0,<0,68>,<0,68>))
+</warning><pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
 			        box(vshrink(0.8),top()),
 			        box(shrink(0.1,0.5), fillColor("green"),top())
 			      ],
 			      std(fillColor("yellow")), hgrow(1.1));
 render(h	);
 </pre> <img class="TutorImg"  title="test" alt="test" src="/Courses/Rascal/Libraries/Vis/TestVis/testdef.png">
- <pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28++%5B+box%28vshrink%280.2%29%2Chshrink%280.5%29%2C+fillColor%28%22red%22%29%2Cbottom%28%29%29%2C|(71,0,<0,71>,<0,71>))
+</warning><pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
 			        box(vshrink(0.8),bottom()),
 			        box(shrink(0.1,0.5), fillColor("green"),bottom())
 			      ],
@@ -190,14 +194,16 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28++%5B+box%28vshrink%280.2%29%2Chshrink%280.5%29%2C+fillColor%28%22red%22%29%2Cvcenter%28%29%29%2C|(72,0,<0,72>,<0,72>))
+</warning><pre class="listing">h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
 			        box(vshrink(0.8),vcenter()),
 			        box(shrink(0.1,0.5), fillColor("green"),vcenter())
 			      ],
 			      std(fillColor("yellow")), hgrow(1.1));
 render(h);
 </pre> <img class="TutorImg"  title="test" alt="test" src="/Courses/Rascal/Libraries/Vis/TestVis/test22.png">
- <pre class="listing">h = hcat(  [ box(size(100,200), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3D+hcat%28++%5B+box%28size%28100%2C200%29%2C+fillColor%28%22red%22%29%29%2C|(50,0,<0,50>,<0,50>))
+</warning><pre class="listing">h = hcat(  [ box(size(100,200), fillColor("red")),
 			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
@@ -207,7 +213,8 @@ render(h);
 			      gap(10),std(top()),std(vresizable(false)));
 render(h);
 </pre> <img class="TutorImg"  title="test" alt="test" src="/Courses/Rascal/Libraries/Vis/TestVis/test23.png">
- <pre class="listing">h =hcat(  [ box(size(100,200), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Dhcat%28++%5B+box%28size%28100%2C200%29%2C+fillColor%28%22red%22%29%29%2C|(49,0,<0,49>,<0,49>))
+</warning><pre class="listing">h =hcat(  [ box(size(100,200), fillColor("red")),
 			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
@@ -221,7 +228,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Dhcat%28++%5B+box%28align%280.0%2C+0.1%29%2C+size%28100%2C100%29%2C+fillColor%28%22red%22%29%29%2C|(66,0,<0,66>,<0,66>))
+</warning><pre class="listing">h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
 			        box(align(0.0, 0.2), size(100,100)),
 			        box(align(0.0, 0.3), size(100,100), fillColor("green")),
 			        box(align(0.0, 0.4), size(100,100), fillColor("yellow"))
@@ -236,7 +244,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =vcat( [ box(size(100,200), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Dvcat%28+%5B+box%28size%28100%2C200%29%2C+fillColor%28%22red%22%29%29%2C|(48,0,<0,48>,<0,48>))
+</warning><pre class="listing">h =vcat( [ box(size(100,200), fillColor("red")),
 			       box(size(150, 100), fillColor("blue")),
 			       box(size(200,50), fillColor("green"))
 			     ],
@@ -250,7 +259,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =vcat( [ box(size(100,200), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Dvcat%28+%5B+box%28size%28100%2C200%29%2C+fillColor%28%22red%22%29%29%2C|(48,0,<0,48>,<0,48>))
+</warning><pre class="listing">h =vcat( [ box(size(100,200), fillColor("red")),
 			       vcat([ box(size(150,100)),
 			              box(size(50,50)),  
 			              box(size(30,30))
@@ -268,7 +278,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =hcat([ box(size(100,250), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Dhcat%28%5B+box%28size%28100%2C250%29%2C+fillColor%28%22red%22%29%29%2C|(47,0,<0,47>,<0,47>))
+</warning><pre class="listing">h =hcat([ box(size(100,250), fillColor("red")),
 	              vcat([ hcat( [ box(size(50, 100), fillColor("blue")),
 			                     box(size(100, 50), fillColor("blue"))
 			                   ],
@@ -290,7 +301,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =overlay([ box(shrink(0.5,0.3), fillColor("green")), 
+ <warning>ParseError(|eval:///?command=h+%3Doverlay%28%5B+box%28shrink%280.5%2C0.3%29%2C+fillColor%28%22green%22%29%29%2C+|(55,0,<0,55>,<0,55>))
+</warning><pre class="listing">h =overlay([ box(shrink(0.5,0.3), fillColor("green")), 
          box(shrink(0.3,0.5) ,fillColor("red"))
        ],
        std(center()));
@@ -299,7 +311,8 @@ render(h);
  <br/>
 <br/>
 
- <pre class="listing">h =overlay( [ box(size(100,250), fillColor("red")),
+ <warning>ParseError(|eval:///?command=h+%3Doverlay%28+%5B+box%28size%28100%2C250%29%2C+fillColor%28%22red%22%29%29%2C|(51,0,<0,51>,<0,51>))
+</warning><pre class="listing">h =overlay( [ box(size(100,250), fillColor("red")),
   vcat([ box(size(150,100)),
          box(size(50,50)),  
          box(size(30,30))
@@ -324,7 +337,7 @@ render(h);
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/TestVis&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/TestVis&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 13 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

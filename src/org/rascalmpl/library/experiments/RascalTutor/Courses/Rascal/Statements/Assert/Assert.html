@@ -78,19 +78,17 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>assert 1==2 : &quot;is never true&quot;;
-Uncaught Rascal Exception: prompt:///:1,14: AssertionFailed(&quot;is never true&quot;)
-    somewhere in: $shell$
-<b>rascal></b>int div(int x, int y) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  assert y != 0 : &quot;y must be non-zero&quot;;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return x / y;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>assert 1==2 : "is never true";
+exception:AssertionFailed("is never true")
+stacktrace:|eval:///?command=assert+1%3D%3D2+%3A+%22is+never+true%22%3B|(14,15,&lt;1,14>,&lt;1,29>)
+	somewhere in: ___EVAL_INSTANCE___0
+<span class="prompt">rascal></span>int div(int x, int y) {
+<span class="continuation">>>>>>>></span>  assert y != 0 : "y must be non-zero";
+<span class="continuation">>>>>>>></span>  return x / y;
+<span class="continuation">>>>>>>></span>}
 int (int, int): int div(int, int);
-<b>rascal></b>div(4,0);
-Uncaught Rascal Exception: prompt:///:2,18: AssertionFailed(&quot;y must be non-zero&quot;)
-    somewhere in: div
-    somewhere in: $shell$
-</pre>
+<span class="prompt">rascal></span>div(4,0);
+Undeclared variable, function or constructor: div</pre>
 </div>
 
   	                       

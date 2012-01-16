@@ -59,7 +59,7 @@
 </div>
 
 <div id="Details">
-<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/choice/choice.html">choice</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/typeOf/typeOf.html">typeOf</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a> &#032 
+<span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/Prelude/Type/Attr/Attr.html">Attr</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/choice/choice.html">choice</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Exception/Exception.html">Exception</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/lub/lub.html">lub</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/typeOf/typeOf.html">typeOf</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Type/var-func/var-func.html">var-func</a> &#032 
 </div>
 
 <div id="Description">
@@ -78,62 +78,14 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>#int
-type[int]: type(
-  int(),
-  ())
-<b>rascal></b>#rel[int,int]
-type[rel[int, int]]: type(
-  rel([
-      int(),
-      int()
-    ]),
-  ())
-<b>rascal></b>data B = t();
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>#int
+<span class="continuation">>>>>>>></span>#rel[int,int]
+       ^ parse error here<span class="prompt">rascal></span>data B = t();
 ok
-<b>rascal></b>#B
-type[B]: type(
-  adt(
-    &quot;B&quot;,
-    []),
-  (adt(
-      &quot;B&quot;,
-      []):choice(
-      adt(
-        &quot;B&quot;,
-        []),
-      {cons(
-          label(
-            &quot;t&quot;,
-            adt(
-              &quot;B&quot;,
-              [])),
-          [],
-        ...
-<b>rascal></b>syntax A = &quot;a&quot;;
-ok
-<b>rascal></b>#A;
-type[A]: type(
-  sort(&quot;A&quot;),
-  (
-    sort(&quot;A&quot;):choice(
-      sort(&quot;A&quot;),
-      {prod(
-          sort(&quot;A&quot;),
-          [lit(&quot;a&quot;)],
-          {})}),
-    empty():choice(
-      empty(),
-      {prod(
-          empty(),
-          [],
-          {})}),
-    layouts(&quot;$default$&quot;):choice(
-    ...
-<b>rascal></b>type(\int(),())
-type[value]: type(
-  int(),
-  ())
+<span class="prompt">rascal></span>#B
+<span class="continuation">>>>>>>></span>syntax A = "a";
+              ^ parse error here<span class="prompt">rascal></span>#A;
+Undeclared type: A<span class="prompt">rascal></span>type(\int(),())
 </pre>
 </div>
 
@@ -143,7 +95,7 @@ type[value]: type(
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Type&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Type&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -64,21 +64,10 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import vis::Figure;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import vis::Figure;
 ok
-<b>rascal></b>fontNames();
-Uncaught Rascal Exception: prompt:///:1,0: Java(&quot;Invalid thread access&quot;)
-
-    org.eclipse.swt.SWT.error(SWT.java:4282)
-    org.eclipse.swt.SWT.error(SWT.java:4197)
-    org.eclipse.swt.SWT.error(SWT.java:4168)
-    org.eclipse.swt.widgets.Display.error(Display.java:1065)
-    org.eclipse.swt.widgets.Display.checkDevice(Display.java:618)
-    org.eclipse.swt.graphics.Device.getFontList(Device.java:365)
-    org.rascalmpl.library.vis.swt.SWTFontsAndColors.fontNames(SWTFontsAndColors.java:47)
-    sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
-    somewhere in: $shell$
-</pre> The available fonts (on the machine on which this page was generated) are
+<span class="prompt">rascal></span>fontNames();
+Undeclared variable, function or constructor: fontNames</pre> The available fonts (on the machine on which this page was generated) are
  <xfigure f1.png>
  //samples =  [ text(f, font(f), fontSize(12), left()) | f &lt;- fontNames()];
  //render(grid(samples, size(700), gap(350, 20), left(), bottom()));

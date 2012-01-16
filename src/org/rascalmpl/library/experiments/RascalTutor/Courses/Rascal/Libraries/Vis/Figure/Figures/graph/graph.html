@@ -79,7 +79,8 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="listing">nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
+<span class="sectionHead">Examples</span>  <warning>ParseError(|eval:///?command=nodes+%3D+%5B+box%28text%28%22A%22%29%2C+id%28%22A%22%29%2C+size%2850%29%2C+fillColor%28%22lightgreen%22%29%29%2C|(69,0,<0,69>,<0,69>))
+</warning><pre class="listing">nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
      	  box(text("B"), id("B"), size(60), fillColor("orange")),
      	  ellipse( text("C"), id("C"), size(70), fillColor("lightblue")),
      	  ellipse(text("D"), id("D"), size(200, 40), fillColor("violet")),
@@ -95,7 +96,8 @@ render(graph(nodes, edges, hint("layered"), gap(100)));
  <br/>
 <br/>
 
- <pre class="listing">nodes = [ box(text("A"), id("A"), fillColor("green")),
+ <warning>ParseError(|eval:///?command=nodes+%3D+%5B+box%28text%28%22A%22%29%2C+id%28%22A%22%29%2C+fillColor%28%22green%22%29%29%2C|(54,0,<0,54>,<0,54>))
+</warning><pre class="listing">nodes = [ box(text("A"), id("A"), fillColor("green")),
      	  box(text("B"), id("B"), fillColor("red")),
      	  box(text("C"), id("C"), fillColor("blue")),
      	  box(text("D"), id("D"), fillColor("purple")),
@@ -134,7 +136,7 @@ render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/graph&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/graph&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

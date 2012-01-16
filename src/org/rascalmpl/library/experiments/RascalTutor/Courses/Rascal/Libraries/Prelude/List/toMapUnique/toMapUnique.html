@@ -70,19 +70,12 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>toMapUnique([&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-map[int, int]: (3:30,2:20,1:10)
-</pre>
- Let's explore an error case:
-
-<pre class="screen"><b>rascal></b>toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
-Uncaught Rascal Exception: prompt:///:1,0: MultipleKey(1)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toMapUnique(org.eclips&raquo;
-e.imp.pdb.facts.IList)
-    somewhere in: $shell$
-</pre>
+<span class="prompt">rascal></span>toMapUnique([<1,10>, <2, 20>, <3, 30>]);
+Undeclared variable, function or constructor: toMapUnique</pre> Let's explore an error case:
+<pre class="screen"><span class="prompt">rascal></span>toMapUnique([<1,10>, <1, 11>, <2, 20>, <3, 30>]);
+Undeclared variable, function or constructor: toMapUnique</pre>
 </div>
 
   	                       

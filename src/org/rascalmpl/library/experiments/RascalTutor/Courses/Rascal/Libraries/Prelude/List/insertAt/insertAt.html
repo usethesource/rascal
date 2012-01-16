@@ -70,22 +70,13 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>insertAt([1,2,3], 1, 5);
-list[int]: [1,5,2,3]
-<b>rascal></b>insertAt([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;], 2, &quot;eagle&quot;);
-list[str]: [&quot;zebra&quot;,&quot;elephant&quot;,&quot;eagle&quot;,&quot;snake&quot;,&quot;owl&quot;]
-</pre>
- An exception is thrown when the index position is outside the list:
-
-<pre class="screen"><b>rascal></b>insertAt([1,2,3], 10, 5);
-Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(10)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.insertAt(org.eclipse.i&raquo;
-mp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.Index&raquo;
-OutOfBoundsException
-    somewhere in: $shell$
-</pre>
+<span class="prompt">rascal></span>insertAt([1,2,3], 1, 5);
+Undeclared variable, function or constructor: insertAt<span class="prompt">rascal></span>insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
+Undeclared variable, function or constructor: insertAt</pre> An exception is thrown when the index position is outside the list:
+<pre class="screen"><span class="prompt">rascal></span>insertAt([1,2,3], 10, 5);
+Undeclared variable, function or constructor: insertAt</pre>
 </div>
 
   	                       

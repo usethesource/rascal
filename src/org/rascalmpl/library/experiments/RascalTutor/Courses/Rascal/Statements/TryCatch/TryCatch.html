@@ -80,22 +80,17 @@ finally: <i>Statement</i><sub>3</sub>;
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Let's define a variant of the <a href="/Courses/Rascal/Libraries/Prelude/List/head/head.html">head</a> function that returns the first element of a list,
  but throws an exception when the list is empty. Our variant will return <code>0</code> for an empty list:
- <pre class="screen"><b>rascal></b>import List;
+ <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>int hd(list[int] x) { try return head(x); catch: return 0; }
+<span class="prompt">rascal></span>int hd(list[int] x) { try return head(x); catch: return 0; }
 int (list[int]): int hd(list[int]);
-<b>rascal></b>hd([1,2,3]);
-int: 1
-<b>rascal></b>hd([]);
-int: 0
-</pre>
-  We can also be more specific and catch the <code>EmptyList</code> exception:
-
-<pre class="screen"><b>rascal></b>int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
+<span class="prompt">rascal></span>hd([1,2,3]);
+Undeclared variable, function or constructor: hd<span class="prompt">rascal></span>hd([]);
+Undeclared variable, function or constructor: hd</pre>  We can also be more specific and catch the <code>EmptyList</code> exception:
+<pre class="screen"><span class="prompt">rascal></span>int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
 int (list[int]): int hd2(list[int]);
-<b>rascal></b>hd2([]);
-int: 0
-</pre>
+<span class="prompt">rascal></span>hd2([]);
+Undeclared variable, function or constructor: hd2</pre>
 </div>
 
   	                       
@@ -104,7 +99,7 @@ int: 0
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Statements/TryCatch&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Statements/TryCatch&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

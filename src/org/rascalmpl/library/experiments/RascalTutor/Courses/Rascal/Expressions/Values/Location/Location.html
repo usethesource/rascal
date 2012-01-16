@@ -111,41 +111,23 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Locations with specific position information should always be generated automatically but for the curious here is an example:
- <pre class="screen"><b>rascal></b>|file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
-loc: |file:///home/paulk/pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
+ <pre class="screen"><span class="prompt">rascal></span>|file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)
 </pre> Note that this is equivalent to using the <code>home</code> scheme:
- <pre class="screen"><b>rascal></b>|home://pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
-loc: |home://pico.trm|(0,1,&lt;2,3&gt;,&lt;4,5&gt;)
+ <pre class="screen"><span class="prompt">rascal></span>|home://pico.trm|(0,1,<2,3>,<4,5>)
 </pre> Accessing a file <code>META-INF/MANIFEST.MF</code> in a project with the name <code>org.eclipse.imp.pdb.values</code> in the currently running Eclipse is done as follows:
- <pre class="screen"><b>rascal></b>|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
-loc: |project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
+ <pre class="screen"><span class="prompt">rascal></span>|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|
 </pre> Reading the <code>demo/Hello.rsc</code> from the Rascal library can be done using:
- <pre class="screen"><b>rascal></b>|std://demo/basic/Hello.rsc|
-loc: |std://demo/basic/Hello.rsc|
+ <pre class="screen"><span class="prompt">rascal></span>|std://demo/basic/Hello.rsc|
 </pre> You could read a webpage:
- <pre class="screen"><b>rascal></b>import IO;
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>readFileLines(|http://www.rascal-mpl.org|)
-list[str]: [&quot;\&lt;!DOCTYPE html PUBLIC \&quot;-//W3C//DTD XHTML 1.0 Strict//EN\&quot;&quot;,&quot;\t \&quot;http://www.w3.org/TR/xhtml1/DT&raquo;
-D/xhtml1-strict.dtd\&quot;\&gt;&quot;,&quot;\&lt;p /\&gt;&quot;,&quot;\&lt;html xmlns=\&quot;http://www.w3.org/1999/xhtml\&quot; xml:lang=\&quot;en\&quot; la...
+<span class="prompt">rascal></span>readFileLines(|http://www.rascal-mpl.org|)
 </pre> Addition on locations creates longer paths:
- <pre class="screen"><b>rascal></b>x = |tmp://myTempDirectory|;
+ <pre class="screen"><span class="prompt">rascal></span>x = |tmp://myTempDirectory|;
 loc: |tmp://myTempDirectory|
-<b>rascal></b>x += &quot;myTempFile.txt&quot;;
-loc: |tmp://myTempDirectory/myTempFile.txt|
-</pre> Check the contents of a folder:
- <pre class="screen"><b>rascal></b>|std:///|.ls
-list[loc]: [|std:///.project|,|std:///.svn|,|std:///Ambiguity.rsc|,|std:///APIGen.rsc|,|std:///ATermIO.rsc|,|s&raquo;
-td:///AUT.rsc|,|std:///Benchmark.rsc|,|std:///Boolean.rsc|,|std:///box|,|std:///DateTime.rsc|,|std:///demo|,|s&raquo;
-td:///Distance.class|,|std:///Exception.rsc|,|std:///experiments|,|std:///FileSystem.rsc|,|std:///Grammar.rsc|&raquo;
-,|std:///Graph.rsc|,|std:///HTMLIO.rsc|,|std:///Integer.rsc|,|std:///IO.rsc|,|std:///Javac.rsc|,|std:///lang|,&raquo;
-|std:///List.rsc|,|std:///Map.rsc|,|std:///Message.rsc|,|std:///Node.rsc|,|std:///NodeComparator.class|,|std:/&raquo;
-//Number.rsc|,|std:///Origins.rsc|,|std:///ParseTree.rsc|,|std:///Prelude$1.class|,|std:///Prelude.class|,|std&raquo;
-:///Prelude.java|,|std:///Prelude.rsc|,|std:///Rational.rsc|,|std:///Real.rsc|,|std:///Reflective.rsc|,|std://&raquo;
-/Relation.rsc|,|std:///Scripting.rsc|,|std:///Set.rsc|,|std:///SourceHierarchy.rsc|,|std:///Strategy.class|,|s&raquo;
-td:///Strategy.java|,|std:///Strategy.rsc|,|std:///String.rsc|,|std:///SystemAPI.rsc|,|std:///Time.rsc|,|std:/&raquo;
-//TopologicalStrategy.rsc|,|std:///ToString.rsc|,|std:///Type.class|,|std:///Type.java|,|std:///Type.rsc|,|std&raquo;
-:///util|,|std:///ValueIO.rsc|,|std:///vis|,|std:///XMLDOM.rsc|,|std:///XMLIO.rsc|]
+<span class="prompt">rascal></span>x += "myTempFile.txt";
+Uninitialized variable: |eval:///?command=x+%2B%3D+%22myTempFile.txt%22%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre> Check the contents of a folder:
+ <pre class="screen"><span class="prompt">rascal></span>|std:///|.ls
 </pre>
 </div>
 
@@ -155,7 +137,7 @@ td:///Strategy.java|,|std:///Strategy.rsc|,|std:///String.rsc|,|std:///SystemAPI
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Location&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -52,10 +52,14 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>value eval(str command) throws Timeout</code></li>
-<li> <code>value eval(list[str] commands) throws Timeout</code></li>
-<li> <code>value eval(str command, int duration) throws Timeout</code></li>
-<li> <code>value eval(list[str] commands, int duration) throws Timeout</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>Result[&amp;T] eval(type[&amp;T] typ, str command) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>Result[value] eval(str command)</code></li>
+<li> <code>Result[&amp;T] eval(type[&amp;T] typ, list[str] commands) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>Result[value] eval(list[str] commands)</code></li>
+<li> <code>Result[&amp;T] eval(type[&amp;T] typ, str command, int duration) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>Result[value] eval(str command, int duration)</code></li>
+<li> <code>Result[&amp;T] eval(type[&amp;T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>Result[value] eval(list[str] commands, int duration)</code></li>
 </ol>
 </div>
 
@@ -68,20 +72,33 @@
 
 <div id="Description">
 <span class="sectionHead">Description</span>  Evaluate a command or a list of commands and return the value of the last command that is executed.
+ <br/>
+<br/>
+
+ Note that a command can be one of:
+ <ul><li> Statement</li>
+<li> Declaration</li>
+<li> Import</li>
+<li> Extend</li>
+<li> SyntaxDefinition<br/>
+<br/>
+ The notable exclusion is <span class="inlineError">unknown: Rascal:Expression</span>. It is not allowed as a command to the eval function. You can easily make
+ a <span class="inlineError">unknown: Rascal:Statement</span> from an <span class="inlineError">unknown: Rascal:Expression</span> by adding a semi-colon.
+<br/>
+<br/>
  An optional <code>duration</code> argument may be present to limit the time
  (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
-
+</li>
+</ul>
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::Eval;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::Eval;
 ok
-<b>rascal></b>eval(&quot;2 * 3;&quot;);
-value: 6
-<b>rascal></b>eval([&quot;X = 2 * 3;&quot;, &quot;X + 5;&quot;]);
-value: 11
-</pre>
+<span class="prompt">rascal></span>eval("2 * 3;");
+Undeclared variable, function or constructor: eval<span class="prompt">rascal></span>eval(["X = 2 * 3;", "X + 5;"]);
+Undeclared variable, function or constructor: eval</pre>
 </div>
 
   	                       
@@ -90,7 +107,7 @@ value: 11
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Eval/eval&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Eval/eval&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 5 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

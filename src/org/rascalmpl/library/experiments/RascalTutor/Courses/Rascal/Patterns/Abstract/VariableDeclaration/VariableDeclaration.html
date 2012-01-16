@@ -74,24 +74,13 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Let's first perform a match that succeeds:
- <pre class="screen"><b>rascal></b>str S := &quot;abc&quot;;
-bool: true
-</pre>
- and now we attempt to inspect the value of <code>S</code>:
-
-<pre class="screen"><b>rascal></b>S;
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: S
-</pre>
-  As mentioned above: <code>S</code> is only bound in the scope of the match expression!
-
- Let's explore how bindings work in an if statement:
- <pre class="screen"><b>rascal></b>import IO;
+   As mentioned above: <code>S</code> is only bound in the scope of the match expression!
+</pre> Let's explore how bindings work in an if statement:
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>if(str S := &quot;abc&quot;)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   println(&quot;Match succeeds, S == \&quot;&lt;S&gt;\&quot;&quot;);
-Match succeeds, S == &quot;abc&quot;
-ok
-</pre>
+<span class="prompt">rascal></span>if(str S := "abc")
+<span class="continuation">>>>>>>></span>   println("Match succeeds, S == \"&lt;S>\"");
+Undeclared variable, function or constructor: println</pre>
 </div>
 
   	                       
@@ -100,7 +89,7 @@ ok
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Patterns/Abstract/VariableDeclaration&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Patterns/Abstract/VariableDeclaration&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

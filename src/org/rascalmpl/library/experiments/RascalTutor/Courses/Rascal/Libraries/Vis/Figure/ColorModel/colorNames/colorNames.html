@@ -59,12 +59,10 @@
                            
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import vis::Figure;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import vis::Figure;
 ok
-<b>rascal></b>colorNames();
-list[str]: [&quot;aliceblue&quot;,&quot;antiquewhite&quot;,&quot;aqua&quot;,&quot;aquamarine&quot;,&quot;azure&quot;,&quot;beige&quot;,&quot;bisque&quot;,&quot;black&quot;,&quot;blanchedalmond&quot;,&quot;&raquo;
-blue&quot;,&quot;blueviolet&quot;,&quot;brown&quot;,&quot;burlywood&quot;,&quot;cadetblue&quot;,&quot;chartreuse&quot;,&quot;chocolate&quot;,&quot;coral&quot;,&quot;cornflowerblue&quot;...
-</pre> This functions can be used to create color tables.
+<span class="prompt">rascal></span>colorNames();
+Undeclared variable, function or constructor: colorNames</pre> This functions can be used to create color tables.
  <pre class="listing">boxes = [ box([size(10, 10), fillColor(c)]) | c &lt;- colorNames() ];
 render(hvcat(boxes, width(500), left()));
 </pre> <img class="TutorImg"  title="colors" alt="colors" src="/Courses/Rascal/Libraries/Vis/Figure/ColorModel/colorNames/c1.png">
@@ -75,7 +73,8 @@ render(hvcat(boxes, width(500), left()));
  <br/>
 <br/>
 
- <pre class="listing">import List;
+ <warning>ParseError(|eval:///?command=%2F%2F+Define+an+auxiliary+function+to+split+a+list+in+a+list+of+lists+each+of+length+n%3A|(84,0,<0,84>,<0,84>))
+</warning><pre class="listing">import List;
 // Define an auxiliary function to split a list in a list of lists each of length n:
 public list[list[&amp;T]] split(list[&amp;T] elms, int n){
   return (size(elms) &lt; n) ? [elms] : [take(n, elms)] + split(drop(n, elms), n);
@@ -92,7 +91,7 @@ render(grid(split(boxes, 3)));
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/ColorModel/colorNames&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/ColorModel/colorNames&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

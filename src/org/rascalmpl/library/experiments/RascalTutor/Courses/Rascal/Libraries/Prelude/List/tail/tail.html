@@ -72,29 +72,15 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  All but first element:
-
-<pre class="screen"><b>rascal></b>import List;
+<span class="sectionHead">Examples</span>    All but first element:
+<pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<b>rascal></b>tail([10,20,30]);
-list[int]: [20,30]
-<b>rascal></b>tail([]);
-Uncaught Rascal Exception: prompt:///:1,0: EmptyList()
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.p&raquo;
-db.facts.IList)
-    somewhere in: $shell$
-</pre>
-  Last n elements:
-
-<pre class="screen"><b>rascal></b>tail([10, 20, 30, 40, 50, 60], 3);
-list[int]: [40,50,60]
-<b>rascal></b>tail([10, 20, 30, 40, 50, 60], 10);
-Uncaught Rascal Exception: prompt:///:1,0: IndexOutOfBounds(4)
-    somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.tail(org.eclipse.imp.p&raquo;
-db.facts.IList,org.eclipse.imp.pdb.facts.IInteger)
-    somewhere in: $shell$
-</pre>
+<span class="prompt">rascal></span>tail([10,20,30]);
+Undeclared variable, function or constructor: tail<span class="prompt">rascal></span>tail([]);
+Undeclared variable, function or constructor: tail</pre>  Last n elements:
+<pre class="screen"><span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 3);
+Undeclared variable, function or constructor: tail<span class="prompt">rascal></span>tail([10, 20, 30, 40, 50, 60], 10);
+Undeclared variable, function or constructor: tail</pre>
 </div>
 
   	                       

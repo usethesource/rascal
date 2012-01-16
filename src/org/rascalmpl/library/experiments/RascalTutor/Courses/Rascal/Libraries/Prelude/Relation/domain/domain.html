@@ -68,13 +68,11 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Relation;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
-<b>rascal></b>domain({&lt;1,10&gt;, &lt;2,20&gt;});
-set[int]: {2,1}
-<b>rascal></b>domain({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
-set[str]: {&quot;mon&quot;,&quot;tue&quot;}
-</pre>
+<span class="prompt">rascal></span>domain({<1,10>, <2,20>});
+Undeclared variable, function or constructor: domain<span class="prompt">rascal></span>domain({<"mon", 1>, <"tue", 2>});
+Undeclared variable, function or constructor: domain</pre>
 </div>
 
   	                       
@@ -106,11 +104,14 @@ set[str]: {&quot;mon&quot;,&quot;tue&quot;}
 <input type="radio" name="Rascal_Libraries_Prelude_Relation_domain_1:answer" id="Rascal/Libraries/Prelude/Relation/domain_1_2" value="2">
 <label for="Rascal/Libraries/Prelude/Relation/domain_1_2">Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple.</label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_Relation_domain_1:answer" id="Rascal/Libraries/Prelude/Relation/domain_1_0" value="0">
-<label for="Rascal/Libraries/Prelude/Relation/domain_1_0">Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_Relation_domain_1:answer" id="Rascal/Libraries/Prelude/Relation/domain_1_3" value="3">
+<label for="Rascal/Libraries/Prelude/Relation/domain_1_3">Domain returns a set of the second element of each tuple in the relation and range returns a set of the first element of each tuple.</label><br/>
 
 <input type="radio" name="Rascal_Libraries_Prelude_Relation_domain_1:answer" id="Rascal/Libraries/Prelude/Relation/domain_1_4" value="4">
 <label for="Rascal/Libraries/Prelude/Relation/domain_1_4">Domain returns a list of the second element of each tuple in the relation and range returns a list of the first element of each tuple.</label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_Relation_domain_1:answer" id="Rascal/Libraries/Prelude/Relation/domain_1_0" value="0">
+<label for="Rascal/Libraries/Prelude/Relation/domain_1_0">Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -129,7 +130,7 @@ set[str]: {&quot;mon&quot;,&quot;tue&quot;}
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/domain&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/domain&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

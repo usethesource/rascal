@@ -112,96 +112,177 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  1. Variable assignable:
-
-<pre class="screen"><b>rascal></b>N = 3;
+<span class="sectionHead">Examples</span>    1. Variable assignable:
+<pre class="screen"><span class="prompt">rascal></span>N = 3;
 int: 3
-<b>rascal></b>N;
-int: 3
-</pre>
-  2. Subscription assignable with a list:
-
-<pre class="screen"><b>rascal></b>L = [10,20,30];
+<span class="prompt">rascal></span>N;
+Undeclared variable, function or constructor: N</pre>  2. Subscription assignable with a list:
+<pre class="screen"><span class="prompt">rascal></span>L = [10,20,30];
 list[int]: [10,20,30]
-<b>rascal></b>P = L;
-list[int]: [10,20,30]
-<b>rascal></b>L[1] = 200;
-list[int]: [10,200,30]
-</pre>
- Observe that <code>P</code> is unchanged:
-
-<pre class="screen"><b>rascal></b>P;
-list[int]: [10,20,30]
-</pre>
-   2. Subscription assignable with a map:
-
-<pre class="screen"><b>rascal></b>M = (&quot;abc&quot;: 1, &quot;def&quot; : 2);
-map[str, int]: (&quot;def&quot;:2,&quot;abc&quot;:1)
-<b>rascal></b>M[&quot;def&quot;] = 3;
-map[str, int]: (&quot;def&quot;:3,&quot;abc&quot;:1)
-</pre>
-  2. Subscription assignable to a tuple:
-
-<pre class="screen"><b>rascal></b>T = &lt;1, &quot;abc&quot;, true&gt;;
-tuple[int,str,bool]: &lt;1,&quot;abc&quot;,true&gt;
-<b>rascal></b>T[1] = &quot;def&quot;;
-tuple[int,str,bool]: &lt;1,&quot;def&quot;,true&gt;
-</pre>
-  3. Field assignable:
-
-<pre class="screen"><b>rascal></b>data FREQ = wf(str word, int freq);
+<span class="prompt">rascal></span>P = L;
+Undeclared variable, function or constructor: L<span class="prompt">rascal></span>L[1] = 200;
+Uninitialized variable: |eval:///?command=L%5B1%5D+%3D+200%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre> Observe that <code>P</code> is unchanged:
+<pre class="screen"><span class="prompt">rascal></span>P;
+Undeclared variable, function or constructor: P</pre>   2. Subscription assignable with a map:
+<pre class="screen"><span class="prompt">rascal></span>M = ("abc": 1, "def" : 2);
+map[str, int]: ("def":2,"abc":1)
+<span class="prompt">rascal></span>M["def"] = 3;
+Uninitialized variable: |eval:///?command=M%5B%22def%22%5D+%3D+3%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre>  2. Subscription assignable to a tuple:
+<pre class="screen"><span class="prompt">rascal></span>T = <1, "abc", true>;
+tuple[int,str,bool]: &lt;1,"abc",true>
+<span class="prompt">rascal></span>T[1] = "def";
+Uninitialized variable: |eval:///?command=T%5B1%5D+%3D+%22def%22%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre>  3. Field assignable:
+<pre class="screen"><span class="prompt">rascal></span>data FREQ = wf(str word, int freq);
 ok
-<b>rascal></b>W = wf(&quot;rascal&quot;, 1000);
-FREQ: wf(&quot;rascal&quot;,1000)
-<b>rascal></b>W.freq = 100000;
-FREQ: wf(&quot;rascal&quot;,100000)
-</pre>
-  4. Multiple assignable:
-
-<pre class="screen"><b>rascal></b>&lt;A, B, C&gt; = &lt;&quot;abc&quot;, 2.5, [1,2,3]&gt;;
-tuple[str,real,list[int]]: &lt;&quot;abc&quot;,2.5,[1,2,3]&gt;
-<b>rascal></b>A;
-str: &quot;abc&quot;
-<b>rascal></b>B;
-real: 2.5
-<b>rascal></b>C;
-list[int]: [1,2,3]
-</pre>
-  5. isDefined assignable.
+<span class="prompt">rascal></span>W = wf("rascal", 1000);
+Undeclared variable, function or constructor: wf<span class="prompt">rascal></span>W.freq = 100000;
+Uninitialized variable: |eval:///?command=W.freq+%3D+100000%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre>  4. Multiple assignable:
+<pre class="screen"><span class="prompt">rascal></span><A, B, C> = <"abc", 2.5, [1,2,3]>;
+tuple[str,real,list[int]]: &lt;"abc",2.5,[1,2,3]>
+<span class="prompt">rascal></span>A;
+Undeclared variable, function or constructor: A<span class="prompt">rascal></span>B;
+Undeclared variable, function or constructor: B<span class="prompt">rascal></span>C;
+Undeclared variable, function or constructor: C</pre>  5. isDefined assignable.
   First we explore the <code>?=</code> assignment operator (recall that <code>N</code> already got a value above; <code>X</code> was never assigned a value):
-
-<pre class="screen"><b>rascal></b>N ?= 5;
+<pre class="screen"><span class="prompt">rascal></span>N ?= 5;
+int: 5
+<span class="prompt">rascal></span>X;
+Undeclared variable, function or constructor: X<span class="prompt">rascal></span>X ?= 3;
 int: 3
-<b>rascal></b>X;
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: X
-<b>rascal></b>X ?= 3;
-int: 3
-</pre>
-  Next consider, the isDefined assignable itself; recall that earlier we assigned a map value to <code><i>M</i></code> and that 
+</pre>  Next consider, the isDefined assignable itself; recall that earlier we assigned a map value to <code><i>M</i></code> and that 
   it does not contain the key <code>"cef"</code> so essentially we try to increment a non-existing map entry:
+<pre class="screen"><span class="prompt">rascal></span>M["cef"] ? 0 += 1;
+internal exception: java.lang.NullPointerException	somewhere in: markupScreen
+	somewhere in: markup
+	somewhere in: markup
+	somewhere in: compileConcept
+	somewhere in: compileCourse
+	somewhere in: compile
+	somewhere in: ___TUTOR___
 
-<pre class="screen"><b>rascal></b>M[&quot;cef&quot;] ? 0 += 1;
-map[str, int]: (&quot;def&quot;:3,&quot;cef&quot;:1,&quot;abc&quot;:1)
-</pre>
-  6. Annotation assignable:
-
-<pre class="screen"><b>rascal></b>anno str FREQ@color;
-ok
-<b>rascal></b>W @ color = &quot;red&quot;;
-FREQ: wf(&quot;rascal&quot;,100000)[
-  @color=&quot;red&quot;
-]
-</pre>
-  7. Constructor assignable:
-
-<pre class="screen"><b>rascal></b>wf(S, I) = W;
-FREQ: wf(&quot;rascal&quot;,100000)
-<b>rascal></b>S;
-str: &quot;rascal&quot;
-<b>rascal></b>I;
-int: 100000
-</pre>
+java.lang.NullPointerException
+	at org.rascalmpl.semantics.dynamic.Assignable$Subscript.interpret(Assignable.java:578)
+	at org.rascalmpl.semantics.dynamic.Assignable$IfDefinedOrDefault.assignment(Assignable.java:385)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:182)
+	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:721)
+	at org.rascalmpl.semantics.dynamic.EvalCommand$Statement.interpret(EvalCommand.java:74)
+	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:900)
+	at org.rascalmpl.interpreter.Evaluator.evalMore(Evaluator.java:814)
+	at org.rascalmpl.interpreter.Evaluator.evalMore(Evaluator.java:764)
+	at org.rascalmpl.library.util.Eval.doEval(Eval.java:154)
+	at org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator.shell(HTMLGenerator.java:81)
+	at sun.reflect.GeneratedMethodAccessor148.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:137)
+	at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:111)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:857)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:850)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:994)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2307)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:706)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1526)
+	at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:188)
+	at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:816)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:994)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:378)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.interpreter.StringTemplateConverter<i>Visitor</i>IndentingAppend.interpret(StringTemplateConverter.java:109)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:405)
+	at org.rascalmpl.semantics.dynamic.Literal$String.interpret(Literal.java:238)
+	at org.rascalmpl.semantics.dynamic.Expression$Literal.interpret(Expression.java:1373)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:857)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:850)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:857)
+	at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:850)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:405)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
+	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
+	at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
+	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
+	at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:611)
+	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
+	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:148)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
+	at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:112)
+	at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:437)
+	at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:38)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
+	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:547)
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:481)
+	at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:225)
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:940)
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:409)
+	at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:186)
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:874)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:110)
+	at org.eclipse.jetty.server.Server.handle(Server.java:349)
+	at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:441)
+	at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:904)
+	at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:565)
+	at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:217)
+	at org.eclipse.jetty.server.AsyncHttpConnection.handle(AsyncHttpConnection.java:46)
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle(SelectChannelEndPoint.java:545)
+	at org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run(SelectChannelEndPoint.java:43)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:598)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:533)
+	at java.lang.Thread.run(Thread.java:680)
+</pre>  6. Annotation assignable:
+<pre class="screen"><span class="prompt">rascal></span>anno str FREQ@color;
+Undeclared type: FREQ<span class="prompt">rascal></span>W @ color = "red";
+Uninitialized variable: |eval:///?command=W+%40+color+%3D+%22red%22%3B|(0,1,&lt;1,0>,&lt;1,1>):class org.rascalmpl.semantics.dynamic.Assignable$Variable</pre>  7. Constructor assignable:
+<pre class="screen"><span class="prompt">rascal></span>wf(S, I) = W;
+Undeclared variable, function or constructor: W<span class="prompt">rascal></span>S;
+Undeclared variable, function or constructor: S<span class="prompt">rascal></span>I;
+Undeclared variable, function or constructor: I</pre>
 </div>
 
   	                       

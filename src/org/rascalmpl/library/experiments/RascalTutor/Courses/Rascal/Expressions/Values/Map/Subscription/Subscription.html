@@ -69,23 +69,15 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Introduce a map, assign it to <code>colors</code>, and retrieve the element with index <code>"trumps"</code>:
-
-<pre class="screen"><b>rascal></b>colors = (&quot;hearts&quot;:&quot;red&quot;, &quot;clover&quot;:&quot;black&quot;, 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;          &quot;trumps&quot;:&quot;black&quot;, &quot;clubs&quot;:&quot;red&quot;);
-map[str, str]: (&quot;clubs&quot;:&quot;red&quot;,&quot;clover&quot;:&quot;black&quot;,&quot;hearts&quot;:&quot;red&quot;,&quot;trumps&quot;:&quot;black&quot;)
-<b>rascal></b>colors[&quot;trumps&quot;];
-str: &quot;black&quot;
-</pre>
-  Explore some erroneous subscription expressions:
-
-<pre class="screen"><b>rascal></b>colors[0];
-Static Error: prompt:///:1,0: Expected str, but got int
-<b>rascal></b>colors[&quot;square&quot;];
-Uncaught Rascal Exception: prompt:///:1,7: NoSuchKey(&quot;square&quot;)
-    somewhere in: $shell$
-</pre>
+<span class="sectionHead">Examples</span>    Introduce a map, assign it to <code>colors</code>, and retrieve the element with index <code>"trumps"</code>:
+<pre class="screen"><span class="prompt">rascal></span>colors = ("hearts":"red", "clover":"black", 
+<span class="continuation">>>>>>>></span>          "trumps":"black", "clubs":"red");
+map[str, str]: ("clubs":"red","clover":"black","hearts":"red","trumps":"black")
+<span class="prompt">rascal></span>colors["trumps"];
+Undeclared variable, function or constructor: colors</pre>  Explore some erroneous subscription expressions:
+<pre class="screen"><span class="prompt">rascal></span>colors[0];
+Undeclared variable, function or constructor: colors<span class="prompt">rascal></span>colors["square"];
+Undeclared variable, function or constructor: colors</pre>
 </div>
 
   	                       

@@ -66,33 +66,19 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Suppose we have a relation with traffic information that records the name of the day, the day number, and the length of the traffic jams at that day.
- <pre class="screen"><b>rascal></b>rel[str day, int daynum, int length] Traffic = 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;{&lt;&quot;mon&quot;, 1, 100&gt;, &lt;&quot;tue&quot;, 2, 150&gt;, &lt;&quot;wed&quot;, 3, 125&gt;, 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; &lt;&quot;thur&quot;, 4, 110&gt;, &lt;&quot;fri&quot;, 5, 90&gt;};
+ <pre class="screen"><span class="prompt">rascal></span>rel[str day, int daynum, int length] Traffic = 
+<span class="continuation">>>>>>>></span>{&lt;"mon", 1, 100>, &lt;"tue", 2, 150>, &lt;"wed", 3, 125>, 
+<span class="continuation">>>>>>>></span> &lt;"thur", 4, 110>, &lt;"fri", 5, 90>};
 rel[str day, int daynum, int length]: {
-  &lt;&quot;wed&quot;,3,125&gt;,
-  &lt;&quot;mon&quot;,1,100&gt;,
-  &lt;&quot;fri&quot;,5,90&gt;,
-  &lt;&quot;thur&quot;,4,110&gt;,
-  &lt;&quot;tue&quot;,2,150&gt;
+  &lt;"wed",3,125>,
+  &lt;"mon",1,100>,
+  &lt;"fri",5,90>,
+  &lt;"thur",4,110>,
+  &lt;"tue",2,150>
 }
-<b>rascal></b>Traffic&lt;length,daynum&gt;;
-rel[int length, int daynum]: {
-  &lt;150,2&gt;,
-  &lt;100,1&gt;,
-  &lt;110,4&gt;,
-  &lt;125,3&gt;,
-  &lt;90,5&gt;
-}
-<b>rascal></b>Traffic&lt;2,day&gt;;
-rel[int length, str day]: {
-  &lt;100,&quot;mon&quot;&gt;,
-  &lt;90,&quot;fri&quot;&gt;,
-  &lt;150,&quot;tue&quot;&gt;,
-  &lt;125,&quot;wed&quot;&gt;,
-  &lt;110,&quot;thur&quot;&gt;
-}
-</pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
+<span class="prompt">rascal></span>Traffic<length,daynum>;
+Undeclared variable, function or constructor: Traffic<span class="prompt">rascal></span>Traffic<2,day>;
+Undeclared variable, function or constructor: Traffic</pre> Field projection thus selects parts from a larger value that has a fixed number of parts. The selection is based on position and not on value and can be used to completely reorder or remove the parts of a larger value.
 
 </div>
 
@@ -102,7 +88,7 @@ rel[int length, str day]: {
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Operators/FieldProjection&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -70,22 +70,16 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Introduce two aliases <code>ModuleId</code> and <code>Frequency</code> for the type str.
-
-<pre class="screen"><b>rascal></b>alias ModuleId = str;
+<span class="sectionHead">Examples</span>    Introduce two aliases <code>ModuleId</code> and <code>Frequency</code> for the type str.
+<pre class="screen"><span class="prompt">rascal></span>alias ModuleId = str;
 ok
-<b>rascal></b>alias Frequency = int;
+<span class="prompt">rascal></span>alias Frequency = int;
 ok
-</pre>
-  Another example is an alias definition for a graph containing integer nodes:
-
-<pre class="screen"><b>rascal></b>alias IntGraph = rel[int,int];
+</pre>  Another example is an alias definition for a graph containing integer nodes:
+<pre class="screen"><span class="prompt">rascal></span>alias IntGraph = rel[int,int];
 ok
-</pre>
- Note that the Rascal Standard Library provides a graph data type that is defined as follows:
-
-<pre class="screen"><b>rascal></b>alias Graph[&amp;T] = rel[&amp;T, &amp;T];
+</pre> Note that the Rascal Standard Library provides a graph data type that is defined as follows:
+<pre class="screen"><span class="prompt">rascal></span>alias Graph[&T] = rel[&T, &T];
 ok
 </pre> In other words the standard graph datatype can be parameterized with any element type.
  <br/>

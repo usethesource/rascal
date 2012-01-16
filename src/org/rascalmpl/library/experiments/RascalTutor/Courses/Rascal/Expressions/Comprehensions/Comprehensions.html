@@ -78,48 +78,35 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  A list comprehension:
-
-<pre class="screen"><b>rascal></b>[ 3 * X | int X &lt;- [1 .. 10] ];
+<span class="sectionHead">Examples</span>    A list comprehension:
+<pre class="screen"><span class="prompt">rascal></span>[ 3 * X | int X <- [1 .. 10] ];
 list[int]: [3,6,9,12,15,18,21,24,27,30]
-</pre>
-  A list comprehension with a filter:
-
-<pre class="screen"><b>rascal></b>[ 3 * X | int X &lt;- [1 .. 10], X &gt; 5];
+</pre>  A list comprehension with a filter:
+<pre class="screen"><span class="prompt">rascal></span>[ 3 * X | int X <- [1 .. 10], X > 5];
 list[int]: [18,21,24,27,30]
-</pre>
-  A list comprehension with multiple contributing expressions:
-
-<pre class="screen"><b>rascal></b>[X, X * X | int X &lt;- [1, 2, 3, 4, 5], X &gt;= 3];
+</pre>  A list comprehension with multiple contributing expressions:
+<pre class="screen"><span class="prompt">rascal></span>[X, X * X | int X <- [1, 2, 3, 4, 5], X >= 3];
 list[int]: [3,9,4,16,5,25]
-</pre>
-  A set comprehension with a filter:
-
-<pre class="screen"><b>rascal></b>{X | int X &lt;- {1, 2, 3, 4, 5}, X &gt;= 3};
+</pre>  A set comprehension with a filter:
+<pre class="screen"><span class="prompt">rascal></span>{X | int X <- {1, 2, 3, 4, 5}, X >= 3};
 set[int]: {5,4,3}
-</pre>
-  A set comprehension that constructs a relation:
-
-<pre class="screen"><b>rascal></b>{&lt;X, Y&gt; | int X &lt;- {1, 2, 3}, int Y &lt;- {2, 3, 4}, X &gt;= Y};
+</pre>  A set comprehension that constructs a relation:
+<pre class="screen"><span class="prompt">rascal></span>{<X, Y> | int X <- {1, 2, 3}, int Y <- {2, 3, 4}, X >= Y};
 rel[int, int]: {
-  &lt;2,2&gt;,
-  &lt;3,3&gt;,
-  &lt;3,2&gt;
+  &lt;2,2>,
+  &lt;3,3>,
+  &lt;3,2>
 }
-<b>rascal></b>{&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- {&lt;1,10&gt;, &lt;2,20&gt;}};
+<span class="prompt">rascal></span>{<Y, X> | <int X, int Y> <- {<1,10>, <2,20>}};
 rel[int, int]: {
-  &lt;20,2&gt;,
-  &lt;10,1&gt;
+  &lt;20,2>,
+  &lt;10,1>
 }
-</pre>
-  Introduce a map of <code>fruits</code> and use a map comprehension to filter fruits with an associated value larger than 10:
-
-<pre class="screen"><b>rascal></b>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
-map[str, int]: (&quot;orange&quot;:35,&quot;apple&quot;:3,&quot;pear&quot;:1,&quot;berry&quot;:25,&quot;banana&quot;:0)
-<b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
-map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
-</pre> See <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a>, <a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Set/Comprehension</a>, or <a href="/Courses/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Map/Comprehension</a> for more examples.
+</pre>  Introduce a map of <code>fruits</code> and use a map comprehension to filter fruits with an associated value larger than 10:
+<pre class="screen"><span class="prompt">rascal></span>fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
+map[str, int]: ("orange":35,"apple":3,"pear":1,"berry":25,"banana":0)
+<span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
+Undeclared variable, function or constructor: fruits</pre> See <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a>, <a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Set/Comprehension</a>, or <a href="/Courses/Rascal/Expressions/Values/Map/Comprehension/Comprehension.html">Map/Comprehension</a> for more examples.
 
 </div>
 
@@ -129,7 +116,7 @@ map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Comprehensions&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Comprehensions&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

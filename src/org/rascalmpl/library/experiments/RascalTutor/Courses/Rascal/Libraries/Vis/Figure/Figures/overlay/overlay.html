@@ -137,7 +137,8 @@ render(ovl);
 <br/>
 
  The next enhancement is to close the begin and end points of the shape, using <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeClosed/shapeClosed.html">shapeClosed</a>:
- <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <warning>ParseError(|eval:///?command=ovl+%3D+overlay%28%5Bpoint%28x%2Cy%29+%7C+%3Cx%2Cy%3E+%3C-+coords%5D%2C+shapeConnected%28true%29%2C|(67,0,<0,67>,<0,67>))
+</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true));
@@ -151,7 +152,8 @@ render(ovl);
 <br/>
 
  Another enhancement is to use curves to connect the figures in the shape, using <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/shapeCurved/shapeCurved.html">shapeCurved</a>:
- <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <warning>ParseError(|eval:///?command=ovl%3D+overlay%28%5Bpoint%28x%2Cy%29+%7C+%3Cx%2Cy%3E+%3C-+coords%5D%2C+shapeConnected%28true%29%2C|(66,0,<0,66>,<0,66>))
+</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl= overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                              shapeClosed(true),
@@ -166,7 +168,8 @@ render(ovl);
 <br/>
 
  A final enhancement is to set the fill color of the closed shape:
- <pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+ <warning>ParseError(|eval:///?command=ovl+%3D+overlay%28%5Bpoint%28x%2Cy%29+%7C+%3Cx%2Cy%3E+%3C-+coords%5D%2C+shapeConnected%28true%29%2C|(67,0,<0,67>,<0,67>))
+</warning><pre class="listing">Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [&lt;0.0,0.0>,&lt;0.5,0.5>,&lt;0.8,0.5>,&lt;1.0,0.0>];
 ovl = overlay([point(x,y) | &lt;x,y> &lt;- coords], shapeConnected(true),
                                               shapeClosed(true),
@@ -205,7 +208,7 @@ render(ovl);
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/overlay&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/overlay&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

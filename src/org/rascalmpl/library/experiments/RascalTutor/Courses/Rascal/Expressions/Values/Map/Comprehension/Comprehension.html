@@ -70,24 +70,16 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Introduce a map of <code>fruits</code>:
-
-<pre class="screen"><b>rascal></b>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
-map[str, int]: (&quot;orange&quot;:35,&quot;apple&quot;:3,&quot;pear&quot;:1,&quot;berry&quot;:25,&quot;banana&quot;:0)
-<b>rascal></b>import String;
+<span class="sectionHead">Examples</span>    Introduce a map of <code>fruits</code>:
+<pre class="screen"><span class="prompt">rascal></span>fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
+map[str, int]: ("orange":35,"apple":3,"pear":1,"berry":25,"banana":0)
+<span class="prompt">rascal></span>import String;
 ok
-</pre>
-  Use a map comprehension to filter fruits with a name of at most 5 characters:
-
-<pre class="screen"><b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, size(fruit) &lt;= 5);
-map[str, int]: (&quot;apple&quot;:3,&quot;berry&quot;:25,&quot;pear&quot;:1)
-</pre>
-  Use a map comprehension to filter fruits with an associated value larger than 10:
-
-<pre class="screen"><b>rascal></b>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
-map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
-</pre>
+</pre>  Use a map comprehension to filter fruits with a name of at most 5 characters:
+<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit <- fruits, size(fruit) <= 5);
+Undeclared variable, function or constructor: fruits</pre>  Use a map comprehension to filter fruits with an associated value larger than 10:
+<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
+Undeclared variable, function or constructor: fruits</pre>
 </div>
 
   	                       
@@ -96,7 +88,7 @@ map[str, int]: (&quot;orange&quot;:35,&quot;berry&quot;:25)
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Map/Comprehension&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Map/Comprehension&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

@@ -89,32 +89,22 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here are some simple examples of correct and incorrect typing:
- 
-  We can assign an integer value to an integer variable:
-
-<pre class="screen"><b>rascal></b>int i = 3;
+   We can assign an integer value to an integer variable:
+<pre class="screen"><span class="prompt">rascal></span>int i = 3;
 int: 3
-</pre>
-  But assigning a string value gives an error:
-
-<pre class="screen"><b>rascal></b>int j = &quot;abc&quot;;
-Static Error: prompt:///:1,4: Expected int, but got str
-</pre>
-  The <code>num</code> type accepts integer and real values:
-
-<pre class="screen"><b>rascal></b>num n = i;
-num: 3
-<b>rascal></b>n = 3.14;
-num: 3.14
-</pre>
-  A variable of type <code>value</code> accepts all possible values:
-
-<pre class="screen"><b>rascal></b>value v = true;
+</pre>  But assigning a string value gives an error:
+<pre class="screen"><span class="prompt">rascal></span>int j = "abc";
+Expected int, but got str</pre>  The <code>num</code> type accepts integer and real values:
+<pre class="screen"><span class="prompt">rascal></span>num n = i;
+Undeclared variable, function or constructor: i<span class="prompt">rascal></span>n = 3.14;
+real: 3.14
+</pre>  A variable of type <code>value</code> accepts all possible values:
+<pre class="screen"><span class="prompt">rascal></span>value v = true;
 value: true
-<b>rascal></b>v = &quot;abc&quot;;
-value: &quot;abc&quot;
-<b>rascal></b>v = [1, 2, 3];
-value: [1,2,3]
+<span class="prompt">rascal></span>v = "abc";
+str: "abc"
+<span class="prompt">rascal></span>v = [1, 2, 3];
+list[int]: [1,2,3]
 </pre>
 </div>
 

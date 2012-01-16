@@ -153,46 +153,18 @@ data Solution = solution(VariableVals varVals, num funVal);
 <br/>
 
  We write it like this:
-  <pre class="screen"><b>rascal></b>import util::LinearProgramming;
+  <pre class="screen"><span class="prompt">rascal></span>import util::LinearProgramming;
 ok
-<b>rascal></b>constraints = {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    constraint((&quot;europe&quot; : 6, &quot;asia&quot; : 1), geq() , 12),
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    constraint((&quot;europe&quot; : 3, &quot;asia&quot; : 1), geq() , 8),
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    constraint((&quot;europe&quot; : 4, &quot;asia&quot; : 6), geq() , 24),
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    constraint((&quot;europe&quot; : 1), leq() , 7),
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    constraint((&quot;asia&quot; : 1), leq() , 7)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;};
-set[Constraint]: {
-  constraint(
-    (&quot;asia&quot;:6,&quot;europe&quot;:4),
-    geq(),
-    24),
-  constraint(
-    (&quot;asia&quot;:1,&quot;europe&quot;:3),
-    geq(),
-    8),
-  constraint(
-    (&quot;asia&quot;:1,&quot;europe&quot;:6),
-    geq(),
-    12),
-  constraint(
-    (&quot;europe&quot;:1),
-    leq(),
-    7),
-  constraint(
-    (&quot;asia&quot;:1),
-    leq(),
-    7)
-...
-<b>rascal></b>cost = linearExp((&quot;europe&quot; : 180000, &quot;asia&quot; : 160000));
-ObjectiveFun: linearExp(
-  (&quot;asia&quot;:160000,&quot;europe&quot;:180000),
-  0)
-<b>rascal></b>minimizeNonNegative(constraints,cost);
-Maybe[Solution]: just(solution(
-    (&quot;asia&quot;:2.857142857142857,&quot;europe&quot;:1.7142857142857142),
-    765714.2857142857))
-</pre>
+<span class="prompt">rascal></span>constraints = {
+<span class="continuation">>>>>>>></span>    constraint(("europe" : 6, "asia" : 1), geq() , 12),
+<span class="continuation">>>>>>>></span>    constraint(("europe" : 3, "asia" : 1), geq() , 8),
+<span class="continuation">>>>>>>></span>    constraint(("europe" : 4, "asia" : 6), geq() , 24),
+<span class="continuation">>>>>>>></span>    constraint(("europe" : 1), leq() , 7),
+<span class="continuation">>>>>>>></span>    constraint(("asia" : 1), leq() , 7)
+<span class="continuation">>>>>>>></span>};	
+Undeclared variable, function or constructor: constraint<span class="prompt">rascal></span>cost = linearExp(("europe" : 180000, "asia" : 160000));
+Undeclared variable, function or constructor: linearExp<span class="prompt">rascal></span>minimizeNonNegative(constraints,cost);
+Undeclared variable, function or constructor: minimizeNonNegative</pre>
 </div>
 
   	                       
@@ -201,7 +173,7 @@ Maybe[Solution]: just(solution(
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/LinearProgramming&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/LinearProgramming&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

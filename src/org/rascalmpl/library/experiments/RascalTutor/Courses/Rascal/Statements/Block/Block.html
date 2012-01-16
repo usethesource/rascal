@@ -71,21 +71,18 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is a contrived block of three expressions (be aware of the last semi-colon):
- <pre class="screen"><b>rascal></b>{1;2;3;}
+ <pre class="screen"><span class="prompt">rascal></span>{1;2;3;}
 int: 3
 </pre> its value is <code>3</code>.
  <br/>
 <br/>
 
  The effect of a local variable declared in a block can be seen as follows:
- <pre class="screen"><b>rascal></b>{int x = 3; x*x;}
+ <pre class="screen"><span class="prompt">rascal></span>{int x = 3; x*x;}
 int: 9
-</pre>
-  After the block we cannot refer to <code>x</code>:
-
-<pre class="screen"><b>rascal></b>x;
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
-</pre>
+</pre>  After the block we cannot refer to <code>x</code>:
+<pre class="screen"><span class="prompt">rascal></span>x;
+Undeclared variable, function or constructor: x</pre>
 </div>
 
   	                       

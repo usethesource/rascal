@@ -52,10 +52,10 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>str evalType(str command) throws Timeout</code></li>
-<li> <code>str evalType(list[str] commands) throws Timeout</code></li>
-<li> <code>str evalType(str command, int duration) throws Timeout</code></li>
-<li> <code>str evalType(list[str] commands, int duration) throws Timeout</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>str evalType(str command) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>str evalType(list[str] commands) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>str evalType(str command, int duration) throws Timeout, StaticError, ParseError</code></li>
+<li> <code>str evalType(list[str] commands, int duration) throws Timeout, StaticError, ParseError</code></li>
 </ol>
 </div>
 
@@ -75,13 +75,11 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import util::Eval;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import util::Eval;
 ok
-<b>rascal></b>evalType(&quot;2 * 3&quot;);
-str: &quot;int&quot;
-<b>rascal></b>evalType(&quot;[1, 2, 3];&quot;);
-str: &quot;list[int]&quot;
-</pre>
+<span class="prompt">rascal></span>evalType("2 * 3");
+Undeclared variable, function or constructor: evalType<span class="prompt">rascal></span>evalType("[1, 2, 3];");
+Undeclared variable, function or constructor: evalType</pre>
 </div>
 
   	                       
@@ -90,7 +88,7 @@ str: &quot;list[int]&quot;
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/Eval/evalType&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/Eval/evalType&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

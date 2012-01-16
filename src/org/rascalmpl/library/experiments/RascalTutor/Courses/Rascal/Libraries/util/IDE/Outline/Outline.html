@@ -64,18 +64,17 @@
 <br/>
 
  Then, register the outliner:
- <pre class="screen"><b>rascal></b>import util::IDE;
+ <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
 ok
-<b>rascal></b>syntax Program = &quot;main&quot;;
+<span class="prompt">rascal></span>syntax Program = "main";
 ok
-<b>rascal></b>registerOutliner(&quot;myLanguage&quot;, node (Program t) { 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n = &quot;myNode&quot;();
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n@\loc = t@\loc;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  n@label = &quot;My node label&quot;;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return n;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;});
-ok
-</pre>
+<span class="prompt">rascal></span>registerOutliner("myLanguage", node (Program t) { 
+<span class="continuation">>>>>>>></span>  n = "myNode"();
+<span class="continuation">>>>>>>></span>  n@\loc = t@\loc;
+<span class="continuation">>>>>>>></span>  n@label = "My node label";
+<span class="continuation">>>>>>>></span>  return n;
+<span class="continuation">>>>>>>></span>});
+Undeclared variable, function or constructor: registerOutliner</pre>
 </div>
 
   	                       
@@ -85,7 +84,7 @@ ok
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/util/IDE/Outline&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/util/IDE/Outline&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

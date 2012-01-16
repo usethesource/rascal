@@ -65,31 +65,19 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Node;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Node;
 ok
-</pre>
-  Declare two string-valued annotation on nodes, named color, respectively, size:
-
-<pre class="screen"><b>rascal></b>anno str node @ color;
+</pre>  Declare two string-valued annotation on nodes, named color, respectively, size:
+<pre class="screen"><span class="prompt">rascal></span>anno str node @ color;
 ok
-<b>rascal></b>anno str node @ size;
+<span class="prompt">rascal></span>anno str node @ size;
 ok
-</pre>
-  Create a node with two annotations:
-
-<pre class="screen"><b>rascal></b>F = setAnnotations(&quot;f&quot;(10, &quot;abc&quot;), (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
-node: f(10,&quot;abc&quot;)[
-  @color=&quot;red&quot;,
-  @size=&quot;large&quot;
-]
-</pre>
-  and retrieve those annotations:
-
-<pre class="screen"><b>rascal></b>getAnnotations(F);
-map[str, value]: (&quot;color&quot;:&quot;red&quot;,&quot;size&quot;:&quot;large&quot;)
-<b>rascal></b>F@color;
-str: &quot;red&quot;
-</pre>
+</pre>  Create a node with two annotations:
+<pre class="screen"><span class="prompt">rascal></span>F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+Undeclared variable, function or constructor: setAnnotations</pre>  and retrieve those annotations:
+<pre class="screen"><span class="prompt">rascal></span>getAnnotations(F);
+Undeclared variable, function or constructor: getAnnotations<span class="prompt">rascal></span>F@color;
+Undeclared variable, function or constructor: F</pre>
 </div>
 
   	                       
@@ -98,7 +86,7 @@ str: &quot;red&quot;
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Node/getAnnotations&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Node/getAnnotations&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 3 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

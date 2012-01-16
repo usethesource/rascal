@@ -68,127 +68,11 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>12 / 3
-int: 4
-<b>rascal></b>10 / 3
-int: 3
-<b>rascal></b>12 / 3.0
-real: 4.
-<b>rascal></b>10 / 3.0
-real: 3.333333333333333333333333333333333333333333333333333333333333333
-<b>rascal></b>12 / 0
-Unexpected exception (generic Throwable): / by zero
-    somewhere in: $shell$
-stacktrace: / by zero
-    at org.eclipse.imp.pdb.facts.impl.fast.IntegerValue.divide(IntegerValue.java:249)
-    at org.rascalmpl.interpreter.result.IntegerResult.divideInteger(IntegerResult.java:161)
-    at org.rascalmpl.interpreter.result.IntegerResult.divide(IntegerResult.java:56)
-    at org.rascalmpl.semantics.dynamic.Expression$Division.interpret(Expression.java:573)
-    at org.rascalmpl.semantics.dynamic.Command$Expression.interpret(Command.java:57)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:854)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:770)
-    at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:744)
-    at org.rascalmpl.interpreter.RascalShell.handleInput(RascalShell.java:203)
-    at org.rascalmpl.interpreter.RascalShell.run(RascalShell.java:128)
-    at org.rascalmpl.library.util.Eval.shell(Eval.java:85)
-    at sun.reflect.GeneratedMethodAccessor272.invoke(null:-1)
-    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
-    at java.lang.reflect.Method.invoke(Method.java:597)
-    at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:134)
-    at org.rascalmpl.interpreter.result.JavaMethod.call(JavaMethod.java:100)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Expression$Tuple.interpret(Expression.java:2307)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:706)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1455)
-    at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:188)
-    at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:816)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$While.interpret(Statement.java:994)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:378)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.interpreter.StringTemplateConverter$Visitor$IndentingAppend.interpret(StringTemplateConve&raquo;
-rter.java:109)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:405)
-    at org.rascalmpl.semantics.dynamic.Literal$String.interpret(Literal.java:238)
-    at org.rascalmpl.semantics.dynamic.Expression$Literal.interpret(Expression.java:1373)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:857)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:850)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.evalStatementTry(Statement.java:857)
-    at org.rascalmpl.semantics.dynamic.Statement$Try.interpret(Statement.java:850)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$For.interpret(Statement.java:405)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.semantics.dynamic.Expression$CallOrTree.interpret(Expression.java:384)
-    at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
-    at org.rascalmpl.semantics.dynamic.Statement$Assignment.interpret(Statement.java:181)
-    at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:685)
-    at org.rascalmpl.semantics.dynamic.Statement$IfThenElse.interpret(Statement.java:611)
-    at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
-    at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.callWith(OverloadedFunctionResult.java:146)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:121)
-    at org.rascalmpl.interpreter.result.OverloadedFunctionResult.call(OverloadedFunctionResult.java:112)
-    at org.rascalmpl.interpreter.Evaluator.call(Evaluator.java:433)
-    at org.rascalmpl.library.experiments.RascalTutor.Compile.doGet(Compile.java:38)
-    at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
-    at javax.servlet.http.HttpServlet.service(HttpServlet.java:820)
-    at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:527)
-    at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:423)
-    at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:223)
-    at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:930)
-    at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:358)
-    at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:183)
-    at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:866)
-    at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)
-    at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:113)
-    at org.eclipse.jetty.server.Server.handle(Server.java:351)
-    at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:594)
-    at org.eclipse.jetty.server.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:1041)
-    at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:549)
-    at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:211)
-    at org.eclipse.jetty.server.HttpConnection.handle(HttpConnection.java:424)
-    at org.eclipse.jetty.io.nio.SelectChannelEndPoint.run(SelectChannelEndPoint.java:489)
-    at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:436)
-    at java.lang.Thread.run(Thread.java:680)
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>12 / 3
+<span class="continuation">>>>>>>></span>10 / 3
+       ^ parse error here<span class="prompt">rascal></span>12 / 3.0
+<span class="continuation">>>>>>>></span>10 / 3.0
+       ^ parse error here<span class="prompt">rascal></span>12 / 0
 </pre>
 </div>
 
@@ -216,9 +100,9 @@ rter.java:109)
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:A" value="-11">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:B" value="12">
-The type of <tt>-11 / 12</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:A" value="-9">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:B" value="-7">
+The type of <tt>-9 / -7</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -242,9 +126,9 @@ The type of <tt>-11 / 12</tt> is <input type="text" size="30" name="Rascal_Expre
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:A" value="-6">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:B" value="-9.209933883425938000">
-The type of <tt>-6 / -9.209933883425938000</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:A" value="-13">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:B" value="-5.776799639746257200">
+The type of <tt>-13 / -5.776799639746257200</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -268,9 +152,9 @@ The type of <tt>-6 / -9.209933883425938000</tt> is <input type="text" size="30" 
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:A" value="0.2181752541072400">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:B" value="18">
-The type of <tt>0.2181752541072400 / 18</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_3:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:A" value="14.68088263518470800">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:B" value="2">
+The type of <tt>14.68088263518470800 / 2</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_3:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -294,9 +178,9 @@ The type of <tt>0.2181752541072400 / 18</tt> is <input type="text" size="30" nam
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:A" value="12">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:B" value="5.1322116384950000">
-<pre class="prequestion">12 / 5.1322116384950000 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:A" value="6.46416001824070000">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:B" value="14.88259488744083600">
+<pre class="prequestion">6.46416001824070000 / 14.88259488744083600 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:another" value="yes">

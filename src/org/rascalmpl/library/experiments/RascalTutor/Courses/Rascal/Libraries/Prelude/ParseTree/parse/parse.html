@@ -74,46 +74,22 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::NoLayout::Syntax;
 ok
-<b>rascal></b>import ParseTree;
+<span class="prompt">rascal></span>import ParseTree;
 ok
-</pre>
-  Seeing that <code>parse</code> returns a parse tree:
-
-<pre class="screen"><b>rascal></b>parse(#Exp, &quot;2+3&quot;);
-`2+3`
-Exp: appl(
-  prod(
-    sort(&quot;Exp&quot;),
-    [
-      sort(&quot;Exp&quot;),
-      layouts(&quot;$default$&quot;),
-      lit(&quot;+&quot;),
-      layouts(&quot;$default$&quot;),
-      sort(&quot;Exp&quot;)
-    ],
-    {assoc(left())}),
-  [
-    appl(
-      prod(
-        sort(&quot;Exp&quot;),
-        [lex(&quot;IntegerLiteral&quot;)],
-     ...
-</pre>
-  Catching a parse error:
-
-<pre class="screen"><b>rascal></b>import IO;
+</pre>  Seeing that <code>parse</code> returns a parse tree:
+<pre class="screen"><span class="prompt">rascal></span>parse(#Exp, "2+3");
+Undeclared variable, function or constructor: parse</pre>  Catching a parse error:
+<pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>try {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  Exp e = parse(#Exp, &quot;2@3&quot;);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;catch ParseError(loc l): {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  println(&quot;I found a parse error at line &lt;l.begin.line&gt;, column &lt;l.begin.column&gt;&quot;);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
-I found a parse error at line 1, column 1
-ok
-</pre>
+<span class="prompt">rascal></span>try {
+<span class="continuation">>>>>>>></span>  Exp e = parse(#Exp, "2@3");
+<span class="continuation">>>>>>>></span>}
+<span class="continuation">>>>>>>></span>catch ParseError(loc l): {
+<span class="continuation">>>>>>>></span>  println("I found a parse error at line &lt;l.begin.line>, column &lt;l.begin.column>");
+<span class="continuation">>>>>>>></span>}
+Undeclared variable, function or constructor: parse</pre>
 </div>
 
   	                       

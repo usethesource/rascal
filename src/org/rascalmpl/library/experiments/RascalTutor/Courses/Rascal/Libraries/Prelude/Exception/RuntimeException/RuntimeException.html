@@ -104,35 +104,24 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Import relevant libraries:
-
-<pre class="screen"><b>rascal></b>import Exception;
+<span class="sectionHead">Examples</span>    Import relevant libraries:
+<pre class="screen"><span class="prompt">rascal></span>import Exception;
 ok
-<b>rascal></b>import IO;
+<span class="prompt">rascal></span>import IO;
 ok
-</pre>
-  Define the map <code>weekend</code> and do a subscription with a non-existing key:
-
-<pre class="screen"><b>rascal></b>weekend = (&quot;saturday&quot;: 1, &quot;sunday&quot;: 2);
-map[str, int]: (&quot;saturday&quot;:1,&quot;sunday&quot;:2)
-<b>rascal></b>weekend[&quot;monday&quot;];
-Uncaught Rascal Exception: prompt:///:1,8: NoSuchKey(&quot;monday&quot;)
-    somewhere in: $shell$
-</pre>
-  Repeat this, but catch the exception. We use variable <code>N</code> to track what happened:
-
-<pre class="screen"><b>rascal></b>N = 1;
+</pre>  Define the map <code>weekend</code> and do a subscription with a non-existing key:
+<pre class="screen"><span class="prompt">rascal></span>weekend = ("saturday": 1, "sunday": 2);
+map[str, int]: ("saturday":1,"sunday":2)
+<span class="prompt">rascal></span>weekend["monday"];
+Undeclared variable, function or constructor: weekend</pre>  Repeat this, but catch the exception. We use variable <code>N</code> to track what happened:
+<pre class="screen"><span class="prompt">rascal></span>N = 1;
 int: 1
-<b>rascal></b>try {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   N = weekend[&quot;monday&quot;];
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;} catch NoSuchKey(v):
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  N = 100;
-ok
-<b>rascal></b>println(N);
-100
-ok
-</pre>
+<span class="prompt">rascal></span>try {
+<span class="continuation">>>>>>>></span>   N = weekend["monday"];
+<span class="continuation">>>>>>>></span>} catch NoSuchKey(v):
+<span class="continuation">>>>>>>></span>  N = 100;
+Undeclared variable, function or constructor: weekend<span class="prompt">rascal></span>println(N);
+Undeclared variable, function or constructor: println</pre>
 </div>
 
   	                       

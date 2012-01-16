@@ -69,15 +69,11 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is a a variant of string concatenation for ball haters:
- <pre class="screen"><b>rascal></b>str conc(str x, str y){ if(&quot;ball&quot; in {x, y}) throw &quot;I hate balls&quot;; return x + y; }
+ <pre class="screen"><span class="prompt">rascal></span>str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
 str (str, str): str conc(str, str);
-<b>rascal></b>conc(&quot;fairy&quot;, &quot;tale&quot;);
-str: &quot;fairytale&quot;
-<b>rascal></b>conc(&quot;foot&quot;, &quot;ball&quot;);
-Uncaught Rascal Exception: prompt:///:1,51: &quot;I hate balls&quot;
-    somewhere in: conc
-    somewhere in: $shell$
-</pre>
+<span class="prompt">rascal></span>conc("fairy", "tale");
+Undeclared variable, function or constructor: conc<span class="prompt">rascal></span>conc("foot", "ball");
+Undeclared variable, function or constructor: conc</pre>
 </div>
 
   	                       

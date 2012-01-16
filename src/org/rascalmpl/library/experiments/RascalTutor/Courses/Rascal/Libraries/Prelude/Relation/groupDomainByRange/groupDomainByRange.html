@@ -65,26 +65,20 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>import Relation;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
-<b>rascal></b>legs = {&lt;&quot;bird&quot;, 2&gt;, &lt;&quot;dog&quot;, 4&gt;, &lt;&quot;human&quot;, 2&gt;, &lt;&quot;spider&quot;, 8&gt;, &lt;&quot;millepede&quot;, 1000&gt;, &lt;&quot;crab&quot;, 8&gt;, &lt;&quot;cat&quot;, 4&gt;};
+<span class="prompt">rascal></span>legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>};
 rel[str, int]: {
-  &lt;&quot;spider&quot;,8&gt;,
-  &lt;&quot;human&quot;,2&gt;,
-  &lt;&quot;crab&quot;,8&gt;,
-  &lt;&quot;bird&quot;,2&gt;,
-  &lt;&quot;cat&quot;,4&gt;,
-  &lt;&quot;millepede&quot;,1000&gt;,
-  &lt;&quot;dog&quot;,4&gt;
+  &lt;"spider",8>,
+  &lt;"human",2>,
+  &lt;"crab",8>,
+  &lt;"bird",2>,
+  &lt;"cat",4>,
+  &lt;"millepede",1000>,
+  &lt;"dog",4>
 }
-<b>rascal></b>groupDomainByRange(legs);
-set[set[str]]: {
-  {&quot;millepede&quot;},
-  {&quot;dog&quot;,&quot;cat&quot;},
-  {&quot;spider&quot;,&quot;crab&quot;},
-  {&quot;human&quot;,&quot;bird&quot;}
-}
-</pre>
+<span class="prompt">rascal></span>groupDomainByRange(legs);
+Undeclared variable, function or constructor: groupDomainByRange</pre>
 </div>
 
   	                       
@@ -93,7 +87,7 @@ set[set[str]]: {
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/groupDomainByRange&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/groupDomainByRange&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

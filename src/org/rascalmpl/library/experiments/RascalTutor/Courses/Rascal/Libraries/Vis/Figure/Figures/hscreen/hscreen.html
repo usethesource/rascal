@@ -101,7 +101,8 @@ render(sc);
  <br/>
 <br/>
 
- <pre class="listing">boxes = [box(project(box(text(s),fillColor("green"),shrink(c),a),"hscreen"),fillColor("red")) 
+ <warning>ParseError(|eval:///?command=boxes+%3D+%5Bbox%28project%28box%28text%28s%29%2CfillColor%28%22green%22%29%2Cshrink%28c%29%2Ca%29%2C%22hscreen%22%29%2CfillColor%28%22red%22%29%29+|(94,0,<0,94>,<0,94>))
+</warning><pre class="listing">boxes = [box(project(box(text(s),fillColor("green"),shrink(c),a),"hscreen"),fillColor("red")) 
 	| &lt;s,a,c> &lt;- [&lt;"a",left(),0.6>,&lt;"b",top(),0.9>,&lt;"c",right(),0.5>,&lt;"d",bottom(),0.4>]];
 s = hscreen(hcat(boxes,hgrow(1.2),top(),vshrink(0.8)),id("hscreen"));
 render(s);
@@ -120,7 +121,7 @@ render(s);
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/hscreen&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Vis/Figure/Figures/hscreen&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

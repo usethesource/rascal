@@ -126,84 +126,51 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Declare a function
-
-<pre class="screen"><b>rascal></b>rel[int, int] invert(rel[int,int] R){
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   return {&lt;Y, X&gt; | &lt;int X, int Y&gt; &lt;- R };
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+<span class="sectionHead">Examples</span>    Declare a function
+<pre class="screen"><span class="prompt">rascal></span>rel[int, int] invert(rel[int,int] R){
+<span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;int X, int Y> &lt;- R };
+<span class="continuation">>>>>>>></span>}
 rel[int, int] (rel[int, int]): rel[int, int] invert(rel[int, int]);
-</pre>
-  Call it
-
-<pre class="screen"><b>rascal></b>invert({&lt;1,10&gt;, &lt;2,20&gt;});
-rel[int, int]: {
-  &lt;20,2&gt;,
-  &lt;10,1&gt;
-}
-</pre> In the following example we illustrate the use of type vriables in function declarations.
+</pre>  Call it
+<pre class="screen"><span class="prompt">rascal></span>invert({<1,10>, <2,20>});
+Undeclared variable, function or constructor: invert</pre> In the following example we illustrate the use of type vriables in function declarations.
  Declare an inversion function that is applicable to any binary relation:
- <pre class="screen"><b>rascal></b>rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1,&amp;T2] R){  
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   return {&lt;Y, X&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; &lt;- R };
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+ <pre class="screen"><span class="prompt">rascal></span>rel[&T2, &T1] invert2(rel[&T1,&T2] R){  
+<span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;&amp;T1 X, &amp;T2 Y> &lt;- R };
+<span class="continuation">>>>>>>></span>}
 rel[&amp;T2, &amp;T1] (rel[&amp;T1, &amp;T2]): rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1, &amp;T2]);
-</pre>
- Now apply it to relations with different types:
-
-<pre class="screen"><b>rascal></b>invert2({&lt;1,10&gt;, &lt;2,20&gt;});
-rel[int, int]: {
-  &lt;20,2&gt;,
-  &lt;10,1&gt;
-}
-<b>rascal></b>invert2({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
-rel[int, str]: {
-  &lt;1,&quot;mon&quot;&gt;,
-  &lt;2,&quot;tue&quot;&gt;
-}
-</pre>
-  As another example declare a function that can be used to swap the elements of pairs of arbitrary types
+</pre> Now apply it to relations with different types:
+<pre class="screen"><span class="prompt">rascal></span>invert2({<1,10>, <2,20>});
+Undeclared variable, function or constructor: invert2<span class="prompt">rascal></span>invert2({<"mon", 1>, <"tue", 2>});
+Undeclared variable, function or constructor: invert2</pre>  As another example declare a function that can be used to swap the elements of pairs of arbitrary types
   (also see <a href="/Courses/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Tuple/Subscription</a>):
-
-<pre class="screen"><b>rascal></b>tuple[&amp;T2, &amp;T1] swap(tuple[&amp;T1, &amp;T2] TP) { return &lt;TP[1], TP[0]&gt;;}
+<pre class="screen"><span class="prompt">rascal></span>tuple[&T2, &T1] swap(tuple[&T1, &T2] TP) { return <TP[1], TP[0]>;}
 tuple[&amp;T2,&amp;T1] (tuple[&amp;T1,&amp;T2]): tuple[&amp;T2,&amp;T1] swap(tuple[&amp;T1,&amp;T2]);
-<b>rascal></b>swap(&lt;1, 2&gt;);
-tuple[int,int]: &lt;2,1&gt;
-<b>rascal></b>swap(&lt;&quot;wed&quot;, 3&gt;);
-tuple[int,str]: &lt;3,&quot;wed&quot;&gt;
-</pre> Here we use an overloaded definition with incomparable patterns:
- <pre class="screen"><b>rascal></b>int f(int i) = 1;
+<span class="prompt">rascal></span>swap(<1, 2>);
+Undeclared variable, function or constructor: swap<span class="prompt">rascal></span>swap(<"wed", 3>);
+Undeclared variable, function or constructor: swap</pre> Here we use an overloaded definition with incomparable patterns:
+ <pre class="screen"><span class="prompt">rascal></span>int f(int i) = 1;
 int (int): int f(int);
-<b>rascal></b>int f(real r) = 2;
+<span class="prompt">rascal></span>int f(real r) = 2;
 int (real): int f(real);
-<b>rascal></b>f(0);
-int: 1
-<b>rascal></b>f(0.0);
-int: 2
-</pre> And we may use <code>default</code>, as in:
- <pre class="screen"><b>rascal></b>int f(0) = 1;
+<span class="prompt">rascal></span>f(0);
+Undeclared variable, function or constructor: f<span class="prompt">rascal></span>f(0.0);
+Undeclared variable, function or constructor: f</pre> And we may use <code>default</code>, as in:
+ <pre class="screen"><span class="prompt">rascal></span>int f(0) = 1;
 int (int): int f(int);
-<b>rascal></b>default int f(int n) = n * f(n - 1);
+<span class="prompt">rascal></span>default int f(int n) = n * f(n - 1);
 int (int): int f(int);
-<b>rascal></b>f(0);
-int: 1
-<b>rascal></b>f(2);
-int: 2
-</pre> In combination with an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>, which defines <code>default</code> functions implicitly for every alternative, we can define canonicalization functions. The same holds for <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s, see <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s.
- 
-  This definition implies a default function for t(), f() and neg(B):
-
-<pre class="screen"><b>rascal></b>data B = t() | f() | neg(B);
+<span class="prompt">rascal></span>f(0);
+Undeclared variable, function or constructor: f<span class="prompt">rascal></span>f(2);
+Undeclared variable, function or constructor: f</pre> In combination with an <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>, which defines <code>default</code> functions implicitly for every alternative, we can define canonicalization functions. The same holds for <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s, see <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Action/Action.html">Action</a>s.
+   This definition implies a default function for t(), f() and neg(B):
+<pre class="screen"><span class="prompt">rascal></span>data B = t() | f() | neg(B);
 ok
-</pre>
-  the following definition will remove any nested neg before it is even constructed:
-
-<pre class="screen"><b>rascal></b>B neg(neg(B b)) = b;
-B (B): B neg(B);
-<b>rascal></b>neg(t());
-B: neg(t())
-<b>rascal></b>neg(neg(f()));
-B: f()
-</pre>
+</pre>  the following definition will remove any nested neg before it is even constructed:
+<pre class="screen"><span class="prompt">rascal></span>B neg(neg(B b)) = b;
+Undeclared type: B<span class="prompt">rascal></span>neg(t());
+Undeclared variable, function or constructor: neg<span class="prompt">rascal></span>neg(neg(f()));
+Undeclared variable, function or constructor: neg</pre>
 </div>
 
   	                       
@@ -212,7 +179,7 @@ B: f()
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Declarations/Function&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Declarations/Function&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 12 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

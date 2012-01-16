@@ -93,34 +93,28 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  Two explicit variable declarations:
-
-<pre class="screen"><b>rascal></b>int max = 100;
+<span class="sectionHead">Examples</span>    Two explicit variable declarations:
+<pre class="screen"><span class="prompt">rascal></span>int max = 100;
 int: 100
-<b>rascal></b>min = 0;
+<span class="prompt">rascal></span>min = 0;
 int: 0
-</pre>
-  An implicit variable declaration
-
-<pre class="screen"><b>rascal></b>day = {&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;, &lt;&quot;wed&quot;,3&gt;, 
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;       &lt;&quot;thu&quot;, 4&gt;, &lt;&quot;fri&quot;, 5&gt;, &lt;&quot;sat&quot;,6&gt;, &lt;&quot;sun&quot;,7&gt;};
+</pre>  An implicit variable declaration
+<pre class="screen"><span class="prompt">rascal></span>day = {<"mon", 1>, <"tue", 2>, <"wed",3>, 
+<span class="continuation">>>>>>>></span>       &lt;"thu", 4>, &lt;"fri", 5>, &lt;"sat",6>, &lt;"sun",7>};
 rel[str, int]: {
-  &lt;&quot;thu&quot;,4&gt;,
-  &lt;&quot;mon&quot;,1&gt;,
-  &lt;&quot;sat&quot;,6&gt;,
-  &lt;&quot;wed&quot;,3&gt;,
-  &lt;&quot;tue&quot;,2&gt;,
-  &lt;&quot;fri&quot;,5&gt;,
-  &lt;&quot;sun&quot;,7&gt;
+  &lt;"thu",4>,
+  &lt;"mon",1>,
+  &lt;"sat",6>,
+  &lt;"wed",3>,
+  &lt;"tue",2>,
+  &lt;"fri",5>,
+  &lt;"sun",7>
 }
-</pre>
-  Variable declaration and assignment leading to type error
-
-<pre class="screen"><b>rascal></b>int month = 12;
+</pre>  Variable declaration and assignment leading to type error
+<pre class="screen"><span class="prompt">rascal></span>int month = 12;
 int: 12
-<b>rascal></b>month =&quot;December&quot;;
-Static Error: prompt:///:1,7: Expected int, but got str
+<span class="prompt">rascal></span>month ="December";
+str: "December"
 </pre>
 </div>
 
@@ -130,11 +124,10 @@ Static Error: prompt:///:1,7: Expected int, but got str
 <span class="sectionHead">Pitfalls</span>  <ul><li> Local type inference for variables always uses the smallest possibe scope for a variable; this implies that   a variable introduced in an inner scope is not available outside that scope. Here is how things can go wrong:
 <br/>
 <br/>
- <pre class="screen"><b>rascal></b>if( 4 &gt; 3){ x = &quot;abc&quot;; } else { x = &quot;def&quot;;}
-str: &quot;abc&quot;
-<b>rascal></b>x;
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
-</pre></li>
+ <pre class="screen"><span class="prompt">rascal></span>if( 4 > 3){ x = "abc"; } else { x = "def";}
+str: "abc"
+<span class="prompt">rascal></span>x;
+Undeclared variable, function or constructor: x</pre></li>
 </ul>
 </div>
 

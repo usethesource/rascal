@@ -90,20 +90,16 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  
-  A node with name "my_node" and three arguments
-
-<pre class="screen"><b>rascal></b>&quot;my_node&quot;(1, true, &quot;abc&quot;);
-node: my_node(1,true,&quot;abc&quot;)
-</pre>
-  A nested node structure:
-
-<pre class="screen"><b>rascal></b>&quot;my_node1&quot;(1, &quot;my_node2&quot;(3.5, [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]), true);
+<span class="sectionHead">Examples</span>    A node with name "my_node" and three arguments
+<pre class="screen"><span class="prompt">rascal></span>"my_node"(1, true, "abc");
+node: my_node(1,true,"abc")
+</pre>  A nested node structure:
+<pre class="screen"><span class="prompt">rascal></span>"my_node1"(1, "my_node2"(3.5, ["a", "b", "c"]), true);
 node: my_node1(
   1,
   my_node2(
     3.5,
-    [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]),
+    ["a","b","c"]),
   true)
 </pre>
 </div>

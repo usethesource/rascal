@@ -83,43 +83,35 @@ int x &lt;- [ 1 .. 10 ]
 <br/>
 
  Let's practice some of these examples.
-  <pre class="screen"><b>rascal></b>int x &lt;- {};
+  <pre class="screen"><span class="prompt">rascal></span>int x <- {};
 bool: false
 </pre> The enumerator does not produce any value and returns <code>false</code>.
-  <pre class="screen"><b>rascal></b>int x &lt;- {1, 3, 5, 7, 11 };
+  <pre class="screen"><span class="prompt">rascal></span>int x <- {1, 3, 5, 7, 11 };
 bool: true
-<b>rascal></b>x;
-Static Error: prompt:///:1,0: Undeclared variable, function or constructor: x
-</pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
+<span class="prompt">rascal></span>x;
+Undeclared variable, function or constructor: x</pre> Well, this is a disappointing experience. The generator returned <code>true</code> since it did produce a value.
  Apparently, we cannot inspect the value of the variable <code>x</code> that was bound.
  <br/>
 <br/>
 
  Another example that results in an error:
- <pre class="screen"><b>rascal></b>str x &lt;- {1, 3, 5, 7, 11 };
-Static Error: prompt:///:1,0: Expected int, but got str
-</pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
+ <pre class="screen"><span class="prompt">rascal></span>str x <- {1, 3, 5, 7, 11 };
+Expected int, but got str</pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
  and an error results.
  <br/>
 <br/>
 
  A more satisfying use is as follows:
- <pre class="screen"><b>rascal></b>{ x * x | int x &lt;- {1, 3, 5, 7, 11 }};
+ <pre class="screen"><span class="prompt">rascal></span>{ x * x | int x <- {1, 3, 5, 7, 11 }};
 set[int]: {9,25,121,1,49}
 </pre> When used inside <a href="/Courses/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>, or <a href="/Courses/Rascal/Statements/For/For.html">For</a>, <a href="/Courses/Rascal/Statements/Do/Do.html">Do</a>, or <a href="/Courses/Rascal/Statements/While/While.html">While</a> statement, all values of the generator will be produced and used.
  The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
  Here is a similar example:
- <pre class="screen"><b>rascal></b>import IO;
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>for(int x &lt;- {1, 3, 5, 7, 11 })
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    println(&quot;x = &lt;x&gt;&quot;);
-x = 11
-x = 7
-x = 5
-x = 3
-x = 1
-list[void]: []
-</pre>
+<span class="prompt">rascal></span>for(int x <- {1, 3, 5, 7, 11 })
+<span class="continuation">>>>>>>></span>    println("x = &lt;x>");
+Undeclared variable, function or constructor: println</pre>
 </div>
 
   	                       
@@ -133,7 +125,7 @@ list[void]: []
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Concepts/Enumerators&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

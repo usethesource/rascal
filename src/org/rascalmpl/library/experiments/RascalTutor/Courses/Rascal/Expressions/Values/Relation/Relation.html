@@ -102,27 +102,11 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><b>rascal></b>{&lt;1,10&gt;, &lt;2,20&gt;, &lt;3,30&gt;}
-rel[int, int]: {
-  &lt;2,20&gt;,
-  &lt;1,10&gt;,
-  &lt;3,30&gt;
-}
-</pre>
-  instead of rel[int,int] we can also give <code>set[tuple[int,int]]</code> as type of the above expression
-  remember that these types are interchangeable.
-
-<pre class="screen"><b>rascal></b>{&lt;&quot;a&quot;,10&gt;, &lt;&quot;b&quot;,20&gt;, &lt;&quot;c&quot;,30&gt;}
-rel[str, int]: {
-  &lt;&quot;b&quot;,20&gt;,
-  &lt;&quot;a&quot;,10&gt;,
-  &lt;&quot;c&quot;,30&gt;
-}
-<b>rascal></b>{&lt;&quot;a&quot;, 1, &quot;b&quot;&gt;, &lt;&quot;c&quot;, 2, &quot;d&quot;&gt;}
-rel[str, int, str]: {
-  &lt;&quot;c&quot;,2,&quot;d&quot;&gt;,
-  &lt;&quot;a&quot;,1,&quot;b&quot;&gt;
-}
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{<1,10>, <2,20>, <3,30>}
+<span class="continuation">>>>>>>></span>// instead of rel[int,int] we can also give `set[tuple[int,int]]` as type of the above expression
+<span class="continuation">>>>>>>></span>// remember that these types are interchangeable.
+<span class="continuation">>>>>>>></span>{&lt;"a",10>, &lt;"b",20>, &lt;"c",30>}
+       ^ parse error here<span class="prompt">rascal></span>{<"a", 1, "b">, <"c", 2, "d">}
 </pre>
 </div>
 
@@ -152,14 +136,14 @@ rel[str, int, str]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_1" value="1">
-<label for="Rascal/Expressions/Values/Relation_1_1">Has unordered elements.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="3">
 <label for="Rascal/Expressions/Values/Relation_1_3">Is a list of tuples.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="5">
-<label for="Rascal/Expressions/Values/Relation_1_5">Has ordered elements.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="0">
+<label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="4">
+<label for="Rascal/Expressions/Values/Relation_1_4">Is a tuple of tuples.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
