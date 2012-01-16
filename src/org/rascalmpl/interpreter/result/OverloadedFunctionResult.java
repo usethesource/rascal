@@ -135,24 +135,20 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 
 	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
-		Type tuple = getTypeFactory().tupleType(argTypes);
 		AbstractFunction failed = null;
 		Failure failure = null;
 		
 		for (AbstractFunction candidate : candidates) {
-			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
-			if (candidate.match(tuple)) {
-				try {
-					return candidate.call(argTypes, argValues);
-				}
-				catch (MatchFailed m) {
-					// could happen if pattern dispatched
-				}
-				catch (Failure e) {
-					failed = candidate;
-					failure = e;
-					// could happen if function body throws fail
-				}
+			try {
+				return candidate.call(argTypes, argValues);
+			}
+			catch (MatchFailed m) {
+				// could happen if pattern dispatched
+			}
+			catch (Failure e) {
+				failed = candidate;
+				failure = e;
+				// could happen if function body throws fail
 			}
 		}
 		
