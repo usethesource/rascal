@@ -13,6 +13,7 @@ module experiments::RascalTutor::CourseModel
 import Graph;
 import List;
 import Map;
+import Set;
 import IO;
 import ValueIO;
 import String;
@@ -261,37 +262,6 @@ public str readConceptFile(ConceptName cn){
    }
    throw "readConceptFile: <cn> not found";
 }
-/*
-public list[str] readConceptFileLines(ConceptName cn){
-   println("readConceptFileLines: <cn>");
-   cfile = conceptFile(cn);
-   if(exists(cfile))
-      return readFileLines(cfile);
-   remoteloc = courseDir + cn + remoteLoc;
-   if(exists(remoteloc)){
-      rmap = remoteContentMap[rootname(cn)] ? ();
-      if(rmap[cn]?){
-         println("readConceptFileLines: \"<cn>\" returns <rmap[cn]>");
-         rdoc = rmap[cn];
-         if(rdoc != ""){
-            println("readConceptFileLines, found in cache: <cn>");
-            return splitLines(rdoc);
-         }
-      } else {
-        println("readConceptFileLines: rmap[\"<cn>\"] is undefined!");
-      }
-      
-      remote = readTextValueFile(#loc,  remoteloc);
-      rdoc = extractDoc(remote, basename(cn));
-      if(rdoc != ""){
-         rmap[cn] = rdoc;
-         remoteContentMap[rootname(cn)] = rmap;
-      	 return splitLines(rdoc);
-      }
-   }
-   throw "readConceptFileLines: <cn> not found";
-}
-*/
 
 public void saveConceptFile(ConceptName cn, str text){
    remoteloc = courseDir + cn + remoteLoc;
@@ -459,10 +429,20 @@ str getLocalRoot(str cn){
    remote = courseDir + rootname(cn) + remoteConcepts;
    if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
+      // local roots in decreases length:
+      sortedLocalRoots = reverse(sort(toList({root | <root, dir> <- remoteMap})));
+      println("sortedLocalRoots = <sortedLocalRoots>");
+      // Remove a local root from the concept.
+      for(r <- sortedLocalRoots){
+      	if(startsWith(cn, r)){
+        	cn = replaceFirst(cn, r, "");
+        	break;
+      	}
+      }
       for(<root, dir> <- remoteMap){
           dir1 = replaceLast(dir.path, ".rsc", "");
           println("<dir1> -- <cn>");
-          if(contains(cn, dir1))
+          if(startsWith(cn, dir1))
              return root;
       }
    }
