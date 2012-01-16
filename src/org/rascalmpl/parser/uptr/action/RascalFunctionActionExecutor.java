@@ -23,7 +23,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -158,14 +157,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 			
 			if (var != null && var instanceof ICallableValue) {
 				ICallableValue function = (ICallableValue) var;
-				FunctionType type = (FunctionType) function.getType();
-				Type returnType = type.getReturnType();
 				
-				if (!(returnType instanceof NonTerminalType 
-						&& SymbolAdapter.isEqual(((NonTerminalType) returnType).getSymbol(), TreeAdapter.getType(tree)))) {
-					// do not call the function if it does not return the right type
-					return tree;
-				}
 				
 				try{
 					Result<IValue> result = null;
@@ -174,16 +166,21 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 						result = call(function, TreeAdapter.getASTArgs(tree));
 					}
 					
-					if(result == null){
+					if (result == null){
 						result = call(function, TreeAdapter.getArgs(tree));
 					}
 					
-					if(result == null){
-						ctx.getStdErr().println("ERROR: action failed: " + cons + ": " + function.getType());
-						return tree; // TODO Handle the error properly.
+					if (result == null) {
+						return tree;
 					}
 					
 					if (result.getType().isVoidType()) {
+						return tree;
+					}
+					
+					if (!(result.getType() instanceof NonTerminalType 
+							&& SymbolAdapter.isEqual(((NonTerminalType) result.getType()).getSymbol(), TreeAdapter.getType(tree)))) {
+						// do not call the function if it does not return the right type
 						return tree;
 					}
 					
