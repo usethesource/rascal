@@ -56,7 +56,6 @@ public class HTMLGenerator {
 	private StringWriter outString;
 	private PrintWriter err;
 	private PrintWriter out;
-	private int shellCount = 0;
 	private Environment old = null;
 	private ModuleEnvironment env = null;
 
@@ -81,8 +80,9 @@ public class HTMLGenerator {
 	}
 	
 	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
-		ModuleEnvironment mod = new ModuleEnvironment("___SCREEN_INSTANCE___" + shellCount++, eval.getHeap());
-		return mod;
+		ModuleEnvironment mod = new ModuleEnvironment("___SCREEN_INSTANCE___", eval.getHeap());
+		eval.getHeap().addModule(mod);
+		return mod;	
 	}
 	
 	public void startShell(IEvaluatorContext ctx) {

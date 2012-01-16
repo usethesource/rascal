@@ -91,9 +91,9 @@ public class GlobalEnvironment {
 	}
 
 	public ModuleEnvironment getModule(QualifiedName name, AbstractAST ast) {
-		ModuleEnvironment module = getModule(name.toString());
+		ModuleEnvironment module = getModule(Names.fullName(name));
 		if (module == null) {
-			throw new UndeclaredModuleError(name.toString(), ast);
+			throw new UndeclaredModuleError(Names.fullName(name), ast);
 		}
 		return module;
 	}
