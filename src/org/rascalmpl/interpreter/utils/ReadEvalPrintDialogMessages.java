@@ -77,11 +77,8 @@ public class ReadEvalPrintDialogMessages {
 		}
 		else {
 			content = "parse error:" + pe.getLocation() + " at line " + pe.getBeginLine() + ", column" + pe.getBeginColumn() + "\n";
-			content += "stacktrace:";
-			ByteArrayOutputStream trace = new ByteArrayOutputStream();
-			pe.printStackTrace(new PrintStream(trace));
-			content += trace.toString();
 		}
+		
 		return content;
 	}
 

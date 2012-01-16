@@ -440,12 +440,22 @@ data ShellException = parseError(str message, loc location) | error(str message)
 @reflect{to access the evaluator}
 public java str shell(str command, int duration) throws Timeout, ShellException, ShellException;
 
+@reflect{to access the evaluator}
+@javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
+public java str startShell();
+
+@reflect{to access the evaluator}
+@javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
+public java str endShell();
+
 private str markupScreen(list[str] lines, bool generatesError){
    todo = lines;
    
    codeLines = "\<pre class=\"screen\"\>";
  
-   while (todo != []) {
+   startShell();
+   
+   try while (todo != []) {
      <first,todo> = headTail(todo);
    
      // first collect comment lines and mark them up
@@ -503,6 +513,10 @@ private str markupScreen(list[str] lines, bool generatesError){
         addWarning("screen command failed: \"<first>\", with exception: <x>");
      }
    } 
+   catch value x: throw x; // only because we have not try without finally
+   finally {
+     endShell();
+   }
 
    codeLines += "\</pre\>";
 

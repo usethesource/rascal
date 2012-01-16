@@ -69,7 +69,7 @@ public class Eval {
 	}
 
 	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
-		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount , eval.getHeap());
+		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount++ , eval.getHeap());
 		return mod;
 	}
 
@@ -195,7 +195,7 @@ public class Eval {
 	}
 	
 
-	class Timer extends Thread {
+	public static class Timer extends Thread {
 		private final int timeout;
 		private int elapsed;
 		private final int sample;
@@ -240,7 +240,7 @@ public class Eval {
 		}
 	}
 
-	private class EvalTimer extends Timer {
+	public static class EvalTimer extends Timer {
 		private Evaluator eval;
 
 		public EvalTimer(Evaluator eval, int timeout) {
