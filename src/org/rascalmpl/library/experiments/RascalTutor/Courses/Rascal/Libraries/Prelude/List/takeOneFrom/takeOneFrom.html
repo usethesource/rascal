@@ -76,15 +76,15 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;40,[10,20,30,50]>
-<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;40,[10,20,30,50]>
-<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;30,[10,20,40,50]>
+<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;10,[20,30,40,50]>
+<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;40,[10,20,30,50]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
+tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
+tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
 </pre>
