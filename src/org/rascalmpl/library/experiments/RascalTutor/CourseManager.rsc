@@ -328,17 +328,16 @@ public str validateAnswer1(map[str,str] params){
 	               errorMsg = "";
 	               if(holeInCnd){
 	                  validate = cndBefore + answer + cndAfter;
-	                  println("EvalType: <setup + validate>");
+	                  //println("EvalType: <setup + validate>");
 	                  answerType = evalType(setup + (validate + ";"));
 	                  expectedType = toString(generateType(rtype, env));
 	               } else {
-	                  println("EvalType: <setup + cndBefore>;");
-	                  
+	                  //println("EvalType: <setup + cndBefore>;");
 	                  expectedType = evalType(setup + (cndBefore + ";"));
 	               }
 	                  
-	               println("answerType is <answerType>");
-	               println("expectedType is <expectedType>");
+	               //println("answerType is <answerType>");
+	               //println("expectedType is <expectedType>");
 	               if(answerType == expectedType)
 	              		return correctAnswer(cpid, qid);
 	              errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
