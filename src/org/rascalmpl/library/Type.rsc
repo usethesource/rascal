@@ -40,67 +40,81 @@ module Type
 
 import List;
 
-@doc{Symbols are values that represent Rascal's types. These are the atomic types.}  
-data Symbol
-  = \int()
-  | \bool()
-  | \real()
-  | \rat()
-  | \str()
-  | \num()
-  | \node()
-  | \void()
-  | \value()
-  | \loc()
-  | \datetime()
-  ;
+@doc{
+Synopsis: A Symbol represents a Rascal Type.
+Description:
+Symbols are values that represent Rascal's types. These are the atomic types.
+We define:
+* Atomic types.
+* Labels that are used to give names to symbols, such as field names, constructor names, etc.
+* Composite types.
+* Parameters that represent a type variable.
+}  
+data Symbol                            //  Atomic types.
+     =  \int()
+     | \bool()
+     | \real()
+     | \rat()
+     | \str()
+     | \num()
+     | \node()
+     | \void()
+     | \value()
+     | \loc()
+     | \datetime()
+     ;
  
-@doc{Labels are used to give names to symbols, such as field names, constructor names, etc.}  
-data Symbol 
-  = \label(str name, Symbol symbol)
-  ;
+data Symbol                            // Labels
+     = \label(str name, Symbol symbol)
+     ;
   
-@doc{These are the composite types}  
-data Symbol 
-  = \set(Symbol symbol)
-  | \rel(list[Symbol] symbols)
-  | \tuple(list[Symbol] symbols)
-  | \list(Symbol symbol)
-  | \map(Symbol from, Symbol to)
-  | \bag(Symbol symbol)
-  | \adt(str name, list[Symbol] parameters)
-  | \cons(Symbol \adt, list[Symbol] parameters)
-  | \alias(str name, list[Symbol] parameters, Symbol aliased)
-  | \func(Symbol ret, list[Symbol] parameters)
-  | \reified(Symbol symbol)
-  ;
+data Symbol                            // Composite types.
+     = \set(Symbol symbol)
+     | \rel(list[Symbol] symbols)
+     | \tuple(list[Symbol] symbols)
+     | \list(Symbol symbol)
+     | \map(Symbol from, Symbol to)
+     | \bag(Symbol symbol)
+     | \adt(str name, list[Symbol] parameters)
+     | \cons(Symbol \adt, list[Symbol] parameters)
+     | \alias(str name, list[Symbol] parameters, Symbol aliased)
+     | \func(Symbol ret, list[Symbol] parameters)
+     | \reified(Symbol symbol)
+     ;
 
-@doc{Parameter represents a type variable.}  
 data Symbol
-  = \parameter(str name, Symbol bound)
-  ;
+     = \parameter(str name, Symbol bound) // Parameter
+     ;
 
+@doc{
+Synopsis: A production in a grammar or constructor in a data type.
 
-@doc{Productions represent abstract (recursive) definitions of abstract data type constructors and functions}  
+Description:
+Productions represent abstract (recursive) definitions of abstract data type constructors and functions.
+}  
 data Production
-  = \cons(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-  | \func(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-  | \choice(Symbol def, set[Production] alternatives)
-  ;
+     = \cons(Symbol def, list[Symbol] symbols, set[Attr] attributes)
+     | \func(Symbol def, list[Symbol] symbols, set[Attr] attributes)
+     | \choice(Symbol def, set[Production] alternatives)
+     ;
 
 @doc{
   Attributes register additional semantics annotations of a definition. 
 }
 data Attr 
-  = \tag(value \tag) 
-  ;
+     = \tag(value \tag) 
+     ;
   
 public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
               \func(ret, parameters + \list(varArg));
 
 // The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 
-@doc{Nested choice is flattened}
+@doc{
+Synopsis: Choice between alternative productions.
+Description:
+Nested choice is flattened.
+}
 public Production choice(Symbol s, {set[Production] a, choice(Symbol t, set[Production] b)})
   = choice(s, a+b);
   
@@ -146,7 +160,10 @@ public default bool subtype(list[Symbol] l, list[Symbol] r) = false;
 //  ;
 
 @doc{
-  This function documents and implements the lub operation of Rascal's type system. 
+Synopsis: The least-upperbound (lub) between two types.
+
+Description:
+  This function documents and implements the lub operation in Rascal's type system. 
 }
 public Symbol lub(Symbol s, s) = s;
 public default Symbol lub(Symbol s, Symbol t) = \value();
@@ -221,7 +238,7 @@ private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ \parameter(
 private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
 
 data Exception 
-  = typeCastException(type[value] from, type[value] to);
+     = typeCastException(type[value] from, type[value] to);
 
 public &T typeCast(type[&T] typ, value v) {
   if (&T x := v)
