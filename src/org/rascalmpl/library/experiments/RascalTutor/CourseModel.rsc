@@ -240,7 +240,7 @@ public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Cours
 // - otherwise return "<cn>.concept".
 
 public str readConceptFile(ConceptName cn){
-   println("readConceptFile: <cn>");
+   //println("readConceptFile: <cn>");
    cfile = conceptFile(cn);
    if(exists(cfile))
       return readFile(cfile);
@@ -255,7 +255,7 @@ public str readConceptFile(ConceptName cn){
       if(rmap[cn]?){
          rdoc = rmap[cn];
          if(rdoc != ""){
-            println("readConceptFile, found in cache: <cn>");
+            //("readConceptFile, found in cache: <cn>");
          	return rdoc;
          }
       } 
@@ -321,13 +321,7 @@ public list[str] trimLines(list[str] lines, int StartLine, int end){
   return [];
 }
 
-public list[str] splitLines(str text){
- text = visit(text) { case /\r/ => "" };
- if(!endsWith(text, "\n"))
- 	text += "\n";
-   return for(/<line:.*>\n/ := text)
- 	          append line;
-}
+public list[str] splitLines(str text) = split("\n", text);
 
 public str combine(list[str] lines){
   return "<for(str s <- lines){><s>\n<}>";
@@ -336,22 +330,26 @@ public str combine(list[str] lines){
 
 public list[ConceptName] children(Concept c){
   dir = courseDir + c.fullName;
+  //println("[1] listEntries: <listEntries(dir)>");
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
+  //println("[1] entries = <entries>");
+  //println("[1] details = <c.details>");
   res =  [ c.fullName + "/" + entry | entry <- c.details + (entries - c.details)];
-  //println("children(<c.fullName>) =\> <res>");
+  //println("[1] children(<c.fullName>) =\> <res>");
   return res;
 }
 
 public list[ConceptName] children(ConceptName cn){
   cdetails = getDetails(cn);
-  //("<cn>, getDetails: <cdetails>");
+  //println("<cn>, getDetails: <cdetails>");
   dir = courseDir + cn;
+  //println("[2] listEntries: <listEntries(dir)>");
   entries = [ entry | entry <- listEntries(dir), /^[A-Za-z]/ := entry, isDirectory(dir + entry)];
+  //println("[2] entries = <entries>");
   res =  [ cn + "/" + entry | entry <- cdetails + (entries - cdetails)];
-  //println("children(<cn>) =\> <res>");
+  //println("[2] children(<cn>) =\> <res>");
   return res;
 }
-
 
 public str getSynopsis(ConceptName cn){
    try {
@@ -364,7 +362,7 @@ public str getSynopsis(ConceptName cn){
 // Extract list of names from a section (e.g. Details section)
 
 public list[str] getNames(list[str] lines){
-   return [ cat | line <- lines, /<cat:[A-Z][A-Za-z0-9]*>/ := line ];
+   return [ cat | line <- lines, /<cat:[A-Za-z][A-Za-z0-9]*>/ := line ];
 }
 
 public list[str] getDetails(ConceptName cn){
@@ -373,15 +371,15 @@ public list[str] getDetails(ConceptName cn){
      return getNames(sections["Details"] ? []);
    } catch: return [];
 }
-
+/*
 public list[str] getDetails(loc file){
    try {
      script = readFileLines(file);
      sections = getSections(script);
-     return getNames(sections["Details"] ? []);
+     return a-z(sections["Details"] ? []);
    } catch: return [];
 }
-
+*/
 set[str] exclude = {".svn"};
 
 map[str,Course] courseCache = ();
@@ -406,12 +404,12 @@ public void updateCourse(Course c){
 map[str,list[ConceptName]] courseConcepts = ();
 
 public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
-  println("getCourseConcepts: <rootConcept>");
+  //println("getCourseConcepts: <rootConcept>");
   if(courseConcepts[rootConcept]?)
      return courseConcepts[rootConcept];
   concepts = [];
   try {
-   println("getCourseConcepts: try to get Course");
+   //println("getCourseConcepts: try to get Course");
    theCourse = getCourse(rootConcept);
    concepts = [cn | cn <- theCourse.concepts];
   } catch: {
@@ -431,7 +429,7 @@ str getLocalRoot(str cn){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
       // local roots in decreases length:
       sortedLocalRoots = reverse(sort(toList({root | <root, dir> <- remoteMap})));
-      println("sortedLocalRoots = <sortedLocalRoots>");
+      //println("sortedLocalRoots = <sortedLocalRoots>");
       // Remove a local root from the concept.
       for(r <- sortedLocalRoots){
       	if(startsWith(cn, r)){
@@ -441,7 +439,7 @@ str getLocalRoot(str cn){
       }
       for(<root, dir> <- remoteMap){
           dir1 = replaceLast(dir.path, ".rsc", "");
-          println("<dir1> -- <cn>");
+          //println("<dir1> -- <cn>");
           if(startsWith(cn, dir1))
              return root;
       }
@@ -453,53 +451,45 @@ map[str,map[str,str]] remoteContentMap = ();
 
 void extractAndCacheRemoteConcepts(loc file, str root){
      file = file[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-     println("extractAndCacheRemoteConcepts: <file>, <root>");
+     //println("extractAndCacheRemoteConcepts: <file>, <root>");
      rmap =  remoteContentMap[rootname(root)] ? ();
      cmap = extractRemoteConcepts(file, root);
      println("Extracted extracted <size(cmap)> concepts from <file>");
-     for(cn <- cmap)
-         println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+     //for(cn <- cmap)
+     //    println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
          rmap[cn] = cmap[cn];
      remoteContentMap[rootname(root)] = rmap;
 }
 
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
-    println("getUncachedCourseConcepts: read all concepts");
+    //println("getUncachedCourseConcepts: read all concepts");
     remoteContentMap[rootConcept] = ();
     rmap = ();
     remote = courseDir + rootConcept + remoteConcepts;
     if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
       for(<root, dir> <- remoteMap){
-          println("root = <root>, dir = <dir>");
+          //println("root = <root>, dir = <dir>");
           remoteFiles =  crawlFiles(dir, rascalExtension);
           for(file <- remoteFiles){
               extractAndCacheRemoteConcepts(file, root);
-          /*
-              cmap = extractRemoteConcepts(file, root);
-              println("Extracted extracted <size(cmap)> concepts from <file>");
-              for(cn <- cmap)
-                  println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
-              for(cn <- cmap)
-                  rmap[cn] = cmap[cn];
-          */
           }    
       }
     }
     //remoteContentMap[rootConcept] = rmap;
     concepts = crawlConcepts(rootConcept);
-    println("concepts = <concepts>");
+    //println("concepts = <concepts>");
     courseConcepts[rootConcept] = concepts;
     return concepts;
 }
 
 public list[loc] crawlFiles(loc dir, str suffix){
   dotSuffix = "." + suffix;
-  println(dir.path);
+  //println(dir.path);
   if(endsWith(dir.path, dotSuffix))
      return [dir];
-println("crawlFiles: <dir>, <listEntries(dir)>");
+  //println("crawlFiles: <dir>, <listEntries(dir)>");
   list[loc] res = [];
  
   for( str entry <- listEntries(dir) ){

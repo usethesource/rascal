@@ -126,7 +126,7 @@ private bool isUndocumentedDataOrAlias(Declaration decl){
 }
 
 private str getDataOrAliasSignature(Declaration decl){
-  println("getDataOrAliasSignature: <decl>");
+  //println("getDataOrAliasSignature: <decl>");
   if(decl is Alias){
    if(getDoc(decl.tags) == "")
      return "<decl>";
@@ -144,7 +144,7 @@ private str getDataOrAliasSignature(Declaration decl){
 
 // Get doc for data declaration, autoinsert name and declaration
 private str getDataDoc(str mname, Declaration decl, list[str] sigs){
-    println("getDataDoc: <decl>, <sigs>");
+    //println("getDataDoc: <decl>, <sigs>");
 	doc = getDoc(decl.tags);
 	name = normalizeName("<decl.user>");
 	ins =  "<makeName(name)>
@@ -176,7 +176,7 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
    doc = "";
    key = "<libRoot>/<moduleName>/<functionName>";
    if(!contentMap[key]? && "<fdecl.visibility>" == "public"){
-      println("extractFunctionDeclaration: <functionName>");
+      //println("extractFunctionDeclaration: <functionName>");
       fsigs = [getFunctionSignature(fdecl)];
       while(current+1 < size(declarations) && isSimilarFunction(functionName, declarations[current+1])){
             fsigs += getFunctionSignature(declarations[current+1].functionDeclaration);
@@ -203,11 +203,11 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
-  println("userType = <userType>");
+  //println("userType = <userType>");
   key = "<libRoot>/<moduleName>/<userType>";
   doc = "";
   if(!contentMap[key]?){
-     println("extractDataOrAliasDeclaration: <userType>");
+     //println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
       while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
@@ -223,7 +223,7 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
 }
 
 private str getAnnotationSignature(Declaration decl){
-  println("getAnnotationSignature: <decl>");
+  //println("getAnnotationSignature: <decl>");
   if(getDoc(decl.tags) == "")
      return "<decl>";
   return "anno <decl.annoType> <decl.onType>@<decl.name>;";
@@ -231,7 +231,7 @@ private str getAnnotationSignature(Declaration decl){
 
 // Get doc for annotation  declaration, autoinsert name and declaration
 private str getAnnotationDoc(str mname, Declaration decl, str sig){
-    println("getAnnotationDoc: <decl>, <sig>");
+    //println("getAnnotationDoc: <decl>, <sig>");
 	doc = getDoc(decl.tags);
 	name = normalizeName("<decl.name>");
 	ins =  "<makeName(name)>
@@ -255,11 +255,11 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
   annoType = "<decl.annoType>";
   onType   = "<decl.onType>";
   name     = de_escape("<decl.name>");
-  println("name = <name>");
+  //println("name = <name>");
   key = "<libRoot>/<moduleName>/<name>";
   doc = "";
   if(!contentMap[key]?){
-     println("extractAnnotationDeclaration: <name>");
+     //println("extractAnnotationDeclaration: <name>");
      sig = getAnnotationSignature(decl);
      doc = getAnnotationDoc(moduleName, decl, sig);
      if(doc != "" && writing){  	
@@ -275,7 +275,7 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 // - root: the concept that will act as root for all concepts in this library.
 
 public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
-  println("extractRemoteConcepts: <L>, <root>");
+  //println("extractRemoteConcepts: <L>, <root>");
   Module M = parseModule(readFile(L), L).top;
  
   declarations = [];
@@ -285,7 +285,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   Header header = M.header;
   moduleName = normalizeName("<header.name>"); 
   doc =  getModuleDoc(header);
-  println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
+  //println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
   if(doc != ""){  		
      writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
      contentMap["<root>/<moduleName>"] = doc;
@@ -319,7 +319,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 
 public str extractDoc(loc L, str itemName){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  println("extractDoc: <L1>, <itemName>");
+  //println("extractDoc: <L1>, <itemName>");
   Module M = parseModule(readFile(L1), L1).top;
   Header header = M.header;
   moduleName = basename(normalizeName("<header.name>")); 
@@ -346,7 +346,7 @@ public str extractDoc(loc L, str itemName){
   	}
   }
   
-  println("extractDoc: <L1>, <itemName>, returns empty");
+  //println("extractDoc: <L1>, <itemName>, returns empty");
   return "";
 }
 
@@ -374,7 +374,7 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
 
 public bool replaceDoc(loc L, str itemName, str newDocContent){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  println("replaceDoc: <L1>, <itemName>, <newDocContent>");
+  //println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
   M = parseModule(oldFileContent, L1);
   newDocContent = removeAUTOINSERTED(newDocContent);

@@ -29,12 +29,14 @@ import util::Eval;
 import util::Reflective;
 import experiments::RascalTutor::RascalUtils;
 import util::Benchmark;
+import util::Math;
 
 // ------------------------ compile a course ----------------------------------------
 
 public Course compileCourse(ConceptName rootConcept){   
    
    begin = realTime();
+   arbSeed(0); // Set the arb generation so that the same choices will be made for question generation.
    concepts = ();
    warnings = [];
    for(cn <- getUncachedCourseConcepts(rootConcept)){
@@ -222,7 +224,7 @@ public Concept compileConcept(ConceptName conceptName){
       
    name = sections["Name"][0];
   
-   println("<conceptName>: getSections done.");
+   //println("<conceptName>: getSections done.");
    
    try {
 	   local_warnings = [];
@@ -234,7 +236,7 @@ public Concept compileConcept(ConceptName conceptName){
 	   // Verify that all given details do exist
 	   remove_details = [];
 	   for(detailName <- optDetails){
-	       if(!exists(conceptFile("<conceptName>/<detailName>"))){
+	       if(!exists(courseDir + "<conceptName>/<detailName>")){
 	         remove_details += [detailName];
 	       }
 	   }
@@ -271,9 +273,9 @@ public Concept compileConcept(ConceptName conceptName){
 	   warnings         = getAndClearWarnings() + local_warnings;
 	      
 	   C =  concept(conceptName, warnings, optDetails, searchTs, questions);
-	   println("<conceptName>: creating concept done.");
+	   //println("<conceptName>: creating concept done: <C>");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
-	   println("<conceptName>: generating HTML done.");
+	   //println("<conceptName>: generating HTML done.");
 	   return C;
 
 	} catch NoSuchKey(e):
@@ -315,7 +317,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
    );
    
    html_file = htmlFile(cn);
-   println("Writing to <html_file>");
+   //println("Writing to <html_file>");
    try {
 	     writeFile(html_file, html_code);
    }
@@ -467,7 +469,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
        }
        case /^[Qq][Cc]hoice<uname:\[[A-Za-z0-9]+\]>?:<question:.*>$/: {
           qname = makeQname(uname, nquestions);
-          println("qname = <qname>");
+          //println("qname = <qname>");
           i += 1;
           good_answers = [];
           bad_answers = [];
@@ -481,7 +483,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
           if(size(good_answers) == 0 || size(bad_answers) == 0)
           	throw ConceptError(cname, "ChoiceQuestion with insufficient or malformed answers");
          
-          println("<good_answers>, <bad_answers>");
+         // println("<good_answers>, <bad_answers>");
       
           questions += choiceQuestion(cname, qname, markup([question], cname), [good(q) | q <- good_answers] + [bad(q) | q <- bad_answers]);
           nquestions += 1;
@@ -843,7 +845,7 @@ public str showQuestion(ConceptName cpid, Question q){
          exp1 = subst(exp, env);
          //println("exp1 = <exp1>");
          try {
-           env[name] = <parseType("<evalType(setup + exp1)>"), "<eval(setup + exp1).val>">;
+           env[name] = <parseType("<evalType(setup + (exp1 + ";"))>"), "<eval(setup + (exp1 + ";")).val>">;
          } catch: throw "Error in computing <name>, <exp>";
       }
       //println("env = <env>");

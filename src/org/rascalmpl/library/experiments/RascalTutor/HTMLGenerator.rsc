@@ -166,7 +166,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     case /^\<figure\s*<file:.*>\>$/: {
       int width = -1;
       int height = -1;
-      println("file = <file>");
+      //println("file = <file>");
       if(/<name:.*>\s+<w:[0-9]+>x<h:[0-9]+>$/ := file){
         file = name;
         width = toInt(w);
