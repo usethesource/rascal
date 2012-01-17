@@ -52,6 +52,10 @@ public class Math {
 	  return values.real(random.nextDouble());
 	}
 	
+	public void arbSeed(IInteger seed){
+		random.setSeed(seed.intValue());
+	}
+	
 	public IValue cos(INumber x){
 		return x.toReal().cos(RealResult.PRECISION);
 	}
