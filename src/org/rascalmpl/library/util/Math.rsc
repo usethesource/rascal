@@ -91,6 +91,17 @@ arbReal();
 public java real arbReal();
 
 @doc{
+Synopsis: Define the seed for the generation of arbitrary values.
+
+Description:
+Define the seed for the generation of arbitrary values such as [arbBool], [arbInt], [arbReal],
+[arbRat], [List/getOneFrom],[Set/getOneFrom], [List/takeOneFrom] and [Set/takeOneFrom]. [arbSeed] resets the random number generator that
+is used to choose arbitrary values. This can be used to generate a reproducible series of choices.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real arbSeed(int seed);
+
+@doc{
 Synopsis: Generate an arbitrary rational value.
 
 Examples:
