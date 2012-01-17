@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/Type/Symbol</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/Type/Symbol: ">
+<meta name="description" content="Rascal/Libraries/Prelude/Type/Symbol:  A Symbol represents a Rascal Type.">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/Type/Symbol, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,21 +43,45 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Courses/Rascal/Libraries/Prelude/Type/Type.html">Type</a>/<a href="/Courses/Rascal/Libraries/Prelude/Type/Symbol/Symbol.html">Symbol</a>
 </div>
 
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  A Symbol represents a Rascal Type.
+
+</div>
+
 	                       
                            
 <div id="Types">
 <span class="sectionHead">Types</span>  <pre class="listing">data Symbol
      = \int()
-  | \bool()
-  | \real()
-  | \rat()
-  | \str()
-  | \num()
-  | \node()
-  | \void()
-  | \value()
-  | \loc()
-  | \datetime()
+     | \bool()
+     | \real()
+     | \rat()
+     | \str()
+     | \num()
+     | \node()
+     | \void()
+     | \value()
+     | \loc()
+     | \datetime()
+     ;
+data Symbol                            // Labels
+     = \label(str name, Symbol symbol)
+     ;
+data Symbol                            // Composite types.
+     = \set(Symbol symbol)
+     | \rel(list[Symbol] symbols)
+     | \tuple(list[Symbol] symbols)
+     | \list(Symbol symbol)
+     | \map(Symbol from, Symbol to)
+     | \bag(Symbol symbol)
+     | \adt(str name, list[Symbol] parameters)
+     | \cons(Symbol \adt, list[Symbol] parameters)
+     | \alias(str name, list[Symbol] parameters, Symbol aliased)
+     | \func(Symbol ret, list[Symbol] parameters)
+     | \reified(Symbol symbol)
+     ;
+data Symbol
+     = \parameter(str name, Symbol bound) // Parameter
      ;
 </pre>
 </div>
@@ -67,8 +91,17 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Type;</code>
  </AUTOINSERTED>
- Symbols are values that represent Rascal's types. These are the atomic types
 
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Symbols are values that represent Rascal's types. These are the atomic types.
+ We define:
+ <ul><li> Atomic types.</li>
+<li> Labels that are used to give names to symbols, such as field names, constructor names, etc.</li>
+<li> Composite types.</li>
+<li> Parameters that represent a type variable.</li>
+</ul>
 </div>
 
   	                       

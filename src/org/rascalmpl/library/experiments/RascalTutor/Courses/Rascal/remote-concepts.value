@@ -11,7 +11,11 @@
 <"Rascal/Libraries/Prelude",|std:///IO.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///Message.rsc|>,
 <"Rascal/Libraries/Prelude",|std:///ParseTree.rsc|>,
+<"Rascal/Libraries/Prelude",|std:///Type.rsc|>,
 <"Rascal/Libraries",|std:///util/Benchmark.rsc|>,
 <"Rascal/Libraries",|std:///util/Eval.rsc|>,
 <"Rascal/Libraries",|eclipse-std:///util/IDE.rsc|>,
-<"Rascal/Libraries",|std:///util/Math.rsc|>]
+<"Rascal/Libraries",|std:///util/Math.rsc|>,
+<"Rascal/Libraries",|std:///util/Monitor.rsc|>,
+<"Rascal/Libraries",|std:///util/ShellExec.rsc|>,
+<"Rascal/Libraries",|std:///lang/csv/IO.rsc|>]

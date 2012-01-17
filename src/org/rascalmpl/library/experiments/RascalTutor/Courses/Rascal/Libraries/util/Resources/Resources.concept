@@ -21,7 +21,7 @@ Details:
 Description:
 The `Resource` library provides direct access to Eclipse projects and the resources they contain. 
 A `Resource` is the Rascal representation of an Eclipse project, or a folder or a file in an Eclipse project. 
-In combination with the [IO] library module, users of the Resources library gain access to the contents 
+In combination with the [$Prelude/IO] library module, users of the Resources library gain access to the contents 
 of any file that is in an Eclipse project.
 
 Resource is a recursive data-type, where recursion indicates __containment__, i.e., 

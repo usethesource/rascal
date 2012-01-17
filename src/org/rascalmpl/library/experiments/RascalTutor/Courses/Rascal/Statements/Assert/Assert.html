@@ -81,7 +81,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>assert 1==2 : "is never true";
 exception:AssertionFailed("is never true")
 stacktrace:|stdin:///|(14,15,&lt;1,14>,&lt;1,29>)
-	somewhere in: ___SCREEN_INSTANCE___430
+	somewhere in: ___SCREEN_INSTANCE___
 
 <span class="prompt">rascal></span>int div(int x, int y) {
 <span class="continuation">>>>>>>></span>  assert y != 0 : "y must be non-zero";
@@ -92,7 +92,7 @@ int (int, int): int div(int, int);
 exception:AssertionFailed("y must be non-zero")
 stacktrace:|stdin:///|(42,20,&lt;2,18>,&lt;2,38>)
 	somewhere in: div
-	somewhere in: ___SCREEN_INSTANCE___430
+	somewhere in: ___SCREEN_INSTANCE___
 
 </pre>
 </div>

@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/Type/Production</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/Type/Production: ">
+<meta name="description" content="Rascal/Libraries/Prelude/Type/Production:  A production in a grammar or constructor in a data type.">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/Type/Production, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -43,13 +43,18 @@
 <span class="sectionHead">Name</span> <a href="/Courses/Rascal/Rascal.html">Rascal</a>/<a href="/Courses/Rascal/Libraries/Libraries.html">Libraries</a>/<a href="/Courses/Rascal/Libraries/Prelude/Prelude.html">Prelude</a>/<a href="/Courses/Rascal/Libraries/Prelude/Type/Type.html">Type</a>/<a href="/Courses/Rascal/Libraries/Prelude/Type/Production/Production.html">Production</a>
 </div>
 
+<div id="Synopsis">
+<span class="sectionHead">Synopsis</span>  A production in a grammar or constructor in a data type.
+
+</div>
+
 	                       
                            
 <div id="Types">
 <span class="sectionHead">Types</span>  <pre class="listing">data Production
      = \cons(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-  | \func(Symbol def, list[Symbol] symbols, set[Attr] attributes)
-  | \choice(Symbol def, set[Production] alternatives)
+     | \func(Symbol def, list[Symbol] symbols, set[Attr] attributes)
+     | \choice(Symbol def, set[Production] alternatives)
      ;
 </pre>
 </div>
@@ -59,7 +64,11 @@
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import Type;</code>
  </AUTOINSERTED>
- Productions represent abstract (recursive) definitions of abstract data type constructors and function
+
+</div>
+
+<div id="Description">
+<span class="sectionHead">Description</span>  Productions represent abstract (recursive) definitions of abstract data type constructors and functions.
 
 </div>
 

@@ -79,10 +79,10 @@ debug:WARNING: module Benchmark is deprecated -- Use "import util::Benchmark;" i
 ok
 </pre>  We measure two calls to the factorial function with arguments <code>100</code>, respectively, <code>200</code> (using by default <code>realkTime</code> that returns milliseconds):
 <pre class="screen"><span class="prompt">rascal></span>benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}) );
-map[str var, num coef]: ("fac10":1,"fac20":1)
+map[str, num]: ("fac10":1,"fac20":1)
 </pre>  We can do the same using <a href="/Courses/Rascal/Libraries/util/Benchmark/userTime/userTime.html">userTime</a> that returns nanoseconds:
 <pre class="screen"><span class="prompt">rascal></span>benchmark( ("fac10" : void() {fac(100);}, "fac20" : void() {fac(200);}), userTime );
-map[str var, num coef]: ("fac10":763000,"fac20":1304000)
+map[str, num]: ("fac10":799000,"fac20":1649000)
 </pre>
 </div>
 

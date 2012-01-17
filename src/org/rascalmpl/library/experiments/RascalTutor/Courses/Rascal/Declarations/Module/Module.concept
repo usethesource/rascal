@@ -70,7 +70,7 @@ Here is the `Hello` module:
 
 <listing demo/basic/Hello.rsc>
 
-It defines a module with the name `demo::basic::Hello` and imports the [IO] library.
+It defines a module with the name `demo::basic::Hello` and imports the [$Prelude/IO] library.
 Finally, it declares the `hello` function.
 
 The actual source of this module can be found in `library/demo/basic/Hello.rsc` in the Rascal sources.

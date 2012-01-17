@@ -31,12 +31,12 @@ Observe that:
 Here are the code and the resulting figure:
 
 <figure s1.png>
-public Figure scaledbox(){
+Figure scaledbox(){
    int n = 100;
-   return vcat([ hcat([ scaleSlider(int() { return 0; },     // low
-                                    int () { return 200; },  // high
-                                    int () { return n; },    // selection
-                                    void (int s) { n = s; }, // callback
+   return vcat([ hcat([ scaleSlider(int() { return 0; },     
+                                    int () { return 200; },  
+                                    int () { return n; },    
+                                    void (int s) { n = s; }, 
                                     width(200)),
                         text(str () { return "n: <n>";})
                       ], left(),  top(), resizable(false)),  
