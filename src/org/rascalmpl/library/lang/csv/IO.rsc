@@ -124,8 +124,6 @@ will produce the following files:
 `ex1b.csv` (without a header line with separator `;`):
 <listing experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1b.csv>
 
-<warning>For unknown reason the field names get lost in the first example</warning>
-
 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
