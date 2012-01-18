@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @bootstrapParser
-module lang::rascal::types::Types
+module lang::rascal::types::AbstractType
 
 import List;
 import Set;
@@ -448,7 +448,7 @@ public bool adtHasTypeParameters(Symbol t) = size(getADTTypeParameters(t)) > 0;
 
 @doc{Get the name of a user type.}
 public str getUserTypeName(Symbol ut) {
-    if (\user(x,_) := unwrapType(ut)) return x;
+    if (\user(x,_) := unwrapType(ut)) return prettyPrintName(x);
     throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
 } 
 

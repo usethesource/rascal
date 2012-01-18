@@ -11,6 +11,7 @@ module lang::rascal::types::AbstractName
 
 import List;
 import String;
+import ParseTree;
 
 import lang::rascal::syntax::RascalRascal;
 
@@ -45,7 +46,7 @@ public RName convertName(Name n) {
 }
 
 @doc{Get the last part of a qualified name.}
-private Name getLastName(QualifiedName qn) {
+public Name getLastName(QualifiedName qn) {
 	if ((QualifiedName)`<{Name "::"}+ nl>` := qn)
 		return head(tail([ n | n <- nl ],1));
 	throw "Unexpected syntax for qualified name: <qn>";

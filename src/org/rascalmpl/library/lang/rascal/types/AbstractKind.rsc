@@ -9,6 +9,10 @@
 @bootstrapParser
 module lang::rascal::types::AbstractKind
 
+import ParseTree;
+import Type;
+import lang::rascal::syntax::RascalRascal;
+
 @doc{Definition of abstract representation of kinds.}
 data RKind = 
 	  functionKind() 

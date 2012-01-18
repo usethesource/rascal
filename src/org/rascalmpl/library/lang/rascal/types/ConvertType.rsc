@@ -17,6 +17,9 @@ import Message;
 import ParseTree;
 import IO;
 
+import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
+
 import lang::rascal::syntax::RascalRascal;
 
 @doc{Annotation for adding locations to types and names}
@@ -148,7 +151,6 @@ public Symbol convertStructuredType(StructuredType st) {
 
         case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : {
             l = convertTypeArgList(tas);
-            println(l);
             labels = {fl | \label(fl,_) <- l};
             labelsList = [fl | \label(fl,_) <- l];
             if (size(l) == size(labels) || size(labels) == 0) {
@@ -218,8 +220,8 @@ public Name getUserTypeRawName(UserType ut) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public Symbol convertTypeVar(TypeVar tv) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return \parameter(convertName(n),\value());
-        case (TypeVar) `& <Name n> <: <Type tb>` : return \parameter(convertName(n),convertType(tb));
+        case (TypeVar) `& <Name n>` : return \parameter("<n>",\value());
+        case (TypeVar) `& <Name n> <: <Type tb>` : return \parameter("<n>",convertType(tb));
     }
 }
 
@@ -241,7 +243,7 @@ public Symbol convertType(Type t) {
         case (Type) `<UserType ut>` : return convertUserType(ut);
         case (Type) `<DataTypeSelector dts>` : return convertDataTypeSelector(dts);
         case (Type) `( <Type tp> )` : return convertType(tp);
-        default : { println(t); throw "Error in convertType, unexpected type syntax: <t>"; }
+        default : { throw "Error in convertType, unexpected type syntax: <t>"; }
     }
 }
 

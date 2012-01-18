@@ -10,11 +10,12 @@
 module lang::rascal::types::TypeExceptions
 
 import Exception;
-import lang::rascal::types::Types;
+import Type;
+import lang::rascal::types::AbstractType;
 
 data RuntimeException =
-      UnexpectedRType(RType t1)
-    | UnexpectedRTypes(RType t1, RType t2)
-    | UnimplementedRType(RType t1)
-    | CannotCalculateBindings(RType t1, RType t2, loc l)
+      UnexpectedRType(Symbol t1)
+    | UnexpectedRTypes(Symbol t1, Symbol t2)
+    | UnimplementedRType(Symbol t1)
+    | CannotCalculateBindings(Symbol t1, Symbol t2, loc l)
     ;
