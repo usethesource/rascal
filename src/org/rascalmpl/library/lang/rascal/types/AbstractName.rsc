@@ -1,0 +1,59 @@
+@license{
+  Copyright (c) 2009-2011 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@bootstrapParser
+module lang::rascal::types::AbstractName
+
+import List;
+import String;
+
+import lang::rascal::syntax::RascalRascal;
+
+@doc{Abstract syntax for names.} 
+data RName =
+	  RSimpleName(str name)
+	| RCompoundName(list[str] nameParts)     
+	;
+
+@doc{Annotate abstract names with locations.}
+anno loc RName@at;
+
+@doc{Convert qualified names into an abstract representation.}
+public RName convertName(QualifiedName qn) {
+	if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
+		nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
+		if (size(nameParts) > 1) {
+			return RCompoundName(nameParts)[@at = qn@\loc];
+		} else {
+			return RSimpleName(head(nameParts))[@at = qn@\loc];
+		} 
+	}
+	throw "Unexpected syntax for qualified name: <qn>";
+}
+
+@doc{Convert names into an abstract representation.}
+public RName convertName(Name n) {
+	if (startsWith("<n>","\\"))
+		return RSimpleName(substring("<n>",1))[@at = n@\loc];
+	else
+		return RSimpleName("<n>");
+}
+
+@doc{Get the last part of a qualified name.}
+private Name getLastName(QualifiedName qn) {
+	if ((QualifiedName)`<{Name "::"}+ nl>` := qn)
+		return head(tail([ n | n <- nl ],1));
+	throw "Unexpected syntax for qualified name: <qn>";
+}
+
+@doc{Pretty-print a list of abstract names, separated by ::}
+public str prettyPrintNameList(list[str] nameList) = intercalate("::", nameList);
+	
+@doc{Pretty-print the abstract representation of a name.}
+public str prettyPrintName(RSimpleName(str s)) = s;
+public str prettyPrintName(RCompoundName(list[str] sl)) = prettyPrintNameList(sl);
