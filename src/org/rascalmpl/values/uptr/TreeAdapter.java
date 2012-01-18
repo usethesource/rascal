@@ -81,7 +81,16 @@ public class TreeAdapter {
 	}
 	
 	public static IConstructor getType(IConstructor tree) {
-		return ProductionAdapter.getType(getProduction(tree));
+		if (isAppl(tree)) {
+			return ProductionAdapter.getType(getProduction(tree));
+		}
+		else if (isCycle(tree)) {
+			return (IConstructor) tree.get("symbol");
+		}
+		else if (isAmb(tree)) {
+			return getType((IConstructor) getAlternatives(tree).iterator().next());
+		}
+		throw new ImplementationError("Tree does not have a type");
 	}
 
 	public static String getSortName(IConstructor tree)
