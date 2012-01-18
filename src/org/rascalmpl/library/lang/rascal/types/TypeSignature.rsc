@@ -8,15 +8,20 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @bootstrapParser
-module lang::rascal::types::TypeSignatures
+module lang::rascal::types::TypeSignature
 
 import List;
 import Set;
 import ParseTree;
 import Reflective;
 import IO;
+import Type;
 
-import lang::rascal::types::Types;
+import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractKind;
+import lang::rascal::types::AbstractType;
+import lang::rascal::types::ConvertType;
+
 import lang::rascal::syntax::RascalRascal;
 
 //
@@ -57,13 +62,13 @@ import lang::rascal::syntax::RascalRascal;
 // Each signature item represents an item visible at the module level.
 //
 data RSignatureItem =
-      AliasSigItem(RName aliasName, RType aliasType, loc at)
-    | FunctionSigItem(RName functionName, Parameters params, RType returnType, loc at)
-    | VariableSigItem(RName variableName, RType variableType, loc at)
-    | ADTSigItem(RName adtName, RType adtType, loc at)
-    | ConstructorSigItem(RName conName, RType constructorType, loc at)
-    | AnnotationSigItem(RName annName, RType annType, RType onType, loc at)
-    | TagSigItem(RName tagName, RKind tagKind, list[RType] taggedTypes, loc at)
+      AliasSigItem(str aliasName, Symbol aliasType, loc at)
+    | FunctionSigItem(str functionName, Parameters params, Symbol returnType, loc at)
+    | VariableSigItem(str variableName, Symbol variableType, loc at)
+    | ADTSigItem(str adtName, Symbol adtType, loc at)
+    | ConstructorSigItem(str conName, Symbol constructorType, loc at)
+    | AnnotationSigItem(str annName, Symbol annType, Symbol onType, loc at)
+    | TagSigItem(str tagName, RKind tagKind, list[Symbol] taggedTypes, loc at)
     ;
 
 //
@@ -119,9 +124,9 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
         if ((Visibility)`public` := vis) { 
             switch(s) {
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` : 
-                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
+                    sig = addSignatureItem(sig, FunctionSigItem("<n>", ps, convertType(typ), sl));
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` :
-                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
+                    sig = addSignatureItem(sig, FunctionSigItem("<n>", ps, convertType(typ), sl));
                 default: throw "signatureForSignature case not implemented for item <s>";
             }
         }
@@ -158,8 +163,8 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                     if ((Visibility)`public` := vis) { 
                         for (v <- vs) {
                             switch(v) {
-                                case (Variable)`<Name n>` : sig = addSignatureItem(sig, VariableSigItem(convertName(n), convertType(typ), t@\loc));
-                                case (Variable)`<Name n> = <Expression e>` : sig = addSignatureItem(sig, VariableSigItem(convertName(n), convertType(typ), t@\loc));
+                                case (Variable)`<Name n>` : sig = addSignatureItem(sig, VariableSigItem("<n>", convertType(typ), t@\loc));
+                                case (Variable)`<Name n> = <Expression e>` : sig = addSignatureItem(sig, VariableSigItem("<n>", convertType(typ), t@\loc));
                             }
                         }
                     }
@@ -168,14 +173,14 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        sig = addSignatureItem(sig, AnnotationSigItem(convertName(n), convertType(typ), convertType(otyp), t@\loc));
+                        sig = addSignatureItem(sig, AnnotationSigItem("<n>", convertType(typ), convertType(otyp), t@\loc));
 //                    }
                 }
                                     
                 // Tag declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        sig = addSignatureItem(sig, TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
+                        sig = addSignatureItem(sig, TagSigItem("<n>", convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
 //                    }
                 }
                 
@@ -196,7 +201,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                         sig = addSignatureItem(sig, ADTSigItem(adtBaseType.typeName, adtType, t@\loc));
                         for (var <- vars) {
                             if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-                                sig = addSignatureItem(sig,ConstructorSigItem(convertName(n), makeConstructorType(convertName(n), adtType, [ convertTypeArg(targ) | targ <- args ]), t@\loc));
+                                sig = addSignatureItem(sig,ConstructorSigItem("<n>", makeConstructorType(convertName(n), adtType, [ convertTypeArg(targ) | targ <- args ]), t@\loc));
                             }
                         }
 //                    }
@@ -205,9 +210,9 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                 // Alias
                 case (Toplevel) `<Tags tgs> <Visibility vis> alias <UserType typ> = <Type btyp> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        RType aliasType = convertUserType(typ);
-                        RType aliasedType = convertType(btyp);
-                        sig = addSignatureItem(sig, AliasSigItem(convertName(getUserTypeRawName(typ)), makeParameterizedAliasType(aliasType.typeName, aliasedType, aliasType.typeParams), t@\loc));
+                        Symbol aliasType = convertUserType(typ);
+                        Symbol aliasedType = convertType(btyp);
+                        sig = addSignatureItem(sig, AliasSigItem("<getUserTypeRawName(typ)>", makeParameterizedAliasType(getUserTypeName(aliasType), aliasedType, getUserTypeParameters(aliasType)), t@\loc));
 //                    }
                 }
   
@@ -236,8 +241,8 @@ public bool isVarArgsParameters(Parameters ps) {
 // Get the type names introduced in the signature items. ADTs and aliases both introduce
 // new type names.
 //
-private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
-    set[RName] definedTypeNames = { };
+private set[str] getLocallyDefinedTypeNames(RSignature sig) {
+    set[str] definedTypeNames = { };
     for (si <- sig.signatureItems, AliasSigItem(n,_,_) := si || ADTSigItem(n,_,_) := si) definedTypeNames += n;
     return definedTypeNames;
 }
@@ -250,31 +255,26 @@ private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
 // other imports).
 //
 
-data RType = RUnknownType(RType baseType);
+data Symbol = \unknown(Symbol baseType);
 
-public RType makeUnknownType(RType rt) {
-    return RUnknownType(rt);
+public Symbol makeUnknownType(Symbol rt) = \unknown(rt);
+
+public Symbol getUnknownType(Symbol rt) {
+    if (\unknown(t) := unwrapType(rt)) return t;
+    throw "Warning, was not given unknown type";
 }
 
-public RType getUnknownType(RType rt) {
-    if (RAliasType(_,_,at) := rt) return getUnknownType(at);
-    if (RTypeVar(_,tvb) := rt) return getUnknownType(tvb);
-    if (RUnknownType(t) := rt) return t;
-    throw "Warning, was not given RUnknownType";
-}
-
-public RType isUnknownType(RType rt) {
-    if (RAliasType(_,_,at) := rt) return isUnknownType(at);
-    if (RTypeVar(_,tvb) := rt) return isUnknownType(tvb);
-    if (RUnknownType(t) := rt) return true;
-    return false;
-}
+public bool isUnknownType(\alias(_,_,Symbol at)) = isUnknownType(at);
+public bool isUnknownType(\parameter(_,Symbol tvb)) = isUnknownType(tvb);
+public bool isUnknownType(\label(_,Symbol lt)) = isUnknownType(lt);
+public bool isUnknownType(\unknown(_)) = true;
+public default bool isUnknownType(Symbol _) = false;
 
 private RSignature markUndefinedTypes(RSignature sig) {
-    set[RName] localNames = getLocallyDefinedTypeNames(sig);
+    set[str] localNames = getLocallyDefinedTypeNames(sig);
     sig.signatureItems = 
-        visit(sig.signatureItems) {
-            case RType t => ((RUserType(n,_) := t) && n notin localNames) ? RUnknownType(t) : t
+        bottom-up visit(sig.signatureItems) {
+            case Symbol t:\user(RSimpleName(n),_) =>  \unknown(t) when n notin localNames
         }
     return sig;
 }
