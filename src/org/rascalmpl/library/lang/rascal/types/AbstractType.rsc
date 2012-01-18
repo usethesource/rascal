@@ -1,0 +1,537 @@
+@license{
+  Copyright (c) 2009-2011 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@bootstrapParser
+module lang::rascal::types::Types
+
+import List;
+import Set;
+import String;
+import Type;
+import Message;
+import ParseTree;
+
+import lang::rascal::types::AbstractName;
+import lang::rascal::syntax::RascalRascal;
+
+@doc{Extension to add new types used internally during name resolution and checking.}
+public data Symbol =
+	  \user(RName rname, list[Symbol] parameters)
+	| \failure(set[Message] messages)
+	| \inferred(int uniqueId)
+	| \overloaded(set[Symbol] overloads)
+	;
+
+@doc{Annotations to hold the type assigned to a tree.}
+public anno Symbol Tree@rtype; 
+
+@doc{Pretty printer for Rascal abstract types.}
+public str prettyPrintType(\int()) = "int";
+public str prettyPrintType(\bool()) = "bool";
+public str prettyPrintType(\real()) = "real";
+public str prettyPrintType(\rat()) = "rat";
+public str prettyPrintType(\rat()) = "str";
+public str prettyPrintType(\num()) = "num";
+public str prettyPrintType(\node()) = "node";
+public str prettyPrintType(\void()) = "void";
+public str prettyPrintType(\value()) = "value";
+public str prettyPrintType(\loc()) = "loc";
+public str prettyPrintType(\datetime()) = "datetime";
+public str prettyPrintType(\label(str s, Symbol t)) = "<prettyPrintType(t)> <s>";
+public str prettyPrintType(\parameter(str pn, Symbol t)) = "&<pn> \<: <prettyPrintType(t)>";
+public str prettyPrintType(\set(Symbol t)) = "set[<prettyPrintType(t)>]";
+public str prettyPrintType(\rel(list[Symbol] ts)) = "rel[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(\tuple(list[Symbol] ts)) = "tuple[<intercalate(", ", [ prettyPrintType(t) | t <- ts ])>]";
+public str prettyPrintType(\list(Symbol t)) = "list[<prettyPrintType(t)>]";
+public str prettyPrintType(\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>, <prettyPrintType(r)>]";
+public str prettyPrintType(\bag(Symbol t)) = "bag[<prettyPrintType(t)>]";
+public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
+public str prettyPrintType(Symbol::\cons(Symbol a, list[Symbol] fs)) = "<prettyPrintType(a)> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
+public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>";
+public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
+public str prettyPrintType(\reified(Symbol t)) = "type[#<prettyPrintType(t)>]";
+public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
+public str prettyPrintType(\failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
+public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
+public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(o) | o <- os])>";
+public default str prettyPrintType(Symbol s) { throw "Invalid type to pretty-print: <s>"; }
+
+@doc{Create a new int type.}
+public Symbol makeIntType() = \int();
+
+@doc{Create a new bool type.}
+public Symbol makeBoolType() = \bool();
+
+@doc{Create a new real type.}
+public Symbol makeRealType() = \real();
+
+@doc{Create a new rat type.}
+public Symbol makeRatType() = \rat();
+
+@doc{Create a new str type.}
+public Symbol makeStrType() = \str();
+
+@doc{Create a new num type.}
+public Symbol makeNumType() = \num();
+
+@doc{Create a new node type.}
+public Symbol makeNodeType() = \node();
+
+@doc{Create a new void type.}
+public Symbol makeVoidType() = \void();
+
+@doc{Create a new value type.}
+public Symbol makeValueType() = \value();
+
+@doc{Create a new loc type.}
+public Symbol makeLocType() = \loc();
+
+@doc{Create a new datetime type.}
+public Symbol makeDateTimeType() = \datetime();
+
+@doc{Create a new set type, given the element type of the set.}
+public Symbol makeSetType(Symbol elementType) = \set(elementType);
+
+@doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
+public Symbol makeRelType(Symbol elementTypes...) {
+	set[str] labels = { l | \label(l,_) <- elementTypes };
+	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
+		return \rel(elementTypes);
+	else
+		throw "For rel types, either all fields much be given a distinct label or no fields should be labeled."; 
+}
+
+@doc{Create a new rel type based on a given tuple type.}
+public Symbol makeRelTypeFromTuple(Symbol t) = \rel(getTupleFields(t));
+
+@doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
+public Symbol makeTupleType(Symbol elementTypes...) {
+	set[str] labels = { l | \label(l,_) <- elementTypes };
+	if (size(labels) == 0 || size(labels) == size(elementTypes)) 
+		return \tuple(elementTypes);
+	else
+		throw "For tuple types, either all fields much be given a distinct label or no fields should be labeled."; 
+}
+
+@doc{Create a new list type, given the element type of the list.}
+public Symbol makeListType(Symbol elementType) = \list(elementType);
+
+@doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
+public Symbol makeMapType(Symbol domain, Symbol range) {
+	if (\label(l1,t1) := domain && \label(l2,t2) := range && l1 != l2)
+		return \map(domain,range);
+	else if (\label(l1,t1) := domain && \label(l2,t2) := range && l1 == l2)
+		throw "The field names of the map domain and range must be distinct.";
+	else if (\label(l1,t1) := domain)
+		return \map(t1,range);
+	else if (\label(l2,t2) := range)
+		return \map(domain,t2);
+	else
+		return \map(domain,range);
+}
+
+@doc{Create a new map type based on the given tuple.}
+public Symbol makeMapTypeFromTuple(Symbol t) {
+	list[Symbol] tf = getTupleFields(t);
+	if (size(tf) != 2)
+		throw "The provided tuple must have exactly 2 fields, one for the map domain and one for the range.";
+	return makeMapType(tf[0],tf[1]);
+}
+
+
+@doc{Create a new bag type, given the element type of the bag.}
+public Symbol makeBagType(Symbol elementType) = \bag(elementType);
+
+@doc{Create a new ADT type with the given name.}
+public Symbol makeADTType(str n) = \adt(n,[]);
+
+@doc{Create a new parameterized ADT type with the given type parameters}
+public Symbol makeParameterizedADTType(RName n, Symbol p...) = \adt(n,p);
+
+
+@doc{Create a new constructor type.}
+public Symbol makeConstructorType(Symbol adtType, Symbol consArgs...) {    
+	set[str] labels = { l | \label(l,_) <- consArgs };
+	if (size(labels) == 0 || size(labels) == size(consArgs)) 
+		return Symbol::\cons(adtType, consArgs);
+	else
+		throw "For constructor types, either all arguments much be given a distinct label or no parameters should be labeled."; 
+}
+
+@doc{Create a new constructor type based on the contents of a tuple.}
+public Symbol makeConstructorTypeFromTuple(Symbol adtType, Symbol consArgs) {    
+    return makeConstructorType(adtType, getTupleFields(consArgs)); 
+}
+
+@doc{Create a new alias type with the given name and aliased type.}
+public Symbol makeAliasType(str n, Symbol t) = \alias(n,[],t);
+
+@doc{Create a new parameterized alias type with the given name, aliased type, and parameters.}
+public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) = \alias(n,params,t);
+
+@doc{Create a new function type with the given return and parameter types.}
+public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
+	set[str] labels = { l | \label(l,_) <- paramTypes };
+	if (size(labels) == 0 || size(labels) == size(paramTypes)) 
+		return Symbol::\func(retType, paramTypes);
+	else
+		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
+}
+
+@doc{Create a new function type with parameters based on the given tuple.}
+public Symbol makeFunctionTypeFromTuple(Symbol retType, bool isVarArgs, Symbol paramTypeTuple) { 
+	return makeFunctionType(retType, isVarArgs, getTupleFields(paramTypeTuple));
+}
+
+@doc{Create a type representing the reified form of the given type.}
+public Symbol makeReifiedType(Symbol mainType) = \reified(mainType);
+
+@doc{Create a type representing a type parameter (type variable).}
+public Symbol makeTypeVar(str varName) = \parameter(varName, \value());
+
+@doc{Create a type representing a type parameter (type variable) and bound.}
+public Symbol makeTypeVarWithBound(str varName, Symbol varBound) = \parameter(varName, varBound);
+
+@doc{Unwraps aliases, parameters, and labels from around a type.}
+private Symbol unwrapType(\alias(_,_,at)) = unwrapType(at);
+private Symbol unwrapType(\parameter(_,tvb)) = unwrapType(tvb);
+private Symbol unwrapType(\label(_,lt)) = unwrapType(lt);
+private default Symbol unwrapType(Symbol t) = t;
+
+@doc{Get the type that has been reified and stored in the reified type.}
+public Symbol getReifiedType(Symbol t) {
+    if (\reified(rt) := unwrapType(t)) return rt;
+    throw "getReifiedType given unexpected type: <prettyPrintType(t)>";
+}
+
+@doc{Get the type of the relation fields as a tuple.}
+public Symbol getRelElementType(Symbol t) {
+    if (\rel(ets) := unwrapType(t)) return \tuple(ets);
+    throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
+}
+
+@doc{Get whether the rel has field names or not.}
+public bool relHasFieldNames(Symbol t) {
+    if (\rel(tls) := \unwrapType(t)) return size(tls) == size([ti | ti:\label(_,_) <- tls]);
+    throw "relHasFieldNames given non-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the field names of the rel fields.}
+public list[str] getRelFieldNames(Symbol t) {
+    if (\rel(tls) := unwrapType(t) && relHasFieldNames(t)) return [ l | \label(l,_) <- tls ];
+    if (\rel(_) := unwrapType(t)) throw "getRelFieldNames given rel type without field names: <prettyPrintType(t)>";        
+    throw "getRelFieldNames given non-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the name of a type variable.}
+public str getTypeVarName(Symbol t) {
+    if (\parameter(tvn,_) := t) return tvn;
+    throw "getTypeVarName given unexpected type: <prettyPrintType(t)>";
+}
+
+@doc{Get the bound of a type variable.}
+public Symbol getTypeVarBound(Symbol t) {
+    if (\parameter(_,tvb) := t) return tvb;
+    throw "getTypeVarBound given unexpected type: <prettyPrintType(t)>";
+}
+
+@doc{Get all the type variables inside a given type.}
+public set[Symbol] collectTypeVars(Symbol t) {
+    return { rt | / Symbol rt : \parameter(_,_) <- t };
+}
+
+@doc{Provide an initial type map from the variables in the type to void.}
+public map[str,Symbol] initializeTypeVarMap(Symbol t) {
+    set[Symbol] rt = collectTypeVars(t);
+    return ( getTypeVarName(tv) : makeVoidType() | tv <- rt );
+}
+
+@doc{See if a type contains any type variables.}
+public bool typeContainsTypeVars(Symbol t) = size(collectTypeVars(t)) > 0;
+
+@doc{Return the names of all type variables in the given type.}
+public set[str] typeVarNames(Symbol t) {
+    return { tvn | \parameter(tvn,_) <- collectTypeVars(t) };
+}
+
+//
+// Instantiate type variables based on a var name to type mapping.
+//
+// NOTE: We assume that bounds have already been checked, so this should not violate the bounds
+// given on bounded type variables.
+//
+// NOTE: Commented out for now. Unfortunately, the visit could change some things that we normally
+// would not change, so we need to instead do this using standard recursion. It is now in SubTypes
+// along with the functionality which finds the mappings.
+//public RType instantiateVars(map[RName,RType] varMappings, RType rt) {
+//  return visit(rt) {
+//      case RTypeVar(RFreeTypeVar(n)) : if (n in varMappings) insert(varMappings[n]);
+//      case RTypeVar(RBoundTypeVar(n,_)) : if (n in varMappings) insert(varMappings[n]);   
+//  };
+//}
+
+@doc{Get a list of arguments for the function.}
+public list[Symbol] getFunctionArgumentTypes(Symbol ft) {
+    if (Symbol::\func(_, ats) := unwrapType(ft)) return ats;
+    throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
+}
+
+@doc{Get the arguments for a function in the form of a tuple.}
+public Symbol getFunctionArgumentTypesAsTuple(Symbol ft) {
+    if (Symbol::\func(_, ats) := unwrapType(ft)) return \tuple(ats);
+    throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
+}
+
+@doc{Get the return type for a function.}
+public Symbol getFunctionReturnType(Symbol ft) {
+    if (Symbol::\func(rt, _) := unwrapType(ft)) return rt; 
+    throw "Cannot get function return type from non-function type <prettyPrintType(ft)>";
+}
+
+@doc{Indicate if the given tuple has a field of the given name.}
+public bool tupleHasField(Symbol t, str fn) {
+	return \tuple(tas) := unwrapType(t) && fn in { l | \label(l,_) <- tas } ;
+}
+
+@doc{Indicate if the given tuple has a field with the given field offset.}
+public bool tupleHasField(Symbol t, int fn) {
+	return \tuple(tas) := unwrapType(t) && 0 <= fn && fn < size(tas);
+}
+
+@doc{Get the type of the tuple field with the given name.}
+public Symbol getTupleFieldType(Symbol t, str fn) {
+	if (\tuple(tas) := unwrapType(t)) {
+		fieldmap = ( l : lt | \label(l,lt) <- tas );
+		if (fn in fieldmap) return fieldmap[fn];
+		throw "Tuple <prettyPrintType(t)> does not have field <fn>";
+	}
+    throw "getTupleFieldType given unexpected type <prettyPrintType(t)>";
+}
+
+@doc{Get the type of the tuple field at the given offset.}
+public Symbol getTupleFieldType(Symbol t, int fn) {
+	if (\tuple(tas) := unwrapType(t)) {
+		if (0 <= fn && fn < size(tas)) return unwrapType(tas[fn]);
+		throw "Tuple <prettyPrintType(t)> does not have field <fn>";
+	}
+    throw "getTupleFieldType given unexpected type <prettyPrintType(t)>";
+}
+
+@doc{Get the fields of a tuple as a list.}
+public list[Symbol] getTupleFields(Symbol t) {
+	if (\tuple(tas) := unwrapType(t)) return tas;
+    throw "Cannot get tuple fields from type <prettyPrintType(t)>"; 
+}
+
+@doc{Get the number of fields in a tuple.}
+public int getTupleFieldCount(Symbol t) = size(getTupleFields(t));
+
+@doc{Does this tuple have field names?}
+public bool tupleHasFieldNames(Symbol t) {
+	if (\tuple(tas) := unwrapType(t)) return size(tas) == size({ti|ti:\label(_,_) <- tas});
+    throw "tupleHasFieldNames given non-Tuple type <prettyPrintType(t)>";
+}
+
+@doc{Get the names of the tuple fields.}
+public list[str] getTupleFieldNames(Symbol t) {
+    if (\tuple(tls) := unwrapType(t)) {
+        if (tupleHasFieldNames(t)) {
+            return [ l | \label(l,_) <- tls ];
+        }
+        throw "getTupleFieldNames given tuple type without field names: <prettyPrintType(t)>";        
+    }
+    throw "getTupleFieldNames given non-Tuple type <prettyPrintType(t)>";
+}
+
+@doc{Get the name of the tuple field at the given offset.}
+public str getTupleFieldName(Symbol t, int idx) {
+    list[str] names = getTupleFieldNames(t);
+    if (0 <= idx && idx < size(names)) return names[idx];
+    throw "getTupleFieldName given invalid index <idx>";
+}
+
+@doc{Get the element type of a set.}
+public Symbol getSetElementType(Symbol t) {
+    if (RSetType(et) := unwrapType(t)) return et;
+    if (RRelType(ets) := unwrapType(t)) return \tuple(ets);
+    throw "Error: Cannot get set element type from type <prettyPrintType(t)>";
+}
+
+@doc{Get the domain and range of the map as a tuple.}
+public Symbol getMapFieldsAsTuple(Symbol t) {
+    if (\map(lt,rt) := unwrapType(t)) return \tuple([lt,rt]);
+    throw "getMapFieldsAsTuple called with unexpected type <prettyPrintType(t)>";
+}       
+
+@doc{Check to see if a map defines a field (by name).}
+public bool mapHasField(Symbol t, str fn) = tupleHasField(getMapFieldsAsTuple(t),fn);
+
+@doc{Check to see if a map defines a field (by index).}
+public bool mapHasField(Symbol t, int fn) = tupleHasField(getMapFieldsAsTuple(t),fn);
+
+@doc{Return the type of a field defined on a map (by name).}
+public Symbol getMapFieldType(Symbol t, str fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
+
+@doc{Return the type of a field defined on a map (by index).}
+public Symbol getMapFieldType(Symbol t, int fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
+
+@doc{Get the fields in a map as a list of fields.}
+public list[Symbol] getMapFields(Symbol t) = getTupleFields(getMapFieldsAsTuple(t));
+
+@doc{Check to see if the map has field names.}
+public bool mapHasFieldNames(Symbol t) = tupleHasFieldNames(getMapFieldsAsTuple(t));
+
+@doc{Get the field names from the map fields.}
+public tuple[str domainName, str rangeName] getMapFieldNames(Symbol t) {
+	if (mapHasFieldNames(t),[\label(l1,_),\label(l2,_)] := getMapFields(t)) {
+		return [l1, l2];
+	}
+    throw "getMapFieldNames given map type without field names: <prettyPrintType(t)>";        
+}
+
+@doc{Get the field name for the field at a specific index.}
+public str getMapFieldName(Symbol t, int idx) = getMapFieldNames(t)[idx];
+
+@doc{Get the domain type of the map.}    
+public Symbol getMapDomainType(Symbol t) = unwrapType(getMapFields(t)[0]);
+
+@doc{Get the range type of the map.}
+public Symbol getMapRangeType(Symbol t) = unwrapType(getMapFields(t)[1]);
+
+@doc{Get a list of the argument types in a constructor.}
+public list[Symbol] getConstructorArgumentTypes(Symbol ct) {
+	if (Symbol::\cons(_,cts) := unwrapType(ct)) return cts;
+    throw "Cannot get constructor arguments from non-constructor type <prettyPrintType(ct)>";
+}
+
+@doc{Get a tuple with the argument types as the fields.}
+public Symbol getConstructorArgumentTypesAsTuple(Symbol ct) {
+	return \tuple(getConstructorArgumentTypes(ct));
+}
+
+@doc{Get the ADT type of the constructor.}
+public Symbol getConstructorResultType(Symbol ct) {
+	if (Symbol::\cons(a,_) := unwrapType(ct)) return a;
+    throw "Cannot get constructor ADT type from non-constructor type <prettyPrintType(ct)>";
+}
+
+@doc{Get the element type of a list.}
+public Symbol getListElementType(Symbol t) {
+	if (\list(et) := unwrapType(t)) return et;
+	throw "Error: Cannot get list element type from type <prettyPrintType(t)>";
+}
+
+@doc{Get the name of the ADT.}
+public str getADTName(Symbol t) {
+	if (\adt(n,_) := unwrapType(t)) return n;
+	if (\constructor(a,_) := unwrapType(t)) return getADTName(a);
+	if (\reified(_) := unwrapType(t)) return "type";
+    throw "getADTName, invalid type given: <prettyPrintType(t)>";
+}
+
+@doc{Get the type parameters of an ADT.}
+public list[Symbol] getADTTypeParameters(Symbol t) {
+	if (\adt(n,ps) := unwrapType(t)) return ps;
+	if (\constructor(a,_) := unwrapType(t)) return getADTTypeParameters(a);
+	if (\reified(_) := unwrapType(t)) return [];
+    throw "getADTTypeParameters given non-ADT type <prettyPrintType(t)>";
+}
+
+@doc{Return whether the ADT has type parameters.}
+public bool adtHasTypeParameters(Symbol t) = size(getADTTypeParameters(t)) > 0;
+
+@doc{Get the name of a user type.}
+public str getUserTypeName(Symbol ut) {
+    if (\user(x,_) := unwrapType(ut)) return x;
+    throw "Cannot get user type name from non user type <prettyPrintType(ut)>";
+} 
+
+@doc{Get the type parameters from a user type.}
+public list[Symbol] getUserTypeParameters(Symbol ut) {
+    if (\user(_,ps) := unwrapType(ut)) return ps;
+    throw "Cannot get type parameters from non user type <prettyPrintType(ut)>";
+}
+
+@doc{Does this user type have type parameters?}
+public bool userTypeHasParameters(Symbol ut) = size(getUserTypeParameters(ut)) > 0;
+
+@doc{Get the name of the type alias.}
+public str getAliasName(Symbol t) {
+	if (\alias(x,_,_) := t) return x;
+	throw "Cannot get the alias name from non alias type <prettyPrintType(t)>";
+}
+
+@doc{Get the aliased type of the type alias.}
+public Symbol getAliasedType(Symbol t) {
+	if (\alias(_,_,at) := t) return at;
+	throw "Cannot get the aliased type from non alias type <prettyPrintType(t)>";
+}
+
+@doc{Get the type parameters for the alias.}
+public list[Symbol] getAliasTypeParameters(Symbol t) {
+    if (\alias(_,ps,_) := t) return ps;
+    throw "getAliasTypeParameters given non-alias type <prettyPrintType(t)>";
+}
+
+@doc{Does this alias have type parameters?}
+public bool aliasHasTypeParameters(Symbol t) = size(getAliasTypeParameters(t)) > 0;
+
+@doc{Unwind any aliases inside a type.}
+public Symbol unwindAliases(Symbol t) {
+    solve(t) {
+    	t = visit(t) { case RAliasType(tl,ps,tr) => tr };
+    }
+    return t;
+}
+
+@doc{Is the provided type a failure type?}
+public bool isFailType(\failure(_)) = true;
+public default bool isFailType(Symbol _) = false;
+
+@doc{Construct a new fail type with the given message and error location.}
+public Symbol makeFailType(str s, loc l) = \failure({error(s,l)});
+
+@doc{Extend a failure type with new failure messages.}
+public Symbol extendFailType(\failure(set[Message] ms), set[Message] msp) = \failure(ms + msp);
+public default Symbol extendFailType(Symbol t) { 	
+	throw "Cannot extend a non-failure type with failure information, type <prettyPrintType(t)>";
+}
+
+@doc{Collapse a set of failure types into a single failure type with all the failures included.} 
+public Symbol collapseFailTypes(set[Symbol] rt) = \failure({ s | \failure(ss) <- rt, s <- ss }); 
+
+@doc{Is this type an inferred type?}
+public bool isInferredType(\inferred(_)) = true;
+public default bool isInferredType(Symbol _) = false;
+
+@doc{Construct a new inferred type.}
+public Symbol makeInferredType(int n) = \inferred(n);
+
+@doc{Get the numeric identifier for the inferred type.}
+public int getInferredTypeIndex(Symbol t) {
+	if (\inferred(n) := t) return n;
+	throw "Error: Cannot get inferred type index from non-inferred type <prettyPrintType(t)>";
+}
+
+@doc{Is this type an overloaded type?}
+public bool isOverloadedType(\overloaded(_)) = true;
+public default bool isOverloadedType(Symbol _) = false;
+
+@doc{Get the overloads stored inside the overloaded type.}
+public set[Symbol] getOverloadOptions(Symbol t) {
+	if (\overloaded(s) := t) return s;
+	throw "Error: Cannot get overloaded options from non-overloaded type <prettyPrintType(t)>";
+}
+
+@doc{Construct a new overloaded type.}
+public Symbol makeOverloadedType(set[Symbol] options) = \overloaded(options);
+
+@doc{Ensure that sets of tuples are treated as relations.}
+public Symbol \set(Symbol t) = \rel(getTupleFieldsWithNames(t)) when isTupleType(t);
+
