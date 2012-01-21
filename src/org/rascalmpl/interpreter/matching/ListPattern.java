@@ -25,16 +25,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Expression.Splice;
-import org.rascalmpl.ast.Expression.SplicePlus;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 

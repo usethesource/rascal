@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.rascalmpl.tasks.IFact;
 
 public interface IDependencyListener {
 	enum Change {

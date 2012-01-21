@@ -16,15 +16,12 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.lang.String;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Assignment;
 import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;

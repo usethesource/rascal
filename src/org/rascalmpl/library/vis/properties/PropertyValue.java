@@ -16,7 +16,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 
-@SuppressWarnings("rawtypes")
 public abstract class PropertyValue<PropType> {
 	
 	public abstract PropType getValue();

@@ -17,6 +17,7 @@ public class ArrayList<E>{
 	private E[] data;
 	private int size;
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList(){
 		super();
 		
@@ -24,6 +25,7 @@ public class ArrayList<E>{
 		size = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ArrayList(int initialSize){
 		super();
 		
@@ -31,6 +33,7 @@ public class ArrayList<E>{
 		size = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void enlarge(){
 		E[] oldData = data;
 		data = (E[]) new Object[size << 1];
@@ -84,6 +87,7 @@ public class ArrayList<E>{
 		size = index;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void clear(){
 		data = (E[]) new Object[data.length];
 		size = 0;

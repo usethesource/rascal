@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -34,7 +33,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 	public ElementResult(Type type, T value, IEvaluatorContext ctx) {

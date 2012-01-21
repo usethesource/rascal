@@ -14,8 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -57,7 +57,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			java.lang.String str = this.getBooleanLiteral().toString();
+			java.lang.String str = ((BooleanLiteral.Lexical) this.getBooleanLiteral()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType(),
 					__eval.__getVf().bool(str.equals("true")), __eval);
@@ -148,7 +148,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
-			java.lang.String str = this.getRealLiteral().toString();
+			java.lang.String str = ((RealLiteral.Lexical) this.getRealLiteral()).getString();
 			if (str.toLowerCase().endsWith("d")) {
 				str = str.substring(0, str.length() - 1);
 			}
@@ -177,8 +177,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			java.lang.String str = this.getRationalLiteral().toString();
+			java.lang.String str = ((RationalLiteral.Lexical) this.getRationalLiteral()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					org.rascalmpl.interpreter.Evaluator.__getTf().rationalType(),
 					__eval.__getVf().rational(str), __eval);

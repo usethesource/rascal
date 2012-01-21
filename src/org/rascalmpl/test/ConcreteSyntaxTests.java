@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;

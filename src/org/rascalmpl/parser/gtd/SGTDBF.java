@@ -669,6 +669,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Inserts a stack bottom into the todo-list.
 	 */
+	@SuppressWarnings("unchecked")
 	private void addTodo(AbstractStackNode node, int length, AbstractNode result){
 		if(result == null) throw new RuntimeException();
 		int queueDepth = todoLists.length;
@@ -896,6 +897,7 @@ public abstract class SGTDBF implements IGTD{
 	/**
 	 * Initiates parsing.
 	 */
+	@SuppressWarnings("unchecked")
 	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input){
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");

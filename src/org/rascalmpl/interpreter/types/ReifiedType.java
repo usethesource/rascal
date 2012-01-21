@@ -102,10 +102,10 @@ public class ReifiedType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		super.match(matched, bindings);
-		arg.match(((ReifiedType) matched).arg, bindings);
+		return super.match(matched, bindings)
+				&& arg.match(((ReifiedType) matched).arg, bindings);
 	}
 	
 	@Override

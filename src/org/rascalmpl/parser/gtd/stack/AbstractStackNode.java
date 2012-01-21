@@ -381,6 +381,7 @@ public abstract class AbstractStackNode{
 	 * A 'null' prefix, for example, indicates that the current node starts the alternative.
 	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
 	 */
+	@SuppressWarnings("unchecked")
 	public void setEdgesSetWithPrefix(EdgesSet edges, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
@@ -427,6 +428,7 @@ public abstract class AbstractStackNode{
 	 * 
 	 * This method also takes care of stack merges in the process of doing this.
 	 */
+	@SuppressWarnings("unchecked")
 	public void updateNode(AbstractStackNode predecessor, AbstractNode predecessorResult){
 		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
@@ -513,6 +515,7 @@ public abstract class AbstractStackNode{
 	 * Since it is guaranteed that stack merges can never occur after non-nullable terminals
 	 * in a production it is save to use this assumption to improve efficiency.
 	 */
+	@SuppressWarnings("unchecked")
 	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode predecessor, AbstractNode result){
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
@@ -545,6 +548,7 @@ public abstract class AbstractStackNode{
 	 * It also prevents possible prefix duplication, which is an artifact
 	 * of the parser's implementation.
 	 */
+	@SuppressWarnings("unchecked")
 	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
 		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;

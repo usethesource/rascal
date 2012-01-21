@@ -42,6 +42,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * A converter for 'expandable' container result nodes.
  * In the case of the UPTR format, this implies variations of lists.
  */
+@SuppressWarnings("unchecked")
 public class ListContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;

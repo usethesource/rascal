@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -71,15 +70,13 @@ public class FunctionType extends ExternalType {
 				// because the argument types are co-variant. This would be weird since
 				// instantiated functions are supposed to be substitutable for their generic
 				// counter parts. So, we try to instantiate first, and then check again.
-				try {
-					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					otherType.match(this, bindings);
-					if (bindings.size() != 0) {
-						return isSubtypeOf(otherType.instantiate(bindings));
-					}
-				}
-				catch (FactMatchException e) {
+				Map<Type,Type> bindings = new HashMap<Type,Type>();
+
+				if (!otherType.match(this, bindings)) {
 					return false;
+				}
+				if (bindings.size() != 0) {
+					return isSubtypeOf(otherType.instantiate(bindings));
 				}
 			}
 			
@@ -164,40 +161,35 @@ public class FunctionType extends ExternalType {
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
 		if (matched.isVoidType()) {
-			returnType.match(matched, bindings);
+			return returnType.match(matched, bindings);
 		} else {
 			// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
-			while (matched.isAliasType()) matched = matched.getAliased();
+			while (matched.isAliasType()) {
+				matched = matched.getAliased();
+			}
 	
 			if (matched instanceof OverloadedFunctionType) {
 				OverloadedFunctionType of = (OverloadedFunctionType) matched;
 				// at least one needs to match (also at most one can match)
-				FactTypeUseException ex = null;
 				
 				for (Type f : of.getAlternatives()) {
-					try {
-						this.match(f, bindings);
-						return;
-					}
-					catch (FactMatchException e) {
-						ex = e;
+					if (this.match(f, bindings)) {
+						return true;
 					}
 				}
 				
-				if (ex != null) {
-					throw ex;
-				}
+				return false;
 			}
 			else if (matched instanceof FunctionType) {
-				argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings);
-				returnType.match(((FunctionType) matched).getReturnType(), bindings);
+				return argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings)
+						&& returnType.match(((FunctionType) matched).getReturnType(), bindings);
 			}
 			else {
-				throw new FactMatchException(matched, this);
+				return false;
 			}
 		}
 	}

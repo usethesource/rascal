@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
+@SuppressWarnings("unchecked")
 public class DoubleStack<E, F>{
 	private final static int DEFAULT_SIZE = 8;
 	

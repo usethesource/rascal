@@ -17,6 +17,8 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 
 public interface ICallableValue extends IValue {
+	public int getArity();
+	public boolean hasVarArgs();
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues);
 	public boolean isStatic();

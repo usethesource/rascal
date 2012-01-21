@@ -40,6 +40,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
  */
 public class SortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
 	
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<IConstructor, IConstructor>> preCache;
@@ -59,7 +60,7 @@ public class SortContainerNodeConverter{
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
-			gatherProduction(converter, child, new ForwardLink(NO_NODES, resultNode), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, child, new ForwardLink<AbstractNode>(NO_NODES, resultNode), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		}
@@ -169,6 +170,7 @@ public class SortContainerNodeConverter{
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
 		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
+		@SuppressWarnings("unchecked")
 		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){

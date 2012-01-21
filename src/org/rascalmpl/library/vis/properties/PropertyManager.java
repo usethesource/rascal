@@ -39,7 +39,6 @@ public class PropertyManager {
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	static IList emptyList = vf.list();
 	
-	@SuppressWarnings("unchecked")
 	HashMap<Properties, PropertyValue> explicitValues, stdValues;
 	
 	PropertyManager parent;

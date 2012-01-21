@@ -2,8 +2,8 @@ package org.rascalmpl.library.vis.figure.compose;
 
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.END_GAP;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.GAP;
+import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.START_GAP;
 import static org.rascalmpl.library.vis.util.Util.flatten;

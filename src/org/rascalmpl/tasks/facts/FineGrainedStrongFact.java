@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.tasks.facts;
 
+import static org.rascalmpl.tasks.IDependencyListener.Change.MOVED_TO;
+import static org.rascalmpl.tasks.IDependencyListener.Change.REMOVED;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -18,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IExpirationListener;
 import org.rascalmpl.tasks.IFact;
-import static org.rascalmpl.tasks.IDependencyListener.Change.*;
 /**
  * This class implements fact storage for strongly referenced facts (i.e., a fact will never be removed
  * by the garbarge collector unless it is explicitly removed from the database) with fine-grained

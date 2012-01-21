@@ -11,13 +11,14 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.tree;
 
+import static org.rascalmpl.library.vis.properties.Properties.AREA;
+
 import java.util.ArrayList;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.containers.Box;
 import org.rascalmpl.library.vis.figure.compose.Compose;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
-import static org.rascalmpl.library.vis.properties.Properties.AREA;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;

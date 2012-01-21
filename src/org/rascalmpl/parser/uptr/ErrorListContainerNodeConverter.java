@@ -37,6 +37,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ErrorListContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
 	private final static IConstructor[] NO_CHILDREN = new IConstructor[]{};
 	private final static IList EMPTY_LIST = VF.list();
@@ -323,6 +324,7 @@ public class ErrorListContainerNodeConverter{
 		ArrayList<IConstructor> gatheredAlternatives = new ArrayList<IConstructor>();
 		gatherAlternatives(converter, node.getFirstAlternative(), gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
+		@SuppressWarnings("unchecked")
 		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){

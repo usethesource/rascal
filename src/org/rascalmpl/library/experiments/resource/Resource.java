@@ -23,10 +23,7 @@ public class Resource {
 
 	private static HashMap<String, IResource> resourceHandlers = new HashMap<String, IResource>();
 	
-	private final IValueFactory vf;
-
 	public Resource(IValueFactory vf) {
-		this.vf = vf;
 	}
 
 	public static void registerResourceHandler(String provider, IResource handler) {

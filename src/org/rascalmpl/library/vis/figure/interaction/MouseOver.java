@@ -3,7 +3,6 @@ package org.rascalmpl.library.vis.figure.interaction;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.figure.combine.Overlap;

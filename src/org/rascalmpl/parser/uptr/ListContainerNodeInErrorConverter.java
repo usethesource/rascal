@@ -36,6 +36,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+@SuppressWarnings("unchecked")
 public class ListContainerNodeInErrorConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;

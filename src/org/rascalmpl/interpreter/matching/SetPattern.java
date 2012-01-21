@@ -36,7 +36,6 @@ public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
-	@SuppressWarnings("unused")
 	private Type setSubjectType;				// Type of the subject
 	private Type setSubjectElementType;		    // Type of the elements of current subject
 

@@ -25,15 +25,12 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
-@SuppressWarnings("deprecation")
 public class LinearProgramming {
 	
 	private final IValueFactory values;
@@ -48,7 +45,6 @@ public class LinearProgramming {
 			org.rascalmpl.values.locations.Factory.getStore());
 
 	private static final TypeFactory tf = TypeFactory.getInstance();
-	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 
 	public static final Type LLVariableVals = tf.listType(tf.numberType());
 

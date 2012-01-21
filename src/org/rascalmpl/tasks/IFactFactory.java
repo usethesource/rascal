@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.rascalmpl.tasks.DepFactPolicy;
-import org.rascalmpl.tasks.IFact;
-import org.rascalmpl.tasks.RefFactPolicy;
 
 public interface IFactFactory {
 	public <V,K> IFact<V> fact(Class<V> cls, Object key, String keyName, IExpirationListener<V> lis, DepFactPolicy depPolicy, RefFactPolicy refPolicy);

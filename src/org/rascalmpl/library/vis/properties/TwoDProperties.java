@@ -12,7 +12,32 @@
 
 package org.rascalmpl.library.vis.properties;
 
-import static org.rascalmpl.library.vis.properties.Properties.*;
+import static org.rascalmpl.library.vis.properties.Properties.HALIGN;
+import static org.rascalmpl.library.vis.properties.Properties.HCONNECT;
+import static org.rascalmpl.library.vis.properties.Properties.HEND_GAP;
+import static org.rascalmpl.library.vis.properties.Properties.HGAP;
+import static org.rascalmpl.library.vis.properties.Properties.HGROW;
+import static org.rascalmpl.library.vis.properties.Properties.HMIRROR;
+import static org.rascalmpl.library.vis.properties.Properties.HPOS;
+import static org.rascalmpl.library.vis.properties.Properties.HRESIZABLE;
+import static org.rascalmpl.library.vis.properties.Properties.HSHADOWPOS;
+import static org.rascalmpl.library.vis.properties.Properties.HSHRINK;
+import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
+import static org.rascalmpl.library.vis.properties.Properties.HSTART_GAP;
+import static org.rascalmpl.library.vis.properties.Properties.HZOOMABLE;
+import static org.rascalmpl.library.vis.properties.Properties.VALIGN;
+import static org.rascalmpl.library.vis.properties.Properties.VCONNECT;
+import static org.rascalmpl.library.vis.properties.Properties.VEND_GAP;
+import static org.rascalmpl.library.vis.properties.Properties.VGAP;
+import static org.rascalmpl.library.vis.properties.Properties.VGROW;
+import static org.rascalmpl.library.vis.properties.Properties.VMIRROR;
+import static org.rascalmpl.library.vis.properties.Properties.VPOS;
+import static org.rascalmpl.library.vis.properties.Properties.VRESIZABLE;
+import static org.rascalmpl.library.vis.properties.Properties.VSHADOWPOS;
+import static org.rascalmpl.library.vis.properties.Properties.VSHRINK;
+import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
+import static org.rascalmpl.library.vis.properties.Properties.VSTART_GAP;
+import static org.rascalmpl.library.vis.properties.Properties.VZOOMABLE;
 
 
 public enum TwoDProperties {

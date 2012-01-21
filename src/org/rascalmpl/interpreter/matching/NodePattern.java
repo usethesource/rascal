@@ -276,7 +276,7 @@ public class NodePattern extends AbstractMatchingResult {
 		if(n == 1){
 			return qName + "()";
 		}
-		StringBuilder res = new StringBuilder(qName.toString());
+		StringBuilder res = new StringBuilder(Names.fullName(qName));
 		res.append("(");
 		String sep = "";
 		

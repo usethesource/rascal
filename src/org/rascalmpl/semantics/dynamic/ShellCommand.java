@@ -134,11 +134,8 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot())
-					.unImport(this.getName().toString());
+			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(Names.fullName(this.getName()));
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-
 		}
 
 	}

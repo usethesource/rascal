@@ -1,14 +1,9 @@
 package org.rascalmpl.library.vis.util;
 
-import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
-import org.rascalmpl.library.vis.util.vector.BoundingBox;
-import org.rascalmpl.library.vis.util.vector.Coordinate;
 
 public class WordWrapMinRaggedness {
 	

@@ -13,9 +13,6 @@ package org.rascalmpl.tasks;
 
 import java.util.Collection;
 
-import org.rascalmpl.tasks.IDependencyListener;
-import org.rascalmpl.tasks.IFact;
-
 public interface IFact<V> extends IDependencyListener {
 	
 

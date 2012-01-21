@@ -59,6 +59,16 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	    isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
 	
+	@Override
+	public int getArity() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean hasVarArgs() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public OverloadedFunctionResult(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
 		this.name = function.getName();
@@ -135,7 +145,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 
 	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
-		Type tuple = getTypeFactory().tupleType(argTypes);
+//		Type tuple = getTypeFactory().tupleType(argTypes);
 		AbstractFunction failed = null;
 		Failure failure = null;
 		
@@ -143,7 +153,9 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
 			// TODO: this match on a static type breaks dynamic dispatch a bit because it pre-filters on a static
 			// type! Can't remove it without introducing bugs elsewhere..
-			if (candidate.match(tuple)) {
+//			if (candidate.match(tuple)) {
+			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1) 
+					|| candidate.getArity() == argValues.length) {
 				try {
 					return candidate.call(argTypes, argValues);
 				}

@@ -14,8 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 

@@ -19,11 +19,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.tasks.DepFactPolicy;
-import org.rascalmpl.tasks.ITask;
-import org.rascalmpl.tasks.ITransaction;
-import org.rascalmpl.tasks.RefFactPolicy;
-import org.rascalmpl.tasks.TaskRegistry;
 
 public class TaskRegistry<K,N,V> implements ITaskRegistry<K, N, V> {
 	private static final Map<ClassTriple,TaskRegistry<?,?,?>> schedulers =

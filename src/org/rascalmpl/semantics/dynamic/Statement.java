@@ -329,7 +329,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			if (!this.getTarget().isEmpty()) {
-				throw new Failure(this.getTarget().getName().toString());
+				throw new Failure(Names.name(this.getTarget().getName()));
 			}
 
 			throw new Failure();
@@ -494,9 +494,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
-			throw new NotYetImplemented(this.toString()); // TODO
-
+			throw new NotYetImplemented(this); // TODO
 		}
 
 	}
@@ -735,10 +733,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					Result<IValue> tmp = __eval.getCurrentEnvt().getSimpleVariable(var);
 					
 					if (tmp == null) {
-						throw new UndeclaredVariableError(var.toString(), var);
+						throw new UndeclaredVariableError(Names.fullName(var), var);
 					}
 					if (tmp.getValue() == null) {
-						throw new UninitializedVariableError(var.toString(),
+						throw new UninitializedVariableError(Names.fullName(var),
 								var);
 					}
 					currentValue[i] = tmp.getValue();

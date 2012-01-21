@@ -2,7 +2,6 @@ package org.rascalmpl.library.vis.figure.graph.layered;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;

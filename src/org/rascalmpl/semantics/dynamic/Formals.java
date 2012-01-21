@@ -40,6 +40,7 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 				Type type = f.typeOf(env);
 
 				if (type == null) {
+					// TODO: can this actually happen?
 					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
 				types[index] = type;

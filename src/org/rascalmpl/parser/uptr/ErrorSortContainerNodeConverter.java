@@ -35,6 +35,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class ErrorSortContainerNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
 	private final static IList EMPTY_LIST = VF.list();
 	
@@ -129,6 +130,7 @@ public class ErrorSortContainerNodeConverter{
 		IList unmatchedInput = buildUnmatchedInput(converter, node.getUnmatchedInput(), stack, depth, cycleMark, positionStore, actionExecutor, environment);
 		gatherAlternatives(converter, node.getFirstAlternative(), unmatchedInput, gatheredAlternatives, (IConstructor) node.getFirstProduction(), stack, childDepth, cycleMark, positionStore, sourceLocation, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
+		@SuppressWarnings("unchecked")
 		ArrayList<IConstructor> productions = (ArrayList<IConstructor>) node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){

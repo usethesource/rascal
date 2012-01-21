@@ -14,7 +14,6 @@ package org.rascalmpl.tasks;
 import java.util.Collection;
 
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.tasks.ITransaction;
 
 public interface ITask<KeyType,NameType,ValueType> {
 	/**
