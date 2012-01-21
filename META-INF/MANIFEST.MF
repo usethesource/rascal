@@ -33,7 +33,6 @@ Export-Package:
  org.rascalmpl.interpreter.types,
  org.rascalmpl.interpreter.utils,
  org.rascalmpl.library,
- org.rascalmpl.library.box,
  org.rascalmpl.library.experiments.RascalTutor,
  org.rascalmpl.library.experiments.resource,
  org.rascalmpl.library.experiments.resource.resources,
