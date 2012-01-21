@@ -60,7 +60,7 @@ public str unescape(StringConstant s) {
 
 private str character(StringCharacter c) {
   switch (c) {
-    case [StringCharacter] /^<ch:[^"'\\\>\< ]>/        : return "<ch>";
+    case [StringCharacter] /^<ch:[^"'\\\>\<]>/        : return "<ch>";
     case [StringCharacter] /^\\n/ : return "\n";
     case [StringCharacter] /^\\t/ : return "\t";
     case [StringCharacter] /^\\b/ : return "\b";
@@ -72,7 +72,7 @@ private str character(StringCharacter c) {
     case [StringCharacter] /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
     case [StringCharacter] /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>"));
     case [StringCharacter] /^\\a<hex:[0-7][0-9a-fA-F]>/ : return stringChar(toInt("0x<hex>")); 
-    case [StringCharacter] /^\n[\ \t]* \'/            : return "\n";
+    case [StringCharacter] /^\n[ \t]* \'/            : return "\n";
     default: throw "missed a case <c>";
   }
 }
