@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
+@SuppressWarnings("unchecked")
 public class IntegerObjectList<V>{
 	private final static int DEFAULT_SIZE = 8;
 	

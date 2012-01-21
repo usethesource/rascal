@@ -1,5 +1,6 @@
 package org.rascalmpl.parser.gtd.util;
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class ForwardLink<E>{
 	public final static ForwardLink TERMINATOR = new ForwardLink();
 	

@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure;
 
+import static org.rascalmpl.library.vis.properties.Properties.LINE_WIDTH;
+
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -22,8 +24,6 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
-
-import static org.rascalmpl.library.vis.properties.Properties.*;
 
 /**
  * Outline element: a rectangle with colored horizontal lines

@@ -160,7 +160,7 @@ public class Symbols {
 			return Factory.Symbol_Alt.make(factory, syms);
 		}
 		
-		throw new RuntimeException("Symbol has unknown type: "+symbol.getTree());
+		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
 
 	private static IValue literal2Symbol(StringConstant sep) {

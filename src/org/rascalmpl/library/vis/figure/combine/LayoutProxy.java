@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;

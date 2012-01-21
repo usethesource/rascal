@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;

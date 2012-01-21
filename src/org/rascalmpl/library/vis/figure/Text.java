@@ -11,11 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure;
 
-import static org.rascalmpl.library.vis.properties.Properties.FONT;
-import static org.rascalmpl.library.vis.properties.Properties.FONT_SIZE;
+import static org.rascalmpl.library.vis.properties.Properties.FONT_BASELINE;
 import static org.rascalmpl.library.vis.properties.Properties.INNER_ALIGN;
 import static org.rascalmpl.library.vis.properties.Properties.TEXT_ANGLE;
-import static org.rascalmpl.library.vis.properties.Properties.FONT_BASELINE;
 
 import java.util.List;
 
@@ -23,7 +21,6 @@ import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.MaxFontAscent;

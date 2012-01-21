@@ -2590,14 +2590,14 @@ public class BoxEvaluator implements IASTVisitor<IValue> {
 	// return t;
 	// }
 
-	private boolean isListElement(AbstractAST expression) {
-		return expression instanceof Expression.List
-				|| expression instanceof Expression.Set
-				|| expression instanceof Expression.Tuple
-				|| expression instanceof Expression.Map;
-	}
+//	private boolean isListElement(AbstractAST expression) {
+//		return expression instanceof Expression.List
+//				|| expression instanceof Expression.Set
+//				|| expression instanceof Expression.Tuple
+//				|| expression instanceof Expression.Map;
+//	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"rawtypes" })
 	private IValue eXs(java.util.List conditions, IValue prefix, IValue suffix) {
 		IList s = BoxADT.getEmptyList();
 		// System.err.println("eXs0:"+conditions.size());

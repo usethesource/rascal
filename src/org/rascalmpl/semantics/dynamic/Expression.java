@@ -2338,9 +2338,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-
-			throw new UninitializedVariableError(this.toString(), this);
-
+			throw new UninitializedVariableError(Names.name(getName()), this);
 		}
 
 		@Override
@@ -2394,7 +2392,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
-			throw new SyntaxError(this.toString(), this.getLocation());
+			throw new SyntaxError("expression", this.getLocation());
 
 		}
 

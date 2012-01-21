@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd.util;
 
 import java.util.Iterator;
 
+@SuppressWarnings("unchecked")
 public class HashMap<K, V>{
 	private Entry<K, V>[] entries;
 
@@ -21,6 +22,7 @@ public class HashMap<K, V>{
 	
 	private int threshold;
 	private int load;
+	
 	
 	public HashMap(){
 		super();

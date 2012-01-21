@@ -15,7 +15,6 @@
 package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,15 +23,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.values.uptr.Factory;
 
 
 /**

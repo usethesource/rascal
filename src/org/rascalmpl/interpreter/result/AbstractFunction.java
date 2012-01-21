@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -74,6 +75,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	public boolean isTest() {
 		return false;
+	}
+	
+	@Override
+	public int getArity() {
+		return functionType.getArgumentTypes().getArity();
 	}
 	
 	public static void setCallTracing(boolean value){
@@ -209,7 +215,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
 		try {
 			Map<Type, Type> bindings = new HashMap<Type, Type>();
-			formals.match(actualTypes, bindings);
+			if (!formals.match(actualTypes, bindings)) {
+				throw new MatchFailed();
+			}
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeUseException e) {

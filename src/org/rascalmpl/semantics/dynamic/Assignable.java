@@ -29,12 +29,11 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.AssignmentToFinalError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
@@ -44,6 +43,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
@@ -64,8 +64,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					(Evaluator) __eval.__getEval());
 
 			if (result == null || result.getValue() == null) {
-				throw new UninitializedVariableError(this.getReceiver()
-						.toString(), this.getReceiver());
+				// TODO: can this ever happen?
+				throw new UninitializedVariableError(this.getReceiver().toString(), this.getReceiver());
 			}
 
 			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
@@ -91,7 +91,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
-			String label = this.getAnnotation().toString();
+			String label = Names.name(this.getAnnotation());
 
 			if (!__eval.getCurrentEnvt().declaresAnnotation(receiver.getType(),
 					label)) {
@@ -237,6 +237,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					.getField());
 
 			if (receiver == null || receiver.getValue() == null) {
+				// TODO:can this ever happen?
 				throw new UninitializedVariableError(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
@@ -323,6 +324,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					.getField());
 
 			if (receiver == null) {
+				// TODO: can this ever happen?
 				throw new UndeclaredVariableError(
 						this.getReceiver().toString(), this.getReceiver());
 			}
@@ -430,6 +432,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Result<IValue> result;
 
 			if (rec == null || rec.getValue() == null) {
+				// TODO: can this ever happen?
 				throw new UninitializedVariableError(this.getReceiver()
 						.toString(), this.getReceiver());
 			}
@@ -695,7 +698,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
 				return __eval.__getValue();
 			default:
-				throw new UninitializedVariableError(this.toString(), this);
+				throw new UninitializedVariableError(Names.fullName(qname), this);
 			}
 
 			// TODO implement semantics of global keyword, when not given the

@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
-
+@SuppressWarnings("unchecked")
 public class ObjectIntegerKeyedHashSet<E>{
 	private Entry<E>[] entries;
 

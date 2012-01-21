@@ -33,6 +33,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class SortContainerNodeInErrorConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
 	
 	private SortContainerNodeInErrorConverter(){
@@ -95,6 +96,7 @@ public class SortContainerNodeInErrorConverter{
 		gatheredAlternatives.add(result);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
 		if(depth <= cycleMark.depth){
 			cycleMark.reset();

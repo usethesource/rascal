@@ -10,8 +10,6 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
-import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
-import org.rascalmpl.library.vis.figure.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;

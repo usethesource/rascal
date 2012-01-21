@@ -21,13 +21,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 
 class SingleElementIterator implements Iterator<IValue> {
-	private final IEvaluatorContext ctx;
 	private final Iterator<IValue> elementIter;
 	private boolean debug = false;
 	
 	SingleElementIterator(ISet elements, IEvaluatorContext ctx){
 		this.elementIter = elements.iterator();
-		this.ctx = ctx;
 		if(debug) System.err.println("SingleElementIterator: " + elements);
 	}
 

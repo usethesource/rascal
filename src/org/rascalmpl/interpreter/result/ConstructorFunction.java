@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -53,7 +54,9 @@ public class ConstructorFunction extends NamedFunction {
 		}
 
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings);
+		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
+			throw new MatchFailed();
+		}
 		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 

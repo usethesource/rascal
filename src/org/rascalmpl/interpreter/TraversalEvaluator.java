@@ -18,7 +18,6 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -36,8 +35,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.env.Environment;

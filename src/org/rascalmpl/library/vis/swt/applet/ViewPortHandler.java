@@ -34,7 +34,6 @@ import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.library.vis.util.vector.TwoDimensional;
-import static org.rascalmpl.library.vis.util.vector.Dimension.*;
 
 public class ViewPortHandler implements SelectionListener, ControlListener, PaintListener, IFigureChangedListener{
 	

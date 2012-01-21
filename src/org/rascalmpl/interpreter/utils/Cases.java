@@ -15,7 +15,6 @@ import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
-import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
@@ -159,7 +158,6 @@ public class Cases  {
 	private static class DefaultBlock extends CaseBlock {
 		private final Case theCase;
 		private final PatternWithAction pattern;
-		private final Statement statement;
 		private final Replacement replacement;
 		private final List<Expression> conditions;
 		private final Expression insert;
@@ -167,7 +165,6 @@ public class Cases  {
 		public DefaultBlock(Case c) {
 			this.theCase = c;
 			this.pattern = c.hasPatternWithAction() ? c.getPatternWithAction() : null;
-			this.statement = c.hasStatement() ? c.getStatement() : null;
 			this.replacement = pattern != null && pattern.hasReplacement() ? pattern.getReplacement() : null;
 			this.conditions = replacement != null && replacement.hasConditions() ? replacement.getConditions() : Collections.<Expression>emptyList();
 			this.insert = replacement != null ? replacement.getReplacementExpression() : null;

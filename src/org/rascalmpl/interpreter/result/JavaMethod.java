@@ -18,10 +18,8 @@ package org.rascalmpl.interpreter.result;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,7 +31,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -41,7 +38,6 @@ import org.rascalmpl.interpreter.utils.Names;
 public class JavaMethod extends NamedFunction {
 	private final Object instance;
 	private final Method method;
-	private final FunctionDeclaration func;
 	private final boolean hasReflectiveAccess;
 	
 	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
@@ -50,7 +46,6 @@ public class JavaMethod extends NamedFunction {
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
-		this.func = func;
 	}
 	
 	@Override
@@ -186,10 +181,5 @@ public class JavaMethod extends NamedFunction {
 				throw new ImplementationError("Could not create stack trace", e1);
 			}
 		}
-	}
-	
-	@Override
-	public String toString() {
-		return func.toString();
 	}
 }

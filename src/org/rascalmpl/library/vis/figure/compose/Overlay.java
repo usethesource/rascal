@@ -12,11 +12,15 @@
 package org.rascalmpl.library.vis.figure.compose;
 
 
+import static org.rascalmpl.library.vis.properties.Properties.HCONNECT;
+import static org.rascalmpl.library.vis.properties.Properties.SHAPE_CLOSED;
+import static org.rascalmpl.library.vis.properties.Properties.SHAPE_CONNECTED;
+import static org.rascalmpl.library.vis.properties.Properties.SHAPE_CURVED;
+import static org.rascalmpl.library.vis.properties.Properties.VCONNECT;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.POS;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
-import static org.rascalmpl.library.vis.properties.Properties.*;
 
 import java.util.List;
 

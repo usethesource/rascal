@@ -28,12 +28,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.tasks.FactFactory;
 import org.rascalmpl.tasks.IDependencyListener.Change;
-import org.rascalmpl.tasks.IFact;
-import org.rascalmpl.tasks.INameFormatter;
-import org.rascalmpl.tasks.ITransaction;
-import org.rascalmpl.tasks.Transaction;
 import org.rascalmpl.tasks.facts.AbstractFact;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,

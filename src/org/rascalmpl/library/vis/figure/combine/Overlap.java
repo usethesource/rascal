@@ -1,12 +1,10 @@
 package org.rascalmpl.library.vis.figure.combine;
 
 import static org.rascalmpl.library.vis.properties.TwoDProperties.ALIGN;
-import static org.rascalmpl.library.vis.properties.TwoDProperties.GROW;
 import static org.rascalmpl.library.vis.properties.TwoDProperties.SHRINK;
 import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import java.util.List;
-import java.util.Vector;
 
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;

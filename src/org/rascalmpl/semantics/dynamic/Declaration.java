@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;

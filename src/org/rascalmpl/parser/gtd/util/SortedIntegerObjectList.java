@@ -1,5 +1,6 @@
 package org.rascalmpl.parser.gtd.util;
 
+@SuppressWarnings("unchecked")
 public class SortedIntegerObjectList<V>{
 	private final static int DEFAULT_SIZE = 8;
 	
@@ -7,6 +8,7 @@ public class SortedIntegerObjectList<V>{
 	private V[] values;
 	
 	private int size;
+	
 	
 	public SortedIntegerObjectList(){
 		super();
