@@ -106,30 +106,8 @@ str program ="; <img src="/Courses/images/2.png">
 <br/>
 
  Let's do a simple experiment:
- <pre class="screen"><b>rascal></b>import IO;
-ok
-<b>rascal></b>str greeting = &quot;\&quot;Good Morning, Dr. Watson\&quot;, said Holmes&quot;;
-str: &quot;\&quot;Good Morning, Dr. Watson\&quot;, said Holmes&quot;
-<b>rascal></b>println(&quot;\&quot;&quot; + greeting + &quot;\&quot;&quot;);
-&quot;&quot;Good Morning, Dr. Watson&quot;, said Holmes&quot;
-ok
-</pre>
-  As you see the quotes inside the string are not escaped and the result is not a legal string.
-  So what can we do? We escape all dangerous characters in the string before printing it using the <a href="/Courses/Rascal/Libraries/Prelude/String/escape/escape.html">Rascal:escape</a> function.
-  It takes a string and a map of characters to be escaped and returns a result in which all escaping has been carried out.
-  Be aware that in the map, also escaping is needed!
-  We want to say: escape <code>"</code> and replace it by <code>\"</code>, but since both <code>"</code> and <code>\</code> have to be escaped themselves
-  we have to say: escape <code>"\""</code> and replace it by <code>"\\\""</code>. The effect is as follows:
-
-<pre class="screen"><b>rascal></b>import String;
-ok
-<b>rascal></b>println(&quot;\&quot;&quot; + escape(greeting, (&quot;\&quot;&quot;: &quot;\\\&quot;&quot;)) + &quot;\&quot;&quot;);
-&quot;\&quot;Good Morning, Dr. Watson\&quot;, said Holmes&quot;
-ok
-</pre>
-  And indeed, the two quotes are now properly escaped.
-
- This is exactly what happens at <img src="/Courses/images/4.png"> in the definition of <code>quine</code>:
+   And indeed, the two quotes are now properly escaped.
+</pre> This is exactly what happens at <img src="/Courses/images/4.png"> in the definition of <code>quine</code>:
  <pre class="listing">println("\"" + escape(program, ("\"" : "\\\"", "\\" : "\\\\")) + "\";");
 </pre> We escape <code>program</code> and replace <code>"</code> by <code>\"</code>, and <code>\</code> by <code>\\</code>.
  The mesmerizing amount of <code>\</code> characters can be explained due to escaping <code>"</code> and <code>\</code>.
@@ -137,9 +115,9 @@ ok
 <br/>
 
  Now let's put <code>quine</code> to the test.
- <pre class="screen"><b>rascal></b>import demo::basic::Quine;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::basic::Quine;
 ok
-<b>rascal></b>quine();
+<span class="prompt">rascal></span>quine();
 module demo::basic::Quine
 
 import IO;
@@ -147,21 +125,21 @@ import String;
 
 public void quine(){
   println(program);
-  println(&quot;\&quot;&quot; + escape(program, (&quot;\&quot;&quot; : &quot;\\\&quot;&quot;, &quot;\\&quot; : &quot;\\\\&quot;)) + &quot;\&quot;;&quot;);
+  println("\"" + escape(program, ("\"" : "\\\"", "\\" : "\\\\")) + "\";");
 }
 
 str program =
-&quot;module demo::basic::Quine
+"module demo::basic::Quine
 
 import IO;
 import String;
 
 public void quine(){
   println(program);
-  println(\&quot;\\\&quot;\&quot; + escape(program, (\&quot;\\\&quot;\&quot; : \&quot;\\\\\\\&quot;\&quot;, \&quot;\\\\\&quot; : \&quot;\\\\\\\\\&quot;)) + \&quot;\\\&quot;;\&quot;);
+  println(\"\\\"\" + escape(program, (\"\\\"\" : \"\\\\\\\"\", \"\\\\\" : \"\\\\\\\\\")) + \"\\\";\");
 }
 
-str program =&quot;;
+str program =";
 ok
 </pre> If you follow this output line-by-line you will see that it
  is identical to the original source code of module <code>Quine</code>.

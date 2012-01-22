@@ -131,13 +131,13 @@ public int eval1(let(list[Binding] bindings, Exp exp), Env env, PEnv penv) { <im
 	        end
 	      end
 </pre> The result:
- <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Func::Load;
 ok
-<b>rascal></b>import demo::lang::Func::Eval1;
+<span class="prompt">rascal></span>import demo::lang::Func::Eval1;
 ok
-<b>rascal></b>import demo::lang::Func::programs::F1;
+<span class="prompt">rascal></span>import demo::lang::Func::programs::F1;
 ok
-<b>rascal></b>eval1(&quot;fact&quot;, [10], load(F1));
+<span class="prompt">rascal></span>eval1("fact", [10], load(F1));
 int: 3628800
 </pre>
 </div>

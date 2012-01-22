@@ -101,36 +101,97 @@ public demo::lang::Func::AST::Prog load(str s) = implode(parse(s));
           else 
              n * fact(n-1)
           end
-</pre> <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+</pre> <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Func::Load;
 ok
-<b>rascal></b>import demo::lang::Func::programs::F0;
+<span class="prompt">rascal></span>import demo::lang::Func::programs::F0;
 ok
-<b>rascal></b>load(F0);
+<span class="prompt">rascal></span>load(F0);
 Prog: prog([func(
-      &quot;fact&quot;,
-      [&quot;n&quot;],
+      "fact",
+      ["n"],
       cond(
         leq(
-          var(&quot;n&quot;)[
-            @location=|file://-|(13,1,&lt;1,13&gt;,&lt;1,14&gt;)
+          var("n")[
+            @location=|file://-|(13,1,&lt;1,13>,&lt;1,14>)
           ],
           nat(1)[
-            @location=|file:/...
-</pre>
-  We get the original program and its <b>abstract syntax tree</b> of type <code>Prog</code> back.
+            @location=|file://-|(18,1,&lt;1,18>,&lt;1,19>)
+          ])[
+          @location=|file://-|(13,6,&lt;1,13>,&lt;1,19>)
+        ],
+        nat(1)[
+          @location=|file://-|(38,1,&lt;2,13>,&lt;2,14>)
+        ],
+        mul(
+          var("n")[
+            @location=|file://-|(70,1,&lt;4,13>,&lt;4,14>)
+          ],
+          call(
+            "fact",
+            [sub(
+                var("n")[
+                  @location=|file://-|(79,1,&lt;4,22>,&lt;4,23>)
+                ],
+                nat(1)[
+                  @location=|file://-|(81,1,&lt;4,24>,&lt;4,25>)
+                ])[
+                @location=|file://-|(79,3,&lt;4,22>,&lt;4,25>)
+              ]])[
+            @location=|file://-|(74,9,&lt;4,17>,&lt;4,26>)
+          ])[
+          @location=|file://-|(70,13,&lt;4,13>,&lt;4,26>)
+        ])[
+        @location=|file://-|(10,87,&lt;1,10>,&lt;5,13>)
+      ])[
+      @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>)
+    ]])[
+  @location=|file://-|(0,97,&lt;1,0>,&lt;5,13>)
+]
+</pre>  We get the original program and its <b>abstract syntax tree</b> of type <code>Prog</code> back.
   In case of doubt, compare this with the result in <a href="/Courses/Recipes/Languages/Func/Parse/Parse.html">Func/Parse</a> where we did obtain a parse tree.
   Next, we try the same from a file:
-
-<pre class="screen"><b>rascal></b>load(|std:///demo/lang/Func/programs/F0.func|);
+<pre class="screen"><span class="prompt">rascal></span>load(|std:///demo/lang/Func/programs/F0.func|);
 Prog: prog([func(
-      &quot;fact&quot;,
-      [&quot;n&quot;],
+      "fact",
+      ["n"],
       cond(
         leq(
-          var(&quot;n&quot;)[
-            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,&lt;1,13&gt;,&lt;1,14&gt;)
+          var("n")[
+            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,&lt;1,13>,&lt;1,14>)
           ],
-          nat(1)[...
+          nat(1)[
+            @location=|std:///demo/lang/Func/programs/F0.func|(18,1,&lt;1,18>,&lt;1,19>)
+          ])[
+          @location=|std:///demo/lang/Func/programs/F0.func|(13,6,&lt;1,13>,&lt;1,19>)
+        ],
+        nat(1)[
+          @location=|std:///demo/lang/Func/programs/F0.func|(38,1,&lt;2,13>,&lt;2,14>)
+        ],
+        mul(
+          var("n")[
+            @location=|std:///demo/lang/Func/programs/F0.func|(70,1,&lt;4,13>,&lt;4,14>)
+          ],
+          call(
+            "fact",
+            [sub(
+                var("n")[
+                  @location=|std:///demo/lang/Func/programs/F0.func|(79,1,&lt;4,22>,&lt;4,23>)
+                ],
+                nat(1)[
+                  @location=|std:///demo/lang/Func/programs/F0.func|(81,1,&lt;4,24>,&lt;4,25>)
+                ])[
+                @location=|std:///demo/lang/Func/programs/F0.func|(79,3,&lt;4,22>,&lt;4,25>)
+              ]])[
+            @location=|std:///demo/lang/Func/programs/F0.func|(74,9,&lt;4,17>,&lt;4,26>)
+          ])[
+          @location=|std:///demo/lang/Func/programs/F0.func|(70,13,&lt;4,13>,&lt;4,26>)
+        ])[
+        @location=|std:///demo/lang/Func/programs/F0.func|(10,87,&lt;1,10>,&lt;5,13>)
+      ])[
+      @location=|std:///demo/lang/Func/programs/F0.func|(0,97,&lt;1,0>,&lt;5,13>)
+    ]])[
+  @location=|std:///demo/lang/Func/programs/F0.func|(0,97,&lt;1,0>,&lt;5,13>)
+]
 </pre>
 </div>
 

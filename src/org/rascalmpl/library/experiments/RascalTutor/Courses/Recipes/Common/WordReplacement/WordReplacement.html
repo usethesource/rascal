@@ -106,14 +106,14 @@ public str capAll2(str S)        <img src="/Courses/images/3.png">
  <ul><li> <code>capAll1</code> (<img src="/Courses/images/2.png">) uses a while loop to find subsequent words and to replace them by a capitalized version.</li>
 <li> <code>capAll2</code> (<img src="/Courses/images/3.png">) uses a <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Rascal:Visit</a> to visit all words in the sentence and replace them by a capitalized version.</li>
 </ul> Here are some examples:
-  <pre class="screen"><b>rascal></b>import demo::common::WordReplacement;
+  <pre class="screen"><span class="prompt">rascal></span>import demo::common::WordReplacement;
 ok
-<b>rascal></b>capitalize(&quot;rascal&quot;);
-str: &quot;Rascal&quot;
-<b>rascal></b>capAll1(&quot;turn this into a capitalized title&quot;)
-str: &quot;Turn This Into A Capitalized Title&quot;
-<b>rascal></b>capAll2(&quot;turn this into a capitalized title&quot;)
-str: &quot;Turn This Into A Capitalized Title&quot;
+<span class="prompt">rascal></span>capitalize("rascal");
+str: "Rascal"
+<span class="prompt">rascal></span>capAll1("turn this into a capitalized title")
+str: "Turn This Into A Capitalized Title"
+<span class="prompt">rascal></span>capAll2("turn this into a capitalized title")
+str: "Turn This Into A Capitalized Title"
 </pre>
 </div>
 

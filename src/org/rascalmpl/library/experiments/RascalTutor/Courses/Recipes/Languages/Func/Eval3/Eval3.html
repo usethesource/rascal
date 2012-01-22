@@ -240,14 +240,14 @@ fact(n) = let
 	        y
 	      end
 </pre> Let's try this.
- <pre class="screen"><b>rascal></b>import demo::lang::Func::Load;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Func::Load;
 ok
-<b>rascal></b>import demo::lang::Func::Eval3;
+<span class="prompt">rascal></span>import demo::lang::Func::Eval3;
 ok
-<b>rascal></b>import demo::lang::Func::programs::F3;
+<span class="prompt">rascal></span>import demo::lang::Func::programs::F3;
 ok
-<b>rascal></b>eval3(&quot;fact&quot;, [10], load(F3));
-Result: &lt;[10],3628800&gt;
+<span class="prompt">rascal></span>eval3("fact", [10], load(F3));
+Result: &lt;[10],3628800>
 </pre>
 </div>
 

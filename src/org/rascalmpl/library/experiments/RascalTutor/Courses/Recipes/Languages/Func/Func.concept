@@ -1,6 +1,6 @@
 Name: Func
 
-Synopsis: We present several interpreters for the simple functional language Func.
+Synopsis: Func is a tiny functional language; we present several interpreters for it.
 
 Syntax:
 

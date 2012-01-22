@@ -92,42 +92,8 @@ public rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
 	return { &lt;C1, C2> | &lt;proc P1, proc P2> &lt;- aCalls, &lt;comp C1, comp C2> &lt;- aPartOf[P1] * aPartOf[P2]};
 }
 
-</pre> <pre class="screen"><b>rascal></b>import demo::common::Lift;
-ok
+</pre>   Please verify that this corresponds exactly to (c) in the figure above.
 </pre>
-  Encode the call relation and partOf relation:
-
-<pre class="screen"><b>rascal></b>calls = {&lt;&quot;main&quot;, &quot;a&quot;&gt;, &lt;&quot;main&quot;, &quot;b&quot;&gt;, &lt;&quot;a&quot;, &quot;b&quot;&gt;, &lt;&quot;a&quot;, &quot;c&quot;&gt;, &lt;&quot;a&quot;, &quot;d&quot;&gt;, &lt;&quot;b&quot;, &quot;d&quot;&gt;};        
-rel[str, str]: {
-  &lt;&quot;a&quot;,&quot;c&quot;&gt;,
-  &lt;&quot;a&quot;,&quot;b&quot;&gt;,
-  &lt;&quot;main&quot;,&quot;a&quot;&gt;,
-  &lt;&quot;b&quot;,&quot;d&quot;&gt;,
-  &lt;&quot;main&quot;,&quot;b&quot;&gt;,
-  &lt;&quot;a&quot;,&quot;d&quot;&gt;
-}
-<b>rascal></b>partOf = {&lt;&quot;main&quot;, &quot;Appl&quot;&gt;, &lt;&quot;a&quot;, &quot;Appl&quot;&gt;, &lt;&quot;b&quot;, &quot;DB&quot;&gt;, &lt;&quot;c&quot;, &quot;Lib&quot;&gt;, &lt;&quot;d&quot;, &quot;Lib&quot;&gt;};
-rel[str, str]: {
-  &lt;&quot;c&quot;,&quot;Lib&quot;&gt;,
-  &lt;&quot;a&quot;,&quot;Appl&quot;&gt;,
-  &lt;&quot;d&quot;,&quot;Lib&quot;&gt;,
-  &lt;&quot;main&quot;,&quot;Appl&quot;&gt;,
-  &lt;&quot;b&quot;,&quot;DB&quot;&gt;
-}
-</pre>
-  and do the lifting:
-
-<pre class="screen"><b>rascal></b>lift(calls, partOf);
-rel[comp, comp]: {
-  &lt;&quot;Appl&quot;,&quot;DB&quot;&gt;,
-  &lt;&quot;Appl&quot;,&quot;Appl&quot;&gt;,
-  &lt;&quot;Appl&quot;,&quot;Lib&quot;&gt;,
-  &lt;&quot;DB&quot;,&quot;Lib&quot;&gt;
-}
-</pre>
-  Please verify that this corresponds exactly to (c) in the figure above.
-
-
 </div>
 
   	                       

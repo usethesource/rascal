@@ -112,36 +112,32 @@ public Exp simplify(Exp e){                          <img src="/Courses/images/6
 
 
 </pre> Let's differentiate the example expression <code>E</code>:
- <pre class="screen"><b>rascal></b>import demo::common::Derivative;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::common::Derivative;
 ok
-<b>rascal></b>dd(E, var(&quot;x&quot;));
+<span class="prompt">rascal></span>dd(E, var("x"));
 Exp: add(
   add(
     mul(
       con(0),
-      var(&quot;y&quot;)),
+      var("y")),
     mul(
       con(3),
       con(0))),
   add(
     mul(
       con(0),
-      var(&quot;x&quot;)),
+      var("x")),
     mul(
       con(5),
       con(1))))
-</pre>
-  As you can see, we managed to compute a derivative, but the result is far more complex than we would like.
+</pre>  As you can see, we managed to compute a derivative, but the result is far more complex than we would like.
   This is where simplification comes in. First try a simple case:
-
-<pre class="screen"><b>rascal></b>simplify(mul(var(&quot;x&quot;), add(con(3), con(5))));
+<pre class="screen"><span class="prompt">rascal></span>simplify(mul(var("x"), add(con(3), con(5))));
 Exp: mul(
-  var(&quot;x&quot;),
+  var("x"),
   con(8))
-</pre>
-  Now apply simplification to the result of differentiation:
-
-<pre class="screen"><b>rascal></b>simplify(dd(E, var(&quot;x&quot;)));
+</pre>  Now apply simplification to the result of differentiation:
+<pre class="screen"><span class="prompt">rascal></span>simplify(dd(E, var("x")));
 Exp: con(5)
 </pre>
 </div>

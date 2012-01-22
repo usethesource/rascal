@@ -102,13 +102,13 @@ public int eval(add(Exp e1, Exp e2)) = eval(e1) + eval(e2); <img src="/Courses/i
 </li>
 <li> <img src="/Courses/images/3.png"> defines the case for evaluating addition: first evaluate the arguments <code>e1</code> and <code>e2</code>         and return the addition of their values.
 </li>
-</ul> <pre class="screen"><b>rascal></b>import demo::lang::Exp::Abstract::Syntax;
+</ul> <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Abstract::Syntax;
 ok
-<b>rascal></b>import demo::lang::Exp::Abstract::Eval;
+<span class="prompt">rascal></span>import demo::lang::Exp::Abstract::Eval;
 ok
-<b>rascal></b>eval(mul(con(7), con(3)));
+<span class="prompt">rascal></span>eval(mul(con(7), con(3)));
 int: 21
-<b>rascal></b>eval(add(con(3), mul(con(4), con(5))));
+<span class="prompt">rascal></span>eval(add(con(3), mul(con(4), con(5))));
 int: 23
 </pre> Entering expressions in abstract syntax form is no fun, and this is where concrete syntax comes to the rescue.
 

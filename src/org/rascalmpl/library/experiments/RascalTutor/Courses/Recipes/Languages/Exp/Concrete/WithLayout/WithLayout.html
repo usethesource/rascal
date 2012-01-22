@@ -109,15 +109,15 @@ public int eval((Exp)`( &lt;Exp e> )`) = eval(e);
 
 syntax start[Exp] = Whitespace Exp top Whitespace;
 </pre> To put this all to the test:
- <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Syntax;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
-<b>rascal></b>import demo::lang::Exp::Concrete::WithLayout::Eval;
-ok
-<b>rascal></b>eval(&quot;2 +  3&quot;);
+<span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Eval;
+debug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classdebug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classok
+<span class="prompt">rascal></span>eval("2 +  3");
 int: 5
-<b>rascal></b>eval(&quot;2   +  3*4&quot;);
+<span class="prompt">rascal></span>eval("2   +  3*4");
 int: 14
-<b>rascal></b>eval(&quot;( 2+3 )* 4&quot;);
+<span class="prompt">rascal></span>eval("( 2+3 )* 4");
 int: 20
 </pre>
 </div>

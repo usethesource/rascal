@@ -115,9 +115,9 @@ public ColoredTree makeGreen(ColoredTree t){
 <br/>
 
  We can now explore ColoredTrees:
- <pre class="screen"><b>rascal></b>import demo::common::ColoredTrees;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::common::ColoredTrees;
 ok
-<b>rascal></b>rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+<span class="prompt">rascal></span>rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 ColoredTree: red(
   black(
     leaf(1),
@@ -127,20 +127,14 @@ ColoredTree: red(
   black(
     leaf(3),
     leaf(4)))
-</pre>
-  Count the red nodes in <code>rb</code>:
-
-<pre class="screen"><b>rascal></b>cntRed(rb);
+</pre>  Count the red nodes in <code>rb</code>:
+<pre class="screen"><span class="prompt">rascal></span>cntRed(rb);
 int: 2
-</pre>
-  and compute the sum of all leaves:
-
-<pre class="screen"><b>rascal></b>addLeaves(rb);
+</pre>  and compute the sum of all leaves:
+<pre class="screen"><span class="prompt">rascal></span>addLeaves(rb);
 int: 13
-</pre>
-  Finally, we convert all red nodes:
-
-<pre class="screen"><b>rascal></b>makeGreen(rb);
+</pre>  Finally, we convert all red nodes:
+<pre class="screen"><span class="prompt">rascal></span>makeGreen(rb);
 ColoredTree: green(
   black(
     leaf(1),

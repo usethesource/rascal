@@ -121,14 +121,14 @@ public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N),
 <li> <img src="/Courses/images/5.png"> the map <code>freq</code> is returned as result.</li>
 </ul> A variant <code>countRelevant</code> is defined at <img src="/Courses/images/6.png">; it gets is an extra argument of relevant constructors
  names that is used to filter the map that is returned by <code>count</code> using <a href="/Courses/Rascal/Libraries/Prelude/Map/domainR/domainR.html">Rascal:domainR</a>.
- <pre class="screen"><b>rascal></b>import demo::common::CountConstructors;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::common::CountConstructors;
 ok
-<b>rascal></b>count(CT);
-map[str, int]: (&quot;black&quot;:2,&quot;leaf&quot;:5,&quot;red&quot;:2)
-<b>rascal></b>count(H);
-map[str, int]: (&quot;hand&quot;:1,&quot;jack&quot;:1,&quot;diamonds&quot;:1,&quot;spades&quot;:1,&quot;hearts&quot;:2,&quot;two&quot;:1,&quot;ace&quot;:1,&quot;six&quot;:1)
-<b>rascal></b>countRelevant(H, {&quot;hearts&quot;, &quot;spades&quot;});
-map[str, int]: (&quot;spades&quot;:1,&quot;hearts&quot;:2)
+<span class="prompt">rascal></span>count(CT);
+map[str, int]: ("black":2,"leaf":5,"red":2)
+<span class="prompt">rascal></span>count(H);
+map[str, int]: ("hand":1,"jack":1,"diamonds":1,"spades":1,"hearts":2,"two":1,"ace":1,"six":1)
+<span class="prompt">rascal></span>countRelevant(H, {"hearts", "spades"});
+map[str, int]: ("spades":1,"hearts":2)
 </pre>
 </div>
 

@@ -55,84 +55,70 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  Let's write a function that generates all the even numbers in a list up to a certain maximum. We will do it in a few alternative 
  ways: from very imperative to very declarative and some steps in between.
-  <pre class="screen"><b>rascal></b>list[int] even0(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  list[int] result = [];
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  for (int i &lt;- [0..max])
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    if (i % 2 == 0)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;      result += i;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return result;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+  <pre class="screen"><span class="prompt">rascal></span>list[int] even0(int max) {
+<span class="continuation">>>>>>>></span>  list[int] result = [];
+<span class="continuation">>>>>>>></span>  for (int i &lt;- [0..max])
+<span class="continuation">>>>>>>></span>    if (i % 2 == 0)
+<span class="continuation">>>>>>>></span>      result += i;
+<span class="continuation">>>>>>>></span>  return result;
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even0(int);
-<b>rascal></b>even0(25);
+<span class="prompt">rascal></span>even0(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  Now lets remove the temporary type declarations:
-
-<pre class="screen"><b>rascal></b>list[int] even1(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  result = [];
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  for (i &lt;- [0..max])
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    if (i % 2 == 0)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;      result += i;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return result;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+</pre>  Now lets remove the temporary type declarations:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even1(int max) {
+<span class="continuation">>>>>>>></span>  result = [];
+<span class="continuation">>>>>>>></span>  for (i &lt;- [0..max])
+<span class="continuation">>>>>>>></span>    if (i % 2 == 0)
+<span class="continuation">>>>>>>></span>      result += i;
+<span class="continuation">>>>>>>></span>  return result;
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even1(int);
-<b>rascal></b>even1(25);
+<span class="prompt">rascal></span>even1(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  To make the code shorter, we can inline the condition in the for loop:
-
-<pre class="screen"><b>rascal></b>list[int] even2(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  result = [];
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  for (i &lt;- [0..max], i % 2 == 0)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    result += i;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return result;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+</pre>  To make the code shorter, we can inline the condition in the for loop:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even2(int max) {
+<span class="continuation">>>>>>>></span>  result = [];
+<span class="continuation">>>>>>>></span>  for (i &lt;- [0..max], i % 2 == 0)
+<span class="continuation">>>>>>>></span>    result += i;
+<span class="continuation">>>>>>>></span>  return result;
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even2(int);
-<b>rascal></b>even2(25);
+<span class="prompt">rascal></span>even2(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  In fact, for loops may produce lists as values, using the append statement:
-
-<pre class="screen"><b>rascal></b>list[int] even3(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  result = for (i &lt;- [0..max], i % 2 == 0)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;    append i;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return result;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+</pre>  In fact, for loops may produce lists as values, using the append statement:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even3(int max) {
+<span class="continuation">>>>>>>></span>  result = for (i &lt;- [0..max], i % 2 == 0)
+<span class="continuation">>>>>>>></span>    append i;
+<span class="continuation">>>>>>>></span>  return result;
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even3(int);
-<b>rascal></b>even3(25);
+<span class="prompt">rascal></span>even3(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  So now, the result temporary is not necessary anymore:
-
-<pre class="screen"><b>rascal></b>list[int] even4(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return for (i &lt;- [0..max], i % 2 == 0)
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;           append i;
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+</pre>  So now, the result temporary is not necessary anymore:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even4(int max) {
+<span class="continuation">>>>>>>></span>  return for (i &lt;- [0..max], i % 2 == 0)
+<span class="continuation">>>>>>>></span>           append i;
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even4(int);
-<b>rascal></b>even4(25);
+<span class="prompt">rascal></span>even4(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  This code is actually very close to a list comprehension already:
-
-<pre class="screen"><b>rascal></b>list[int] even5(int max) {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;  return [ i | i &lt;- [0..max], i % 2 == 0];
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+</pre>  This code is actually very close to a list comprehension already:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even5(int max) {
+<span class="continuation">>>>>>>></span>  return [ i | i &lt;- [0..max], i % 2 == 0];
+<span class="continuation">>>>>>>></span>}
 list[int] (int): list[int] even5(int);
-<b>rascal></b>even5(25);
+<span class="prompt">rascal></span>even5(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  And now we can just define even using an expression only:
-
-<pre class="screen"><b>rascal></b>list[int] even6(int max) = [i | i &lt;- [0..max], i % 2 == 0];
+</pre>  And now we can just define even using an expression only:
+<pre class="screen"><span class="prompt">rascal></span>list[int] even6(int max) = [i | i <- [0..max], i % 2 == 0];
 list[int] (int): list[int] even6(int);
-<b>rascal></b>even6(25);
+<span class="prompt">rascal></span>even6(25);
 list[int]: [0,2,4,6,8,10,12,14,16,18,20,22,24]
-</pre>
-  Or, perhaps we like a set instead of a list:
-
-<pre class="screen"><b>rascal></b>set[int] even7(int max) = {i | i &lt;- [0..max], i % 2 == 0};
+</pre>  Or, perhaps we like a set instead of a list:
+<pre class="screen"><span class="prompt">rascal></span>set[int] even7(int max) = {i | i <- [0..max], i % 2 == 0};
 set[int] (int): set[int] even7(int);
-<b>rascal></b>even7(25);
+<span class="prompt">rascal></span>even7(25);
 set[int]: {14,12,10,24,8,22,6,20,4,18,2,16,0}
 </pre>
 </div>

@@ -109,40 +109,22 @@ public int eval((Exp)`(&lt;Exp e>)`) = eval(e);                      <img src="/
 <li> <img src="/Courses/images/4.png"> and <img src="/Courses/images/5.png"> handle the multiplication and addition cases.</li>
 <li> <img src="/Courses/images/6.png"> handles the case of parentheses.</li>
 </ul> What remains, is to check that <code>eval</code> works as expected.
- <pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+ <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::NoLayout::Syntax;
 ok
-<b>rascal></b>import ParseTree;
+<span class="prompt">rascal></span>import ParseTree;
 ok
-</pre>
-  Just checking that <code>parse</code> returns a sort of parse tree:
-
-<pre class="screen"><b>rascal></b>parse(#Exp, &quot;2+3&quot;);
-`2+3`
-Exp: appl(
-  prod(
-    sort(&quot;Exp&quot;),
-    [
-      sort(&quot;Exp&quot;),
-      layouts(&quot;$default$&quot;),
-      lit(&quot;+&quot;),
-      layouts(&quot;$default$&quot;),
-      sort(&quot;Exp&quot;)
-    ],
-    {assoc(left())}),
-  [
-    appl(
-      pr...
-</pre>
-  You will see such parse trees only once, unless you are a researcher in parsing ;-)
+</pre>  Just checking that <code>parse</code> returns a sort of parse tree:
+<pre class="screen"><span class="prompt">rascal></span>parse(#Exp, "2+3");
+debug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classExp: `2+3`
+Tree: appl(prod(sort("Exp"),[sort("Exp"),layouts("<i>default</i>"),lit("+"),layouts("<i>default</i>"),sort("Exp")],{assoc(left())}),[appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(50)])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)]])[@loc=|file://-|(0,1,&lt;1,0>,&lt;1,1>)],appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(1,0,&lt;1,1>,&lt;1,1>)],appl(prod(lit("+"),[\char-class([range(43,43)])],{}),[char(43)]),appl(prod(layouts("<i>default</i>"),[],{}),[])[@loc=|file://-|(2,0,&lt;1,2>,&lt;1,2>)],appl(prod(sort("Exp"),[lex("IntegerLiteral")],{}),[appl(prod(lex("IntegerLiteral"),[iter(\char-class([range(48,57)]))],{}),[appl(regular(iter(\char-class([range(48,57)]))),[char(51)])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(2,1,&lt;1,2>,&lt;1,3>)]])[@loc=|file://-|(0,3,&lt;1,0>,&lt;1,3>)]</pre>  You will see such parse trees only once, unless you are a researcher in parsing ;-)
   Here is a demonstration of <code>eval</code>:
-
-<pre class="screen"><b>rascal></b>import demo::lang::Exp::Concrete::NoLayout::Eval;
-ok
-<b>rascal></b>eval(&quot;2+3&quot;);
+<pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::NoLayout::Eval;
+debug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classdebug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classok
+<span class="prompt">rascal></span>eval("2+3");
 int: 5
-<b>rascal></b>eval(&quot;2+3*4&quot;);
+<span class="prompt">rascal></span>eval("2+3*4");
 int: 14
-<b>rascal></b>eval(&quot;(2+3)*4&quot;);
+<span class="prompt">rascal></span>eval("(2+3)*4");
 int: 20
 </pre>
 </div>

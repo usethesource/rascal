@@ -56,21 +56,20 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <h1> First version: hello on the command line </h1>
  We demonstrate hello via an interactive session with the Rascal system. First we get the prompt <code>rascal></code> that shows that Rascal is ready for our input. Next, we import the library module <a href="/Courses/Rascal/Libraries/Prelude/IO/IO.html">Rascal:IO</a> since hello world requires printing. Rascal responds with the feedback <code>ok</code> so we know that all went well. Finally, we call <code>println</code> and proudly observe our first Rascal output!
- <pre class="screen"><b>rascal></b>import IO;
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>println(&quot;Hello world, this is my first Rascal program&quot;);
+<span class="prompt">rascal></span>println("Hello world, this is my first Rascal program");
 Hello world, this is my first Rascal program
 ok
 </pre> <h1> Second version: hello in a function </h1>
  A slightly more audacious approach is to wrap the print statement in a function and call it:
- <pre class="screen"><b>rascal></b>import IO;
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<b>rascal></b>void hello() {
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;   println(&quot;Hello world, this is my first Rascal program&quot;);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;}
+<span class="prompt">rascal></span>void hello() {
+<span class="continuation">>>>>>>></span>   println("Hello world, this is my first Rascal program");
+<span class="continuation">>>>>>>></span>}
 void (): void hello();
-</pre>
- When you type in a command and continue it on a new line 
+</pre> When you type in a command and continue it on a new line 
  the Rascal systems prompts you with <code>>>>>>>></code> to 
  indicate that more input is needed. Don't get scared by 
  the <code>void (): void hello();</code> that you get back 
@@ -80,8 +79,7 @@ void (): void hello();
   <code>void hello()</code> summarizes its value 
   (or would you prefer a hex dump?).
   Finally, we call the <tt>hello</tt> function and enjoy its output.
-
-<pre class="screen"><b>rascal></b>hello();
+<pre class="screen"><span class="prompt">rascal></span>hello();
 Hello world, this is my first Rascal program
 ok
 </pre> <h1> Third version: hello in a module </h1>
@@ -94,9 +92,9 @@ public void hello() {
    println("Hello world, this is my first Rascal program");
 }
 </pre> Note that we added a public modifier to the definition of hello, since we want it to be visible outside the Hello module. Using this Hello module is now simple:
-  <pre class="screen"><b>rascal></b>import demo::basic::Hello;
+  <pre class="screen"><span class="prompt">rascal></span>import demo::basic::Hello;
 ok
-<b>rascal></b>hello();
+<span class="prompt">rascal></span>hello();
 Hello world, this is my first Rascal program
 ok
 </pre>

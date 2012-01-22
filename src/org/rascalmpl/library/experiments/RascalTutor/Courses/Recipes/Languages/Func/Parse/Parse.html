@@ -74,55 +74,27 @@ public Prog parse(str s) = parse(#Prog, s);
           else 
              n * fact(n-1)
           end
-</pre> 
-  First, we try the version with a string argument:
-
-<pre class="screen"><b>rascal></b>import demo::lang::Func::Parse;
+</pre>   First, we try the version with a string argument:
+<pre class="screen"><span class="prompt">rascal></span>import demo::lang::Func::Parse;
 ok
-<b>rascal></b>import demo::lang::Func::programs::F0;
+<span class="prompt">rascal></span>import demo::lang::Func::programs::F0;
 ok
-<b>rascal></b>parse(F0);
-`fact(n) = if n &lt;= 1 then
+<span class="prompt">rascal></span>parse(F0);
+Prog: `fact(n) = if n &lt;= 1 then
              1 
           else 
              n * fact(n-1)
           end`
-Prog: appl(
-  prod(
-    label(
-      &quot;prog&quot;,
-      sort(&quot;Prog&quot;)),
-    [\iter-star-seps(
-        sort(&quot;Func&quot;),
-        [layouts(&quot;LAYOUTLIST&quot;)])],
-    {}),
-  [appl(
-      regular(\iter-star-seps(
-         ...
-</pre>
-  This must be defined as success: we get the original program and its parse tree back.
+Tree: appl(prod(label("prog",sort("Prog")),[\iter-star-seps(sort("Func"),[layouts("LAYOUTLIST")])],{}),[appl(regular(\iter-star-seps(sort("Func"),[layouts("LAYOUTLIST")])),[appl(prod(label("func",sort("Func")),[label("name",lex("Ident")),layouts("LAYOUTLIST"),lit("("),layouts("LAYOUTLIST"),\iter-star-seps(lex("Ident"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]),layouts("LAYOUTLIST"),lit(")"),layouts("LAYOUTLIST"),lit("="),layouts("LAYOUTLIST"),sort("Exp")],{}),[appl(prod(lex("Ident"),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(102),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[char(97),char(99),char(116)])[@loc=|file://-|(1,3,&lt;1,1>,&lt;1,4>)]])[@loc=|file://-|(0,4,&lt;1,0>,&lt;1,4>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(4,0,&lt;1,4>,&lt;1,4>)]])[@loc=|file://-|(4,0,&lt;1,4>,&lt;1,4>)],appl(prod(lit("("),[\char-class([range(40,40)])],{}),[char(40)]),appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(5,0,&lt;1,5>,&lt;1,5>)]])[@loc=|file://-|(5,0,&lt;1,5>,&lt;1,5>)],appl(regular(\iter-star-seps(lex("Ident"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")])),[appl(prod(lex("Ident"),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[])[@loc=|file://-|(6,0,&lt;1,6>,&lt;1,6>)]])[@loc=|file://-|(5,1,&lt;1,5>,&lt;1,6>)]])[@loc=|file://-|(5,1,&lt;1,5>,&lt;1,6>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|file://-|(6,0,&lt;1,6>,&lt;1,6>)]...</pre>  This must be defined as success: we get the original program and its parse tree back.
   Next, we try the same from a file. We use the scheme <code>std</code> that refers to files that reside in the Rascal library.
   See <a href="/Courses/Rascal/Expressions/Values/Location/Location.html">Rascal:location</a> for further details on other schemes.
-
-<pre class="screen"><b>rascal></b>parse(|std:///demo/lang/Func/programs/F0.func|);
-`fact(n) = if n &lt;= 1 then
+<pre class="screen"><span class="prompt">rascal></span>parse(|std:///demo/lang/Func/programs/F0.func|);
+Prog: `fact(n) = if n &lt;= 1 then
              1 
           else 
              n * fact(n-1)
           end`
-Prog: appl(
-  prod(
-    label(
-      &quot;prog&quot;,
-      sort(&quot;Prog&quot;)),
-    [\iter-star-seps(
-        sort(&quot;Func&quot;),
-        [layouts(&quot;LAYOUTLIST&quot;)])],
-    {}),
-  [appl(
-      regular(\iter-star-seps(
-         ...
-</pre>
+Tree: appl(prod(label("prog",sort("Prog")),[\iter-star-seps(sort("Func"),[layouts("LAYOUTLIST")])],{}),[appl(regular(\iter-star-seps(sort("Func"),[layouts("LAYOUTLIST")])),[appl(prod(label("func",sort("Func")),[label("name",lex("Ident")),layouts("LAYOUTLIST"),lit("("),layouts("LAYOUTLIST"),\iter-star-seps(lex("Ident"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")]),layouts("LAYOUTLIST"),lit(")"),layouts("LAYOUTLIST"),lit("="),layouts("LAYOUTLIST"),sort("Exp")],{}),[appl(prod(lex("Ident"),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(102),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[char(97),char(99),char(116)])[@loc=|std:///demo/lang/Func/programs/F0.func|(1,3,&lt;1,1>,&lt;1,4>)]])[@loc=|std:///demo/lang/Func/programs/F0.func|(0,4,&lt;1,0>,&lt;1,4>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|std:///demo/lang/Func/programs/F0.func|(4,0,&lt;1,4>,&lt;1,4>)]])[@loc=|std:///demo/lang/Func/programs/F0.func|(4,0,&lt;1,4>,&lt;1,4>)],appl(prod(lit("("),[\char-class([range(40,40)])],{}),[char(40)]),appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|std:///demo/lang/Func/programs/F0.func|(5,0,&lt;1,5>,&lt;1,5>)]])[@loc=|std:///demo/lang/Func/programs/F0.func|(5,0,&lt;1,5>,&lt;1,5>)],appl(regular(\iter-star-seps(lex("Ident"),[layouts("LAYOUTLIST"),lit(","),layouts("LAYOUTLIST")])),[appl(prod(lex("Ident"),[\char-class([range(65,90),range(97,122)]),conditional(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)])),{\not-follow(\char-class([range(48,57),range(65,90),range(97,122)]))})],{}),[char(110),appl(regular(\iter-star(\char-class([range(48,57),range(65,90),range(97,122)]))),[])[@loc=|std:///demo/lang/Func/programs/F0.func|(6,0,&lt;1,6>,&lt;1,6>)]])[@loc=|std:///demo/lang/Func/programs/F0.func|(5,1,&lt;1,5>,&lt;1,6>)]])[@loc=|std:///demo/lang/Func/programs/F0.func|(5,1,&lt;1,5>,&lt;1,6>)],appl(prod(layouts("LAYOUTLIST"),[conditional(\iter-star(lex("LAYOUT")),{\not-follow(\char-class([range(9,10),range(13,13),range(32,32)]))})],{}),[appl(regular(\iter-star(lex("LAYOUT"))),[])[@loc=|std:///demo/lang/Func/programs/F0.func|(6,0,&lt;1,6>,&lt;1,6>)]...</pre>
 </div>
 
   	                       
