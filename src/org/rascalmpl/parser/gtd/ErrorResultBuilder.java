@@ -31,9 +31,9 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 import org.rascalmpl.parser.gtd.util.Stack;
 
 /**
- * This builder constructs error parse results. It attempts to diliver a tree
+ * This builder constructs error parse results. It attempts to deliver a tree
  * that is as complete as possible, using all available information the parser
- * posesses.
+ * possesses.
  */
 public class ErrorResultBuilder{
 	private final static CharNode[] NO_CHILDREN = new CharNode[]{};
