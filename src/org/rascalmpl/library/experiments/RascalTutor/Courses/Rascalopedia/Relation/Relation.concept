@@ -1,0 +1,85 @@
+Name: Relation
+
+Synopsis: An unordered set of tuples.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+In mathematics, given sets $D_1$, $D_2$, ... $D_n$, a
+$n$-ary relation $R$ is characterized by $R$ &subseteq;  $D_1$ &times; $D_2$ &times; ... &times; $D_n$.
+In other words, $R$ consists of a set of tuples `<$V_1$, ..., $V_n$>` where each $V_i$ is an element of
+the set $D_i$. When $n$ = 2, we call the relation a [binary relation](http://en.wikipedia.org/wiki/Relation_(mathematics)).
+
+In [database theory](http://en.wikipedia.org/wiki/Relational_algebra), a relation is a table with a heading and an unordered set of tuples:
+
+| $D_1$ $Name_1$ | $D_2$ $Name_2$ | ... | $D_n$ $Name_n$ |
+|----------------|--- ------------|-----|----------------|
+| $V_11$         | $V_12$         | ... | $V_1n$         |
+| $V_21$         | $V_22$         | ... | $V_2n$         |
+| $V_31$         | $V_32$         | ... | $V_3n$         |
+| ...            | ...            | ... |                |
+
+
+
+In Rascal, a relation is a set of tuples and is characterized by the type:
+`rel[$D_1$ $Name_1$, $D_2$ $Name_2$, ..., $D_n$ $Name_n$]` 
+See [Rascal:Values/Relation] and  for a description of relations and their operators
+(since relations are sets all set operators also apply to them, see [Rascal:Values/Set])
+and [Rascal:Prelude/Relation] for functions on relations
+(and here again, since relations are sets all set operators also apply to them, see [Rascal:Prelude/Set]).
+
+
+Examples:
+===Relations in daily life===
+* The _parent-of_ or _friend-of_ relation between people.
+* A character relation map, describing the relations between the characters in a play or soap series.
+* A listing of the top 2000 songs of all times including the position, artist name, song title, the year the song was published.
+
+
+![char-relation](char-relation.png|350px)
+[credit](http://www.translatedmemories.com/bookpgs/Pg10-11CharRelation.jpg)
+![top2000-2010](top2000-2010.png|400px) [credit](http://top2011.radio2.nl/lijst/2010)
+
+
+===Relations in computer science===
+* A relational data base.
+* Login information including user name, password, home directory, etc.
+
+
+===Relations in Rascal===
+* A parent child relation:
+<listing>
+rel[str parent, str child] = {
+<"Paul", "Eva">,
+<"Paul", "Thomas">,
+<"Jurgen", "Simon">,
+<"Jurgen", "David">,
+<"Tijs", "Mats">
+};
+</listing>
+* A fragment of the top 2000 relation:
+<listing>
+rel[int position, str artist, str title, int year] Top2000 = {
+<1, "Eagles", "Hotel California",1977>,
+<2, "Queen", "Bohemian rhapsody", 1975>,
+<3, "Boudewijn de Groot", "Avond", 1997>,
+...
+};
+</listing>
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
