@@ -18,14 +18,17 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.rascalmpl.interpreter.utils.Names;
@@ -65,6 +68,15 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public <U extends IValue> Result<U> is(Name name) {
 		return ResultFactory.bool(getValue().getName().equals(Names.name(name)), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> has(Name name) {
+		INode node = getValue();
+		if(node instanceof IConstructor)
+			return ResultFactory.bool(((IConstructor) node).has(Names.name(name)), ctx);
+		else
+			return ResultFactory.bool(false, ctx);
 	}
 	
 	@Override
