@@ -20,6 +20,10 @@ to the syntax rules of language $L$. There are two possible answers:
 * _No_. Error messages pin point the location where the text deviates from the syntax rules.
 
 
+This is shown below:
+
+![parser](parser.png)
+
 Examples:
 
 Benefits:

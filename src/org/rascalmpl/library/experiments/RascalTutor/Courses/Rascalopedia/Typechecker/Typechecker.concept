@@ -1,6 +1,6 @@
 Name: Typechecker
 
-Synopsis: Checking the type rules for a source language.
+Synopsis: Checks the type rules for a source language.
 
 Syntax:
 
