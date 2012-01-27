@@ -206,7 +206,7 @@ public class Cases  {
 			Expression pattern = c.getPatternWithAction().getPattern();
 			org.rascalmpl.ast.Expression name;
 			if (pattern.isVariableBecomes()) {
-				name = pattern.getArgument().getPattern();
+				name = pattern.getPattern().getExpression();
 			}
 			else {
 				name = pattern.getExpression();
