@@ -72,6 +72,11 @@ public class Cases  {
 
 		org.rascalmpl.ast.Expression pattern = d.getPatternWithAction()
 				.getPattern();
+		
+		if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
+			pattern = pattern.getPattern();
+		}
+		
 		if (pattern._getType() != null
 				&& pattern._getType() instanceof NonTerminalType) {
 			return true;
@@ -87,7 +92,7 @@ public class Cases  {
 		}
 		org.rascalmpl.ast.Expression pattern = c.getPatternWithAction()
 				.getPattern();
-		if (pattern.isVariableBecomes()) {
+		if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
 			pattern = pattern.getPattern();
 		}
 		
@@ -129,6 +134,10 @@ public class Cases  {
 		
 		void add(Case c) {
 			Expression pattern = c.getPatternWithAction().getPattern();
+			if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
+				pattern = pattern.getPattern();
+			}
+
 			IConstructor key = ((Tree.Appl) pattern).getProduction();
 			List<DefaultBlock> same = table.get(key);
 			if (same == null) {
@@ -205,7 +214,7 @@ public class Cases  {
 		void add(Case c) {
 			Expression pattern = c.getPatternWithAction().getPattern();
 			org.rascalmpl.ast.Expression name;
-			if (pattern.isVariableBecomes()) {
+			if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
 				name = pattern.getPattern().getExpression();
 			}
 			else {
