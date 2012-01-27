@@ -88,7 +88,7 @@ public class Cases  {
 		org.rascalmpl.ast.Expression pattern = c.getPatternWithAction()
 				.getPattern();
 		if (pattern.isVariableBecomes()) {
-			pattern = pattern.getArgument();
+			pattern = pattern.getPattern();
 		}
 		
 		if (pattern.isCallOrTree()) {
@@ -206,7 +206,7 @@ public class Cases  {
 			Expression pattern = c.getPatternWithAction().getPattern();
 			org.rascalmpl.ast.Expression name;
 			if (pattern.isVariableBecomes()) {
-				name = pattern.getArgument().getExpression();
+				name = pattern.getArgument().getPattern();
 			}
 			else {
 				name = pattern.getExpression();
