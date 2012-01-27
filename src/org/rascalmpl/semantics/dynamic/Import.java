@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
+import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 	
@@ -35,9 +36,14 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		
 		@Override
 		public Result<IValue> interpret(Evaluator eval) {
-			String name = eval.getUnescapedModuleName(this);
-			eval.getCurrentModuleEnvironment().addExtend(name);
+			String name = Names.fullName(this.getModule().getName());
+//			eval.getCurrentModuleEnvironment().addExtend(name);
 			eval.extendCurrentModule(this, name);
+			
+			GlobalEnvironment heap = eval.getHeap();
+			if (heap.getModule(name).isDeprecated()) {
+				eval.getStdErr().println(getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			}
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 		
@@ -45,8 +51,8 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
-			String name = eval.getUnescapedModuleName(this);
-				eval.getCurrentModuleEnvironment().addExtend(name);
+			String name = Names.fullName(this.getModule().getName());
+//				eval.getCurrentModuleEnvironment().addExtend(name);
 
 			ModuleEnvironment env = eval.getHeap().getModule(name);
 			if (env != null && env.isSyntaxDefined()) {
@@ -71,7 +77,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
-			String name = eval.getUnescapedModuleName(this);
+			String name = Names.fullName(this.getModule().getName());
 
 			GlobalEnvironment heap = eval.__getHeap();
 			if (!heap.existsModule(name)) {
@@ -105,7 +111,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			// TODO support for full complexity of import declarations
-			String name = __eval.getUnescapedModuleName(this);
+			String name = Names.fullName(this.getModule().getName());
 			GlobalEnvironment heap = __eval.__getHeap();
 			if (!heap.existsModule(name)) {
 				// deal with a fresh module that needs initialization
@@ -126,6 +132,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				__eval.addImportToCurrentModule(this, name);
 			}
 
+			if (heap.getModule(name).isDeprecated()) {
+				__eval.getStdErr().println(getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			}
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}

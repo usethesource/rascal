@@ -574,7 +574,7 @@ public class TypeReifier {
 			}
 
 			private IValue visitNonTerminalType(NonTerminalType externalType) {
-				IConstructor gr = ctx.getEvaluator().getGrammar(ctx.getEvaluator().getMonitor(), URI.create("rascal://" + ctx.getCurrentEnvt().getRoot().getName()));
+				IConstructor gr = ctx.getEvaluator().getGrammar(ctx.getCurrentEnvt());
 				IMap rules = (IMap) gr.get("rules");
 				for (IValue sym : rules) {
 					definitions.put((IConstructor) sym, (IConstructor) rules.get(sym));

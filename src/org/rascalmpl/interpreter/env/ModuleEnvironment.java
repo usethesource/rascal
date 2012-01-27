@@ -70,6 +70,7 @@ public class ModuleEnvironment extends Environment {
 	private boolean syntaxDefined;
 	private boolean bootstrap;
 	private String cachedParser;
+	private String deprecated;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -94,6 +95,8 @@ public class ModuleEnvironment extends Environment {
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
+		this.extended = new HashSet<String>();
+		this.deprecated = null;
 	}
 	
 	@Override
@@ -776,5 +779,21 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return result;
+	}
+
+	public void removeExtend(String name) {
+		extended.remove(name);
+	}
+
+	public void setDeprecatedMessage(String deprecatedMessage) {
+		this.deprecated = deprecatedMessage;
+	}
+	
+	public boolean isDeprecated() {
+		return deprecated != null;
+	}
+	
+	public String getDeprecatedMessage() {
+		return deprecated;
 	}
 }

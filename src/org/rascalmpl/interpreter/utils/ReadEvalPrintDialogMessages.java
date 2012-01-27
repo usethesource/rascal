@@ -3,6 +3,7 @@ package org.rascalmpl.interpreter.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -53,33 +54,54 @@ public class ReadEvalPrintDialogMessages {
 	}
 
 	public static String parseErrorMessage(String command, String scheme, ParseError pe) {
-		String content = "";
+		StringBuilder content = new StringBuilder();
 		if (pe.getLocation().getScheme().equals(scheme)) {
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
 
-			if (pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn()) { 
-				content = "";
-			} 
-			else {
-				content = "";
+			if (!(pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn())) { 
 				int i = 0;
 				for ( ; i < pe.getEndColumn() + PROMPT.length(); i++) {
-					content += " ";
+					content.append(' ');
 				}
-				content += "^ ";
-				content += "parse error here";
+				content.append('^');
+				content.append(' ');
+				content.append("Parse error here");
 				if (i > 80) {
-					content += "\nparse error at column " + pe.getEndColumn();
+					content.append("\nParse error at column ");
+					content.append(pe.getEndColumn());
 				}
 			}
 		}
 		else {
-			content = "parse error:" + pe.getLocation() + " at line " + pe.getBeginLine() + ", column" + pe.getBeginColumn() + "\n";
+			content.append('|');
+			content.append(pe.getLocation().toString());
+			content.append('|');
+			content.append('(');
+			content.append(pe.getOffset());
+			content.append(',');
+			content.append(pe.getLength());
+			content.append(',');
+			content.append('<');
+			content.append(pe.getBeginLine());
+			content.append(',');
+			content.append(pe.getBeginColumn());
+			content.append('>');
+			content.append(',');
+			content.append('<');
+			content.append(pe.getEndLine());
+			content.append(',');
+			content.append(pe.getEndColumn());
+			content.append('>');
+			content.append(')');
+			content.append(':');
+			content.append(' ');
+			content.append("Parse error");
+			content.append('\n');
 		}
 		
-		return content;
+		return content.toString();
 	}
 
 	public static String interruptedExceptionMessage(InterruptException i) {
@@ -89,14 +111,33 @@ public class ReadEvalPrintDialogMessages {
 	}
 
 	public static String ambiguousMessage(Ambiguous e) {
-		String content;
-		content = e.getMessage();
-		return content;
+		StringBuilder content = new StringBuilder();
+		content.append(e.getLocation());
+		content.append(':');
+		content.append(' ');
+		content.append(e.getMessage());
+		content.append('\t');
+		IConstructor tree = e.getTree();
+		if (tree != null) {
+			content.append("diagnose using: ");
+			content.append(getValueString(e.getTree()));
+		}
+		content.append('\n');
+		return content.toString();
+	}
+	
+	private static String getValueString(IConstructor tree) {
+		String val = tree.toString();
+		val = val.replaceAll("\\\\", Matcher.quoteReplacement("\\\\"));
+		val = val.replaceAll("\"", Matcher.quoteReplacement("\\\""));
+		val = val.replaceAll("<", Matcher.quoteReplacement("\\<"));
+		val = val.replaceAll(">", Matcher.quoteReplacement("\\>"));
+		return "\"" + val + "\"";
 	}
 
 	public static String throwableMessage(Throwable e, String rascalTrace) {
 		String content;
-		content = "internal exception: " + e.toString();
+		content = "Internal exception: " + e.toString();
 		content += rascalTrace;
 		ByteArrayOutputStream trace = new ByteArrayOutputStream();
 		e.printStackTrace(new PrintStream(trace));
@@ -106,15 +147,15 @@ public class ReadEvalPrintDialogMessages {
 
 	public static String throwMessage(Throw e) {
 		String content;
-		content = "exception:" + e.getException().toString() + "\n";
+		content = e.getLocation() + ": " + e.getException().toString() + '\n';
 		String trace = e.getTrace();
 		if (trace != null) {
-			content += "stacktrace:" + e.getLocation() + "\n" + trace;
+			content += trace + '\n';
 		}
 		return content;
 	}
 
 	public static String staticErrorMessage(StaticError e) {
-		return e.getMessage();
+		return e.getLocation() + ": " + e.getMessage() + "\n";
 	}
 }

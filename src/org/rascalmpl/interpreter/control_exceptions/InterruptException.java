@@ -11,16 +11,24 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 public class InterruptException extends ControlException {
 	private static final long serialVersionUID = -6244185056015873062L;
 	private final String stackTrace;
+	private final ISourceLocation loc;
 	
-	public InterruptException(String stackTrace) {
+	public InterruptException(String stackTrace, ISourceLocation loc) {
 		this.stackTrace = stackTrace;
+		this.loc = loc;
 	}
 
 	public String getRascalStackTrace() {
 		return stackTrace;
+	}
+	
+	public ISourceLocation getLocation() {
+		return loc;
 	}
 	
 	@Override
