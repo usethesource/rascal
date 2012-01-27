@@ -137,7 +137,7 @@ public class ReadEvalPrintDialogMessages {
 
 	public static String throwableMessage(Throwable e, String rascalTrace) {
 		String content;
-		content = "Internal exception: " + e.toString();
+		content = e.toString() + " (internal error)";
 		content += rascalTrace;
 		ByteArrayOutputStream trace = new ByteArrayOutputStream();
 		e.printStackTrace(new PrintStream(trace));
