@@ -16,9 +16,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -121,12 +121,12 @@ public abstract class Assignable extends AbstractAST {
   
     @Override
     public Result<IValue> interpret(Evaluator __eval) {
-      throw new Ambiguous(node);
+      throw new Ambiguous(src);
     }
       
     @Override
     public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-      throw new Ambiguous(node);
+      throw new Ambiguous(src);
     }
     
     public java.util.List<org.rascalmpl.ast.Assignable> getAlternatives() {
