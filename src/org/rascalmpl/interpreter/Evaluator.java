@@ -46,7 +46,6 @@ import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.EvalCommand;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
@@ -601,6 +600,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		}
 	}
 
+	public IConstructor getGrammar(Environment env) {
+		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
+		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
+	}
+	
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -1182,10 +1186,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
-	public String getUnescapedModuleName(Import x) {
-		return Names.fullName(x.getModule().getName());
-	}
-
 	public Module preParseModule(URI location, ISourceLocation cause) {
 		char[] data;
 		try{
@@ -1283,8 +1283,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		String name = getModuleName(preModule);
 		
 		if(isDeprecated(preModule)){
-			// TODO Error location should point to import statement and not to deprecated module
-			getStdErr().println("WARNING: module " + name + " is deprecated -- " + getDeprecatedMessage(preModule)); 
+			env.setDeprecatedMessage(getDeprecatedMessage(preModule));
 		}
 		
 		if(env == null){
@@ -1424,8 +1423,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return new ASTBuilder();
 	}
 	
-	public Module extendCurrentModule(AbstractAST x, String name) {
+	public void extendCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
+		
+		if (env.getExtends().contains(name)) {
+			getStdErr().println("Extending again?? " + name);
+			return;
+		}
+		
+		
 		env.addExtend(name);
 		
 		try {
@@ -1438,20 +1444,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				heap.setModuleURI(name, module.getLocation().getURI());
 				env.setInitialized(false);
 				if (__getInterrupt()) {
-					throw new InterruptException("while extending " + name);
+					throw new InterruptException("while extending " + name, getCurrentAST().getLocation());
 				}
 				((org.rascalmpl.semantics.dynamic.Module.Default)module).interpretInCurrentEnv(this);
-				return module;
 			}
-		} catch (StaticError e) {
-			throw e;
-		} catch (Throw e) {
-			throw e;
+			
+			return;
 		} catch (IOException e) {
+			env.removeExtend(name);
 			throw new ModuleLoadError(name, e.getMessage(), x);
+		} catch (RuntimeException e) {
+			env.removeExtend(name);
+			throw e;
 		}
-
-		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 	
 	public Module evalRascalModule(AbstractAST x, String name) {
@@ -1517,7 +1522,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				pushEnv();
 				
 				if (interrupt) {
-					throw new InterruptException(getStackTrace());
+					throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
 				}
 
 				if (mp.next()) {
@@ -1554,7 +1559,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 			while (mp.hasNext()) {
 				if (interrupt)
-					throw new InterruptException(getStackTrace());
+					throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
 				if (mp.next()) {
 					int size = conditions.size();
 					
@@ -1576,7 +1581,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 						while (i >= 0 && i < size) {
 
 							if (__getInterrupt()) {
-								throw new InterruptException(getStackTrace());
+								throw new InterruptException(getStackTrace(), getCurrentAST().getLocation());
 							}
 							if (gens[i].hasNext() && gens[i].next()) {
 								if (i == size - 1) {

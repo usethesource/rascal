@@ -264,7 +264,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					gen = generator.getBacktracker(__eval);
 					gen.init();
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (!(gen.hasNext() && gen.next())) {
 						IValue value = __eval.__getAccumulators().pop().done();
@@ -394,7 +394,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				while (i >= 0 && i < size) {
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
@@ -528,7 +528,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				while (i >= 0 && i < size) {
 
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
@@ -600,7 +600,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				while (i >= 0 && i < size) {
 
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
@@ -774,7 +774,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					change = false;
 					iterations++;
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					bodyResult = body.interpret(__eval);
 					for (int i = 0; i < size; i++) {
@@ -970,7 +970,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				int i = 0;
 				try {
 					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace());
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					
 					gens[0] = generators.get(0).getBacktracker(__eval);
@@ -982,7 +982,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						__eval.pushEnv();
 
 						if (__eval.__getInterrupt()) {
-							throw new InterruptException(__eval.getStackTrace());
+							throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 						}
 						if (gens[i].hasNext() && gens[i].next()) {
 							if (i == size - 1) {

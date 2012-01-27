@@ -573,7 +573,7 @@ public class SetPattern extends AbstractMatchingResult {
 		main: 
 		do {
 			if (ctx.isInterrupted()) {
-				throw new InterruptException(ctx.getStackTrace());
+				throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
 			}
 			
 			if(debug)System.err.println("\n=== MAIN: Pattern = " + this +  ":= " + subject + "\ncurrentVar[" + currentVar + "]=" + varName[currentVar]);

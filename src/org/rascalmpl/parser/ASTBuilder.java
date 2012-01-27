@@ -63,11 +63,11 @@ public class ASTBuilder {
 	// this tree should never appear in "nature", so we can use it as a dummy
     private static Expression dummyEmptyTree;
     
-    private PointerKeyedHashMap<IConstructor, AbstractAST> ambCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
-    private PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
-    private PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
+    private final PointerKeyedHashMap<IConstructor, AbstractAST> ambCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
+    private final PointerKeyedHashMap<IConstructor, AbstractAST> sortCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
+    private final PointerKeyedHashMap<IConstructor, AbstractAST> lexCache = new PointerKeyedHashMap<IConstructor, AbstractAST>();
     
-    private PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
+    private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
     private ISourceLocation lastSuccess = null;
     
     private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();

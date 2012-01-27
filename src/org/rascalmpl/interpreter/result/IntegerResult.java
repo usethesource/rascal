@@ -267,7 +267,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 			do {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
-				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace());
+				if (ctx.isInterrupted()) throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
 			} while (iFrom.lessEqual(iTo).getValue());
 		} 
 		else if (iFrom.greaterEqual(iTo).getValue() && diff.less(zero).getValue()) {

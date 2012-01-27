@@ -213,12 +213,12 @@ public str ambiguityClass(str pkg, str name) {
          '
          '  @Override
          '  public Result\<IValue\> interpret(Evaluator __eval) {
-         '    throw new Ambiguous(node);
+         '    throw new Ambiguous(src);
          '  }
          '    
          '  @Override
          '  public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env) {
-         '    throw new Ambiguous(node);
+         '    throw new Ambiguous(src);
          '  }
          '  
          '  public java.util.List\<<pkg>.<name>\> getAlternatives() {

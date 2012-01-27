@@ -392,4 +392,18 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public Evaluator getEval() {
 		return eval;
 	}
+	
+	@Override
+	public int hashCode() {
+		return 7 + declarationEnvironment.hashCode() * 17 + ast.hashCode() * 23;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.getClass() == getClass()) {
+			AbstractFunction other = (AbstractFunction) obj;
+			return other.declarationEnvironment == declarationEnvironment && other.ast.equals(ast);
+		}
+		return false;
+	}
 }

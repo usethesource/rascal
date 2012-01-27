@@ -88,7 +88,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 
 			while (i >= 0 && i < size) {
 				if (eval.__getInterrupt())
-					throw new InterruptException(eval.getStackTrace());
+					throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
 				if (gens[i].hasNext() && gens[i].next()) {
 					if (i == size - 1) {
 						w.append();

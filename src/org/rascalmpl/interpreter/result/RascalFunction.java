@@ -221,8 +221,8 @@ public class RascalFunction extends NamedFunction {
 			// non-linear use of variables between formal parameters of a function...
 			
 			while (i >= 0 && i < size) {
-				if (ctx.isInterrupted()) {
-					throw new InterruptException(ctx.getStackTrace());
+				if (ctx.isInterrupted()) { 
+					throw new InterruptException(ctx.getStackTrace(), ctx.getCurrentAST().getLocation());
 				}
 				if (matchers[i].hasNext() && matchers[i].next()) {
 					if (i == size - 1) {

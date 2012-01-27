@@ -11,25 +11,33 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
-import java.util.regex.Matcher;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public final class Ambiguous extends AssertionError {
 	private static final long serialVersionUID = -8740312542969306482L;
+	private final ISourceLocation loc;
+	private final IConstructor tree;
 
 	public Ambiguous(IConstructor tree) {
-		super("Unexpected ambiguity at " + tree.getAnnotation("loc") + ": " + getValueString(tree));
-		printStackTrace();
+		super("Ambiguous code (internal error), " + TreeAdapter.yield(tree, 100));
+		this.loc = (ISourceLocation) tree.getAnnotation("loc");
+		this.tree = tree;
+	}
+	
+	public Ambiguous(ISourceLocation loc) {
+		super("Ambiguous code (internal error)");
+		this.loc = loc;
+		this.tree = null;
 	}
 
-	private static String getValueString(IConstructor tree) {
-		String val = tree.toString();
-		val = val.replaceAll("\\\\", Matcher.quoteReplacement("\\\\"));
-		val = val.replaceAll("\"", Matcher.quoteReplacement("\\\""));
-		val = val.replaceAll("<", Matcher.quoteReplacement("\\<"));
-		val = val.replaceAll(">", Matcher.quoteReplacement("\\>"));
-		return "\"" + val + "\"";
+	public ISourceLocation getLocation() {
+		return loc;
+	}
+	
+	public IConstructor getTree() {
+		return tree;
 	}
 }
