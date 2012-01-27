@@ -83,6 +83,8 @@ import org.rascalmpl.test.library.ValueIOTests;
 	ValueIOTests.class,
 	VisitTests.class,
 	
+	PreBootstrapTests.class,
+	
 	AllBenchmarks.class,
 	AllDemoTests.class,
 	
