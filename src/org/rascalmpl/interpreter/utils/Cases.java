@@ -87,6 +87,10 @@ public class Cases  {
 		}
 		org.rascalmpl.ast.Expression pattern = c.getPatternWithAction()
 				.getPattern();
+		if (pattern.isVariableBecomes()) {
+			pattern = pattern.getArgument();
+		}
+		
 		if (pattern.isCallOrTree()) {
 			if (pattern.getExpression().isQualifiedName()) {
 				return true;
@@ -199,15 +203,20 @@ public class Cases  {
 		}
 		
 		void add(Case c) {
-			org.rascalmpl.ast.Expression name = c.getPatternWithAction()
-					.getPattern().getExpression();
+			Expression pattern = c.getPatternWithAction().getPattern();
+			org.rascalmpl.ast.Expression name;
+			if (pattern.isVariableBecomes()) {
+				name = pattern.getArgument().getExpression();
+			}
+			else {
+				name = pattern.getExpression();
+			}
 			String key = null;
 
 			if (name.isQualifiedName()) {
 				key = Names.name(Names.lastName(name.getQualifiedName()));
 			} else if (name.isLiteral()) {
-				key = ((StringConstant.Lexical) name.getLiteral()
-						.getStringLiteral().getConstant()).getString();
+				key = ((StringConstant.Lexical) name.getLiteral().getStringLiteral().getConstant()).getString();
 			}
 
 			List<DefaultBlock> same = table.get(key);
