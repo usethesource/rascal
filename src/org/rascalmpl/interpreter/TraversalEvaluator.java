@@ -61,7 +61,7 @@ public class TraversalEvaluator {
 		this.eval = eval;
 	}
 	
-	public class CaseBlockList {
+	public static class CaseBlockList {
 		private java.util.List<CaseBlock> cases;
 		private boolean allConcretePatternCases = true;
 		private boolean hasRegexp = false;
