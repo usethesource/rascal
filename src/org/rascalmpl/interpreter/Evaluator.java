@@ -21,15 +21,16 @@ package org.rascalmpl.interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.WeakHashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -154,8 +155,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private final URIResolverRegistry resolverRegistry;
 
-	private HashSet<WeakReference<IConstructorDeclared>> constructorDeclaredListeners;
-
+	private Map<IConstructorDeclared,Object> constructorDeclaredListeners;
+	private static final Object dummy = new Object();
+	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
 	}
@@ -176,8 +178,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.stderr = stderr;
 		this.stdout = stdout;
-		this.constructorDeclaredListeners = new HashSet<WeakReference<IConstructorDeclared>>();
-
+		this.constructorDeclaredListeners = new WeakHashMap<IConstructorDeclared,Object>();
+		
 		updateProperties();
 
 		if (stderr == null) {
@@ -276,14 +278,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 	
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
-		constructorDeclaredListeners.add(new WeakReference<IConstructorDeclared>(iml));
+		constructorDeclaredListeners.put(iml,dummy);
 	}
 	
 	public void notifyConstructorDeclaredListeners() {
-		for (WeakReference<IConstructorDeclared> iml : constructorDeclaredListeners){
-			IConstructorDeclared list = iml.get();
-			if(list != null){
-				list.handleConstructorDeclaredEvent();
+		for (IConstructorDeclared iml : constructorDeclaredListeners.keySet()) {
+			if (iml != null) {
+				iml.handleConstructorDeclaredEvent();
 			}
 		}
 		constructorDeclaredListeners.clear();
