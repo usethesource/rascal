@@ -28,3 +28,21 @@ Pitfalls:
 
 Questions:
 
+QType:
+prep: S = {<1,2>, <2,3>};
+make: A = set[tuple[int[0,5],int[0,5]],1,2]
+expr: B = <A> + S
+test: <B>*
+
+QValue:
+prep: S = {<1,2>, <2,3>, <3,4>};
+make: A = set[tuple[int[0,5],int[0,5]],1,2]
+expr: B = <A> + S
+expr: H =  <B>*
+hint: <H>
+test: <B>*
+
+
+
+
+

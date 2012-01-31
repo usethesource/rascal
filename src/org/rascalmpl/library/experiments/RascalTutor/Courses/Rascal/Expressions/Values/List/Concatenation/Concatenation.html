@@ -115,13 +115,13 @@ list[int]: [1]
 
 <form method="GET" action="validate" class="answerForm">
 <input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_2" value="2">
-<label for="Rascal/Expressions/Values/List/Concatenation_1_2">Smaller than the sum of the number of elements in both lists.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_0" value="0">
-<label for="Rascal/Expressions/Values/List/Concatenation_1_0">Greater than or equal the sum of the number of elements in both lists.</label><br/>
+<label for="Rascal/Expressions/Values/List/Concatenation_1_2">Greater than the sum of the number of elements in both lists.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_3" value="3">
-<label for="Rascal/Expressions/Values/List/Concatenation_1_3">Equal to the sum of the elements in both lists.</label><br/>
+<label for="Rascal/Expressions/Values/List/Concatenation_1_3">Smaller than the sum of the number of elements in both lists.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_List_Concatenation_1:answer" id="Rascal/Expressions/Values/List/Concatenation_1_1" value="1">
+<label for="Rascal/Expressions/Values/List/Concatenation_1_1">Equal to the sum of the number of elements in both lists.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -145,9 +145,9 @@ list[int]: [1]
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:A" value="[9, -13, 15, -7]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:B" value="[-19, 19]">
-The type of <tt>[9, -13, 15, -7] + [-19, 19]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:A" value="[-2, 12, -3, 11]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_2:B" value="[0, -3]">
+The type of <tt>[-2, 12, -3, 11] + [0, -3]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -171,9 +171,9 @@ The type of <tt>[9, -13, 15, -7] + [-19, 19]</tt> is <input type="text" size="30
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:A" value="[-6.67126402093400800, -4.59243261037126000, 19.3936616079923600, 15.16730071489920400, 17.64996717928457600]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:B" value="[-7.482561392249378400, -5.28096965157887600, 8.20698977901823600, -19.94453278378262695200]">
-<pre class="prequestion">[-6.67126402093400800, -4.59243261037126000, 19.3936616079923600, 15.16730071489920400, 17.64996717928457600] + [-7.482561392249378400, -5.28096965157887600, 8.20698977901823600, -19.94453278378262695200] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:A" value="[-5, 0, 7]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:B" value="[17, 9, 5, 12]">
+<pre class="prequestion">[-5, 0, 7] + [17, 9, 5, 12] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_3:another" value="yes">
@@ -196,37 +196,12 @@ The type of <tt>[9, -13, 15, -7] + [-19, 19]</tt> is <input type="text" size="30
 <span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:A" value="[5, -15, 17, 7]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:B" value="[2, -15, -7]">
-<pre class="prequestion">[5, -15, 17, 7] + <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_4:answer" class="answerText"> == [5,-15,17,7,2,-15,-7]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:A" value="[-17, 1, -19, 3, 0]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:B" value="[14, 16, -17, 17]">
+<pre class="prequestion">[-17, 1, -19, 3, 0] + <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_4:answer" class="answerText"> == [-17,1,-19,3,0,14,16,-17,17]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_4:another" value="yes">
-
-<input type="submit" value="I want another question" class="anotherSubmit">
-</form><br/>
-
-</div>
- 
-<div id="Rascal_Expressions_Values_List_Concatenation_5" class="question">
-<b>Question [5]. </b>
-<span id="good_Rascal_Expressions_Values_List_Concatenation_5" class="answerStatus">
-<img height="25" width="25" src="/Courses/images/good.png"/>
-</span>
-
-<span id="bad_Rascal_Expressions_Values_List_Concatenation_5" class="answerStatus">
-<img height="25" width="25" src="/Courses/images/bad.png"/>
-</span>
-
-<span id="answerFeedback_Rascal_Expressions_Values_List_Concatenation_5" class="answerFeedback"></span>
- <br/>
-
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_5:A" value="{15, -20, -5, 15}">
-<input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_5:B" value="{18}">
-<pre class="prequestion">{15, -20, -5, 15} + {18} == <input type="text" size="30" name="Rascal_Expressions_Values_List_Concatenation_5:answer" class="answerText"></pre>
-<input type="submit" value="Give answer" class="answerSubmit">
-</form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Concatenation_5:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>

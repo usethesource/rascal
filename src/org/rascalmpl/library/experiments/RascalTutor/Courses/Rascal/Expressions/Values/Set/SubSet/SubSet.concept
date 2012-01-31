@@ -28,5 +28,20 @@ Benefits:
 Pitfalls:
 
 Questions:
+
 QType: <A:set[arb[0,int,str,real]]> <= <B:same[A]>
+
+QValue:
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+expr: B = <A> + <DIFF>
+expr: C = <A> <= <B>
+hint: <C>
+test: <A> <= <B> == <?>
+
+QValue:
+make: A = set[arb[int,str,bool]]
+expr: C = <A> <= <A>
+hint: <C>
+test: <A> <= <A>
 

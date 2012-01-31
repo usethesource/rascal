@@ -28,9 +28,36 @@ Benefits:
 Pitfalls:
 
 Questions:
-QType: <A:list[arb[int,str]]> * <B:same[A]>
+QChoice: When you compute the product of two lists, the number of elements in the result is always:
+b: Smaller than or equal to the number of elements in the first list.
+b: Smaller than or equal to the number of elements in the second list.
+g: Equal to the product of the number of elements in both lists.
+b: Equal to the sum of the number of elements in both lists.
+b: Equal to the number of elements in the largest list.
 
-QType: <A:list[arb]> * <B:same[A]>
 
-QValue: <A:list[arb[0,int,str,num,real]]> * <B:same[A]>
+QType: <A:list[arb[int,str,bool]]> * <B:same[A]>
+
+QValue: 
+make: A = list[int[0,50]]
+make: B = int[0,50]
+expr: C = <A> * [<B>]
+hint: <C>
+test:  <A> * [<B>] == <?>
+
+QValue: 
+make: A = list[int[0,50]]
+make: B = int[0,50]
+make: C = int[0,50]
+expr: D = <A> * [<B>, <C>]
+hint: <D>
+test:  <A> * [<B>, <C>] == <?>
+
+QValue: 
+prep: import List;
+make: A = list[int[0,50]]
+make: B = same[A]
+expr: C = size(<A> * <B>)
+hint: <C>
+test:  size(<A> * <B>) == <?>
 

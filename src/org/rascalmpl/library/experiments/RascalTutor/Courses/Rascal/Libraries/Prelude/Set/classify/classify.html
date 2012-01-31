@@ -71,7 +71,7 @@ ok
 </pre>  Create a map from animals to number of legs.
 <pre class="screen"><span class="prompt">rascal></span>legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
 map[str, int]: ("millepede":1000,"human":2,"dog":4,"bird":2,"cat":4,"spider":8,"crab":8,"snake":0)
-</pre>  Define function <code>nLegs</code> that returns the number of legs fro each animal (or <code>0</code> when the animal is unknown):
+</pre>  Define function <code>nLegs</code> that returns the number of legs for each animal (or <code>0</code> when the animal is unknown):
 <pre class="screen"><span class="prompt">rascal></span>int nLegs(str animal){
 <span class="continuation">>>>>>>></span>    return legs[animal] ? 0;
 <span class="continuation">>>>>>>></span>}
@@ -91,6 +91,45 @@ map[int, set[str]]: (
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Libraries_Prelude_Set_classify_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Libraries_Prelude_Set_classify_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Set_classify_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Set_classify_1" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm">Given <pre class="prequestion">import Set;
+color = (&quot;apple&quot; : &quot;green&quot;, &quot;banana&quot; : &quot;yellow&quot;, &quot;cucumber&quot; : &quot;green&quot;, &quot;berry&quot; : &quot;red&quot;);
+str getColor(str fruit) = color[fruit] ? &quot;unknown&quot;;
+</pre><pre class="prequestion">classify({&quot;apple&quot;, &quot;berry&quot;, &quot;cucumber&quot;, &quot;banana&quot;}, getColor) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_classify_1:answer" class="answerText"></pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_classify_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/classify&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/classify&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

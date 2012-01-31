@@ -30,3 +30,23 @@ We use the letter `o` as operator and this may conflict other defined names.
 
 Questions:
 
+QType:
+prep: import List;
+make: C = list[int,3,3]
+make: A = list[int,3,3]
+make: B = list[int,3,3]
+expr: S1 = toSet(zip(<A>,<C>))
+expr: S2 = toSet(zip(<C>, <B>))
+test: <S1> o <S2>
+
+QValue:
+prep: import List;
+make: C = list[int,3,3]
+make: A = list[int,3,3]
+make: B = list[int,3,3]
+expr: S1 = toSet(zip(<A>,<C>))
+expr: S2 = toSet(zip(<C>, <B>))
+expr: H = <S1> o <S2>
+hint: <H>
+test: <S1> o <S2>
+

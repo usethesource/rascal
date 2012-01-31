@@ -28,4 +28,31 @@ Benefits:
 Pitfalls:
 
 Questions:
+QChoice: When you compute the intersection of two lists, the number of elements in the result is always:
+b: Greater than the number of elements in the first list.
+b: Greater than the number of elements in the second list.
+b: Greater than or equal to the sum of the number of elements in both lists.
+g: Smaller than or equal to the number of elements in the first list.
+b: Smaller than or equal to the number of elements in the second list.
+b: Equal to the sum of the number of elements in both lists.
+
+QType: <A:list[int[0,100],str]> & <B:same[A]>
+
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100],str]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = toList(<DIFF> + <A>)
+expr: B1 = toList(<B> + <DIFF>)
+expr: C =  <A1> & <B1>
+hint: <C>
+test: <A1> & <B1> == <?>
+
+QValue:
+make: A = list[int[0,10],str]
+make: B = same[A]
+expr: C =  <A> & <B>
+hint: <C>
+test: <A> & <B> == <?>
 

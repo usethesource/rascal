@@ -76,23 +76,61 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;50,[10,20,30,40]>
+<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;50,[10,20,30,40]>
+<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;30,[10,20,40,50]>
-<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;10,[20,30,40,50]>
-<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;40,[10,20,30,50]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]>
+tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]>
+tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
 <span class="prompt">rascal></span>takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
+tuple[str,list[str]]: &lt;"owl",["zebra","elephant","snake"]>
 </pre>
 </div>
 
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Libraries_Prelude_List_takeOneFrom_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Libraries_Prelude_List_takeOneFrom_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_List_takeOneFrom_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_List_takeOneFrom_1" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_takeOneFrom_1:L" value="[-10, 9, 13, -18, 4]">
+The type of <tt>takeOneFrom([-10, 9, 13, -18, 4])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_takeOneFrom_1:answer" class="answerText"><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_takeOneFrom_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/takeOneFrom&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/takeOneFrom&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

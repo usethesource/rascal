@@ -28,6 +28,24 @@ Benefits:
 
 Pitfalls:
 
+
 Questions:
-QType: <A:set[arb]> <= <B:same[A]>
+QType: <A:list[arb]> <= <B:same[A]>
+
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+expr: A1 = toList(<A>)
+expr: B = toList(<A> + <DIFF>)
+expr: C = <A1> <= <B>
+hint: <C>
+test: <A1> <= <B> == <?>
+
+QValue:
+make: A = list[arb[int,str,bool]]
+expr: C = <A> <= <A>
+hint: <C>
+test: <A> <= <A>
+
 

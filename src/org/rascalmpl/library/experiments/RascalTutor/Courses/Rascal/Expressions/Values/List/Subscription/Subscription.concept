@@ -34,3 +34,22 @@ Pitfalls:
 
 Questions:
 
+QChoice: For a list of length $N$, legal index value are:
+g: The integers 0, 1, ..., N - 1.
+b: Positive integers.
+b: The integers 1, 2, ..., N.
+b: Even integers.
+b: Odd integers.
+b: The integers, 0, 2, ..., N.
+
+QValue:
+prep: import List;
+make: L = list[arb[bool,int,str],4,6]
+make: I = int[0,3]
+expr: C = <L>[<I>]
+hint: <C>
+list:
+L = <L>;
+test: L[<I>] == <?>
+
+

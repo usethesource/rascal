@@ -32,3 +32,19 @@ Pitfalls:
 Questions:
 QType: <A:list[arb]> >= <B:same[A]>
 
+
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: B = same[DIFF]
+expr: A = toList(<B> + <DIFF>)
+expr: B1 = toList(<B>)
+expr: C =  <A> >= <B1>
+hint: <C>
+test: <A> >= <B1> == <?>
+
+QValue:
+make: A = list[arb[int,str,bool]]
+expr: C = <A> >= <A>
+hint: <C>
+test: <A> >= <A>

@@ -57,10 +57,173 @@
 <span class="sectionHead">Details</span> <a href="/Courses/Rascal/Libraries/Prelude/Relation/carrier/carrier.html">carrier</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/carrierR/carrierR.html">carrierR</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/carrierX/carrierX.html">carrierX</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/complement/complement.html">complement</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/distribution/distribution.html">distribution</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/domain/domain.html">domain</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/domainR/domainR.html">domainR</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/domainX/domainX.html">domainX</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/groupDomainByRange/groupDomainByRange.html">groupDomainByRange</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/ident/ident.html">ident</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/invert/invert.html">invert</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">range</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeR/rangeR.html">rangeR</a> &#032 <a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeX/rangeX.html">rangeX</a> &#032 
 </div>
 
+<div id="Description">
+<span class="sectionHead">Description</span>  Operations on Relations are describing in <a href="/Courses/Rascal/Expressions/Values/Relation/Relation.html">Values/Relation</a>.
+ All operations on <a href="/Courses/Rascal/Expressions/Values/Set/Set.html">Values/Set</a> are also applicable to relations.
+ <br/>
+<br/>
+
+ The following functions are provided on relations:
+ <ul><li><a href="/Courses/Rascal/Libraries/Prelude/Relation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a relation.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/carrierR/carrierR.html">carrierR</a>: A relation restricted to certain element values in tuples.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/carrierX/carrierX.html">carrierX</a>: A relation excluding tuples that contain certain element values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/complement/complement.html">complement</a>: Complement of a relation.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/distribution/distribution.html">distribution</a>: Compute a distribution: count how many times events are mapped to which bucket.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/domain/domain.html">domain</a>: Domain of a  relation: a set consisting of the first element of each tuple.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/domainR/domainR.html">domainR</a>: Relation restricted to certain domain elements.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/domainX/domainX.html">domainX</a>: Relation excluding certain domain values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/groupDomainByRange/groupDomainByRange.html">groupDomainByRange</a>: Make sets of elements in the domain that relate to the same element in the range.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/groupRangeByDomain/groupRangeByDomain.html">groupRangeByDomain</a>: Make sets of elements in the range that relate to the same element in the domain.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/ident/ident.html">ident</a>: The identity relation.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/invert/invert.html">invert</a>: Invert the tuples in a relation.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a relation.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeR/rangeR.html">rangeR</a>: Relation restricted to certain range values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeX/rangeX.html">rangeX</a>: Relation excluding certain range values.</li>
+</ul>
+</div>
+
   	                       
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Libraries_Prelude_Relation_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_1" class="answerFeedback"></span>
+ Fill in the missing function name.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_1:R" value="{&lt;-7, &quot;V&quot;&gt;, &lt;10, &quot;Countess Von Backwards&quot;&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_1:answer" class="answerText">({&lt;-7, &quot;V&quot;&gt;, &lt;10, &quot;Countess Von Backwards&quot;&gt;}) == {&lt;&quot;Countess Von Backwards&quot;,10&gt;,&lt;&quot;V&quot;,-7&gt;}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_Relation_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_2" class="answerFeedback"></span>
+ Fill in the missing function name.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_2:R" value="{&lt;&quot;Grover&quot;, -14&gt;, &lt;&quot;Lychee&quot;, -12&gt;, &lt;&quot;Slimey the Worm&quot;, 2&gt;, &lt;&quot;Y&quot;, -5&gt;, &lt;&quot;Lychee&quot;, 17&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_2:answer" class="answerText">({&lt;&quot;Grover&quot;, -14&gt;, &lt;&quot;Lychee&quot;, -12&gt;, &lt;&quot;Slimey the Worm&quot;, 2&gt;, &lt;&quot;Y&quot;, -5&gt;, &lt;&quot;Lychee&quot;, 17&gt;}) == {-5,-12,2,-14,17}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_2:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_Relation_3" class="question">
+<b>Question [3]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_3" class="answerFeedback"></span>
+ Fill in the missing function name.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_3:S" value="{11, 4, 16}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_3:answer" class="answerText">({11, 4, 16}) == {&lt;16,16&gt;,&lt;4,4&gt;,&lt;11,11&gt;}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_3:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_Relation_4" class="question">
+<b>Question [4]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_4" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_4" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_4" class="answerFeedback"></span>
+ Fill in the missing function name.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_4:R" value="{&lt;&quot;P&quot;, 14&gt;, &lt;&quot;Rosemary&quot;, -2&gt;, &lt;&quot;H&quot;, 3&gt;, &lt;&quot;F&quot;, 1&gt;, &lt;&quot;D&quot;, -19&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_4:answer" class="answerText">({&lt;&quot;P&quot;, 14&gt;, &lt;&quot;Rosemary&quot;, -2&gt;, &lt;&quot;H&quot;, 3&gt;, &lt;&quot;F&quot;, 1&gt;, &lt;&quot;D&quot;, -19&gt;}) == {&quot;Rosemary&quot;,&quot;H&quot;,&quot;F&quot;,&quot;D&quot;,&quot;P&quot;}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_4:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_Relation_5" class="question">
+<b>Question [5]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_5" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_5" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_5" class="answerFeedback"></span>
+ Fill in the missing function name.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_5:R" value="{&lt;&quot;Elmo&quot;, 19&gt;, &lt;&quot;Apple&quot;, -6&gt;, &lt;&quot;E-3PO&quot;, 6&gt;, &lt;&quot;Anakin Skywalker&quot;, 11&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_5:answer" class="answerText">({&lt;&quot;Elmo&quot;, 19&gt;, &lt;&quot;Apple&quot;, -6&gt;, &lt;&quot;E-3PO&quot;, 6&gt;, &lt;&quot;Anakin Skywalker&quot;, 11&gt;}) == {11,&quot;Apple&quot;,&quot;E-3PO&quot;,-6,&quot;Elmo&quot;,6,&quot;Anakin Skywalker&quot;,19}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_5:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

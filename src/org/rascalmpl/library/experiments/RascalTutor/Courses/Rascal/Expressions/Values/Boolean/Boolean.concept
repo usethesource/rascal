@@ -60,6 +60,13 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 * Pattern matches in cases of a [Switch].
 
 
+The following operators are provided for Boolean:
+<toc Rascal/Expressions/Values/Boolean 1>
+
+The following function are provided for Boolean:
+<toc Rascal/Libraries/Prelude/Boolean 1>
+
+
 Examples:
 Consider the following match of a list
 <listing>

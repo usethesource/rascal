@@ -22,6 +22,8 @@ Examples:
 <screen>
 {<1,2>, <10,20>} join {<2,3>};
 {<1,2>} join {3, 4};
+{<1,2>, <10,20>} join {<2,3>, <20,30>};
+
 </screen>
 
 Benefits:
@@ -29,6 +31,6 @@ Benefits:
 Pitfalls:
 
 Questions:
-//QType:  <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb[str,int]]>
-//QValue: <A:set[tuple[arb[int,str]]]> join <B:set[tuple[arb[str,int]]>
+QType:  <A:set[tuple[int,str]]> join <B:set[tuple[str,int]]>
+QValue: <A:set[tuple[int,str],2,2]> join <B:set[tuple[str,int],2,2]>
 

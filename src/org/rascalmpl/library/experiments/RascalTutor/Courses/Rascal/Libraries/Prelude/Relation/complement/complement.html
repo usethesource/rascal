@@ -66,10 +66,46 @@
 
 </div>
 
+<div id="Description">
+<span class="sectionHead">Description</span>  Given a relation <code>R</code> a new relation <code>U</code> can be constructed that contains
+ all possible tuples with element values that occur at corresponding tuple positions in <code>R</code>.
+ The function <code>complement</code> returns the complement of <code>R</code> relative to <code>U</code>, in other words: <code>U - R</code>.
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
+</pre>  Declare <code>R</code> and compute corresponding <code>U</code>:
+<pre class="screen"><span class="prompt">rascal></span>R = {<1,10>, <2, 20>, <3, 30>};
+rel[int, int]: {
+  &lt;2,20>,
+  &lt;1,10>,
+  &lt;3,30>
+}
+<span class="prompt">rascal></span>U = domain(R) * range(R);
+rel[int, int]: {
+  &lt;2,20>,
+  &lt;3,20>,
+  &lt;1,20>,
+  &lt;1,10>,
+  &lt;2,10>,
+  &lt;3,10>,
+  &lt;1,30>,
+  &lt;2,30>,
+  &lt;3,30>
+}
+</pre>  Here is the complement of <code>R</code> computed in two ways:
+<pre class="screen"><span class="prompt">rascal></span>U - R;
+rel[int, int]: {
+  &lt;3,20>,
+  &lt;1,20>,
+  &lt;2,10>,
+  &lt;3,10>,
+  &lt;1,30>,
+  &lt;2,30>
+}
 <span class="prompt">rascal></span>complement({<1,10>, <2, 20>, <3, 30>});
 rel[int, int]: {
   &lt;3,20>,
@@ -85,6 +121,68 @@ rel[int, int]: {
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Libraries_Prelude_Relation_complement_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_complement_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_complement_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_1" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:R" value="{&lt;&quot;Cinnamon&quot;, -20&gt;, &lt;&quot;Forgetful Jones&quot;, 16&gt;}">
+The type of <tt>complement({&lt;&quot;Cinnamon&quot;, -20&gt;, &lt;&quot;Forgetful Jones&quot;, 16&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_1:answer" class="answerText"><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_Relation_complement_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Rascal_Libraries_Prelude_Relation_complement_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_Relation_complement_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_2" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:R" value="{&lt;&quot;Apple&quot;, -14&gt;, &lt;&quot;Coriander&quot;, 5&gt;}">
+<pre class="prequestion">complement({&lt;&quot;Apple&quot;, -14&gt;, &lt;&quot;Coriander&quot;, 5&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_2:answer" class="answerText"></pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/complement&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Relation/complement&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

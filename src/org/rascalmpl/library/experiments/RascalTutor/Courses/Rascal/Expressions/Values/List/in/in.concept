@@ -30,3 +30,22 @@ Pitfalls:
 
 Questions:
 
+QType: <A:arb[int,str,bool]> in <B:list[same[A]]>
+
+QValue:
+prep: import Set;
+make: ELM = int[0,100]
+make: A = set[same[ELM]]
+expr: A1 = toList( {<ELM>} + <A>)
+expr: C =  <ELM> in <A1>
+hint: <C>
+test: <ELM> in <A1> == <?>
+
+QValue:
+prep: import Set;
+make: ELM = int[0,10]
+make: A = list[same[ELM]]
+expr: C =  <ELM> in <A>
+hint: <C>
+test: <ELM> in <A> == <?>
+

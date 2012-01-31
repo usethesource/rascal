@@ -29,14 +29,26 @@ Pitfalls:
 Questions:
 QChoice: When you compute the intersection of two sets, the number of elements in the result is always:
 b: Greater than the number of elements in both sets.
-b: Greater than or equal the number of elements in both sets.
+b: Greater than or equal to the number of elements in both sets.
 b: Smaller than the number of elements in both sets.
-g: Smaller than or equal the number of elements in both sets.
+g: Smaller than or equal to the number of elements in the smallest set.
 
 
-QType:  <A:set[arb[int,str]]> & <B:same[A]>
+QType: <A:list[int[0,100],str]> & <B:same[A]>
 
-QType:  <A:set[arb]> & <B:same[A]>
+QValue:
+make: DIFF = set[int[0,100],str]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> & <B1>
+hint: <C>
+test: <A1> & <B1> == <?>
 
-QValue: <A:set[arb[0,int,str,num,real]]> & <B:same[A]>
-
+QValue:
+make: A = set[int[0,10],str]
+make: B = same[A]
+expr: C =  <A> & <B>
+hint: <C>
+test: <A> & <B> == <?>

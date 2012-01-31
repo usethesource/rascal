@@ -30,3 +30,29 @@ Pitfalls:
 
 Questions:
 
+QType:
+make: I = int[0,5]
+make: J = int[7,12]
+test: { N + 1 | int N <- [<I> .. <J>] }
+
+QValue:
+make: I = int[0,5]
+make: J = int[7,12]
+expr: H = { N + 1 | int N <- [<I> .. <J>] }
+hint: <H>
+test: { N + 1 | int N <- [<I> .. <J>] } == <?>
+
+QValue:
+make: S = set[int]
+expr: H = { 2 * N | int N <- <S> } 
+hint: <H>
+test: { 2 * N | int N <- <S> } == <?>
+
+QValue:
+desc: Complete this comprehension:
+make: S = set[int]
+expr: H = { N - 1 | int N <- <S> } 
+hint: { N - 1 | int N <- <S> } 
+test: { <?> | int N <- <S> } == <H>
+
+

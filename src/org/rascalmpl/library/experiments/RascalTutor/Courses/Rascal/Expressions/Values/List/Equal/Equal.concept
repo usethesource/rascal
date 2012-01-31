@@ -28,5 +28,21 @@ Benefits:
 Pitfalls:
 
 Questions:
+
+
 QType: <A:list[arb]> == <B:same[A]>
+
+QValue:
+make: A = list[arb[int[0,10],str]]
+expr: C =  <A> == <A>
+hint: <C>
+test: (<A> == <A>) == <?>
+
+QValue:
+prep: import List;
+make: A = list[int[0,100]]
+expr: B = reverse(<A>)
+expr: C =  <A> == <B>
+hint: <C>
+test: (<A> == <B>) == <?>
 

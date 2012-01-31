@@ -85,15 +85,12 @@
  <br/>
 <br/>
 
- The following functions are provided on sets:
- <br/>
-<br/>
-
+ The following operators are provided on sets:
  <ul><li><a href="/Courses/Rascal/Expressions/Values/Set/Comprehension/Comprehension.html">Comprehension</a>: A set comprehension generates a set value.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/Difference/Difference.html">Difference</a>: The difference between two sets.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/Equal/Equal.html">Equal</a>: Equal operator on set values.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/in/in.html">in</a>: Membership test on set values.</li>
-<li><a href="/Courses/Rascal/Expressions/Values/Set/Insert/Insert.html">Insert</a>: add an element to a set</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Set/Insert/Insert.html">Insert</a>: Add an element to a set.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/Intersection/Intersection.html">Intersection</a>: Intersection of two sets.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/NotEqual/NotEqual.html">NotEqual</a>: Not equal operator on set values.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/notin/notin.html">notin</a>: Negated membership test on set values.</li>
@@ -103,6 +100,24 @@
 <li><a href="/Courses/Rascal/Expressions/Values/Set/SubSet/SubSet.html">SubSet</a>: Subset operator on set values.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/SuperSet/SuperSet.html">SuperSet</a>: Superset operator on set values.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Set/Union/Union.html">Union</a>: Union of two set values.</li>
+</ul> The following functions are provided on sets:
+ <ul><li><a href="/Courses/Rascal/Libraries/Prelude/Set/classify/classify.html">classify</a>: Classify elements in a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/getOneFrom/getOneFrom.html">getOneFrom</a>: Pick a random element from a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/group/group.html">group</a>: Group elements in a set given an equivalence function.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/index/index.html">index</a>: Map set elements to a fixed index.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/isEmpty/isEmpty.html">isEmpty</a>: Test whether a set is empty.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/mapper/mapper.html">mapper</a>: Apply a function to all set elements and return set of results.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/max/max.html">max</a>: Determine the largest element of a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/min/min.html">min</a>: Smallest element of a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/power/power.html">power</a>: Determine the powerset of a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/power1/power1.html">power1</a>: The powerset (excluding the empty set) of a set value.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/reducer/reducer.html">reducer</a>: Apply a function to successive elements of a set and combine the results (<b>deprecated</b>).</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/size/size.html">size</a>: Determine the number of elements in a set.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/takeOneFrom/takeOneFrom.html">takeOneFrom</a>: Pick an arbitrary element from a set, returns the element and the set without the selected element.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/toList/toList.html">toList</a>: Convert a set to a list.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/toMap/toMap.html">toMap</a>: Convert a set of tuples to a map; each key is associated with a set of values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/toMapUnique/toMapUnique.html">toMapUnique</a>: Convert a set of tuples to a map (provided that there are no multiple keys).</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Set/toString/toString.html">toString</a>: Convert a set to a string.</li>
 </ul>
 </div>
 
@@ -179,11 +194,11 @@ set[int]: {10,20,3,2,1}
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_2" value="2">
 <label for="Rascal/Expressions/Values/Set_1_2">The values are unordered.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
-<label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_0" value="0">
 <label for="Rascal/Expressions/Values/Set_1_0">The values have no duplicates and no order.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_1:answer" id="Rascal/Expressions/Values/Set_1_1" value="1">
+<label for="Rascal/Expressions/Values/Set_1_1">The values have duplicates.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -209,14 +224,14 @@ set[int]: {10,20,3,2,1}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2">
-<label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set.</label><br/>
-
 <input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_0" value="0">
 <label for="Rascal/Expressions/Values/Set_2_0">The least upperbound of the type of all elements.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_3" value="3">
-<label for="Rascal/Expressions/Values/Set_2_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_5" value="5">
+<label for="Rascal/Expressions/Values/Set_2_5">The type of two arbitrary elements.</label><br/>
+
+<input type="radio" name="Rascal_Expressions_Values_Set_2:answer" id="Rascal/Expressions/Values/Set_2_2" value="2">
+<label for="Rascal/Expressions/Values/Set_2_2">The type of the element that was first added to the set.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -264,8 +279,8 @@ set[int]: {10,20,3,2,1}
 <span id="answerFeedback_Rascal_Expressions_Values_Set_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{-17.064377560989450000, -12.929238101280384800}">
-The type of <tt>{-17.064377560989450000, -12.929238101280384800}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_4:A" value="{&quot;Slimey the Worm&quot;, &quot;Q&quot;}">
+The type of <tt>{&quot;Slimey the Worm&quot;, &quot;Q&quot;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_4:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -289,14 +304,198 @@ The type of <tt>{-17.064377560989450000, -12.929238101280384800}</tt> is <input 
 <span id="answerFeedback_Rascal_Expressions_Values_Set_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="3">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Mint&quot;">
-<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="-13">
-The type of <tt>{3, &quot;Mint&quot;, -13}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:A" value="-11">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:B" value="&quot;Elmo&quot;">
+<input type="hidden" name="Rascal_Expressions_Values_Set_5:C" value="3">
+The type of <tt>{-11, &quot;Elmo&quot;, 3}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Set_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_5:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_6" class="question">
+<b>Question [6]. </b>
+<span id="good_Rascal_Expressions_Values_Set_6" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_6" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_6" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_6:ELM" value="3">
+<input type="hidden" name="Rascal_Expressions_Values_Set_6:A" value="{65}">
+<pre class="prequestion">3 <input type="text" size="30" name="Rascal_Expressions_Values_Set_6:answer" class="answerText"> {3,65} == true</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_6:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_7" class="question">
+<b>Question [7]. </b>
+<span id="good_Rascal_Expressions_Values_Set_7" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_7" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_7" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_7:A" value="59">
+<input type="hidden" name="Rascal_Expressions_Values_Set_7:B" value="{17, 36}">
+<pre class="prequestion">59 <input type="text" size="30" name="Rascal_Expressions_Values_Set_7:answer" class="answerText"> {17, 36} == {59,36,17}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_7:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_8" class="question">
+<b>Question [8]. </b>
+<span id="good_Rascal_Expressions_Values_Set_8" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_8" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_8" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_8:DIFF" value="{68, 19}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_8:A" value="{66, 8}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_8:B" value="{37, 49, 13, 85}">
+<pre class="prequestion">{8,68,19,66} <input type="text" size="30" name="Rascal_Expressions_Values_Set_8:answer" class="answerText"> {13,85,37,68,19,49} == {68,19}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_8:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_9" class="question">
+<b>Question [9]. </b>
+<span id="good_Rascal_Expressions_Values_Set_9" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_9" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_9" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_9:DIFF" value="{73, 33, 52, 82, 18}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_9:A" value="{83, 6, 65}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_9:B" value="{50}">
+<pre class="prequestion">{73,6,52,83,18,82,65,33} <input type="text" size="30" name="Rascal_Expressions_Values_Set_9:answer" class="answerText"> {73,52,50,18,82,33} == {6,83,65}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_9:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_10" class="question">
+<b>Question [10]. </b>
+<span id="good_Rascal_Expressions_Values_Set_10" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_10" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_10" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_10:ELM" value="5">
+<input type="hidden" name="Rascal_Expressions_Values_Set_10:A" value="{2}">
+<pre class="prequestion">5 <input type="text" size="30" name="Rascal_Expressions_Values_Set_10:answer" class="answerText"> {2} == true</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_10:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_11" class="question">
+<b>Question [11]. </b>
+<span id="good_Rascal_Expressions_Values_Set_11" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_11" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_11" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_11:DIFF" value="{69, 68, 52, 80, 73}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_11:A" value="{42, 81}">
+<pre class="prequestion">{42, 81} <input type="text" size="30" name="Rascal_Expressions_Values_Set_11:answer" class="answerText"> {42,73,69,52,68,81,80} == true</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_11:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Expressions_Values_Set_12" class="question">
+<b>Question [12]. </b>
+<span id="good_Rascal_Expressions_Values_Set_12" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Expressions_Values_Set_12" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Expressions_Values_Set_12" class="answerFeedback"></span>
+ Fill in the missing operator.
+<br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Set_12:A" value="{-2, -5, 16, 18}">
+<input type="hidden" name="Rascal_Expressions_Values_Set_12:B" value="{-19}">
+<pre class="prequestion">{-2, -5, 16, 18} <input type="text" size="30" name="Rascal_Expressions_Values_Set_12:answer" class="answerText"> {-19} == {-2,-19,-5,18,16}</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Set_12:another" value="yes">
 
 <input type="submit" value="I want another question" class="anotherSubmit">
 </form><br/>

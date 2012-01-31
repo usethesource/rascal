@@ -29,3 +29,20 @@ Pitfalls:
 
 Questions:
 
+QType: <A:arb[int,str,bool]> notin <B:set[same[A]]>
+
+
+QValue:
+make: ELM = int[0,100]
+make: A = set[same[ELM]]
+expr: A1 = {<ELM>, *<A>}
+expr: C =  <ELM> notin <A1>
+hint: <C>
+test: <ELM> notin <A1> == <?>
+
+QValue:
+make: ELM = int[0,10]
+make: A = set[same[ELM]]
+expr: C =  <ELM> notin <A>
+hint: <C>
+test: <ELM> notin <A> == <?>

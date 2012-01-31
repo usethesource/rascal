@@ -34,13 +34,45 @@ Pitfalls:
 Questions:
 QChoice: When you compute the difference of two sets, the number of elements in the result is always:
 b: Greater than the number of elements in both sets.
-b: Greater than or equal the number of elements in the first set.
+b: Greater than or equal to the number of elements in the first set.
 b: Smaller than the number of elements in both sets.
-g: Smaller than or equal the number of elements in the first set.
+g: Smaller than or equal to the number of elements in the first set.
 
-QType: <A:set[arb[int,str]]> + <B:same[A]>
+QType: <A:set[arb[int,str]]> - <B:same[A]>
 
-QType: <A:set[arb]> - <A:same[A]>
+QType: <A:set[arb[str,int]]> - <A:same[A]>
 
-QValue: <A:set[arb[0,int,str,num,real]]> - <B:same[A]>
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> - <B1>
+hint: <C>
+test: <A1> - <B1> == <?>
+
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> - <B1>
+hint: <A1>
+test: <?> - <B1> == <C>
+
+QValue:
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> - <B1>
+hint: <B1>
+test: <A1> - <?> == <C>
+
 

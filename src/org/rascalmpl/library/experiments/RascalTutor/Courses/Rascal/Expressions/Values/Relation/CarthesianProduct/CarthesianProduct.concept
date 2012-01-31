@@ -20,6 +20,7 @@ Returns a binary relation that is the Carthesian product of two sets.
 Examples:
 <screen>
 {1, 2, 3} * {9};
+{1, 2, 3} * {10, 11};
 </screen>
 
 Benefits:
@@ -27,4 +28,16 @@ Benefits:
 Pitfalls:
 
 Questions:
+
+QType:
+make: S1 = set[int,2,3]
+make: S2 = set[int,2,3]
+test: <S1> * <S2>
+
+QValue:
+make: S1 = set[int,2,3]
+make: S2 = set[int,2,2]
+expr: H = <S1> * <S2>
+hint: <H>
+test: <S1> * <S2> == <?>
 

@@ -30,3 +30,16 @@ Pitfalls:
 Questions:
 QType: <A:set[arb]> == <B:same[A]>
 
+QValue:
+make: A = set[arb[int[0,10],str]]
+expr: C =  <A> == <A>
+hint: <C>
+test: (<A> == <A>) == <?>
+
+QValue:
+make: A = set[int[0,100]]
+make: DIFF = int
+expr: B = <A> + (<DIFF>)
+expr: C =  <A> == <B>
+hint: <C>
+test: (<A> == <B>) == <?>

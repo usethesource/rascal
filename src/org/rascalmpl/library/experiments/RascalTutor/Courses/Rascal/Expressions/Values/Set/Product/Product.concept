@@ -27,9 +27,28 @@ Benefits:
 Pitfalls:
 
 Questions:
-QType: <A:set[arb[int,str]]> * <B:same[A]>
 
-QType: <A:set[arb]> * <B:same[A]>
+QType: <A:list[arb[int,str,bool]]> * <B:same[A]>
 
-QValue: <A:set[arb[0,int,str,num,real]]> * <B:same[A]>
+QValue: 
+make: A = set[int[0,50]]
+make: B = int[0,50]
+expr: C = <A> * {<B>}
+hint: <C>
+test:  <A> * {<B>} == <?>
 
+QValue: 
+make: A = set[int[0,50]]
+make: B = int[0,50]
+make: C = int[0,50]
+expr: D = <A> * {<B>, <C>}
+hint: <D>
+test:  <A> * {<B>, <C>} == <?>
+
+QValue: 
+prep: import Set;
+make: A = set[int[0,50]]
+make: B = same[A]
+expr: C = size(<A> * <B>)
+hint: <C>
+test:  size(<A> * <B>) == <?>

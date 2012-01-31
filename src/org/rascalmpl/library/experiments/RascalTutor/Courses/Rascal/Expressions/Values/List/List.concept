@@ -30,9 +30,11 @@ When a value or variable of type list occurs inside a list, that list value is i
 To achieve _splicing_ of these elements, i.e., the insertion of the elements of the list value rather than the whole list,
 it has to be prefixed by the splice operator `*`.
 
-The following functions and operators on lists are provided:
-
+The following operators are provided on list:
 <toc Rascal/Expressions/Values/List 1>
+
+The following functions are provided for lists:
+<toc Rascal/Libraries/Prelude/List 1>
 
 Examples:
 <screen>
@@ -63,13 +65,85 @@ b: The average of the type of the elements with the smallest and the largests ty
 b: The least upperbound of the type of two arbitrary elements.
 b: The type of two arbitrary elements.
 
+
 QValue:
-desc: Complete this function that tests that a list of words forms a palindrome. A palindrome is a word that is symmetrical 
-and can be read
-from left to right and from right to left.
-list:
-import List;
-public bool isPalindrome(list[str] words){
-  return words == <?>;
-}
-test: isPalindrome(["a", "b", "b", "a"]) == true;
+desc: Fill in the missing operator.
+make: B = arb[int[0,100],str]
+make: A = list[same[B]]
+expr: C = <A> + <B>
+hint: Use +.
+test: <A> <?> <B> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = toList(<DIFF> + <A>)
+expr: B1 = toList(<B> + <DIFF>)
+expr: C =  <A1> - <B1>
+hint: Use -.
+test: <A1> <?> <B1> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import List;
+make: A = list[int[0,100]]
+expr: B = reverse(<A>)
+expr: C =  <A> == <B>
+hint: Use ==.
+test: (<A> <?> <B>) == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: DIFF = set[int[0,100],str]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = toList(<DIFF> + <A>)
+expr: B1 = toList(<B> + <DIFF>)
+expr: C =  <A1> & <B1>
+hint: Use &.
+test: <A1> <?> <B1> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: ELM = int[0,100]
+make: A = set[same[ELM]]
+expr: A1 = toList( {<ELM>} + <A>)
+expr: C =  <ELM> in <A1>
+hint: Use in.
+test: <ELM> <?> <A1> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+expr: A1 = toList(<A>)
+expr: B = toList(<A> + <DIFF>)
+expr: C =  <A1> < <B>
+hint: <C>
+test: <A1> <?> <B> == <C>
+
+
+QValue:
+desc: Fill in the missing operator.
+make: A = list[arb[int,str]]
+make: B = same[A]
+expr: C = <A> + <B>
+hint: Use +.
+test: <A> <?> <B> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: ELM = int[0,10]
+make: A = list[same[ELM]]
+expr: C =  <ELM> notin <A>
+hint: Use notin.
+test: <ELM> <?> <A> == <C>
+
+

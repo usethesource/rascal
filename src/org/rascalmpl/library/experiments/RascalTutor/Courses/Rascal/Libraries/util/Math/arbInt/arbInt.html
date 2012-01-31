@@ -65,7 +65,8 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Return an arbitrary integer value. When the argument <code>limit</code> is given, the generated value is in the interval [0, <code>limit</code>].
+<span class="sectionHead">Description</span>  Return an arbitrary integer value. When the argument <code>limit</code> is given, the generated value is in the interval [0, <code>limit</code>),
+ i.e., the limit is exclusive.
 
 </div>
 
@@ -74,17 +75,17 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Integer;
 ok
 <span class="prompt">rascal></span>arbInt();
-int: 781938364
+int: 790257220
 <span class="prompt">rascal></span>arbInt();
-int: 1706296080
+int: 1892320112
 <span class="prompt">rascal></span>arbInt();
-int: -728872119
+int: 723376256
 <span class="prompt">rascal></span>arbInt(10);
-int: 0
+int: 9
 <span class="prompt">rascal></span>arbInt(10);
-int: 6
+int: 9
 <span class="prompt">rascal></span>arbInt(10);
-int: 2
+int: 7
 </pre>
 </div>
 

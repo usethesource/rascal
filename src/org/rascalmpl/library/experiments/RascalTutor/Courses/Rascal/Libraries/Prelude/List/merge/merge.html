@@ -52,8 +52,9 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <code>list[&amp;T] merge(list[&amp;T] left, list[&amp;T] right, bool (&amp;T a, &amp;T b) lessOrEqual)</code>
-
+<span class="sectionHead">Function</span>  <ol><li> <code>list[&amp;T] merge(list[&amp;T] left, list[&amp;T] right)</code></li>
+<li> <code>list[&amp;T] merge(list[&amp;T] left, list[&amp;T] right, bool (&amp;T a, &amp;T b) lessOrEqual)</code></li>
+</ol>
 </div>
 
                            
@@ -63,20 +64,120 @@
 
 </div>
 
+<div id="Description">
+<span class="sectionHead">Description</span>  Merge the elements of two sorted lists into one list using the built-in ordering between values.
+ Optional, a comparison function <code>lessOrEqual</code> may be given for a user-defined ordering between values.
+
+</div>
+
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
-<span class="prompt">rascal></span>merge([1, 3, 5], [2, 7, 9, 15], bool(int x, int y){ return x <= y; });
+<span class="prompt">rascal></span>merge([1, 3, 5], [2, 7, 9, 15]);
 list[int]: [1,2,3,5,7,9,15]
-<span class="prompt">rascal></span>merge(["ape", "elephant", "owl", "snale", "zebra"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return x <= y; });
+<span class="prompt">rascal></span>merge(["ape", "elephant", "owl", "snale", "zebra"], ["apple", "berry", "orange", "pineapple"]);
 list[str]: ["ape","apple","berry","elephant","orange","owl","pineapple","snale","zebra"]
+</pre>  Merge two lists of strings and use their length as ordering:
+<pre class="screen"><span class="prompt">rascal></span>import String;
+ok
+<span class="prompt">rascal></span>merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
+list[str]: ["ape","owl","snale","zebra","apple","berry","orange","elephant","pineapple"]
 </pre>
 </div>
 
   	                       
   	                       
   	                       
+<div id="questions">
+
+
+<br/>
+
+<span class="sectionHead">Questions</span> <br/>
+
+
+<div id="Rascal_Libraries_Prelude_List_merge_1" class="question">
+<b>Question [1]. </b>
+<span id="good_Rascal_Libraries_Prelude_List_merge_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_List_merge_1" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_List_merge_1" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_1:L" value="[-14, -10, 4]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_merge_1:M" value="[16, 12, 6, -16, 8]">
+The type of <tt>merge([-14,-10,4], [-16,6,8,12,16])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_merge_1:answer" class="answerText"><br/>
+
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_1:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_List_merge_2" class="question">
+<b>Question [2]. </b>
+<span id="good_Rascal_Libraries_Prelude_List_merge_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_List_merge_2" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_List_merge_2" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_2:L" value="[&quot;G&quot;, &quot;Ginger&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_merge_2:M" value="[&quot;Prince Charming&quot;, &quot;C-3PO&quot;, &quot;R&quot;, &quot;R&quot;, &quot;Darth Vader&quot;]">
+<pre class="prequestion">merge([&quot;G&quot;,&quot;Ginger&quot;], [&quot;C-3PO&quot;,&quot;Darth Vader&quot;,&quot;Prince Charming&quot;,&quot;R&quot;,&quot;R&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_merge_2:answer" class="answerText"></pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_2:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ 
+<div id="Rascal_Libraries_Prelude_List_merge_3" class="question">
+<b>Question [3]. </b>
+<span id="good_Rascal_Libraries_Prelude_List_merge_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/good.png"/>
+</span>
+
+<span id="bad_Rascal_Libraries_Prelude_List_merge_3" class="answerStatus">
+<img height="25" width="25" src="/Courses/images/bad.png"/>
+</span>
+
+<span id="answerFeedback_Rascal_Libraries_Prelude_List_merge_3" class="answerFeedback"></span>
+ <br/>
+
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_3:L" value="[&quot;Apple&quot;, &quot;Little Bird&quot;, &quot;Vanilla&quot;, &quot;Ailyn Vel&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_merge_3:M" value="[&quot;Lemon&quot;, &quot;H&quot;]">
+<pre class="prequestion">merge([&quot;Little Bird&quot;,&quot;Ailyn Vel&quot;,&quot;Vanilla&quot;,&quot;Apple&quot;], [&quot;Lemon&quot;,&quot;H&quot;], <input type="text" size="30" name="Rascal_Libraries_Prelude_List_merge_3:answer" class="answerText">) == [&quot;Little Bird&quot;,&quot;Ailyn Vel&quot;,&quot;Vanilla&quot;,&quot;Lemon&quot;,&quot;Apple&quot;,&quot;H&quot;]</pre>
+<input type="submit" value="Give answer" class="answerSubmit">
+</form>
+<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_merge_3:another" value="yes">
+
+<input type="submit" value="I want another question" class="anotherSubmit">
+</form><br/>
+
+</div>
+ <br/>
+
+<br/>
+
+</div>
+
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/List/merge&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/List/merge&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

@@ -30,9 +30,11 @@ where `$T$` is an arbitrary type.
 
 When a value or variable of type lsetist occurs inside a set, that set value is inserted as set element. To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set, it has to be prefixed by the splice operator *.
 
-The following functions are provided on sets:
-
+The following operators are provided on sets:
 <toc Rascal/Expressions/Values/Set 1>
+
+The following functions are provided on sets:
+<toc Rascal/Libraries/Prelude/Set 1>
 
 Examples:
 == Set types ==
@@ -83,7 +85,77 @@ QType: {1, <?> }
 type: set[int]
 hint: one or more integer values separated by commas
 
-QType: <A:set[arb]>
+QType: <A:set[arb[int,str]]>
 
 QType: {<A:int>, <B:str>, <C:int>}
+
+QValue:
+desc: Fill in the missing operator.
+make: ELM = int[0,100]
+make: A = set[same[ELM]]
+expr: A1 = {<ELM>} + <A>
+expr: C =  <ELM> in <A1>
+hint: in
+test: <ELM> <?> <A1> == <C>
+
+QValue: 
+desc: Fill in the missing operator.
+make: A = arb[int[0,100],str]
+make: B = set[same[A]]
+expr: H = <A> + <B>
+hint: +
+test: <A> <?> <B> == <H>
+
+QValue:
+desc: Fill in the missing operator.
+make: DIFF = set[int[0,100],str]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> & <B1>
+hint: &
+test: <A1> <?> <B1> == <C>
+
+
+QValue:
+desc: Fill in the missing operator.
+prep: import Set;
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+make: B = same[DIFF]
+expr: A1 = <DIFF> + <A>
+expr: B1 = <B> + <DIFF>
+expr: C =  <A1> - <B1>
+hint: -
+test: <A1> <?> <B1> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+make: ELM = int[0,10]
+make: A = set[same[ELM]]
+expr: C =  <ELM> notin <A>
+hint: notin
+test: <ELM> <?> <A> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+make: DIFF = set[int[0,100]]
+make: A = same[DIFF]
+expr: B = <A> + <DIFF>
+expr: C =  <A> < <B>
+hint: <
+test: <A> <?> <B> == <C>
+
+QValue:
+desc: Fill in the missing operator.
+make: A = set[arb[int,str]]
+make: B = same[A]
+expr: C = <A> + <B>
+hint: +
+test: <A> <?> <B> == <C>
+
+
+
+
 

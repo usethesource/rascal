@@ -1,6 +1,6 @@
 Name: Insert
 
-Synopsis: add an element to a set
+Synopsis: Add an element to a set.
 
 Syntax:
 `$Exp_1$ + $Exp_2$`
@@ -34,6 +34,30 @@ Pitfalls:
 
 Questions:
 
+QChoice: When you insert an element in a set, the number of elements in the result is always:
+g: Greater than or equal to the number of elements in the original set.
+g: One larger than the number of elements in the original set.
+b: Smaller than the number of elements in the original set.
+b: One smaller than the number of elements in the original set.
+   
+QType: 
+make: A = arb[int[0,100],str]
+make: B = set[same[A]]
+test: <A> + <B>
+
+QValue: 
+make: A = arb[int[0,100],str]
+make: B = set[same[A]]
+expr: H = <A> + <B>
+hint: <H>
+test: <A> + <B> == <?>
+
+QValue: 
+make: A = arb[int[0,100],str]
+make: B = set[same[A]]
+expr: H = <B> + <A>
+hint: <H>
+test: <B> + <A> == <?>
 
 
 

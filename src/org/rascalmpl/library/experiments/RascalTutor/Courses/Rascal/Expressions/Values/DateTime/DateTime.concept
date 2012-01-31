@@ -65,6 +65,14 @@ Not all fields are available on all values as indicated by the following table:
 The `isDate`, `isTime`, and `isDateTime` fields can be checked in advance to determine what
 kind of value is stored in a variable of type `datetime`.
 
+The following operators are defined for DateTime:
+<toc Rascal/Expressions/Values/DateTime 1>
+
+The following functions are defined for DateTime:
+<toc Rascal/Libraries/Prelude/DateTime 1>
+
+
+
 Examples:
 <screen>
 //Examples of `datetime` values are:

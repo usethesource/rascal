@@ -31,12 +31,12 @@ Benefits:
 Pitfalls:
 
 Questions:
-QChoice: When you compute the union of two sets, the number of elements in the result is always:
-b: Greater than the number of elements in both sets.
-g: Greater than or equal the number of elements in both sets.
-b: Smaller than the number of elements in both sets.
-b: Smaller than or equal the number of elements in both sets.
 
+QChoice: When you compute the union of two sets, the number of elements in the result is always:
+g: Smaller than or equal to the total number of elements in both sets.
+b: Greater than or equal to the number of elements in both sets.
+b: Greater than the number of elements in both sets.
+b: Smaller than the number of elements in both sets.
 
 QType: <A:set[arb[int,str,real]]> + <B:same[A]>
 
@@ -49,5 +49,7 @@ expr: C = <A> + <B>
 hint: <B>
 test: <A> + <?> == <C>
 
-QValue: <A:set[arb[0,int,str,num,real]]> + <B:same[A]>
+QValue: <A:set[arb[0,int,str]]> + <B:same[A]>
+
+QValue: <A:set[arb[0,int,str]]> + {}
 

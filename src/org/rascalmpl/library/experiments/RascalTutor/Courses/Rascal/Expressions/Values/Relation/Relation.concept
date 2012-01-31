@@ -30,10 +30,14 @@ An n-ary relations with m tuples is denoted by
  `{<$E_11$, $E_12$, ..., $E_1n$>,<$E_21$, $E_22$, ..., $E_2n$>, ..., <$E_m1$, $E_m2$, ..., $E_mn$>}`, 
 where the $E_ij$ are expressions that yield the desired element type $T_i$.
 
-Since relations are a form of set all operations on [$Values/Set]s are also applicable to relations.
+Since relations are a form of set all operations (see [$Values/Set]) and functions
+(see [Prelude/Set]) are also applicable to relations.
 
-The following additional functions are provided for relations:
+The following additional operators are provided for relations:
 <toc Rascal/Expressions/Values/Relation 1>
+
+The following additional functions are provided on relations:
+<toc Rascal/Libraries/Prelude/Relation 1>
 
 
 Examples:
@@ -56,8 +60,6 @@ g: Is a set of tuples.
 b: Is a list of tuples.
 b: Is a tuple of tuples.
 b: Has ordered elements.
-g: Has unordered elements.
-g: Can not contain duplicates.
 b: Can contain duplicates.
 b: Has a fixed length.
 
