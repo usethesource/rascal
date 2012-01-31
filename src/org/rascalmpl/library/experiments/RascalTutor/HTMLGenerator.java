@@ -120,6 +120,7 @@ public class HTMLGenerator {
 			if (output.length() > 0) {
 				content.append(output);
 			}
+			/*
 			output = errString.toString();
 			if (output.length() > 0) {
 				for (String line : output.split("\n")) {
@@ -127,6 +128,7 @@ public class HTMLGenerator {
 					content.append(line);
 				}
 			}
+			*/
 			content.append(resultMessage(result));
 		}
 		catch (ParseError pe) {

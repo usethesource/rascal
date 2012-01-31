@@ -225,7 +225,8 @@ public str validateAnswer1(map[str,str] params){
       try {
            int c = toInt(answer);
            expected = [txt | good(str txt) <- choices];
-           return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, expected[0]);
+           return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : 
+                                            wrongAnswer(cpid, qid, "I expected \"<expected[0]>\"");
       } 
       catch: return wrongAnswer(cpid, qid, "");
     }
@@ -246,7 +247,7 @@ public str validateAnswer1(map[str,str] params){
         rtype = qdetails.rtype;
         hint = qdetails.hint;
         
-        //println("qdetails = <qdetails>");
+        println("qdetails = <qdetails>");
         
         VarEnv env = ();
         generatedVars = [];
@@ -257,32 +258,37 @@ public str validateAnswer1(map[str,str] params){
   
 		    for(<name, exp> <- auxVars){
 	          exp1 = subst(exp, env) + ";";
-	          //println("exp1 = <exp1>");
-	          if (\value(value res) := eval(setup + [exp1])) {
+	          println("exp1 = <exp1>");
+	          println(" eval <setup + [exp1]>: <eval(setup + [exp1])>");
+	          if (\result(value res) := eval(setup + [exp1])) {
 	            env[name] = <parseType("<evalType(setup + [exp1])>"), "<res>">;
 	          }
 	          else {
 	            env[name] = <parseType("<evalType(setup + [exp1])>"), "ok">;
 	          }
+	          println("env[<name>] = <env[name]>");
 	      }
         
         lstBefore = subst(lstBefore, env);
-		    lstAfter = subst(lstAfter, env);
-		    cndBefore = subst(cndBefore, env);
-		    cndAfter = subst(cndAfter, env);
+		lstAfter = subst(lstAfter, env);
+		cndBefore = subst(cndBefore, env);
+		cndAfter = subst(cndAfter, env);
           
         switch(qkind){
           case valueOfExpr(): {
 	        try {
+	            if(isEmpty(answer))
+	               return wrongAnswer(cpid, qid, "Your answer was empty.");
 	            if(lstBefore + lstAfter == ""){
-	              //println("YES!");
+	              println("YES!");
+	              println(setup + ["<cndBefore><answer><cndAfter>;"]);
 	              if(holeInCnd){
 	                 if (\value(true) := eval(setup + ["<cndBefore><answer><cndAfter>;"])) {
 	                   return correctAnswer(cpid, qid);
 	                 }
 	                 wrongAnswer(cpid, qid, hint);
 	              } else {
-	                 //println("YES2");
+	                 println("YES2");
 	                 if(!endsWith(cndBefore, ";"))
 	                   cndBefore += ";";
 	                 computedAnswer = eval(setup + [cndBefore]);
@@ -297,8 +303,8 @@ public str validateAnswer1(map[str,str] params){
 	               } 
 	            }
 	            validate = (holeInLst) ? "<lstBefore><answer><lstAfter><cndBefore>"	             
-	                                     : ((holeInCnd) ? "<lstBefore><cndBefore><answer><cndAfter>"
-	                                                    : "<lstBefore><cndBefore> == <answer>");
+	                                     : ((holeInCnd) ? "<lstBefore><cndBefore><answer><cndAfter>;"
+	                                                    : "<lstBefore><cndBefore> == <answer>;");
 	            
 	            println("Setup = <setup>");
 	            println("Evaluating validate: <validate>");
@@ -308,8 +314,9 @@ public str validateAnswer1(map[str,str] params){
 	              switch (<res,hint>) {
 	                case <\ok(),_>          : if (cndBefore == "") return correctAnswer(cpid, qid);
 	                case <\result(true),_>  : return correctAnswer(cpid, qid);
-	                case <\result(false),"">: return wrongAnswer(cpid, qid, "The answer is not quite right. I expected <subst(hint, env)>.");
-	                default:                  return wrongAnswer(cpid, qid, "The answer is not quite right and I have no hint to offer.");	                
+	                case <\result(false),"">: return wrongAnswer(cpid, qid, "The answer is not right; unfortunately I have no hint to offer.");	 
+	               
+	                default:       			  return wrongAnswer(cpid, qid, "The answer is not right. I expected <subst(hint, env)>.");                           
 	              }
 	          } 
 	          catch ParseError(loc l):
@@ -322,23 +329,25 @@ public str validateAnswer1(map[str,str] params){
           case typeOfExpr(): {
               println("typeOfExpr");
 	          try {
+	            if(isEmpty(answer))
+	               return wrongAnswer(cpid, qid, "Your answer was empty.");
 	            if(lstBefore == ""){ // Type question without listing
 	               answerType = answer;
 	               expectedType = "";
 	               errorMsg = "";
 	               if(holeInCnd){
 	                  validate = cndBefore + answer + cndAfter;
-	                  //println("EvalType: <setup + validate>");
+	                  println("EvalType: <setup + validate>");
 	                  answerType = evalType(setup + (validate + ";"));
 	                  expectedType = toString(generateType(rtype, env));
 	               } else {
-	                  //println("EvalType: <setup + cndBefore>;");
+	                  println("EvalType: <setup + cndBefore>;");
 	                  expectedType = evalType(setup + (cndBefore + ";"));
 	               }
 	                  
-	               //println("answerType is <answerType>");
-	               //println("expectedType is <expectedType>");
-	               if(answerType == expectedType)
+	               println("answerType is <answerType>");
+	               println("expectedType is <expectedType>");
+	               if(equalType(answerType, expectedType))
 	              		return correctAnswer(cpid, qid);
 	              errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
 	              if(!holeInCnd){
@@ -346,55 +355,33 @@ public str validateAnswer1(map[str,str] params){
 	              }
 	              return  wrongAnswer(cpid, qid, errorMsg);
 	            } else {   // Type question with a listing
-	              validate = (holeInLst) ? lstBefore + answer + lstAfter + cndBefore	             
-	                                     : ((holeInCnd) ? lstBefore + cndBefore + answer + cndAfter
-	                                                    : lstBefore + cndBefore);
+	              if(!(holeInCnd || holeInLst)){
+	                 try 
+	                    parseType(answer); 
+	                 catch: return wrongAnswer(cpid, qid, "Note that \"<answer>\" is not a legal Rascal type.");
+	              }
+	             
+	              validate = (holeInLst) ? "<lstBefore><answer><lstAfter><cndBefore>"	             
+	                                     : ((holeInCnd) ? "<lstBefore><cndBefore><answer><cndAfter>;"
+	                                                    : "<lstBefore><cndBefore>;");
 	            
-	              //println("Evaluating validate: <validate>");
-	              output =  shell(setup + validate);
-	              //println("result is <output>");
+	              println("Evaluating validate: <validate>");
+	              output =  evalType(setup + validate);
+	              println("result is <output>");
 	              
-	              a = size(output) -1;
-	              while(a > 0 && startsWith(output[a], "cancelled") ||startsWith(output[a], "rascal"))
-	                 a -= 1;
-	                 
 	              expectedType = toString(generateType(rtype, env));
 	              
-	              errors = [line | line <- output, /[Ee]rror/ := line];
-	              //println("errors = <errors>");
-	               
-	              if(size(errors) == 0 && /^<answerType:.*>:/ := output[a]){
-	                 //println("answerType = <answerType>, expectedType = <expectedType>, answer = <answer>");
-	                 ok = ((holeInLst || holeInCnd) ? answerType : answer) == expectedType;
-	                 if(ok)
-	                    return correctAnswer(cpid, qid);
-	                    
-	                 errorMsg = "I expected the answer <expectedType> instead of <answerType>.";
-	                 if(!holeInCnd){
-	                    try parseType(answer); catch: errorMsg = "I expected the answer <expectedType>; \"<answer>\" is not a legal Rascal type.";
-	                 }
-	                 wrongAnswer(cpid, qid, errorMsg);
-	              }
-	              
-	              errorMsg = "";
-	              for(error <- errors){
-	                   if(/Parse error/ := error)
-	                      errorMsg = "There is a syntax error in your answer. ";
-	              }
-	              if(errorMsg == "" && size(errors) > 0)
-	                 errorMsg = "There is an error in your answer. ";
-	                 
-	              errorMsg += (holeInLst) ? "I expected a value of type <expectedType>. "
-	                                      : "I expected the answer <expectedType>. ";
-	                                      
-	              if(!(holeInCnd || holeInLst)){
-	                 try parseType(answer); catch: errorMsg = "Note that \"<answer>\" is not a legal Rascal type.";
-	              }
-	            
-	              return  wrongAnswer(cpid, qid, errorMsg);
+	              if(equalType((holeInLst || holeInCnd) ? answerType : answer, expectedType))
+	                  return correctAnswer(cpid, qid);
+	              return wrongAnswer(cpid, qid, "I expected the answer <expectedType>.");
 	            }
-	          } catch:
-	             return wrongAnswer(cpid, qid, "Cannot assess your answer.");
+	          }              
+	            catch ParseError(loc l):
+	             return wrongAnswer(cpid, qid, "There is a parse error in your answer at line <l.begin.line>, column <l.begin.column>");
+	            catch StaticError(str msg, loc l):
+	             return wrongAnswer(cpid, qid, "Your answer triggers a static error: <msg>, at line <l.begin.line>, column <l.begin.column>"); 
+	            catch value x: 
+	             return wrongAnswer(cpid, qid, "Something unexpected went wrong. Message: <x>");
 	      }
 	    }
       }
@@ -486,7 +473,6 @@ public list[str] negativeFeedback = [
 "A shame!",
 "Try another question!",
 "I know you can do better.",
-"Nope!",
 "Keep trying.",
 "I am suffering with you :-(",
 "Give it another try!",
@@ -523,7 +509,7 @@ public str correctAnswer(ConceptName cpid, QuestionName qid){
     	ecpid = escapeConcept(cpid);
     	badAnswer -= qid;
     	goodAnswer += qid;
-    	feedback = (arbInt(100) < 25) ? getOneFrom(positiveFeedback) : "";
+    	feedback = (arbInt(100) < 25) ? (" ... " + getOneFrom(positiveFeedback)) : "";
     	return XMLResponses(("concept" : ecpid, "exercise" : qid, "validation" : "true", "feedback" : feedback));
     } else
         return "pass";
@@ -534,7 +520,7 @@ public str wrongAnswer(ConceptName cpid, QuestionName qid, str explanation){
        ecpid = escapeConcept(cpid);
        badAnswer += qid;
        goodAnswer -= qid;
-       feedback = explanation + ((arbInt(100) < 25) ? (" " + getOneFrom(negativeFeedback)) : "");
+       feedback = explanation + ((arbInt(100) < 25) ? (" ... " + getOneFrom(negativeFeedback)) : "");
 	   return  XMLResponses(("concept" : ecpid, "exercise" : qid, "validation" : "false", "feedback" : feedback));
 	} else
 	   return "fail:<explanation>";

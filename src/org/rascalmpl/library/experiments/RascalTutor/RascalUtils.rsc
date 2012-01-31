@@ -374,7 +374,7 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
 
 public bool replaceDoc(loc L, str itemName, str newDocContent){
   L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  //println("replaceDoc: <L1>, <itemName>, <newDocContent>");
+  println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
   M = parseModule(oldFileContent, L1);
   newDocContent = removeAUTOINSERTED(newDocContent);

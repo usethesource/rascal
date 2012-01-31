@@ -35,7 +35,7 @@ public void compileCourse(ConceptName rootConcept){
 
 public void compileConcept(ConceptName cn){
   file = conceptFile(cn);
-  compileAndGenerateConcept(file, false);
+  compileAndGenerateConcept(cn, false);
 }
 
 // Compile one concept as an exam
@@ -208,26 +208,31 @@ str suggestGoodAnswer(examResult sc, str q, map[str,set[str]] goodAnswers){
  */
 
 public void statistics(ConceptName rootConcept){
-  courseFiles = getCourseFiles(rootConcept);
+  course = getCourse(rootConcept);
   
   map[str,int] stats = ();
   for(sectionName <- sectionKeywords){
      stats[sectionName] = 0;
    }
+   nquestions = 0;
   
-  for(file <- courseFiles){
-   sections = getSections(readFileLines(file));
+  for(cn <- course.concepts){
+   sections = getSections(cn);
    for(sectionName <- sectionKeywords){
     if(sections[sectionName] ? && size(sections[sectionName]) > 0)
       stats[sectionName] += 1;
+      if(sectionName == "Questions")
+         nquestions += size(course.concepts[cn].questions);
    }
   }
   
-  nconcepts = size(courseFiles);
+  nconcepts = size(course.concepts);
   for(sectionName <- sectionKeywords){
     perc = substring("<100.0*stats[sectionName]/nconcepts>", 0, 3);
   	println("<left(sectionName, 15)><perc>%");
   }
+  println("Concepts:  <nconcepts>");
+  println("Questions: <nquestions>");
 }
 
 /*

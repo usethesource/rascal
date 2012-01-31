@@ -286,7 +286,7 @@ private str markupRestLine(str line){
     
     case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => code(i(var) + markupSubs(ext))              
     
-    case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!?*'(),~]+>\)/ => link(url, text)
+    case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!?*'(),~#%=]+>\)/ => link(url, text)
     
     case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/: {insert refToUnresolvedConcept(rootname(conceptPath), rootname(conceptPath), concept, short == "$"); }
     
@@ -482,7 +482,7 @@ private str markupScreen(list[str] lines, bool generatesError){
      
      // deal with normal command
      try {
-       result = shell(first, 50000);
+       result = shell(first, 100000);
        println("result: <result>");
        codeLines += printShellInput(first); 
        codeLines += markupCode(result);

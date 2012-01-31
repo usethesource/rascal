@@ -22,8 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.library.util.Monitor;
 
 @SuppressWarnings("serial")
 public class Compile extends TutorHttpServlet {
@@ -37,10 +35,10 @@ public class Compile extends TutorHttpServlet {
 		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IRascalMonitor monitor = evaluator.getMonitor();
-			monitor.startJob("Compiling course");
+			//IRascalMonitor monitor = evaluator.getMonitor();
+			//monitor.startJob("Compiling course");
 			IValue result = evaluator.call("compile", vf.string(name));
-			monitor.endJob(true);
+			//monitor.endJob(true);
 			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
