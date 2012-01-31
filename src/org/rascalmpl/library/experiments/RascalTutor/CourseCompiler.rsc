@@ -30,17 +30,22 @@ import util::Reflective;
 import experiments::RascalTutor::RascalUtils;
 import util::Benchmark;
 import util::Math;
+import util::Monitor;
 
 // ------------------------ compile a course ----------------------------------------
 
 public Course compileCourse(ConceptName rootConcept){   
    
+   startJob("Compile <rootConcept>", 1000);
    begin = realTime();
    arbSeed(0); // Set the arb generation so that the same choices will be made for question generation.
    concepts = ();
    warnings = [];
-   for(cn <- getUncachedCourseConcepts(rootConcept)){
+   conceptList = getUncachedCourseConcepts(rootConcept);
+   todo(size(conceptList));
+   for(cn <- conceptList){
        try {
+           event(cn, 1);
 	       cpt = compileConcept(cn);
 	       if(concepts[cn]?)
 	       	  warnings += mkWarning(cn, "Redeclaration");
@@ -57,6 +62,7 @@ public Course compileCourse(ConceptName rootConcept){
    cc = generateCourseControl(C);
    passed = (realTime() - begin)/1000;
    println("Compilation time: <passed/60> min. (<passed> sec.)");
+   endJob(true);
    return cc;
 }
 
@@ -539,6 +545,7 @@ public list[Question] getAllQuestions(ConceptName cname, list[str] qsection){
 }
 
 public tuple[int, Question] getTvQuestion(ConceptName cname, TVkind kind, str qname, list[str] qsection, int i, str cnd){
+     //println("getTvQuestion: <cname>, <qname>");
      n = size(qsection);
 	 if(cnd != "")
 	   qsection[i] = "test: <cnd>";
@@ -784,7 +791,7 @@ public str showQuestionsSection(ConceptName conceptName, list[Question] question
 }
 
 public str showQuestion(ConceptName cpid, Question q){
-//println("showQuestion: <cpid>, <q>");
+  //println("showQuestion: <cpid>, <q>");
   qid = q.name;
   qdescr = "";
   qexpr  = "";
@@ -836,17 +843,25 @@ public str showQuestion(ConceptName cpid, Question q){
       VarEnv env = ();
       generatedVars = [];
       for(<name, tp> <- vars){
+        //println("tv: <name>, <tp>");
         tp1 = generateType(tp, env);
         env[name] = <tp1, generateValue(tp1, env)>;
         generatedVars += name;
 	  }
+	  //println("env = <env>");
 
 	  for(<name, exp> <- auxVars){
          exp1 = subst(exp, env);
-         //println("exp1 = <exp1>");
+         println("exp1 = <exp1>");
          try {
            env[name] = <parseType("<evalType(setup + (exp1 + ";"))>"), "<eval(setup + (exp1 + ";")).val>">;
-         } catch: throw "Error in computing <name>, <exp>";
+         }
+         catch ParseError(loc l):
+	           throw "Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
+	     catch StaticError(str msg, loc l):
+	           throw "Static error while computing <name> = <exp1>: <msg>, at line <l.begin.line>, column <l.begin.column>"; 
+	     catch value x: 
+	           throw "Something unexpected went wrong while computing <name> = <exp1>: Message: <x>";
       }
       //println("env = <env>");
       
