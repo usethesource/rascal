@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
@@ -22,13 +23,28 @@ We classify animals by their number of legs.
 import Set;
 // Create a map from animals to number of legs.
 legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
-// Define function `nLegs` that returns the number of legs fro each animal (or `0` when the animal is unknown):
+// Define function `nLegs` that returns the number of legs for each animal (or `0` when the animal is unknown):
 int nLegs(str animal){
     return legs[animal] ? 0;
 }
 // Now classify a set of animals:
 classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, nLegs);
 </screen>
+
+Questions:
+
+QValue:
+prep: import Set;
+prep: color = ("apple" : "green", "banana" : "yellow", "cucumber" : "green", "berry" : "red");
+prep: str getColor(str fruit) = color[fruit] ? "unknown";
+expr: H =  classify({"apple", "berry", "cucumber", "banana"}, getColor) 
+hint: <H>
+list:
+import Set;
+color = ("apple" : "green", "banana" : "yellow", "cucumber" : "green", "berry" : "red");
+str getColor(str fruit) = color[fruit] ? "unknown";
+test: classify({"apple", "berry", "cucumber", "banana"}, getColor) == <?>
+
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) {
   set[set[&V]] grouped = 
@@ -49,6 +65,15 @@ getOneFrom({1,2,3,4});
 getOneFrom({1,2,3,4});
 getOneFrom({1,2,3,4});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: L = set[arb[int,str],1,6]
+expr: H =  getOneFrom(<L>)
+hint: <H>
+test: getOneFrom(<L>)
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st) throws EmptySet;
@@ -71,6 +96,21 @@ bool similar(str a, str b) = nLegs(a) == nLegs(b);
 // Now group a set of animals:
 group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
 </screen>
+
+Questions:
+
+QValue:
+prep: import Set;
+prep: color = ("apple" : "green", "banana" : "yellow", "cucumber" : "green", "berry" : "red");
+prep: str getColor(str fruit) = color[fruit] ? "unknown";
+prep: bool similar(str a, str b) = getColor(a) == getColor(b);
+expr: H =  group({"apple", "berry", "cucumber", "banana"}, similar) 
+hint: <H>
+list:
+import Set;
+color = ("apple" : "green", "banana" : "yellow", "cucumber" : "green", "berry" : "red");
+str getColor(str fruit) = color[fruit] ? "unknown";
+test: group({"apple", "berry", "cucumber", "banana"}, similar)  == <?>
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
   sinput = sort(toList(input), bool (&T a, &T b) { return similar(a,b) ? a < b ; } );
@@ -94,6 +134,16 @@ Examples:
 import Set;
 index({"elephant", "zebra", "snake"});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[str,int]]
+test: index(<S>)
+
+
+
 }
 public map[&T,int] index(set[&T] s) {
   sl = toList(s);
@@ -116,6 +166,19 @@ import Set;
 isEmpty({1, 2, 3});
 isEmpty({});
 </screen>
+
+Questions:
+QType:
+prep: import Set;
+make: S = set[arb[int,str], 0, 6]
+test: isEmpty(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[int,str], 0, 6]
+expr: H = isEmpty(<S>)
+hint: <H>
+test: isEmpty(<S>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(set[&T] st);
@@ -132,6 +195,26 @@ import Set;
 int incr(int x) { return x + 1; }
 mapper({1, 2, 3, 4}, incr);
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[int]
+type: same[S]
+list:
+int incr(int x) { return x + 1; }
+test: mapper(<S>, incr)
+
+
+QValue:
+prep: import Set;
+make: S = set[int]
+expr: H = mapper(<S>, int(int n){ return n + 1; })
+hint: <H>
+list:
+int incr(int x) { return x + 1; }
+test: mapper(<S>, incr) == <?>
 }
 public set[&U] mapper(set[&T] st, &U (&T) fn)
 {
@@ -147,6 +230,20 @@ import Set;
 max({1, 3, 5, 2, 4});
 max({"elephant", "zebra", "snake"});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[int,str], 1, 6]
+test: max(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[int,str], 1, 6]
+expr: H = max(<S>)
+hint: <H>
+test: max(<S>) == <?>
 }
 public &T max(set[&T] st) {
 	<h,t> = takeOneFrom(st);
@@ -162,6 +259,20 @@ import Set;
 min({1, 3, 5, 2, 4});
 min({"elephant", "zebra", "snake"});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[int,str], 1, 6]
+test: min(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[int,str], 1, 6]
+expr: H = min(<S>)
+hint: <H>
+test: min(<S>) == <?>
 }
 @doc{
 Synopsis: Determine the smallest element of a set.
@@ -188,6 +299,22 @@ Examples:
 import Set;
 power({1,2,3,4});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[str,int]]
+test: power(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[str,int],1,3]
+expr: H = power(<S>)
+hint: <H>
+test: power(<S>) == <?>
+
+
 }
 public set[set[&T]] power(set[&T] st)
 {
@@ -225,6 +352,20 @@ Examples:
 import Set;
 power1({1,2,3,4});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[str,int]]
+test: power1(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[str,int],1,3]
+expr: H = power1(<S>)
+hint: <H>
+test: power1(<S>) == <?>
 }
 public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
@@ -259,11 +400,21 @@ size({});
 </screen>
 
 Questions:
+
 QValue:
 prep: import Set;
 make: N = int[0,5]
 hint: <N> values separated by commas
 test: size({ <?> }) == <N>
+
+QValue:
+desc: Create a set of the right size.
+make: N = int[0,5]
+list:
+import Set;
+set[str] text = <?>;
+test: size(text) == <N>;
+
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(set[&T] st);
@@ -282,6 +433,13 @@ getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[int,str], 1, 6]
+test: takeOneFrom(<S>)
 }
 @doc{
 Synopsis:  Remove an arbitrary element from a set, returns the element and a set without that element.
@@ -312,6 +470,22 @@ toList({"elephant", "zebra", "snake"});
 
 Pitfalls:
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting list.
+
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[arb[int,str]]
+test: toList(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[arb[int,str]]
+expr: H = toList(<S>)
+hint: <S>
+test: toList(<?>) == <H>
+
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] toList(set[&T] st);
@@ -328,6 +502,20 @@ Examples:
 import Set;
 toMap({<"a", 1>, <"b", 2>, <"a", 10>});
 </screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[tuple[int,int], 5, 8]
+test: toMap(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[tuple[int,int], 5, 8]
+expr: H = toMap(<S>)
+hint: <H>
+test: toMap(<S>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,set[&B]] toMap(rel[&A, &B] st);
@@ -345,6 +533,30 @@ toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
 // Now explore an erroneous example:
 toMapUnique({<"a", 1>, <"b", 2>, <"a", 10>});
 </screen>
+
+Questions:
+
+QType:
+prep: import List;
+prep: import Set;
+make: K = set[int, 6, 6]
+make: V = list[int, 6, 6]
+expr: KL = toList(<K>)
+expr: P = zip(<KL>, <V>)
+expr: S = toSet(<P>)
+test: toMapUnique(<S>)
+
+QValue:
+prep: import List;
+prep: import Set;
+make: K = set[int, 6, 6]
+make: V = list[int, 6, 6]
+expr: KL = toList(<K>)
+expr: P =  zip(<KL>, <V>)
+expr: S = toSet(<P>)
+expr: H = toMapUnique(<S>)
+hint: <H>
+test: toMapUnique(<S>) == <?>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(rel[&A, &B] st) throws MultipleKey;
@@ -361,6 +573,20 @@ toString({"elephant", "zebra", "snake"});
 
 Pitfalls:
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[int]
+test: toString(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[int]
+expr: H = toString(<S>)
+hint: <S>
+test: toString(<?>) == <H>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(set[&T] st);

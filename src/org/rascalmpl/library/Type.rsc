@@ -8,7 +8,6 @@
 @unfinished
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl}
 @doc{
-  
 Synopsis: This is a module that reflects Rascal's type system, implemented in Rascal itself.
 
 Description:  
@@ -19,8 +18,12 @@ The goal of this module is to provide:
 
 The following definition is built into Rascal:
   * <pre>data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);</pre>
-  
+
+
 The # operator will always produce a value of type[&T], where &T is bound to the type that was reified.
+
+The following functions are provided on types:
+<toc Rascal/Libraries/Prelude/Type 1>
 
 Examples:
 <screen>

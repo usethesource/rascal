@@ -12,7 +12,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 
 @doc{
-Synopsis: Functions on parse trees.
+Synopsis: Library functions for parse trees.
 
 Description:
 
