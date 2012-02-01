@@ -275,8 +275,10 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 // - root: the concept that will act as root for all concepts in this library.
 
 public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
-  //println("extractRemoteConcepts: <L>, <root>");
-  Module M = parseModule(readFile(L), L).top;
+ 
+  L1 = L.top;
+   println("extractRemoteConcepts: <L>, <L1>, <root>");
+  Module M = parseModule(readFile(L1), L1).top;
  
   declarations = [];
   contentMap = ();
@@ -285,7 +287,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   Header header = M.header;
   moduleName = normalizeName("<header.name>"); 
   doc =  getModuleDoc(header);
-  //println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
+  println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
   if(doc != ""){  		
      writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
      contentMap["<root>/<moduleName>"] = doc;
@@ -318,8 +320,9 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 // Returns:  the documentation associated with itemName.
 
 public str extractDoc(loc L, str itemName){
-  L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  //println("extractDoc: <L1>, <itemName>");
+ // L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
+  L1 = L.top;
+  println("extractDoc: <L1>, <itemName>");
   Module M = parseModule(readFile(L1), L1).top;
   Header header = M.header;
   moduleName = basename(normalizeName("<header.name>")); 
@@ -373,7 +376,8 @@ private bool replaceDoc(str itemName, Tags tags, str oldFileContent, str newDocC
 }
 
 public bool replaceDoc(loc L, str itemName, str newDocContent){
-  L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
+  //L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
+  L1 = L.top;
   println("replaceDoc: <L1>, <itemName>, <newDocContent>");
   oldFileContent = readFile(L1);
   M = parseModule(oldFileContent, L1);

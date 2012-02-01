@@ -140,7 +140,7 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
     
     // listing from file
     case /^\<listing\s*<name:.+>\>$/: {
-      loc L = |std:///|[path = name];
+      loc L = (|std:///|[path = name]).top;
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;
@@ -394,7 +394,7 @@ private str markupFigure(list[str] lines, int width, int height, str file){
   if (/\s*render\(<arg:.*>\);/ := renderCall){
       // replace the render call by a call to renderSave
  
-	  path = courseDir[path = courseDir.path + "<conceptPath>/<file>"];
+	  path = courseDir[path = courseDir.path + "<conceptPath>/<file>"].top;
 	  lines[n-1] = (width > 0 && height > 0) ? "renderSave(<arg>, <width>, <height>, <path>);"
 	                                         : "renderSave(<arg>, <path>);";
 	  

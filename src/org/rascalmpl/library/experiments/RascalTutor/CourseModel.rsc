@@ -177,15 +177,15 @@ public str compose(list[str] names){
 }
 
 public loc conceptFile(str cn){
-  return courseDir + cn + (basename(cn) + ".concept");
+  return (courseDir + cn + (basename(cn) + ".concept")).top;
 }
 
 public loc htmlFile(ConceptName cn){
-  return courseDir + cn + (basename(cn) + ".html");
+  return (courseDir + cn + (basename(cn) + ".html")).top;
 }
 
 public loc questFile(ConceptName cn){
-  return courseDir + cn + (basename(cn) + ".quest");
+  return (courseDir + cn + (basename(cn) + ".quest")).top;
 }
 
 // Escape concept name for use as HTML id.
@@ -240,8 +240,9 @@ public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Cours
 // - otherwise return "<cn>.concept".
 
 public str readConceptFile(ConceptName cn){
-   //println("readConceptFile: <cn>");
+   println("readConceptFile: <cn>");
    cfile = conceptFile(cn);
+ 
    if(exists(cfile))
       return readFile(cfile);
    remoteloc = courseDir + cn + remoteLoc;
@@ -450,11 +451,12 @@ str getLocalRoot(str cn){
 map[str,map[str,str]] remoteContentMap = ();
 
 void extractAndCacheRemoteConcepts(loc file, str root){
-     file = file[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-     //println("extractAndCacheRemoteConcepts: <file>, <root>");
+     //file = file[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
+     file1 = file.top;
+     println("extractAndCacheRemoteConcepts: <file1>, <root>");
      rmap =  remoteContentMap[rootname(root)] ? ();
-     cmap = extractRemoteConcepts(file, root);
-     println("Extracted extracted <size(cmap)> concepts from <file>");
+     cmap = extractRemoteConcepts(file1, root);
+     println("Extracted extracted <size(cmap)> concepts from <file1>");
      //for(cn <- cmap)
      //    println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
@@ -477,9 +479,9 @@ public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
           }    
       }
     }
-    //remoteContentMap[rootConcept] = rmap;
+    remoteContentMap[rootConcept] = rmap;
     concepts = crawlConcepts(rootConcept);
-    //println("concepts = <concepts>");
+    println("concepts = <concepts>");
     courseConcepts[rootConcept] = concepts;
     return concepts;
 }
