@@ -20,6 +20,28 @@ import Relation;
 carrier({<1,10>, <2,20>});
 carrier({<1,10,100,1000>, <2,20,200,2000>});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int,int]]
+test: carrier(<R>)
+
+QType:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+test: carrier(<R>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+expr: H = carrier(<R>)
+hint: <H>
+test: carrier(<R>) == <?>
+
+
+
 }
 public set[&T]  carrier (rel[&T,&T] R)
 {
@@ -52,6 +74,22 @@ Examples:
 import Relation;
 carrierR({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: carrierR(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+expr: H = carrierR(<R>, <S>)
+hint: <H>
+test: carrierR(<R>, <S>) == <?>
 }
 public rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)
 {
@@ -74,7 +112,31 @@ public rel[&T,&T,&T,&T,&T] carrierR (rel[&T,&T,&T,&T,&T] R, set[&T] S)
                                   V0 in S, V1 in S, V2 in S, V3 in S, V4 in S };
 }
 
-@doc{Binary relation excluded tuples with some element in S}
+@doc{
+Synopsis: A relation excluding tuples that contain certain element values.
+
+Examples:
+<screen>
+import Relation;
+carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
+</screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: carrierX(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+expr: H = carrierR(<R>, <S>)
+hint: <H>
+test: carrierX(<R>, <S>) == <?>
+}
 @doc{
 Synopsis: A relation excluded tuples containing certain values.
 
@@ -111,11 +173,35 @@ public rel[&T,&T,&T,&T,&T] carrierX (rel[&T,&T,&T,&T,&T] R, set[&T] S)
 @doc{
 Synopsis: Complement of a relation.
 
+Description:
+Given a relation `R` a new relation `U` can be constructed that contains
+all possible tuples with element values that occur at corresponding tuple positions in `R`.
+The function `complement` returns the complement of `R` relative to `U`, in other words: `U - R`.
+
 Examples:
 <screen>
 import Relation;
+// Declare `R` and compute corresponding `U`:
+R = {<1,10>, <2, 20>, <3, 30>};
+U = domain(R) * range(R);
+// Here is the complement of `R` computed in two ways:
+U - R;
 complement({<1,10>, <2, 20>, <3, 30>});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[str,int],2,3]
+test: complement(<R>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[str,int],2,3]
+expr: H = complement(<R>)
+hint: <H>
+test: complement(<R>) == <?>
 }
 public rel[&T0, &T1] complement(rel[&T0, &T1] R)
 {
@@ -163,13 +249,17 @@ domain({<"mon", 1>, <"tue", 2>});
 
 Questions:
 
-QChoice: Which statement about the domain and range function on a binary relation of type `rel[int,int]` is correct:
-g: Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple.
-g: Domain and range are only applicable to binary relations.
-b: Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple.
-b: Domain returns a set of the second element of each tuple in the relation and range returns a set of the first element of each tuple.
-b: Domain returns a list of the second element of each tuple in the relation and range returns a list of the first element of each tuple.
-b: Domain returns a set of the elements that occur in any tuple in the relation and range returns a list of those elements.
+QType:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+test: domain(<R>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+expr: H = domain(<R>)
+hint: <H>
+test: domain(<R>) == <?>
 }
 public set[&T0] domain (rel[&T0,&T1] R)
 {
@@ -202,6 +292,22 @@ Examples:
 import Relation;
 domainR({<1,10>, <2,20>, <3,30>}, {3, 1});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: domainR(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+expr: H = domainR(<R>, <S>)
+hint: <H>
+test: domainR(<R>, <S>) == <?>
 }
 public rel[&T0,&T1] domainR (rel[&T0,&T1] R, set[&T0] S)
 {
@@ -234,6 +340,22 @@ Examples:
 import Relation;
 domainX({<1,10>, <2,20>, <3,30>}, {3, 1});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: domainX(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20],6,8]
+expr: H = domainX(<R>, <S>)
+hint: <H>
+test: domainX(<R>, <S>) == <?>
 }
 public rel[&T0,&T1] domainX (rel[&T0,&T1] R, set[&T0] S)
 {
@@ -295,6 +417,22 @@ Examples:
 import Relation;
 ident({"mon", "tue", "wed"});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: S = set[int[0,20],3,4]
+test: ident(<S>)
+
+QValue:
+prep: import Relation;
+make: S = set[int[0,20],3,4]
+expr: H =  ident(<S>) 
+hint: <H>
+test: ident(<S>) == <?>
+
+
 }
 public rel[&T, &T] ident (set[&T] S)
 {
@@ -309,6 +447,22 @@ Examples:
 import Relation;
 invert({<1,10>, <2,20>});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[arb[int,str],arb[int,str]]]
+test: invert(<R>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[arb[int,str],arb[int,str]]]
+expr: H = invert(<R>)
+hint: <H>
+test: invert(<R>) == <?>
+
+
 }
 public rel[&T1, &T0] invert (rel[&T0, &T1] R)
 {
@@ -342,8 +496,18 @@ range({<"mon", 1>, <"tue", 2>});
 
 Questions:
 
-QUse: Rascal/Libraries/Prelude/Relation/domain 1
 
+QType:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+test: range(<R>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[str,int]]
+expr: H = range(<R>)
+hint: <H>
+test: range(<R>) == <?>
 }
 public set[&T1] range (rel[&T0,&T1] R)
 {
@@ -377,6 +541,22 @@ import Relation;
 rangeR({<1,10>, <2,20>, <3,30>}, {30, 10});
 </screen>
 
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: rangeR(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+expr: H = rangeR(<R>, <S>)
+hint: <H>
+test: rangeR(<R>, <S>) == <?>
+
 }
 public rel[&T0,&T1] rangeR (rel[&T0,&T1] R, set[&T2] S)
 {
@@ -394,6 +574,22 @@ Examples:
 import Relation;
 rangeX({<1,10>, <2,20>, <3,30>}, {30, 10});
 </screen>
+
+Questions:
+
+QType:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+test: rangeX(<R>, <S>)
+
+QValue:
+prep: import Relation;
+make: R = set[tuple[int[0,10],int[10,20]]]
+make: S = set[int[0,20]]
+expr: H = rangeX(<R>, <S>)
+hint: <H>
+test: rangeX(<R>, <S>) == <?>
 }
 public rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)
 {
