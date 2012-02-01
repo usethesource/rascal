@@ -78,9 +78,9 @@
 map[str, int]: ("b":2,"a":1)
 </pre>  Trying to access the key <code>"c"</code> will result in an error:
 <pre class="screen"><span class="prompt">rascal></span>T["c"];
-exception:NoSuchKey("c")
-stacktrace:|stdin:///|(2,3,&lt;1,2>,&lt;1,5>)
+|stdin:///|(2,3,&lt;1,2>,&lt;1,5>): NoSuchKey("c")
 	somewhere in: ___SCREEN_INSTANCE___
+
 
 </pre>  Using the <code>?</code> operator, we can write:
 <pre class="screen"><span class="prompt">rascal></span>T["c"] ? 0;

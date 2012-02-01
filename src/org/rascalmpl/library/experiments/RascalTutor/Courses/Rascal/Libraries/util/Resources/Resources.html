@@ -117,7 +117,14 @@ ok
 Resource: project(
   |project://org.eclipse.imp.pdb.values|,
   {
-    file(|project://org.eclipse.imp.pdb.values/.classpath|),
+    folder(
+      |project://org.eclipse.imp.pdb.values/.settings|,
+      {file(|project://org.eclipse.imp.pdb.values/.settings/org.eclipse.jdt.core.prefs|)}),
+    file(|project://org.eclipse.imp.pdb.values/clones.value|),
+    folder(
+      |project://org.eclipse.imp.pdb.values/META-INF|,
+      {file(|project://org.eclipse.imp.pdb.values/META-INF/MANIFEST.MF|)}),
+    file(|project://org.eclipse.imp.pdb.values/build.properties|),
     folder(
       |project://org.eclipse.imp.pdb.values/src|,
       {folder(
@@ -131,73 +138,62 @@ Resource: project(
                       {folder(
                           |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts|,
                           {
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IWriter.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IBool.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/INumber.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/ITuple.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IRelationWriter.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IMapWriter.java|),
                             folder(
-                              |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors|,
+                              |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util|,
                               {
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/VisitorException.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/VisitorAdapter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/BottomUpTransformer.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/BottomUpVisitor.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/NullVisitor.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/IValueVisitor.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/visitors/IdentityVisitor.java|)
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/ValueIndexedHashMap.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/ShareableHashMap.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/ShareableHashSet.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/ShareableList.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/RotatingQueue.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/IndexedSet.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/util/ResizingArray.java|)
                               }),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IRational.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/ISet.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/INode.java|),
                             folder(
-                              |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type|,
+                              |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions|,
                               {
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/AbstractDataType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ExternalType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/SetType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/BoolType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/StringType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ParameterType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ITypeVisitor.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/TupleType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/SourceLocationType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/RationalType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/TypeStore.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/VoidType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ValueType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/AliasType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/RelationType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/DateTimeType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/Type.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/TypeFactory.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/RealType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ListType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/MapType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/NodeType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/ConstructorType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/NumberType.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/type/IntegerType.java|)
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UndeclaredAnnotationException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UndeclaredFieldException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UndeclaredConstructorException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalFieldTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedConstructorTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/OverloadingNotSupportedException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedMapValueTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedElementTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedChildTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/NullTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FactParseError.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnsupportedTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedResultTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalConstructorApplicationException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FieldLabelMismatchException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/RedeclaredConstructorException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalInstantiatedAbstractDataTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/EmptyIdentifierException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FactTypeRedeclaredException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/RedeclaredFieldNameException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FactMatchException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedMapKeyTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalFieldNameException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FactTypeDeclarationException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalOperationException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UnexpectedAnnotationTypeException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalIdentifierException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/RedeclaredAnnotationException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/FactTypeUseException.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/IllegalAnnotationDeclaration.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/exceptions/UndeclaredAbstractDataTypeException.java|)
                               }),
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IValue.java|),
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IString.java|),
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IListWriter.java|),
-                            folder(
-                              |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io|,
-                              {
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/ATermWriter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/ATermReader.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/PBFWriter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/PBFReader.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/AbstractReader.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/IValueWriter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/IValueReader.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/XMLWriter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/XMLReader.java|),
-                                folder(
-                                  |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/binary|,
-                                  {
-                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/binary/BinaryWriter.java|),
-                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/binary/BinaryReader.java|)
-                                  }),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/StandardTextWriter.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/io/StandardTextReader.java|)
-                              }),
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/ISourceLocation.java|),
-                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/ISetWriter.java|),
+                            file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IExternalValue.java|),
                             file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IDateTime.java|),
                             file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IConstructor.java|),
                             file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/IValueFactory.java|),
@@ -207,35 +203,44 @@ Resource: project(
                             folder(
                               |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl|,
                               {
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/BaseValueFactory.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/DateTimeValue.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/Value.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/ICanBecomeABigInteger.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/AbstractValueFactoryAdapter.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/RealValue.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/BoolValue.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/ExternalValue.java|),
+                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/AbstractNumberValue.java|),
                                 folder(
-                                  |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util|,
+                                  |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast|,
                                   {
-                                    folder(
-                                      |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/sharing|,
-                                      {
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/sharing/IndexedCache.java|),
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/sharing/IShareable.java|),
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/sharing/ShareableValuesFactory.java|)
-                                      }),
-                                    folder(
-                                      |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/collections|,
-                                      {
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/collections/ShareableValuesHashMap.java|),
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/collections/ShareableValuesHashSet.java|),
-                                        file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/util/collections/ShareableValuesList.java|)
-                                      })
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/List.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/DateTimeValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Relation.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/SetWriter.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Node.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Map.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/AnnotatedConstructor.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Constructor.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/AnnotatedNode.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/MapWriter.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/IntegerValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/AnnotatedConstructorBase.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/ValueFactory.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/BigIntegerValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Value.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Tuple.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/BoolValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/AbstractNumberValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/ListWriter.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/RelationWriter.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/StringValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/BigDecimalValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/RationalValue.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/Set.java|),
+                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/fast/SourceLocationValue.java|)
                                   }),
                                 file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/SourceLocationValue.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/StringValue.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/Writer.java|),
-                                file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/IntegerValue.java|),
-                                folder(
-                                  |project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/shared|,
-                                  {
-                                    file(|project://org.eclipse.imp.pdb.values/src/org/eclipse/imp/pdb/facts/impl/shared/SharedMap.java|),
-                              ...
+        ...
 </pre>
 </div>
 

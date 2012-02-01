@@ -78,10 +78,10 @@ list[int]: [1,5,2,3]
 list[str]: ["zebra","elephant","eagle","snake","owl"]
 </pre> An exception is thrown when the index position is outside the list:
 <pre class="screen"><span class="prompt">rascal></span>insertAt([1,2,3], 10, 5);
-exception:IndexOutOfBounds(10)
-stacktrace:|stdin:///|(0,24,&lt;1,0>,&lt;1,24>)
+|stdin:///|(0,24,&lt;1,0>,&lt;1,24>): IndexOutOfBounds(10)
 	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.insertAt(org.eclipse.imp.pdb.facts.IList,org.eclipse.imp.pdb.facts.IInteger,org.eclipse.imp.pdb.facts.IValue) throws java.lang.IndexOutOfBoundsException
 	somewhere in: ___SCREEN_INSTANCE___
+
 
 </pre>
 </div>
@@ -118,8 +118,8 @@ stacktrace:|stdin:///|(0,24,&lt;1,0>,&lt;1,24>)
 <input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_1" value="1">
 <label for="Rascal/Libraries/Prelude/List/insertAt_1_1">N elements.</label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_2" value="2">
-<label for="Rascal/Libraries/Prelude/List/insertAt_1_2">N-1 elements.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_insertAt_1:answer" id="Rascal/Libraries/Prelude/List/insertAt_1_3" value="3">
+<label for="Rascal/Libraries/Prelude/List/insertAt_1_3">a length that depends on the inserted element.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -143,10 +143,10 @@ stacktrace:|stdin:///|(0,24,&lt;1,0>,&lt;1,24>)
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="&quot;Celery&quot;">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[&quot;Telly Monster&quot;, &quot;Boba Fett&quot;, &quot;Bert&quot;, &quot;Anise&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:E" value="&quot;Cinnamon&quot;">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:L" value="[&quot;Countess Darling Von Darling&quot;, &quot;Slimey the Worm&quot;, &quot;C&quot;, &quot;Bruno&quot;, &quot;S&quot;, &quot;Boba Fett&quot;]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_2:I" value="2">
-The type of <tt>insertAt([&quot;Telly Monster&quot;, &quot;Boba Fett&quot;, &quot;Bert&quot;, &quot;Anise&quot;], 2, &quot;Celery&quot;)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
+The type of <tt>insertAt([&quot;Countess Darling Von Darling&quot;, &quot;Slimey the Worm&quot;, &quot;C&quot;, &quot;Bruno&quot;, &quot;S&quot;, &quot;Boba Fett&quot;], 2, &quot;Cinnamon&quot;)</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -170,10 +170,10 @@ The type of <tt>insertAt([&quot;Telly Monster&quot;, &quot;Boba Fett&quot;, &quo
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_insertAt_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="&quot;Grape&quot;">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[&quot;Isolder&quot;, &quot;C&quot;, &quot;E-3PO&quot;, &quot;R&quot;, &quot;Lime&quot;, &quot;A&quot;]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:I" value="0">
-<pre class="prequestion">insertAt([&quot;Isolder&quot;, &quot;C&quot;, &quot;E-3PO&quot;, &quot;R&quot;, &quot;Lime&quot;, &quot;A&quot;], 0, &quot;Grape&quot;) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:E" value="-13">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:L" value="[-8, 15, -19, -16, -4]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:I" value="1">
+<pre class="prequestion">insertAt([-8, 15, -19, -16, -4], 1, -13) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_insertAt_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_insertAt_3:another" value="yes">

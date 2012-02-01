@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/util/Benchmark/systemTime</title>
 
-<meta name="description" content="Rascal/Libraries/util/Benchmark/systemTime:  Measuring system time.">
+<meta name="description" content="Rascal/Libraries/util/Benchmark/systemTime:  System time in nanoseconds (10$^-9$ sec).">
 
 <meta name="keywords" content="Rascal/Libraries/util/Benchmark/systemTime, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Measuring system time.
+<span class="sectionHead">Synopsis</span>  System time in nanoseconds (10<code><i></i><sup>-9</sup></code> sec).
 
 </div>
 
@@ -79,14 +79,14 @@ ok
 ok
 </pre>  Here we measure time by using separate calls to <code>sytemTime</code> before and after a call to <code>fac</code>.
 <pre class="screen"><span class="prompt">rascal></span>before = systemTime();
-int: 3271828000
+int: 1193636000
 <span class="prompt">rascal></span>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 <span class="prompt">rascal></span>systemTime() - before;
-int: 677000
+int: 1774000
 </pre>  The code to be measured can also be passed as a function parameter to <code>systemTime</code>:
 <pre class="screen"><span class="prompt">rascal></span>systemTime( void() { fac(50); } );
-int: 12000
+int: 36000
 </pre>
 </div>
 

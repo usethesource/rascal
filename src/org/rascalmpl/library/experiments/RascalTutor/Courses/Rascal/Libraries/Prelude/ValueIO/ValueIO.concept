@@ -1,6 +1,6 @@
 Name: ValueIO
 
-Synopsis: Functions for reading and writing values in textual and binary format.
+Synopsis: Library functions for reading and writing values in textual and binary format.
 
 
 Syntax:

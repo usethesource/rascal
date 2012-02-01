@@ -77,7 +77,7 @@ real: 4.
 <span class="prompt">rascal></span>10 / 3.0
 real: 3.333333333333333333333333333333333333333333333333333333333333333
 <span class="prompt">rascal></span>12 / 0
-internal exception: java.lang.ArithmeticException: / by zero	somewhere in: markupScreen
+java.lang.ArithmeticException: / by zero (internal error)	somewhere in: markupScreen
 	somewhere in: markup
 	somewhere in: markup
 	somewhere in: compileConcept
@@ -91,12 +91,12 @@ java.lang.ArithmeticException: / by zero
 	at org.rascalmpl.interpreter.result.IntegerResult.divide(IntegerResult.java:56)
 	at org.rascalmpl.semantics.dynamic.Expression$Division.interpret(Expression.java:573)
 	at org.rascalmpl.semantics.dynamic.Command$Expression.interpret(Command.java:57)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:921)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:791)
-	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:748)
+	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:926)
+	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:796)
+	at org.rascalmpl.interpreter.Evaluator.eval(Evaluator.java:753)
 	at org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator.eval(HTMLGenerator.java:182)
 	at org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator.shell(HTMLGenerator.java:116)
-	at sun.reflect.GeneratedMethodAccessor296.invoke(Unknown Source)
+	at sun.reflect.GeneratedMethodAccessor154.invoke(Unknown Source)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
 	at java.lang.reflect.Method.invoke(Method.java:597)
 	at org.rascalmpl.interpreter.result.JavaMethod.invoke(JavaMethod.java:132)
@@ -122,8 +122,8 @@ java.lang.ArithmeticException: / by zero
 	at org.rascalmpl.semantics.dynamic.Statement$Expression.interpret(Statement.java:313)
 	at org.rascalmpl.semantics.dynamic.Statement$Return.interpret(Statement.java:704)
 	at org.rascalmpl.semantics.dynamic.Statement$NonEmptyBlock.interpret(Statement.java:683)
-	at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1526)
-	at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:185)
+	at org.rascalmpl.interpreter.Evaluator.matchAndEval(Evaluator.java:1532)
+	at org.rascalmpl.interpreter.utils.Cases$DefaultBlock.matchAndEval(Cases.java:198)
 	at org.rascalmpl.semantics.dynamic.Statement$Switch.interpret(Statement.java:814)
 	at org.rascalmpl.interpreter.result.RascalFunction.runBody(RascalFunction.java:282)
 	at org.rascalmpl.interpreter.result.RascalFunction.call(RascalFunction.java:231)
@@ -230,9 +230,9 @@ java.lang.ArithmeticException: / by zero
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:A" value="-4">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:B" value="7">
-The type of <tt>-4 / 7</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:A" value="-3">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_1:B" value="-5">
+The type of <tt>-3 / -5</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -256,9 +256,9 @@ The type of <tt>-4 / 7</tt> is <input type="text" size="30" name="Rascal_Express
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:A" value="-5">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:B" value="1.58151245230350800">
-The type of <tt>-5 / 1.58151245230350800</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:A" value="15">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_2:B" value="8.29494985022470800">
+The type of <tt>15 / 8.29494985022470800</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -282,9 +282,9 @@ The type of <tt>-5 / 1.58151245230350800</tt> is <input type="text" size="30" na
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:A" value="3.37616912971780400">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:B" value="3">
-The type of <tt>3.37616912971780400 / 3</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_3:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:A" value="17.64443283417362400">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_3:B" value="-5">
+The type of <tt>17.64443283417362400 / -5</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_3:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -308,9 +308,9 @@ The type of <tt>3.37616912971780400 / 3</tt> is <input type="text" size="30" nam
 <span id="answerFeedback_Rascal_Expressions_Values_Number_Division_4" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:A" value="10">
-<input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:B" value="-5.024674715417014800">
-<pre class="prequestion">10 / -5.024674715417014800 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_4:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:A" value="1.25410182778907600">
+<input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:B" value="-20">
+<pre class="prequestion">1.25410182778907600 / -20 == <input type="text" size="30" name="Rascal_Expressions_Values_Number_Division_4:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Number_Division_4:another" value="yes">

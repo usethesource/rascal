@@ -70,10 +70,10 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>|tmp:///myDir| + "myFile";
-loc: |tmp:///myDir/myFile|
+loc: |tmp:///myDir/myFile|(65535,65535,&lt;-1,-1>,&lt;-1,-1>)
 </pre> To get the original back, you can use the <code>parent</code> field:
  <pre class="screen"><span class="prompt">rascal></span>(|tmp:///myDir| + "myFile").parent
-loc: |tmp:///myDir|
+loc: |tmp:///myDir|(65535,65535,&lt;65535,-1>,&lt;65535,-1>)
 </pre>
 </div>
 

@@ -1,6 +1,6 @@
 Name: onClick
 
-Synopsis: Old name for [onMouseDown], use that instead!
+Synopsis: Old name for [onMouseDown]. (__deprecated__)
 
 Syntax:
 

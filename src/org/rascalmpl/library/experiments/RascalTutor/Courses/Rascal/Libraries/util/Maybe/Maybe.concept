@@ -1,12 +1,12 @@
 Name: Maybe
 
-Synopsis: Optional datatype
+Synopsis: Data type to represent an optional value.
 
 Types: `data Maybe[&A] = nothing() | just(&A val);`
 
 Usage: `import util::Maybe;`
 
-Description: Data type used to describe that something maybe will give a result
+Description: Data type to represent an optional result.
 
 Examples: 
 <listing>

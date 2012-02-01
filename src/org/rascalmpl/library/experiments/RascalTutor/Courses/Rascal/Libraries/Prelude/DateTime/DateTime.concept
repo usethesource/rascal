@@ -1,0 +1,12 @@
+<AUTOINSERTED>
+Name: DateTime
+Usage: `import DateTime;`
+</AUTOINSERTED>
+
+Synopsis: Library functions on DateTime.
+
+Description:
+
+
+The following functions are provided on datetime values:
+<toc Rascal/Libraries/Prelude/DateTime 1>

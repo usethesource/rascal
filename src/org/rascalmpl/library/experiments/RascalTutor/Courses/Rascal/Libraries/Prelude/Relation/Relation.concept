@@ -3,6 +3,8 @@ Name: Relation
 Usage: `import Relation;`
 </AUTOINSERTED>
 
+Synopsis: Library functions for relations.
+
 Description:
 
 Operations on Relations are describing in [Values/Relation].

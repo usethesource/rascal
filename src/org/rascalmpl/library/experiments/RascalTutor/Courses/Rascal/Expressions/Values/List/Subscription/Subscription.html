@@ -77,9 +77,9 @@ list[int]: [10,20,30]
 int: 20
 </pre>  Explore an error case:
 <pre class="screen"><span class="prompt">rascal></span>L[5];
-exception:IndexOutOfBounds(5)
-stacktrace:|stdin:///|(0,5,&lt;1,0>,&lt;1,5>)
+|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): IndexOutOfBounds(5)
 	somewhere in: ___SCREEN_INSTANCE___
+
 
 </pre>
 </div>
@@ -110,14 +110,14 @@ stacktrace:|stdin:///|(0,5,&lt;1,0>,&lt;1,5>)
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Rascal_Expressions_Values_List_Subscription_1:answer" id="Rascal/Expressions/Values/List/Subscription_1_5" value="5">
+<label for="Rascal/Expressions/Values/List/Subscription_1_5">The integers, 0, 2, ..., N.</label><br/>
+
 <input type="radio" name="Rascal_Expressions_Values_List_Subscription_1:answer" id="Rascal/Expressions/Values/List/Subscription_1_0" value="0">
 <label for="Rascal/Expressions/Values/List/Subscription_1_0">The integers 0, 1, ..., N - 1.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_List_Subscription_1:answer" id="Rascal/Expressions/Values/List/Subscription_1_4" value="4">
 <label for="Rascal/Expressions/Values/List/Subscription_1_4">Odd integers.</label><br/>
-
-<input type="radio" name="Rascal_Expressions_Values_List_Subscription_1:answer" id="Rascal/Expressions/Values/List/Subscription_1_3" value="3">
-<label for="Rascal/Expressions/Values/List/Subscription_1_3">Even integers.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -141,10 +141,10 @@ stacktrace:|stdin:///|(0,5,&lt;1,0>,&lt;1,5>)
 <span id="answerFeedback_Rascal_Expressions_Values_List_Subscription_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Subscription_2:L" value="[0, 3, -13, -13]">
-<input type="hidden" name="Rascal_Expressions_Values_List_Subscription_2:I" value="1">
-Given <pre class="prequestion">L = [0, 3, -13, -13];
-</pre><pre class="prequestion">L[1] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Subscription_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_Subscription_2:L" value="[true, false, true, true, true, false]">
+<input type="hidden" name="Rascal_Expressions_Values_List_Subscription_2:I" value="0">
+Given <pre class="prequestion">L = [true, false, true, true, true, false];
+</pre><pre class="prequestion">L[0] == <input type="text" size="30" name="Rascal_Expressions_Values_List_Subscription_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_Subscription_2:another" value="yes">

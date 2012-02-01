@@ -77,10 +77,10 @@ real: 0.0025
 <span class="prompt">rascal></span>toReal("123");
 real: 123.
 <span class="prompt">rascal></span>toReal("abc");
-exception:IllegalArgument()
-stacktrace:|stdin:///|(7,5,&lt;1,7>,&lt;1,12>)
+|stdin:///|(7,5,&lt;1,7>,&lt;1,12>): IllegalArgument()
 	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.toReal(org.eclipse.imp.pdb.facts.IString)
 	somewhere in: ___SCREEN_INSTANCE___
+
 
 </pre>
 </div>
