@@ -321,10 +321,22 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			org.rascalmpl.ast.Expression nameExpr = getExpression();
 		
 			if (nameExpr.isQualifiedName()) {
-				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), visitArguments(eval));
+				 Result<IValue> constructors = eval.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+				 
+				 if (!registeredCacheHandler) {
+					 eval.getEvaluator().registerConstructorDeclaredListener(
+							 new IConstructorDeclared() {
+								 public void handleConstructorDeclaredEvent() {
+									 cachedPrefix = null;
+									 registeredCacheHandler = false;
+								 }
+							 });
+					 registeredCacheHandler = true;
+				 }
+				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), (OverloadedFunctionResult) constructors, visitArguments(eval));
 			}
 
-			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, visitArguments(eval));
+			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, null, visitArguments(eval));
 
 		}
 		
@@ -1798,7 +1810,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
 
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
-			Type signature = TF.tupleType(new Type[0]);
+//			Type signature = TF.tupleType(new Type[0]);
 
 			Result<IValue> r = eval.getEvaluator().getCurrentEnvt().getSimpleVariable(name);
 
@@ -1819,9 +1831,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return new QualifiedNamePattern(eval, this, name);
 			}
 
-			if (eval.getCurrentEnvt().isTreeConstructorName(name, signature)) {
-				return new NodePattern(eval, this, null, name, new ArrayList<IMatchingResult>());
-			}
+			// TODO: I don't understand which feature this code implements
+//			if (eval.getCurrentEnvt().isTreeConstructorName(name, signature)) {
+//				return new NodePattern(eval, this, null, name, new ArrayList<IMatchingResult>());
+//			}
 
 			// Completely fresh variable
 			return new QualifiedNamePattern(eval, this, name);
