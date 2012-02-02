@@ -47,6 +47,15 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		
 	}
 	
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, String name) {
+		super(ctx, x);
+		this.name = name;
+		this.declaredType = type;
+		this.anonymous = name.equals("_");
+		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
+		
+	}
+	
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return declaredType;

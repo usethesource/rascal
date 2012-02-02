@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
@@ -48,11 +47,11 @@ public class NodePattern extends AbstractMatchingResult {
 	private boolean isGenericNodeType;
 	private QualifiedName qName;
 	private Type type;
-	private Result<IValue> cachedConstructors = null;
-	private boolean registeredCacheHandler = false;
+	private final OverloadedFunctionResult constructors;
 	
-	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, OverloadedFunctionResult constructors, List<IMatchingResult> list){
 		super(ctx, x);
+		this.constructors = constructors;
 		
 		if (matchPattern != null) {
 			list.add(0, matchPattern);
@@ -213,24 +212,7 @@ public class NodePattern extends AbstractMatchingResult {
 		 Type signature = getSignatureType(env);
 
 		 if (!isGenericNodeType) {
-			 Result<IValue> constructors = this.cachedConstructors;
-			
-			 if (constructors == null) {
-				 this.cachedConstructors = constructors = env.getVariable(qName);
-				 
-				 if (!registeredCacheHandler) {
-					 ctx.getEvaluator().registerConstructorDeclaredListener(
-							 new IConstructorDeclared() {
-								 public void handleConstructorDeclaredEvent() {
-									 cachedConstructors = null;
-									 registeredCacheHandler = false;
-								 }
-							 });
-					 registeredCacheHandler = true;
-				 }
-			 }
-			 
-			 if (constructors != null && constructors instanceof OverloadedFunctionResult) {
+			 if (constructors != null) {
 				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
 					 if (d.match(signature)) {
 						 String cons = Names.name(Names.lastName(qName));
