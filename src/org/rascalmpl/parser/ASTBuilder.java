@@ -703,6 +703,17 @@ public class ASTBuilder {
 		}
 	}
 
+	// TODO: this is the new one to construct variables, which we'll use when the meta syntax for variables has been simplified
+	private Expression liftVariable(IConstructor tree) {
+		IConstructor type = TreeAdapter.getType(tree);
+		IList args = TreeAdapter.getArgs(tree);
+		IConstructor nameTree = (IConstructor) args.get(args.length() - 3);
+		ISourceLocation src = TreeAdapter.getLocation(tree);
+		Expression result = new Tree.MetaVariable(tree, type, TreeAdapter.yield(nameTree));
+		result.setSourceLocation(src);
+		return result;
+	}
+	
 	private String getLayoutName(IConstructor production) {
 		if (ProductionAdapter.isDefault(production)) {
 			for (IValue sym : ProductionAdapter.getSymbols(production)) {

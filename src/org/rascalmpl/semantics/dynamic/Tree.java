@@ -31,8 +31,12 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
+import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -51,6 +55,44 @@ public abstract class Tree {
 		return true;
 	}
 	
+  // TODO: this class is not used yet, but it will be when we simplify implosion to AST	
+  static public class MetaVariable extends org.rascalmpl.ast.Expression {
+	private final String name;
+	private final Type type;
+
+	public MetaVariable(IConstructor node, IConstructor symbol, String name) {
+		super(node);
+		this.name = name;
+		this.type = RTF.nonTerminalType(symbol);
+	}
+	
+	@Override
+	public Type typeOf(Environment env) {
+		return type;
+	}
+	
+	@Override
+	public Result<IValue> interpret(Evaluator eval) {
+		Result<IValue> variable = eval.getCurrentEnvt().getVariable(name);
+
+		if (variable == null) {
+			throw new UndeclaredVariableError(name, this);
+		}
+
+		if (variable.getValue() == null) {
+			throw new UninitializedVariableError(name, this);
+		}
+		
+		return variable;
+	}
+	
+	@Override
+	public IMatchingResult buildMatcher(IEvaluatorContext ctx) {
+		return new TypedVariablePattern(ctx, this, type, name);
+	}
+	  
+  }
+  
   static public class Appl extends org.rascalmpl.ast.Expression {
 	protected final IConstructor production;
 	protected final java.util.List<org.rascalmpl.ast.Expression> args;
@@ -287,7 +329,7 @@ public abstract class Tree {
 		wrap.add(setMatcher);
 		
 		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, wrap);
+		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, null, wrap);
 	} 
   }
   
