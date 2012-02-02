@@ -18,8 +18,25 @@ public class PreBootstrapTests extends TestFramework {
 	
 	@Test
 	public void caseinsensitivelit() {
-		testDecl("bool y =  (Sym) `<CaseInsensitiveStringConstant l>` :=  (Sym) `'hello'`");
+		testDecl("bool y =  (Sym) `<CaseInsensitiveStringConstant l>` :=  (Sym) `'hello'`;");
 	}
+	
+	
+	@Test
+	public void nonterminal() {
+		testDecl("bool y =  (Sym) `<Nonterminal l>` :=  (Sym) `X`;");
+	}
+	
+	@Test
+	public void param() {
+		testDecl("bool y =  (Sym) `<Nonterminal n>[<{Sym \",\"}+ syms>]` :=  (Sym) `List[String,String]`;");
+	}
+	
+	@Test
+	public void stringlit() {
+		testDecl("bool y =  (Sym) `<StringConstant l>` :=  (Sym) `\"hello\"`;");
+	}
+
 	
 	@Test
 	public void match1() {
