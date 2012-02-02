@@ -44,7 +44,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 		Environment env = ctx.getCurrentEnvt();
 		
 		// Look for this variable while we are constructing this pattern
-		if(anonymous){
+		if(anonymous) {
 			declaredType = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> varRes = env.getSimpleVariable(name);
@@ -65,6 +65,10 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 	
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
+		if (anonymous) {
+			return declaredType;
+		}
+		
 		if(patternVars != null && patternVars.containsKey(name)){
 			Type ot = patternVars.get(name).getType();
 			if(ot.compareTo(declaredType) < 0)
