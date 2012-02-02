@@ -1283,7 +1283,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		Module preModule = getBuilder().buildModule(top);
 		String name = getModuleName(preModule);
 		
-		if(isDeprecated(preModule)){
+		if(env != null && isDeprecated(preModule)){
 			env.setDeprecatedMessage(getDeprecatedMessage(preModule));
 		}
 		
