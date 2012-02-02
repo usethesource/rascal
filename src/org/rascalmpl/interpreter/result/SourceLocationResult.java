@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -321,8 +320,15 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 			}
 			else if (name.equals("top")) {
-				// TODO: don't know what to do here yet
-				throw new NotYetImplemented("replacement of top field");
+				if (replType.isStringType()) {
+					uri = URI.create(((IString) repl.getValue()).getValue());
+				}
+				else if (replType.isSourceLocationType()) {
+					uri = ((ISourceLocation) repl.getValue()).getURI();
+				}
+				else {
+					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
+				}
 			}
 			else if (name.equals("fragment")) {
 				if (!replType.isStringType()) {
