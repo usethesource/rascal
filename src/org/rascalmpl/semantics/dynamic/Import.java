@@ -37,7 +37,6 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(Evaluator eval) {
 			String name = Names.fullName(this.getModule().getName());
-//			eval.getCurrentModuleEnvironment().addExtend(name);
 			eval.extendCurrentModule(this, name);
 			
 			GlobalEnvironment heap = eval.getHeap();
@@ -47,12 +46,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 		
-		
-		
 		@Override
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			String name = Names.fullName(this.getModule().getName());
-//				eval.getCurrentModuleEnvironment().addExtend(name);
 
 			ModuleEnvironment env = eval.getHeap().getModule(name);
 			if (env != null && env.isSyntaxDefined()) {
@@ -61,9 +57,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			}
 			
 			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
-//			if (withImports) {
-				mod.declareSyntax(eval, withImports);
-//			}
+			mod.declareSyntax(eval, withImports);
 
 			return null;
 		}
