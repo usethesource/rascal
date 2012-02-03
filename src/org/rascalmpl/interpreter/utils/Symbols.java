@@ -159,6 +159,15 @@ public class Symbols {
 			IValue syms = Factory.Symbols.make(factory, symValues);
 			return Factory.Symbol_Alt.make(factory, syms);
 		}
+		if (symbol.isParametrized()) {
+			List<Sym> symbols = symbol.getParameters();
+			IValue[] symValues = new IValue[symbols.size()];
+			for(int i = symbols.size() - 1; i >= 0; --i){
+				symValues[i] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
+			}
+			IValue syms = Factory.Symbols.make(factory, symValues);
+			return Factory.Symbol_ParameterizedSort.make(factory, factory.string(((Nonterminal.Lexical) symbol.getNonterminal()).getString()), syms);
+		}
 		
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
