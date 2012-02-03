@@ -29,14 +29,17 @@ public data Symbol =
 	;
 
 @doc{Annotations to hold the type assigned to a tree.}
-public anno Symbol Tree@rtype; 
+public anno Symbol Tree@rtype;
+
+@doc{Annotations to hold the location at which a type is declared.}
+public anno loc Symbol@at; 
 
 @doc{Pretty printer for Rascal abstract types.}
 public str prettyPrintType(\int()) = "int";
 public str prettyPrintType(\bool()) = "bool";
 public str prettyPrintType(\real()) = "real";
 public str prettyPrintType(\rat()) = "rat";
-public str prettyPrintType(\rat()) = "str";
+public str prettyPrintType(\str()) = "str";
 public str prettyPrintType(\num()) = "num";
 public str prettyPrintType(\node()) = "node";
 public str prettyPrintType(\void()) = "void";
@@ -55,6 +58,7 @@ public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", 
 public str prettyPrintType(Symbol::\cons(Symbol a, list[Symbol] fs)) = "<prettyPrintType(a)> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>";
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
+//public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(\reified(Symbol t)) = "type[#<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
 public str prettyPrintType(\failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
@@ -152,7 +156,7 @@ public Symbol makeBagType(Symbol elementType) = \bag(elementType);
 public Symbol makeADTType(str n) = \adt(n,[]);
 
 @doc{Create a new parameterized ADT type with the given type parameters}
-public Symbol makeParameterizedADTType(RName n, Symbol p...) = \adt(n,p);
+public Symbol makeParameterizedADTType(str n, Symbol p...) = \adt(n,p);
 
 
 @doc{Create a new constructor type.}
@@ -178,8 +182,12 @@ public Symbol makeParameterizedAliasType(str n, Symbol t, list[Symbol] params) =
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
 	set[str] labels = { l | \label(l,_) <- paramTypes };
-	if (size(labels) == 0 || size(labels) == size(paramTypes)) 
-		return Symbol::\func(retType, paramTypes);
+	if (size(labels) == 0 || size(labels) == size(paramTypes))
+		if (isVarArgs) { 
+			return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
+		} else {
+			return Symbol::\func(retType, paramTypes);
+		}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
 }
@@ -227,6 +235,12 @@ public list[str] getRelFieldNames(Symbol t) {
     if (\rel(tls) := unwrapType(t) && relHasFieldNames(t)) return [ l | \label(l,_) <- tls ];
     if (\rel(_) := unwrapType(t)) throw "getRelFieldNames given rel type without field names: <prettyPrintType(t)>";        
     throw "getRelFieldNames given non-Relation type <prettyPrintType(t)>";
+}
+
+@doc{Get the fields of a relation.}
+public list[Symbol] getRelFields(Symbol t) {
+    if (\rel(tls) := unwrapType(t)) return tls;
+    throw "getRelFields given non-Relation type <prettyPrintType(t)>";
 }
 
 @doc{Get the name of a type variable.}
@@ -358,8 +372,14 @@ public str getTupleFieldName(Symbol t, int idx) {
 
 @doc{Get the element type of a set.}
 public Symbol getSetElementType(Symbol t) {
-    if (RSetType(et) := unwrapType(t)) return et;
-    if (RRelType(ets) := unwrapType(t)) return \tuple(ets);
+    if (\set(et) := unwrapType(t)) return et;
+    if (\rel(ets) := unwrapType(t)) return \tuple(ets);
+    throw "Error: Cannot get set element type from type <prettyPrintType(t)>";
+}
+
+@doc{Get the element type of a bag.}
+public Symbol getBagElementType(Symbol t) {
+    if (\bag(et) := unwrapType(t)) return et;
     throw "Error: Cannot get set element type from type <prettyPrintType(t)>";
 }
 
@@ -430,7 +450,7 @@ public Symbol getListElementType(Symbol t) {
 @doc{Get the name of the ADT.}
 public str getADTName(Symbol t) {
 	if (\adt(n,_) := unwrapType(t)) return n;
-	if (\constructor(a,_) := unwrapType(t)) return getADTName(a);
+	if (Symbol::\cons(a,_) := unwrapType(t)) return getADTName(a);
 	if (\reified(_) := unwrapType(t)) return "type";
     throw "getADTName, invalid type given: <prettyPrintType(t)>";
 }
@@ -438,7 +458,7 @@ public str getADTName(Symbol t) {
 @doc{Get the type parameters of an ADT.}
 public list[Symbol] getADTTypeParameters(Symbol t) {
 	if (\adt(n,ps) := unwrapType(t)) return ps;
-	if (\constructor(a,_) := unwrapType(t)) return getADTTypeParameters(a);
+	if (Symbol::\cons(a,_) := unwrapType(t)) return getADTTypeParameters(a);
 	if (\reified(_) := unwrapType(t)) return [];
     throw "getADTTypeParameters given non-ADT type <prettyPrintType(t)>";
 }
@@ -485,7 +505,7 @@ public bool aliasHasTypeParameters(Symbol t) = size(getAliasTypeParameters(t)) >
 @doc{Unwind any aliases inside a type.}
 public Symbol unwindAliases(Symbol t) {
     solve(t) {
-    	t = visit(t) { case RAliasType(tl,ps,tr) => tr };
+    	t = visit(t) { case \alias(tl,ps,tr) => tr };
     }
     return t;
 }
@@ -496,6 +516,9 @@ public default bool isFailType(Symbol _) = false;
 
 @doc{Construct a new fail type with the given message and error location.}
 public Symbol makeFailType(str s, loc l) = \failure({error(s,l)});
+
+@doc{Get the failure messages out of the type.}
+public set[Message] getFailures(\failure(set[Message] ms)) = ms;
 
 @doc{Extend a failure type with new failure messages.}
 public Symbol extendFailType(\failure(set[Message] ms), set[Message] msp) = \failure(ms + msp);
@@ -533,5 +556,22 @@ public set[Symbol] getOverloadOptions(Symbol t) {
 public Symbol makeOverloadedType(set[Symbol] options) = \overloaded(options);
 
 @doc{Ensure that sets of tuples are treated as relations.}
-public Symbol \set(Symbol t) = \rel(getTupleFieldsWithNames(t)) when isTupleType(t);
+public Symbol \set(Symbol t) = \rel(getTupleFields(t)) when isTupleType(t);
 
+@doc{Calculate the lub of a list of types.}
+public Symbol lubList(list[Symbol] ts) {
+	Symbol theLub = \void();
+	for (t <- ts) theLub = lub(theLub,t);
+	return theLub;
+}
+
+@doc{Is this type a non-container type?}
+public bool isElementType(Symbol t) = 
+	isIntType(t) || isBoolType(t) || isRealType(t) || isRatType(t) || isStrType(t) || 
+	isNumType(t) || isNodeType(t) || isVoidType(t) || isValueType(t) || isLocType(t) || 
+	isDateTimeType(t) || isTupleType(t) || isADTType(t) || isConstructorType(t) ||
+	isFunctionType(t) || isReifiedType(t);
+
+@doc{Is this type a container type?}
+public bool isContainerType(Symbol t) =
+	isSetType(t) || isListType(t) || isMapType(t) || isBagType(t); 

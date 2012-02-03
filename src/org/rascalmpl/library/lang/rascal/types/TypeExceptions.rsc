@@ -18,4 +18,6 @@ data RuntimeException =
     | UnexpectedRTypes(Symbol t1, Symbol t2)
     | UnimplementedRType(Symbol t1)
     | CannotCalculateBindings(Symbol t1, Symbol t2, loc l)
+    | invalidMatch(str varName, Symbol typeLub, Symbol typeBound)
+    | invalidMatch(Symbol targetType, Symbol sourceType)
     ;

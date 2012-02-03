@@ -18,16 +18,16 @@ import Map;
 import ParseTree;
 import Message;
 import Node;
+import Type;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
-import lang::rascal::types::Types;
-import lang::rascal::types::SubTypes;
-import lang::rascal::types::TypeSignatures;
+import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
+import lang::rascal::types::TypeSignature;
 import lang::rascal::checker::Annotations;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::scoping::ScopedTypes;
-import lang::rascal::types::Lubs;
 
 import lang::rascal::syntax::RascalRascal;
 
@@ -52,9 +52,9 @@ import lang::rascal::syntax::RascalRascal;
 // 5. Add support for the extends method of module importation
 
 //
-// This is a hack -- this ensures the empty list is of type list[RType], not list[Void] or list[Value]
+// This is a hack -- this ensures the empty list is of type list[Symbol], not list[Void] or list[Value]
 //
-list[RType] mkEmptyList() { return tail([makeVoidType()]); }
+list[Symbol] mkEmptyList() { return tail([makeVoidType()]); }
 
 //
 // Same hack -- this ensures the empty list is of type list[ItemId], not list[Void] or list[Value]
@@ -308,8 +308,8 @@ public STBuilder addImportedItemsToScope(QualifiedName qn, RSignature signature,
             }
 
             case ConstructorSigItem(constructorName,constructorType,at) : {
-                RName adtName = getADTName(constructorType);
-                list[RNamedType] constructorTypes = getConstructorArgumentTypesWithNames(constructorType);
+                RName adtName = RSimpleName(getADTName(constructorType));
+                list[Symbol] constructorTypes = getConstructorArgumentTypes(constructorType);
                 
                 set[ItemId] possibleADTs = getItems(stBuilder, head(stBuilder.scopeStack), adtName, Types());
                 possibleADTs = { t | t <- possibleADTs, ADT(_,_,_,_) := stBuilder.scopeItemMap[t] };
@@ -339,7 +339,7 @@ public STBuilder addImportedItemsToScope(QualifiedName qn, RSignature signature,
             }
 
             // TODO
-            // TagSigItem(RName tagName, list[RType] tagTypes, loc at)
+            // TagSigItem(RName tagName, list[Symbol] tagTypes, loc at)
             // case TagSigItem(tn,tt,at) : 3;
         }
     }
@@ -495,7 +495,7 @@ public STBuilder handleVarItemsNamesOnly(Tags ts, Visibility v, Type t, {Variabl
     stBuilder = handleTagsNamesOnly(ts, stBuilder);
 
     ConvertTuple ct = convertRascalType(stBuilder, t);
-    RType varType = ct.rtype; stBuilder = ct.stBuilder;
+    Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
 
     for (vb <- vs) {
         if ((Variable)`<Name n>` := vb || (Variable)`<Name n> = <Expression e>` := vb) {
@@ -539,7 +539,7 @@ public STBuilder handleFunctionExpNamesOnly(Tags ts, Visibility v, Signature s, 
 //
 public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signature s, loc l, STBuilder stBuilder) {
     // Add the new function into the scope and process any parameters.
-    STBuilder addFunction(Name n, RType retType, loc rloc, Parameters ps, list[RType] thrsTypes, bool isPublic, STBuilder stBuilder) {
+    STBuilder addFunction(Name n, Symbol retType, loc rloc, Parameters ps, list[Symbol] thrsTypes, bool isPublic, STBuilder stBuilder) {
         < stBuilder, functionId > = pushNewFunctionScope(convertName(n),retType,[],thrsTypes,isPublic,isVarArgsParameters(ps),l,stBuilder);
         < stBuilder, pwt > = handleParametersNamesOnly(ps, stBuilder);
         stBuilder.scopeItemMap[functionId].params = pwt;
@@ -551,7 +551,7 @@ public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
                 stBuilder = addScopeError(stBuilder, rloc, "Type variable <prettyPrintName(tvv.varName)> used in return type not previously declared.");        
             } else {
                // TODO: We should just have one, check to see if we have more
-               RType tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
+               Symbol tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
                if (tvType.varTypeBound != tvv.varTypeBound) {
                     stBuilder = addScopeError(stBuilder, rloc, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
                }
@@ -566,14 +566,14 @@ public STBuilder handleAbstractFunctionNamesOnly(Tags ts, Visibility v, Signatur
     switch(s) {
         case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType retType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol retType = ct.rtype; stBuilder = ct.stBuilder;
             stBuilder = addFunction(n, retType, t@\loc, ps, mkEmptyList(), isPublic(v), stBuilder);
         }
 
         case (Signature)`<FunctionModifiers ns> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType retType = ct.rtype; stBuilder = ct.stBuilder;
-            list[RType] throwsTypes = [ ];
+            Symbol retType = ct.rtype; stBuilder = ct.stBuilder;
+            list[Symbol] throwsTypes = [ ];
             for (thrsi <- thrs) { ct = convertRascalType(stBuilder, thrsi); throwsTypes = throwsTypes + ct.rtype; stBuilder = ct.stBuilder; }
             stBuilder = addFunction(n, retType, t@\loc, ps, throwsTypes, isPublic(v), stBuilder);
         }
@@ -595,8 +595,8 @@ public STBuilder handleAbstractFunction(Tags ts, Visibility v, Signature s, loc 
 // TODO: A current requirement is that, for varargs functions, the last parameter is just
 // a type variable pattern. Enforce that here.
 //
-public tuple[STBuilder,list[tuple[RType,Pattern]]] handleParametersNamesOnly(Parameters p, STBuilder stBuilder) {
-    list[tuple[RType,Pattern]] ptypes = [ ];
+public tuple[STBuilder,list[tuple[Symbol,Pattern]]] handleParametersNamesOnly(Parameters p, STBuilder stBuilder) {
+    list[tuple[Symbol,Pattern]] ptypes = [ ];
     
     if ((Parameters)`( <Formals f> )` := p || (Parameters)`( <Formals f> ... )` := p) {
         if ((Formals)`<{Pattern ","}* fs>` := f) {
@@ -677,9 +677,9 @@ private bool isPublic(Visibility v) {
 public STBuilder handleAnnotationDeclarationNamesOnly(Tags t, Visibility v, Type ty, Type ot, Name n, loc l, STBuilder stBuilder) {
     stBuilder = handleTagsNamesOnly(t, stBuilder);
     ConvertTuple ct = convertRascalType(stBuilder, ty);
-    RType annoType = ct.rtype; stBuilder = ct.stBuilder;
+    Symbol annoType = ct.rtype; stBuilder = ct.stBuilder;
     ct = convertRascalType(stBuilder, ot);
-    RType onType = ct.rtype; stBuilder = ct.stBuilder;
+    Symbol onType = ct.rtype; stBuilder = ct.stBuilder;
     // TODO: Add back in duplicate check, if needed
 //    stBuilder = justSTBuilder(checkForDuplicateAnnotations(addAnnotationToScope(convertName(n),annoType,onType,isPublic(v),l,stBuilder), n@\loc));
     stBuilder = justSTBuilder(addAnnotationToScope(convertName(n),annoType,onType,isPublic(v),l,stBuilder));
@@ -714,9 +714,9 @@ public STBuilder handleTagDeclarationNamesOnly(Tags t, Visibility v, Kind k, Nam
 //
 public STBuilder handleAbstractADTNamesOnly(Tags ts, Visibility v, UserType adtType, loc l, STBuilder stBuilder) {
     stBuilder = handleTagsNamesOnly(ts, stBuilder);
-    RType adtBase = convertUserType(adtType);
-    RType adtRType = makeParameterizedADTType(getUserTypeName(adtBase),getUserTypeParameters(adtBase));
-    return justSTBuilder(addADTToScope(adtRType, isPublic(v), l, stBuilder));
+    Symbol adtBase = convertUserType(adtType);
+    Symbol adtSymbol = makeParameterizedADTType(getUserTypeName(adtBase),getUserTypeParameters(adtBase));
+    return justSTBuilder(addADTToScope(adtSymbol, isPublic(v), l, stBuilder));
 }
 
 //
@@ -734,14 +734,14 @@ public STBuilder handleAbstractADT(Tags ts, Visibility v, UserType adtType, loc 
 //
 public STBuilder handleADTNamesOnly(Tags ts, Visibility v, UserType adtType, {Variant "|"}+ vars, loc l, STBuilder stBuilder) {
     stBuilder = handleTagsNamesOnly(ts, stBuilder);
-    RType adtBase = convertUserType(adtType);
-    RType adtRType = makeParameterizedADTType(getUserTypeName(adtBase),getUserTypeParameters(adtBase));
-    < stBuilder, adtId > = addADTToScope(adtRType, isPublic(v), l, stBuilder);
+    Symbol adtBase = convertUserType(adtType);
+    Symbol adtSymbol = makeParameterizedADTType(getUserTypeName(adtBase),getUserTypeParameters(adtBase));
+    < stBuilder, adtId > = addADTToScope(adtSymbol, isPublic(v), l, stBuilder);
 
     // Process each given variant, adding it into scope	
     for (var <- vars) {
         if ((Variant)`<Name n> ( <{TypeArg ","}* args> )` := var) {
-            list[RNamedType] cparams = [ ];
+            list[Symbol] cparams = [ ];
             for (targ <- args) { ConvertTupleN ct = convertRascalTypeArg(stBuilder, targ); cparams = cparams + ct.rtype; stBuilder = ct.stBuilder; }
             //stBuilder = justSTBuilder(checkConstructorOverlap(addItemUses(addConstructorToScope(convertName(n), cparams, adtId, true, l, stBuilder),[<true,n@\loc>]),n@\loc));
             // TODO: Re-add overlap check
@@ -771,14 +771,14 @@ public STBuilder handleAliasNamesOnly(Tags ts, Visibility v, UserType aliasType,
     RName aliasName = convertName(aliasRawName);
 
     ConvertTuple ct = convertRascalUserType(stBuilder, aliasType);
-    RType aType = ct.rtype; stBuilder = ct.stBuilder;
+    Symbol aType = ct.rtype; stBuilder = ct.stBuilder;
     ct = convertRascalType(stBuilder, aliasedType);
-    RType tType = ct.rtype; stBuilder = ct.stBuilder;
-    RType aliasRType = makeParameterizedAliasType(getUserTypeName(aType), tType, getUserTypeParameters(aType));
+    Symbol tType = ct.rtype; stBuilder = ct.stBuilder;
+    Symbol aliasSymbol = makeParameterizedAliasType(getUserTypeName(aType), tType, getUserTypeParameters(aType));
     
-    //stBuilder = justSTBuilder(checkForDuplicateAliases(addItemUses(addAliasToScope(aliasRType, isPublic(v), l, stBuilder),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
+    //stBuilder = justSTBuilder(checkForDuplicateAliases(addItemUses(addAliasToScope(aliasSymbol, isPublic(v), l, stBuilder),[<true,aliasRawName@\loc>]),aliasRawName@\loc));
     // TODO: Add checking for duplicates
-    stBuilder = justSTBuilder(addAliasToScope(aliasRType, isPublic(v), l, stBuilder));
+    stBuilder = justSTBuilder(addAliasToScope(aliasSymbol, isPublic(v), l, stBuilder));
 
     return stBuilder;
 }
@@ -1058,15 +1058,15 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
         case (Expression)`<QualifiedName qn>`: 
             stBuilder = handleExpName(convertName(qn),qn@\loc,stBuilder);
 
-        // ReifiedType
-        case (Expression)`<BasicType t> ( <{Expression ","}* el> )` : {
-            // NOTE: We don't ensure t is well-formed here, because it need not be; for instance, to
-            // give the reified type form of list[int], we would specify list(int()), but this means
-            // that list, the basic type, is not a valid type, since it must take an element type if
-            // used for a variable type, function parameter type, etc. So,
-            // TODO: Make sure el is a well-formed type expression, like list(int())
-            for (ei <- el) stBuilder = handleExpression(ei, stBuilder);
-        }
+        //// ReifiedType
+        //case (Expression)`<BasicType t> ( <{Expression ","}* el> )` : {
+        //    // NOTE: We don't ensure t is well-formed here, because it need not be; for instance, to
+        //    // give the reified type form of list[int], we would specify list(int()), but this means
+        //    // that list, the basic type, is not a valid type, since it must take an element type if
+        //    // used for a variable type, function parameter type, etc. So,
+        //    // TODO: Make sure el is a well-formed type expression, like list(int())
+        //    for (ei <- el) stBuilder = handleExpression(ei, stBuilder);
+        //}
 
         // CallOrTree
         case (Expression)`<Expression e1> ( <{Expression ","}* el> )` : {
@@ -1087,11 +1087,11 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
             for (ei <- el) stBuilder = handleExpression(ei, stBuilder);
 
         // Tuple, just one expression
-        case (Expression) `< <Expression ei> >` :
+        case (Expression) `<<Expression ei>>` :
             stBuilder = handleExpression(ei, stBuilder);
 
         // Tuple, more than one expression
-        case (Expression)`< <Expression ei>, <{Expression ","}* el> >` : {
+        case (Expression)`<<Expression ei>, <{Expression ","}* el>>` : {
             stBuilder = handleExpression(ei,stBuilder);
             for (eli <- el) stBuilder = handleExpression(eli, stBuilder);
         }
@@ -1100,7 +1100,7 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
         // TODO: Should we verify that p is not varargs here?
         case (Expression)`<Type t> <Parameters p> { <Statement+ ss> }` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType retType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol retType = ct.rtype; stBuilder = ct.stBuilder;
             < stBuilder, closureId > = pushNewClosureScope(retType,[],exp@\loc,stBuilder);
             < stBuilder, pwt > = handleParametersNamesOnly(p, stBuilder);
             stBuilder.scopeItemMap[closureId].params = pwt;
@@ -1112,7 +1112,7 @@ public STBuilder handleExpression(Expression exp, STBuilder stBuilder) {
                     stBuilder = addScopeError(stBuilder, t@\loc, "Type variable <prettyPrintName(tvv.varName)> used in return type not previously declared.");        
                 } else {
                    // TODO: We should just have one, check to see if we have more
-                   RType tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   Symbol tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
                    if (tvType.varTypeBound != tvv.varTypeBound) {
                         stBuilder = addScopeError(stBuilder, t@\loc, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
                    }
@@ -1724,11 +1724,11 @@ public STBuilder handleAssignable(Assignable a, STBuilder stBuilder) {
 		}
 
 		// Tuple assignable, with just one tuple element		
-		case (Assignable)`< <Assignable ai> >` :
+		case (Assignable)`<<Assignable ai>>` :
 			stBuilder = handleAssignable(ai, stBuilder);
 
 		// Tuple assignable, with multiple elements in the tuple
-		case (Assignable)`< <Assignable ai>, <{Assignable ","}* al> >` : {
+		case (Assignable)`<<Assignable ai>, <{Assignable ","}* al>>` : {
 			stBuilder = handleAssignable(ai, stBuilder);
 			for (ali <- al) stBuilder = handleAssignable(ali, stBuilder);
 		}
@@ -1752,7 +1752,7 @@ public STBuilder handleLocalVarItems(Type t, {Variable ","}+ vs, STBuilder stBui
                 stBuilder = addScopeError(stBuilder, n@\loc, "Illegal redefinition of <n>.");
             } else {
                 ConvertTuple ct = convertRascalType(stBuilder, t);
-                RType varType = ct.rtype; stBuilder = ct.stBuilder;
+                Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
                 stBuilder = justSTBuilder(addVariableToScope(convertName(n), varType, true, n@\loc, stBuilder));
             } 
         }
@@ -1844,7 +1844,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         return stBuilder;
     }
 
-	STBuilder handleTypedPatternName(RName n, RType t, loc l, loc pl, STBuilder stBuilder) {
+	STBuilder handleTypedPatternName(RName n, Symbol t, loc l, loc pl, STBuilder stBuilder) {
 		if (size(getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), n, FCVs())) > 0) {
 			set[ItemId] conflictItems = getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), n, FCVs());
 			set[loc] conflictLocations = { stBuilder.scopeItemMap[si].definedAt | si <- conflictItems };		
@@ -1862,7 +1862,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
                     stBuilder = justSTBuilder(addTypeVariableToScope(tvv, pl, stBuilder));
                 } else {
                    // TODO: We should just have one, check to see if we have more
-                   RType tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   Symbol tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
                    if (tvType.varTypeBound != tvv.varTypeBound) {
                         stBuilder = addScopeError(stBuilder, pl, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
                    }
@@ -1946,13 +1946,13 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         }
 
         // Tuple, with just one element
-        case (Pattern) `< <Pattern pi> >` : {
+        case (Pattern) `<<Pattern pi>>` : {
             // println("NAMESPACE: Handling tuple pattern <pat>");
             stBuilder = handlePattern(pi, stBuilder);
         }
 
 //        // Tuple, with multiple elements
-        case (Pattern) `< <Pattern pi>, <{Pattern ","}* pl> >` : {
+        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
             // println("NAMESPACE: Handling tuple pattern <pat>");
             stBuilder = handlePattern(pi, stBuilder);
             for (pli <- pl) stBuilder = handlePattern(pli, stBuilder);
@@ -1962,7 +1962,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         case (Pattern) `<Type t> <Name n>` : {
             // println("NAMESPACE: Handling typed variable pattern <pat>");
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             stBuilder = handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
         }
 
@@ -1996,7 +1996,7 @@ public STBuilder handlePattern(Pattern pat, STBuilder stBuilder) {
         case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
             // println("NAMESPACE: Handling typed variable becomes pattern <pat>");
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             stBuilder = handlePattern(p, handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder));
         }
 		
@@ -2051,7 +2051,7 @@ public STBuilder handlePatternConstructorName(Pattern pat, STBuilder stBuilder) 
 		return stBuilder;
 	}
 	
-    STBuilder handleTypedPatternName(RName n, RType t, loc l, loc pl, STBuilder stBuilder) {
+    STBuilder handleTypedPatternName(RName n, Symbol t, loc l, loc pl, STBuilder stBuilder) {
         if (size(getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), n, FCVs())) > 0) {
             set[ItemId] conflictItems = getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), n, FCVs());
             set[loc] conflictLocations = { stBuilder.scopeItemMap[si].definedAt | si <- conflictItems };      
@@ -2080,7 +2080,7 @@ public STBuilder handlePatternConstructorName(Pattern pat, STBuilder stBuilder) 
         // is string.
         case (Pattern) `<Type t> <Name n>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             stBuilder = handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
         }
 
@@ -2163,7 +2163,7 @@ public STBuilder handleTags(Tags ts, STBuilder stBuilder) {
 //
 
 public STBuilder addFreshVariable(RName n, loc nloc, STBuilder stBuilder) {
-    RType freshType = makeInferredType(stBuilder.freshType);
+    Symbol freshType = makeInferredType(stBuilder.freshType);
     stBuilder.inferredTypeMap[stBuilder.freshType] = freshType;
     if (RSimpleName("it") := n) stBuilder.itBinder[nloc] = freshType;
     stBuilder.freshType = stBuilder.freshType + 1;
@@ -2172,7 +2172,7 @@ public STBuilder addFreshVariable(RName n, loc nloc, STBuilder stBuilder) {
 }
 
 public STBuilder addFreshAnonymousVariable(loc nloc, STBuilder stBuilder) {
-    RType freshType = makeInferredType(stBuilder.freshType);
+    Symbol freshType = makeInferredType(stBuilder.freshType);
     stBuilder.inferredTypeMap[stBuilder.freshType] = freshType;
     stBuilder.freshType = stBuilder.freshType + 1;
     stBuilder = justSTBuilder(addVariableToScope(RSimpleName("_"), freshType, false, nloc, stBuilder));
@@ -2180,7 +2180,7 @@ public STBuilder addFreshAnonymousVariable(loc nloc, STBuilder stBuilder) {
 }
 
 public STBuilder addFreshListVariable(RName n, loc nloc, STBuilder stBuilder) {
-    RType freshType = makeListType(makeInferredType(stBuilder.freshType));
+    Symbol freshType = makeListType(makeInferredType(stBuilder.freshType));
     stBuilder.inferredTypeMap[stBuilder.freshType] = getListElementType(freshType);
     stBuilder.freshType = stBuilder.freshType + 1;
     stBuilder = justSTBuilder(addVariableToScope(n, freshType, false, nloc, stBuilder));
@@ -2188,7 +2188,7 @@ public STBuilder addFreshListVariable(RName n, loc nloc, STBuilder stBuilder) {
 }
 
 public STBuilder addFreshSetVariable(RName n, loc nloc, STBuilder stBuilder) {
-    RType freshType = makeSetType(makeInferredType(stBuilder.freshType));
+    Symbol freshType = makeSetType(makeInferredType(stBuilder.freshType));
     stBuilder.inferredTypeMap[stBuilder.freshType] = getSetElementType(freshType);
     stBuilder.freshType = stBuilder.freshType + 1;
     stBuilder = justSTBuilder(addVariableToScope(n, freshType, false, nloc, stBuilder));
@@ -2196,7 +2196,7 @@ public STBuilder addFreshSetVariable(RName n, loc nloc, STBuilder stBuilder) {
 }
 
 public STBuilder addFreshAnonymousListVariable(loc nloc, STBuilder stBuilder) {
-    RType freshType = makeListType(makeInferredType(stBuilder.freshType));
+    Symbol freshType = makeListType(makeInferredType(stBuilder.freshType));
     stBuilder.inferredTypeMap[stBuilder.freshType] = getListElementType(freshType);
     stBuilder.freshType = stBuilder.freshType + 1;
     stBuilder = justSTBuilder(addVariableToScope(RSimpleName("_"), freshType, false, nloc, stBuilder));
@@ -2204,20 +2204,20 @@ public STBuilder addFreshAnonymousListVariable(loc nloc, STBuilder stBuilder) {
 }
 
 public STBuilder addFreshAnonymousSetVariable(loc nloc, STBuilder stBuilder) {
-    RType freshType = makeSetType(makeInferredType(stBuilder.freshType));
+    Symbol freshType = makeSetType(makeInferredType(stBuilder.freshType));
     stBuilder.inferredTypeMap[stBuilder.freshType] = getSetElementType(freshType);
     stBuilder.freshType = stBuilder.freshType + 1;
     stBuilder = justSTBuilder(addVariableToScope(RSimpleName("_"), freshType, false, nloc, stBuilder));
     return stBuilder;
 }
 
-public STBuilder addFreshVariableWithType(RName n, loc nloc, RType rt, STBuilder stBuilder) {
+public STBuilder addFreshVariableWithType(RName n, loc nloc, Symbol rt, STBuilder stBuilder) {
     if (RSimpleName("it") := n) stBuilder.itBinder[nloc] = rt;
     stBuilder = justSTBuilder(addVariableToScope(n, rt, false, nloc, stBuilder));
     return stBuilder;
 }
 
-public STBuilder addFreshAnonymousVariableWithType(loc nloc, RType rt, STBuilder stBuilder) {
+public STBuilder addFreshAnonymousVariableWithType(loc nloc, Symbol rt, STBuilder stBuilder) {
     stBuilder = justSTBuilder(addVariableToScope(RSimpleName("_"), rt, false, nloc, stBuilder));
     return stBuilder;
 }
@@ -2230,14 +2230,14 @@ public STBuilder addFreshAnonymousVariableWithType(loc nloc, RType rt, STBuilder
 // the calculated type of the parameter, since this is needed to ultimately derive
 // the type of the function
 //
-public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) {
+public tuple[STBuilder,Symbol] handleParameter(Pattern pat, STBuilder stBuilder) {
    
     // The type of a map parameter is a map with domain the lub of the given
     // domains and range the lub of the given ranges. NOTE: We don't have map
     // patterns yet, so this should not appear "in the wild". TODO: check that
     // this works once map patterns are available.
-    tuple[STBuilder,RType] handleMapParameter(Pattern pat, STBuilder stBuilder) {
-        list[RType] mapDomains = [ ]; list[RType] mapRanges = [ ];
+    tuple[STBuilder,Symbol] handleMapParameter(Pattern pat, STBuilder stBuilder) {
+        list[Symbol] mapDomains = [ ]; list[Symbol] mapRanges = [ ];
         for (<md,mr> <- getMapPatternContents(pat)) {
             < stBuilder, rt > = handleParameter(md, stBuilder); mapDomains += rt;
             < stBuilder, rt > = handleParameter(mr, stBuilder); mapRanges += rt;
@@ -2245,8 +2245,8 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         return < stBuilder, makeMapType(lub(mapDomains), lub(mapRanges)) >;
     }
 
-    tuple[STBuilder,RType] handleTupleParameter(Pattern pat, STBuilder stBuilder) {
-        list[RType] tupleItemTypes = [ ];
+    tuple[STBuilder,Symbol] handleTupleParameter(Pattern pat, STBuilder stBuilder) {
+        list[Symbol] tupleItemTypes = [ ];
         for (ti <- getTuplePatternContents(pat)) {
         	< stBuilder, rt > = handleParameter(ti, stBuilder);
         	tupleItemTypes += rt;
@@ -2258,9 +2258,9 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
     // in the current function scope. If there is no definition in the current scope
     // we have an error, all names must be explicitly typed in the parameter before
     // they can be used without a type.
-    tuple[STBuilder,RType] handleParameterName(RName n, loc l, STBuilder stBuilder) {
+    tuple[STBuilder,Symbol] handleParameterName(RName n, loc l, STBuilder stBuilder) {
         set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),n];
-        RType resultType = makeVoidType();
+        Symbol resultType = makeVoidType();
         if (size(matches) == 1) {
             stBuilder = addItemUses(stBuilder, matches, l);
             resultType = getTypeForItem(stBuilder, getOneFrom(matches));        
@@ -2276,7 +2276,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
     
     // A typed parameter must be the first use of this parameter name in the function.
     // If another parameter with this type name is already declared, we have an error.
-    tuple[STBuilder,RType] handleTypedPatternName(RName n, RType t, loc l, loc pl, STBuilder stBuilder) {
+    tuple[STBuilder,Symbol] handleTypedPatternName(RName n, Symbol t, loc l, loc pl, STBuilder stBuilder) {
         set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),n];
         if (size(matches) == 0) {
             stBuilder = justSTBuilder(addVariableToScope(n, t, false, l, stBuilder));
@@ -2287,7 +2287,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
                     stBuilder = justSTBuilder(addTypeVariableToScope(tvv, pl, stBuilder));
                 } else {
                    // TODO: We should just have one, check to see if we have more
-                   RType tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
+                   Symbol tvType = stBuilder.scopeItemMap[getOneFrom(tvItems)].typeVar;
                    if (tvType.varTypeBound != tvv.varTypeBound) {
                         stBuilder = addScopeError(stBuilder, pl, "Illegal redefinition of bound on type variable <prettyPrintName(tvv.varName)> with existing bound <prettyPrintType(tvType.varTypeBound)>.");        
                    }
@@ -2318,7 +2318,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
                 set[ItemId] possibleConflicts = getItemsForConflicts(stBuilder, head(stBuilder.scopeStack), rn, FCVs());
                 set[ItemId] matches = stBuilder.scopeNames[head(stBuilder.scopeStack),rn];
                 set[ItemId] remoteConflicts = possibleConflicts - matches;
-                set[RType] nonStringMatches = { getTypeForItem(i,stBuilder) | i <- matches } - makeStrType();
+                set[Symbol] nonStringMatches = { getTypeForItem(i,stBuilder) | i <- matches } - makeStrType();
                 
                 if (size(nonStringMatches) > 0) {
                     stBuilder = addItemUses(stBuilder, possibleConflicts, n@\loc);
@@ -2354,21 +2354,21 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         }           
 
         case (Pattern) `<Pattern pc> ( <{Pattern ","}* pl> )` : {
-            list[RType] pTypes = [ ];
+            list[Symbol] pTypes = [ ];
             for (pli <- pl) { 
                 < stBuilder, rt > = handleParameter(pli, stBuilder);
                 pTypes += rt;
             }
 
-            RType findOverload(set[RType] overloads) {
+            Symbol findOverload(set[Symbol] overloads) {
                 // First, make sure we only have constructor types in overloads
                 if (size({ ot | ot <- overloads, !isConstructorType(ot) }) > 0) {
                     stBuilder = addScopeError(stBuilder, pc@\loc, "Non-constructor types found for constructor pattern");
                     return makeVoidType();
                 }
-                set[RType] matches = { };
+                set[Symbol] matches = { };
                 for (ot <- overloads) {
-                    list[RType] cargs = getConstructorArgumentTypes(ot);
+                    list[Symbol] cargs = getConstructorArgumentTypes(ot);
                     if (size(cargs) == size(pTypes), size([ cargs[idx] | idx <- index(cargs), subtypeOf(pTypes[idx],cargs[idx]) ]) == size(cargs0))
                         matches += ot;                        
                 }
@@ -2383,7 +2383,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
                 }
             }
             
-            tuple[STBuilder,RType] handleConstructorName(RName n, loc l) {
+            tuple[STBuilder,Symbol] handleConstructorName(RName n, loc l) {
                 matches = getItems(stBuilder, head(stBuilder.scopeStack), n, FCVs());
                 stBuilder = addItemUses(stBuilder, matches, l);
                 matchTypes = { getTypeForItem(i, stBuilder) | i <- matches };
@@ -2408,7 +2408,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         // We handle splicing here -- if we have a list variable, but not an explicit
         // list pattern, we use the type of the list element.
         case (Pattern) `[<{Pattern ","}* pl>]` : {
-            list[RType] elementTypes = [ ];
+            list[Symbol] elementTypes = [ ];
             for (pli <- pl) { 
                 < stBuilder, rt > = handleParameter(pli, stBuilder);
                 if (`[<{Pattern ","}* pl2>]` !:= pli && isListType(rt))
@@ -2422,7 +2422,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         // We handle splicing here -- if we have a set variable, but not an explicit
         // set pattern, we use the type of the set element.
         case (Pattern) `{<{Pattern ","}* pl>}` : {
-            list[RType] elementTypes = [ ];
+            list[Symbol] elementTypes = [ ];
             for (pli <- pl) { 
                 < stBuilder, rt > = handleParameter(pli, stBuilder);
                 if (`{<{Pattern ","}* pl2>}` !:= pli && isSetType(rt))
@@ -2433,13 +2433,13 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
             return < stBuilder, makeSetType(lubList(elementTypes)) >;
         }
 
-        case (Pattern) `< <Pattern pi> >` : {
+        case (Pattern) `<<Pattern pi>>` : {
             < stBuilder, rt > = handleParameter(pi, stBuilder);
             return < stBuilder, makeTupleType([rt]) >;
         }
 
-        case (Pattern) `< <Pattern pi>, <{Pattern ","}* pl> >` : {
-            list[RType] tupleTypes = [ ];
+        case (Pattern) `<<Pattern pi>, <{Pattern ","}* pl>>` : {
+            list[Symbol] tupleTypes = [ ];
             < stBuilder, rt > = handleParameter(pi, stBuilder); tupleTypes += rt;
             for (pli <- pl) {
                 < stBuilder, rt > = handleParameter(pli, stBuilder); tupleTypes += rt;
@@ -2449,7 +2449,7 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
 
         case (Pattern) `<Type t> <Name n>` : {
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             return handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
         }
 
@@ -2477,14 +2477,14 @@ public tuple[STBuilder,RType] handleParameter(Pattern pat, STBuilder stBuilder) 
         case (Pattern) `<Type t> <Name n> : <Pattern p>` : {
             < stBuilder, rt > = handleParameter(p, stBuilder);
             ConvertTuple ct = convertRascalType(stBuilder, t);
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             return handleTypedPatternName(convertName(n),varType,n@\loc,pat@\loc,stBuilder);
         }
         
         case (Pattern) `[ <Type t> ] <Pattern p>` : {
             stBuilder = handleParameter(p, ct.stBuilder);
             ConvertTuple ct = convertRascalType(stBuilder, t); // Just to check the type, we don't use it here
-            RType varType = ct.rtype; stBuilder = ct.stBuilder;
+            Symbol varType = ct.rtype; stBuilder = ct.stBuilder;
             return < stBuilder, varType >;
         }
         

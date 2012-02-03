@@ -48,7 +48,7 @@ public list[Tree] prodFilter(Tree t, bool(Production) fltr) {
         if (fltr(p)) {
             return [ t ];
         } else {
-            return [ prodFilter(tli,fltr) | tli <- tl ];
+            return [ *prodFilter(tli,fltr) | tli <- tl ];
         }
     } else {
         return [  ] ;
