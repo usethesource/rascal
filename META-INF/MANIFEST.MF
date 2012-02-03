@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.4.2.qualifier
+Bundle-Version: 0.4.3.qualifier
 Bundle-ClassPath: rascal.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
