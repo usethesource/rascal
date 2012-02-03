@@ -41,6 +41,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
+import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -508,7 +509,7 @@ public class TraversalEvaluator {
 						start = ((RegExpPatternValue)lastPattern).getStart();
 						end = ((RegExpPatternValue)lastPattern).getEnd();
 					} 
-					else if (lastPattern instanceof LiteralPattern){
+					else if (lastPattern instanceof LiteralPattern || lastPattern instanceof TypedVariablePattern){
 						start = 0;
 						end = ((IString)repl).getValue().length();
 					} 
