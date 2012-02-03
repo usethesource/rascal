@@ -18,11 +18,12 @@ import Map;
 import ParseTree;
 import Node;
 import Message;
+import Type;
 
-import lang::rascal::types::Types;
-import lang::rascal::types::TypeSignatures;
-import lang::rascal::types::SubTypes;
-import lang::rascal::checker::ListUtils;
+import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
+import lang::rascal::types::TypeSignature;
+
 import lang::rascal::syntax::RascalRascal;
 
 //
@@ -49,18 +50,18 @@ data Item =
 	| PatternMatchScope(ItemId parentId, loc definedAt)
     | TopScope()
 
-    | Function(RName functionName, RType returnType, list[tuple[RType,Pattern]] params, list[RType] throwsTypes, bool isPublic, bool isVarArgs, ItemId parentId, loc definedAt)
+    | Function(RName functionName, Symbol returnType, list[tuple[Symbol,Pattern]] params, list[Symbol] throwsTypes, bool isPublic, bool isVarArgs, ItemId parentId, loc definedAt)
     | Module(RName moduleName, ItemId parentId, loc definedAt)
 
-    | ADT(RType adtType, bool isPublic, ItemId parentId, loc definedAt) 
-    | Alias(RType aliasType, bool isPublic, ItemId parentId, loc definedAt)
-    | Annotation(RName annotationName, RType annoType, RType onType, bool isPublic, ItemId parentId, loc definedAt) 
-    | Constructor(RName constructorName, list[RNamedType] constructorArgs, ItemId adtParentId, ItemId parentId, loc definedAt)
-    | FormalParameter(RName parameterName, RType parameterType, ItemId parentId, loc definedAT)
+    | ADT(Symbol adtType, bool isPublic, ItemId parentId, loc definedAt) 
+    | Alias(Symbol aliasType, bool isPublic, ItemId parentId, loc definedAt)
+    | Annotation(RName annotationName, Symbol annoType, Symbol onType, bool isPublic, ItemId parentId, loc definedAt) 
+    | Constructor(RName constructorName, list[Symbol] constructorArgs, ItemId adtParentId, ItemId parentId, loc definedAt)
+    | FormalParameter(RName parameterName, Symbol parameterType, ItemId parentId, loc definedAT)
     | Label(RName labelName, ItemId parentId, loc definedAt)
     | Rule(RName ruleName, ItemId parentId, loc definedAt)
-    | TypeVariable(RType typeVar, ItemId parentId, loc definedAt)
-	| Variable(RName variableName, RType variableType, ItemId parentId, loc definedAt)
+    | TypeVariable(Symbol typeVar, ItemId parentId, loc definedAt)
+	| Variable(RName variableName, Symbol variableType, ItemId parentId, loc definedAt)
 	| Tag(ItemId parentId, loc definedAt)
 ;
 
@@ -94,12 +95,12 @@ public RName getItemName(Item item) {
         case "Variable" : return item.variableName;
         case "FormalParameter" : return item.parameterName;
         case "Label" : return item.labelName;
-        case "Alias" : return item.aliasType.aliasName;
+        case "Alias" : return RSimpleName(item.aliasType.name);
         case "Constructor" : return item.constructorName;
-        case "ADT" : return item.adtType.adtName;
+        case "ADT" : return RSimpleName(item.adtType.name);
         case "Annotation" : return item.annotationName;
         case "Rule" : return item.ruleName;
-        case "TypeVariable" : return item.typeVar.varName;
+        case "TypeVariable" : return RSimpleName(item.typeVar.name);
 		default : throw "Item does not have a name, use itemHasHame(Item item) to check first to ensure the item has a name: <item>";
 	}
 }
@@ -128,9 +129,9 @@ data STBuilder = STBuilder(
     rel[loc, Message] messages, 
     list[ItemId] scopeStack, 
     map[ItemId,Item] scopeItemMap, 
-    map[int, RType] inferredTypeMap,
+    map[int, Symbol] inferredTypeMap,
     map[loc, ItemId] returnMap,
-    map[loc, RType] itBinder, 
+    map[loc, Symbol] itBinder, 
     map[RName adtName,tuple[set[ItemId] adtItems,set[ItemId] consItems] adtInfo] adtMap,
     ItemId nextScopeId, 
     int freshType
@@ -248,11 +249,11 @@ public Item getItem(ItemId id, STBuilder stBuilder) {
 // Pretty printers for scope information
 //
 public str prettyPrintSI(STBuilder st, Item si) {
-    str prettyPrintParam(tuple[RType,Pattern] param) {
+    str prettyPrintParam(tuple[Symbol,Pattern] param) {
         return prettyPrintType(param[0]);
     }
     
-    str prettyPrintParams(list[tuple[RType,Pattern]] params) {
+    str prettyPrintParams(list[tuple[Symbol,Pattern]] params) {
         return joinList(params, prettyPrintParam, ", ", "");
     }
 
@@ -561,6 +562,10 @@ private set[ItemId] getItemsGeneral(STBuilder stBuilder, ItemId currentScopeId, 
     return (lookupFuns[ns])(stBuilder,currentScopeId,x);
 }
 
+public set[ItemId] getItems(STBuilder stBuilder, ItemId currentScopeId, str x, Namespace ns) {
+    return getItemsGeneral(stBuilder, currentScopeId, RSimpleName(x), ns, lookupFunctions);
+}    
+
 public set[ItemId] getItems(STBuilder stBuilder, ItemId currentScopeId, RName x, Namespace ns) {
     return getItemsGeneral(stBuilder, currentScopeId, x, ns, lookupFunctions);
 }    
@@ -713,7 +718,7 @@ public AddedItemPair pushNewPatternMatchScope(loc l, STBuilder stBuilder) {
 // Insert a new function scope. Like with the module scope, the function scope adds the function name
 // into the scope for the function itself, since the function name is visible inside the function.
 //
-public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functionName, Symbol retType, list[tuple[Symbol,Pattern]] ps, list[Symbol] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder, ItemId scopeToUse) {
     if (hasAnonymousName) functionName = RSimpleName("@ANONYMOUS_FUNCTION_<stBuilder.nextScopeId>");
     < stBuilder, addedId > = pushNewScope(Function(functionName, retType, ps, throwsTypes, isPublic, isVarArgs, scopeToUse, l), scopeToUse, l, stBuilder);
     t = < addedId, functionName, addedId >;
@@ -724,118 +729,118 @@ public AddedItemPair pushNewFunctionScopeAt(bool hasAnonymousName, RName functio
 //
 // Insert the function scope inside the current scope
 //
-public AddedItemPair pushNewFunctionScope(RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewFunctionScope(RName functionName, Symbol retType, list[tuple[Symbol,Pattern]] ps, list[Symbol] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
 	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, head(stBuilder.scopeStack));
 }
 
 //
 // Insert the function scope inside the top scope, used for imported functions
 //
-public AddedItemPair pushNewFunctionScopeAtTop(RName functionName, RType retType, list[tuple[RType,Pattern]] ps, list[RType] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewFunctionScopeAtTop(RName functionName, Symbol retType, list[tuple[Symbol,Pattern]] ps, list[Symbol] throwsTypes, bool isPublic, bool isVarArgs, loc l, STBuilder stBuilder) {
 	return pushNewFunctionScopeAt(false, functionName, retType, ps, throwsTypes, isPublic, isVarArgs, l, stBuilder, last(stBuilder.scopeStack));
 } 
 
 //
 // Insert a new closure scope, which is just a function scope for an anonymously-named function
 //
-public AddedItemPair pushNewClosureScope(RType retType, list[tuple[RType,Pattern]] ps, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewClosureScope(Symbol retType, list[tuple[Symbol,Pattern]] ps, loc l, STBuilder stBuilder) {
     return pushNewFunctionScopeAt(true, RSimpleName(""), retType, ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 
 //
 // Insert a new void closure scope, which is just a function scope for an anonymously-named function
 //
-public AddedItemPair pushNewVoidClosureScope(list[tuple[RType,Pattern]] ps, loc l, STBuilder stBuilder) {
+public AddedItemPair pushNewVoidClosureScope(list[tuple[Symbol,Pattern]] ps, loc l, STBuilder stBuilder) {
     return pushNewFunctionScopeAt(true, RSimpleName(""), makeVoidType(), ps, [], false, false, l, stBuilder, head(stBuilder.scopeStack));
 }
 
 //
 // Add an alias into the given scope.
 //
-public AddedItemPair addAliasToScopeAt(RType aliasType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addAliasToScopeAt(Symbol aliasType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(Alias(aliasType, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addAliasToScope(RType aliasType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addAliasToScope(Symbol aliasType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addAliasToScopeAt(aliasType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addAliasToTopScope(RType aliasType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addAliasToTopScope(Symbol aliasType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addAliasToScopeAt(aliasType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
 //
 // Add a variable into the given scope.
 //
-public AddedItemPair addVariableToScopeAt(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addVariableToScopeAt(RName varName, Symbol varType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(Variable(varName, varType, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addVariableToScope(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addVariableToScope(RName varName, Symbol varType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addVariableToScopeAt(varName, varType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addVariableToTopScope(RName varName, RType varType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addVariableToTopScope(RName varName, Symbol varType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addVariableToScopeAt(varName, varType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
 //
 // Add a type variable into the given scope.
 //
-public AddedItemPair addTypeVariableToScopeAt(RType varType, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addTypeVariableToScopeAt(Symbol varType, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(TypeVariable(varType, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addTypeVariableToScope(RType varType, loc l, STBuilder stBuilder) {
+public AddedItemPair addTypeVariableToScope(Symbol varType, loc l, STBuilder stBuilder) {
 	return addTypeVariableToScopeAt(varType, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addTypeVariableToTopScope(RType varType, loc l, STBuilder stBuilder) {
+public AddedItemPair addTypeVariableToTopScope(Symbol varType, loc l, STBuilder stBuilder) {
 	return addTypeVariableToScopeAt(varType, l, stBuilder, last(stBuilder.scopeStack));
 }
 
 //
 // Add an ADT into the given scope.
 //
-public AddedItemPair addADTToScopeAt(RType adtName, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addADTToScopeAt(Symbol adtName, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(ADT(adtName, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addADTToScope(RType adtName, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addADTToScope(Symbol adtName, bool isPublic, loc l, STBuilder stBuilder) {
 	return addADTToScopeAt(adtName, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addADTToTopScope(RType adtName, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addADTToTopScope(Symbol adtName, bool isPublic, loc l, STBuilder stBuilder) {
 	return addADTToScopeAt(adtName, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
 //
 // Add a constructor into the given scope.
 //
-public AddedItemPair addConstructorToScopeAt(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addConstructorToScopeAt(RName constructorName, list[Symbol] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(Constructor(constructorName, constructorArgs, adtItem, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addConstructorToScope(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addConstructorToScope(RName constructorName, list[Symbol] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
 	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addConstructorToTopScope(RName constructorName, list[RNamedType] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addConstructorToTopScope(RName constructorName, list[Symbol] constructorArgs, ItemId adtItem, bool isPublic, loc l, STBuilder stBuilder) {
 	return addConstructorToScopeAt(constructorName, constructorArgs, adtItem, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 
 //
 // Add an annotation into the given scope
 //
-public AddedItemPair addAnnotationToScopeAt(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
+public AddedItemPair addAnnotationToScopeAt(RName annotationName, Symbol annotationType, Symbol onType, bool isPublic, loc l, STBuilder stBuilder, ItemId scopeToUse) {
 	return addItem(Annotation(annotationName, annotationType, onType, isPublic, scopeToUse, l), scopeToUse, l, stBuilder, true);
 }
 
-public AddedItemPair addAnnotationToScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addAnnotationToScope(RName annotationName, Symbol annotationType, Symbol onType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, stBuilder, head(stBuilder.scopeStack));
 }
 
-public AddedItemPair addAnnotationToTopScope(RName annotationName, RType annotationType, RType onType, bool isPublic, loc l, STBuilder stBuilder) {
+public AddedItemPair addAnnotationToTopScope(RName annotationName, Symbol annotationType, Symbol onType, bool isPublic, loc l, STBuilder stBuilder) {
 	return addAnnotationToScopeAt(annotationName, annotationType, onType, isPublic, l, stBuilder, last(stBuilder.scopeStack));
 }
 

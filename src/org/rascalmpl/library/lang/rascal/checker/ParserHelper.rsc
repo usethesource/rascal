@@ -47,7 +47,38 @@ public Tree parseStatement(str toParse) {
 	return parse(#Statement,toParse);
 }
 
+public Tree parseAssignable(str toParse) {
+	return parse(#Assignable,toParse);
+}
+
 public void howManyMatches(str toParse) {
 	Tree pt = parse(#Expression,toParse);
 	for ((Expression)`[<{Expression ","}* x>, <{Expression ","}* x2>, <Expression a>, <{Expression ","}* y>]` := pt) println("Found a match: <x> and <x2> and <a> and <y>");
+}
+
+public tuple[list[Tree],list[Tree]] rexpVisit(str toParse) {
+	Tree pt = parse(#Expression,toParse);
+	if ((Expression)`<RegExpLiteral rl>` := pt) {
+		iprint(rl);
+		list[Tree] nameUses = [];
+		list[Tree] nameDefs = [];
+	
+		visit(rl) {
+			case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : nameUses += prds[1];
+			case \appl(\prod(lex("RegExp"),[_,\lex("Name"),_,_,_],_),list[Tree] prds) : nameDefs += prds[1];
+			case \appl(\prod(lex("NamedRegExp"),[_,\lex("Name"),_],_),list[Tree] prds) : nameUses += prds[1];
+			
+		}
+		
+		return < nameUses, nameDefs >;
+	}
+	return < [],[] >;
+}
+
+public bool isThisATuple(str toParse) {
+	return (Expression)`< <{Expression ","}+ es> >` := parse(#Expression, toParse);
+}
+
+public bool isThisAList(str toParse) {
+	return (Expression)`[ <{Expression ","}* es> ]` := parse(#Expression, toParse);
 }

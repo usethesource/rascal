@@ -18,137 +18,50 @@ import Map;
 import ParseTree;
 import Node;
 import Message;
+import Type;
 
-import lang::rascal::types::Types;
-import lang::rascal::types::TypeSignatures;
-import lang::rascal::types::SubTypes;
-import lang::rascal::types::TypeEquivalence;
+import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
+import lang::rascal::types::ConvertType;
+import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeExceptions;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::syntax::RascalRascal;
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//
-// Aliases and ADTs are given just as names, but should represent other types; this code
-// expands these named types into their actual types.
-//
-///////////////////////////////////////////////////////////////////////////////////////////
+@doc{Replace any user types with the type the name points to (an ADT or alias).}
+private default Symbol et(Symbol t, STBuilder stb, ItemId cs) = t;
 
-public RType expandValueType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
+private Symbol et(\label(str s, Symbol lt), STBuilder stb, ItemId cs) = \label(s,expandUserTypes(lt,stb,cs));
+private Symbol et(\parameter(str s, Symbol pt), STBuilder stb, ItemId cs) = \parameter(s,expandUserTypes(pt,stb,cs));
+
+private Symbol et(\set(Symbol et), STBuilder stb, ItemId cs) = \set(expandUserTypes(et,stb,cs));
+private Symbol et(\rel(list[Symbol] fts), STBuilder stb, ItemId cs) = \rel([expandUserTypes(ft,stb,cs)|ft<-fts]);
+private Symbol et(\tuple(list[Symbol] fs), STBuilder stb, ItemId cs) = \tuple([expandUserTypes(f,stb,cs) | f <- fs]);
+private Symbol et(\list(Symbol et), STBuilder stb, ItemId cs) = \list(expandUserTypes(et,stb,cs));
+private Symbol et(\map(Symbol md, Symbol mr), STBuilder stb, ItemId cs) = \map(expandUserTypes(md,stb,cs),expandUserTypes(mr,stb,cs));
+private Symbol et(\reified(Symbol rt), STBuilder stb, ItemId cs) = \reified(expandUserTypes(rt,stb,cs));
+private Symbol et(\bag(Symbol et), STBuilder stb, ItemId cs) = \bag(expandUserTypes(et,stb,cs));
+private Symbol et(\adt(str s, list[Symbol] ps), STBuilder stb, ItemId cs) = \adt(s,[expandUserTypes(p,stb,cs)|p <- ps]);
+private Symbol et(Symbol::\cons(Symbol a, list[Symbol] ps), STBuilder stb, ItemId cs) = Symbol::\cons(expandUserTypes(a,stb,cs),[expandUserTypes(p,stb,cs)|p<-ps]);
+private Symbol et(\alias(str s, list[Symbol] ps, Symbol at), STBuilder stb, ItemId cs) = \alias(s,[expandUserTypes(p,stb,cs)|p<-ps],expandUserTypes(at,stb,cs));
+private Symbol et(Symbol::\func(Symbol rt, list[Symbol] ps), STBuilder stb, ItemId cs) = Symbol::\func(expandUserTypes(rt,stb,cs),[expandUserTypes(p,stb,cs)|p <- ps]);
+
+private Symbol et(\overloaded(set[Symbol] os), STBuilder stb, ItemId cs) = \overloaded({expandUserTypes(o,stb,cs)|o<-os});
+private Symbol et(\unknown(Symbol t), STBuilder stb, ItemId cs) {
+    Symbol utRes = expandUserTypes(t, stb, cs);
+    return (utRes != t) ? utRes : t; // If the type changed, we at least partially resolved it, return that
 }
-
-public RType expandLocType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandNodeType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandNumType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandReifiedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeReifiedType(expandUserTypes(getReifiedType(rt),stBuilder,currentScope));
-}
-
-public RType expandBagType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeBagType(expandUserTypes(getBagElementType(rt),stBuilder,currentScope));
-}
-
-public RType expandIntType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandRelType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeRelTypeFromTuple(expandUserTypes(getRelElementType(rt),stBuilder,currentScope));
-}
-
-public RType expandTypeVarType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeTypeVarWithBound(getTypeVarName(rt),expandUserTypes(getTypeVarBound(rt),stBuilder,currentScope));
-}
-
-public RType expandRealType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandFunctionType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeFunctionTypeFromTuple(expandUserTypes(getFunctionReturnType(rt),stBuilder,currentScope), 
-        expandUserTypes(getFunctionArgumentTypesAsTuple(rt),stBuilder,currentScope),
-        isVarArgsFun(rt));
-}
-
-public RType expandTupleType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeTupleTypeWithNames( [ expandUserTypesForNamedType(p,stBuilder,currentScope) | p <- getTupleFieldsWithNames(rt) ]);
-}
-
-public RType expandStrType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandBoolType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandReifiedReifiedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnimplementedRType(t1);
-}
-
-public RType expandVoidType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandNonTerminalType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    // TODO: Add implementation, we may need to change the representation of this type
-    return rt;
-}
-
-public RType expandDateTimeType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandSetType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeSetType(expandUserTypes(getSetElementType(rt),stBuilder,currentScope));
-}
-
-public RType expandMapType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeMapTypeFromTuple(expandUserTypes(getMapFieldsAsTuple(rt),stBuilder,currentScope));
-}
-
-public RType expandConstructorType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeConstructorTypeFromTuple(getConstructorName(rt),
-        expandUserTypes(getConstructorResultType(rt),stBuilder,currentScope),
-        expandUserTypes(getConstructorArgumentTypesAsTuple(rt),stBuilder,currentScope));
-}
-
-public RType expandListType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeListType(expandUserTypes(getListElementType(rt),stBuilder,currentScope));
-}
-
-public RType expandADTType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeParameterizedADTType(getADTName(rt), [ expandUserTypes(p,stBuilder,currentScope) | p <- getADTTypeParameters(rt)]);
-}
-
-public RType expandLexType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(rt);
-}
-
-public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    RName tn = getUserTypeName(rt);
-
-    list[RType] params = [ expandUserTypes(tp,stBuilder,currentScope) | tp <- getUserTypeParameters(rt)];
-    
-    set[ItemId] userTypes = getItems(stBuilder,currentScope,tn,Types());
-    set[ItemId] aliasItems = { pi | pi <- userTypes, Alias(_,_,_,_) := stBuilder.scopeItemMap[pi] };
-    set[ItemId] adtItems = { pi | pi <- userTypes, ADT(_,_,_,_) := stBuilder.scopeItemMap[pi] };
+private Symbol et(\user(RName rn, list[Symbol] ps), STBuilder stb, ItemId cs) {
+    list[Symbol] params = [ expandUserTypes(tp,stb,cs) | tp <- ps ];
+    set[ItemId] userTypes = getItems(stb,cs,rn,Types());
+    set[ItemId] aliasItems = { pi | pi <- userTypes, Alias(_,_,_,_) := stb.scopeItemMap[pi] };
+    set[ItemId] adtItems = { pi | pi <- userTypes, ADT(_,_,_,_) := stb.scopeItemMap[pi] };
     
     if (size(userTypes - aliasItems - adtItems) > 0) 
-        throw "Unexpected case, got a user type that is not an alias or an adt, example: <stBuilder.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
+        throw "Unexpected case, got a user type that is not an alias or an adt, example: <stb.scopeItemMap[getOneFrom(userTypes-aliasItems-adtItems)]>";
 
     if (size(aliasItems) > 0 && size(adtItems) > 0)
-        throw "Unexpected case, got a user type that is both an alias and an adt, examples: <stBuilder.scopeItemMap[getOneFrom(aliasItems)]> and <stBuilder.scopeItemMap[getOneFrom(adtItems)]>";
+        throw "Unexpected case, got a user type that is both an alias and an adt, examples: <stb.scopeItemMap[getOneFrom(aliasItems)]> and <stb.scopeItemMap[getOneFrom(adtItems)]>";
     
     // TODO: Maybe throw an exception here, and catch it in the RUnknownType case?
     if (size(aliasItems) == 0 && size(adtItems) == 0)
@@ -158,8 +71,8 @@ public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) 
     // TODO: Instantiate here? Any use of a user type with params that is not the declaration
     // site should probably be instantiated to get back the proper type.        
     if (size(adtItems) > 0) {
-        RType resultType = getTypeForItem(stBuilder, getOneFrom(adtItems));
-        list[RType] adtParameters = getADTTypeParameters(resultType);
+        Symbol resultType = getTypeForItem(stb, getOneFrom(adtItems));
+        list[Symbol] adtParameters = getADTTypeParameters(resultType);
         if (size(params) > 0) {
             if (size(params) != size(adtParameters)) {
                 throw "Unexpected case, we have a different number of type parameters in the adt use and adt definition: <prettyPrintType(rt)> versus <prettyPrintType(resultType)>";
@@ -173,13 +86,13 @@ public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) 
     
     // TODO: Can we ever have more than 1 here? That would be a name clash.
     if (size(aliasItems) > 0) {
-        RType resultType = getTypeForItem(stBuilder, getOneFrom(aliasItems));
-        list[RType] aliasParameters = getAliasTypeParameters(resultType);
+        Symbol resultType = getTypeForItem(stb, getOneFrom(aliasItems));
+        list[Symbol] aliasParameters = getAliasTypeParameters(resultType);
         if (size(params) > 0) {
             if (size(params) != size(aliasParameters)) {
                 throw "Unexpected case, we have a different number of type parameters in the alias use and aliased type definition: <prettyPrintType(rt)> versus <prettyPrintType(resultType)>";            
             } else {
-                map[RName varName, RType varType] bindings = ( );
+                map[RName varName, Symbol varType] bindings = ( );
                 for (n <- [0..size(params)-1]) bindings = bindings + ( aliasParameters[n] : params[n] );
                 resultType = makeParameterizedAliasType(getAliasName(resultType), instantiateVars(getAliasedType(resultType),bindings), params);
             }
@@ -189,105 +102,19 @@ public RType expandUserType(RType rt, STBuilder stBuilder, ItemId currentScope) 
     }
 }
 
-public RType expandAliasType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return makeParameterizedAliasType(getAliasName(rt), expandUserTypes(getAliasedType(rt), stBuilder, currentScope), 
-        [expandUserTypes(rti, stBuilder, currentScope) | rti <- getAliasTypeParameters(rt)]);
+@doc{Expand any user types inside the given type into their actual adt or alias representation.}
+public Symbol expandUserTypes(Symbol rt, STBuilder stBuilder, ItemId currentScope) {
+	Symbol expandedType = et(rt,stBuilder,currentScope);
+    if ( (rt@at)? ) expandedType = expandedType[@at=rt@at];
+    return expandedType;        
 }
 
-public RType expandDataTypeSelectorType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(rt);
-}
-
-public RType expandFailType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(rt);
-}
-
-public RType expandInferredType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandOverloadedType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    return rt;
-}
-
-public RType expandStatementType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    throw UnexpectedRType(rt);
-}
-
-public RType expandUnknownType(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    RType utRes = expandUserTypes(getUnknownType(rt), stBuilder, currentScope);
-    return (utRes != getUnknownType(rt)) ? utRes : rt; // If the type changed, we at least partially resolved it, return that
-}
-
-public map[str,RType(RType,STBuilder,ItemId)] expandHandlers = (
-    "RValueType" : expandValueType,
-    "RLocType" : expandLocType,
-    "RNodeType" : expandNodeType,
-    "RNumType" : expandNumType,
-    "RReifiedType" : expandReifiedType,
-    "RBagType" : expandBagType,
-    "RIntType" : expandIntType,
-    "RRelType" : expandRelType,
-    "RTypeVar" : expandTypeVarType,
-    "RRealType" : expandRealType,
-    "RFunctionType" : expandFunctionType,
-    "RTupleType" : expandTupleType,
-    "RStrType" : expandStrType,
-    "RBoolType" : expandBoolType,
-    "RReifiedReifiedType" : expandReifiedReifiedType,
-    "RVoidType" : expandVoidType,
-    "RNonTerminalType" : expandNonTerminalType,
-    "RDateTimeType" : expandDateTimeType,
-    "RSetType" : expandSetType,
-    "RMapType" : expandMapType,
-    "RConstructorType" : expandConstructorType,
-    "RListType" : expandListType,
-    "RADTType" : expandADTType,
-    "RLexType" : expandLexType,
-    "RUserType" : expandUserType,
-    "RAliasType" : expandAliasType,
-    "RDataTypeSelector" : expandDataTypeSelectorType,
-    "RFailType" : expandFailType,
-    "RInferredType" : expandInferredType,
-    "ROverloadedType" : expandOverloadedType,
-    "RStatementType" : expandStatementType,
-    "RUnknownType" : expandUnknownType
-);
-
-public RNamedType expandUserTypesForNamedType(RNamedType nt, STBuilder stBuilder, ItemId currentScope) {
-    if (RUnnamedType(rt) := nt) {
-        return RUnnamedType(expandUserTypes(rt,stBuilder,currentScope));
-    } else if (RNamedType(rt,tn) := nt) {
-        return RNamedType(expandUserTypes(rt, stBuilder, currentScope), tn);
-    } else {
-        throw "expandUserTypesForNamedType given unexpected type <nt>";
-    }
-}
-
-public RType expandUserTypes(RType rt, STBuilder stBuilder, ItemId currentScope) {
-    if (getName(rt) in expandHandlers) {
-    	//h = expandHandlers[getName(rt)];
-    	//println(rt); println(h);
-    	//RType expandedType = h(rt, stBuilder, currentScope); 
-        RType expandedType = (expandHandlers[getName(rt)])(rt, stBuilder, currentScope);
-        if ( (rt@at)? ) expandedType = expandedType[@at=rt@at];
-        return expandedType;        
-    } else {
-        throw UnexpectedRType(rt);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-//
-// Get types back for individual scope items / source locations
-//
-///////////////////////////////////////////////////////////////////////////////////////////
-
-public RType getTypeForItem(STBuilder stBuilder, ItemId itemId) {
+@doc{Get types back for individual scope items / source locations.}
+public Symbol getTypeForItem(STBuilder stBuilder, ItemId itemId) {
     if (itemId notin stBuilder.scopeItemMap) throw "Error, id <itemId> is not in the scopeItemMap";
     
     Item si = stBuilder.scopeItemMap[itemId];
-    RType rt = makeVoidType();
+    Symbol rt = makeVoidType();
     
     // NOTE: For those items that introduce a new type, we bring over the location information
     switch(si) {
@@ -328,13 +155,13 @@ public RType getTypeForItem(STBuilder stBuilder, ItemId itemId) {
     return rt;
 }
 
-public bool hasRType(STBuilder stBuilder, loc l) {
+public bool hasSymbol(STBuilder stBuilder, loc l) {
 	if (l in stBuilder.itemUses<0>) return true;
 	if (size({ m | m:error(_,_) <- stBuilder.messages[l] }) > 0) return true;
     return false;
 }
 
-public RType getRType(STBuilder stBuilder, loc l) {
+public Symbol getSymbol(STBuilder stBuilder, loc l) {
     set[ItemId] itemIds = stBuilder.itemUses[l];
     set[str] scopeErrors = { s | error(s,_) <- stBuilder.messages[l] };
     
@@ -374,21 +201,19 @@ public RType getRType(STBuilder stBuilder, loc l) {
 // in Types).
 //
 
-alias ConvertTuple = tuple[STBuilder stBuilder, RType rtype];
-alias ConvertTupleN = tuple[STBuilder stBuilder, RNamedType rtype];
+alias ConvertTuple = tuple[STBuilder stBuilder, Symbol rtype];
 
 public ConvertTuple convertRascalType(STBuilder stBuilder, Type t) {
     // Step 1: convert the type
-    RType rt = convertType(t);
+    Symbol rt = convertType(t);
 
     // Step 2: look for any errors marked on the converted type
     list[tuple[str msg, loc at]] conversionErrors = [ ];
     list[tuple[str msg, loc at]] conversionWarnings = [ ];
     
     visit(rt) { 
-        case RType ct : {
+        case Symbol ct : {
             if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo;
-            if ( (ct@warninfo)? ) conversionWarnings = conversionWarnings + ct@warninfo;
         }
     }
 
@@ -404,27 +229,11 @@ public ConvertTuple convertRascalType(STBuilder stBuilder, Type t) {
 
 public ConvertTuple convertRascalUserType(STBuilder stBuilder, UserType t) {
     // Step 1: convert the type
-    RType rt = convertUserType(t);
+    Symbol rt = convertUserType(t);
 
     // Step 2: look for any errors marked on the converted type
     list[tuple[str msg, loc at]] conversionErrors = [ ];
-    visit(rt) { case RType ct : if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo; }
-
-    // Step 3: if we found errors, add them as scope errors
-    if (size(conversionErrors) > 0)
-        for (<cmsg,cloc> <- conversionErrors) stBuilder = addScopeError(stBuilder, cloc, cmsg);
-
-    // Step 4: finally return the type
-    return <stBuilder, rt>;   
-}
-
-public ConvertTupleN convertRascalTypeArg(STBuilder stBuilder, TypeArg t) {
-    // Step 1: convert the type
-    RNamedType rt = convertTypeArg(t);
-
-    // Step 2: look for any errors marked on the converted type
-    list[tuple[str msg, loc at]] conversionErrors = [ ];
-    visit(rt) { case RType ct : if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo; }
+    visit(rt) { case Symbol ct : if ( (ct@errinfo)? ) conversionErrors = conversionErrors + ct@errinfo; }
 
     // Step 3: if we found errors, add them as scope errors
     if (size(conversionErrors) > 0)
@@ -474,54 +283,54 @@ public STBuilder consolidateADTDefinitionsForLayer(STBuilder stBuilder, ItemId l
     return stBuilder;
 }
 
-public STBuilder checkADTDefinitionsForConsistency(STBuilder stBuilder) {
-    <inModule, moduleLayerId> = getSurroundingModule(stBuilder, head(stBuilder.scopeStack)); 
-    loc moduleLoc = stBuilder.scopeItemMap[moduleLayerId].definedAt;
-    
-    // Check each ADT individually for field type consistency
-    for (n <- domain(stBuilder.adtMap)) {
-        map[RName fieldName, RType fieldType] fieldMap = ( );
-
-        // First check imported constructors. If we get errors, we would rather have them on the constructors
-        // defined in the current module, since they are easier to fix -- checking them later preferences the
-        // types assigned to field in imported types.
-        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
-            RType consType = getTypeForItem(stBuilder, ci);
-            if (isConstructorType(consType)) {
-                list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
-                for (RNamedType(nt,nn) <- argTypes) {
-                    if (nn notin fieldMap) {
-                        fieldMap[nn] = nt;
-                    } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
-                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
-                    }
-                }
-            } else {
-                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
-            }
-        }
-        
-        // Now check the fields on the ADTs defined in the current module.
-        // TODO: May be good to refactor out identical checking code
-        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
-            RType consType = getTypeForItem(stBuilder, ci);
-            if (isConstructorType(consType)) {
-                list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
-                for (RNamedType(nt,nn) <- argTypes) {
-                    if (nn notin fieldMap) {
-                        fieldMap[nn] = nt;
-                    } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
-                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
-                    }
-                }               
-            } else {
-                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
-            }
-        }
-    }
-    
-    return stBuilder; 
-}
+//public STBuilder checkADTDefinitionsForConsistency(STBuilder stBuilder) {
+//    <inModule, moduleLayerId> = getSurroundingModule(stBuilder, head(stBuilder.scopeStack)); 
+//    loc moduleLoc = stBuilder.scopeItemMap[moduleLayerId].definedAt;
+//    
+//    // Check each ADT individually for field type consistency
+//    for (n <- domain(stBuilder.adtMap)) {
+//        map[RName fieldName, Symbol fieldType] fieldMap = ( );
+//
+//        // First check imported constructors. If we get errors, we would rather have them on the constructors
+//        // defined in the current module, since they are easier to fix -- checking them later preferences the
+//        // types assigned to field in imported types.
+//        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
+//            Symbol consType = getTypeForItem(stBuilder, ci);
+//            if (isConstructorType(consType)) {
+//                list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
+//                for (RNamedType(nt,nn) <- argTypes) {
+//                    if (nn notin fieldMap) {
+//                        fieldMap[nn] = nt;
+//                    } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
+//                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
+//                    }
+//                }
+//            } else {
+//                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
+//            }
+//        }
+//        
+//        // Now check the fields on the ADTs defined in the current module.
+//        // TODO: May be good to refactor out identical checking code
+//        for (ci <- stBuilder.adtMap[n].consItems, ci in stBuilder.scopeRel[last(stBuilder.scopeStack)]) {
+//            Symbol consType = getTypeForItem(stBuilder, ci);
+//            if (isConstructorType(consType)) {
+//                list[RNamedType] argTypes = getConstructorArgumentTypesWithNames(consType);
+//                for (RNamedType(nt,nn) <- argTypes) {
+//                    if (nn notin fieldMap) {
+//                        fieldMap[nn] = nt;
+//                    } else if (nn in fieldMap && !equivalent(fieldMap[nn],nt)) {
+//                        stBuilder = addScopeError(stBuilder, moduleLoc, "Constructor <prettyPrintName(cn)> of ADT <prettyPrintName(n)> redefines the type of field <prettyPrintName(nn)> from <prettyPrintType(fieldMap[nn])> to <prettyPrintType(nt)>");
+//                    }
+//                }               
+//            } else {
+//                throw "checkADTDefinitionsForConsistency, unexpected constructor item <stBuilder.scopeItemMap[ci]>";
+//            }
+//        }
+//    }
+//    
+//    return stBuilder; 
+//}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //

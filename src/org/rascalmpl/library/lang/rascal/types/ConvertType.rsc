@@ -22,9 +22,6 @@ import lang::rascal::types::AbstractType;
 
 import lang::rascal::syntax::RascalRascal;
 
-@doc{Annotation for adding locations to types and names}
-anno loc Symbol@at;
-
 @doc{Annotations for adding error and warning information to types}
 anno set[Message] Symbol@errinfo;
 

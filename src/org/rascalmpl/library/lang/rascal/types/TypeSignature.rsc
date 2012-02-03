@@ -62,13 +62,13 @@ import lang::rascal::syntax::RascalRascal;
 // Each signature item represents an item visible at the module level.
 //
 data RSignatureItem =
-      AliasSigItem(str aliasName, Symbol aliasType, loc at)
-    | FunctionSigItem(str functionName, Parameters params, Symbol returnType, loc at)
-    | VariableSigItem(str variableName, Symbol variableType, loc at)
-    | ADTSigItem(str adtName, Symbol adtType, loc at)
-    | ConstructorSigItem(str conName, Symbol constructorType, loc at)
-    | AnnotationSigItem(str annName, Symbol annType, Symbol onType, loc at)
-    | TagSigItem(str tagName, RKind tagKind, list[Symbol] taggedTypes, loc at)
+      AliasSigItem(RName aliasName, Symbol aliasType, loc at)
+    | FunctionSigItem(RName functionName, Parameters params, Symbol returnType, loc at)
+    | VariableSigItem(RName variableName, Symbol variableType, loc at)
+    | ADTSigItem(RName adtName, Symbol adtType, loc at)
+    | ConstructorSigItem(RName conName, Symbol constructorType, loc at)
+    | AnnotationSigItem(RName annName, Symbol annType, Symbol onType, loc at)
+    | TagSigItem(RName tagName, RKind tagKind, list[Symbol] taggedTypes, loc at)
     ;
 
 //
@@ -124,9 +124,9 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
         if ((Visibility)`public` := vis) { 
             switch(s) {
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps>` : 
-                    sig = addSignatureItem(sig, FunctionSigItem("<n>", ps, convertType(typ), sl));
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
                 case (Signature)`<FunctionModifiers ns> <Type typ> <Name n> <Parameters ps> throws <{Type ","}+ thrs>` :
-                    sig = addSignatureItem(sig, FunctionSigItem("<n>", ps, convertType(typ), sl));
+                    sig = addSignatureItem(sig, FunctionSigItem(convertName(n), ps, convertType(typ), sl));
                 default: throw "signatureForSignature case not implemented for item <s>";
             }
         }
@@ -163,8 +163,8 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                     if ((Visibility)`public` := vis) { 
                         for (v <- vs) {
                             switch(v) {
-                                case (Variable)`<Name n>` : sig = addSignatureItem(sig, VariableSigItem("<n>", convertType(typ), t@\loc));
-                                case (Variable)`<Name n> = <Expression e>` : sig = addSignatureItem(sig, VariableSigItem("<n>", convertType(typ), t@\loc));
+                                case (Variable)`<Name n>` : sig = addSignatureItem(sig, VariableSigItem(convertName(n), convertType(typ), t@\loc));
+                                case (Variable)`<Name n> = <Expression e>` : sig = addSignatureItem(sig, VariableSigItem(convertName(n), convertType(typ), t@\loc));
                             }
                         }
                     }
@@ -173,35 +173,35 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
                 // Annotation declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        sig = addSignatureItem(sig, AnnotationSigItem("<n>", convertType(typ), convertType(otyp), t@\loc));
+                        sig = addSignatureItem(sig, AnnotationSigItem(convertName(n), convertType(typ), convertType(otyp), t@\loc));
 //                    }
                 }
                                     
                 // Tag declaration
                 case (Toplevel) `<Tags tgs> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ typs> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        sig = addSignatureItem(sig, TagSigItem("<n>", convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
+                        sig = addSignatureItem(sig, TagSigItem(convertName(n), convertKind(k), [ convertType(typ) | typ <- typs ], t@\loc));
 //                    }
                 }
                 
                 // ADT without variants
                 case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        RType adtBaseType = convertUserType(typ);
-                        RType adtType = makeParameterizedADTType(adtBaseType.typeName, adtBaseType.typeParams);
-                        sig = addSignatureItem(sig, ADTSigItem(adtBaseType.typeName, adtType, t@\loc));
+                        Symbol adtBaseType = convertUserType(typ);
+                        Symbol adtType = makeParameterizedADTType(getUserTypeName(adtBaseType), getUserTypeParameters(adtBaseType));
+                        sig = addSignatureItem(sig, ADTSigItem(getUserTypeName(adtBaseType), adtType, t@\loc));
 //                    }
                 }
                 
                 // ADT with variants
                 case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> = <{Variant "|"}+ vars> ;` : {
 //                    if ((Visibility)`public` := vis) {
-                        RType adtBaseType = convertUserType(typ);
-                        RType adtType = makeParameterizedADTType(adtBaseType.typeName, adtBaseType.typeParams);
-                        sig = addSignatureItem(sig, ADTSigItem(adtBaseType.typeName, adtType, t@\loc));
+                        Symbol adtBaseType = convertUserType(typ);
+                        Symbol adtType = makeParameterizedADTType(getUserTypeName(adtBaseType), getUserTypeParameters(adtBaseType));
+                        sig = addSignatureItem(sig, ADTSigItem(RSimpleName(getUserTypeName(adtBaseType)), adtType, t@\loc));
                         for (var <- vars) {
                             if (`<Name n> ( <{TypeArg ","}* args> )` := var) {
-                                sig = addSignatureItem(sig,ConstructorSigItem("<n>", makeConstructorType(convertName(n), adtType, [ convertTypeArg(targ) | targ <- args ]), t@\loc));
+                                sig = addSignatureItem(sig,ConstructorSigItem(convertName(n), makeConstructorType(adtType, [ convertTypeArg(targ) | targ <- args ]), t@\loc));
                             }
                         }
 //                    }
@@ -212,7 +212,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 //                    if ((Visibility)`public` := vis) {
                         Symbol aliasType = convertUserType(typ);
                         Symbol aliasedType = convertType(btyp);
-                        sig = addSignatureItem(sig, AliasSigItem("<getUserTypeRawName(typ)>", makeParameterizedAliasType(getUserTypeName(aliasType), aliasedType, getUserTypeParameters(aliasType)), t@\loc));
+                        sig = addSignatureItem(sig, AliasSigItem(convertName(getUserTypeRawName(typ)), makeParameterizedAliasType(getUserTypeName(aliasType), aliasedType, getUserTypeParameters(aliasType)), t@\loc));
 //                    }
                 }
   
@@ -241,8 +241,8 @@ public bool isVarArgsParameters(Parameters ps) {
 // Get the type names introduced in the signature items. ADTs and aliases both introduce
 // new type names.
 //
-private set[str] getLocallyDefinedTypeNames(RSignature sig) {
-    set[str] definedTypeNames = { };
+private set[RName] getLocallyDefinedTypeNames(RSignature sig) {
+    set[RName] definedTypeNames = { };
     for (si <- sig.signatureItems, AliasSigItem(n,_,_) := si || ADTSigItem(n,_,_) := si) definedTypeNames += n;
     return definedTypeNames;
 }
@@ -271,10 +271,10 @@ public bool isUnknownType(\unknown(_)) = true;
 public default bool isUnknownType(Symbol _) = false;
 
 private RSignature markUndefinedTypes(RSignature sig) {
-    set[str] localNames = getLocallyDefinedTypeNames(sig);
+    set[RName] localNames = getLocallyDefinedTypeNames(sig);
     sig.signatureItems = 
         bottom-up visit(sig.signatureItems) {
-            case Symbol t:\user(RSimpleName(n),_) =>  \unknown(t) when n notin localNames
+            case Symbol t:\user(n,_) =>  \unknown(t) when n notin localNames
         }
     return sig;
 }
