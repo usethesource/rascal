@@ -545,16 +545,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		if (currentModule.hasCachedParser()) {
 			String className = currentModule.getCachedParser();
 			Class<?> clazz;
-			try {
-				clazz = Class.forName(className);
-				return (IGTD) clazz.newInstance();
-			} catch (ClassNotFoundException e) {
-				throw new ImplementationError("class for cached parser " + className + " could not be found", e);
-			} catch (InstantiationException e) {
-				throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-			} catch (IllegalAccessException e) {
-				throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+			for (ClassLoader cl: classLoaders) {
+				try {
+					clazz = cl.loadClass(className);
+					return (IGTD) clazz.newInstance();
+				} catch (ClassNotFoundException e) {
+					continue;
+				} catch (InstantiationException e) {
+					throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
+				} catch (IllegalAccessException e) {
+					throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
+				}
 			}
+			throw new ImplementationError("class for cached parser " + className + " could not be found");
 		}
 
 		ParserGenerator pg = getParserGenerator();
