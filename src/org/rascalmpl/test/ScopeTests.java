@@ -108,6 +108,14 @@ public class ScopeTests extends TestFramework {
 	}
 	
 	@Test
+	public void qualifiedScopeTest(){
+		prepareModule("XX", "module XX public int n = 1; ");
+		runTestInSameEvaluator("import XX;");
+		runTestInSameEvaluator("XX::n = 2;");
+		runTestInSameEvaluator("XX::n == 2;");
+	}
+	
+	@Test
 	public void moduleAndLocalVarDeclaration(){
 		prepareModule("XX", "module XX public int n = 1;");
 		prepareMore("import XX;");
