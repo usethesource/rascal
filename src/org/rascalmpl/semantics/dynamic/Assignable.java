@@ -683,7 +683,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			QualifiedName qname = this.getQualifiedName();
-			Result<IValue> previous = __eval.__getEnv().getSimpleVariable(qname);
+			Result<IValue> previous = __eval.__getEnv().getVariable(qname);
 
 			if (previous != null && previous.getValue() != null) {
 				__eval.__setValue(__eval.newResult(previous, __eval
