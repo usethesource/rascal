@@ -45,15 +45,7 @@ public class ArgumentsMismatchError extends StaticError {
 		}
 		for (AbstractFunction c : candidates) {
 			b.append('\t');
-			b.append(c.getName());
-			b.append('(');
-			if (c instanceof RascalFunction) {
-				b.append(((FunctionDeclaration) ((RascalFunction) c).getAst()).getSignature().getParameters().getFormals());
-			}
-			else {
-				argumentTypes(c.getFunctionType().getArgumentTypes(), b);
-			}
-			b.append(')');
+			b.append(c.toString());
 			b.append('\n');
 		}
 		
