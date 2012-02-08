@@ -1,8 +1,6 @@
 package org.rascalmpl.interpreter.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -137,11 +135,7 @@ public class ReadEvalPrintDialogMessages {
 
 	public static String throwableMessage(Throwable e, String rascalTrace) {
 		String content;
-		content = e.toString() + " (internal error)";
-		content += rascalTrace;
-		ByteArrayOutputStream trace = new ByteArrayOutputStream();
-		e.printStackTrace(new PrintStream(trace));
-		content += "\n" + trace.toString();
+		content = e.toString() + " (internal error, see error log)";
 		return content;
 	}
 
