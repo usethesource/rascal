@@ -4,6 +4,7 @@ import Grammar;
 import ParseTree;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Productions;
+import lang::rascal::grammar::Assimilator;
 import IO;
 
 public Grammar expandKeywords(Grammar g) {
