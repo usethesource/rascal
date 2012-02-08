@@ -16,9 +16,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.RascalFunction;
 
 public class ArgumentsMismatchError extends StaticError {
 	private static final long serialVersionUID = -641438732779898646L;
