@@ -155,6 +155,10 @@ public class LocalSharingValueFactory implements IValueFactory{
 	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol));
 	}
+	
+	public ISourceLocation sourceLocation(URI uri, int offset, int length){
+		return cachedSourceLocations.cache(valueFactory.sourceLocation(uri, offset, length));
+	}
 
 	public ITuple tuple(){
 		return cachedTuples.cache(valueFactory.tuple());

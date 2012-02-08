@@ -986,10 +986,10 @@ public class Prelude {
 				line = in.readLine();
 				i++;
 				if(line != null){
-					if(offset == -1){
+					if(!sloc.hasOffsetLength()){
 						w.append(values.string(line));
 					}else{
-						if(endColumn == -1){
+						if(!sloc.hasLineColumn()){
 							endColumn = line.length();
 						}
 						if(i == beginLine){

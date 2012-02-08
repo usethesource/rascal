@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -58,33 +59,46 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] actuals) {
-		if (actuals.length != 4) {
+		if (actuals.length >= 2) {
+			if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
+				throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
+			}
+			if (!argTypes[1].isSubtypeOf(getTypeFactory().integerType())) {
+				throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[1], ctx.getCurrentAST());
+			}
+			
+			if (actuals.length == 4) {
+				if (!argTypes[2].isSubtypeOf(intTuple)) {
+					throw new UnexpectedTypeError(intTuple, argTypes[2], ctx.getCurrentAST());
+				}
+				if (!argTypes[3].isSubtypeOf(intTuple)) {
+					throw new UnexpectedTypeError(intTuple, argTypes[3], ctx.getCurrentAST());
+				}
+			}
+			else if (actuals.length != 2) {
+				throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
+			}
+		}
+		else {
 			throw new SyntaxError("location constructor", ctx.getCurrentAST().getLocation());
 		}
 		
-		if (!argTypes[0].isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[0], ctx.getCurrentAST());
-		}
-		if (!argTypes[1].isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedTypeError(getTypeFactory().integerType(), argTypes[1], ctx.getCurrentAST());
-		}
-		if (!argTypes[2].isSubtypeOf(intTuple)) {
-			throw new UnexpectedTypeError(intTuple, argTypes[2], ctx.getCurrentAST());
-		}
-		if (!argTypes[3].isSubtypeOf(intTuple)) {
-			throw new UnexpectedTypeError(intTuple, argTypes[3], ctx.getCurrentAST());
-		}
-		
+		URI uri = getValue().getURI();
+
 		int iLength = Integer.parseInt(actuals[1].toString());
 		int iOffset = Integer.parseInt(actuals[0].toString());
-		int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
-		int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
-		int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
-		int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
-		URI uri = getValue().getURI();
-		
-		return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
-		
+			
+		if (actuals.length == 4) {
+			int iBeginLine = Integer.parseInt(((ITuple) actuals[2]).get(0).toString());
+			int iBeginColumn = Integer.parseInt(((ITuple) actuals[2]).get(1).toString());
+			int iEndLine = Integer.parseInt(((ITuple) actuals[3]).get(0).toString());
+			int iEndColumn = Integer.parseInt(((ITuple) actuals[3]).get(1).toString());
+
+			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+		}
+		else {
+			return makeResult(getTypeFactory().sourceLocationType(), getValueFactory().sourceLocation(uri, iOffset, iLength), ctx);
+		}
 	}
 	
 	@Override
@@ -177,18 +191,38 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().integerType(), vf.integer(uri.getPort()), ctx);
 		}
 		else if (name.equals("length")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getLength()), ctx);
+			if (getValue().hasOffsetLength()) {
+				return makeResult(getTypeFactory().integerType(), vf
+						.integer(getValue().getLength()), ctx);
+			}
+			else {
+				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+			}
 		} 
 		else if (name.equals("offset")) {
-			return makeResult(getTypeFactory().integerType(), vf
-					.integer(getValue().getOffset()), ctx);
+			if (getValue().hasOffsetLength()) {
+				return makeResult(getTypeFactory().integerType(), vf
+						.integer(getValue().getOffset()), ctx);
+			}
+			else {
+				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+			}
 		} 
 		else if (name.equals("begin")) {
-			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getBeginLine()), vf.integer(getValue().getBeginColumn())), ctx);
+			if (getValue().hasLineColumn()) {
+				return makeResult(intTuple, vf.tuple(vf.integer(getValue().getBeginLine()), vf.integer(getValue().getBeginColumn())), ctx);
+			}
+			else {
+				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+			}
 		}
 		else if (name.equals("end")) {
-			return makeResult(intTuple, vf.tuple(vf.integer(getValue().getEndLine()), vf.integer(getValue().getEndColumn())), ctx);
+			if (getValue().hasLineColumn()) {
+				return makeResult(intTuple, vf.tuple(vf.integer(getValue().getEndLine()), vf.integer(getValue().getEndColumn())), ctx);
+			}
+			else {
+				throw RuntimeExceptionFactory.unavailableInformation(ctx.getCurrentAST(), ctx.getStackTrace());
+			}
 		}
 		else if (name.equals("uri")) {
 			return makeResult(getTypeFactory().stringType(), vf
@@ -213,12 +247,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ISourceLocation loc = getValue();
-		int iLength = loc.getLength();
-		int iOffset = loc.getOffset();
-		int iBeginLine = loc.getBeginLine();
-		int iBeginColumn = loc.getBeginColumn();
-		int iEndLine = loc.getEndLine();
-		int iEndColumn = loc.getEndColumn();
+		int iLength = loc.hasOffsetLength() ? loc.getLength() : -1;
+		int iOffset = loc.hasOffsetLength() ? loc.getOffset() : -1;
+		int iBeginLine = loc.hasLineColumn() ? loc.getBeginLine() : -1;
+		int iBeginColumn = loc.hasLineColumn() ? loc.getBeginColumn() : -1;
+		int iEndLine = loc.hasLineColumn() ? loc.getEndLine() : -1;
+		int iEndColumn = loc.hasLineColumn() ? loc.getEndColumn() : -1;
 		URI uri = loc.getURI();
 
 		Type replType = repl.getType();
@@ -366,12 +400,20 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iLength = ((IInteger) replValue).intValue();
+				
+				if (iLength < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(replValue, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 			} 
 			else if (name.equals("offset")){
 				if (!replType.isIntegerType()) {
 					throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 				}
 				iOffset = ((IInteger) replValue).intValue();
+				
+				if (iOffset < 0) {
+					RuntimeExceptionFactory.illegalArgument(replValue, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 			} 
 			else if (name.equals("begin")) {
 				if (!replType.isSubtypeOf(intTuple)) {
@@ -379,6 +421,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 				iBeginLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
 				iBeginColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
+				
+				if (iBeginColumn < 0 || iBeginLine < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(replValue, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 			}
 			else if (name.equals("end")) {
 				if (!replType.isSubtypeOf(intTuple)) {
@@ -386,14 +432,70 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				}
 				iEndLine = ((IInteger) ((ITuple) replValue).get(0)).intValue();
 				iEndColumn = ((IInteger) ((ITuple) replValue).get(1)).intValue();
+				
+				if (iEndLine < 0 || iEndColumn < 0) {
+					throw RuntimeExceptionFactory.illegalArgument(replValue, ctx.getCurrentAST(), ctx.getStackTrace());
+				}
 			}
 			else {
 				// TODO: is this the right exception? How so "undeclared"?
 				throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
+			
+			if (loc.hasLineColumn()) {
+				// was a complete loc, and thus will be now
+				return makeResult(getType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+			}
+			
+			if (loc.hasOffsetLength()) {
+				// was a partial loc
+				
+				if (iBeginLine != -1 || iBeginColumn != -1) {
+					//will be complete now.
+					iEndLine = iBeginLine;
+					iEndColumn = iBeginColumn;
+					return makeResult(getType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				}
+				else if (iEndLine != -1 || iEndColumn != -1) {
+					// will be complete now.
+					iBeginLine = iEndLine;
+					iBeginColumn = iEndColumn;
+					return makeResult(getType(), getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				}
+				else {
+					// remains a partial loc
+					return makeResult(getType(), getValueFactory().sourceLocation(uri, iOffset, iLength), ctx);
+				}
+			}
 
-			ISourceLocation nloc = getValueFactory().sourceLocation(uri, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			return makeResult(getType(), nloc, ctx);
+			// used to have no offset/length or line/column info, if we are here
+			
+			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
+				// trying to add line/column info to a uri that has no offset length
+				throw RuntimeExceptionFactory.invalidUseOfLocation("Can not add line/column information without offset/length", ctx.getCurrentAST(), ctx.getStackTrace());
+			}
+			
+			// trying to set offset that was not there before, adding length automatically
+			if (iOffset != -1 ) {
+				if (iLength == -1) {
+					iLength = 0;
+				}
+			}
+			
+			// trying to set length that was not there before, adding offset automatically
+			if (iLength != -1) {
+				if (iOffset == -1) {
+					iOffset = 0;
+				}
+			}
+			
+			if (iOffset != -1 || iLength != -1) {
+				// used not to no offset/length, but do now
+				return makeResult(getType(), getValueFactory().sourceLocation(uri, iOffset, iLength), ctx);
+			}
+			
+			// no updates to offset/length or line/column, and did not used to have any either:
+			return makeResult(getType(), getValueFactory().sourceLocation(uri), ctx);
 		} 
 		catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), null);
@@ -427,27 +529,43 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		if (left.isEqual(right)) {
 			return makeIntegerResult(0);
 		}
+		
+		// they are not the same
 		int compare = left.getURI().toString().compareTo(right.getURI().toString());
 		if (compare != 0) {
 			return makeIntegerResult(compare);
 		}
-		int lBeginLine = left.getBeginLine();
-		int rBeginLine = right.getBeginLine();
-
-		int lEndLine = left.getEndLine();
-		int rEndLine = right.getEndLine();
-
-		int lBeginColumn = left.getBeginColumn();
-		int rBeginColumn = right.getBeginColumn();
-
-		int lEndColumn = left.getEndColumn();
-		int rEndColumn = right.getEndColumn();
-			
-		if ((lBeginLine > rBeginLine || (lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
-				(lEndLine < rEndLine || ((lEndLine == rEndLine) && lEndColumn < rEndColumn))) {
-			return makeIntegerResult(-1);
-		} 
-		return makeIntegerResult(1);
+		
+		// but the uri's are the same
+		// note that line/column information is superfluous and does not matter for ordering
+		
+		if (left.hasOffsetLength()) {
+			if (!right.hasOffsetLength()) {
+				return makeIntegerResult(1);
+			}
+			else if (right.getOffset() != left.getOffset()) {
+				if (right.getOffset() < left.getOffset()) {
+					return makeIntegerResult(-1);
+				}
+				else {
+					return makeIntegerResult(1);
+				}
+			}
+			else { // lengths must be different
+				if (right.getLength() < left.getLength()) {
+					return makeIntegerResult(-1);
+				}
+				else {
+					return makeIntegerResult(1);
+				}
+			}
+		}
+		
+		if (!right.hasOffsetLength()) {
+			throw new ImplementationError("assertion failed");
+		}
+		
+		return makeIntegerResult(-1);
 	}
 	
 	@Override
