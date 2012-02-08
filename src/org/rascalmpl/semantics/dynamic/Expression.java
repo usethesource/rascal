@@ -322,7 +322,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		
 			if (nameExpr.isQualifiedName()) {
 				 Result<IValue> constructors = eval.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+
+				 if (constructors == null) {
+					 throw new UndeclaredVariableError(Names.fullName(nameExpr.getQualifiedName()), this);
+				 }
 				 
+				 if (!(constructors instanceof OverloadedFunctionResult)) {
+					 throw new UnsupportedPatternError("tree pattern with receiver not a constructor", this);
+				 }
+
 				 if (!registeredCacheHandler) {
 					 eval.getEvaluator().registerConstructorDeclaredListener(
 							 new IConstructorDeclared() {
@@ -333,7 +341,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 							 });
 					 registeredCacheHandler = true;
 				 }
-				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), (OverloadedFunctionResult) constructors, visitArguments(eval));
+				 return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), (OverloadedFunctionResult) constructors, visitArguments(eval));
 			}
 
 			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, null, visitArguments(eval));
@@ -362,8 +370,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					
 					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
 						org.rascalmpl.ast.QualifiedName qname = this.getExpression().getQualifiedName();
+						
 						if (__eval.getCurrentEnvt().isNameFinal(qname)) {
 							this.cachedPrefix = function;
+							
+							
 							if (!registeredCacheHandler) {
 								__eval.getEvaluator().registerConstructorDeclaredListener(
 										new IConstructorDeclared() {
@@ -392,9 +403,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					actuals[i] = resultElem.getValue();
 				}
 
-
+			
 				Result<IValue> res = function.call(types, actuals);
-
 
 				// we need to update the strategy context when the function is of
 				// type Strategy
