@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -421,11 +422,16 @@ public class TreeAdapter {
 	}
 
 	public static String yield(IConstructor tree, int limit) throws FactTypeUseException {
+		Writer stream = new LimitedResultWriter(limit);
+		
 		try {
-			Writer stream = new LimitedResultWriter(limit);
 			unparse(tree, stream);
 			return stream.toString();
-		} catch (IOException e) {
+		}
+		catch (IOLimitReachedException e) {
+			return stream.toString();			
+		}
+		catch (IOException e) {
 			throw new ImplementationError("Method yield failed", e);
 		}
 	}
