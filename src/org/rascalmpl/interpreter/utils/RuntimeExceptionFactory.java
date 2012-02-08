@@ -50,6 +50,7 @@ public class RuntimeExceptionFactory {
 	public static final Type EmptySet = TF.constructor(TS,Exception,"EmptySet");
 	public static final Type EmptyMap = TF.constructor(TS,Exception,"EmptyMap");
 	public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
+	public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation");
 	public static final Type IllegalArgument = TF.constructor(TS,Exception,"IllegalArgument",TF.valueType(), "v", TF.stringType(), "message");
 	public static final Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
 
@@ -81,6 +82,7 @@ public class RuntimeExceptionFactory {
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
+	public static final Type InvalidUseOfLocation = TF.constructor(TS, Exception, "InvalidUseOfLocation", TF.stringType(), "message");
 	public static final Type DateTimeParsingError = TF.constructor(TS, Exception, "DateTimeParsingError", TF.stringType(), "message");
 	public static final Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
 	public static final Type Timeout = TF.constructor(TS, Exception, "Timeout");
@@ -132,6 +134,10 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, String trace){
 		return new Throw(IllegalTypeArgument.make(VF,VF.string(type)), ast, trace);	
+	}
+	
+	public static Throw unavailableInformation(AbstractAST ast, String trace){
+		return new Throw(UnavailableInformation.make(VF), ast, trace);	
 	}
 	
 	public static Throw illegalArgument(AbstractAST ast, String trace) {
@@ -250,5 +256,9 @@ public class RuntimeExceptionFactory {
 
 	public static Throw illegalCharacter(IInteger i, AbstractAST ast, String trace) {
 		return new Throw(IllegalChar.make(VF, i), ast, trace);
+	}
+
+	public static Throw invalidUseOfLocation(String msg, AbstractAST ast, String trace) {
+		return new Throw(InvalidUseOfLocation.make(VF, VF.string(msg)), ast, trace);
 	}
 }
