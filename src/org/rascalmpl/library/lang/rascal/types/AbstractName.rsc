@@ -52,6 +52,12 @@ public Name getLastName(QualifiedName qn) {
 	throw "Unexpected syntax for qualified name: <qn>";
 }
 
+@doc{Append a name to the end of the current name.}
+public RName appendName(RSimpleName(str s1), RSimpleName(str s2)) = RCompoundName([s1,s2]);
+public RName appendName(RSimpleName(str s1), RCompoundName(list[str] s2)) = RCompoundName([s1] + s2);
+public RName appendName(RCompoundName(list[str] s1), RSimpleName(str s2)) = RCompoundName(s1 + s2);
+public RName appendName(RCompoundName(list[str] s1), RCompoundName(list[str] s2)) = RCompoundName(s1 + s2);
+
 @doc{Pretty-print a list of abstract names, separated by ::}
 public str prettyPrintNameList(list[str] nameList) = intercalate("::", nameList);
 	

@@ -61,7 +61,7 @@ public class StaticChecker {
 	public synchronized void load(IRascalMonitor monitor) {
 //		eval("import lang::rascal::checker::Check;");
 //		eval("import lang::rascal::checker::Import;");
-		eval(monitor, "import lang::rascal::scoping::ResolveNames;");
+		eval(monitor, "import lang::rascal::types::CheckTypes;");
 		loaded = true;
 	}
 
@@ -93,7 +93,7 @@ public class StaticChecker {
 	public synchronized IConstructor checkModule(IRascalMonitor monitor, IConstructor moduleParseTree) {
 		IConstructor res = moduleParseTree;
 //		res = resolveImports(monitor, res);
-		if (checkerEnabled) res = (IConstructor) eval.call(monitor, "resolveTree", res);
+		if (checkerEnabled) res = (IConstructor) eval.call(monitor, "check", res);
 		return res;
 	}
 
