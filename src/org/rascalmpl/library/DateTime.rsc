@@ -488,7 +488,7 @@ Synopsis: Parse an input date given as a string using the given format string.
 Examples:
 <screen>
 import DateTime;
-parseDate("2011-12-23", "YYYY-MM-DD");
+parseDate("2011-12-23", "yyyy-MM-dd");
 parseDate("20111223", "YYYYMMDD");
 </screen>
 }
