@@ -455,20 +455,6 @@ public int daysInInterval(interval i) {
 }
 
 @doc{
-Synopsis: Return the difference between two dates and/or datetimes in days.
-
-Examples:
-<screen>
-import DateTime;
-B = now();
-E = incrementDays(B, 2);
-daysDiff(B, E);
-</screen>
-} 
-@javaClass{org.rascalmpl.library.Prelude}
-public java int daysDiff(datetime begin, datetime end);
-
-@doc{
 Synopsis: Given an interval, return a list of days.
 
 Description:

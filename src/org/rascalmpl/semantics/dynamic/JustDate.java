@@ -13,12 +13,16 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.joda.time.DateTime;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 
 public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 
@@ -36,19 +40,18 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 		}
 		
 		private Result<IValue> createVisitedDate(Evaluator eval, String datePart, org.rascalmpl.ast.JustDate.Lexical x) {
-			String isoDate = datePart;
-			if (-1 == datePart.indexOf("-")) {
-				isoDate = datePart.substring(0, 4) + "-" + datePart.substring(4, 6) + "-" + datePart.substring(6);
-			}
 			try {
-				DateTime justDate = org.joda.time.format.ISODateTimeFormat.dateParser().parseDateTime(isoDate);
-				return makeResult(TF.dateTimeType(),
-						VF.date(justDate.getYear(), justDate.getMonthOfYear(), justDate.getDayOfMonth()), eval);
-			} catch (IllegalArgumentException iae) {
-				throw new DateTimeParseError("$" + datePart, x.getLocation());
+				datePart.replaceAll("-", "");
+
+				StandardTextReader parser = new StandardTextReader();
+				IValue result = parser.read(VF, new StringReader(datePart));
+				return makeResult(TF.dateTimeType(), result, eval);
+			} catch (FactTypeUseException e) {
+				throw new ImplementationError(e.getMessage());
+			} catch (IOException e) {
+				throw new ImplementationError(e.getMessage());
 			}
 		}
-
 	}
 
 	public JustDate(IConstructor __param1) {
