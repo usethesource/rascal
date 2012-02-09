@@ -372,7 +372,9 @@ public class Prelude {
 		try {
 			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue());
 			Date dt = fmt.parse(inputDate.getValue());
-			return values.datetime(dt.getTime());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dt);
+			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue(), null, null);
@@ -388,7 +390,9 @@ public class Prelude {
 		try {
 			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new Locale(locale.getValue()));
 			Date dt = fmt.parse(inputDate.getValue());
-			return values.datetime(dt.getTime());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dt);
+			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
@@ -404,7 +408,16 @@ public class Prelude {
 		try {
 			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue());
 			Date dt = fmt.parse(inputTime.getValue());
-			return values.datetime(dt.getTime());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dt);
+			// The value for zone offset comes back in milliseconds. The number of
+			// hours is thus milliseconds / 1000 (to get to seconds) / 60 (to get to minutes)
+			// / 60 (to get to hours). Minutes is this except for the last division,
+			// but then we use mod 60 since this gives us total # of minutes, including
+			// the hours we have already computed.
+			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
+			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() + 
 					" using format string: " + formatString.getValue(), null, null);
@@ -414,19 +427,28 @@ public class Prelude {
 		}
 	}
 	
-	public IValue parseTimeInLocale(IString inputDate, IString formatString, IString locale) 
+	public IValue parseTimeInLocale(IString inputTime, IString formatString, IString locale) 
 	//@doc{Parse an input time given as a string using a specific locale and format string}
 	{
 		try {
 			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new ULocale(locale.getValue()));
-			Date dt = fmt.parse(inputDate.getValue());
-			return values.datetime(dt.getTime());
+			Date dt = fmt.parse(inputTime.getValue());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dt);
+			// The value for zone offset comes back in milliseconds. The number of
+			// hours is thus milliseconds / 1000 (to get to seconds) / 60 (to get to minutes)
+			// / 60 (to get to hours). Minutes is this except for the last division,
+			// but then we use mod 60 since this gives us total # of minutes, including
+			// the hours we have already computed.
+			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
+			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
 		}
 	}
 
@@ -449,7 +471,17 @@ public class Prelude {
 	public IValue parseDateTimeInLocale(IString inputDateTime, IString formatString, IString locale) 
 	//@doc{Parse an input datetime given as a string using a specific locale and format string}
 	{
-		return parseTimeInLocale(inputDateTime, formatString, locale);
+		try {
+			SimpleDateFormat fmt = new SimpleDateFormat(formatString.getValue(), new ULocale(locale.getValue()));
+			Date dt = fmt.parse(inputDateTime.getValue());
+			return values.datetime(dt.getTime());
+		} catch (IllegalArgumentException iae) {
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+		} catch (ParseException e) {
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+		}
 	}
 
 	public IValue printDate(IDateTime inputDate, IString formatString) 
