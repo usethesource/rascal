@@ -13,12 +13,16 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.joda.time.DateTime;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.DateTimeParseError;
 
 public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 
@@ -36,21 +40,18 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 		}
 		
 		private Result<IValue> createVisitedTime(Evaluator eval, String timePart, org.rascalmpl.ast.JustTime.Lexical x) {
-			String isoTime = timePart;
-			if (-1 == timePart.indexOf(":")) {
-				isoTime = timePart.substring(0, 2) + ":" + timePart.substring(2, 4) + ":" + timePart.substring(4);
-			}
 			try {
-				DateTime justTime = org.joda.time.format.ISODateTimeFormat.timeParser().parseDateTime(isoTime);
-				int hourOffset = justTime.getZone().getOffset(justTime.getMillis()) / 3600000;
-				int minuteOffset = (justTime.getZone().getOffset(justTime.getMillis()) / 60000) % 60;
-				return makeResult(TF.dateTimeType(),
-						VF.time(justTime.getHourOfDay(), justTime.getMinuteOfHour(), justTime.getSecondOfMinute(), justTime.getMillisOfSecond(), hourOffset, minuteOffset), eval);
-			} catch (IllegalArgumentException iae) {
-				throw new DateTimeParseError("$T" + timePart, x.getLocation());
+				timePart.replaceAll(":","");
+
+				StandardTextReader parser = new StandardTextReader();
+				IValue result = parser.read(VF, new StringReader("T" + timePart));
+				return makeResult(TF.dateTimeType(), result, eval);
+			} catch (FactTypeUseException e) {
+				throw new ImplementationError(e.getMessage());
+			} catch (IOException e) {
+				throw new ImplementationError(e.getMessage());
 			}
 		}
-
 	}
 
 	public JustTime(IConstructor __param1) {

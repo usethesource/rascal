@@ -97,7 +97,8 @@ Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
  org.eclipse.jetty.security;bundle-version="7.5.1",
  org.eclipse.jetty.webapp;bundle-version="7.5.1",
  org.eclipse.jetty.continuation;bundle-version="7.5.1",
- org.eclipse.jetty.annotations;bundle-version="7.5.1"
+ org.eclipse.jetty.annotations;bundle-version="7.5.1",
+ com.ibm.icu;bundle-version="4.4.2"
 Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.math.optimization;version="2.1.0",
