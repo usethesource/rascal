@@ -14,7 +14,7 @@ public int testfun1() {
     int n1 = 6;
     
     l1 + n1;
-    l1 + n1;
+    n1 + l1;
     l1 + l1;
     n1 + n1;
     

@@ -18,6 +18,7 @@ import ParseTree;
 import Message;
 import Node;
 import Type;
+import Relation;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -25,6 +26,7 @@ import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
+import lang::rascal::types::TypeInstantiation;
 import lang::rascal::checker::Annotations;
 import lang::rascal::scoping::SymbolTable;
 import lang::rascal::scoping::ScopedTypes;
@@ -41,23 +43,73 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 3. Add support for _ in patterns, to ensure we don't accidentally bind _ as a name
 //
-// 4. Filter out bad assignables? For instance, we cannot have <x,y>@f, but it does
-//    parse (and should get caught here, but I need to verify this)
+// 4. Filter out bad assignables? For instance, we cannot have <x,y>.f, but it does
+//    parse, so we may be handed an example such as this.
+//
+// 5. Expand out uses of user types, including those with parameters
+//
+// 6. Check tags to make sure they are declared
+//
+// 7. Make sure add errors are encoded as exceptions. This way we don't need
+//    to always encode checks to see if we can add the given item, we can just
+//    try and catch any errors.
+//
+// 8. Make sure that, when we have a declaration (even one with a type), we
+//    check shadowing! This is done in statements, but is not always done
+//    now in patterns.
+//
+// 9. Make sure that varargs parameters are properly given list types. Also make sure
+//    they are just names (not varargs of a tuple pattern, for instance)
+//
+// 10. Make sure we always instantiate type parameters when we use a constructor.
 //
 
+@doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | ifLabel();
 
+@doc{Kinds of tags}
+data TagKind = functionKind() | variableKind() | allKind() | annoKind() | dataKind() | viewKind() | aliasKind() | moduleKind() | tagKind();
+
+@doc{Convert from the concrete to the abstract representation of tag kinds.}
+public TagKind convertKind((Kind)`function`) = functionKind();
+public TagKind convertKind((Kind)`variable`) = variableKind();
+public TagKind convertKind((Kind)`all`) = allKind();
+public TagKind convertKind((Kind)`anno`) = annoKind();
+public TagKind convertKind((Kind)`data`) = dataKind();
+public TagKind convertKind((Kind)`view`) = viewKind();
+public TagKind convertKind((Kind)`alias`) = aliasKind();
+public TagKind convertKind((Kind)`module`) = moduleKind();
+public TagKind convertKind((Kind)`tag`) = tagKind();
+
+@doc{Function modifiers.}
+data Modifier = javaModifier() | testModifier() | defaultModifier();
+
+@doc{Convert from the concrete to the abstract representation of modifiers.}
+Modifier getModifier(FunctionModifier fmod:`java`) = javaModifier();
+Modifier getModifier(FunctionModifier fmod:`test`) = testModifier();
+Modifier getModifier(FunctionModifier fmod:`default`) = defaultModifier();
+
+@doc{Visibility of declarations.}
+data Vis = publicVis() | privateVis() | defaultVis();
+
+@doc{Convert from the concrete to the abstract representation of visibilities.}
+Vis getVis(Visibility v:(Visibility)`private`) = privateVis();
+Vis getVis(Visibility v:(Visibility)`public`) = publicVis();
+default Vis getVis(Visibility v) = defaultVis();
+
+@doc{Abstract values manipulated by the semantics.}
 data AbstractValue 
 	= label(RName name, LabelSource source, int containedIn, loc at) 
 	| variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
 	| function(RName name, Symbol rtype, bool isVarArgs, int containedIn, loc at)
 	| closure(Symbol rtype, int containedIn, loc at)
 	| \module(RName name, loc at)
-	| overload(set[AbstractValue] items, Symbol rtype)
+	| overload(set[int] items, Symbol rtype)
 	| datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
 	| constructor(RName name, Symbol rtype, int containedIn, loc at)
 	| annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
-	| placeholder()
+	| \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
+	| \alias(RName name, Symbol rtype, int containedIn, loc at) 
 	;
 
 @doc{Configurations provide the state used during evaluation.}
@@ -69,16 +121,21 @@ data Configuration = config(set[Message] messages,
 							map[RName,int] typeEnv,
 							map[RName,int] modEnv,
 							map[RName,int] annotationEnv,
+							map[RName,int] tagEnv,
+							map[int,Vis] visibilities,
 							map[int,AbstractValue] store,
+							map[tuple[int,str],Symbol] adtFields,
+							rel[int,Modifier] functionModifiers,
 							rel[int,loc] definitions,
 							rel[int,loc] uses,
+							rel[int,int] adtConstructors,
 							list[int] stack,
 							int nextLoc,
 							int uniqueify,
 							bool keepMatchVars
 						   );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),{},{},[],0,0,false);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],0,0,false);
 
 @doc{Add a new location type.}
 public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
@@ -102,6 +159,8 @@ public Configuration recoverEnvironments(Configuration cNew, Configuration cOld)
 	cNew.fcvEnv = cOld.fcvEnv;
 	cNew.typeEnv = cOld.typeEnv;
 	cNew.modEnv = cOld.modEnv;
+	cNew.annotationEnv = cOld.annotationEnv;
+	cNew.tagEnv = cOld.tagEnv;
 	return cNew;
 }
 
@@ -129,14 +188,30 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
 public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
+	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 	c.fcvEnv[n] = c.nextLoc;
+	if (\module(_,_) := c.store[head(c.stack)]) {
+		// If this variable is module-level, also make it referenceable through
+		// the qualified name module::variable.
+		moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+		c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+	}
 	c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
 	c.definitions = c.definitions + < c.nextLoc, l >;
 	c.nextLoc = c.nextLoc + 1;
 	return c;
 }
 
-public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, loc l) {
+public Configuration addVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
+	c = addVariable(c,n,inf,l,rt);
+	c.visibilities[c.nextLoc-1] = visibility;
+	return c;
+}
+
+public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
+	// TODO: We currently always treat annotation declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private annotation declarations,
+	// revisit this.
 	if (n notin c.annotationEnv) {
 		c.annotationEnv[n] = c.nextLoc;
 		c.store[c.nextLoc] = annotation(n,rt,{rtOn},head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
@@ -151,42 +226,124 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 	return c;
 }
 
-public Configuration addADT(Configuration c, RName n, loc l, Symbol rt) {
+public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt) {
+	// TODO: We currently always treat datatype declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private datatype declarations,
+	// revisit this.
+	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 	if (n notin c.typeEnv) {
+		// When we initially add the name, add it as:
+		// * the bare name
+		// * the name appended to the name of the module
+		// This ensures that all valid lookups will be successful.
 		c.typeEnv[n] = c.nextLoc;
+		c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
 		c.store[c.nextLoc] = datatype(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),{ });
+		c.definitions = c.definitions + < c.nextLoc, l >;
 		c.nextLoc = c.nextLoc + 1;
+	} else {
+		c.definitions = c.definitions + < c.typeEnv[n], l >;
 	}
-	c.definitions = c.definitions + < c.nextLoc, l >;
 	c.store[c.typeEnv[n]].ats = c.store[c.typeEnv[n]].ats + l; 
 	return c;
 }
 
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) {
-	if (n notin c.fcvEnv) {
-		c.fcvEnv[n] = c.nextLoc;
-		c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
-		c.definitions = c.definitions + < c.nextLoc, l >;
-		c.nextLoc = c.nextLoc + 1;
-	} else {
-		av = c.store[c.fcvEnv[n]];
-		if (overload(items,\overloaded(itypes)) := av) {
-			c.store[c.fcvEnv[n]] = overload(items + constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l), \overloaded(itypes + rt));
-			c.definitions = c.definitions + < c.fcvEnv[n], l >;
-		} else if (constructor(_,_,_,_) := av) {
-			c.store[c.fcvEnv[n]] = overload({av, constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l)}, \overloaded({av.rtype,rt}));
-			c.definitions = c.definitions + < c.fcvEnv[n], l >;
-		} else {
-			throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
-		}
-	}
+public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol rt) {
+	// TODO: We currently always treat datatype declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private datatype declarations,
+	// revisit this.
+	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	// When we initially add the name, add it as:
+	// * the bare name
+	// * the name appended to the name of the module
+	// This ensures that all valid lookups will be successful.
+	c.typeEnv[n] = c.nextLoc;
+	c.typeEnv[appendName(moduleName,n)] = c.nextLoc;
+	c.store[c.nextLoc] = \alias(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+	c.definitions = c.definitions + < c.nextLoc, l >;
+	c.nextLoc = c.nextLoc + 1;
 	return c;
 }
 
-public Configuration addScopePlaceholder(Configuration c) {
-	c.store[c.nextLoc] = placeholder();
-	c.stack = c.nextLoc + c.stack;
-	c.nextLoc = c.nextLoc + 1;
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) {
+	// First, verify that the ADT is in the type environment. If not, this is an error
+	// (especially since the constructor should be defined in the same construct as
+	// the ADT!)
+	adtName = RSimpleName(rt.\adt.name);
+	if (adtName notin c.typeEnv) throw "Unexpected error, adt <prettyPrintName(adtName)> not found!";
+	adtId = c.typeEnv[adtName];
+	
+	// Now, process the arguments. This performs several consistency checks, namely:
+	// * either all fields must have labels, or none should have labels
+	// * labels should not be repeated in the same constructor
+	// * labels shared between constructors should have matching types
+	args = getConstructorArgumentTypes(rt);
+	if (size(args) > 0) {
+		labeledArgs = [ arg | arg <- args, \label(_,_) := arg ];
+		if (size(labeledArgs) > 0) {
+			if (size(labeledArgs) != size(args)) {
+				c = addScopeError(c,"On constructor definitions, either all fields should be labeled or no fields should be labeled", l);
+			} else {
+				set[str] seenAlready = { };
+				for (\label(fn,ft) <- args) {
+					if (fn in seenAlready) {
+						c = addScopeError(c,"Field name <fn> cannot be repeated in the same constructor", l);
+					} else {
+						seenAlready = seenAlready + fn;
+						if (<adtId,fn> in c.adtFields) {
+							if (!equivalent(ft, c.adtFields[<adtId,fn>])) {
+								c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(c.adtFields[<adtId,fn>])> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
+							}
+						} else {
+							c.adtFields[<adtId,fn>] = ft;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// Add the constructor. This also performs an overlap check if this is not the first
+	// constructor with this name -- note that we only check for overlaps with constructors
+	// defined in the same ADT, since there is no language mechanism to distinguish them
+	// when used in a program (we cannot prefix the constructor with the ADT name, for
+	// instance).
+	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+	if (n notin c.fcvEnv) {
+		// On the initial add, we create three versions of the constructor name:
+		// * the bare name
+		// * the name, qualified with the ADT name
+		// * the name, qualified with the name of the module
+		// This ensures that all valid lookups of the name are successful.
+		c.fcvEnv[n] = c.nextLoc;
+		c.fcvEnv[appendName(adtName,n)] = c.nextLoc;
+		c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+		c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+		c.nextLoc = c.nextLoc + 1;
+	} else if (overload(items,overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
+		c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+		c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
+		if (size(overlaps) > 0)
+			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype",l);
+		c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+		c.nextLoc = c.nextLoc + 1;
+	} else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+		c.store[c.nextLoc] = constructor(n,rt,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt) };
+		if (size(overlaps) > 0)
+			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype",l);
+		c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
+		c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
+		c.fcvEnv[n] = c.nextLoc+1;
+		c.nextLoc = c.nextLoc + 2;
+	} else {
+		throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
+	}
 	return c;
 }
 
@@ -208,10 +365,77 @@ public Configuration addClosure(Configuration c, Symbol rt, loc l) {
 	return c;
 }
 
+public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVarArgs, Vis visibility, loc l) {
+	// TODO: Handle the visibility properly. The main point is that we should not have variants
+	// for the same function that are given different visibilities.
+	// TODO: Verify the scoping is working properly for the second and third cases. It should be the
+	// case that, if we cannot shadow, this means the name exists within the same function or
+	// module. We may want to be stricter, though, and say that functions can only be defined within
+	// a module or function scope, not (for instance) inside control flow.
+	// TODO: Check for overlaps. But, we need to figure out if this is even possible anymore, we naturally
+	// have overlaps because of the pattern-based dispatch.
+	if (n notin c.fcvEnv || varCanShadow(c,n)) {
+		c.fcvEnv[n] = c.nextLoc;
+		if (\module(_,_) := c.store[head(c.stack)]) {
+			// If this function is module-level, also make it referenceable through
+			// the qualified name module::function.
+			moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+			c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+		}
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.visibilities[c.nextLoc] = visibility;
+		c.stack = c.nextLoc + c.stack;
+		c.nextLoc = c.nextLoc + 1;
+	} else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.visibilities[c.nextLoc] = visibility;
+		c.stack = c.nextLoc + c.stack;
+		c.nextLoc = c.nextLoc + 1;
+	} else if (function(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.visibilities[c.nextLoc] = visibility;
+		c.stack = c.nextLoc + c.stack;
+		c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
+		c.fcvEnv[n] = c.nextLoc + 1;
+		c.nextLoc = c.nextLoc + 2;
+	} else {
+		throw "Invalid addition: cannot add funtion into scope, it clashes with non-function variable or constructor names";
+	}
+	return c;
+}
+
+public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] onTypes, Vis visibility, loc l) {
+	// TODO: We currently always treat datatype declarations as public, so we just
+	// ignore the visibility here. If we decide to allow private datatype declarations,
+	// revisit this.
+	if (rn in c.tagEnv) {
+		currentVal = c.store[c.tagEnv[n]];
+		if (tk != currentVal.tkind) throw "Cannot add tag with same name but different kind into environment!";
+		c.store[c.tagEnv[n]].onTypes = c.store[c.tagEnv[n]].onTypes + onTypes;
+		c.definitions[c.tagEnv[n]] = c.definitions + < c.tagEnv[n], l >; 
+	} else {
+		c.tagEnv[n] = c.nextLoc;
+		c.store[c.nextLoc] = \tag(n, tk, onTypes, head([i | i <- c.stack, \module(_,_) := c.store[i]]), l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.nextLoc = c.nextLoc + 1;
+	}
+	
+	return c;
+}
+
 @doc{Check to see if a var with name n can shadow. It always can if the name is not yet defined. If the name is defined,
      it can be shadowed if it was declared outside the current function (or module, if we are at the top level). }
 public bool varCanShadow(Configuration c, RName n) {
+	// If the name isn't in scope, we can always add it
 	if (n notin c.fcvEnv) return true;
+	
+	// If the name is the same as the name of one of the function we are nested inside,
+	// we can never add it.
+	if (n in { fname | idx <- index(c.stack), function(fname,_,_,_,_) := c.store[c.stack[idx]] }) return false;
 
 	// This gets the scopes defined back to the most recent function or module.	
 	stackItems = toSet(head(c.stack,head([ idx | idx <- index(c.stack), function(_,_,_,_,_) := c.store[c.stack[idx]] || closure(_,_,_) := c.store[c.stack[idx]] || \module(_,_) := c.store[c.stack[idx]]])+1));
@@ -230,6 +454,10 @@ public Configuration assignVariableType(Configuration c, RName n, Symbol t) {
 }
 
 public Configuration addScopeMessage(Configuration c, Message m) = c[messages = c.messages + m];
+
+public Configuration addScopeError(Configuration c, str s, loc l) = addScopeMessage(c,error(s,l));
+public Configuration addScopeWarning(Configuration c, str s, loc l) = addScopeMessage(c,warning(s,l));
+public Configuration addScopeInfo(Configuration c, str s, loc l) = addScopeMessage(c,info(s,l));
 
 @doc{Represents the result of checking an expression.}
 alias CheckResult = tuple[Configuration conf, Symbol res];
@@ -261,8 +489,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression e> )`, Con
 
 @doc{Check the types of Rascal expressions: Closure (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps> { <Statement+ ss> }`, Configuration c) {
-	// TODO: Check for errors on converting the type
-	rt = convertType(t);
+	< c, rt > = convertAndExpandType(t,c);
 
 	// Enter a new scope for the closure	
 	Symbol funType = Symbol::\func(rt,[]);
@@ -270,7 +497,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	
 	// First process the paramter types to calculate the type of the closure
 	< c2, ptTuple > = checkParameters(ps, c2);
-	list[Symbol] parameterTypes = getTupleFieldTypes(ptTuple);
+	list[Symbol] parameterTypes = getTupleFields(ptTuple);
 	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
 	if (size(paramFailures) > 0) {
 		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));		
@@ -317,7 +544,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	
 	// First process the paramter types to calculate the type of the closure
 	< c2, ptTuple > = checkParameters(ps, c2);
-	list[Symbol] parameterTypes = getTupleFieldTypes(ptTuple);
+	list[Symbol] parameterTypes = getTupleFields(ptTuple);
 	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
 	if (size(paramFailures) > 0) {
 		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));		
@@ -585,8 +812,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <{Expression ","}* es>
 
 @doc{Check the types of Rascal expressions: ReifyType (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`# <Type t>`, Configuration c) {
-	// TODO: Check for conversion errors
-	rt = convertType(t);
+	< c, rt > = convertAndExpandType(t,c);
 	return markLocationType(c, exp@\loc, \type(rt));
 }
 
@@ -664,7 +890,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
 		c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
 		return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
 	} else {
-		return markLocationFailed(c, exp@\loc, makeFailType("Name it not in scope", exp@\loc));
+		return markLocationFailed(c, exp@\loc, makeFailType("Name is not in scope", exp@\loc));
 	}
 }
 
@@ -703,44 +929,47 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> . <Name f
 	// right away.
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 
-	return markLocationType(c, exp@\loc, computeFieldType(t1, convertName(f), exp@\loc));
+	return markLocationType(c, exp@\loc, computeFieldType(t1, convertName(f), exp@\loc, c));
 }
 
-public Symbol computeFieldType(Symbol t1, RName fn, loc l) {
+public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
+	fAsString = prettyPrintName(fn);
 	if (isLocType(t1)) {
-		if (prettyPrintName(fn) in fieldMap[\loc()])
-			return fieldMap[\loc()][prettyPrintName(fn)];
+		if (fAsString in fieldMap[\loc()])
+			return fieldMap[\loc()][fAsString];
 		else
-			returnmakeFailType("Field <prettyPrintName(fn)> does not exist on type <prettyPrintType(t1)>", l);
+			returnmakeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isDateTimeType(t1)) {
-		if (prettyPrintName(fn) in fieldMap[\datetime()])
-			return fieldMap[\datetime()][prettyPrintName(fn)];
+		if (fAsString in fieldMap[\datetime()])
+			return fieldMap[\datetime()][fAsString];
 		else
-			return makeFailType("Field <prettyPrintName(fn)> does not exist on type <prettyPrintType(t1)>", l);
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isRelType(t1)) {
 		rt = getRelElementType(t1);
-		if (tupleHasField(rt, fn))
-			return getTupleFieldType(rt, fn);
+		if (tupleHasField(rt, fAsString))
+			return getTupleFieldType(rt, fAsString);
 		else
-			return makeFailType("Field <prettyPrintName(fn)> does not exist on type <prettyPrintType(t1)>", l);
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isMapType(t1)) {
 		rt = getMapFieldsAsTuple(t1);
-		if (tupleHasField(rt, fn))
-			return getTupleFieldType(rt, fn);
+		if (tupleHasField(rt, fAsString))
+			return getTupleFieldType(rt, fAsString);
 		else
-			return makeFailType("Field <prettyPrintName(fn)> does not exist on type <prettyPrintType(t1)>", l);
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isADTType(t1)) {
-		// TODO: Add supporting code. We need to get back the constructors and then find
-		// the type of the field named fn.
-		;
-	} else if (isTupleType(t1)) {
-		if (tupleHasField(t1, fn))
-			return getTupleFieldType(t1, fn);
+		adtName = RSimpleName(getADTName(t1));
+		if (<c.typeEnv[adtName],fAsString> notin c.adtFields)
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 		else
-			return makeFailType("Field <prettyPrintName(fn)> does not exist on type <prettyPrintType(t1)>", l);
-	} else {
-		return makeFailType("Cannot access fields on type <prettyPrintType(t1)>", l);
-	}
+			return c.adtFields[<c.typeEnv[adtName],fAsString>];  
+	} else if (isTupleType(t1)) {
+		if (tupleHasField(t1, fAsString))
+			return getTupleFieldType(t1, fAsString);
+		else
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+	} 
+
+	return makeFailType("Cannot access fields on type <prettyPrintType(t1)>", l);
 }
 
 @doc{Check the types of Rascal expressions: Field Update (DONE)}
@@ -753,7 +982,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Name n
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	
 	// Now get the field type. If this fails, return right away as well.
-	ft = computeFieldType(t1, convertName(n), exp@\loc);
+	ft = computeFieldType(t1, convertName(n), exp@\loc, c);
 	if (isFailType(t2) || isFailType(ft)) return markLocationFailed(c,exp@\loc,{t2,ft});
 	if ((isLocType(t1) || isDateTimeType(t1)) && "<n>" notin writableFields[t1])
 		return markLocationFailed(c,exp@\loc,makeFailType("Cannot update field <n> on type <prettyPrintType(t1)>",exp@\loc)); 
@@ -968,8 +1197,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Type t> ] <Expression
 	// shows up in the type system as being another ADT. Should we keep a separate non-terminal
 	// type, or somehow mark the ADT to indicate it is produced from a non-terminal? This could
 	// also be done by making an entry in the symbol table, but leaving the type alone...
-	// TODO: Check rt for conversion failures.
-	rt = convertType(t);
+	< c, rt > = convertAndExpandType(t,c);
 	
 	set[Symbol] failures = { };
 	if (!isADTType(rt)) failures += makeFailType("Expected non-terminal type, instead found <prettyPrintType(rt)>", t@\loc);
@@ -1023,20 +1251,21 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> * <Expre
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+	return markLocationType(c,exp@\loc,computeProductType(t1,t2,exp@\loc));
+}
 
-	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
-		rt = numericArithTypes(t1, t2);
-		return markLocationType(c,exp@\loc,rt);
-	}
+Symbol computeProductType(Symbol t1, Symbol t2, loc l) {
+	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
+		return numericArithTypes(t1, t2);
 	
 	if (isListType(t1) && isListType(t2))
-		return markLocationType(c,exp@\loc,\list(\tuple([getListElementType(t1),getListElementType(t2)])));
+		return \list(\tuple([getListElementType(t1),getListElementType(t2)]));
 	if (isRelType(t1) && isRelType(t2))
-		return markLocationType(c,exp@\loc,\rel([getRelElementType(t1),getRelElementType(t2)]));
+		return \rel([getRelElementType(t1),getRelElementType(t2)]);
 	if (isSetType(t1) && isSetType(t2))
-		return markLocationType(c,exp@\loc,\rel([getSetElementType(t1),getSetElementType(t2)]));
+		return \rel([getSetElementType(t1),getSetElementType(t2)]);
 	
-	return markLocationFailed(c,exp@\loc,makeFailType("Product not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return makeFailType("Product not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
 @doc{Check the types of Rascal expressions: Join}
@@ -1044,9 +1273,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Ex
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-	res = evalJoin(t1, t2);
-	if (isFailType(res)) return markLocationFailed(c,exp@\loc,res);
-	return markLocationType(c,exp@\loc,res);
+	throw "Not yet implemented";
 }
 
 @doc{Check the types of Rascal expressions: Remainder (DONE)}
@@ -1063,13 +1290,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> / <Expre
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+	return markLocationType(c,exp@\loc,computeDivisionType(t1,t2,exp@\loc));
+}
 
-	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
-		rt = numericArithTypes(t1, t2);
-		return markLocationType(c,exp@\loc,rt);
-	}
-	
-	return markLocationFailed(c,exp@\loc,makeFailType("Division not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+Symbol computeDivisionType(Symbol t1, Symbol t2, loc l) {
+	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
+		return numericArithTypes(t1, t2);
+	return makeFailType("Division not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
 @doc{Check the types of Rascal expressions: Intersection (DONE)}
@@ -1077,17 +1304,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> & <Expre
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+	return markLocationType(c,exp@\loc,computeIntersectionType(t1,t2,exp@\loc));
+}
 
+Symbol computeIntersectionType(Symbol t1, Symbol t2, loc l) {
 	if (isListType(t1) && isListType(t2))
-		return markLocationType(c,exp@\loc,lub(t1,t2));
+		return lub(t1,t2);
 	if (isRelType(t1) && isRelType(t2))
-		return markLocationType(c,exp@\loc,lub(t1,t2));
+		return lub(t1,t2);
 	if (isSetType(t1) && isSetType(t2))
-		return markLocationType(c,exp@\loc,lub(t1,t2));
+		return lub(t1,t2);
 	if (isMapType(t1) && isMapType(t2) && equivalent(getMapDomainType(t1),getMapDomainType(t2)) && equivalent(getMapRangeType(t1),getMapRangeType(t2)))
-		return markLocationType(c,exp@\loc,t1);
+		return t1;
 	
-	return markLocationFailed(c,exp@\loc,makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+	return makeFailType("Intersection not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
 @doc{Check the types of Rascal expressions: Addition (DONE)}
@@ -1102,9 +1332,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> + <Expre
 @doc{General function to calculate the type of an addition.}
 Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
 	// Numbers
-	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
+	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
 		return numericArithTypes(t1, t2);
-	}
 	
 	// Other non-containers
 	if (isStrType(t1) && isStrType(t2))
@@ -1153,22 +1382,23 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> - <Expre
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
+	return markLocationType(c,exp@\loc,computeSubtractionType(t1,t2,exp@\loc));
+}
 
-	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
-		rt = numericArithTypes(t1, t2);
-		return markLocationType(c,exp@\loc,rt);
-	}
+Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
+	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
+		return numericArithTypes(t1, t2);
 
 	// Maybe we should check what we are trying to subtract, but currently we don't
 	// inside the interpreter, so TODO: should we check the type of t2?	
 	if (isListType(t1))
-		return markLocationType(c,exp@\loc,t1);
+		return t1;
 	if (isSetType(t1)) // Covers relations too
-		return markLocationType(c,exp@\loc,t1);
+		return t1;
 	if (isBagType(t1))
-		return markLocationType(c,exp@\loc,t1);
-		
-	return markLocationFailed(c,exp@\loc,makeFailType("Subtraction not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+		return t1;
+
+	return makeFailType("Subtraction not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
 @doc{Check the types of Rascal expressions: AppendAfter (DONE)}
@@ -1684,6 +1914,8 @@ public PatternTree extractPatternTree(Pattern pat:(Pattern)`<RegExpLiteral rl>`)
 	return literalNode(names)[@at = pat@\loc];
 }
 // TODO: Should account for comprehensions in strings and locations
+// TODO: Need to expand out converted types, which probably means modifying this
+// code to also take and return the configuration. However, that is cumbersome...
 public PatternTree extractPatternTree(Pattern pat:(Pattern)`<StringLiteral sl>`) = literalNode(\str())[@at = pat@\loc];
 public PatternTree extractPatternTree(Pattern pat:(Pattern)`<LocationLiteral ll>`) = literalNode(\loc())[@at = pat@\loc];
 public PatternTree extractPatternTree(Pattern pat:(Pattern)`< <Pattern p1>, <{Pattern ","}* ps> >`) = tupleNode(extractPatternTree(p1) + [ extractPatternTree(p) | p <- ps ])[@at = pat@\loc];
@@ -1796,7 +2028,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			if (varCanShadow(c, n)) {
 				c = addVariable(c, n, false, l, rt);
 			} else {
-				failures += makeFailType("Invalid declaration of name <prettyPrintName(n)>, name already in scope", pat@at);
+				failures += makeFailType("Invalid declaration of name <prettyPrintName(n)>, name already in scope", ptn@at);
 				c.uses = c.uses + < c.fcvEnv[n], ptn@at >; // Just use the current declaration in scope, that is the semantics
 			}
 			insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
@@ -2543,7 +2775,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Assignable a> <Assignme
 	// failure, we cannot figure out the type of the assignable, so just return right away.
 	< c, t1 > = checkStmt(s, c);
 	if (isFailType(t1)) return markLocationFailed(c, stmt@\loc, t1);
-	< c, t2 > = checkAssignment(op, a, t1, c);
+	< c, t2 > = checkAssignment(op, a, t1, stmt@\loc, c);
 	if (isFailType(t2)) return markLocationFailed(c, stmt@\loc, t2);
 	return markLocationType(c, stmt@\loc, t2);
 }
@@ -2632,7 +2864,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`append <DataTarget dt> <
 
 @doc{Check the type of Rascal statements: FunctionDeclaration (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<FunctionDeclaration fd>`, Configuration c) {
-	c = checkFunctionDeclaration(fd, c);
+	c = checkFunctionDeclaration(fd, true, c);
 	return < c, \void() >;
 }
 
@@ -2640,8 +2872,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<FunctionDeclaration fd>
 public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaration vd>;`, Configuration c) {
 	if ((LocalVariableDeclaration)`<Declarator d>` := vd || (LocalVariableDeclaration)`dynamic <Declarator d>` := vd) {
 		if ((Declarator)`<Type t> <{Variable ","}+ vars>` := d) {
-			// TODO: Check for conversion errors
-			rt = convertType(t);
+			< c, rt > = convertAndExpandType(t,c);
 			
 			for (v <- vars) {
 				if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
@@ -2793,7 +3024,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	}
 	
 	if (!isFailType(atree@atype)) {
-		tfield = computeFieldType(atree@atype, fldName, assn@\loc);
+		tfield = computeFieldType(atree@atype, fldName, assn@\loc, c);
 	
 		if (!isFailType(tfield)) {
 			if ((isLocType(atree@atype) || isDateTimeType(atree@atype)) && "<fld>" notin writableFields[atree@atype]) {
@@ -2864,38 +3095,8 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	}
 }
 
-@doc{Check the type of Rascal assignments: IfDefined}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
-}
-
-@doc{Check the type of Rascal assignments: Division}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
-}
-
-@doc{Check the type of Rascal assignments: Product}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
-}
-
-@doc{Check the type of Rascal assignments: Intersection}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
-}
-
-@doc{Check the type of Rascal assignments: Subtraction}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
-}
-
-@doc{Check the type of Rascal assignments: Default}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, Configuration c) {
+@doc{Check the type of Rascal assignments: IfDefined (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
 	
@@ -2907,27 +3108,154 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 	try {
 		< c, atree > = bindAssignable(atree, st, c);
 	} catch : {
-		return markLocationFailed(cbak, a@\loc, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", a@\loc));
+		return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
 	}
 
-	// 	
 	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
-		return markLocationFailed(cbak, a@\loc, makeFailType("Type of assignable could not be computed", a@\loc));
+		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else
-		return markLocationType(c, a@\loc, atree@otype);
+		return markLocationType(c, l, atree@otype);
 }
 
-@doc{Check the type of Rascal assignments: Addition}
-public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, Configuration c) {
+@doc{Check the type of Rascal assignments: Division (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// If the assignment point or the overall type are not concrete, we cannot do
+	// the assignment -- the subject type cannot influence the type here.
+	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	
+	// Check to ensure the division is valid. If so, the resulting type is the overall
+	// type of the assignable, else it is the failure type generated by the operation.
+	rt = computeDivisionType(atree@atype, st, l);
+	if (isFailType(rt))
+		return markLocationType(c, l, rt);
+	else
+		return markLocationType(c, l, atree@otype);  
+}
+
+@doc{Check the type of Rascal assignments: Product (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
+	< c, atree > = buildAssignableTree(a, c);
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// If the assignment point or the overall type are not concrete, we cannot do
+	// the assignment -- the subject type cannot influence the type here.
+	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	
+	// Check to ensure the product is valid. If so, the resulting type is the overall
+	// type of the assignable, else it is the failure type generated by the operation.
+	rt = computeProductType(atree@atype, st, l);
+	if (isFailType(rt))
+		return markLocationType(c, l, rt);
+	else
+		return markLocationType(c, l, atree@otype);  
+}
+
+@doc{Check the type of Rascal assignments: Intersection (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
+	< c, atree > = buildAssignableTree(a, c);
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// If the assignment point or the overall type are not concrete, we cannot do
+	// the assignment -- the subject type cannot influence the type here.
+	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	
+	// Check to ensure the intersection is valid. If so, the resulting type is the overall
+	// type of the assignable, else it is the failure type generated by the operation.
+	rt = computeIntersectionType(atree@atype, st, l);
+	if (isFailType(rt))
+		return markLocationType(c, l, rt);
+	else
+		return markLocationType(c, l, atree@otype);  
+}
+
+@doc{Check the type of Rascal assignments: Subtraction (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
+	< c, atree > = buildAssignableTree(a, c);
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// If the assignment point or the overall type are not concrete, we cannot do
+	// the assignment -- the subject type cannot influence the type here.
+	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	
+	// Check to ensure the subtraction is valid. If so, the resulting type is the overall
+	// type of the assignable, else it is the failure type generated by the operation.
+	rt = computeSubtractionType(atree@atype, st, l);
+	if (isFailType(rt))
+		return markLocationType(c, l, rt);
+	else
+		return markLocationType(c, l, atree@otype);  
+}
+
+@doc{Check the type of Rascal assignments: Default (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
+	< c, atree > = buildAssignableTree(a, c);
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// Now, using the subject type, try to bind it to the assignable tree
+	try {
+		< c, atree > = bindAssignable(atree, st, c);
+	} catch : {
+		return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
+	}
+
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	if (size(unresolved) > 0)
+		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
+	else
+		return markLocationType(c, l, atree@otype);
+}
+
+@doc{Check the type of Rascal assignments: Addition (DONE)}
+public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, loc l, Configuration c) {
+	cbak = c;
+	< c, atree > = buildAssignableTree(a, c);
+	
+	// If either the overall type or the type of the assignment point is a failure,
+	// don't try to proceed further.
+	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+
+	// If the assignment point or the overall type are not concrete, we cannot do
+	// the assignment -- the subject type cannot influence the type here.
+	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	
+	// Check to ensure the addition is valid. If so, the resulting type is the overall
+	// type of the assignable, else it is the failure type generated by the operation.
+	rt = computeAdditionType(atree@atype, st, l);
+	if (isFailType(rt))
+		return markLocationType(c, l, rt);
+	else
+		return markLocationType(c, l, atree@otype);  
 }
 
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`<<=`, Assignable a, Symbol st, Configuration c) {
 	< c, atree > = buildAssignableTree(a, c);
 	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
+	throw "Not yet implemented";
 }
 
 @doc{Result types for assignables, which include both the overall result type and the type of the immediate target.}
@@ -3014,7 +3342,500 @@ public ATResult bindAssignable(AssignableTree atree:annotationNode(AssignableTre
 	return < c, atree >; 
 }
 
-public default ATResult bindAssignable(AssignableTree atree, Symbol st, Configuration c) {
-	println("Error: unmatched case for tree <atree>, type <st>");
-	throw "Unmatched case!";
+@doc{Check the type of the components of a declaration: Variable}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> <Type t> <{Variable ","}+ vars>;`, bool descend, Configuration c) {
+	< c, rt > = convertAndExpandType(t,c);
+
+	for (v <- vars, v@\loc notin c.definitions<1>, v@\loc notin {l | error(_,l) <- c.messages}) {
+		// If v@\loc is not in c.definitions and not in scope errors, we haven't processed
+		// it yet, so process it now. We process the expression now too, even if not descending,
+		// since we want to process the expressions in name order. 
+		if ((Variable)`<Name n> = <Expression init>` := v || (Variable)`<Name n>` := v) {
+			if ((Variable)`<Name n> = <Expression init>` := v) {
+				< c, t1 > = checkExp(init, c);
+				if (!isFailType(t1) && !subtype(t1,rt)) 
+					c = addScopeMessage(c, error("Initializer type <prettyPrintType(t1)> not assignable to variable of type <prettyPrintType(rt)>", v@\loc));						
+			}
+								
+			RName rn = convertName(n);
+			if (varCanShadow(c, rn)) {
+				c = addVariable(c, rn, false, getVis(vis), v@\loc, rt);
+			} else {
+				c = addScopeMessage(c, error("Illegal redeclaration of existing name", v@\loc));						
+			}
+		} 
+	}
+	
+	return c;
+}
+
+@doc{Check the type of the components of a declaration: Annotation}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> anno <Type annoType> <Type onType> @ <Name n>;`, bool descend, Configuration c) {
+	// NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
+	// later in declaration processing.
+	
+	if (decl@\loc notin c.definitions<1>) {
+		// TODO: Check for conversion errors
+		< c, at > = convertAndExpandType(annoType,c);
+		< c, ot > = convertAndExpandType(onType,c);
+		
+		rn = convertName(n);
+		
+		c = addAnnotation(c,rn,at,ot,getVis(vis),decl@\loc);
+	}
+	return c;	
+}
+
+@doc{Check the type of the components of a declaration: Alias}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> alias <UserType ut> = <Type t>;`, bool descend, Configuration c) {
+	// Add the alias, but only if it isn't already defined. If it is defined, the location
+	// will be in definitions
+	if (decl@\loc notin c.definitions<1>) { 
+		// TODO: Check for convert errors
+		utype = convertUserType(ut);
+		if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
+		
+		// Extract the name and parameters
+		utypeName = getUserTypeName(utype);
+		utypeParams = getUserTypeParameters(utype);
+		
+		// Add the alias into the type environment
+		// TODO: Check to make sure this is possible
+		c = addAlias(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\alias(utypeName,utypeParams,\void()));
+	}
+
+	// If we can descend, process the aliased type as well, assigning it into
+	// the alias.
+	if (descend) {
+		// If we descend, we also want to add the constructors; if not, we are just
+		// adding the ADT into the type environment. We get the adt type out of
+		// the store by looking up the definition from this location.
+		aliasId = getOneFrom(invert(c.definitions)[decl@\loc]);
+		aliasType = c.store[aliasId].rtype;
+		// TODO: Check for convert errors
+		< c, aliasedType > = convertAndExpandType(t,c);
+		c.store[aliasId].rtype = \alias(aliasType.name, aliasType.parameters, aliasedType);
+	}
+	
+	return c;
+}
+
+@doc{Check the type of the components of a declaration: Tag}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> tag <Kind k> <Name n> on <{Type ","}+ ts>;`, bool descend, Configuration c) {
+	// TODO: Add descend code here; we should introduce the name, but not descend into the type.
+
+	if (decl@\loc notin c.definitions<1>) {
+		tk = convertKind(k);
+		rn = convertName(n);
+		set[Symbol] typeset = { };
+		for (t <- ts) {
+			< c, rt > = convertAndExpandType(t, c);
+			typeset = typeset + rt;
+		}
+		// TODO: Make sure the add if safe first...
+		c = addTag(c, tk, rn, typeset, getVis(vis), decl@\loc);
+	}
+	
+	return c;
+}
+
+@doc{Check the type of the components of a declaration: DataAbstract}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut>;`, bool descend, Configuration c) {
+	// NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
+	// later in declaration processing.
+	if (decl@\loc notin c.definitions<1>) {
+		// TODO: Check for convert errors
+		utype = convertUserType(ut);
+		if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
+		
+		// Extract the name and parameters
+		utypeName = getUserTypeName(utype);
+		utypeParams = getUserTypeParameters(utype);
+		
+		// Add the ADT into the type environment
+		// TODO: Check to make sure this is possible
+		c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
+	}
+	return c;
+}
+
+@doc{Check the type of the components of a declaration: Data}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> = <{Variant "|"}+ vs>;`, bool descend, Configuration c) {
+	// Add the ADT definition, but only if we haven't already added the definition
+	// at this location. If we have, we can just use it if we need it.
+	if (decl@\loc notin c.definitions<1>) { 
+		// TODO: Check for convert errors
+		utype = convertUserType(ut);
+		if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
+		
+		// Extract the name and parameters
+		utypeName = getUserTypeName(utype);
+		utypeParams = getUserTypeParameters(utype);
+		
+		// Add the ADT into the type environment
+		// TODO: Check to make sure this is possible
+		c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
+	}
+	
+	if (descend) {
+		// If we descend, we also want to add the constructors; if not, we are just
+		// adding the ADT into the type environment. We get the adt type out of
+		// the store by looking up the definition from this location.
+		adtType = c.store[getOneFrom(invert(c.definitions)[decl@\loc])].rtype;
+	
+		// Now add all the constructors
+		// TODO: Check here for overlap problems
+		for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > )` <- vs) {
+			// TODO: Check for convert errors
+			targs = [ convertTypeArg(varg) | varg <- vargs ];
+			cn = convertName(vn);
+			c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,targs)); 		
+		}
+	}
+	
+	return c;
+}
+
+@doc{Check the type of the components of a declaration: Function}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<FunctionDeclaration fd>`, bool descend, Configuration c) {
+	return checkFunctionDeclaration(fd,descend,c);
+}
+
+@doc{Check function declarations: Abstract}
+public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;`, bool descend, Configuration c) {
+	// TODO: Enforce that this is a java function?
+	rn = getFunctionName(sig);
+
+	// First, check to see if we have processed this declaration before. If we have, just get back the
+	// id for the function, we don't want to create a new entry for it.
+	if (fd@\loc notin c.definitions<1>) { 
+		// Strip other functions and variables out of the environment. We do this so we have an appropriate environment
+		// for typing the patterns in the function signature. Names used in these patterns cannot be existing variables
+		// and/or functions that are live in the current environment. Also, this way we can just get the type and drop
+		// all the changes that would be made to the environment.
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+			
+		// Put the function in, so we can enter the correct scope. This also puts the function name into the
+		// scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
+		// and this makes sure we find it when checking the patterns in the signature.
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		< cFun, tFun > = processSignature(sig, cFun);
+	
+		// We now have the function type. So, we can throw cFun away, and add this as a proper function
+		// into the scope. NOTE: This can be a failure type.
+		c = addFunction(c, rn, tFun, isVarArgs(sig), v, fd@\loc);
+	} else {
+		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+		c.stack = funId + c.stack;
+	}	
+	
+	// Normally we would now descend into the body. However, here we don't have one. So, pop the stack
+	// and exit. NOTE: The names in the parameters are not in scope -- we calculated the type (which added
+	// the names) in cFun, but then threw everything but the type away.
+	c.stack = tail(c.stack);
+	return c;
+}
+
+@doc{Check function declarations: Expression}
+public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`, bool descend, Configuration c) {
+	rn = getFunctionName(sig);
+
+	if (fd@\loc notin c.definitions<1>) { 
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), v, fd@\loc);
+		< cFun, tFun > = processSignature(sig, cFun);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+	} else {
+		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+		c.stack = funId + c.stack;
+	}	
+	
+	if (descend) {
+		// Process the signature, but this time in a copy of the current environment
+		// without the names stripped out (since these names will be visible in the
+		// body of the function).
+		funId = head(c.stack);
+		funType = c.store[funId].rtype;
+		cFun = c;
+		if (!isFailType(funType)) {
+			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+		} else {
+			cFun = setExpectedReturn(c, \void());
+		}
+		< cFun, tFun > = processSignature(sig, cFun);
+		< cFun, tExp > = checkExp(exp, cFun);
+		if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
+			cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+		c = recoverEnvironmentsAfterCall(cFun, c);
+	}
+
+	c.stack = tail(c.stack);
+	return c;
+}
+
+@doc{Check function declarations: Conditional}
+public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`, bool descend, Configuration c) {
+	rn = getFunctionName(sig);
+
+	if (fd@\loc notin c.definitions<1>) { 
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), v, fd@\loc);
+		< cFun, tFun > = processSignature(sig, cFun);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+	} else {
+		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+		c.stack = funId + c.stack;
+	}	
+	
+	if (descend) {
+		// Process the signature, but this time in a copy of the current environment
+		// without the names stripped out (since these names will be visible in the
+		// body of the function).
+		funId = head(c.stack);
+		funType = c.store[funId].rtype;
+		cFun = c;
+		if (!isFailType(funType)) {
+			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+		} else {
+			cFun = setExpectedReturn(c, \void());
+		}
+		< cFun, tFun > = processSignature(sig, cFun);
+		for (cond <- conds) {
+			< cFun, tCond > = checkExp(cond, cFun);
+			if (!isFailType(tCond) && !isBoolType(tCond))
+				cFun = addScopeMessage(cFun,error("Unexpected type: condition should be of type bool, not type <prettyPrintType(tCond)>", cond@\loc));
+		}
+		< cFun, tExp > = checkExp(exp, cFun);
+		if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
+			cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
+		c = recoverEnvironmentsAfterCall(cFun, c);
+	}
+
+	c.stack = tail(c.stack);
+	return c;
+}
+
+@doc{Check function declarations: Default}
+public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>`, bool descend, Configuration c) {
+	rn = getFunctionName(sig);
+
+	println("Checking function <prettyPrintName(rn)>");
+	
+	if (fd@\loc notin c.definitions<1>) { 
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		< cFun, tFun > = processSignature(sig, cFun);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+	} else {
+		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
+		c.stack = funId + c.stack;
+	}	
+	
+	if (descend) {
+		// Process the signature, but this time in a copy of the current environment
+		// without the names stripped out (since these names will be visible in the
+		// body of the function).
+		funId = head(c.stack);
+		funType = c.store[funId].rtype;
+		cFun = c;
+		if (!isFailType(funType)) {
+			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+		} else {
+			cFun = setExpectedReturn(c, \void());
+		}
+		< cFun, tFun > = processSignature(sig, cFun);
+		if ((FunctionBody)`{ <Statement* ss> }` := body) {
+			for (stmt <- ss) {
+				< cFun, tStmt > = checkStmt(stmt, cFun);
+			}
+		}
+		c = recoverEnvironmentsAfterCall(cFun, c);
+	}
+
+	c.stack = tail(c.stack);
+	return c;
+}
+
+@doc{Process function signatures: WithThrows}
+public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`, Configuration c) {
+	// TODO: Do something with the exception information
+	< c, rType > = convertAndExpandType(t,c);
+
+	< c, ptTuple > = checkParameters(ps, c);
+	list[Symbol] parameterTypes = getTupleFields(ptTuple);
+	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
+	funType = \void();
+	if (size(paramFailures) > 0) {
+		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", sig@\loc));		
+	} else {
+		funType = makeFunctionTypeFromTuple(rType, isVarArgs(sig), \tuple(parameterTypes));
+	}
+
+	return < c, funType >;
+}
+
+@doc{Process function signatures: NoThrows}
+public CheckResult processSignature(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`, Configuration c) {
+	< c, rType > = convertAndExpandType(t,c);
+
+	< c, ptTuple > = checkParameters(ps, c);
+	list[Symbol] parameterTypes = getTupleFields(ptTuple);
+	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
+	funType = \void();
+	if (size(paramFailures) > 0) {
+		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", sig@\loc));		
+	} else {
+		funType = makeFunctionTypeFromTuple(rType, isVarArgs(sig), \tuple(parameterTypes));
+	}
+
+	return < c, funType >;
+}
+
+@doc{Extract the function modifiers from the signature.}
+public RName getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = getModifiers(mds);
+public RName getModifiers(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = getModifiers(mds);
+
+@doc{Extract the function modifiers from the list of modifiers.}
+set[Modifier] getModifiers(FunctionModifiers fmods:(FunctionModifiers)`<FunctionModifier* fms>`) {
+	return { getModifier(m) | m <- fms };
+}
+
+@doc{Extract the function name from the signature.}
+public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = convertName(n);
+public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = convertName(n);
+
+@doc{Check to see if the function is a varargs function.}
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ) throws <{Type ","}+ exs>`) = false;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... ) throws <{Type ","}+ exs>`) = true;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> )`) = false;
+public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... )`) = true;
+
+public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`, Configuration c) {
+	moduleName = getHeaderName(header);
+	importList = getHeaderImports(header);
+
+	// First, insert the module into the environment
+	cPre = c;
+	c = addModule(c, moduleName, md@\loc);
+	
+	// Second, process the imports
+	
+	// Finally, process the body of the module
+	if ((Body)`<Toplevel* tls>` := body) {
+		list[Declaration] typesAndTags = [ ];
+		list[Declaration] annotations = [ ];
+		list[Declaration] names = [ ];
+
+		for ((Toplevel)`<Declaration decl>` <- tls) {
+			switch(decl) {
+				case (Declaration)`<Tags _> <Visibility _> <Type _> <{Variable ","}+ _> ;` : names = names + decl;
+				case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : annotations = annotations + decl;
+				case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : typesAndTags = typesAndTags + decl;
+				case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : typesAndTags = typesAndTags + decl;
+				case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : typesAndTags = typesAndTags + decl;
+				case (Declaration)`<Tags _> <Visibility _> data <UserType _> = <{Variant "|"}+ _> ;` : typesAndTags = typesAndTags + decl;
+				case (Declaration)`<FunctionDeclaration _>` : names = names + decl;
+			}
+		}
+
+		// Introduce the type names into the environment
+		for (t <- typesAndTags) c = checkDeclaration(t,false,c);
+		
+		// Now, actually process the type names
+		for (t <- typesAndTags) c = checkDeclaration(t,true,c);
+		
+		// Next, process the annotations
+		for (t <- annotations) c = checkDeclaration(t,true,c);
+		
+		// Next, introduce names into the environment
+		for (t <- names) c = checkDeclaration(t,false,c);
+		
+		// Finally, process the names
+		for (t <- names) c = checkDeclaration(t,true,c);
+	} else {
+		println("Body did not match");
+	}
+	
+	// TODO: Remove the current module from the environment
+	return c;
+}
+
+@doc{Get the module name from the header.}
+public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = convertName(qn);
+public RName getHeaderName((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = convertName(qn);
+
+@doc{Get the list of imports from the header.}
+public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <ModuleParameters mps> <Import* imports>`) = [i | i<-imports];
+public list[Import] getHeaderImports((Header)`<Tags tags> module <QualifiedName qn> <Import* imports>`) = [i | i<-imports];
+
+public CheckResult convertAndExpandType(Type t, Configuration c) {
+	rt = convertType(t);
+	if ( (rt@errinfo)? && size(rt@errinfo) > 0) {
+		for (m <- rt@errinfo) {
+			c = addScopeMessage(c,m);
+		}
+	}
+	return < c, expandType(rt, t@\loc, c) >;
+}
+
+public Symbol expandType(Symbol rt, loc l, Configuration c) {
+	rt = bottom-up visit(rt) {
+		case \user(rn,pl) : {
+			if (rn in c.typeEnv) {
+				ut = c.store[c.typeEnv[rn]].rtype;
+				if (isAliasType(ut)) {
+					atps = getAliasTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								bindings = ( getTypeVarName(atps[idx]) : pl[idx] | idx <- index(pl) );
+								insert(instantiate(getAliasedType(ut),bindings));
+							} else {
+								insert(getAliasedType(ut));
+							}
+						} else {
+							return collapseFailTypes(failures);
+						} 
+					} else {
+						return makeFailType("Alias <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l);
+					}
+				} else if (isADTType(ut)) {
+					atps = getADTTypeParameters(ut);
+					if (size(pl) == size(atps)) {
+						failures = { };
+						for (idx <- index(pl), !subtype(pl[idx],getTypeVarBound(atps[idx]))) 
+							failures = failures + makeFailType("Cannot instantiate parameter <idx> with type <prettyPrintType(pl[idx])>, parameter has bound <prettyPrintType(getTypeVarBound(atps[idx]))>", l);
+						if (size(failures) == 0) {
+							if (size(pl) > 0) {
+								insert(\adt(getADTName(ut),pl));
+							} else {
+								insert(ut);
+							}
+						} else {
+							return collapseFailTypes(failures);
+						} 
+					} else {
+						return makeFailType("Data type <prettyPrintName(rn)> declares <size(atps)> type parameters, but given <size(pl)> instantiating types", l);
+					}
+				} else {
+					throw "User type should not refer to type <prettyPrintType(ut)>";
+				}
+			} else {
+				return makeFailType("Type <prettyPrintName(rn)> not declared", l);
+			}
+		}
+	}
+	return rt;
+}
+
+public Module check(Module m) {
+	c = newConfiguration();
+	c = checkModule(m, c);
+	if (size(c.messages) > 0)
+		return m[@messages = c.messages];
+	else
+		return m;
 }
