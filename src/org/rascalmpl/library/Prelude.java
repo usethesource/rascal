@@ -498,7 +498,7 @@ public class Prelude {
 	public IValue printDate(IDateTime inputDate) 
 	//@doc{Print an input date using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat(SimpleDateFormat.YEAR_MONTH_DAY); 
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); 
 		return values.string(sd.format(new Date(inputDate.getInstant())));
 	}
 	
@@ -517,7 +517,7 @@ public class Prelude {
 	//@doc{Print an input date using a specific locale and a default format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(SimpleDateFormat.YEAR_MONTH_DAY,new ULocale(locale.getValue())); 
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd",new ULocale(locale.getValue())); 
 			return values.string(sd.format(new Date(inputDate.getInstant())));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
@@ -538,7 +538,7 @@ public class Prelude {
 	public IValue printTime(IDateTime inputTime) 
 	//@doc{Print an input time using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat(SimpleDateFormat.HOUR24_MINUTE_SECOND); 
+		SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ"); 
 		return values.string(sd.format(new Date(inputTime.getInstant())));
 	}
 	
@@ -557,7 +557,7 @@ public class Prelude {
 	//@doc{Print an input time using a specific locale and a default format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(SimpleDateFormat.HOUR24_MINUTE_SECOND,new ULocale(locale.getValue())); 
+			SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
 			return values.string(sd.format(new Date(inputTime.getInstant())));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time in locale: " + locale.getValue(), null, null);
@@ -578,7 +578,7 @@ public class Prelude {
 	public IValue printDateTime(IDateTime inputDateTime) 
 	//@doc{Print an input datetime using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat(); 
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ"); 
 		return values.string(sd.format(new Date(inputDateTime.getInstant())));
 	}
 	
@@ -598,7 +598,8 @@ public class Prelude {
 	//@doc{Print an input datetime using a specific locale and a default format string}
 	{
 		try {
-			return values.string(DateFormat.getDateInstance(DateFormat.DEFAULT, new ULocale(locale.getValue())).format(new Date(inputDateTime.getInstant())));
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
+			return values.string(sd.format(new Date(inputDateTime.getInstant())));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime in locale: " + locale.getValue(), null, null);
 		}

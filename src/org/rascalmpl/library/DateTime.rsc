@@ -405,7 +405,7 @@ public interval createInterval(datetime begin, datetime end) {
 @doc{
 Synopsis: A duration of time, measured in individual years, months, etc.
 }
-data duration = Duration(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds);
+data Duration = duration(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds);
 
 @javaClass{org.rascalmpl.library.Prelude}
 private java tuple[int,int,int,int,int,int,int] createDurationInternal(datetime begin, datetime end);
@@ -424,17 +424,17 @@ E2 = incrementMinutes(B);
 createDuration(B, E2);
 </screen>
 }
-public duration createDuration(datetime begin, datetime end) {	
+public Duration createDuration(datetime begin, datetime end) {	
 	switch(createDurationInternal(begin,end)) {
 	  case <int y,int m,int d,int h,int min,int s,int ms>:
-		return Duration(y,m,d,h,min,s,ms);
+		return duration(y,m,d,h,min,s,ms);
 	}
-	return Duration(0,0,0,0,0,0,0);
+	return duration(0,0,0,0,0,0,0);
 }
 
 
 // Given an interval, create a new duration representing the duration between the interval begin and end.
-public duration createDuration(interval i) {
+public Duration createDuration(interval i) {
 	return createDuration(i.begin,i.end);	
 }                         
 
@@ -489,7 +489,7 @@ Examples:
 <screen>
 import DateTime;
 parseDate("2011-12-23", "yyyy-MM-dd");
-parseDate("20111223", "YYYYMMDD");
+parseDate("20111223", "yyyyMMdd");
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
