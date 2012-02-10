@@ -9,8 +9,7 @@
 module vis::Figure
 
 import vis::KeySym;
-import Integer;
-import Real;
+import util::Math;
 import List;
 import Set;
 import IO;
