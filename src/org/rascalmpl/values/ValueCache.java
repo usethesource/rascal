@@ -23,6 +23,7 @@ public class ValueCache<E>{
 	private int threshold;
 	private int load;
 	
+	@SuppressWarnings("unchecked")
 	public ValueCache(){
 		super();
 		
@@ -40,6 +41,7 @@ public class ValueCache<E>{
 		int nrOfEntries = 1 << (++modSize);
 		int newHashMask = nrOfEntries - 1;
 		
+		@SuppressWarnings("unchecked")
 		Entry<E>[] newData = new Entry[nrOfEntries];
 		
 		Entry<E> currentEntryRoot = new Entry<E>(0, null, null);

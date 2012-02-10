@@ -1493,6 +1493,7 @@ public class LayeredGraph extends Figure {
 			e.drawElement(gc, visibleSWTElements);
 		}
 		gc.translate(-globalLocation.getX(), -globalLocation.getY());
+		System.out.printf("Going back %s\n",globalLocation);
 	}
 	
 	public boolean initChildren(IFigureConstructionEnv env,

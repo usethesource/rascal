@@ -302,7 +302,7 @@ public class LayeredGraphEdge extends Figure {
 					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
 					getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getTo().figX(), getTo().figY(),
-							node.figX(),  node.figY()-(h/2+vgap/4),
+							getFrom().figX(),  getFrom().figY(),
 							toArrow,gc, visibleSWTElements
 					); 
 					return;
