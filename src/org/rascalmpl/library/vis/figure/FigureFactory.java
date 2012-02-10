@@ -214,7 +214,6 @@ public class FigureFactory {
 		}
 		Figure[] children;
 		IValue validate;
-		Figure child;
 		
 		switch(pmap.get(ename)){
 			
@@ -335,7 +334,7 @@ public class FigureFactory {
 			return new Projection(projectFrom,projectOn,projection,properties);
 		case ROTATE:
 			//TODO
-			child =  makeChild(1,env,c,properties,childPropsNext);
+//			child =  makeChild(1,env,c,properties,childPropsNext);
 			//double angle = PropertyParsers.parseNum(c.get(0));
 			throw new Error("Rotate out of order..");
 			//return new Rotate(env, angle, child, properties);

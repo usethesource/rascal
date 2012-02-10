@@ -90,6 +90,7 @@ public class Util {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	static public <T> ArrayList<T> merge(List<T> lhs,List<T> rhs){
 		return merge(NaturalComparator.instance,lhs,rhs);
 	}

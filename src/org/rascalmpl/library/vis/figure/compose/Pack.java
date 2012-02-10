@@ -183,7 +183,7 @@ class Node {
 	}
 	
 	public Node insert(Figure fig){
-		String id = fig.prop.getStr(Properties.ID);
+//		String id = fig.prop.getStr(Properties.ID);
 		//if(Pack.debug)System.err.printf("insert: %s: %f, %f\n", id, fig.minSize.getX(), fig.minSize.getY());
 		if(!leaf()){
 			// Not a leaf, try to insert in left child

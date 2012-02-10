@@ -18,6 +18,7 @@ import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 
 
+@SuppressWarnings("rawtypes")
 public class NominalKey extends LayoutProxy implements Key{
 
 	IValue whole;
