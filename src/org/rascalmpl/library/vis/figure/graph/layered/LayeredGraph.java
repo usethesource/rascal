@@ -73,6 +73,7 @@ public class LayeredGraph extends Figure {
 	private static final double DINFINITY = Double.MAX_VALUE;
 	
 	private static final boolean debug = false;
+	@SuppressWarnings("unused")
 	private static final boolean printGraph = false;
 	
 	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, Figure[] nodes,

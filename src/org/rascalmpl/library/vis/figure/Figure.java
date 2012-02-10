@@ -559,6 +559,7 @@ public abstract class Figure implements Comparable<Figure> {
 		double rotd = -90 + Math.toDegrees(theta);
 		if (toArrow != null) {
 			gc.pushMatrix();
+			System.out.printf("l %f top %f\n", left, top);
 			gc.translate(left + IX , top + IY );
 			
 			gc.rotate(rotd);

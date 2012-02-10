@@ -35,8 +35,6 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  *
  */
 public class Text extends Figure {
-	private static final int TAB_WIDTH = 4;
-	private static boolean debug = false;
 	private String [] lines;
 	private double[] indents;
 	private PropertyValue<String> txt;
@@ -114,13 +112,13 @@ public class Text extends Figure {
 			ascentOffset = mf.getFontAscent() - getTextAscent();
 			System.out.println("ascentOffset " + ascentOffset);
 		}
-		double lineHeight = getLineHeight();
+//		double lineHeight = getLineHeight();
 		//System.out.printf("Drawing %s\n",this);
 		double y = -minSizeUnrotated.getY()/2.0;
 		double tx =  globalLocation.getX() + minSize.getX()/2.0;
 		double ty =  globalLocation.getY() + minSize.getY()/2.0;;
 		double lux = -minSizeUnrotated.getX()/2.0;
-		double luy = -minSizeUnrotated.getY()/2.0;
+//		double luy = -minSizeUnrotated.getY()/2.0;
 		gc.translate( tx,  ty);
 		gc.rotate(prop.getReal(TEXT_ANGLE));
 		

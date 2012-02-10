@@ -95,7 +95,6 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
@@ -932,7 +931,7 @@ public class Prelude {
 			java.lang.String line;
 			
 			int i = 0;
-			int offset = sloc.getOffset();
+//			int offset = sloc.getOffset();
 			int beginLine = sloc.getBeginLine();
 			int beginColumn = sloc.getBeginColumn();
 			int endLine = sloc.getEndLine();
