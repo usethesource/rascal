@@ -515,8 +515,8 @@ public abstract class Figure implements Comparable<Figure> {
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
 		toArrow.size.set(toArrow.minSize);
-		toArrow.globalLocation.set(0,0);
 		toArrow.resize(null, new TransformMatrix());
+		toArrow.globalLocation.set(0,0);
 		
 		if (fromX == X)
 			fromX += 0.00001;

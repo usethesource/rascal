@@ -227,11 +227,12 @@ IExpirationListener<IValue> {
 		return fact;
 	}
 
-	private String abbrev(String s, int len) {
-		if(s.length() > len)
-			s = s.substring(0, len) + "...";
-		return s;
-	}
+	// Remove?
+//	private String abbrev(String s, int len) {
+//		if(s.length() > len)
+//			s = s.substring(0, len) + "...";
+//		return s;
+//	}
 
 	public void abandon() {
 		for(IFact<IValue> fact : map.values()) {
