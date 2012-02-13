@@ -101,14 +101,14 @@ public class Ellipse extends Container {
 	@Override
 	public void connectArrowFrom(double left, double top, double X, double Y,
 			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
-		System.out.printf("Is toch echt gespecial !!\n");
 		
 		for(Dimension d : HOR_VER){
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
 		}
 		toArrow.size.set(toArrow.minSize);
-		toArrow.resize(null, new TransformMatrix());
 		toArrow.globalLocation.set(0,0);
+		toArrow.localLocation.set(0,0);
+		toArrow.resize(null, new TransformMatrix());
 		
 		if(fromX == X)
 			fromX += 0.00001;
