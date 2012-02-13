@@ -19,6 +19,8 @@ import static org.rascalmpl.library.vis.properties.Properties.LABEL;
 import static org.rascalmpl.library.vis.properties.Properties.TO_ARROW;
 import static org.rascalmpl.library.vis.properties.Properties.VGAP;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IString;
@@ -29,6 +31,8 @@ import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+
+import com.sun.tools.javac.util.Pair;
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
@@ -40,13 +44,9 @@ public class LayeredGraphEdge extends Figure {
 	private LayeredGraphNode to;
 	Figure toArrow;
 	Figure fromArrow;
-	Figure label;
-	double labelX;
-	double labelMinX;
-	double labelMaxX;
-	double labelMinY;
-	double labelMaxY;
-	double labelY;
+	Figure label = null;
+	double labelX = 0;
+	double labelY = 0;
 	boolean reversed = false;
 	private static boolean debug = true;
 	private static boolean useSplines = true;
@@ -194,6 +194,7 @@ public class LayeredGraphEdge extends Figure {
 		if (cp == 0)
 			return;
 		
+		applyProperties(gc);
 		gc.noFill();
 		gc.beginShape();
 		double x1 = points[0];
@@ -228,10 +229,22 @@ public class LayeredGraphEdge extends Figure {
 		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
 								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
+		if(debug) System.err.println("label: " + label);
+		
 		if(getFrom().isVirtual()){
 			return;
 		}
+		
+		applyProperties(gc);
+		
 		if(getTo().isVirtual()){
+			ArrayList<LayeredGraphNode> virtualNodes = new ArrayList<LayeredGraphNode>();
+			if(debug) System.err.println(getFrom().name + "->" + getTo().name + " label: " + label);
+			
+			for(LayeredGraphNode nv = getTo(); nv.isVirtual(); nv = nv.out.get(0)){
+				if(debug) System.err.println(nv.name + " label: " + nv.label);
+				virtualNodes.add(nv);
+			}
 			
 			if(debug)System.err.println("Drawing a shape, inverted=" + reversed);
 			LayeredGraphNode currentNode = getTo();
@@ -262,7 +275,7 @@ public class LayeredGraphEdge extends Figure {
 				currentNode = nextNode;
 			}
 		
-			drawLastSegment( imX, imY, prevNode, currentNode,gc);
+			drawLastSegment( imX, imY, prevNode, currentNode, gc, visibleSWTElements);
 			
 		} else {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
@@ -272,23 +285,7 @@ public class LayeredGraphEdge extends Figure {
 				double w = node.figure.minSize.getX();
 				double hgap = getFrom().graph.prop.getReal(HGAP);
 				double vgap = getFrom().graph.prop.getReal(VGAP);
-				
-//				beginCurve(location.getX() + node.figX(),                   location.getY() + node.figY()-h/3);
-//				addPointToCurve(location.getX() + node.figX(),              location.getY() + node.figY()-h/3);
-//				addPointToCurve(location.getX() + node.figX(),              location.getY() + node.figY()-h/3-vgap);
-//				addPointToCurve(location.getX() + node.figX() + w/2 + hgap, location.getY() + node.figY()-h/3-vgap);
-//				addPointToCurve(location.getX() + node.figX() + w/2 + hgap, location.getY() + node.figY()-h/3);
-//				addPointToCurve(location.getX() + node.figX() + w/2 + hgap, location.getY() + node.figY());
-//				addPointToCurve(location.getX() + node.figX() + w/2,        location.getY() + node.figY());
-//				endCurve(location.getX() + node.figX() + w/2,        		 location.getY() + node.figY());
-//				
-//				beginCurve(globalLocation.getX() + node.figX()+w/2,               globalLocation.getY() + node.figY()-h/2,gc);
-//				addPointToCurve(globalLocation.getX() + node.figX()+w/4,          globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
-//				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/2),gc);
-//				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h+vgap),gc);
-//				addPointToCurve(globalLocation.getX() + node.figX(),              globalLocation.getY() + node.figY()-(h/2+vgap/4),gc);
-//				endCurve(globalLocation.getX() + node.figX(),                     globalLocation.getY() + node.figY()-h/2,gc);
-					System.err.printf("hgap=%f, vgap=%f\n", hgap, vgap);
+				System.err.printf("hgap=%f, vgap=%f\n", hgap, vgap);
 				
 				System.err.printf("Start self edge:\n");
 				beginCurve(globalLocation.getX() + node.figX()+w/2,               globalLocation.getY() + node.figY()-h/4,gc);
@@ -305,6 +302,7 @@ public class LayeredGraphEdge extends Figure {
 							getFrom().figX(),  getFrom().figY(),
 							toArrow,gc, visibleSWTElements
 					); 
+					applyProperties(gc);
 					return;
 				}
 			} else {
@@ -323,6 +321,7 @@ public class LayeredGraphEdge extends Figure {
 								getTo().figX(), getTo().figY(), 
 								toArrow,gc, visibleSWTElements
 						);
+						applyProperties(gc);
 					}
 						
 					if(fromArrow != null){
@@ -330,8 +329,9 @@ public class LayeredGraphEdge extends Figure {
 						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 								getTo().figX(), getTo().figY(),
 								getFrom().figX(), getFrom().figY(), 
-								fromArrow,gc, visibleSWTElements
+								fromArrow, gc, visibleSWTElements
 						);
+						applyProperties(gc);
 					}
 				} else {
 					if(debug)System.err.println("Drawing to arrow to " + getTo().name);
@@ -339,28 +339,27 @@ public class LayeredGraphEdge extends Figure {
 						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getTo().figX(), getTo().figY(), 
 							getFrom().figX(), getFrom().figY(),
-							toArrow,gc, visibleSWTElements
+							toArrow, gc, visibleSWTElements
 						);
+						applyProperties(gc);
 					}
 					if(fromArrow != null){
 						if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
 					    getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
 							getFrom().figX(), getFrom().figY(), 
 							getTo().figX(), getTo().figY(),
-							fromArrow,gc, visibleSWTElements
+							fromArrow, gc, visibleSWTElements
 					    );
+					    applyProperties(gc);
 					}
 				}
 			}
-			if(label != null){
-				label.drawElement(gc,visibleSWTElements);
-			}
 			
 		} 
-		
 	}
 	
-	private void drawLastSegment( double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode,GraphicsContext gc){		double dx = currentNode.figX() - prevNode.figX();
+	private void drawLastSegment( double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode,GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		double dx = currentNode.figX() - prevNode.figX();
 		double dy = (currentNode.figY() - prevNode.figY());
 		double imScale = 0.6f;
 		double imX = prevNode.figX() + dx / 2;
@@ -377,69 +376,111 @@ public class LayeredGraphEdge extends Figure {
 		// Finally draw the arrows on both sides of the edge
 		
 		if(getFromArrow() != null){
-		//	getFrom().figure.connectArrowFrom(location.getX(), location.getY(), getFrom().figX(), getFrom().figY(), startImX, startImY, getFromArrow(),gc);
+			getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
+					                          getFrom().figX(), getFrom().figY(), 
+					                          startImX, startImY, 
+					                          getFromArrow(), gc, visibleSWTElements);
+			applyProperties(gc);
 		}
 		if(getToArrow() != null){
 			if(debug)System.err.println("Has a to arrow");
-		//	currentNode.figure.connectArrowFrom(location.getX(), location.getY(), currentNode.figX(), currentNode.figY(), imX, imY, getToArrow(),gc);
+			currentNode.figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
+												currentNode.figX(), currentNode.figY(),
+												imX, imY, 
+												getToArrow(), gc, visibleSWTElements);
 		}
+		applyProperties(gc);
 	}
 	
 	public void setLabelCoordinates(){
+		
+		setLabelCoordinates(0.4);
+	}
+	
+	public void setLabelCoordinates(double perc){
 		if(label != null){
-			labelX = getFrom().x + (getTo().x - getFrom().x)/2;
-			labelY = getFrom().y + (getTo().y - getFrom().y)/2;
+			int dirX = getFrom().x < getTo().x ? 1 : -1;
+			int dirY = getFrom().y < getTo().y ? 1 : -1;
 			
-			labelMinX = labelX - 1.5f * label.minSize.getX();
-			labelMaxX = labelX + 1.5f * label.minSize.getX();
+			labelX = 5 + getFrom().x + dirX*(Math.abs(getTo().x - getFrom().x))*perc;
+			labelY = getFrom().y + dirY*(Math.abs(getTo().y - getFrom().y))*perc;
+			System.err.println("setLabelCoordinates: " + getFrom().name + "->" + getTo().name + ": " + labelX + ", " + labelY);
+		}
+	}
+
+	public void placeLabel(double yLabel, int align){
+		if(label != null){
+			System.err.printf("%s->%s: placeLabel: %f, align=%d\n", getFrom().name, getTo().name, yLabel, align);
+			int dirX = getFrom().x < getTo().x ? 1 : -1;
 			
-			labelMinY = labelY - 1.5f * label.minSize.getY();
-			labelMaxY = labelY + 1.5f * label.minSize.getY();
-			
-			System.err.printf("edge %s->%s: labelX=%f, labelY=%f\n", from.name, to.name, labelX, labelY);
+			labelY = yLabel;
+			double perc = (labelY- Math.min(getFrom().y, getTo().y))/(Math.abs(getTo().y - getFrom().y));
+			labelX = 5 + getFrom().x + dirX*(Math.abs(getTo().x - getFrom().x))*perc;
+			if(align < 0)
+				labelX -= label.minSize.getX();
 		}
 	}
 	
-	public void shiftLabelCoordinates(double dx, double dy){
-		if(label != null){
-			System.err.printf("shiftLabelCoordinates %s-> %s: %f, %f\n", from.name, to.name, dx, dy);
-			labelX = Math.min(Math.max(labelMinX, labelX + dx), labelMaxX);
-			labelY = Math.min(Math.max(labelMinY, labelY + dy), labelMaxY);
-		}
+	public boolean xoverlap(LayeredGraphEdge other){
+		if(!yoverlap(other))
+			return false;
+		return (labelX < other.labelX) ? (labelX + label.minSize.getX() > other.labelX)
+				                       : (other.labelX + label.minSize.getX() >labelX);
 	}
 	
-	public void reduceOverlap(LayeredGraphEdge other){
-		double ax1 = labelX - label.minSize.getX()/2;
-		double ax2 = labelX + label.minSize.getX()/2;
-		double bx1 = other.labelX - other.label.minSize.getX()/2;
-		double bx2 = other.labelX + other.label.minSize.getX()/2;
-		double distX;
+	public boolean yoverlap(LayeredGraphEdge other){
+		double top = labelY - label.minSize.getY()/2;
+		double bot = labelY + label.minSize.getY()/2;
+				
+		double otop = other.labelY - other.label.minSize.getY()/2;
+		double obot = other.labelY + other.label.minSize.getY()/2;
 		
-		if(ax1 < bx1){
-			distX = bx1 - ax2;
-		} else
-			distX = ax1 - bx2;
-		
-		double ay1 = labelY - label.minSize.getY()/2;
-		double ay2 = labelY + label.minSize.getY()/2;
-		double by1 = other.labelY - other.label.minSize.getY()/2;
-		double by2 = other.labelY + other.label.minSize.getY()/2;
-		
-		double distY;
-		
-		if(ay1 < by1){
-			distY = by1 - ay2 - 2;
-		} else
-			distY = ay1 - by2 - 2;
-		
-		System.err.printf("reduceOverlap %s->%s, %s->%s: distX=%f, distY=%f\n", from.name, to.name, other.from.name, other.to.name, distX, distY);
-		if(distX > 0)
+		return top < otop ? bot > otop : obot > top;
+				
+	}
+	
+	
+	private boolean xoverlap(LinkedList<LayeredGraphEdge> layerLabels, int k){
+		LayeredGraphEdge other = layerLabels.get(k);
+		for(int i = 0; i < k; i++)
+			if(layerLabels.get(i).xoverlap(other)){
+				System.err.println("xoverlap: " + i + " and " + k);
+				return true;
+			}
+		return false;
+	}
+	
+	private static void optimize(LinkedList<LayeredGraphEdge> layerLabels, int k){
+		if(k == 0){
+			LayeredGraphEdge e0 = layerLabels.get(0);
+			e0.labelX -= e0.label.minSize.getX()  + 10;
 			return;
+		}
+
+		LayeredGraphEdge current = layerLabels.get(k);
+		double h = current.label.minSize.getY();
+		double baseY = current.labelY;
 		
-		distX = distX > 0 ? 0 : -distX;
-		distY = distY > 0 ? 0 : -distY;
-		shiftLabelCoordinates(-distX/2, -distY/2);
-		other.shiftLabelCoordinates(distX/2, distY/2);
+		int dir = k % 2 == 0 ? 1 : -1;
+		double deltaY[] = {baseY, baseY + dir * h, baseY - dir * h};
+		
+		int align[] = {1, -1};
+		for(int a : align){
+			for(double dy : deltaY){
+				current.placeLabel(dy, a);
+				if(!current.xoverlap(layerLabels, k))
+					return;
+			}
+		}
+		current.placeLabel(baseY, 1);
+		System.err.println("*** NO SOLUTION ***");
+	}
+	
+	public static void optimizeLabels(LinkedList<LayeredGraphEdge> layerLabels){
+		
+		for(int i = 0; i < layerLabels.size(); i++){
+			optimize(layerLabels, i);
+		}
 	}
 
 	public Figure getLabel() {
@@ -455,7 +496,6 @@ public class LayeredGraphEdge extends Figure {
 	public void resizeElement(Rectangle view) {
 		
 	}
-
-
 	
 }
+

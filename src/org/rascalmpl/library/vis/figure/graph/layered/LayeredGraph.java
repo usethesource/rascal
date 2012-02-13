@@ -69,8 +69,8 @@ public class LayeredGraph extends Figure {
 	double hgap;
 	double vgap;
 	double MAXWIDTH;
-	private static final int INFINITY = Integer.MAX_VALUE;
-	private static final double DINFINITY = Double.MAX_VALUE;
+	private static final int INFINITY = Integer.MAX_VALUE - 1000;
+	private static final double DINFINITY = Double.MAX_VALUE -1000;
 	
 	private static final boolean debug = false;
 	@SuppressWarnings("unused")
@@ -274,24 +274,25 @@ public class LayeredGraph extends Figure {
 		
 		for (LayeredGraphEdge e : edges) {
 			if(e.label != null){
-			double w2 = e.label.minSize.getX() / 2;
-			double h2 = e.label.minSize.getY() / 2;
-			
-			if (e.labelX - w2 < minx)
-				minx = e.labelX - w2;
+				double w2 = e.label.minSize.getX() / 2;
+				double h2 = e.label.minSize.getY() / 2;
 
-			if (e.labelX + w2 > maxx)
-				maxx = e.labelX + w2;
+			System.err.println("labelX = " + e.labelX);
+				if (e.labelX < minx)
+					minx = e.labelX;
 
-			if (e.labelY - h2 < miny)
-				miny = e.labelY - h2;
+				if (e.labelX + w2 > maxx)
+					maxx = e.labelX + w2;
 
-			if (e.labelY + h2 > maxy)
-				maxy = e.labelY + h2;
+				if (e.labelY - h2 < miny)
+					miny = e.labelY - h2;
+
+				if (e.labelY + h2 > maxy)
+					maxy = e.labelY + h2;
 			}
 		}
 		
-		System.err.printf("minx=%f, maxc=%f; miny=%f, maxy=%f\n", minx, maxx, miny, maxy);
+		System.err.printf("minx=%f, maxx=%f; miny=%f, maxy=%f\n", minx, maxx, miny, maxy);
 		for (LayeredGraphNode n : nodes) {
 			System.err.printf("%s: %f,%f -> %f,%f\n", n.name, n.x, n.y, n.x - minx, n.y - miny);
 			n.x = n.x - minx;
@@ -462,7 +463,7 @@ public class LayeredGraph extends Figure {
 			
 		placeHorizontal(layers);
 		
-		placeLabels(layers);
+		//placeLabels(layers);
 		
 		if(debug)
 			printGraph("Final graph");
@@ -749,7 +750,6 @@ public class LayeredGraph extends Figure {
 		LayeredGraphNode from = orgFrom;
 		boolean downwards = from.isAbove(to);
 		int delta = downwards ? 1 : -1;
-		int halfWay = from.layer + (downwards ? (to.layer - from.layer)/2 : (from.layer - to.layer)/2);
 		Figure orgEdgeLabel =  null;
 		
 		while(Math.abs(to.layer - from.layer) > 1 && !to.hasVirtualOutTo(from)){
@@ -801,18 +801,16 @@ public class LayeredGraph extends Figure {
 			IString vfOname = vf.string(to.name);
 			if(old != null){
 				if(old.isReversed()){
-					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, prop, vfGname, vfVname, old.fromArrow, old.toArrow);
-					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, prop, vfVname, vfOname, old.fromArrow, old.toArrow);
-					if(old.getFrom().layer == halfWay)
-						e1.label = orgEdgeLabel;
+					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, old.prop, vfGname, vfVname, old.fromArrow, old.toArrow);
+					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, old.prop, vfVname, vfOname, old.fromArrow, old.toArrow);
+					e2.label = orgEdgeLabel;
 						
 					edges.add(e1);
 					edges.add(e2);
 				} else {
-					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, prop, vfGname, vfVname, old.toArrow, old.fromArrow);
-					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, prop, vfVname, vfOname, old.toArrow, old.fromArrow);
-					if(old.getFrom().layer == halfWay)
-						e1.label = orgEdgeLabel;
+					LayeredGraphEdge e1 = new LayeredGraphEdge(this, fpa, old.prop, vfGname, vfVname, old.toArrow, old.fromArrow);
+					LayeredGraphEdge e2 = new LayeredGraphEdge(this, fpa, old.prop, vfVname, vfOname, old.toArrow, old.fromArrow);
+					e2.label = orgEdgeLabel;
 					
 					edges.add(e1);
 					edges.add(e2);
@@ -1389,8 +1387,8 @@ public class LayeredGraph extends Figure {
 			
 			// Just for testing purposes
 			
-						Direction 	dir = Direction.TOP_LEFT;
-			//			Direction dir = Direction.TOP_RIGHT;
+			//			Direction 	dir = Direction.TOP_LEFT;
+						Direction dir = Direction.TOP_RIGHT;
 			//			Direction dir = Direction.BOTTOM_LEFT;
 			//			Direction dir = Direction.BOTTOM_RIGHT;
 
@@ -1425,9 +1423,15 @@ public class LayeredGraph extends Figure {
 			labels.add(new LinkedList<LayeredGraphEdge>());
 		}
 		
+		for(LayeredGraphEdge e1 : edges){
+			if(e1.label != null){
+				System.err.println("placeLabels: " + e1.getFrom().name + "->" + e1.getTo().name);
+				e1.setLabelCoordinates();
+			}
+		}
+		
 		for(LayeredGraphEdge e : edges){
 			if(e.label != null){
-				e.setLabelCoordinates();
 				int fl = e.getFrom().layer;
 				int tl =  e.getTo().layer;
 				int level = fl < tl ? fl : tl;
@@ -1436,15 +1440,7 @@ public class LayeredGraph extends Figure {
 		}
 		
 		for(LinkedList<LayeredGraphEdge> layerLabels : labels)
-			optimizeLabels(layerLabels);
-	}
-	
-	private void optimizeLabels(LinkedList<LayeredGraphEdge> layerLabels){
-		for(int i = 0; i < layerLabels.size() - 1; i++){
-			LayeredGraphEdge e1 = layerLabels.get(i);
-			LayeredGraphEdge e2 = layerLabels.get(i + 1);
-			e1.reduceOverlap(e2);
-		}
+			LayeredGraphEdge.optimizeLabels(layerLabels);
 	}
 	
 	private void setGraphMinSize(){
@@ -1473,6 +1469,9 @@ public class LayeredGraph extends Figure {
 		computeGraphLayout();
 		alignToSmallest();
 		translateToOrigin();
+		placeLabels(layers);
+		translateToOrigin();
+		
 		//switchWidthAndHeight();
 		rotateToDirection();
 		setGraphMinSize();
@@ -1488,9 +1487,17 @@ public class LayeredGraph extends Figure {
 	}
 	
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		applyProperties(gc);
 		gc.translate(globalLocation.getX(), globalLocation.getY());
 		for(LayeredGraphEdge e : edges){
 			e.drawElement(gc, visibleSWTElements);
+		}
+		for(LayeredGraphEdge e1 : edges){
+			if(e1.label != null){
+				e1.label.globalLocation.setX(e1.labelX);
+				e1.label.globalLocation.setY(e1.labelY - e1.label.minSize.getY()/2);
+				e1.label.drawElement(gc,visibleSWTElements);
+			}
 		}
 		gc.translate(-globalLocation.getX(), -globalLocation.getY());
 		System.out.printf("Going back %s\n",globalLocation);
