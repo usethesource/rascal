@@ -13,9 +13,9 @@ import ParseTree;
 import Type;
 import lang::rascal::syntax::RascalRascal;
 
-@doc{Definition of abstract representation of kinds.}
-data RKind = 
-	  functionKind() 
+@doc{Kinds of tags}
+data TagKind 
+	= functionKind() 
 	| variableKind() 
 	| allKind() 
 	| annoKind() 
@@ -23,24 +23,18 @@ data RKind =
 	| viewKind() 
 	| aliasKind() 
 	| moduleKind() 
-	| tagKind()
-	;
-             
-@doc{Convert a concrete into an abstract kind.}             
-public RKind convertKind(Kind k) {
-    switch(k) {
-        case (Kind) `function` : return FunctionKind();
-        case (Kind) `variable` : return VariableKind();
-        case (Kind) `all` : return AllKind();
-        case (Kind) `anno` : return AnnoKind();
-        case (Kind) `data` : return DataKind();
-        case (Kind) `view` : return ViewKind();
-        case (Kind) `alias` : return AliasKind();
-        case (Kind) `module` : return ModuleKind();
-        case (Kind) `tag` : return TagKind();
-    }
-    throw "convertKind, error, no match for kind <k>";
-}
+	| tagKind();
+
+@doc{Convert from the concrete to the abstract representation of tag kinds.}
+public TagKind convertKind((Kind)`function`) = functionKind();
+public TagKind convertKind((Kind)`variable`) = variableKind();
+public TagKind convertKind((Kind)`all`) = allKind();
+public TagKind convertKind((Kind)`anno`) = annoKind();
+public TagKind convertKind((Kind)`data`) = dataKind();
+public TagKind convertKind((Kind)`view`) = viewKind();
+public TagKind convertKind((Kind)`alias`) = aliasKind();
+public TagKind convertKind((Kind)`module`) = moduleKind();
+public TagKind convertKind((Kind)`tag`) = tagKind();
 
 @doc{Pretty print abstract kinds.}
 public str prettyPrintKind(functionKind()) = "function";
@@ -52,6 +46,3 @@ public str prettyPrintKind(viewKind()) = "view";
 public str prettyPrintKind(aliasKind()) = "alias";
 public str prettyPrintKind(moduleKind()) = "module";
 public str prettyPrintKind(tagKind()) = "tag";
-public default str prettyPrintKind(Kind _) {
-	throw "prettyPrintKind, error, no match for rkind <rk>";
-}

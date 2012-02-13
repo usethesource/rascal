@@ -47,10 +47,6 @@ private Symbol et(\alias(str s, list[Symbol] ps, Symbol at), STBuilder stb, Item
 private Symbol et(Symbol::\func(Symbol rt, list[Symbol] ps), STBuilder stb, ItemId cs) = Symbol::\func(expandUserTypes(rt,stb,cs),[expandUserTypes(p,stb,cs)|p <- ps]);
 
 private Symbol et(\overloaded(set[Symbol] os), STBuilder stb, ItemId cs) = \overloaded({expandUserTypes(o,stb,cs)|o<-os});
-private Symbol et(\unknown(Symbol t), STBuilder stb, ItemId cs) {
-    Symbol utRes = expandUserTypes(t, stb, cs);
-    return (utRes != t) ? utRes : t; // If the type changed, we at least partially resolved it, return that
-}
 private Symbol et(\user(RName rn, list[Symbol] ps), STBuilder stb, ItemId cs) {
     list[Symbol] params = [ expandUserTypes(tp,stb,cs) | tp <- ps ];
     set[ItemId] userTypes = getItems(stb,cs,rn,Types());

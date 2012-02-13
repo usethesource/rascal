@@ -120,6 +120,10 @@ public Bindings match(Symbol t:\reified(Symbol r), Symbol m, Bindings bindings) 
 	return match(r,getReifiedType(m),bindings);
 }
 
+private void invalidInstantiation() {
+	throw "Binding violates parameter bounds!";
+}
+
 @doc{Instantiate type parameters found inside the types.}
 public Symbol instantiate(Symbol t:\void(), Bindings bindings) = t;
 public Symbol instantiate(\label(str x, Symbol t), Bindings bindings) = \label(x, instantiate(t,bindings));
@@ -129,10 +133,13 @@ public Symbol instantiate(\tuple(list[Symbol] ets), Bindings bindings) = \tuple(
 public Symbol instantiate(\list(Symbol et), Bindings bindings) = \list(instantiate(et,bindings));
 public Symbol instantiate(\map(Symbol md, Symbol mr), Bindings bindings) = \map(instantiate(md,bindings), instantiate(mr,bindings));
 public Symbol instantiate(\bag(Symbol et), Bindings bindings) =\bag(instantiate(et,bindings));
-public Symbol instantiate(\parameter(str s, Symbol t), Bindings bindings) = (s in bindings) ? bindings[s] : \parameter(s,t);
+public Symbol instantiate(\parameter(str s, Symbol t), Bindings bindings) = bindings[s] when s in bindings && subtype(bindings[s],t);
+public Symbol instantiate(\parameter(str s, Symbol t), Bindings bindings) = invalidInstantiation() when s in bindings && !subtype(bindings[s],t);
+public Symbol instantiate(\parameter(str s, Symbol t), Bindings bindings) = \parameter(s,t) when s notin bindings;
 public Symbol instantiate(\adt(str s, list[Symbol] ps), Bindings bindings) = \adt(s,[instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(Symbol::\cons(Symbol a, list[Symbol] ps), Bindings bindings) = Symbol::\cons(instantiate(a,bindings), [instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(\alias(str s, list[Symbol] ps, Symbol at), Bindings bindings) = \alias(s, [instantiate(p,bindings) | p <- ps], instantiate(at,bindings));
 public Symbol instantiate(Symbol::\func(Symbol rt, list[Symbol] ps), Bindings bindings) = Symbol::\func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps]);
 //public Symbol instantiate(\var-func(Symbol rt, list[Symbol] ps, Symbol va), Bindings bindings) = \var-func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps],instantiate(va,bindings));
 public Symbol instantiate(\reified(Symbol t), Bindings bindings) = \reified(instantiate(t,bindings));
+public default Symbol instantiate(Symbol t, Bindings bindings) = t;
