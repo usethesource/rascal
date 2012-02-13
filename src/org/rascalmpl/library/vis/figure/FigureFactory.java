@@ -128,11 +128,11 @@ public class FigureFactory {
     	put("_topAxis",     Primitives.TOPAXIS);   
     	put("_bottomAxis",  Primitives.BOTTOMAXIS);
     	put("_fswitch"   ,  Primitives.FIGURESWITCH);
-    	put("_screen", 	Primitives.SCREEN);
+    	put("_screen", 	 	Primitives.SCREEN);
     	put("_hvcat",		Primitives.HVCAT);
     	put("_mouseOver",	Primitives.MOUSEOVER);
     	put("_nominalKey",  Primitives.NOMINALKEY);
-    	put("_tree",     Primitives.TREE);
+    	put("_tree",     	Primitives.TREE);
     	put("_intervalKey", Primitives.INTERVALKEY);
       	put("_outline",		Primitives.OUTLINE);	
     	put("_overlay",		Primitives.OVERLAY);	
