@@ -1067,7 +1067,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
 			return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
 		else {
 			relFields = getRelFields(t1);
-			failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFiels[idx]) };
+			failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), !comparable(tl[idx],relFields[idx]) };
 			if (size(failures) > 0)
 				return markLocationFailed(c,exp@\loc,failures);
 			else if ((size(relFields) - size(tl)) == 1)
@@ -1488,7 +1488,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> % <Expre
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-	if (isIntType(tl) && isIntType(t2)) return markLocationType(c,exp@\loc,\int());
+	if (isIntType(t1) && isIntType(t2)) return markLocationType(c,exp@\loc,\int());
 	return markLocationFailed(c,exp@\loc,makeFailType("Remainder not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>",exp@\loc));
 }
 
@@ -2338,7 +2338,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
 		}
 		
-		case ptn:literalNode(rt) => ptn[@rtype = rt]
+		case ptn:literalNode(Symbol rt) => ptn[@rtype = rt]
 		
 		case ptn:literalNode(list[tuple[DefOrUse,loc]] names) : {
 			for ( < d, l > <- names ) {
@@ -3912,7 +3912,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 	// at this location. If we have, we can just use it if we need it.
 	if (decl@\loc notin c.definitions<1>) { 
 		// TODO: Check for convert errors
-		< c, utype > = convertAndExpanUserType(ut,c);
+		< c, utype > = convertAndExpandUserType(ut,c);
 		if (\user(_,_) !:= utype) throw "Conversion error: type for user type <ut> should be user type, not <prettyPrintType(utype)>";
 		
 		// Extract the name and parameters
