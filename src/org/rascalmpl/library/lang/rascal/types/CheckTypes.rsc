@@ -80,10 +80,18 @@ import lang::rascal::syntax::RascalRascal;
 // 15. Make sure type var bounds are consistent.
 //
 // 16. Change shadowing rules to allow shadowing of imported items by items
-//     in the current module.
+//     in the current module. Note that functions do not shadow, but are
+//     instead added into the overloaded cases.
+//
+// 17. Support _ in assignables
+//
+// 18. Provide support for insert DONE
+//
+// 19. Refactor out code in statements with labels.
+//
 
 @doc{The source of a label (visit, block, etc).}
-data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel();
+data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
 
 @doc{Function modifiers.}
 data Modifier = javaModifier() | testModifier() | defaultModifier();
@@ -386,8 +394,9 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
 	// TODO: Check for overlaps. But, we need to figure out if this is even possible anymore, we naturally
 	// have overlaps because of the pattern-based dispatch.
 	rt@isVarArgs = isVarArgs;
+	currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
-	if (n notin c.fcvEnv || varCanShadow(c,n)) {
+	if (n notin c.fcvEnv) {
 		c.fcvEnv[n] = c.nextLoc;
 		if (\module(_,_) := c.store[head(c.stack)]) {
 			// If this function is module-level, also make it referenceable through
@@ -415,8 +424,22 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
 		c.store[c.nextLoc + 1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
 		c.fcvEnv[n] = c.nextLoc + 1;
 		c.nextLoc = c.nextLoc + 2;
+	} else if ((\module(_,_) := c.store[c.fcvEnv[n]] && c.store[c.fcvEnv[n]].containedIn != currentModuleId)) {
+		c = addScopeWarning(c, "Function declaration masks imported variable or constructor definition", l);
+		c.fcvEnv[n] = c.nextLoc;
+		if (\module(_,_) := c.store[head(c.stack)]) {
+			// If this function is module-level, also make it referenceable through
+			// the qualified name module::function.
+			moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
+			c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+		}
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.visibilities[c.nextLoc] = visibility;
+		c.stack = c.nextLoc + c.stack;
+		c.nextLoc = c.nextLoc + 1;
 	} else {
-		throw "Invalid addition: cannot add function <prettyPrintName(n)> at <l> into scope, it clashes with non-function variable or constructor names";
+		c = addScopeError(c, "Cannot add function <prettyPrintName(n)>, non-function items of that name have already been defined in the current scope",l);
 	}
 	return c;
 }
@@ -446,9 +469,9 @@ public bool varCanShadow(Configuration c, RName n) {
 	// If the name isn't in scope, we can always add it
 	if (n notin c.fcvEnv) return true;
 	
-	// If the name is the same as the name of one of the function we are nested inside,
+	// If the name is the same as the name of one of the functions we are nested inside,
 	// we can never add it.
-	if (n in { fname | idx <- index(c.stack), function(fname,_,_,_,_) := c.store[c.stack[idx]] }) return false;
+	if (size({ idx | idx <- c.stack, function(n,_,_,_,_) := c.store[idx] }) > 0) return false;
 
 	// This gets the scopes defined back to the most recent function or module.	
 	stackItems = toSet(head(c.stack,head([ idx | idx <- index(c.stack), function(_,_,_,_,_) := c.store[c.stack[idx]] || closure(_,_,_) := c.store[c.stack[idx]] || \module(_,_) := c.store[c.stack[idx]]])+1));
@@ -580,25 +603,25 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 
 @doc{Check the types of Rascal expressions: Visit (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Label l> <Visit v>`, Configuration c) {
+	// TODO: Check domain values over iterations
+	cOnEntry = c;
 	if ((Label)`<Name n> :` := l) {
-		// Add checks involving label environment
 		labelName = convertName(n);
 		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", l@\loc));
-		c2 = addLabel(c,labelName,l@\loc,visitLabel());
-		c2.labelStack = < labelName, visitLabel(), \void() > + c2.labelStack;
-		< c2, vt > = checkVisit(v,c2);
-		// Recovering the environment removes the label from the environment
-		c2.labelStack = tail(c2.labelStack);
-		c = recoverEnvironments(c2,c);
-		if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
-		return markLocationType(c,exp@\loc,vt);
+		c = addLabel(c,labelName,l@\loc,visitLabel());
+		c.labelStack = < labelName, visitLabel(), \void() > + c.labelStack;
 	} else {
 		c.labelStack = < RSimpleName(""), visitLabel(), \void() > + c.labelStack;
-		< c, vt > = checkVisit(v,c);
-		c.labelStack = tail(c.labelStack);
-		if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
-		return markLocationType(c,exp@\loc,vt);
-	} 
+	}
+	
+	< c, vt > = checkVisit(v,c);
+
+	// Recovering the environment removes the label from the environment
+	c.labelStack = tail(c.labelStack);
+	c = recoverEnvironments(c,cOnEntry);
+
+	if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
+	return markLocationType(c,exp@\loc,vt);
 }
 
 @doc{Check the types of Rascal expressions: Reducer (DONE)}
@@ -700,13 +723,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 						}
 					}
 				}
-			} else {
+			} else if (isConstructorType(a)) {
 				list[Symbol] args = getConstructorArgumentTypes(a);
 				if (size(epsList) == size(args) && size(epsList) == 0) {
 					matches += a;
 				} else if (size(epsList) == size(args) && all(idx <- index(epsList), subtype(tl[idx],args[idx]))) {
 					matches += a;
 				}
+			} else {
+				println("At <exp@\loc>, expression <exp> has a head with a fail type <a>");
 			}
 		}
 		return matches;
@@ -1002,7 +1027,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
 		c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
 		return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
 	} else {
-		println("Name <prettyPrintName(n)> was not found, here is the scope: <c.fcvEnv>");
+		//println("Name <prettyPrintName(n)> was not found, here is the scope: <c.fcvEnv>");
 		return markLocationFailed(c, exp@\loc, makeFailType("Name is not in scope", exp@\loc));
 	}
 }
@@ -1755,8 +1780,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expr
 	if (isValueType(t1) || isValueType(t2))
 		return markLocationType(c,exp@\loc,\bool());
 		
-	println("Type 1 is: <t1>");
-	println("Type 2 is: <t2>");
+	//println("Type 1 is: <t1>");
+	//println("Type 2 is: <t2>");
 	return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
 }
 
@@ -2041,14 +2066,37 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
 
 @doc{Check the types of Rascal literals: StringLiteral}
 public CheckResult checkLiteral(Literal l:(Literal)`<StringLiteral sl>`, Configuration c) {
-	// TODO: Add all the code needed for string interpolation.
-	return markLocationType(c, l@\loc, \str());
+	set[Symbol] failures = { };
+	list[Tree] ipl = prodFilter(sl,bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd || prod(\label(_,\sort("StringTemplate")),_,_) := prd; });
+	for (ipe <- ipl) {
+		if (`<Expression ipee>` := ipe) {
+			< c, t1 > = checkExp(ipee, c);
+			if (isFailType(t1)) failures = failures + t1;
+		} else if (`<StringTemplate ipet>` := ipe) {
+			< c, t1 > = checkStringTemplate(ipet, c);
+			if (isFailType(t1)) failures = failures + t1;
+		}
+	}
+	if (size(failures) > 0)
+		return markLocationFailed(c, l@\loc, failures);
+	else
+		return markLocationType(c, l@\loc, \str());
 }
 
 @doc{Check the types of Rascal literals: LocationLiteral}
 public CheckResult checkLiteral(Literal l:(Literal)`<LocationLiteral ll>`, Configuration c) {
-	// TODO: Add any code needed for interpolation inside location literals.
-	return markLocationType(c, l@\loc, \loc());
+	set[Symbol] failures = { };
+	list[Expression] ipl = prodFilter(ll, bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd; });
+	for (ipe <- ipl) {
+		if (`<Expression ipee>` := ipe) {
+			< c, t1 > = checkExp(ipee, c);
+			if (isFailType(t1)) failures = failures + t1;
+		}
+	}
+	if (size(failures) > 0)
+		return markLocationFailed(c, l@\loc, failures);
+	else
+		return markLocationType(c, l@\loc, \loc());
 }
 
 @doc{Check the types of Rascal parameters: Default (DONE) }
@@ -2468,7 +2516,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 									newChildren += newarg;
 								}
 							} catch v : {
-								println("Could not bind: <v>");
+								//println("Could not bind: <v>");
 								newChildren = pargs;
 							}
 							insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], getConstructorResultType(matchType));
@@ -2494,7 +2542,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					firstTime = false;
 				}
 			} catch v : {
-				println("Cannot bind: <v>");
+				//println("Cannot bind: <v>");
 				; // May want to do something here in the future, but for now just consume the exception, this still fails to assign a type...
 			}
 		}
@@ -2507,7 +2555,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		else
 			return < c, pt@rtype >;
     } else {
-    	println("Could not compute type for the following pattern tree: <pt>");
+    	//println("Could not compute type for the following pattern tree: <pt>");
     	return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;	
     }
 }
@@ -2679,15 +2727,15 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		}
 		
 		case varBecomesNode(n, l, cp) : {
-			Symbol currentType = c.store[c.fcvEnv[rn]].rtype;
-			if (c.store[c.fcvEnv[rn]].inferred) {
+			Symbol currentType = c.store[c.fcvEnv[n]].rtype;
+			if (c.store[c.fcvEnv[n]].inferred) {
 				if (isInferredType(currentType)) {
-					c.store[c.fcvEnv[rn]].rtype = rt;
+					c.store[c.fcvEnv[n]].rtype = rt;
 				} else {
-					c.store[c.fcvEnv[rn]].rtype = lub(c.store[c.fcvEnv[rn]].rtype, rt);
+					c.store[c.fcvEnv[n]].rtype = lub(c.store[c.fcvEnv[n]].rtype, rt);
 				}
 				< c, cpnew > = bind(cp, rt, c);
-				return < c, pt[@rtype = c.store[c.fcvEnv[rn]].rtype][child = cpnew] >;
+				return < c, pt[@rtype = c.store[c.fcvEnv[n]].rtype][child = cpnew] >;
 			} else {
 				if (comparable(currentType, rt)) {
 					< c, cpnew > = bind(cp, rt, c);
@@ -2714,7 +2762,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		}
 		
 		case tvarBecomesNode(nt, n, l, cp) : {
-			Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[c.fcvEnv[rn]].rtype;
+			Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[c.fcvEnv[n]].rtype;
 			if (comparable(currentType, rt)) {
 				< c, cpNew > = bind(cp, rt, c);
 				return < c, pt[child = cpNew] >;
@@ -2769,25 +2817,24 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Expression e>;`, Config
 @doc{Check the type of Rascal statements: Visit}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, Configuration c) {
 	// TODO: Check domain values over iterations
-	if ((Label)`<Name n> :` := l) {
-		// Add checks involving label environment
+	cOnEntry = c;
+	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", l@\loc));
-		c2 = addLabel(c,labelName,l@\loc,visitLabel());
-		c2.labelStack = < labelName, visitLabel(), \void() > + c2.labelStack;
-		< c2, vt > = checkVisit(v,c2);
-		// Recovering the environment removes the label from the environment
-		c2.labelStack = tail(c2.labelStack);
-		c = recoverEnvironments(c2,c);
-		if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
-		return markLocationType(c,exp@\loc,vt);
+		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
+		c = addLabel(c,labelName,lbl@\loc,visitLabel());
+		c.labelStack = < labelName, visitLabel(), \void() > + c.labelStack;
 	} else {
-		c2.labelStack = < RSimpleName(""), visitLabel(), \void() > + c2.labelStack;
-		< c, vt > = checkVisit(v,c);	
-		c2.labelStack = tail(c2.labelStack);
-		if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
-		return markLocationType(c,exp@\loc,vt);
-	} 
+		c.labelStack = < RSimpleName(""), visitLabel(), \void() > + c.labelStack;
+	}
+	
+	< c, vt > = checkVisit(v,c);
+
+	// Recovering the environment removes the label from the environment
+	c.labelStack = tail(c.labelStack);
+	c = recoverEnvironments(c,cOnEntry);
+
+	if (isFailType(vt)) return markLocationFailed(c,stmt@\loc,vt);
+	return markLocationType(c,stmt@\loc,vt);
 }
 
 @doc{Check the type of Rascal statements: While}
@@ -2813,7 +2860,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
 		if (isFailType(t2)) failures += t2;
 		
 		< _, _, loopElements > = head(c2.labelStack);
-		println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
+		//println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
 		c2.labelStack = tail(c2.labelStack);
 
 		c = recoverEnvironments(c2, c);
@@ -2837,7 +2884,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
 		< c, t2 > = checkStmt(bdy, c);
 		if (isFailType(t2)) failures += t2;
 		< _, _, loopElements > = head(c.labelStack);
-		println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
+		//println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
 		c.labelStack = tail(c.labelStack);
 		
 		if (size(failures) > 0)
@@ -3063,9 +3110,31 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expre
 	}
 }
 
-@doc{Check the type of Rascal statements: Switch}
+@doc{Check the type of Rascal statements: Switch (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> switch ( <Expression e> ) { <Case+ cases> }`, Configuration c) {
-	println("WARNING: SWITCH STATEMENT NOT YET IMPLEMENTED");
+	cAtEntry = c;
+	
+	// If the label is not empty, we add the label into the label environment, so that it can be
+	// referenced inside the nested code. If the label is empty, we still push a label onto the
+	// label stack, but we don't give it a name.
+	if ((Label)`<Name n> :` := lbl) {
+		labelName = convertName(n);
+		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
+		c = addLabel(c,labelName,lbl@\loc,ifLabel());
+		c.labelStack = < labelName, switchLabel(), \void() > + c.labelStack;
+	} else {
+		c.labelStack = < RSimpleName(""), switchLabel(), \void() > + c.labelStack;
+	}
+
+	// Now, check the expression and the various cases. If the expression is a failure, just pass
+	// in value as the expected type so we don't cascade even more errors.
+	< c, t1 > = checkExp(e,c);
+	for (cItem <- cases) c = checkCase(cItem, isFailType(t1) ? \value() : t1, c);
+	
+	// Pop the label stack on exit from the switch construct and recover the environment on entry.	
+	c.labelStack = tail(c.labelStack);
+	c = recoverEnvironments(c, cAtEntry);
+	
 	return < c, \void() >;
 }
 
@@ -3186,57 +3255,36 @@ public CheckResult checkStmt(Statement stmt:(Statement)`insert <DataTarget dt> <
 	set[Symbol] failures = { };
 
 	< c, t1 > = checkStmt(s, c);
-	if (isFailType(t1)) {
-		failures += t1;
-	}
+	if (isFailType(t1)) failures += t1;
 
+	labelName = RSimpleName("");
 	if ((DataTarget)`<Name n>:` := dt) {
-		rn = convertName(n);
+		labelName = convertName(n);
 		// TODO: Check to see what category the label is in?
-		if (rn notin c.labelEnv) {
+		if (labelName notin c.labelEnv) {
 			failures += makeFailType("Target label not defined", dt@\loc);
-		} else if (visitLabel() !:= c.labelEnv[rn]) {
+		} else if (visitLabel() !:= c.labelEnv[labelName]) {
 			failures += makeFailType("Target label must refer to a visit statement or expression", dt@\loc);
-		} else {
-			if (insideCase(c)) {
-				Symbol cct = currentCaseType(c,rn);
-				if (!isFailType(t1) && !subtype(t1,cct)) {
-					failures += makeFailType("Inserted type <prettyPrintType(t1)> must be a subtype of case type <prettyPrintType(cct)>", stmt@\loc);
-				} 
-			} else {
-				failures += makeFailType("insert cannot occur outside of a case", stmt@\loc);
-			}
-		}
-	} else {
-		if (insideCase(c)) {
-			Symbol cct = currentCaseType(c,rn);
-			if (!isFailType(t1) && !subtype(t1,cct)) {
-				failures += makeFailType("Inserted type <prettyPrintType(t1)> must be a subtype of case type <prettyPrintType(cct)>", stmt@\loc);
-			} 
-		} else {
-			failures += makeFailType("insert cannot occur outside of a case", stmt@\loc);
 		}
 	}
 	
+	if (labelTypeInStack(c, {visitLabel()})) {
+		if (labelTypeInStack(c, {caseLabel()})) {
+			expectedType = getFirstLabeledType(c,{caseLabel()});
+			if (!isFailType(t1) && !subtype(t1,expectedType)) {
+				failures += makeFailType("Inserted type <prettyPrintType(t1)> must be a subtype of case type <prettyPrintType(expectedType)>", stmt@\loc);
+			} 
+		} else {
+			failures += makeFailType("Cannot insert outside the scope of a non-replacement case action", stmt@\loc);
+		}
+	} else {
+		failures += makeFailType("Cannot insert outside the scope of a visit", stmt@\loc);
+	}
 	
 	if (size(failures) > 0)
 		return markLocationFailed(c, stmt@\loc, failures);
 	else
 		return markLocationType(c, stmt@\loc, \void());
-}
-
-public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[LabelSource] ls, loc l) {
-	throw "Not implemented";
-}
-
-public Configuration addAppendTypeInfo(Configuration c, Symbol t, set[LabelSource] ls, loc l) {
-	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
-	if (size(possibleIndexes) == 0) {
-		c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
-	} else {
-		c.labelStack[possibleIndexes[0]].labelType = lub(c.labelStack[possibleIndexes[0]].labelType, t);
-	}
-	return c;
 }
 
 @doc{Check the type of Rascal statements: Append (DONE)}
@@ -3245,7 +3293,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`append <DataTarget dt> <
 
 	< c, t1 > = checkStmt(s, c);
 	if (isFailType(t1)) failures += t1;
-	println("Type for append is <prettyPrintType(t1)>");
+	//println("Type for append is <prettyPrintType(t1)>");
 	if ((DataTarget)`<Name n>:` := dt) {
 		rn = convertName(n);
 		// TODO: Check to see what category the label is in?
@@ -3371,8 +3419,6 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, Configuration c) {
-	// TODO: Need to handle qualified names (i.e., names with ::) as well. This will just handle
-	// regular names without qualifiers.
 	n = convertName(qn);
 	if (fcvExists(c, n)) {
 		c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
@@ -3439,13 +3485,11 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	return < c, fieldAccessNode(atree,fldName)[@otype=atree@otype][@atype=atree@atype][@at=assn@\loc] >;
 }
 
-@doc{Extract a tree representation of the pattern and perform basic checks: IfDefinedOrDefault}
+@doc{Extract a tree representation of the pattern and perform basic checks: IfDefinedOrDefault (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> ? <Expression dflt>`, Configuration c) {
 	< c, atree > = buildAssignableTree(ar, c);
 	< c, tdef > = checkExp(dflt, c);
-	
-	// TODO: Finish implementation...
-	throw "Not implemented";
+	return < c, ifDefinedOrDefaultNode(atree,tdef)[@otype=atree@otype][@atype=atree@atype][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Constructor (DONE)}
@@ -3701,7 +3745,11 @@ public ATResult bindAssignable(AssignableTree atree:fieldAccessNode(AssignableTr
 
 @doc{Bind variable types to variables in assignables: IfDefinedOrDefault}
 public ATResult bindAssignable(AssignableTree atree:ifDefinedOrDefaultNode(AssignableTree receiver, Symbol dtype), Symbol st, Configuration c) {
-	throw "Not implemented";
+	< c, newTree > = bindAssignable(receiver, st, c);
+	if (!isFailType(newTree@atype) && concreteType(newType@atype) && !isFailType(dtype) && !subtype(dtype,newType@atype)) {
+		c = addScopeError(c,"Cannot assign default of type <prettyPrintType(dtype)> to assignable of type <prettyPrintType(newType@atype)>",atree@at);
+	}
+	return < c, atree[receiver=newTree] >;
 }
 
 @doc{Check the type of Rascal assignables: Constructor}
@@ -4143,8 +4191,6 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
 	cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
 	cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), isVarArgs(sig), vis, at);
 	< cFun, tFun > = processSignature(sig, cFun);
-	if (!varCanShadow(c, functionName))
-		c = addScopeWarning(c,"Imported function masks already-imported variable, constructor, or function of the same name", at);
 	c = addFunction(c, functionName, tFun, isVarArgs(sig), vis, at);
 	return c;
 }
@@ -4184,7 +4230,7 @@ public Configuration importConstructor(RName conName, UserType adtType, list[Typ
 }
 
 @doc{Import a signature item: Annotation}
-public Configuration importAnnotation(RName annName, Symbol annType, Symbol onType, loc at, Vis vis, Configuration c) {
+public Configuration importAnnotation(RName annName, Type annType, Type onType, loc at, Vis vis, Configuration c) {
 	// NOTE: We also do not descend here. We just process these once, after all the types have been added.
 	< c, atype > = convertAndExpandType(annType,c);
 	< c, otype > = convertAndExpandType(onType,c);
@@ -4328,9 +4374,13 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		
 		// Finally, process the names
 		for (t <- names) c = checkDeclaration(t,true,c);
+		
+		c.stack = tail(c.stack);
 	}
-	
-	// TODO: Remove the current module from the environment
+
+	// TODO: We currently leave the environment "dirty" by not removing the items
+	// added in this scope. If we ever want to call this as part of a multi-module
+	// checker we need to do so.	
 	return c;
 }
 
@@ -4548,3 +4598,173 @@ public Module check(Module m) {
 		return m;
 }
 
+@doc{Check the type of Rascal cases: PatternWithAction (DONE)}
+public Configuration checkCase(Case cs:(Case)`case <PatternWithAction pwa>`, Symbol expected, Configuration c) {
+	return checkPatternWithAction(pwa, expected, c);
+}
+
+@doc{Check the type of Rascal cases: Default (DONE)}
+public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbol expected, Configuration c) {
+	< c, t1 > = checkStmt(stmt, c);
+	return c;	
+}
+
+@doc{Check the type of Rascal pattern with action constructs: Replacing (DONE)}
+public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> => <Replacement r>`, Symbol expected, Configuration c) {
+	cOnEntry = c;
+	
+	// First, calculate the pattern type. The expected type, which is the type of the item being
+	// matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
+	// pattern type, it does no good to check the replacement, so just return with an error
+	// We return in the original environment to make sure that any bound names, name declarations,
+	// etc are removed completely (including from the store).
+	< c, pt > = calculatePatternType(p, c, expected);
+	if (isFailType(pt)) {
+		cOnEntry = addScopeError(cOnEntry,"Cannot calculate pattern type",pwa@\loc);
+		return cOnEntry;
+	}
+		
+	// Now, calculate the replacement type. This should be a subtype of the pattern type, since it
+	// should be substitutable for the matched term.
+	< c, rt > = checkReplacement(r, c);
+	if (!isFailType(rt) && !subtype(rt, pt))
+		c = addScopeError(c,"Type of replacement, <prettyPrintType(rt)>, not substitutable for type of pattern, <prettyPrintType(pt)>",pwa@\loc);
+	
+	// Now, return in the environment, restoring the visible names to what they were on entry.
+	return recoverEnvironments(c, cOnEntry);
+}
+
+@doc{Check the type of Rascal pattern with action constructs: Arbitrary (DONE)}
+public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAction)`<Pattern p> : <Statement stmt>`, Symbol expected, Configuration c) {
+	cOnEntry = c;
+
+	// First, calculate the pattern type. The expected type, which is the type of the item being
+	// matched (in a switch, for instance), acts as the subject type. If we cannot calculate the
+	// pattern type, it does no good to check the replacement, so just return with an error
+	// We return in the original environment to make sure that any bound names, name declarations,
+	// etc are removed.
+	< c, pt > = calculatePatternType(p, c, expected);
+	if (isFailType(pt)) {
+		cOnEntry = addScopeError(cOnEntry,"Cannot calculate pattern type",pwa@\loc);
+		return cOnEntry;
+	}
+
+	// We slightly abuse the label stack by putting cases in there as well. This allows us to  
+	// keep track of inserted types without needing to invent a new mechanism for doing so.
+	if (labelTypeInStack(c,{visitLabel()})) {
+		c.labelStack = < getFirstLabeledName(c,{visitLabel()}), caseLabel(), pt > + c.labelStack;
+	}
+
+	// Second, calculate the statement type. This is done in the same environment, so the names
+	// from the pattern persist.
+	< c, st > = checkStmt(stmt, c);
+
+	if (labelTypeInStack(c,{visitLabel()})) {
+		c.labelStack = tail(c.labelStack);
+	}
+
+	// Now, return in the environment, restoring the visible names to what they were on entry.
+	return recoverEnvironments(c, cOnEntry);
+}
+
+@doc{Check the type of a Rascal replacement: Unconditional (DONE)}
+public CheckResult checkReplacement(Replacement r:(Replacement)`<Expression e>`, Configuration c) {
+	return checkExp(e, c);
+}
+
+@doc{Check the type of a Rascal replacement: Conditional  (DONE)}
+public CheckResult checkReplacement(Replacement r:(Replacement)`<Expression e> when <{Expression ","}+ conds>`, Configuration c) {
+	set[Symbol] failures = { };
+	
+	// Check the conditions, which are checked in the environment that includes bindings created by the
+	// pattern. This creates no new bindings of its own.
+	for (cnd <- conds) {
+		< c, t1 > = checkExp(cnd, c);
+		if (isFailType(t1)) failures = failures + t1;
+		if (!isBoolType(t1)) failures = failures + makeFailType("Expected type bool, not <prettyPrintType(t1)>", cnd@\loc);
+	}
+
+	// Now check the main expression itself.	
+	< c, t2 > = checkExp(e, c);
+	if (isFailType(t2)) failures = failures + t2;
+
+	// Don't mark the type with this location, this construct doesn't have a type. Instead
+	// just return the type of e so we can use it in the caller.
+	return < c, (size(failures) > 0) ? collapseFailTypes(failures) : t2 >;
+}
+
+@doc{Check the type of a Rascal visit: GivenStrategy (DONE)}
+public CheckResult checkVisit(Visit v:(Visit)`<Strategy strat> visit ( <Expression sub> ) { < Case+ cases > }`, Configuration c) {
+	// TODO: For now, we are just ignoring the strategy. Should we do anything with it here?
+	< c, t1 > = checkExp(sub, c);
+	// TODO: We need to compute what is reachable from t1. For now, we always use
+	// value, allowing the case to have any type at all.
+	for (cItem <- cases) c = checkCase(cItem, \value(), c);
+	return markLocationType(c,v@\loc,t1);
+}
+
+@doc{Check the type of a Rascal visit: DefaultStrategy (DONE)}
+public CheckResult checkVisit(Visit v:(Visit)`visit ( <Expression sub> ) { < Case+ cases > }`, Configuration c) {
+	< c, t1 > = checkExp(sub, c);
+	// TODO: We need to compute what is reachable from t1. For now, we always use
+	// value, allowing the case to have any type at all.
+	for (cItem <- cases) c = checkCase(cItem, \value(), c);
+	return markLocationType(c,v@\loc,t1);
+}
+
+public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[LabelSource] ls, loc l) {
+	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls, c.labelStack[idx].labelName == rn ];
+	if (size(possibleIndexes) == 0) {
+		c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
+	} else {
+		c.labelStack[possibleIndexes[0]].labelType = lub(c.labelStack[possibleIndexes[0]].labelType, t);
+	}
+	return c;
+}
+
+public Configuration addAppendTypeInfo(Configuration c, Symbol t, set[LabelSource] ls, loc l) {
+	return addAppendTypeInfo(c,t,RSimpleName(""),ls,l);
+}
+
+public bool labelTypeInStack(Configuration c, set[LabelSource] ls) {
+	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
+	return size(possibleIndexes) > 0;
+}
+
+public Symbol getFirstLabeledType(Configuration c, set[LabelSource] ls) {
+	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
+	if (size(possibleIndexes) == 0) {
+		throw "No matching labels in the label stack, you should call labelTypeInStack first to verify this!";
+	} else {
+		return c.labelStack[possibleIndexes[0]].labelType;
+	}
+}
+
+public RName getFirstLabeledName(Configuration c, set[LabelSource] ls) {
+	possibleIndexes = [ idx | idx <- index(c.labelStack), c.labelStack[idx].labelSource in ls ];
+	if (size(possibleIndexes) == 0) {
+		throw "No matching labels in the label stack, you should call labelTypeInStack first to verify this!";
+	} else {
+		return c.labelStack[possibleIndexes[0]].labelName;
+	}
+}
+
+public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{Expression ","}+ conds>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
+	return < c, \void() >;
+}
+
+public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{Expression ","}+ conds>) {<Statement* thenpre> <StringMiddle thenbody> <Statement* thenpost>} else {<Statement* elsepre> <StringMiddle elsebody> <Statement* elsepost>}`, Configuration c) {
+	return < c, \void() >;
+}
+
+public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`for (<{Expression ","}+ gens>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
+	return < c, \void() >;
+}
+
+public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`do {<Statement* pre> <StringMiddle body> <Statement* post>} while (<Expression cond>)`, Configuration c) {
+	return < c, \void() >;
+}
+
+public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`while (<Expression cond>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
+	return < c, \void() >;
+}
