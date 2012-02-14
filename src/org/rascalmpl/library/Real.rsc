@@ -44,7 +44,7 @@ public java str toString(num d);
 
 @doc{Round to the nearest integer}
 @javaClass{org.rascalmpl.library.util.Math}
-public java real round(num d);
+public java int round(num d);
 
 @doc{Returns the constant PI}
 @javaClass{org.rascalmpl.library.util.Math}
