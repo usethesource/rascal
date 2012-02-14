@@ -65,7 +65,7 @@ data RSignatureItem
 	| VariableSigItem(RName variableName, Type variableType, loc at)
 	| ADTSigItem(RName adtName, UserType adtType, loc at)
 	| ConstructorSigItem(RName conName, UserType adtType, list[TypeArg] argTypes, loc adtAt, loc at)
-	| AnnotationSigItem(RName annName, Symbol annType, Symbol onType, loc at)
+	| AnnotationSigItem(RName annName, Type annType, Type onType, loc at)
 	| TagSigItem(RName tagName, TagKind tagKind, list[Symbol] taggedTypes, loc at)
 	;
 
@@ -173,7 +173,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 
 				// Annotation declaration
 				case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
-					sig.annotations = sig.annotations + AnnotationSigItem(convertName(n), convertType(typ), convertType(otyp), t@\loc);
+					sig.annotations = sig.annotations + AnnotationSigItem(convertName(n), typ, otyp, t@\loc);
 				}
 
 				// Tag declaration
