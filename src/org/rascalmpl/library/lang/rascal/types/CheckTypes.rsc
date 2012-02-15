@@ -36,7 +36,12 @@ import lang::rascal::syntax::RascalRascal;
 //
 // TODOs
 // 1. Add scoping information for boolean operations (and, or, etc) and surrounding
-//    constructs (comprehensions, matches, conditionals, etc)
+//    constructs (comprehensions, matches, conditionals, etc) DONE
+//
+// 1a. Make sure that names propagate correctly with boolean operators. For instance,
+//     in a boolean or, a name needs to occur along both branches for it to be
+//     visible outside the or, but for and the name can occur along only one
+//     branch (since both need to be true, meaning both have been processed).
 //
 // 2. Add support for _ in subscripts DONE: This is only allowed in subscripts
 //    in expressions, not in assignables.
@@ -87,8 +92,20 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 18. Provide support for insert DONE
 //
-// 19. Refactor out code in statements with labels.
+// 19. Refactor out code in statements with labels. DONE
 //
+// 20. Ensure environments are proper for nested functions and for closures.
+//     For instance, we should not see labels from outside a closure while
+//     we are inside the closure (especially since we could pass or return
+//     the closure!)
+//
+// 21. Ensure that inferred types are handled appropriately in situations
+//     where we have control flow iteration: loops, visits, calls, solve
+//
+// 22. Ensure field names are propagated correctly in subscripting and projection
+//     operations.
+//
+// 23. Typing for loops -- should this always be void? We never know if the loop actually evaluates.
 
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
@@ -109,7 +126,8 @@ Vis getVis(Visibility v:(Visibility)`private`) = privateVis();
 Vis getVis(Visibility v:(Visibility)`public`) = publicVis();
 default Vis getVis(Visibility v) = defaultVis();
 
-@doc{Abstract values manipulated by the semantics.}
+@doc{Abstract values manipulated by the semantics. We include special scopes here as well, such as the
+     scopes used for blocks and boolean expressions.}
 data AbstractValue 
 	= label(RName name, LabelSource source, int containedIn, loc at) 
 	| variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
@@ -121,7 +139,9 @@ data AbstractValue
 	| constructor(RName name, Symbol rtype, int containedIn, loc at)
 	| annotation(RName name, Symbol rtype, set[Symbol] onTypes, int containedIn, loc at)
 	| \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
-	| \alias(RName name, Symbol rtype, int containedIn, loc at) 
+	| \alias(RName name, Symbol rtype, int containedIn, loc at)
+	| booleanScope(int containedIn, loc at)
+	| blockScope(int containedIn, loc at) 
 	;
 
 @doc{Configurations provide the state used during evaluation.}
@@ -508,10 +528,37 @@ public anno set[loc] Symbol@definedAt;
 private Symbol stripLabel(Symbol::\label(str s, Symbol t)) = stripLabel(t);
 private default Symbol stripLabel(Symbol t) = t;
 
+public Configuration enterBlock(Configuration c, loc l) {
+	c.store[c.nextLoc] = blockScope(head(c.stack), l);
+	c.stack = c.nextLoc + c.stack;
+	c.nextLoc = c.nextLoc + 1;
+	return c;
+}
+
+public Configuration exitBlock(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+	return recoverEnvironments(c,cOrig);
+}
+
+public Configuration enterBooleanScope(Configuration c, loc l) {
+	c.store[c.nextLoc] = booleanScope(head(c.stack), l);
+	c.stack = c.nextLoc + c.stack;
+	c.nextLoc = c.nextLoc + 1;
+	return c;
+}
+
+public Configuration exitBooleanScope(Configuration c, Configuration cOrig) {
+	c.stack = tail(c.stack);
+	return recoverEnvironments(c,cOrig);
+}
+
 @doc{Check the types of Rascal expressions: NonEmptyBlock (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`{ <Statement+ ss> }`, Configuration c) {
 	// TODO: Do we need to extract out function declarations first, or do they have to be in order here?
-	for (s <- ss) < c, t1 > = checkStmt(s, c);
+	cBlock = enterBlock(c,exp@\loc);
+	for (s <- ss) < cBlock, t1 > = checkStmt(s, cBlock);
+	c = exitBlock(cBlock,c);
+	
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 	return markLocationType(c,exp@\loc,t1);
 }
@@ -525,28 +572,38 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression e> )`, Con
 
 @doc{Check the types of Rascal expressions: Closure (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps> { <Statement+ ss> }`, Configuration c) {
-	< c, rt > = convertAndExpandType(t,c);
-
-	// Enter a new scope for the closure	
+	// Add an empty closure -- this ensures that the parameters, processed
+	// when building the function type, are created in the closure environment
+	// instead of in the surrounding environment.	
+	< cFun, rt > = convertAndExpandType(t,c);
 	Symbol funType = Symbol::\func(rt,[]);
-	c2 = addClosure(c, funType, exp@\loc);
+	cFun = addClosure(cFun, funType, exp@\loc);
 	
-	// First process the paramter types to calculate the type of the closure
-	< c2, ptTuple > = checkParameters(ps, c2);
+	// Calculate the parameter types. This returns the parameters as a tuple. As
+	// a side effect, names defined in the parameters are added to the environment.
+	< cFun, ptTuple > = checkParameters(ps, cFun);
 	list[Symbol] parameterTypes = getTupleFields(ptTuple);
+	
+	// Check each of the parameters for failures. If we have any failures, we do
+	// not build a function type.
 	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
 	if (size(paramFailures) > 0) {
 		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));		
 	} else {
 		funType = makeFunctionTypeFromTuple(rt, false, \tuple(parameterTypes));
 	}
-	c2.store[head(c2.stack)].rtype = funType;
 	
-	// Now process the body
-	for (s <- ss) < c2, st > = checkStmt(s, c2);
+	// Update the closure with the computed function type.
+	cFun.store[head(cFun.stack)].rtype = funType;
 	
-	// Recover the environment, removing any vars added for parameters or inside the body
-	c = recoverEnvironmentsAfterCall(c2,c);
+	// In the environment with the parameters, check the body of the closure.
+	for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	
+	// Now, recover the environment active before the call, removing any names
+	// added by the closure (e.g., for parameters) from the environment. This
+	// also cleans up any parts of the configuration altered to invoke a
+	// function or closure.
+	c = recoverEnvironmentsAfterCall(cFun,c);
 
 	if (isFailType(funType))
 		return markLocationFailed(c, exp@\loc, funType); 
@@ -570,30 +627,40 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> , <Exp
 	}
 }
 
-@doc{Check the types of Rascal expressions: VoidClosure}
+@doc{Check the types of Rascal expressions: VoidClosure (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <Statement* ss> }`, Configuration c) {
-	Symbol rt = \void();
-
-	// Enter a new scope for the closure	
+	// Add an empty closure -- this ensures that the parameters, processed
+	// when building the function type, are created in the closure environment
+	// instead of in the surrounding environment.	
+	rt = \void();
 	Symbol funType = Symbol::\func(rt,[]);
-	c2 = addClosure(c, funType, exp@\loc);
+	cFun = addClosure(cFun, funType, exp@\loc);
 	
-	// First process the paramter types to calculate the type of the closure
-	< c2, ptTuple > = checkParameters(ps, c2);
+	// Calculate the parameter types. This returns the parameters as a tuple. As
+	// a side effect, names defined in the parameters are added to the environment.
+	< cFun, ptTuple > = checkParameters(ps, cFun);
 	list[Symbol] parameterTypes = getTupleFields(ptTuple);
+	
+	// Check each of the parameters for failures. If we have any failures, we do
+	// not build a function type.
 	paramFailures = { pt | pt <- parameterTypes, isFailType(pt) };
 	if (size(paramFailures) > 0) {
 		funType = collapseFailTypes(paramFailures + makeFailType("Could not calculate function type because of errors calculating the parameter types", exp@\loc));		
 	} else {
 		funType = makeFunctionTypeFromTuple(rt, false, \tuple(parameterTypes));
 	}
-	c2.store[head(c2.stack)].rtype = funType;
 	
-	// Now process the body
-	for (s <- ss) < c2, st > = checkStmt(s, c2);
+	// Update the closure with the computed function type.
+	cFun.store[head(cFun.stack)].rtype = funType;
 	
-	// Recover the environment, removing any vars added for parameters or inside the body
-	c = recoverEnvironmentsAfterCall(c2,c);
+	// In the environment with the parameters, check the body of the closure.
+	for (s <- ss) < cFun, st > = checkStmt(s, cFun);
+	
+	// Now, recover the environment active before the call, removing any names
+	// added by the closure (e.g., for parameters) from the environment. This
+	// also cleans up any parts of the configuration altered to invoke a
+	// function or closure.
+	c = recoverEnvironmentsAfterCall(cFun,c);
 
 	if (isFailType(funType))
 		return markLocationFailed(c, exp@\loc, funType); 
@@ -603,22 +670,28 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 
 @doc{Check the types of Rascal expressions: Visit (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Label l> <Visit v>`, Configuration c) {
-	// TODO: Check domain values over iterations
-	cOnEntry = c;
+	// Treat the visit as a block, since the label has a defined scope from the start to
+	// the end of the visit, but not outside of it.
+	cVisit = enterBlock(c,exp@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := l) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", l@\loc));
-		c = addLabel(c,labelName,l@\loc,visitLabel());
-		c.labelStack = < labelName, visitLabel(), \void() > + c.labelStack;
+		if (labelExists(cVisit,labelName)) cVisit = addMessage(cVisit,error("Cannot reuse label names: <n>", l@\loc));
+		cVisit = addLabel(cVisit,labelName,l@\loc,visitLabel());
+		cVisit.labelStack = < labelName, visitLabel(), \void() > + cVisit.labelStack;
 	} else {
-		c.labelStack = < RSimpleName(""), visitLabel(), \void() > + c.labelStack;
+		cVisit.labelStack = < RSimpleName(""), visitLabel(), \void() > + cVisit.labelStack;
 	}
 	
-	< c, vt > = checkVisit(v,c);
+	< cVisit, vt > = checkVisit(v,cVisit);
 
-	// Recovering the environment removes the label from the environment
-	c.labelStack = tail(c.labelStack);
-	c = recoverEnvironments(c,cOnEntry);
+	// Remove the added item from the label stack and then exit the block we created above,
+	// which will clear up the added label name, removing it from scope.
+	cVisit.labelStack = tail(cVisit.labelStack);
+	c = exitBlock(cVisit,c);
 
 	if (isFailType(vt)) return markLocationFailed(c,exp@\loc,vt);
 	return markLocationType(c,exp@\loc,vt);
@@ -626,10 +699,17 @@ public CheckResult checkExp(Expression exp:(Expression)`<Label l> <Visit v>`, Co
 
 @doc{Check the types of Rascal expressions: Reducer (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Expression er> | <{Expression ","}+ egs> )`, Configuration c) {
-	// Check the initializer and the generators, both of which run without "it" in scope
+	// Check the initializer first, which runs outside of a scope with "it" defined.
 	< c, t1 > = checkExp(ei, c);
+	
+	// Enter a boolean expression scope, since we could bind new variables in
+	// the generators (egs) that should not be visible outside the reducer.
+	// NOTE: "it" is also not in scope here.
+	// TODO: The scope actually starts at er and goes to the end of the
+	// reducer. Modify the loc to account for this.
+	cRed = enterBooleanScope(c,exp@\loc);
 	list[Symbol] ts = [];
-	for (eg <- egs) { < c, t2 > = checkExp(eg,c); ts += t2; }
+	for (eg <- egs) { < cRed, t2 > = checkExp(eg,cRed); ts += t2; }
 	
 	// If the initializer isn't fail, introduce the variable "it" into scope; it is 
 	// available in er (the result), but not in the rest, and we need it to check er.
@@ -637,34 +717,44 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
 	// "it", since we have no information on which to base a reasonable assumption. 
 	Symbol erType = t1;
 	if (!isFailType(t1)) {
-		c2 = addVariable(c, RSimpleName("it"), true, exp@\loc, erType);
-		< c2, t3 > = checkExp(er, c2);
+		cRed = addVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
+		< cRed, t3 > = checkExp(er, cRed);
 		if (!isFailType(t3)) {
 			if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
+				// If this is true, this means that "it" now has a different type, and
+				// that the type is growing towards value. We run the body again to
+				// see if the type changes again. This covers many standard cases
+				// such as assigning it the value [] and then adding items to the
+				// list, while failing in cases where the type is dependent on
+				// the number of iterations.
 				erType = t3;
-				c2 = assignVariableType(c2, RSimpleName("it"), erType);
-				< c2, t3 > = checkExp(er, c2);
+				cRed = assignVariableType(cRed, RSimpleName("it"), erType);
+				< cRed, t3 > = checkExp(er, cRed);
 				if (!isFailType(t3)) {
 					if (!equivalent(erType,t3)) {
 						erType = makeFailType("Type of it does not stabilize", exp@\loc);
-						c2 = assignVariableType(c2, RSimpleName("it"), erType);
 					}
 				} else {
 					erType = t3;
 				}
+			} else {
+				erType = makeFailType("Type changes in non-monotonic fashion", exp@\loc);
 			}
 		} else {
 			erType = t3;
 		}
-		// Remove "it" from the scope again
-		c = recoverEnvironments(c2,c);
+		cRed = assignVariableType(cRed, RSimpleName("it"), erType);
 	}
 
+	// Leave the boolean scope, which will remove all names added in the generators and
+	// also will remove "it".
+	c = exitBooleanScope(cRed, c);
+	
 	// Calculate the final type. If we had failures, it is a failure, else it
 	// is the type of the reducer step.
 	failTypes = { t | t <- (ts + t1 + erType), isFailType(t) };
 	if (size(failTypes) > 0) {
-		return markLocationFailed(c,exp@\loc,collapseFailTypes(failTypes));
+		return markLocationFailed(c,exp@\loc,failTypes);
 	} else {
 		return markLocationType(c,exp@\loc,erType);
 	}
@@ -890,32 +980,60 @@ public CheckResult checkExp(Expression exp:(Expression)`<Literal l>`, Configurat
 	return checkLiteral(l, c);
 }
 
+public bool inBooleanScope(Configuration c) = ((size(c.stack) > 0) && (booleanScope(_,_) := c.store[c.stack[0]]));
+
 @doc{Check the types of Rascal expressions: Any (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`any ( <{Expression ","}+ egs> )`, Configuration c) {
+	// Start a new boolean scope. Names should not leak out of an any, even if
+	// this is embedded inside a boolean scope already. If nothing else, we may
+	// never have a valid match in the any, in which case the vars would not
+	// be bound anyway.
+	cAny = enterBooleanScope(c, exp@\loc);
+	
+	// Now, check the type of each of the generators. They should all evaluate to
+	// a value of type bool.
 	set[Symbol] failures = { };
 	for (eg <- egs) { 
-		< c, t1 > = checkExp(eg,c);
+		< cAny, t1 > = checkExp(eg,cAny);
 		if (isFailType(t1)) {
 			failures += t1;
 		} else if (!isBoolType(t1)) {
 			failures += makeFailType("Expected type bool, found <prettyPrintType(t1)>", eg@\loc);
 		} 
 	}
+	
+	// Then, exit the boolean scope, which discards any of the names
+	// bound inside.
+	c = exitBooleanScope(cAny, c);
+	
 	if (size(failures) > 0) return markLocationFailed(c, exp@\loc, collapseFailTypes(failures));
 	return markLocationType(c, exp@\loc, \bool());
 }
 
 @doc{Check the types of Rascal expressions: All (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`all ( <{Expression ","}+ egs> )`, Configuration c) {
+	// Start a new boolean scope. Names should not leak out of an all, even if
+	// this is embedded inside a boolean scope already. If nothing else, we may
+	// never have a valid match in the all, in which case the vars would not
+	// be bound anyway.
+	cAll = enterBooleanScope(c, exp@\loc);
+	
+	// Now, check the type of each of the generators. They should all evaluate to
+	// a value of type bool.
 	set[Symbol] failures = { };
 	for (eg <- egs) { 
-		< c, t1 > = checkExp(eg,c);
+		< cAll, t1 > = checkExp(eg,cAll);
 		if (isFailType(t1)) {
 			failures += t1;
 		} else if (!isBoolType(t1)) {
 			failures += makeFailType("Expected type bool, found <prettyPrintType(t1)>", eg@\loc);
 		} 
 	}
+	
+	// Then, exit the boolean scope, which discards any of the names
+	// bound inside.
+	c = exitBooleanScope(cAll, c);
+	
 	if (size(failures) > 0) return markLocationFailed(c, exp@\loc, collapseFailTypes(failures));
 	return markLocationType(c, exp@\loc, \bool());
 }
@@ -969,8 +1087,6 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> .. <Ex
 
 @doc{Check the types of Rascal expressions: Tuple (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`< <Expression e1>, <{Expression ","}* es> >`, Configuration c) {
-	// TODO: This doesn't work right now because of a bug in the parser or the matcher.
-	// So, we will need to match over the AsFix representation instead.
 	< c, t1 > = checkExp(e1, c);
 	list[Symbol] tl = [ t1 ];
 	for (e <- es) { < c, t2 > = checkExp(e,c); tl += t2; }
@@ -1020,14 +1136,11 @@ public CheckResult checkExp(Expression exp:(Expression)`it`, Configuration c) {
 
 @doc{Check the types of Rascal expressions: QualifiedName}
 public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Configuration c) {
-	// TODO: Need to handle qualified names (i.e., names with ::) as well. This will just handle
-	// regular names without qualifiers.
 	n = convertName(qn);
 	if (fcvExists(c, n)) {
 		c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
 		return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
 	} else {
-		//println("Name <prettyPrintName(n)> was not found, here is the scope: <c.fcvEnv>");
 		return markLocationFailed(c, exp@\loc, makeFailType("Name is not in scope", exp@\loc));
 	}
 }
@@ -1139,13 +1252,14 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> . <Name f
 	return markLocationType(c, exp@\loc, computeFieldType(t1, convertName(f), exp@\loc, c));
 }
 
+@doc{Compute the type of field fn on type t1. A fail type is returned if the field is not defined on the given type.}
 public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
 	fAsString = prettyPrintName(fn);
 	if (isLocType(t1)) {
 		if (fAsString in fieldMap[\loc()])
 			return fieldMap[\loc()][fAsString];
 		else
-			returnmakeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+			return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
 	} else if (isDateTimeType(t1)) {
 		if (fAsString in fieldMap[\datetime()])
 			return fieldMap[\datetime()][fAsString];
@@ -1304,7 +1418,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n
 
 @doc{Check the types of Rascal expressions: Is (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name n>`, Configuration c) {
-	< c, t1 > = checkExp(e, c);
+	needNewScope = !inBooleanScope(c);
+	cIs = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cIs, t1 > = checkExp(e, cIs);
+	c = needNewScope ? exitBooleanScope(cIs, c) : cIs;
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 	if (isNodeType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(t1)>", e@\loc));
@@ -1312,9 +1429,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> is <Name 
 
 @doc{Check the types of Rascal expressions: Has (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> has <Name n>`, Configuration c) {
-	// TODO: Do we need to do anything with the name? We don't need to check for existence, that's the
-	// whole point of the has expression.
-	< c, t1 > = checkExp(e, c);
+	needNewScope = !inBooleanScope(c);
+	cHas = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cHas, t1 > = checkExp(e, cHas);
+	c = needNewScope ? exitBooleanScope(cHas, c) : cHas;
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 	if (isRelType(t1) || isTupleType(t1) || isADTType(t1)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, or ADT types, found <prettyPrintType(t1)>", e@\loc));
@@ -1364,14 +1482,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> *`, Confi
 
 @doc{Check the types of Rascal expressions: Is Defined (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ?`, Configuration c) {
-	< c, t1 > = checkExp(e, c);
+	needNewScope = !inBooleanScope(c);
+	cIsDef = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cIsDef, t1 > = checkExp(e, cIsDef);
+	c = needNewScope ? exitBooleanScope(cIsDef,c) : cIsDef;
 	if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
 	return markLocationType(c,exp@\loc,\bool());
 }
 
 @doc{Check the types of Rascal expressions: Negation (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`! <Expression e>`, Configuration c) {
-	< c, t1 > = checkExp(e, c);
+	needNewScope = !inBooleanScope(c);
+	cNeg = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cNeg, t1 > = checkExp(e, cNeg);
+	c = needNewScope ? exitBooleanScope(cNeg,c) : cNeg;
 	if (isFailType(t1)) return markLocationFailed(c, exp@\loc, t1);
 	if (isBoolType(t1)) return markLocationType(c,exp@\loc,t1);
 	return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected bool, found <prettyPrintType(t1)>", e@\loc));
@@ -1651,8 +1775,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> mod <Exp
 
 @doc{Check the types of Rascal expressions: Not In (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> notin <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cNotIn = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cNotIn, t1 > = checkExp(e1, cNotIn);
+	< cNotIn, t2 > = checkExp(e2, cNotIn);
+	c = needNewScope ? exitBooleanScope(cNotIn,c) : cNotIn;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isRelType(t2)) {
 		et = getRelElementType(t2);
@@ -1684,8 +1812,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> notin <E
 
 @doc{Check the types of Rascal expressions: In (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> in <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cIn = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cIn, t1 > = checkExp(e1, cIn);
+	< cIn, t2 > = checkExp(e2, cIn);
+	c = needNewScope ? exitBooleanScope(cIn,c) : cIn;
+	
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isRelType(t2)) {
 		et = getRelElementType(t2);
@@ -1717,8 +1849,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> in <Expr
 
 @doc{Check the types of Rascal expressions: Greater Than or Equal (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cGtEq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cGtEq, t1 > = checkExp(e1, cGtEq);
+	< cGtEq, t2 > = checkExp(e2, cGtEq);
+	c = needNewScope ? exitBooleanScope(cGtEq,c) : cGtEq;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
@@ -1751,8 +1887,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expr
 
 @doc{Check the types of Rascal expressions: Less Than or Equal (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cLtEq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cLtEq, t1 > = checkExp(e1, cLtEq);
+	< cLtEq, t2 > = checkExp(e2, cLtEq);
+	c = needNewScope ? exitBooleanScope(cLtEq,c) : cLtEq;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
@@ -1787,8 +1927,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expr
 
 @doc{Check the types of Rascal expressions: Less Than (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cLt = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cLt, t1 > = checkExp(e1, cLt);
+	< cLt, t2 > = checkExp(e2, cLt);
+	c = needNewScope ? exitBooleanScope(cLt,c) : cLt;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
@@ -1821,8 +1965,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expre
 
 @doc{Check the types of Rascal expressions: Greater Than (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> > <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cGt = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cGt, t1 > = checkExp(e1, cGt);
+	< cGt, t2 > = checkExp(e2, cGt);
+	c = needNewScope ? exitBooleanScope(cGt,c) : cGt;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2)) {
@@ -1855,8 +2003,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> > <Expre
 
 @doc{Check the types of Rascal expressions: Equals (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> == <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cEq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cEq, t1 > = checkExp(e1, cEq);
+	< cEq, t2 > = checkExp(e2, cEq);
+	c = needNewScope ? exitBooleanScope(cEq,c) : cEq;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (comparable(t1,t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
@@ -1864,8 +2016,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> == <Expr
 
 @doc{Check the types of Rascal expressions: Non Equals (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> != <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cNeq = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cNeq, t1 > = checkExp(e1, cNeq);
+	< cNeq, t2 > = checkExp(e2, cNeq);
+	c = needNewScope ? exitBooleanScope(cNeq,c) : cNeq;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (comparable(t1,t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("<prettyPrintType(t1)> and <prettyPrintType(t2)> incomparable", exp@\loc));
@@ -1873,26 +2029,46 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> != <Expr
 
 @doc{Check the types of Rascal expressions: If Defined Otherwise (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ? <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cIfDef = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cIfDef, t1 > = checkExp(e1, cIfDef);
+	< cIfDef, t2 > = checkExp(e2, cIfDef);
+	c = needNewScope ? exitBooleanScope(cIfDef,c) : cIfDef;
+
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	return markLocationType(c,exp@\loc,lub(t1,t2));
 }
 
 @doc{Check the types of Rascal expressions: No Match (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> !:= <Expression e>`, Configuration c) {
-	< c, t1 > = checkExp(e, c);
-	if (isFailType(t1)) return markLocationFailed(c, exp@\loc, t1);
-	< c, t2 > = calculatePatternType(p, c, t1);
+	needNewScope = !inBooleanScope(c);
+	cNoMatch = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cNoMatch, t1 > = checkExp(e, cNoMatch);
+	if (isFailType(t1)) {
+		c = needNewScope ? exitBooleanScope(cNoMatch,c) : cNoMatch;
+		return markLocationFailed(c, exp@\loc, t1);
+	}
+
+	< cNoMatch, t2 > = calculatePatternType(p, cNoMatch, t1);
+	c = needNewScope ? exitBooleanScope(cNoMatch,c) : cNoMatch;
+	
 	if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
 	return markLocationType(c, exp@\loc, \bool());
 }
 
 @doc{Check the types of Rascal expressions: Match (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> := <Expression e>`, Configuration c) {
-	< c, t1 > = checkExp(e, c);
-	if (isFailType(t1)) return markLocationFailed(c, exp@\loc, t1);
-	< c, t2 > = calculatePatternType(p, c, t1);
+	needNewScope = !inBooleanScope(c);
+	cMatch = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cMatch, t1 > = checkExp(e, cMatch);
+	if (isFailType(t1)) {
+		c = needNewScope ? exitBooleanScope(cMatch,c) : cMatch;
+		return markLocationFailed(c, exp@\loc, t1);
+	}
+
+	< cMatch, t2 > = calculatePatternType(p, cMatch, t1);
+	c = needNewScope ? exitBooleanScope(cMatch,c) : cMatch;
+	
 	if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
 	return markLocationType(c, exp@\loc, \bool());
 }
@@ -1901,17 +2077,24 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> := <Expressi
 public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> <- <Expression e>`, Configuration c) {
 	// TODO: For concrete lists, what should we use as the type?
 	// TODO: For nodes, ADTs, and tuples, would it be better to use the lub of all the possible types?
-	< c, t1 > = checkExp(e, c);
-	if (isFailType(t1)) return markLocationFailed(c, exp@\loc, t1);
+	needNewScope = !inBooleanScope(c);
+	cEnum = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cEnum, t1 > = checkExp(e, cEnum);
+	if (isFailType(t1)) {
+		c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
+		return markLocationFailed(c, exp@\loc, t1);
+	}
 	Symbol t2 = \void();
 	if (isSetType(t1))
-		< c, t2 > = calculatePatternType(p, c, getSetElementType(t1));
+		< cEnum, t2 > = calculatePatternType(p, cEnum, getSetElementType(t1));
 	else if (isListType(t1))
-		< c, t2 > = calculatePatternType(p, c, getListElementType(t1));
+		< cEnum, t2 > = calculatePatternType(p, cEnum, getListElementType(t1));
 	else if (isMapType(t1))
-		< c, t2 > = calculatePatternType(p, c, getMapDomainType(t1));
+		< cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
 	else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
-		< c, t2 > = calculatePatternType(p, c, \value());
+		< cEnum, t2 > = calculatePatternType(p, cEnum, \value());
+	
+	c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
 	
 	if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
 	return markLocationType(c, exp@\loc, \bool());
@@ -1919,8 +2102,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> <- <Expressi
 
 @doc{Check the types of Rascal expressions: Implication (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==> <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cImp = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cImp, t1 > = checkExp(e1, cImp);
+	< cImp, t2 > = checkExp(e2, cImp);
+	c = needNewScope ? exitBooleanScope(cImp,c) : cImp;
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
@@ -1928,8 +2114,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ==> <Exp
 
 @doc{Check the types of Rascal expressions: Equivalence (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <==> <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cEquiv = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cEquiv, t1 > = checkExp(e1, cEquiv);
+	< cEquiv, t2 > = checkExp(e2, cEquiv);
+	c = needNewScope ? exitBooleanScope(cEquiv,c) : cEquiv;
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
@@ -1937,8 +2126,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <==> <Ex
 
 @doc{Check the types of Rascal expressions: And (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> && <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cAnd = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cAnd, t1 > = checkExp(e1, cAnd);
+	< cAnd, t2 > = checkExp(e2, cAnd);
+	c = needNewScope ? exitBooleanScope(cAnd,c) : cAnd;
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Logical and not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
@@ -1946,8 +2138,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> && <Expr
 
 @doc{Check the types of Rascal expressions: Or (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expression e2>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
+	needNewScope = !inBooleanScope(c);
+	cOr = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cOr, t1 > = checkExp(e1, cOr);
+	< cOr, t2 > = checkExp(e2, cOr);
+	c = needNewScope ? exitBooleanScope(cOr,c) : cOr;
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 	if (isBoolType(t1) && isBoolType(t2)) return markLocationType(c,exp@\loc,\bool());
 	return markLocationFailed(c,exp@\loc,makeFailType("Logical or not defined for types <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
@@ -1955,9 +2150,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> || <Expr
 
 @doc{Check the types of Rascal expressions: If Then Else (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> ? <Expression e2> : <Expression e3>`, Configuration c) {
-	< c, t1 > = checkExp(e1, c);
-	< c, t2 > = checkExp(e2, c);
-	< c, t3 > = checkExp(e3, c);
+	needNewScope = !inBooleanScope(c);
+	cTern = needNewScope ? enterBooleanScope(c, exp@\loc) : c;
+	< cTern, t1 > = checkExp(e1, cTern);
+	< cTern, t2 > = checkExp(e2, cTern);
+	< cTern, t3 > = checkExp(e3, cTern);
+	c = needNewScope ? exitBooleanScope(cTern,c) : cTern;
 	if (isFailType(t1) || isFailType(t2) || isFailType(t3)) return markLocationFailed(c,exp@\loc,{t1,t2,t3});
 	if (!isBoolType(t1)) return markLocationFailed(c,exp@\loc,makeFailType("Expected bool, found <prettyPrintType(t1)>",e1@\loc));
 	return markLocationType(c,exp@\loc,lub(t2,t3));
@@ -2816,22 +3014,28 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Expression e>;`, Config
 
 @doc{Check the type of Rascal statements: Visit}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, Configuration c) {
-	// TODO: Check domain values over iterations
-	cOnEntry = c;
+	// Treat the visit as a block, since the label has a defined scope from the start to
+	// the end of the visit, but not outside of it.
+	cVisit = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c = addLabel(c,labelName,lbl@\loc,visitLabel());
-		c.labelStack = < labelName, visitLabel(), \void() > + c.labelStack;
+		if (labelExists(cVisit,labelName)) cVisit = addMessage(cVisit,error("Cannot reuse label names: <n>", lbl@\loc));
+		cVisit = addLabel(cVisit,labelName,lbl@\loc,visitLabel());
+		cVisit.labelStack = < labelName, visitLabel(), \void() > + cVisit.labelStack;
 	} else {
-		c.labelStack = < RSimpleName(""), visitLabel(), \void() > + c.labelStack;
+		cVisit.labelStack = < RSimpleName(""), visitLabel(), \void() > + cVisit.labelStack;
 	}
 	
-	< c, vt > = checkVisit(v,c);
+	< cVisit, vt > = checkVisit(v,cVisit);
 
-	// Recovering the environment removes the label from the environment
-	c.labelStack = tail(c.labelStack);
-	c = recoverEnvironments(c,cOnEntry);
+	// Remove the added item from the label stack and then exit the block we created above,
+	// which will clear up the added label name, removing it from scope.
+	cVisit.labelStack = tail(cVisit.labelStack);
+	c = exitBlock(cVisit,c);
 
 	if (isFailType(vt)) return markLocationFailed(c,stmt@\loc,vt);
 	return markLocationType(c,stmt@\loc,vt);
@@ -2839,303 +3043,308 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, 
 
 @doc{Check the type of Rascal statements: While}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Expression ","}+ conds> ) <Statement bdy>`, Configuration c) {
-	// TODO: Check domain values over iterations
+	set[Symbol] failures = { };
+
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cWhile = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,whileLabel());
-		c2.labelStack = < labelName, whileLabel(), \void() > + c2.labelStack;
-		
-		set[Symbol] failures = { };
-		
-		for (cond <- conds) { 
-			< c2, t1 > = checkExp(cond, c2);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c2, t2 > = checkStmt(bdy, c2);
-		if (isFailType(t2)) failures += t2;
-		
-		< _, _, loopElements > = head(c2.labelStack);
-		//println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
-		c2.labelStack = tail(c2.labelStack);
-
-		c = recoverEnvironments(c2, c);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \list(loopElements));	
+		if (labelExists(cWhile,labelName)) cWhile = addMessage(cWhile,error("Cannot reuse label names: <n>", lbl@\loc));
+		cWhile = addLabel(cWhile,labelName,lbl@\loc,whileLabel());
+		cWhile.labelStack = < labelName, whileLabel(), \void() > + cWhile.labelStack;
 	} else {
-		c.labelStack = < RSimpleName(""), whileLabel(), \void() > + c.labelStack;
-		set[Symbol] failures = { };
-		
-		for (cond <- conds) { 
-			< c, t1 > = checkExp(cond, c);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c, t2 > = checkStmt(bdy, c);
-		if (isFailType(t2)) failures += t2;
-		< _, _, loopElements > = head(c.labelStack);
-		//println("In loop at <stmt@\loc>, append result is <prettyPrintType(loopElements)>");
-		c.labelStack = tail(c.labelStack);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \list(loopElements));	
+		cWhile.labelStack = < RSimpleName(""), whileLabel(), \void() > + cWhile.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cWhileBool = enterBooleanScope(cWhile, stmt@\loc);
+
+	// Process all the conditions; these can add names into the scope	
+	for (cond <- conds) { 
+		< cWhileBool, t1 > = checkExp(cond, cWhileBool);
+		if (isFailType(t1)) 
+			failures += t1;
+		else if (!isBoolType(t1))
+			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
+	}
+
+	// Check the body of the loop				
+	< cWhileBool, t2 > = checkStmt(bdy, cWhileBool);
+	if (isFailType(t2)) failures += t2;
+
+	// Exit back to the block scope
+	cWhile = exitBooleanScope(cWhileBool, cWhile);
+
+	// Get out any append info, which is used to calculate the loop type, and then
+	// pop the label stack.			
+	< _, _, loopElements > = head(cWhile.labelStack);
+	cWhile.labelStack = tail(cWhile.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cWhile, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, \list(loopElements));	
 }
 
 @doc{Check the type of Rascal statements: DoWhile}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statement bdy> while (<Expression cond>);`, Configuration c) {
-	// TODO: Check domain values over iterations
+	set[Symbol] failures = { };
+
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cDoWhile = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,doWhileLabel());
-		c2.labelStack = < labelName, doWhileLabel(), \void() > + c2.labelStack;
-
-		set[Symbol] failures = { };
-		
-		< c2, t1 > = checkStmt(bdy, c2);
-		if (isFailType(t1)) failures += t1;
-		
-		< c2, t2 > = checkExp(cond, c2);
-		if (isFailType(t2)) 
-			failures += t2;
-		else if (!isBoolType(t2))
-			failures += makeFailType("Unexpected type <prettyPrintType(t2)>, expected type bool", cond@\loc);
-
-		c2.labelStack = tail(c2.labelStack);				
-		c = recoverEnvironments(c2, c);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \value());	
+		if (labelExists(cDoWhile,labelName)) cDoWhile = addMessage(cDoWhile,error("Cannot reuse label names: <n>", lbl@\loc));
+		cDoWhile = addLabel(cDoWhile,labelName,lbl@\loc,doWhileLabel());
+		cDoWhile.labelStack = < labelName, doWhileLabel(), \void() > + cDoWhile.labelStack;
 	} else {
-		set[Symbol] failures = { };
-		c.labelStack = < RSimpleName(""), doWhileLabel(), \void() > + c.labelStack;
-		
-		< c, t1 > = checkStmt(bdy, c);
-		if (isFailType(t1)) failures += t1;
-
-		< c, t2 > = checkExp(cond, c);
-		if (isFailType(t2)) 
-			failures += t2;
-		else if (!isBoolType(t2))
-			failures += makeFailType("Unexpected type <prettyPrintType(t2)>, expected type bool", cond@\loc);
-		
-		c.labelStack = tail(c.labelStack);
-				
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \value());	
+		cDoWhile.labelStack = < RSimpleName(""), doWhileLabel(), \void() > + cDoWhile.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cDoWhileBool = enterBooleanScope(cDoWhile, stmt@\loc);
+
+	// Check the body of the loop				
+	< cDoWhileBool, t2 > = checkStmt(bdy, cDoWhileBool);
+	if (isFailType(t2)) failures += t2;
+
+	// Check the loop condition	
+	< cDoWhileBool, t1 > = checkExp(cond, cDoWhileBool);
+	if (isFailType(t1)) 
+		failures += t1;
+	else if (!isBoolType(t1))
+		failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
+
+	// Exit back to the block scope
+	cDoWhile = exitBooleanScope(cDoWhileBool, cDoWhile);
+
+	// Get out any append info, which is used to calculate the loop type, and then
+	// pop the label stack.			
+	< _, _, loopElements > = head(cDoWhile.labelStack);
+	cDoWhile.labelStack = tail(cDoWhile.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cDoWhile, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, \list(loopElements));	
 }
 
 @doc{Check the type of Rascal statements: For}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expression ","}+ gens> ) <Statement bdy>`, Configuration c) {
-	// TODO: Check domain values over iterations
+	set[Symbol] failures = { };
+
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cFor = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,forLabel());
-		c2.labelStack = < labelName, forLabel(), \void() > + c2.labelStack;
-		
-		set[Symbol] failures = { };
-		
-		for (gen <- gens) { 
-			< c2, t1 > = checkExp(gen, c2);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", gen@\loc);
-		}
-				
-		< c2, t2 > = checkStmt(bdy, c2);
-		if (isFailType(t2)) failures += t2;
-		
-		< _, _, loopElements > = head(c2.labelStack);
-		
-		c2.labelStack = tail(c2.labelStack);
-		
-		c = recoverEnvironments(c2, c);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \list(loopElements));	
+		if (labelExists(cFor,labelName)) cFor = addMessage(cFor,error("Cannot reuse label names: <n>", lbl@\loc));
+		cFor = addLabel(cFor,labelName,lbl@\loc,forLabel());
+		cFor.labelStack = < labelName, forLabel(), \void() > + cFor.labelStack;
 	} else {
-		set[Symbol] failures = { };
-		c.labelStack = < RSimpleName(""), forLabel(), \void() > + c.labelStack;
-		for (gen <- gens) { 
-			< c, t1 > = checkExp(gen, c);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", gen@\loc);
-		}
-				
-		< c, t2 > = checkStmt(bdy, c);
-		if (isFailType(t2)) failures += t2;
-
-		< _, _, loopElements > = head(c.labelStack);
-		c.labelStack = tail(c.labelStack);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \list(loopElements));	
+		cFor.labelStack = < RSimpleName(""), forLabel(), \void() > + cFor.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cForBool = enterBooleanScope(cFor, stmt@\loc);
+
+	// Process all the generators; these can add names into the scope	
+	for (gen <- gens) { 
+		< cForBool, t1 > = checkExp(gen, cForBool);
+		if (isFailType(t1)) 
+			failures += t1;
+		else if (!isBoolType(t1))
+			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", gen@\loc);
+	}
+
+	// Check the body of the loop				
+	< cForBool, t2 > = checkStmt(bdy, cForBool);
+	if (isFailType(t2)) failures += t2;
+
+	// Exit back to the block scope
+	cFor = exitBooleanScope(cForBool, cFor);
+
+	// Get out any append info, which is used to calculate the loop type, and then
+	// pop the label stack.			
+	< _, _, loopElements > = head(cFor.labelStack);
+	cFor.labelStack = tail(cFor.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cFor, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, \list(loopElements));	
 }
 
 @doc{Check the type of Rascal statements: IfThen (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expression ","}+ conds> ) <Statement bdy>`, Configuration c) {
+	set[Symbol] failures = { };
+
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cIf = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,ifLabel());
-		c2.labelStack = < labelName, ifLabel(), \void() > + c2.labelStack;
-		
-		set[Symbol] failures = { };
-		
-		for (cond <- conds) { 
-			< c2, t1 > = checkExp(cond, c2);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c2, t2 > = checkStmt(bdy, c2);
-		if (isFailType(t2)) failures += t2;
-		
-		c2.labelStack = tail(c2.labelStack);
-		c = recoverEnvironments(c2, c);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \value());	
+		if (labelExists(cIf,labelName)) cIf = addMessage(cIf,error("Cannot reuse label names: <n>", lbl@\loc));
+		cIf = addLabel(cIf,labelName,lbl@\loc,ifLabel());
+		cIf.labelStack = < labelName, ifLabel(), \void() > + cIf.labelStack;
 	} else {
-		set[Symbol] failures = { };
-		c.labelStack = < RSimpleName(""), ifLabel(), \void() > + c.labelStack;
-		
-		for (cond <- conds) { 
-			< c, t1 > = checkExp(cond, c);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c, t2 > = checkStmt(bdy, c);
-		if (isFailType(t2)) failures += t2;
-
-		c.labelStack = tail(c.labelStack);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, \value());	
+		cIf.labelStack = < RSimpleName(""), ifLabel(), \void() > + cIf.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cIfBool = enterBooleanScope(cIf, stmt@\loc);
+
+	// Process all the conditions; these can add names into the scope	
+	for (cond <- conds) { 
+		< cIfBool, t1 > = checkExp(cond, cIfBool);
+		if (isFailType(t1)) 
+			failures += t1;
+		else if (!isBoolType(t1))
+			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
+	}
+
+	// Check the body of the conditional				
+	< cIfBool, t2 > = checkStmt(bdy, cIfBool);
+	if (isFailType(t2)) failures += t2;
+
+	// Exit back to the block scope
+	cIf = exitBooleanScope(cIfBool, cIf);
+
+	// and, pop the label stack...
+	cIf.labelStack = tail(cIf.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cIf, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, \value());	
 }
 
 @doc{Check the type of Rascal statements: IfThenElse (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expression ","}+ conds> ) <Statement thenBody> else <Statement elseBody>`, Configuration c) {
+	set[Symbol] failures = { };
+
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cIf = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,ifLabel());
-		c2.labelStack = < labelName, ifLabel(), \void() > + c2.labelStack;
-		
-		set[Symbol] failures = { };
-		
-		for (cond <- conds) { 
-			< c2, t1 > = checkExp(cond, c2);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c2, t2 > = checkStmt(thenBody, c2);
-		if (isFailType(t2)) failures += t2;
-
-		< c2, t3 > = checkStmt(elseBody, c2);
-		if (isFailType(t3)) failures += t3;
-		
-		c2.labelStack = tail(c2.labelStack);
-
-		c = recoverEnvironments(c2, c);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, lub(t2,t3));	
+		if (labelExists(cIf,labelName)) cIf = addMessage(cIf,error("Cannot reuse label names: <n>", lbl@\loc));
+		cIf = addLabel(cIf,labelName,lbl@\loc,ifLabel());
+		cIf.labelStack = < labelName, ifLabel(), \void() > + cIf.labelStack;
 	} else {
-		set[Symbol] failures = { };
-		c.labelStack = < RSimpleName(""), ifLabel(), \void() > + c.labelStack;
-		
-		for (cond <- conds) { 
-			< c, t1 > = checkExp(cond, c);
-			if (isFailType(t1)) 
-				failures += t1;
-			else if (!isBoolType(t1))
-				failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-		}
-				
-		< c, t2 > = checkStmt(thenBody, c);
-		if (isFailType(t2)) failures += t2;
-
-		< c, t3 > = checkStmt(elseBody, c);
-		if (isFailType(t3)) failures += t3;
-
-		c.labelStack = tail(c.labelStack);
-		
-		if (size(failures) > 0)
-			return markLocationFailed(c, stmt@\loc, failures);
-		else
-			return markLocationType(c, stmt@\loc, lub(t2,t3));	
+		cIf.labelStack = < RSimpleName(""), ifLabel(), \void() > + cIf.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cIfBool = enterBooleanScope(cIf, stmt@\loc);
+
+	// Process all the conditions; these can add names into the scope	
+	for (cond <- conds) { 
+		< cIfBool, t1 > = checkExp(cond, cIfBool);
+		if (isFailType(t1)) 
+			failures += t1;
+		else if (!isBoolType(t1))
+			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
+	}
+
+	// Check the body of the conditional				
+	< cIfBool, t2 > = checkStmt(thenBody, cIfBool);
+	if (isFailType(t2)) failures += t2;
+
+	< cIfBool, t3 > = checkStmt(elseBody, cIfBool);
+	if (isFailType(t3)) failures += t3;
+
+	// Exit back to the block scope
+	cIf = exitBooleanScope(cIfBool, cIf);
+
+	// and, pop the label stack...
+	cIf.labelStack = tail(cIf.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cIf, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, lub(t2,t3));	
 }
 
 @doc{Check the type of Rascal statements: Switch (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> switch ( <Expression e> ) { <Case+ cases> }`, Configuration c) {
-	cAtEntry = c;
-	
-	// If the label is not empty, we add the label into the label environment, so that it can be
-	// referenced inside the nested code. If the label is empty, we still push a label onto the
-	// label stack, but we don't give it a name.
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cSwitch = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c = addLabel(c,labelName,lbl@\loc,ifLabel());
-		c.labelStack = < labelName, switchLabel(), \void() > + c.labelStack;
+		if (labelExists(cSwitch,labelName)) cSwitch = addMessage(cSwitch,error("Cannot reuse label names: <n>", lbl@\loc));
+		cSwitch = addLabel(cSwitch,labelName,lbl@\loc,switchLabel());
+		cSwitch.labelStack = < labelName, switchLabel(), \void() > + cSwitch.labelStack;
 	} else {
-		c.labelStack = < RSimpleName(""), switchLabel(), \void() > + c.labelStack;
+		cSwitch.labelStack = < RSimpleName(""), switchLabel(), \void() > + cSwitch.labelStack;
 	}
+
+	// Enter a boolean scope, for both the conditionals and the statement body.
+	// TODO: Technically, this scope does not include the label.
+	cSwitchBool = enterBooleanScope(cSwitch, stmt@\loc);
 
 	// Now, check the expression and the various cases. If the expression is a failure, just pass
 	// in value as the expected type so we don't cascade even more errors.
-	< c, t1 > = checkExp(e,c);
-	for (cItem <- cases) c = checkCase(cItem, isFailType(t1) ? \value() : t1, c);
+	< cSwitchBool, t1 > = checkExp(e,cSwitchBool);
+	for (cItem <- cases) cSwitchBool = checkCase(cItem, isFailType(t1) ? \value() : t1, cSwitchBool);
 	
-	// Pop the label stack on exit from the switch construct and recover the environment on entry.	
-	c.labelStack = tail(c.labelStack);
-	c = recoverEnvironments(c, cAtEntry);
+	// Exit back to the block scope
+	cSwitch = exitBooleanScope(cSwitchBool, cSwitch);
+
+	// and, pop the label stack...
+	cSwitch.labelStack = tail(cSwitch.labelStack);
+
+	// Now, return to the scope on entry, removing the label
+	c = exitBlock(cSwitch, c);
 	
-	return < c, \void() >;
+	return markLocationType(c, stmt@\loc, \void());
 }
 
 @doc{Check the type of Rascal statements: Fail (DONE)}
@@ -3173,46 +3382,89 @@ public CheckResult checkStmt(Statement stmt:(Statement)`filter;`, Configuration 
 	return markLocationType(c, stmt@\loc, \void());
 }
 
-@doc{Check the type of Rascal statements: Solve}
+@doc{Check the type of Rascal statements: Solve (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName ","}+ vars> <Bound bound> ) <Statement body>`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// First, check the names. Note: the names must exist already, we do not bind them here. Instead,
+	// we make sure they all exist.
+	for (qn <- vars) {
+		n = convertName(qn);
+		if (fcvExists(c, n)) {
+			c.uses = c.uses + < c.fcvEnv[n], qn@\loc >;
+		} else {
+			failures = failures + makeFailType("Name is not in scope", qn@\loc);
+		}
+	}
+	
+	// Next, check the bound. It can be empty, but, if not, it should be something
+	// that evaluates to an int.
+	if (Bound bnd:(Bound)`; <Expression be>` := bound) {
+		< c, tb > = checkExp(be, c);
+		if (isFailType(tb))
+			failures = failures + tb;
+		else if (!isIntType(tb))
+			failures = failures + makeFailType("Type of bound should be int, not <prettyPrintType(tb)>", bound@\loc);
+	}
+	
+	// Finally, check the body.
+	< c, tbody > = checkStmt(body, c);
+	if (isFailType(tbody)) failures = failures + tbody;
+	
+	if (size(failure) > 0)
+		return markLocationFailed(c, stmt@\loc, failures);
+	else
+		return markLocationType(c, stmt@\loc, tbody);
 }
 
-@doc{Check the type of Rascal statements: Try}
+@doc{Check the type of Rascal statements: Try (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`try <Statement body> <Catch+ handlers>`, Configuration c) {
-	return < c, \void() >;
+	// TODO: For now, returning void -- should we instead lub the results of the body and all
+	// the catch blocks?
+	< c, t1 > = checkStmt(body, c);
+	for (handler <- handlers) < c, th > = checkCatch(handler, c);
+	return markLocationType(c, stmt@\loc, \void());
 }
 
-@doc{Check the type of Rascal statements: TryFinally}
+@doc{Check the type of Rascal statements: TryFinally (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`try <Statement body> <Catch+ handlers> finally <Statement fbody>`, Configuration c) {
-	return < c, \void() >;
+	< c, t1 > = checkStmt(body, c);
+	for (handler <- handlers) < c, th > = checkCatch(handler, c);
+	< c, tf > = checkStmt(fbody, c);
+	return markLocationType(c, stmt@\loc, tf);
 }
 
 @doc{Check the type of Rascal statements: NonEmptyBlock (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> { <Statement+ stmts> }`, Configuration c) {
+	// Treat this construct as a block, since the label has a defined scope from the start to
+	// the end of the construct, but not outside of it.
+	cBlock = enterBlock(c,stmt@\loc);
+
+	// Add the appropriate label into the label stack and label environment. If we have a blank
+	// label we still add it to the stack, but not to the environment, since we cannot access it
+	// using a name.
 	if ((Label)`<Name n> :` := lbl) {
 		labelName = convertName(n);
-		if (labelExists(c,labelName)) c = addMessage(c,error("Cannot reuse label names: <n>", lbl@\loc));
-		c2 = addLabel(c,labelName,lbl@\loc,blockLabel());
-		c2.labelStack = < labelName, blockLabel(), \void() > + c2.labelStack;
-		list[Symbol] stmtTypes = [];
-		for (s <- stmts) { < c2, t1 > = checkStmt(s, c2); stmtTypes = stmtTypes + t1; }
-		c2.labelStack = tail(c2.labelStack);
-		c = recoverEnvironments(c2, c);
-		if (isFailType(last(stmtTypes)))
-			return markLocationFailed(c, stmt@\loc, last(stmtTypes));
-		else
-			return markLocationType(c, stmt@\loc, last(stmtTypes));	
+		if (labelExists(cBlock,labelName)) cBlock = addMessage(cBlock,error("Cannot reuse label names: <n>", lbl@\loc));
+		cBlock = addLabel(cBlock,labelName,lbl@\loc,blockLabel());
+		cBlock.labelStack = < labelName, blockLabel(), \void() > + cBlock.labelStack;
 	} else {
-		list[Symbol] stmtTypes = [];
-		c.labelStack = < RSimpleName(""), blockLabel(), \void() > + c.labelStack;
-		for (s <- stmts) { < c, t1 > = checkStmt(s, c); stmtTypes = stmtTypes + t1; }
-		c.labelStack = tail(c.labelStack);
-		if (isFailType(last(stmtTypes)))
-			return markLocationFailed(c, stmt@\loc, last(stmtTypes));
-		else
-			return markLocationType(c, stmt@\loc, last(stmtTypes));	
+		cBlock.labelStack = < RSimpleName(""), blockLabel(), \void() > + cBlock.labelStack;
 	}
+
+	list[Symbol] stmtTypes = [];
+	for (s <- stmts) { < cBlock, t1 > = checkStmt(s, cBlock); stmtTypes = stmtTypes + t1; }
+
+	// Pop the label stack...
+	cBlock.labelStack = tail(cBlock.labelStack);
+
+	// ... and return to the scope on entry, removing the label
+	c = exitBlock(cBlock, c);
+
+	if (isFailType(last(stmtTypes)))
+		return markLocationFailed(c, stmt@\loc, last(stmtTypes));
+	else
+		return markLocationType(c, stmt@\loc, last(stmtTypes));	
 }
 
 @doc{Check the type of Rascal statements: EmptyStatement (DONE)}
