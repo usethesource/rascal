@@ -519,46 +519,39 @@ public abstract class Figure implements Comparable<Figure> {
 		toArrow.localLocation.set(0,0);
 		toArrow.resize(null, new TransformMatrix());
 
-		
 		if (fromX == X)
 			fromX += 0.00001;
 		double s = (fromY - Y) / (fromX -X);
 
-		double theta = Math.atan(s);
-		if (theta < 0) {
-			if (fromX < X)
-				theta += Math.PI;
-		} else {
-			if (fromX < Y)
-				theta += Math.PI;
-		}
+		double rotd = Math.toDegrees(Math.atan(s));
+
 		double IX;
 		double IY;
-
 		double h2 = minSize.getY() / 2;
 		double w2 = minSize.getX() / 2;
 
 		if ((-h2 <= s * w2) && (s * w2 <= h2)) {
-			if (fromX > X) { // right
+			if (fromX > X) { 	// right
 				IX = X + w2;
 				IY = Y + s * w2;
-			} else { // left
+				rotd += (fromY < Y ? -90 : -90);
+			} else { 			// left
 				IX = X - w2;
 				IY = Y - s * w2;
+				rotd += 90;
 			}
 		} else {
-			if (fromY > Y) { // bottom
+			if (fromY > Y) { 	// bottom
 				IX = X + h2 / s;
 				IY = Y + h2;
-			} else { // top
+				rotd += (fromX < X ? 90 : -90);
+			} else { 			// top
 				IX = X - h2 / s;
 				IY = Y - h2;
+				rotd += (fromX < X ? 90 : -90);
 			}
 		}
-		/*
-		 * //fpa.line(left + fromX, top + fromY, left + IX, top + IY);
-		 */
-		double rotd = -90 + Math.toDegrees(theta);
+		
 		if (toArrow != null) {
 			gc.pushMatrix();
 			gc.translate(left + IX , top + IY );
