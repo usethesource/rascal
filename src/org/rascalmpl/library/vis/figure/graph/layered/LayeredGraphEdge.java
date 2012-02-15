@@ -32,7 +32,6 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
-import com.sun.tools.javac.util.Pair;
 /**
  * A GraphEdge is created for each "edge" constructor that occurs in a graph.
  * 
