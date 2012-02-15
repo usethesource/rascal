@@ -2307,7 +2307,9 @@ public CheckResult checkParameters((Parameters)`( <Formals fs> ... )`, Configura
 public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, Configuration c) {
 	list[Symbol] formals = [ ];
 	for (p <- ps) {
+		//println("Calculating type of pattern <p>");
 		< c, t > = calculatePatternType(p, c);
+		//println("Calculated type <t>");
 		formals += t;
 	}
 	return < c, \tuple(formals) >;
@@ -2435,7 +2437,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`type ( <Pattern s>, <
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Pattern ","}* ps> )`, Configuration c) { 
 	< c, pti > = extractPatternTree(p,c);
 	list[PatternTree] psList = [ ];
-	for (p <- ps) { < c, psi > = extractPatternTree(p,c); psList = psList + psi; }
+	for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
 	return < c, callOrTreeNode(pti,psList)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
@@ -2473,6 +2475,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	
 	// Init: extract the pattern tree, which gives us an abstract representation of the pattern
 	< c, pt > = extractPatternTree(pat,c);
+	//println("Found pattern tree <pt>");
 	Configuration cbak = c;
 	set[Symbol] failures = { };
 	
@@ -2604,7 +2607,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
 		}
 	}
-	
+	//println("After initial assignment, pattern tree is <pt>");
 	bool modified = true;
 
 	PatternTree updateRT(PatternTree pt, Symbol rt) {
@@ -2750,8 +2753,10 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     	unresolved = { pti | /PatternTree pti := pt, !((pti@rtype)?) || !concreteType(pti@rtype) };
     	if (size(unresolved) > 0)
 			return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
-		else
+		else {
+			//println("Final pattern tree is <pt>");
 			return < c, pt@rtype >;
+		}
     } else {
     	//println("Could not compute type for the following pattern tree: <pt>");
     	return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;	
@@ -4262,7 +4267,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		} else {
 			cFun = setExpectedReturn(c, \void());
 		}
+		//println("Before processing signature: current name environment is <cFun.fcvEnv>");
 		< cFun, tFun > = processSignature(sig, cFun);
+		//println("After processing signature: current name environment is <cFun.fcvEnv>");
 		< cFun, tExp > = checkExp(exp, cFun);
 		if (!isFailType(tExp) && !subtype(tExp, cFun.expectedReturnType))
 			cFun = addScopeMessage(cFun,error("Unexpected type: type of body expression, <prettyPrintType(tExp)>, must be a subtype of the function return type, <prettyPrintType(cFun.expectedReturnType)>", exp@\loc));
@@ -4743,8 +4750,13 @@ public Symbol expandType(Symbol rt, loc l, Configuration c) {
 @doc{Check the types of Rascal comprehensions: Set (DONE)}
 public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`, Configuration c) {
 	set[Symbol] failures = { };
+	// We enter a new scope here since the names bound in the generators
+	// are available inside the comprehension, but not outside, even if this
+	// is part of a larger pattern.
+	cComp = enterBooleanScope(c, cmp@\loc);
+
 	for (gen <- generators) {
-		< c, gt > = checkExp(gen,c);
+		< cComp, gt > = checkExp(gen,cComp);
 		if (isFailType(gt)) {
 			failures = failures + gt;
 		} else if (!isBoolType(gt)) {
@@ -4753,13 +4765,17 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`{ <{Expr
 	}
 	list[Symbol] elementTypes = [ \void() ];
 	for (res <- results) {
-		< c, rt > = checkExp(res,c);
+		< cComp, rt > = checkExp(res,cComp);
 		if (isFailType(rt)) {
 			failures = failures + rt;
 		} else {
 			elementTypes = elementTypes + rt;
 		}
 	}
+	
+	// Leave the boolean scope to remove the added names from scope
+	c = exitBooleanScope(cComp, c);
+	
 	if (size(failures) > 0)
 		return markLocationFailed(c, cmp@\loc, failures);
 	else
@@ -4769,8 +4785,14 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`{ <{Expr
 @doc{Check the types of Rascal comprehensions: Map (DONE)}
 public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`( <Expression from> : <Expression to> | <{Expression ","}+ generators> )`, Configuration c) {
 	set[Symbol] failures = { };
+
+	// We enter a new scope here since the names bound in the generators
+	// are available inside the comprehension, but not outside, even if this
+	// is part of a larger pattern.
+	cComp = enterBooleanScope(c, cmp@\loc);
+
 	for (gen <- generators) {
-		< c, gt > = checkExp(gen,c);
+		< cComp, gt > = checkExp(gen,cComp);
 		if (isFailType(gt)) {
 			failures = failures + gt;
 		} else if (!isBoolType(gt)) {
@@ -4778,11 +4800,14 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`( <Expre
 		}
 	}
 
-	< c, fromType > = checkExp(from,c);
+	< cComp, fromType > = checkExp(from,cComp);
 	if (isFailType(fromType)) failures = failures + fromType;
-	< c, toType > = checkExp(to,c);
+	< cComp, toType > = checkExp(to,cComp);
 	if (isFailType(toType)) failures = failures + toType;
 
+	// Leave the boolean scope to remove the added names from scope
+	c = exitBooleanScope(cComp, c);
+	
 	if (size(failures) > 0)
 		return markLocationFailed(c, cmp@\loc, failures);
 	else
@@ -4792,8 +4817,14 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`( <Expre
 @doc{Check the types of Rascal comprehensions: List (DONE)}
 public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`, Configuration c) {
 	set[Symbol] failures = { };
+
+	// We enter a new scope here since the names bound in the generators
+	// are available inside the comprehension, but not outside, even if this
+	// is part of a larger pattern.
+	cComp = enterBooleanScope(c, cmp@\loc);
+
 	for (gen <- generators) {
-		< c, gt > = checkExp(gen,c);
+		< cComp, gt > = checkExp(gen,cComp);
 		if (isFailType(gt)) {
 			failures = failures + gt;
 		} else if (!isBoolType(gt)) {
@@ -4802,13 +4833,17 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`[ <{Expr
 	}
 	list[Symbol] elementTypes = [ \void() ];
 	for (res <- results) {
-		< c, rt > = checkExp(res,c);
+		< cComp, rt > = checkExp(res,cComp);
 		if (isFailType(rt)) {
 			failures = failures + rt;
 		} else {
 			elementTypes = elementTypes + rt;
 		}
 	}
+
+	// Leave the boolean scope to remove the added names from scope
+	c = exitBooleanScope(cComp, c);
+	
 	if (size(failures) > 0)
 		return markLocationFailed(c, cmp@\loc, failures);
 	else
@@ -4842,12 +4877,9 @@ public Module check(Module m) {
 		}
 	}
 			
-	if (size(c.messages) > 0)
-		return m[@messages = c.messages]
-		        [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
-		        [@docLinks = docLinks];
-	else
-		return m;
+	return m[@messages = c.messages]
+	        [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
+	        [@docLinks = docLinks];
 }
 
 @doc{Check the type of Rascal cases: PatternWithAction (DONE)}
