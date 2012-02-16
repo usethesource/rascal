@@ -56,6 +56,24 @@ public data LineDecoration =
   | highlight(int lineNumber, str msg, int level)
   ;
 
+public data Font 
+  = font(str name, int size, set[FontStyle] style, Color foregroundColor, Color backgroundColor)
+  | font(set[FontStyle] style, Color foregroundColor, Color backgroundColor)
+  | font(str name, int size, set[FontStyle] style, Color foregroundColor)
+  | font(set[FontStyle] style, Color foregroundColor)
+  ;
+  
+public data FontStyle
+  = bold()
+  | italic()
+  | underlined()
+  | squiggleUnderlined()
+  ;
+  
+  
+	
+
+
 @doc{Gray color (0-255)}
 @javaClass{org.rascalmpl.library.vis.util.FigureColorUtils}
 public java Color gray(int gray);
