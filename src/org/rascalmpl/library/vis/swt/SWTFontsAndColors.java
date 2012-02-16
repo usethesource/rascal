@@ -91,7 +91,10 @@ public class SWTFontsAndColors {
 
 	public static Color getRgbColor(int c) {
 		setGC();
-		return new Color(device, FigureColorUtils.getRed(c),
+		return getRgbColor(device, c);
+	}
+	public static Color getRgbColor(Device dc, int c) {
+		return new Color(dc, FigureColorUtils.getRed(c),
 				FigureColorUtils.getGreen(c), FigureColorUtils.getBlue(c));
 	}
 
