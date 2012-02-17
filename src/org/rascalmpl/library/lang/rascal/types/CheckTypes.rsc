@@ -106,6 +106,9 @@ import lang::rascal::syntax::RascalRascal;
 //     operations.
 //
 // 23. Typing for loops -- should this always be void? We never know if the loop actually evaluates.
+//
+// 24. Remember to keep track of throws declarations, right now these are just discarded...
+//
 
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
@@ -498,7 +501,7 @@ public bool varCanShadow(Configuration c, RName n) {
 
 	av = c.store[c.fcvEnv[n]];
 	if (overload(items,_) := av) {
-		return isEmpty(stackItems & { i.containedIn | i <- items });
+		return isEmpty(stackItems & { c.store[i].containedIn | i <- items });
 	} else {
 		return av.containedIn notin stackItems;
 	}
@@ -737,7 +740,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
 				} else {
 					erType = t3;
 				}
-			} else {
+			} else if (!equivalent(erType,t3)) {
 				erType = makeFailType("Type changes in non-monotonic fashion", exp@\loc);
 			}
 		} else {
@@ -819,6 +822,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 					matches += a;
 				} else if (size(epsList) == size(args) && all(idx <- index(epsList), subtype(tl[idx],args[idx]))) {
 					matches += a;
+				} else {
+					println("At <exp@\loc>, could not match constructor <a> with expression <exp>: args = <args>, tl = <tl>");
 				}
 			} else {
 				println("At <exp@\loc>, expression <exp> has a head with a fail type <a>");
@@ -2264,21 +2269,8 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
 
 @doc{Check the types of Rascal literals: StringLiteral}
 public CheckResult checkLiteral(Literal l:(Literal)`<StringLiteral sl>`, Configuration c) {
-	set[Symbol] failures = { };
-	list[Tree] ipl = prodFilter(sl,bool(Production prd) { return prod(\label(_,\sort("Expression")),_,_) := prd || prod(\label(_,\sort("StringTemplate")),_,_) := prd; });
-	for (ipe <- ipl) {
-		if (`<Expression ipee>` := ipe) {
-			< c, t1 > = checkExp(ipee, c);
-			if (isFailType(t1)) failures = failures + t1;
-		} else if (`<StringTemplate ipet>` := ipe) {
-			< c, t1 > = checkStringTemplate(ipet, c);
-			if (isFailType(t1)) failures = failures + t1;
-		}
-	}
-	if (size(failures) > 0)
-		return markLocationFailed(c, l@\loc, failures);
-	else
-		return markLocationType(c, l@\loc, \str());
+	< c, t1 > = checkStringLiteral(sl,c);
+	return markLocationType(c, l@\loc, t1);
 }
 
 @doc{Check the types of Rascal literals: LocationLiteral}
@@ -2475,7 +2467,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	
 	// Init: extract the pattern tree, which gives us an abstract representation of the pattern
 	< c, pt > = extractPatternTree(pat,c);
-	//println("Found pattern tree <pt>");
+	//println("<pt@at>: initial tree is <pt>");
 	Configuration cbak = c;
 	set[Symbol] failures = { };
 	
@@ -2607,12 +2599,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}
 		}
 	}
-	//println("After initial assignment, pattern tree is <pt>");
+	//println("<pt@at>: tree after initial visit is <pt>");
 	bool modified = true;
 
 	PatternTree updateRT(PatternTree pt, Symbol rt) {
 		if ( (pt@rtype)? && (pt@rtype == rt) ) return pt;
 		modified = true;
+		//println("Tagging node <pt> with type <rt>");
 		return pt[@rtype = rt];
 	}
 	
@@ -2659,10 +2652,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					Symbol rt = (RSimpleName("_") == n) ? ptn@rtype : c.store[c.fcvEnv[n]].rtype;
 					bool isInferred = (RSimpleName("_") == n) ? true : c.store[c.fcvEnv[n]].inferred;
 					if (isInferred) {
-						Symbol rtNew = lub(rt, cp@rtype);
-						if (!equivalent(rtNew,rt)) {
-							if (RSimpleName("_") != n) c.store[c.fcvEnv[n]].rtype = rtNew;
-							insert updateRT(ptn, rtNew);
+						if (isInferredType(rt)) {
+							if (RSimpleName("_") != n) c.store[c.fcvEnv[n]].rtype = cp@rtype;
+							insert updateRT(ptn, cp@rtype);
+						} else {
+							Symbol rtNew = lub(rt, cp@rtype);
+							if (!equivalent(rtNew,rt)) {
+								if (RSimpleName("_") != n) c.store[c.fcvEnv[n]].rtype = rtNew;
+								insert updateRT(ptn, rtNew);
+							}
 						}
 					} else {
 						if (!subtype(cp@rtype, rt))
@@ -2717,7 +2715,6 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 									newChildren += newarg;
 								}
 							} catch v : {
-								//println("Could not bind: <v>");
 								newChildren = pargs;
 							}
 							insert updateRT(ptn[head=ph[@rtype=matchType]][args=newChildren], getConstructorResultType(matchType));
@@ -2731,6 +2728,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}		
 		}
 		
+		//println("At location <pt@at>, tree is <pt>");
+		
 		if (size(subjects) == 1) {
 			try {
 				< c, pt > = bind(pt, getOneFrom(subjects), c);
@@ -2743,22 +2742,22 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					firstTime = false;
 				}
 			} catch v : {
-				//println("Cannot bind: <v>");
+				println("Bind attempt failed, now have <pt>");
 				; // May want to do something here in the future, but for now just consume the exception, this still fails to assign a type...
 			}
 		}
 	}
+
+	//println("<pt@at>: tree after propagation loop is <pt>");
     
     if ( (pt@rtype)? ) {
-    	unresolved = { pti | /PatternTree pti := pt, !((pti@rtype)?) || !concreteType(pti@rtype) };
+    	unresolved = { pti | /PatternTree pti := pt, !((pti@rtype)?) || ((pti@rtype)? && !concreteType(pti@rtype)) };
     	if (size(unresolved) > 0)
 			return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
 		else {
-			//println("Final pattern tree is <pt>");
 			return < c, pt@rtype >;
 		}
     } else {
-    	//println("Could not compute type for the following pattern tree: <pt>");
     	return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;	
     }
 }
@@ -2776,12 +2775,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 	// and typed name becomes should make sure the result is of a compatible type.
 	//
 	// TODO: Anything for * variables?
+
+	//println("<pt@at> : Binding pattern tree <pt> to symbol <rt>");
 	switch(pt) {
 		case setNode(cs) : {
 			if (isSetType(rt)) {
 				list[PatternTree] res = [ ];
 				for (csi <- cs) { < c, pti > = bind(csi, getSetElementType(rt), c); res += pti; }
 				return < c, pt[children = res] >; 
+			} else if (isValueType(rt)) {
+				return < c, pt >;
 			}
 		}
 
@@ -2790,6 +2793,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 				list[PatternTree] res = [ ];
 				for (csi <- cs) { < c, pti > = bind(csi, getListElementType(rt), c); res += pti; }
 				return < c, pt[children = res] >; 
+			} else if (isValueType(rt)) {
+				return < c, pt >;
 			}
 		}
 		
@@ -2885,6 +2890,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 				} else {
 					throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
 				}
+			} else if (isValueType(rt)) {
+				return < c, pt >;
 			}
 		}
 		
@@ -2905,6 +2912,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 					res += < pt1, pt2 >; 
 				}
 				return < c, pt[children = res] >; 
+			} else if (isValueType(rt)) {
+				return < c, pt >;
 			}
 		}
 		
@@ -2915,38 +2924,14 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		
 		case callOrTreeNode(ph, cs) : {
 			// TODO: Should we implement this? We already always push back down when we hit call or tree nodes,
-			// so this may just be redundant.
-			;
-		}
-		
-		case varBecomesNode(RSimpleName("_"), l, cp) : {
-			Symbol currentType = pt@rtype;
-			< c, cpnew > = bind(cp, rt, c);
-			if (isInferredType(currentType)) {
-				return < c, pt[@rtype = rt][child = cpnew] >;
-			} else {
-				return < c, pt[@rtype = lub(currentType,rt)][child = cpnew] >;
-			}
+			// so this may just be redundant. So, for now, just return the default.
+			return < c, pt >;
 		}
 		
 		case varBecomesNode(n, l, cp) : {
-			Symbol currentType = c.store[c.fcvEnv[n]].rtype;
-			if (c.store[c.fcvEnv[n]].inferred) {
-				if (isInferredType(currentType)) {
-					c.store[c.fcvEnv[n]].rtype = rt;
-				} else {
-					c.store[c.fcvEnv[n]].rtype = lub(c.store[c.fcvEnv[n]].rtype, rt);
-				}
-				< c, cpnew > = bind(cp, rt, c);
-				return < c, pt[@rtype = c.store[c.fcvEnv[n]].rtype][child = cpnew] >;
-			} else {
-				if (comparable(currentType, rt)) {
-					< c, cpnew > = bind(cp, rt, c);
-					return < c, pt[child = cpnew] >;
-				} else {
-					throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-				}
-			}
+			Symbol currentType = pt@rtype;
+			< c, cpnew > = bind(cp, rt, c);
+			return < c, pt[child=cpnew] >;
 		}
 		
 		case asTypeNode(nt, cp) : {
@@ -2965,13 +2950,8 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		}
 		
 		case tvarBecomesNode(nt, n, l, cp) : {
-			Symbol currentType = (RSimpleName("_") == n) ? pt@rtype : c.store[c.fcvEnv[n]].rtype;
-			if (comparable(currentType, rt)) {
-				< c, cpNew > = bind(cp, rt, c);
-				return < c, pt[child = cpNew] >;
-			} else {
-				throw "Bind error, cannot bind subject of type <prettyPrintType(rt)> to pattern of type <prettyPrintType(pt@rtype)>";
-			}
+			< c, cpNew > = bind(cp, rt, c);
+			return < c, pt[child = cpNew] >;
 		}
 	}
 	
@@ -3080,7 +3060,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
 	}
 
 	// Check the body of the loop				
-	< cWhileBool, t2 > = checkStmt(bdy, cWhileBool);
+	cWhileBody = enterBlock(cWhileBool, bdy@\loc);
+	< cWhileBody, t2 > = checkStmt(bdy, cWhileBody);
+	cWhileBool = exitBlock(cWhileBody, cWhileBool);
 	if (isFailType(t2)) failures += t2;
 
 	// Exit back to the block scope
@@ -3120,23 +3102,21 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
 		cDoWhile.labelStack = < RSimpleName(""), doWhileLabel(), \void() > + cDoWhile.labelStack;
 	}
 
-	// Enter a boolean scope, for both the conditionals and the statement body.
-	// TODO: Technically, this scope does not include the label.
-	cDoWhileBool = enterBooleanScope(cDoWhile, stmt@\loc);
-
 	// Check the body of the loop				
-	< cDoWhileBool, t2 > = checkStmt(bdy, cDoWhileBool);
+	cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
+	< cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
+	cDoWhile = exitBlock(cDoWhileBody, cDoWhile);
 	if (isFailType(t2)) failures += t2;
 
 	// Check the loop condition	
+	cDoWhileBool = enterBooleanScope(cDoWhile,cond@\loc);
 	< cDoWhileBool, t1 > = checkExp(cond, cDoWhileBool);
+	cDoWhile = exitBooleanScope(cDoWhileBool, cDoWhile);
+	
 	if (isFailType(t1)) 
 		failures += t1;
 	else if (!isBoolType(t1))
 		failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
-
-	// Exit back to the block scope
-	cDoWhile = exitBooleanScope(cDoWhileBool, cDoWhile);
 
 	// Get out any append info, which is used to calculate the loop type, and then
 	// pop the label stack.			
@@ -3185,8 +3165,10 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
 			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", gen@\loc);
 	}
 
-	// Check the body of the loop				
-	< cForBool, t2 > = checkStmt(bdy, cForBool);
+	// Check the body of the loop		
+	cForBody = enterBlock(cForBool, bdy@\loc);		
+	< cForBody, t2 > = checkStmt(bdy, cForBody);
+	cForBool = exitBlock(cForBody, cForBool);
 	if (isFailType(t2)) failures += t2;
 
 	// Exit back to the block scope
@@ -3239,8 +3221,10 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expre
 			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
 	}
 
-	// Check the body of the conditional				
-	< cIfBool, t2 > = checkStmt(bdy, cIfBool);
+	// Check the body of the conditional.
+	cIfThen = enterBlock(cIfBool, bdy@\loc);				
+	< cIfThen, t2 > = checkStmt(bdy, cIfThen);
+	cIfBool = exitBlock(cIfThen, cIfBool);
 	if (isFailType(t2)) failures += t2;
 
 	// Exit back to the block scope
@@ -3291,11 +3275,18 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> if ( <{Expre
 			failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
 	}
 
-	// Check the body of the conditional				
-	< cIfBool, t2 > = checkStmt(thenBody, cIfBool);
+	// Check the then body of the conditional. We enter a new block to make sure
+	// that we remove any declarations (for instance, if the body is just a
+	// variable declaration).
+	cIfThen = enterBlock(cIfBool, thenBody@\loc);				
+	< cIfThen, t2 > = checkStmt(thenBody, cIfThen);
+	cIfBool = exitBlock(cIfThen, cIfBool);
 	if (isFailType(t2)) failures += t2;
 
-	< cIfBool, t3 > = checkStmt(elseBody, cIfBool);
+	// Do the same for the else body.
+	cIfElse = enterBlock(cIfBool, elseBody@\loc);
+	< cIfElse, t3 > = checkStmt(elseBody, cIfElse);
+	cIfBool = exitBlock(cIfElse, cIfBool);
 	if (isFailType(t3)) failures += t3;
 
 	// Exit back to the block scope
@@ -3338,7 +3329,11 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> switch ( <Ex
 	// Now, check the expression and the various cases. If the expression is a failure, just pass
 	// in value as the expected type so we don't cascade even more errors.
 	< cSwitchBool, t1 > = checkExp(e,cSwitchBool);
-	for (cItem <- cases) cSwitchBool = checkCase(cItem, isFailType(t1) ? \value() : t1, cSwitchBool);
+	for (cItem <- cases) {
+		cSwitchBody = enterBlock(cSwitchBool, cItem@\loc);
+		cSwitchBody = checkCase(cItem, isFailType(t1) ? \value() : t1, cSwitchBody);
+		cSwitchBool = exitBlock(cSwitchBody, cSwitchBool);
+	}
 	
 	// Exit back to the block scope
 	cSwitch = exitBooleanScope(cSwitchBool, cSwitch);
@@ -3413,7 +3408,9 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
 	}
 	
 	// Finally, check the body.
-	< c, tbody > = checkStmt(body, c);
+	cBody = enterBlock(c, body@\loc);
+	< cBody, tbody > = checkStmt(body, cBody);
+	c = exitBlock(cBody, c);
 	if (isFailType(tbody)) failures = failures + tbody;
 	
 	if (size(failure) > 0)
@@ -3426,15 +3423,19 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
 public CheckResult checkStmt(Statement stmt:(Statement)`try <Statement body> <Catch+ handlers>`, Configuration c) {
 	// TODO: For now, returning void -- should we instead lub the results of the body and all
 	// the catch blocks?
-	< c, t1 > = checkStmt(body, c);
-	for (handler <- handlers) < c, th > = checkCatch(handler, c);
+	cBody = enterBlock(c, body@\loc);
+	< cBody, t1 > = checkStmt(body, cBody);
+	c = exitBlock(cBody, c);
+	for (handler <- handlers) c = checkCatch(handler, c);
 	return markLocationType(c, stmt@\loc, \void());
 }
 
 @doc{Check the type of Rascal statements: TryFinally (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`try <Statement body> <Catch+ handlers> finally <Statement fbody>`, Configuration c) {
-	< c, t1 > = checkStmt(body, c);
-	for (handler <- handlers) < c, th > = checkCatch(handler, c);
+	cBody = enterBlock(c, body@\loc);
+	< cBody, t1 > = checkStmt(body, cBody);
+	c = exitBlock(cBody, c);
+	for (handler <- handlers) c = checkCatch(handler, c);
 	< c, tf > = checkStmt(fbody, c);
 	return markLocationType(c, stmt@\loc, tf);
 }
@@ -3592,7 +3593,8 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
 					if (varCanShadow(c, rn)) {
 						c = addVariable(c, rn, false, n@\loc, rt);
 					} else {
-						c = addScopeMessage(c, error("Illegal redeclaration of existing name", v@\loc));						
+						c = addScopeMessage(c, error("Illegal redeclaration of existing name <prettyPrintName(rn)>", v@\loc));
+						c.uses = c.uses + < c.fcvEnv[rn], n@\loc >;						
 					}
 				} 
 			}
@@ -4068,6 +4070,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 				c = addVariable(c, rn, false, getVis(vis), v@\loc, rt);
 			} else {
 				c = addScopeMessage(c, error("Illegal redeclaration of existing name", v@\loc));						
+				c.uses = c.uses + < c.fcvEnv[rn], n@\loc >;						
 			}
 		} 
 	}
@@ -4211,6 +4214,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	// TODO: Enforce that this is a java function?
 	rn = getFunctionName(sig);
 
+	println("Checking function <prettyPrintName(rn)>");
+
 	// First, check to see if we have processed this declaration before. If we have, just get back the
 	// id for the function, we don't want to create a new entry for it.
 	if (fd@\loc notin c.definitions<1>) { 
@@ -4244,6 +4249,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Check function declarations: Expression}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`, bool descend, Configuration c) {
 	rn = getFunctionName(sig);
+
+	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
 		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
@@ -4283,6 +4290,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Check function declarations: Conditional}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`, bool descend, Configuration c) {
 	rn = getFunctionName(sig);
+
+	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
 		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
@@ -4850,38 +4859,6 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`[ <{Expr
 		return markLocationType(c, cmp@\loc, \list(lubList(elementTypes)));
 }
 
-public anno map[loc,str] Tree@docStrings;
-public anno map[loc,set[loc]] Tree@docLinks;
-
-public Module check(Module m) {
-	c = newConfiguration();
-	c = checkModule(m, c);
-
-	//| overload(set[int] items, Symbol rtype)
-	//| datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-
-	map[loc,set[loc]] docLinks = ( );
-	for (<l,i> <- invert(c.uses)) {
-		set[loc] toAdd = { };
-		if (overload(items,_) := c.store[i]) {
-			toAdd = { c.store[itm].at | itm <- items };
-		} else if (datatype(_,_,_,ats) := c.store[i]) {
-			toAdd = ats;
-		} else {
-			toAdd = { c.store[i].at };
-		}	
-		if (l in docLinks) {
-			docLinks[l] = docLinks[l] + toAdd;
-		} else {
-			docLinks[l] = toAdd;
-		}
-	}
-			
-	return m[@messages = c.messages]
-	        [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
-	        [@docLinks = docLinks];
-}
-
 @doc{Check the type of Rascal cases: PatternWithAction (DONE)}
 public Configuration checkCase(Case cs:(Case)`case <PatternWithAction pwa>`, Symbol expected, Configuration c) {
 	return checkPatternWithAction(pwa, expected, c);
@@ -4907,6 +4884,7 @@ public Configuration checkPatternWithAction(PatternWithAction pwa:(PatternWithAc
 		cOnEntry = addScopeError(cOnEntry,"Cannot calculate pattern type",pwa@\loc);
 		return cOnEntry;
 	}
+	if (RSimpleName("s") in c.fcvEnv) println("s is currently bound to type <prettyPrintType(c.store[c.fcvEnv[RSimpleName("s")]].rtype)>");
 		
 	// Now, calculate the replacement type. This should be a subtype of the pattern type, since it
 	// should be substitutable for the matched term.
@@ -5033,22 +5011,375 @@ public RName getFirstLabeledName(Configuration c, set[LabelSource] ls) {
 	}
 }
 
+@doc{Check the type of a Rascal string literal: Template}
+public CheckResult checkStringLiteral(StringLiteral sl:(StringLiteral)`<PreStringChars pre> <StringTemplate st> <StringTail tl>`, Configuration c) {
+	< c, t1 > = checkStringTemplate(st, c);
+	< c, t2 > = checkStringTail(st, tl);
+	if (isFailType(t1) || isFailType(t2))
+		return markLocationFailed(c, sl@\loc, {t1,t2});
+	else
+		return markLocationType(c,sl@\loc,\str());
+}
+
+@doc{Check the type of a Rascal string literal: Interpolated}
+public CheckResult checkStringLiteral(StringLiteral sl:(StringLiteral)`<PreStringChars pre> <Expression exp> <StringTail tl>`, Configuration c) {
+	< c, t1 > = checkExp(exp, c);
+	< c, t2 > = checkStringTail(tl, c);
+	if (isFailType(t1) || isFailType(t2))
+		return markLocationFailed(c, sl@\loc, {t1,t2});
+	else
+		return markLocationType(c,sl@\loc,\str());
+}
+
+@doc{Check the type of a Rascal string literal: NonInterpolated}
+public CheckResult checkStringLiteral(StringLiteral sl:(StringLiteral)`<StringConstant sc>`, Configuration c) {
+	return markLocationType(c,sl@\loc,\str());
+}
+
+@doc{Check the type of a Rascal string template: IfThen (DONE)}
 public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{Expression ","}+ conds>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// We can bind variables in the condition that can be used in the body,
+	// so enter a new scope here. NOTE: We always enter a new scope, since we
+	// want to remove any introduced names at the end of the construct.
+	cIf = enterBlock(c, st@\loc);
+	
+	// Make sure each of the conditions evaluates to bool.
+	for (cond <- conds) {
+		< cIf, tc > = checkExp(cond, cIf);
+		if (isFailType(tc)) failures = failures + tc;
+		if (!isBoolType(tc)) failures = failures + makeFailType("Expected type bool, found <prettyPrintType(tc)>", cond@\loc);
+	}
+	
+	// Now, check the body. The StringMiddle may have other comprehensions
+	// embedded inside. We enter a new scope here as well; it is probably
+	// redundant, but technically the body is a new scoping construct.
+	cIfThen = enterBlock(cIf, st@\loc);
+
+	for (preItem <- pre) {
+		< cIfThen, tPre > = checkStmt(preItem, cIfThen);
+		if (isFailType(tPre)) failures = failures + tPre;
+	}	
+	< cIfThen, tMid > = checkStringMiddle(body, cIfThen);
+	if (isFailType(tMid)) failures = failures + tMid;
+	if (!isStrType(tMid)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid)>", body@\loc);
+	
+	for (postItem <- post) {
+		< cIfThen, tPost > = checkStmt(postItem, cIfThen);
+		if (isFailType(tPost)) failures = failures + tPost;
+	}	
+	cIf = exitBlock(cIfThen, cIf);
+	
+	// Finally, recover the initial scope to remove any added names.
+	c = exitBlock(cIf, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, st@\loc, failures);
+	else
+		return markLocationType(c, st@\loc, \str());
 }
 
+@doc{Check the type of a Rascal string template: IfThenElse (DONE)}
 public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{Expression ","}+ conds>) {<Statement* thenpre> <StringMiddle thenbody> <Statement* thenpost>} else {<Statement* elsepre> <StringMiddle elsebody> <Statement* elsepost>}`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// We can bind variables in the condition that can be used in the body,
+	// so enter a new scope here. NOTE: We always enter a new scope, since we
+	// want to remove any introduced names at the end of the construct.
+	cIf = enterBlock(c, st@\loc);
+	
+	// Make sure each of the conditions evaluates to bool.
+	for (cond <- conds) {
+		< cIf, tc > = checkExp(cond, cIf);
+		if (isFailType(tc)) failures = failures + tc;
+		if (!isBoolType(tc)) failures = failures + makeFailType("Expected type bool, found <prettyPrintType(tc)>", cond@\loc);
+	}
+	
+	// Now, check the then body. The StringMiddle may have other comprehensions
+	// embedded inside.
+	cIfThen = enterBlock(cIf, st@\loc);
+
+	for (preItem <- thenpre) {
+		< cIfThen, tPre > = checkStmt(preItem, cIfThen);
+		if (isFailType(tPre)) failures = failures + tPre;
+	}	
+	< cIfThen, tMid > = checkStringMiddle(thenbody, cIfThen);
+	if (isFailType(tMid)) failures = failures + tMid;
+	if (!isStrType(tMid)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid)>", thenbody@\loc);
+	
+	for (postItem <- thenpost) {
+		< cIfThen, tPost > = checkStmt(postItem, cIfThen);
+		if (isFailType(tPost)) failures = failures + tPost;
+	}	
+	cIf = exitBlock(cIfThen, cIf);
+	
+	// Then, check the else body. The StringMiddle may have other comprehensions
+	// embedded inside.
+	cIfElse = enterBlock(cIf, st@\loc);
+	
+	for (preItem <- elsepre) {
+		< cIfElse, tPre2 > = checkStmt(preItem, cIfElse);
+		if (isFailType(tPre2)) failures = failures + tPre2;
+	}	
+	< cIfElse, tMid2 > = checkStringMiddle(elsebody, cIfElse);
+	if (isFailType(tMid2)) failures = failures + tMid2;
+	if (!isStrType(tMid2)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid2)>", elsebody@\loc);
+
+	for (postItem <- elsepost) {	
+		< cIfElse, tPost2 > = checkStmt(postItem, cIfElse);
+		if (isFailType(tPost2)) failures = failures + tPost2;
+	}
+	cIf = exitBlock(cIfElse, cIf);
+	
+	// Finally, recover the initial scope to remove any added names.
+	c = exitBlock(cIf, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, st@\loc, failures);
+	else
+		return markLocationType(c, st@\loc, \str());
 }
 
+@doc{Check the type of a Rascal string template: For (DONE)}
 public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`for (<{Expression ","}+ gens>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// We can bind variables in the condition that can be used in the body,
+	// so enter a new scope here. NOTE: We always enter a new scope, since we
+	// want to remove any introduced names at the end of the construct.
+	cFor = enterBlock(c, st@\loc);
+	
+	// Make sure each of the generators evaluates to bool.
+	for (gen <- gens) {
+		< cFor, tg > = checkExp(gen, cFor);
+		if (isFailType(tg)) failures = failures + tg;
+		if (!isBoolType(tg)) failures = failures + makeFailType("Expected type bool, found <prettyPrintType(tg)>", gen@\loc);
+	}
+	
+	// Now, check the body. The StringMiddle may have other comprehensions
+	// embedded inside. We enter a new scope here as well; it is probably
+	// redundant, but technically the body is a new scoping construct.
+	cForBody = enterBlock(cFor, st@\loc);
+
+	for (preItem <- pre) {
+		< cForBody, tPre > = checkStmt(preItem, cForBody);
+		if (isFailType(tPre)) failures = failures + tPre;
+	}	
+	< cForBody, tMid > = checkStringMiddle(body, cForBody);
+	if (isFailType(tMid)) failures = failures + tMid;
+	if (!isStrType(tMid)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid)>", body@\loc);
+
+	for (postItem <- post) {	
+		< cForBody, tPost > = checkStmt(postItem, cForBody);
+		if (isFailType(tPost)) failures = failures + tPost;
+	}	
+	cFor = exitBlock(cForBody, cFor);
+	
+	// Finally, recover the initial scope to remove any added names.
+	c = exitBlock(cFor, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, st@\loc, failures);
+	else
+		return markLocationType(c, st@\loc, \str());
 }
 
+@doc{Check the type of a Rascal string template: DoWhile (DONE)}
 public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`do {<Statement* pre> <StringMiddle body> <Statement* post>} while (<Expression cond>)`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// Check the body. The StringMiddle may have other comprehensions
+	// embedded inside. We enter a new scope here as well; it is probably
+	// redundant, but technically the body is a new scoping construct.
+	cDoBody = enterBlock(c, st@\loc);
+
+	for (preItem <- pre) {
+		< cDoBody, tPre > = checkStmt(preItem, cDoBody);
+		if (isFailType(tPre)) failures = failures + tPre;
+	}	
+	< cDoBody, tMid > = checkStringMiddle(body, cDoBody);
+	if (isFailType(tMid)) failures = failures + tMid;
+	if (!isStrType(tMid)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid)>", body@\loc);
+	
+	for (postItem <- post) {
+		< cDoBody, tPost > = checkStmt(postItem, cDoBody);
+		if (isFailType(tPost)) failures = failures + tPost;
+	}
+		
+	c = exitBlock(cDoBody, c);
+	
+	// Unlike in a while loop, variables bound in the condition cannot be
+	// used in the body, since the body runs before the condition is evaluated
+	// for the first time. So, we enter a separate block to check the condition,
+	// and then leave it once the condition is checked.
+	cDo = enterBooleanScope(c, st@\loc);
+	
+	// Make sure the condition evaluates to bool.
+	< cDo, tc > = checkExp(cond, cDo);
+	if (isFailType(tc)) failures = failures + tc;
+	if (!isBoolType(tc)) failures = failures + makeFailType("Expected type bool, found <prettyPrintType(tc)>", cond@\loc);
+	
+	c = exitBooleanScope(cDo, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, st@\loc, failures);
+	else
+		return markLocationType(c, st@\loc, \str());
 }
 
+@doc{Check the type of a Rascal string template: While (DONE)}
 public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`while (<Expression cond>) {<Statement* pre> <StringMiddle body> <Statement* post>}`, Configuration c) {
-	return < c, \void() >;
+	set[Symbol] failures = { };
+	
+	// We can bind variables in the condition that can be used in the body,
+	// so enter a new scope here. NOTE: We always enter a new scope, since we
+	// want to remove any introduced names at the end of the construct.
+	cWhile = enterBlock(c, st@\loc);
+	
+	// Make sure the condition evaluates to bool.
+	< cWhile, tc > = checkExp(cond, cWhile);
+	if (isFailType(tc)) failures = failures + tc;
+	if (!isBoolType(tc)) failures = failures + makeFailType("Expected type bool, found <prettyPrintType(tc)>", cond@\loc);
+	
+	// Now, check the body. The StringMiddle may have other comprehensions
+	// embedded inside. We enter a new scope here as well; it is probably
+	// redundant, but technically the body is a new scoping construct.
+	cWhileBody = enterBlock(cWhile, st@\loc);
+
+	for (preItem <- pre) {
+		< cWhileBody, tPre > = checkStmt(preItem, cWhileBody);
+		if (isFailType(tPre)) failures = failures + tPre;
+	}
+	
+	< cWhileBody, tMid > = checkStringMiddle(body, cWhileBody);
+	if (isFailType(tMid)) failures = failures + tMid;
+	if (!isStrType(tMid)) failures = failures + makeFailType("Expected type str, found <prettyPrintType(tMid)>", body@\loc);
+	
+	for (postItem <- post) {
+		< cWhileBody, tPost > = checkStmt(postItem, cWhileBody);
+		if (isFailType(tPost)) failures = failures + tPost;
+	}
+		
+	cWhile = exitBlock(cWhileBody, cWhile);
+	
+	// Finally, recover the initial scope to remove any added names.
+	c = exitBlock(cWhile, c);
+	
+	if (size(failures) > 0)
+		return markLocationFailed(c, st@\loc, failures);
+	else
+		return markLocationType(c, st@\loc, \str());
 }
+
+@doc{Check the type of a Rascal string tail: MidInterpolated (DONE)}
+public CheckResult checkStringTail(StringTail st:(StringTail)`<MidStringChars msc> <Expression exp> <StringTail tl>`, Configuration c) {
+	< c, t1 > = checkExp(exp, c);
+	< c, t2 > = checkStringTail(tl, c);
+	if (isFailType(t1) || isFailType(t2))
+		return < c, collapseFailTypes({t1,t2}) >;
+	else
+		return < c, \str() >;	
+}
+
+@doc{Check the type of a Rascal string tail: Post (DONE)}
+public CheckResult checkStringTail(StringTail st:(StringTail)`<PostStringChars post>`, Configuration c) {
+	return < c, \str() >;
+}
+
+@doc{Check the type of a Rascal string tail: MidTemplate (DONE)}
+public CheckResult checkStringTail(StringTail st:(StringTail)`<MidStringChars msc> <StringTemplate t> <StringTail tl>`, Configuration c) {
+	< c, t1 > = checkStringTemplate(t, c);
+	< c, t2 > = checkStringTail(tl, c);
+	if (isFailType(t1) || isFailType(t2))
+		return < c, collapseFailTypes({t1,t2}) >;
+	else
+		return < c, \str() >;	
+}
+
+@doc{Check the type of a Rascal string middle: Mid (DONE)}
+public CheckResult checkStringMiddle(StringMiddle sm:(StringMiddle)`<MidStringChars msc>`, Configuration c) {
+	return < c, \str() >;
+}
+
+@doc{Check the type of a Rascal string middle: Template (DONE)}
+public CheckResult checkStringMiddle(StringMiddle sm:(StringMiddle)`<MidStringChars msc> <StringTemplate st> <StringMiddle tl>`, Configuration c) {
+	< c, t1 > = checkStringTemplate(st, c);
+	< c, t2 > = checkStringMiddle(tl, c);
+	if (isFailType(t1) || isFailType(t2))
+		return < c, collapseFailTypes({t1,t2}) >;
+	else
+		return < c, \str() >;	
+}
+
+@doc{Check the type of a Rascal string middle: Interpolated (DONE)}
+public CheckResult checkStringMiddle(StringMiddle sm:(StringMiddle)`<MidStringChars msc> <Expression e> <StringMiddle tl>`, Configuration c) {
+	< c, t1 > = checkExp(e, c);
+	< c, t2 > = checkStringMiddle(tl, c);
+	if (isFailType(t1) || isFailType(t2))
+		return < c, collapseFailTypes({t1,t2}) >;
+	else
+		return < c, \str() >;	
+} 
+
+@doc{Check catch blocks: Default (DONE)}
+public Configuration checkCatch(Catch ctch:(Catch)`catch : <Statement body>`, Configuration c) {
+	// We check the statement, which will mark any type errors in the catch block. However,
+	// the block itself does not yield a type.
+	< c, tb > = checkStmt(body, c);
+	return c;
+}
+
+@doc{Check catch blocks: Binding (DONE)}
+public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statement body>`, Configuration c) {
+	// We enter a block scope because that allows us to set the correct
+	// scope for the pattern -- variables bound in the pattern are
+	// available in the catch body. NOTE: Calculating the pattern type
+	// has the side effect of introducing the variables into scope.
+	cCatch = enterBlock(c, ctch@\loc);
+	< cCatch, tp > = calculatePatternType(p, cCatch);
+	
+	// Attempt to check the body regardless of whether the pattern is typable. NOTE: We could
+	// also avoid this -- the tradeoff is that, if we check it anyway, we can possibly catch
+	// more errors, but we may also get a number of spurious errors about names not being
+	// in scope.
+	< cCatch, tb > = checkStmt(body, cCatch);
+	
+	// Exit the block to remove the bound variables from the scope.
+	c = exitBlock(cCatch, c);
+	
+	return c;
+}
+
+public anno map[loc,str] Tree@docStrings;
+public anno map[loc,set[loc]] Tree@docLinks;
+
+public Module check(Module m) {
+	c = newConfiguration();
+	c = checkModule(m, c);
+
+	//| overload(set[int] items, Symbol rtype)
+	//| datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+
+	map[loc,set[loc]] docLinks = ( );
+	for (<l,i> <- invert(c.uses)) {
+		set[loc] toAdd = { };
+		if (overload(items,_) := c.store[i]) {
+			toAdd = { c.store[itm].at | itm <- items };
+		} else if (datatype(_,_,_,ats) := c.store[i]) {
+			toAdd = ats;
+		} else {
+			toAdd = { c.store[i].at };
+		}	
+		if (l in docLinks) {
+			docLinks[l] = docLinks[l] + toAdd;
+		} else {
+			docLinks[l] = toAdd;
+		}
+	}
+			
+	return m[@messages = c.messages]
+	        [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
+	        [@docLinks = docLinks];
+}
+

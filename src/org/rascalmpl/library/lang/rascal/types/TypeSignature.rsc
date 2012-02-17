@@ -13,7 +13,7 @@ module lang::rascal::types::TypeSignature
 import List;
 import Set;
 import ParseTree;
-import Reflective;
+import util::Reflective;
 import IO;
 import Type;
 
@@ -86,27 +86,53 @@ data RSignature = rsignature(
 @doc{Create an empty signature for the given module}
 private RSignature emptySignature(RName forName) = rsignature([],[],[],[],[],[],[],[],[],forName,{}); 
 
+@doc{Add the items from one signature into another}
+private RSignature mergeSignatures(RSignature target, RSignature source) {
+	return target[datatypes = target.datatypes + source.datatypes]
+	             [aliases = target.aliases + source.aliases]
+	             [tags = target.tags + source.tags]
+	             [annotations = target.annotations + source.annotations]
+	             [publicVariables = target.publicVariables + source.publicVariables]
+	             [publicFunctions = target.publicFunctions + source.publicFunctions]
+	             [publicConstructors = target.publicConstructors + source.publicConstructors]
+	             [privateVariables = target.privateVariables + source.privateVariables]
+	             [privateFunctions = target.privateFunctions + source.privateFunctions];
+}
+
 @doc{Given a tree, representing a module, create the signature for the module.}
-private RSignature createRSignature(Tree t) {
+private RSignature createRSignature(Tree t, set[RName] visitedAlready) {
+	RSignature processModule(RName mn, Import* i, Body b) {
+		visitedAlready = visitedAlready + mn;
+		RSignature sig = emptySignature(mn);
+		sig = addImports(i,sig,visitedAlready);
+		sig = createModuleBodySignature(b,sig,b@\loc);
+		return sig;
+	}
 	if ((Module) `<Header h> <Body b>` := t) {
 		switch(h) {
-			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` : {
-				RSignature sig = emptySignature(convertName(n));
-				sig = createModuleBodySignature(b,sig,b@\loc);
-				return sig;
-			}
+			case (Header)`<Tags t> module <QualifiedName n> <Import* i>` :
+				return processModule(convertName(n),i,b);
 
-			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` : {
-				RSignature sig = emptySignature(convertName(n));
-				sig = createModuleBodySignature(b,sig,b@\loc);
-				return sig;
-			}
+			case (Header)`<Tags t> module <QualifiedName n> <ModuleParameters p> <Import* i>` :
+				return processModule(convertName(n),i,b);
 
 			default : throw "createRSignature: unexpected module syntax <t>";
 		}
 	} else {
 		throw "createRSignature: unexpected module syntax <t>";
 	}
+}
+
+@doc{Add any imports that are needed, specifically imports for extended modules.}
+private RSignature addImports(Import* imports, RSignature sig, set[RName] visitedAlready) {
+	for ((Import)`extend <ImportedModule im> ;` <- imports) {
+		mn = getNameOfImportedModule(im);
+		if (mn notin visitedAlready) {
+			visitedAlready = visitedAlready + mn;
+			sig = mergeSignatures(sig, getModuleSignature(getModuleParseTree(prettyPrintName(mn)), visitedAlready));
+		}
+	}
+	return sig;
 }
 
 @doc{Create the individual signature items in the module body.}
@@ -220,11 +246,14 @@ public bool isVarArgsParameters(Parameters ps) {
 	return `( <Formals _> ...)` := ps;
 }
 
-//
-// Given a module, return its signature.
-//
+@doc{Given a module, return its signature.}
 public RSignature getModuleSignature(Tree t) {
-	return createRSignature(t);
+	return getModuleSignature(t, {});
+}
+
+@doc{Given a module, return its signature. If we have to descend to check imports, the set indicates which have already been visited.}
+public RSignature getModuleSignature(Tree t, set[RName] visitedAlready) {
+	return createRSignature(t, visitedAlready);
 }
 
 public RName getNameOfImportedModule((ImportedModule)`<QualifiedName qn> <ModuleActuals ma> <Renamings rn>`) = convertName(qn);
