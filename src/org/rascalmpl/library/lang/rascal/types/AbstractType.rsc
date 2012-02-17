@@ -574,4 +574,4 @@ public bool isElementType(Symbol t) =
 
 @doc{Is this type a container type?}
 public bool isContainerType(Symbol t) =
-	isSetType(t) || isListType(t) || isMapType(t) || isBagType(t); 
+	isSetType(t) || isListType(t) || isMapType(t) || isBagType(t);
