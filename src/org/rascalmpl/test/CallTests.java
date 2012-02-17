@@ -220,5 +220,32 @@ public class CallTests extends TestFramework{
 		assertTrue(runTest("{" + putAt + " putAt(1, 0, [2,3]) == [1,3];}"));
 	}
 	
+	@Test public void dispatchTest1() {
+		prepare("data X = x() | y() | z();");
+		prepareMore("public int f(x()) = 1;");
+		prepareMore("public int f(y()) = 2;");
+		prepareMore("public int f(z()) = 3;");
+
+		assertTrue(runTestInSameEvaluator("[f(x()),f(y()),f(z())] == [1,2,3]"));
+	}
+	
+	@Test public void dispatchTest2() {
+		prepare("data X = x() | y() | z();");
+		prepareMore("public int f(x()) = 1;");
+		prepareMore("public int f(y()) = 2;");
+		prepareMore("public int f(z()) = 3;");
+		prepareMore("public default int f(int x) = x;");
+
+		assertTrue(runTestInSameEvaluator("[f(x()),f(y()),f(z()),f(4)] == [1,2,3,4]"));
+	}
+	
+	@Test public void dispatchTest3() {
+		prepare("syntax X = \"x\" | \"y\" | \"z\";");
+		prepareMore("public int f((X) `x`) = 1;");
+		prepareMore("public int f((X) `y`) = 2;");
+		prepareMore("public int f((X) `z`) = 3;");
+
+		assertTrue(runTestInSameEvaluator("[f(`x`),f(`y`),f(`z`)] == [1,2,3]"));
+	}
 }
 
