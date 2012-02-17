@@ -66,8 +66,6 @@ public data Font
 public data FontStyle
   = bold()
   | italic()
-  | underlined()
-  | squiggleUnderlined()
   ;
   
   
