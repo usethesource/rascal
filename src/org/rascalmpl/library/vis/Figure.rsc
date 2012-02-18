@@ -56,20 +56,15 @@ public data LineDecoration =
   | highlight(int lineNumber, str msg, int level)
   ;
 
-public data Font 
-  = font(str name, int size, set[FontStyle] style, Color foregroundColor, Color backgroundColor)
-  | font(set[FontStyle] style, Color foregroundColor, Color backgroundColor)
-  | font(str name, int size, set[FontStyle] style, Color foregroundColor)
-  | font(set[FontStyle] style, Color foregroundColor)
-  ;
-  
-public data FontStyle
-  = bold()
-  | italic()
-  ;
-  
-  
-	
+public alias FontProperties = set[FontProperty];
+ 
+public data FontProperty
+	= bold()
+	| italic()
+	| font(str name, int size)
+	| foregroundColor(Color color)
+	| backgroundColor(Color color)
+	;
 
 
 @doc{Gray color (0-255)}
