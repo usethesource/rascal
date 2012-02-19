@@ -70,11 +70,8 @@ import org.rascalmpl.library.vis.util.vector.TwoDimensional;
 
 /**
  * Figures are the foundation of Rascal visualization. They are based on a
- * bounding box + anchor model. The bounding box defines the maximal dimensions
- * of the element. The anchor defines its alignment properties.
- * 
- * Each figure has an associated property manager whose values can be accessed
- * via this class.
+ * bounding box. The bounding box defines the maximal dimensions
+ * of the element.
  * 
  * @author paulk
  */
@@ -139,21 +136,25 @@ public abstract class Figure implements Comparable<Figure> {
 			child.registerConverts(resolver);
 		}
 	}
-
-	// init, compute registerNames, registerValues, bbox
-	/* First phase:
-	 * on down: 
-	 * initialize (computefigure, register controls and otAher stuff) *
-	 * setVisibleChildren *
-	 * registerNames
-	 * on up:
-	 * register measures
-	 * compute min size *
-	 * finalize *
+	
+	/*
+	 * There are three major phases in the processing of Figures:
+	 * - init: compute minimal size
+	 * - resize: compute actual size
+	 * - draw: draw it.
+	 */
+	
+	/* PHASE: init
 	 * 
-	 * (*) : client code
+	 * Down: 
+	 * - initialize (computefigure, register controls and other stuff) (*)
+	 * - registerNames (defined by id's).
+	 * Up:
+	 * - register measures
+	 * - compute min size (*)
+	 * - finalize (*)
 	 * 
-	 * 
+	 * (*) : extension point for subclasses.
 	 */
 	
 	/**
@@ -197,17 +198,19 @@ public abstract class Figure implements Comparable<Figure> {
 	
 	public void finalize(boolean needsRecompute){}
 	
-	// resizephase
 	/* 
-	 * on down: 
-	 * getTransformation *
-	 * resize * (setting the globallocation of the children to their local location, setting their size to their desired size) 
-	 * register the zorder elements *
-	 * set the global location of children (transform globallocation)
-	 * on up:
-	 * on resizeup * (do some stuff if the clients wants to)
+	 * PHASE: resize
 	 * 
-	 * (*) : client code
+	 * Down: 
+	 * - resize *
+	 * 		- Size has been set by parent.
+	 * 		- Set size of all children and their locallocations (globalocations are set automatically in the step below).
+	 * - register the zorder elements (SWT related) (*)
+	 * - set the global location of children (transform locallocation to globallocation)
+	 * Up:
+	 * - onResizeUp (do some stuff if the clients wants to) (*)
+	 * 
+	 * (*) : extension point for subclasses.
 	 */
 	public final void resize(Rectangle view,TransformMatrix transform){
 		adjustSizeAndLocation();
@@ -242,6 +245,20 @@ public abstract class Figure implements Comparable<Figure> {
 			child.updateGlobalLocation();
 		}
 	}
+	
+	/*
+	 * PHASE: draw
+	 * 
+	 * Down:
+	 * - beforeDraw (optional preprocessing) (*)
+	 * - applyProperties
+	 * - drawElement (draw the current figure)
+	 * - drawChildren (draw its children).
+	 * Up: there is no up phase.
+	 * 
+	 * (*) : extension point for subclasses.
+	 *
+	 */
 	
 	public final void draw(Coordinate zoom, GraphicsContext gc,Rectangle part, List<IHasSWTElement> visibleSWTElements) {
 		// TODO: iets met rotate en transformaties
@@ -278,7 +295,6 @@ public abstract class Figure implements Comparable<Figure> {
 			//}
 		}
 	}
-	
 
 	public void beforeDraw(Coordinate zoom) {} 
 
@@ -317,8 +333,6 @@ public abstract class Figure implements Comparable<Figure> {
 		destroyElement(env);
 	}
 
-
-	
 	public void getFiguresUnderMouse(Coordinate c,List<Figure> result){
 		if(!mouseInside(c)){
 			return;
@@ -491,11 +505,6 @@ public abstract class Figure implements Comparable<Figure> {
 	 * center (X,Y) of the current figure. The arrow is placed at At the
 	 * intersection with the border of the current figure and it is
 	 * appropriately rotated.
-	 * 
-	 * @param left
-	 *            X of left corner
-	 * @param top
-	 *            Y of left corner
 	 * @param X
 	 *            X of center of current figure
 	 * @param Y
@@ -505,10 +514,10 @@ public abstract class Figure implements Comparable<Figure> {
 	 * @param fromY
 	 *            Y of center of figure from which connection is to be drawn
 	 * @param toArrow
-	 *            the figure to be used as arrow
+	 *            the figure to be used as arrow (the upperside will act as arrow head)
 	 */
-	public void connectArrowFrom(double left, double top, double X, double Y,
-			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+	public void connectArrowFrom(double X, double Y, double fromX, double fromY,
+			Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
 	
 		System.out.printf("Niet gespecialiseerd %s!!\n",this);
 		for(Dimension d : HOR_VER){
@@ -554,7 +563,7 @@ public abstract class Figure implements Comparable<Figure> {
 		
 		if (toArrow != null) {
 			gc.pushMatrix();
-			gc.translate(left + IX , top + IY );
+			gc.translate(IX , IY);
 			
 			gc.rotate(rotd);
 			gc.translate(-toArrow.size.getX()/2.0,0);
