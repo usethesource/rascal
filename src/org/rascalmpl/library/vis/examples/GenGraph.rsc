@@ -11,8 +11,7 @@ module vis::examples::GenGraph
 import vis::Figure;
 import vis::Render;
 
-import Integer;
-import Real;
+import util::Math;
 import IO;
 
 
