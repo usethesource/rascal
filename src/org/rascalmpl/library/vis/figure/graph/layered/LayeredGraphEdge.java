@@ -26,14 +26,18 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 
 /**
- * A GraphEdge is created for each "edge" constructor that occurs in a graph.
+ * A LayeredGraphEdge is created for each "edge" constructor that occurs in a graph:
+ * - An optional label is a child of LayeredGraphEdge
+ * - Optional to and from arrows are handled outside the default Figure framework (they cannot have mouseOvers etc).
  * 
  * @author paulk
  *
@@ -41,6 +45,7 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
 public class LayeredGraphEdge extends Figure {
 	private LayeredGraphNode from;
 	private LayeredGraphNode to;
+	private LayeredGraphNode endNode; // End node of a chain of virtual nodes that start in this node.
 	Figure toArrow;
 	Figure fromArrow;
 	Figure label = null;
@@ -48,7 +53,6 @@ public class LayeredGraphEdge extends Figure {
 	double labelY = 0;
 	boolean reversed = false;
 	private static boolean debug = true;
-	private static boolean useSplines = true;
 	
 	public LayeredGraphEdge(LayeredGraph G, IFigureConstructionEnv fpa, PropertyManager properties, 
 			IString fromName, IString toName) {
@@ -64,14 +68,14 @@ public class LayeredGraphEdge extends Figure {
 			throw RuntimeExceptionFactory.figureException("No node with id property + \"" + toName.getValue() + "\"", toName, fpa.getRascalContext().getCurrentAST(), fpa.getRascalContext().getStackTrace());
 		}
 		toArrow = prop.getFig(TO_ARROW);
-		
 		fromArrow = prop.getFig(FROM_ARROW);
-		
-		children = new Figure[2];
-		children[0] = toArrow;
-		children[1] = fromArrow;
-		
 		label = prop.getFig(LABEL);
+
+		if(label != null){
+			this.children = new Figure[1];
+			this.children[0] = label;
+		} else
+			this.children = childless;
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue() +
 				", arrows (to/from): " + toArrow + " " + fromArrow + " " + label);
@@ -80,7 +84,7 @@ public class LayeredGraphEdge extends Figure {
 	public LayeredGraphEdge(LayeredGraph G, IFigureConstructionEnv fpa, PropertyManager properties, 
 			IString fromName, IString toName, Figure toArrow, Figure fromArrow){
 		
-		super( properties);
+		super(properties);
 		this.from = G.getRegisteredNodeId(fromName.getValue());
 		
 		if(getFrom() == null){
@@ -93,7 +97,29 @@ public class LayeredGraphEdge extends Figure {
 		}
 		this.toArrow = toArrow;
 		this.fromArrow = fromArrow;
+		
+		if(label != null){
+			this.children = new Figure[1];
+			this.children[0] = label;
+		} else
+			this.children = childless;
 	}
+	
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
+
+		if(fromArrow != null){
+			fromArrow.init(env, resolver, mparent, swtSeen, visible);
+		}
+		if(toArrow != null){
+			toArrow.init(env, resolver, mparent, swtSeen, visible);
+		}
+//		if(label!=null){
+//			label.init(env, resolver, mparent, swtSeen, visible);
+//		}
+		return false;
+	}
+	
 	
 	LayeredGraphNode getFrom() {
 		return reversed ? to : from;
@@ -147,42 +173,45 @@ public class LayeredGraphEdge extends Figure {
 	
 	double points[];
 	int cp;
-	double x1;
-	double y1;
+	//double x1;
+	//double y1;
 	
-	private void beginCurve(double x, double y,GraphicsContext gc){
-		if(useSplines){
-			points = new double[20];
-			cp = 0;
-			addPointToCurve(x, y,gc);
-		} else {
-			x1 = x; y1 = y;
-		}
+	private void beginCurve(double x, double y){
+		points = new double[20];
+		cp = 0;
+		addPointToCurve(x, y);
 	}
 	
-	private void addPointToCurve(double x, double y,GraphicsContext gc){
-		System.err.printf("addPoints(: %f,%f\n", x, y);
-		if(useSplines){
-			if(cp == points.length){
-				double points1[] = new double[2*points.length];
-				for(int i = 0; i < cp; i++)
-					points1[i] = points[i];
-				points = points1;
-			}
-			points[cp++] = globalLocation.getX() + x;
-			points[cp++] = globalLocation.getY() + y;
-		} else {
-			gc.line(globalLocation.getX()+ x1, globalLocation.getY() + y1, globalLocation.getX() + x, globalLocation.getY() + y);
-			x1 = x; y1 = y;
+	private void addPointToCurve(double x, double y){
+		if(cp == points.length){
+			double points1[] = new double[2*points.length];
+			for(int i = 0; i < cp; i++)
+				points1[i] = points[i];
+			points = points1;
 		}
+		points[cp++] =  x;
+		points[cp++] =  y;
 	}
 	
-	private void endCurve(double x, double y,GraphicsContext gc){
-		if(useSplines){
-			addPointToCurve(x, y,gc);
-			drawCurve(gc);
-		} else
-			gc.line(globalLocation.getX()+ x1, globalLocation.getY() + y1, globalLocation.getX() + x, globalLocation.getY() + y);	
+	private void endCurve(double x, double y){
+		addPointToCurve(x, y);
+	}
+	
+	private void addLastSegment(double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode){
+		double dx = currentNode.figX() - prevNode.figX();
+		double dy = (currentNode.figY() - prevNode.figY());
+		double imScale = 0.6f;
+		double imX = prevNode.figX() + dx / 2;
+		double imY = prevNode.figY() + dy * imScale;
+		endNode = currentNode;
+		
+		if(debug)
+			System.err.printf("drawLastSegment: (%f,%f) -> (%f,%f), imX=%f, imY=%f\n",
+					prevNode.figX(), prevNode.figY(),
+					currentNode.figX(), currentNode.figY(), imX, imY);
+		
+		addPointToCurve(imX, imY);
+		endCurve(currentNode.figX(), currentNode.figY());
 	}
 	/**
 	 * Draw a bezier curve through a list of points. Inspired by a blog post "interpolating curves" by rj, which is in turn inspired by
@@ -196,55 +225,103 @@ public class LayeredGraphEdge extends Figure {
 		applyProperties(gc);
 		gc.noFill();
 		gc.beginShape();
-		double x1 = points[0];
-		double y1 = points[1];
+		double globalX = globalLocation.getX();
+		double globalY = globalLocation.getY();
+		double x1 = globalX + points[0];
+		double y1 = globalY + points[1];
 		double xc = 0.0f;
 		double yc = 0.0f;
 		double x2 = 0.0f;
 		double y2 = 0.0f;
 		gc.vertex(x1, y1);
 		for (int i = 2; i < cp - 4; i += 2) {
-			xc = points[i];
-			yc = points[i + 1];
-			x2 = (xc + points[i + 2]) * 0.5f;
-			y2 = (yc + points[i + 3]) * 0.5f;
+			xc = globalX + points[i];
+			yc = globalY + points[i + 1];
+			x2 = (xc + globalX + points[i + 2]) * 0.5f;
+			y2 = (yc + globalY + points[i + 3]) * 0.5f;
 			gc.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
 					         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
 			x1 = x2;
 			y1 = y2;
 		}
-		xc = points[cp - 4];
-		yc = points[cp - 3];
-		x2 = points[cp - 2];
-		y2 = points[cp - 1];
+		xc = globalX + points[cp - 4];
+		yc = globalY + points[cp - 3];
+		x2 = globalX + points[cp - 2];
+		y2 = globalY + points[cp - 1];
 		gc.bezierVertex((x1 + 2.0f * xc) / 3.0f, (y1 + 2.0f * yc) / 3.0f,
 				         (2.0f * xc + x2) / 3.0f, (2.0f * yc + y2) / 3.0f, x2, y2);
 		gc.endShape();
-		points = null;
+	}
+	
+	private void drawCurveAndArrows(GraphicsContext gc,  List<IHasSWTElement> visibleSWTElements){
+		drawCurve(gc);
+		double globalX = globalLocation.getX();
+		double globalY = globalLocation.getY();
+		// Recover the intermediate points for directing the arrows
+		double startImX = globalX + points[2];
+		double startImY = globalY + points[3];
+		double endImX = globalX + points[cp - 4];
+		double endImY = globalY + points[cp - 3];
+		
+		if(getFromArrow() != null){
+			getFrom().figure.connectArrowFrom(globalX + getFrom().figX(), globalY + getFrom().figY(), 
+											  startImX,  startImY,
+					                          getFromArrow(), gc, 
+					                          visibleSWTElements);
+			applyProperties(gc);
+		}
+		if(getToArrow() != null && endNode != null){
+			if(debug)System.err.println("Has a to arrow");
+			
+			endNode.figure.connectArrowFrom(globalX + endNode.figX(), globalY + endNode.figY(),
+											endImX,  endImY,
+											getToArrow(), gc, 
+											visibleSWTElements);
+		}
+		applyProperties(gc);
+	}
+	
+	private void minSizeCurve(){
+		double minX = Double.MAX_VALUE;
+		double maxX = Double.MIN_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxY = Double.MIN_VALUE;
+		for (int i = 0; i < cp - 2; i += 2) {
+			double xp = points[i];
+			double yp = points[i + 1];
+			if(xp > maxX)
+				maxY = xp;
+			if(xp < minX)
+				minX = xp;
+			if(yp > maxY)
+				maxY = yp;
+			if(yp < minY)
+				minY = yp;
+		}
+		if(label != null){
+			minX = Math.min(minX, labelX);
+			maxX = Math.max(maxX, labelX + label.minSize.getX());
+			minY = Math.min(minY, labelY - label.minSize.getY()/2);
+			maxY = Math.max(maxY, labelY + label.minSize.getY()/2);
+		}
 	}
 	
 	@Override
-	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+	public void computeMinSize() {
 		
-		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
+		if(debug){
+				System.err.println("edge: (" + getFrom().name + ": " + getFrom().x + "," + getFrom().y + ") -> (" + 
 								                 getTo().name + ": " + getTo().x + "," + getTo().y + ")");
-		if(debug) System.err.println("label: " + label);
+				System.err.println("label: " + label);
+		}
+		
+		resizable.set(false,false);
 		
 		if(getFrom().isVirtual()){
 			return;
 		}
 		
-		applyProperties(gc);
-		
-		if(getTo().isVirtual()){
-			ArrayList<LayeredGraphNode> virtualNodes = new ArrayList<LayeredGraphNode>();
-			if(debug) System.err.println(getFrom().name + "->" + getTo().name + " label: " + label);
-			
-			for(LayeredGraphNode nv = getTo(); nv.isVirtual(); nv = nv.out.get(0)){
-				if(debug) System.err.println(nv.name + " label: " + nv.label);
-				virtualNodes.add(nv);
-			}
-			
+		if(getTo().isVirtual()){			
 			if(debug)System.err.println("Drawing a shape, inverted=" + reversed);
 			LayeredGraphNode currentNode = getTo();
 			
@@ -254,14 +331,14 @@ public class LayeredGraphEdge extends Figure {
 			double imX = getFrom().figX() + dx/2;
 			double imY = getFrom().figY() + dy * imScale;
 			
-			if(debug)System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n",	getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
+			if(debug)System.err.printf("(%f,%f) -> (%f,%f), midX=%f, midY=%f\n", getFrom().figX(), getFrom().figY(),	currentNode.figX(), currentNode.figY(), imX, imY);
 			
-			beginCurve(getFrom().figX(), getFrom().figY(),gc);
-			addPointToCurve(imX, imY,gc);
+			beginCurve(getFrom().figX(), getFrom().figY());
+			addPointToCurve(imX, imY);
 
 			LayeredGraphNode nextNode = currentNode.out.get(0);
 			
-			addPointToCurve(currentNode.figX(), currentNode.figY(),gc);
+			addPointToCurve(currentNode.figX(), currentNode.figY());
 		
 			LayeredGraphNode prevNode = currentNode;
 			currentNode =  nextNode;
@@ -269,13 +346,12 @@ public class LayeredGraphEdge extends Figure {
 			while(currentNode.isVirtual()){
 				if(debug)System.err.println("Add vertex for " + currentNode.name);
 				nextNode = currentNode.out.get(0);
-				addPointToCurve(currentNode.figX(), currentNode.figY(),gc);
+				addPointToCurve(currentNode.figX(), currentNode.figY());
 				prevNode = currentNode;
 				currentNode = nextNode;
 			}
-		
-			drawLastSegment( imX, imY, prevNode, currentNode, gc, visibleSWTElements);
-			
+			addLastSegment(imX, imY, prevNode, currentNode);
+			minSizeCurve();
 		} else {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
 			if(getTo() == getFrom()){  // Drawing a self edge
@@ -287,112 +363,130 @@ public class LayeredGraphEdge extends Figure {
 				System.err.printf("hgap=%f, vgap=%f\n", hgap, vgap);
 				
 				System.err.printf("Start self edge:\n");
-				beginCurve(globalLocation.getX() + node.figX()+w/2,               globalLocation.getY() + node.figY()-h/4,gc);
-				addPointToCurve(globalLocation.getX() + node.figX()+w/2+hgap/3,   globalLocation.getY() + node.figY()-(h/2),gc);
-				addPointToCurve(globalLocation.getX() + node.figX()+w/2+hgap/3,   globalLocation.getY() + node.figY()-(h/2+vgap/3),gc);
-				addPointToCurve(globalLocation.getX() + node.figX()+w/2,          globalLocation.getY() + node.figY()-(h/2+vgap/3),gc);
-				endCurve(globalLocation.getX() + node.figX()+w/4,                 globalLocation.getY() + node.figY()-h/2,gc);
+				beginCurve(node.figX()+w/2,               node.figY()-h/4);
+				addPointToCurve(node.figX()+w/2+hgap/3,   node.figY()-(h/2));
+				addPointToCurve(node.figX()+w/2+hgap/3,   node.figY()-(h/2+vgap/3));
+				addPointToCurve(node.figX()+w/2,          node.figY()-(h/2+vgap/3));
+				endCurve(node.figX()+w/4,                 node.figY()-h/2);
 
-				
-				if(toArrow != null){
-					if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-					getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-							getTo().figX(), getTo().figY(),
-							getFrom().figX(),  getFrom().figY(),
-							toArrow,gc, visibleSWTElements
-					); 
-					applyProperties(gc);
-					return;
-				}
+				minSizeCurve();
+				return;
 			} else {
-			
-				gc.line(globalLocation.getX() + getFrom().figX(), globalLocation.getY() + getFrom().figY(), 
-						globalLocation.getX() + getTo().figX(), globalLocation.getY() + getTo().figY());
-			}
-			
-			if(fromArrow != null || toArrow != null){
-				if(reversed){
-					
-					if(toArrow != null){
-						if(debug)System.err.println("[reversed] Drawing from arrow from " + getFrom().name);
-						getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-								getFrom().figX(), getFrom().figY(),
-								getTo().figX(), getTo().figY(), 
-								toArrow,gc, visibleSWTElements
-						);
-						applyProperties(gc);
-					}
-						
-					if(fromArrow != null){
-						if(debug)System.err.println("[reversed] Drawing to arrow to " + getToOrg().name);
-						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-								getTo().figX(), getTo().figY(),
-								getFrom().figX(), getFrom().figY(), 
-								fromArrow, gc, visibleSWTElements
-						);
-						applyProperties(gc);
-					}
-				} else {
-					if(debug)System.err.println("Drawing to arrow to " + getTo().name);
-					if(toArrow != null){
-						getTo().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-							getTo().figX(), getTo().figY(), 
-							getFrom().figX(), getFrom().figY(),
-							toArrow, gc, visibleSWTElements
-						);
-						applyProperties(gc);
-					}
-					if(fromArrow != null){
-						if(debug)System.err.println("Drawing from arrow from " + getFrom().name);
-					    getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-							getFrom().figX(), getFrom().figY(), 
-							getTo().figX(), getTo().figY(),
-							fromArrow, gc, visibleSWTElements
-					    );
-					    applyProperties(gc);
-					}
+				/*
+				double minX = Math.min(getTo().figX(), getFrom().figX());
+				double maxX = Math.max(getTo().figX() + getTo().minSize.getX(), getFrom().figX() +  getFrom().minSize.getX());
+				
+				double minY = Math.min(getTo().figY() - getTo().minSize.getY()/2, getFrom().figY() -  getFrom().minSize.getY()/2);
+				double maxY = Math.max(getTo().figY() + getTo().minSize.getY()/2, getFrom().figY() +  getFrom().minSize.getY()/2);
+				
+				if(label != null){
+					minX = Math.min(minX, labelX);
+					maxX = Math.max(maxX, labelX + label.minSize.getX());
+					minY = Math.min(minY, labelY - label.minSize.getY()/2);
+					maxY = Math.max(maxY, labelY + label.minSize.getY()/2);
 				}
+				*/
+				//minSize.set(maxX - minX, maxY - minY);
 			}
-			
 		} 
 	}
 	
-	private void drawLastSegment( double startImX, double startImY, LayeredGraphNode prevNode, LayeredGraphNode currentNode,GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		double dx = currentNode.figX() - prevNode.figX();
-		double dy = (currentNode.figY() - prevNode.figY());
-		double imScale = 0.6f;
-		double imX = prevNode.figX() + dx / 2;
-		double imY = prevNode.figY() + dy * imScale;
-		
-		if(debug)
-			System.err.printf("drawLastSegment: (%f,%f) -> (%f,%f), imX=%f, imY=%f\n",
-					prevNode.figX(), prevNode.figY(),
-					currentNode.figX(), currentNode.figY(), imX, imY);
-		
-		addPointToCurve(imX, imY,gc);
-		endCurve(currentNode.figX(), currentNode.figY(),gc);
-		
-		// Finally draw the arrows on both sides of the edge
-		
-		if(getFromArrow() != null){
-			getFrom().figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-					                          getFrom().figX(), getFrom().figY(), 
-					                          startImX, startImY, 
-					                          getFromArrow(), gc, visibleSWTElements);
-			applyProperties(gc);
+	@Override
+	public void resizeElement(Rectangle view) {
+		localLocation.set(0, 0);
+/*
+		double minX = Math.min(getTo().figX(), getFrom().figX());
+		double maxX = Math.max(getTo().figX() + getTo().minSize.getX(), getFrom().figX() +  getFrom().minSize.getX());
+
+		double minY = Math.min(getTo().figY() - getTo().minSize.getY()/2, getFrom().figY() -  getFrom().minSize.getY()/2);
+		double maxY = Math.max(getTo().figY() + getTo().minSize.getY()/2, getFrom().figY() +  getFrom().minSize.getY()/2);
+
+		if(label != null){
+			minX = Math.min(minX, labelX);
+			maxX = Math.max(maxX, labelX + label.minSize.getX());
+			minY = Math.min(minY, labelY - label.minSize.getY()/2);
+			maxY = Math.max(maxY, labelY + label.minSize.getY()/2);
 		}
-		if(getToArrow() != null){
-			if(debug)System.err.println("Has a to arrow");
-			currentNode.figure.connectArrowFrom(globalLocation.getX(), globalLocation.getY(), 
-												currentNode.figX(), currentNode.figY(),
-												imX, imY, 
-												getToArrow(), gc, visibleSWTElements);
+
+		//size.set(maxX - minX, maxY - minY);
+*/
+		if(fromArrow!=null){
+			fromArrow.localLocation.set(0,0);
+			fromArrow.globalLocation.set(0,0);
+			fromArrow.size.set(minSize);
+			//fromArrow.resize(view,transform);
 		}
-		applyProperties(gc);
+		if(toArrow!=null){
+			toArrow.localLocation.set(0,0);
+			toArrow.globalLocation.set(0,0);
+			toArrow.size.set(minSize);
+			//toArrow.resize(view,transform);
+		}
+
+		if(label != null){
+			label.localLocation.setX(labelX);
+			label.localLocation.setY(labelY - label.minSize.getY()/2);
+		}
 	}
 	
-	public void setLabelCoordinates(){
+	@Override
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		
+		if(getFrom().isVirtual()){
+			return;
+		}
+		
+		applyProperties(gc);
+		
+		if(getTo().isVirtual()){			
+			drawCurveAndArrows(gc, visibleSWTElements);
+		} else {
+			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
+			double globalX = globalLocation.getX();
+			double globalY = globalLocation.getY();
+			if(getTo() == getFrom()){  // Drawing a self edge
+				drawCurve(gc);
+				LayeredGraphNode node = getTo();
+				double h = node.figure.minSize.getY();
+				double w = node.figure.minSize.getX();
+				drawSelfArrow(toArrow,   globalX + node.figX()+w/4, globalY + node.figY()-h/2, gc, visibleSWTElements);
+				drawSelfArrow(fromArrow, globalX + node.figX()+w/2, globalY + node.figY()-h/4, gc, visibleSWTElements);
+				return;
+			} else {
+				gc.line(globalX + getFrom().figX(), globalY + getFrom().figY(), 
+						globalX + getTo().figX(),   globalY + getTo().figY());
+				drawArrow(toArrow, !reversed, gc, visibleSWTElements);
+				drawArrow(fromArrow, reversed, gc, visibleSWTElements);
+			}
+		} 
+	}
+	
+	private void drawArrow(Figure arrow, boolean towards, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		if(arrow != null){
+			LayeredGraphNode from = towards ? getFrom() : getTo();
+			LayeredGraphNode to   = towards ? getTo() : getFrom();
+			to.figure.connectArrowFrom(globalLocation.getX() + to.figX(),   globalLocation.getY() + to.figY(), 
+					      			   globalLocation.getX() + from.figX(), globalLocation.getY() + from.figY(), 
+					      			   arrow, gc, visibleSWTElements);
+			applyProperties(gc);
+		}
+	}
+	
+	private void drawSelfArrow(Figure arrow, double cx, double cy, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		if(arrow != null){
+			LayeredGraphNode to = getTo();
+			to.figure.connectArrowFrom(globalLocation.getX() + to.figX(), globalLocation.getY() + to.figY(), 
+									   cx, cy,
+									   arrow, gc, visibleSWTElements); 
+			applyProperties(gc);
+		}
+	}
+	
+	/*
+	 * Placement of labels.
+	 */
+	
+	public void setLabelCoordinates(){
 		setLabelCoordinates(0.4);
 	}
 	
@@ -417,6 +511,8 @@ public class LayeredGraphEdge extends Figure {
 			labelX = 5 + getFrom().x + dirX*(Math.abs(getTo().x - getFrom().x))*perc;
 			if(align < 0)
 				labelX -= label.minSize.getX();
+			label.localLocation.setX(labelX);
+			label.localLocation.setY(labelY - label.minSize.getY()/2);
 		}
 	}
 	
@@ -434,10 +530,8 @@ public class LayeredGraphEdge extends Figure {
 		double otop = other.labelY - other.label.minSize.getY()/2;
 		double obot = other.labelY + other.label.minSize.getY()/2;
 		
-		return top < otop ? bot > otop : obot > top;
-				
+		return top < otop ? bot > otop : obot > top;		
 	}
-	
 	
 	private boolean xoverlap(LinkedList<LayeredGraphEdge> layerLabels, int k){
 		LayeredGraphEdge other = layerLabels.get(k);
@@ -485,16 +579,5 @@ public class LayeredGraphEdge extends Figure {
 	public Figure getLabel() {
 		return label;
 	}
-
-	@Override
-	public void computeMinSize() {
-		
-	}
-
-	@Override
-	public void resizeElement(Rectangle view) {
-		
-	}
-	
 }
 

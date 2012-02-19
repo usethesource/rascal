@@ -17,19 +17,20 @@ import static org.rascalmpl.library.vis.properties.Properties.LAYER;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
+import org.rascalmpl.library.vis.util.vector.Rectangle;
 /**
  * A GraphNode is created for each "node" constructor that occurs in the graph.
  * 
  * @author paulk
  *
  */
-/**
- * @author paulklint
- *
- */
-public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
+
+public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGraphNode>*/ {
 	
 	protected String name;
 	protected Figure figure;
@@ -61,9 +62,15 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	private double virtHeight = 20;
 	
 	LayeredGraphNode(LayeredGraph g, String name, Figure fig){
+		super(g.prop);
 		this.graph = g;
 		this.name = name;
 		this.figure = fig;
+		if(fig != null){
+			this.children = new Figure[1];
+		    this.children[0] = fig;
+		} else
+			this.children = childless;
 		in = new LinkedList<LayeredGraphNode>();
 		out = new LinkedList<LayeredGraphNode>();
 		root = align = sink = this;
@@ -80,6 +87,10 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 		x = y = -1;
 		marked = false;
 		root = align = sink = this;
+	}
+	
+	public void computeMinSize(){
+		//resizable.set(false,false);
 	}
 	
 	public void print(){
@@ -523,7 +534,6 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	}
 	
 	/* Standard figure elements and operations */
-
 	
 	public double figX(){
 		return x;
@@ -531,10 +541,6 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	public double figY(){
 		return y;
-	}
-	
-	void bbox(){
-		blockWidth = figure.minSize.getX();
 	}
 	
 	double width(){
@@ -547,5 +553,18 @@ public class LayeredGraphNode implements Comparable<LayeredGraphNode> {
 	
 	String getLayer(){
 		return figure != null ? figure.prop.getStr(LAYER): "";
+	}
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		localLocation.set(0, 0);
+		if(figure != null){
+			figure.localLocation.set(x - figure.minSize.getX()/2, y - figure.minSize.getY()/2);
+		}
+	}
+	
+	@Override
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+	
 	}
 }

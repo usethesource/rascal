@@ -23,7 +23,6 @@ import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -33,14 +32,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
-import org.rascalmpl.library.vis.figure.interaction.MouseOver;
-import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
-import org.rascalmpl.library.vis.util.vector.TransformMatrix;
 import org.rascalmpl.values.ValueFactoryFactory;
 /**
 
@@ -73,38 +67,21 @@ public class LayeredGraph extends Figure {
 	private static final double DINFINITY = Double.MAX_VALUE -1000;
 	
 	private static final boolean debug = false;
-	@SuppressWarnings("unused")
-	private static final boolean printGraph = false;
+	private boolean doneLayout = false;
 	
 	public LayeredGraph(IFigureConstructionEnv fpa, PropertyManager properties, Figure[] nodes,
 			IList edges) {
 		super(properties);
-		this.fpa = fpa;
-//		if(printGraph){
-//			String sep = "";
-//			System.err.printf("graph([\n");
-////			for(IValue v: nodes){
-////				System.err.printf("%s", sep + v);
-////				sep = ",\n\t";
-////			}
-//			System.err.printf("],\n[\n");
-//			sep = "";
-//			for(IValue v: edges){
-//				System.err.printf("%s", sep + v);
-//				sep = ",\n\t";
-//			}
-//			System.err.printf("]);");
-//		}
-		
+		this.fpa = fpa;		
 		
 		// Create the nodes
 		
 		this.nodes = new ArrayList<LayeredGraphNode>();
 		registeredNodeIds = new HashMap<String,LayeredGraphNode>();
 		registeredLayerIds =  new HashMap<String, LinkedList<LayeredGraphNode>>();
-		ArrayList<Figure> children = new ArrayList<Figure>();
+		ArrayList<Figure> listOfChildren = new ArrayList<Figure>();
 		for(Figure fig : nodes){
-			children.add(fig);
+			//children.add(fig);
 			String name = fig.prop.getStr(ID);
 			String layer = fig.prop.getStr(LAYER);
 
@@ -117,6 +94,7 @@ public class LayeredGraph extends Figure {
 			LayeredGraphNode node = new LayeredGraphNode(this, name, fig);
 			this.nodes.add(node);
 			registerNodeId(name, node);
+			listOfChildren.add(node);
 			
 			if(layer.length() > 0){
 				registerLayerId(layer, node);
@@ -167,10 +145,14 @@ public class LayeredGraph extends Figure {
 				e.getFrom().addOut(e.getTo());
 				e.getTo().addIn(e.getFrom());
 			}
+			listOfChildren.add(e);  // <======
+			if(e.label != null)
+				listOfChildren.add(e.label);
 		}
 		
-		this.children = new Figure[children.size()];
-		this.children = children.toArray(this.children);
+		this.children = new Figure[listOfChildren.size()];
+		this.children = listOfChildren.toArray(this.children);
+		//this.children = new Figure[0];
 
 		if(debug){
 			for(LayeredGraphEdge e : this.edges){
@@ -178,6 +160,145 @@ public class LayeredGraph extends Figure {
 			}
 		}
 	}
+	
+
+	@Override
+	public void computeMinSize() {
+		if(doneLayout)
+			return;
+		doneLayout = true;
+		minSize.setX(prop.getReal(HSIZE));
+		MAXWIDTH = Integer.MAX_VALUE;
+		minSize.setY(prop.getReal(VSIZE));
+		hgap = prop.getReal(HGAP);
+		vgap = prop.getReal(VGAP);
+
+		//switchWidthAndHeight();
+		computeGraphLayout();
+		alignToSmallest();
+		translateToOrigin();
+		placeLabels(layers);
+		translateToOrigin();
+		
+		//switchWidthAndHeight();
+		rotateToDirection();
+		//setGraphMinSize();
+		
+		int nChildren = nodes.size() + edges.size();
+		int nedges = edges.size();
+		this.children = new Figure[nChildren];
+		System.err.println("*** nChildren = " + nChildren);
+		
+		for(int i = 0; i < nedges; i++)
+			this.children[i] = edges.get(i);
+		for(int i = 0; i < nodes.size(); i++)
+			this.children[nedges + i] = nodes.get(i);
+	
+		for(Figure fig : children)
+			fig.computeMinSize();
+	
+		System.err.println("*** length = " + this.children.length);
+	}
+	
+//	private void setGraphMinSize(){
+//		double minWidth = 0;
+//		double minHeight = 0;
+//		double w;
+//		double h;
+//		for(LayeredGraphNode g : nodes){
+//			w = g.x + g.width()/2;
+//			h = g.y + g.height()/2;
+//			if(w > minWidth)
+//				minWidth = w;
+//			if(h > minHeight)
+//				minHeight = h;
+//		}
+//		for(LayeredGraphEdge e1 : edges){
+//			w = e1.minSize.getX();
+//			h = e1.minSize.getY();
+//			
+//			if(w > minWidth)
+//				minWidth = w;
+//			if(h > minHeight)
+//				minHeight = h;
+//		}
+//		minSize.set(minWidth, minHeight);
+//	}
+
+	@Override
+	public void resizeElement(Rectangle view) {
+		localLocation.set(0,0);
+		/*
+		 for(LayeredGraphNode g : nodes){
+			if(g.figure != null){
+				g.figure.localLocation.set(g.x - g.figure.minSize.getX()/2, g.y - g.figure.minSize.getY()/2);
+			}
+		}
+		*/
+	}
+	
+/*	
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		applyProperties(gc);
+		gc.translate(globalLocation.getX(), globalLocation.getY());
+		//for(LayeredGraphEdge e : edges){
+		//	e.drawElement(gc, visibleSWTElements);
+		//}
+		for(LayeredGraphEdge e1 : edges){
+			if(e1.label != null){
+				e1.label.globalLocation.setX(e1.labelX);
+				e1.label.globalLocation.setY(e1.labelY - e1.label.minSize.getY()/2);
+				e1.label.drawElement(gc,visibleSWTElements);
+			}
+		}
+		gc.translate(-globalLocation.getX(), -globalLocation.getY());
+		System.out.printf("Going back %s\n",globalLocation);
+	}
+*/
+	/*
+	public boolean initChildren(IFigureConstructionEnv env,
+			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
+		super.initChildren(env, resolver, mparent, swtSeen, visible);
+		for(LayeredGraphEdge e : edges){
+			if(e.fromArrow!=null){
+				e.fromArrow.init(env, resolver, mparent, swtSeen, visible);
+			}
+			if(e.toArrow!=null){
+				e.toArrow.init(env, resolver, mparent, swtSeen, visible);
+			}
+			if(e.label!=null){
+				e.label.init(env, resolver, mparent, swtSeen, visible);
+			}
+		}
+		
+		return false;
+	}
+	*/
+/*
+	public void resizeChildren(Rectangle view, TransformMatrix transform) {
+		for(LayeredGraphEdge e : edges){
+			if(e.fromArrow!=null){
+				e.fromArrow.localLocation.set(0,0);
+				e.fromArrow.globalLocation.set(0,0);
+				e.fromArrow.size.set(minSize);
+				e.fromArrow.resize(view,transform);
+			}
+			if(e.toArrow!=null){
+				e.toArrow.localLocation.set(0,0);
+				e.toArrow.globalLocation.set(0,0);
+				e.toArrow.size.set(minSize);
+				e.toArrow.resize(view,transform);
+			}
+			if(e.label!=null){
+				e.label.localLocation.set(0,0);
+				e.label.globalLocation.set(0,0);
+				e.label.size.set(minSize);
+				e.label.resize(view,transform);
+			}
+		}
+		super.resizeChildren(view, transform);
+	}
+	*/
 	
 	/**
 	 * Associate name with node nd
@@ -236,7 +357,6 @@ public class LayeredGraph extends Figure {
 		System.err.printf("]\n");
 	}
 	
-	
 	private void printGraph(String txt){
 		System.err.println(txt);
 		for(LayeredGraphNode g : nodes){
@@ -274,15 +394,15 @@ public class LayeredGraph extends Figure {
 		
 		for (LayeredGraphEdge e : edges) {
 			if(e.label != null){
-				double w2 = e.label.minSize.getX() / 2;
+				double w = e.label.minSize.getX();
 				double h2 = e.label.minSize.getY() / 2;
 
 			System.err.println("labelX = " + e.labelX);
 				if (e.labelX < minx)
 					minx = e.labelX;
 
-				if (e.labelX + w2 > maxx)
-					maxx = e.labelX + w2;
+				if (e.labelX + w > maxx)
+					maxx = e.labelX + w;
 
 				if (e.labelY - h2 < miny)
 					miny = e.labelY - h2;
@@ -1442,107 +1562,4 @@ public class LayeredGraph extends Figure {
 		for(LinkedList<LayeredGraphEdge> layerLabels : labels)
 			LayeredGraphEdge.optimizeLabels(layerLabels);
 	}
-	
-	private void setGraphMinSize(){
-		double minWidth = 0;
-		double minHeight = 0;
-		for(LayeredGraphNode g : nodes){
-			double w = g.x + g.width()/2;
-			double h = g.y + g.height()/2;
-			if(w > minWidth)
-				minWidth = w;
-			if(h > minHeight)
-				minHeight = h;
-		}
-		minSize.set(minWidth, minHeight);
-	}
-
-	@Override
-	public void computeMinSize() {
-		minSize.setX(prop.getReal(HSIZE));
-		MAXWIDTH = Integer.MAX_VALUE;
-		minSize.setY(prop.getReal(VSIZE));
-		hgap = prop.getReal(HGAP);
-		vgap = prop.getReal(VGAP);
-
-		//switchWidthAndHeight();
-		computeGraphLayout();
-		alignToSmallest();
-		translateToOrigin();
-		placeLabels(layers);
-		translateToOrigin();
-		
-		//switchWidthAndHeight();
-		rotateToDirection();
-		setGraphMinSize();
-	}
-
-	@Override
-	public void resizeElement(Rectangle view) {
-		for(LayeredGraphNode g : nodes){
-			if(g.figure != null){
-				g.figure.localLocation.set(g.x - g.figure.minSize.getX()/2, g.y - g.figure.minSize.getY()/2);
-			}
-		}
-	}
-	
-	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-		applyProperties(gc);
-		gc.translate(globalLocation.getX(), globalLocation.getY());
-		for(LayeredGraphEdge e : edges){
-			e.drawElement(gc, visibleSWTElements);
-		}
-		for(LayeredGraphEdge e1 : edges){
-			if(e1.label != null){
-				e1.label.globalLocation.setX(e1.labelX);
-				e1.label.globalLocation.setY(e1.labelY - e1.label.minSize.getY()/2);
-				e1.label.drawElement(gc,visibleSWTElements);
-			}
-		}
-		gc.translate(-globalLocation.getX(), -globalLocation.getY());
-		System.out.printf("Going back %s\n",globalLocation);
-	}
-	
-	public boolean initChildren(IFigureConstructionEnv env,
-			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
-		super.initChildren(env, resolver, mparent, swtSeen, visible);
-		for(LayeredGraphEdge e : edges){
-			if(e.fromArrow!=null){
-				e.fromArrow.init(env, resolver, mparent, swtSeen, visible);
-			}
-			if(e.toArrow!=null){
-				e.toArrow.init(env, resolver, mparent, swtSeen, visible);
-			}
-			if(e.label!=null){
-				e.label.init(env, resolver, mparent, swtSeen, visible);
-			}
-		}
-		return false;
-	}
-	
-
-	public void resizeChildren(Rectangle view, TransformMatrix transform) {
-		for(LayeredGraphEdge e : edges){
-			if(e.fromArrow!=null){
-				e.fromArrow.localLocation.set(0,0);
-				e.fromArrow.globalLocation.set(0,0);
-				e.fromArrow.size.set(minSize);
-				e.fromArrow.resize(view,transform);
-			}
-			if(e.toArrow!=null){
-				e.toArrow.localLocation.set(0,0);
-				e.toArrow.globalLocation.set(0,0);
-				e.toArrow.size.set(minSize);
-				e.toArrow.resize(view,transform);
-			}
-			if(e.label!=null){
-				e.label.localLocation.set(0,0);
-				e.label.globalLocation.set(0,0);
-				e.label.size.set(minSize);
-				e.label.resize(view,transform);
-			}
-		}
-		super.resizeChildren(view, transform);
-	}
-	
 }

@@ -43,10 +43,10 @@ public abstract class LayoutProxy extends WithInnerFig {
 	}
 	
 	@Override
-	public void connectArrowFrom(double left, double top, double X, double Y,
-			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+	public void connectArrowFrom(double X, double Y, double fromX, double fromY,
+			Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
 		if(children.length > 0){
-			children[0].connectArrowFrom(left, top, X, Y, fromX, fromY, toArrow, gc, visibleSWTElements);
+			children[0].connectArrowFrom(X, Y, fromX, fromY, toArrow, gc, visibleSWTElements);
 		}
 	}
 	
