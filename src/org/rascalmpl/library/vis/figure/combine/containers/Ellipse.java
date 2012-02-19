@@ -89,8 +89,6 @@ public class Ellipse extends Container {
 	/**
 	 * Draw a connection from an external position (fromX, fromY) to the center (X,Y) of the current figure.
 	 * At the intersection with the border of the current figure, place an arrow that is appropriately rotated.
-	 * @param left		X of left corner
-	 * @param top		Y of left corner
 	 * @param X			X of center of current figure
 	 * @param Y			Y of center of current figure
 	 * @param fromX		X of center of figure from which connection is to be drawn
@@ -99,8 +97,8 @@ public class Ellipse extends Container {
 	 */
 	
 	@Override
-	public void connectArrowFrom(double left, double top, double X, double Y,
-			double fromX, double fromY, Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
+	public void connectArrowFrom(double X, double Y, double fromX, double fromY,
+			Figure toArrow, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements ) {
 		
 		for(Dimension d : HOR_VER){
 			toArrow.minSize.set(d,toArrow.prop.get2DReal(d, SIZE));
@@ -129,7 +127,7 @@ public class Ellipse extends Container {
         double rotd = -90 + Math.toDegrees(theta);
         if(toArrow != null){
         	gc.pushMatrix();
-        	gc.translate(left + IX, top + IY);
+        	gc.translate(IX, IY);
         	gc.rotate(rotd);
 			gc.translate(-toArrow.size.getX()/2.0,0);
         	
