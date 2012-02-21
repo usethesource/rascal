@@ -54,9 +54,11 @@ public str prettyPrintType(\tuple(list[Symbol] ts)) = "tuple[<intercalate(", ", 
 public str prettyPrintType(\list(Symbol t)) = "list[<prettyPrintType(t)>]";
 public str prettyPrintType(\map(Symbol d, Symbol r)) = "map[<prettyPrintType(d)>, <prettyPrintType(r)>]";
 public str prettyPrintType(\bag(Symbol t)) = "bag[<prettyPrintType(t)>]";
-public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
+public str prettyPrintType(\adt(str s, list[Symbol] ps)) = s when size(ps) == 0;
+public str prettyPrintType(\adt(str s, list[Symbol] ps)) = "<s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]" when size(ps) > 0;
 public str prettyPrintType(Symbol::\cons(Symbol a, list[Symbol] fs)) = "<prettyPrintType(a)> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
-public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>";
+public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
+public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
 //public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(\reified(Symbol t)) = "type[#<prettyPrintType(t)>]";

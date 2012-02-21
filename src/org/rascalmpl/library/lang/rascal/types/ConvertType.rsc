@@ -25,6 +25,9 @@ import lang::rascal::syntax::RascalRascal;
 @doc{Annotations for adding error and warning information to types}
 anno set[Message] Symbol@errinfo;
 
+@doc{Mark the location of the type in the source file}
+anno loc Symbol@at;
+
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
 public Symbol convertBasicType(BasicType t) {
     switch(t) {
@@ -201,8 +204,8 @@ public Symbol convertFunctionType(FunctionType ft) {
 @doc{Convert Rascal user types into their abstract representation.}
 public Symbol convertUserType(UserType ut) {
     switch(ut) {
-        case (UserType) `<QualifiedName n>` : return \user(convertName(n),[]);
-        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return \user(convertName(n),[convertType(ti) | ti <- ts]);
+        case (UserType) `<QualifiedName n>` : return \user(convertName(n),[])[@at=ut@\loc];
+        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return \user(convertName(n),[convertType(ti) | ti <- ts])[@at=ut@\loc];
     }
 }
 
