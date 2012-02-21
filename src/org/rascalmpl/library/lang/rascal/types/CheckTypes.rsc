@@ -57,11 +57,16 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 7. Make sure add errors are encoded as exceptions. This way we don't need
 //    to always encode checks to see if we can add the given item, we can just
-//    try and catch any errors.
+//    try and catch any errors. REMOVED: We now generate scope errors in the add
+//    routines, which allows us to handle the add logic (including whether add
+//    is allowed in some cases) in one place. Throws are too disruptive, since
+//    they can stop the checker from running if not handled properly, while
+//    registering errors provides a better UI experience.
 //
 // 8. Make sure that, when we have a declaration (even one with a type), we
 //    check shadowing! This is done in statements, but is not always done
-//    now in patterns.
+//    now in patterns. DONE: This is handled by now having the logic to mark
+//    scope errors in the functions used to add variables.
 //
 // 9. Make sure that varargs parameters are properly given list types. Also make sure
 //    they are just names (not varargs of a tuple pattern, for instance)
@@ -86,9 +91,9 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 16. Change shadowing rules to allow shadowing of imported items by items
 //     in the current module. Note that functions do not shadow, but are
-//     instead added into the overloaded cases.
+//     instead added into the overloaded cases. DONE.
 //
-// 17. Support _ in assignables
+// 17. Support _ in assignables DONE
 //
 // 18. Provide support for insert DONE
 //
@@ -223,16 +228,66 @@ public Configuration addLabel(Configuration c, RName n, loc l, LabelSource ls) {
 
 public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
+public int definingContainer(Configuration c, int i) {
+	cid = c.store[i].containedIn;
+	if (\module(_,_) := c.store[cid]) return cid;
+	if (\function(_,_,_,_,_) := c.store[cid]) return cid;
+	if (\closure(_,_,_) := c.store[cid]) return cid;
+	return definingContainer(c,cid);
+}
+
+public list[int] upToContainer(Configuration c, int i) {
+	if (\module(_,_) := c.store[i]) return [i];
+	if (\function(_,_,_,_,_) := c.store[i]) return [i];
+	if (\closure(_,_,_) := c.store[i]) return [i];
+	return [i] + upToContainer(c,c.store[i].containedIn);
+}
+
 public Configuration addVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
 	moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-	c.fcvEnv[n] = c.nextLoc;
-	if (\module(_,_) := c.store[head(c.stack)]) {
-		// If this variable is module-level, also make it referenceable through
-		// the qualified name module::variable.
-		moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
-		c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
+	atRootOfModule = \module(_,_) := c.store[head(c.stack)];
+	if (n notin c.fcvEnv) {
+		c.fcvEnv[n] = c.nextLoc;
+		if (atRootOfModule) c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+		c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
+		c.definitions = c.definitions + < c.nextLoc, l >;
+		c.nextLoc = c.nextLoc + 1;
+	} else {
+		if (atRootOfModule && \module(_,_) := c.store[c.fcvEnv[n]].containedIn && c.store[c.fcvEnv[n]].containedIn != moduleId) {
+			// In this case, we are adding a global variable that shadows another global item
+			// from a different module. This is allowed, but:
+			// TODO: Add a warning indicating we are doing so.
+			c.fcvEnv[n] = c.nextLoc;
+			c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
+			c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
+			c.definitions = c.definitions + < c.nextLoc, l >;
+			c.nextLoc = c.nextLoc + 1;
+		} else if (atRootOfModule && \module(_,_) := c.store[c.fcvEnv[n]].containedIn && c.store[c.fcvEnv[n]].containedIn == moduleId) {
+			// In this case, we are adding a global variable that shadows another global item
+			// from the same module, which is not allowed.
+			c = addScopeError(c, "Cannot re-declare global name", l);
+			c.uses = c.uses + < c.fcvEnv[n], l >;
+		} else {
+			containingScopes = upToContainer(c,head(c.stack));
+			conflictIds = (overload(ids,_) := c.store[c.fcvEnv[n]]) ? ids : { c.fcvEnv[n] };
+			containingIds = { definingContainer(c,i) | i <- conflictIds };
+			if (size(toSet(containingScopes) & containingIds) > 0) {
+				c = addScopeError(c, "Cannot re-declare name that is already declared in the current function or closure", l);
+				c.uses = c.uses + < c.fcvEnv[n], l >;
+			} else {
+				c.fcvEnv[n] = c.nextLoc;
+				c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
+				c.definitions = c.definitions + < c.nextLoc, l >;
+				c.nextLoc = c.nextLoc + 1;
+			}
+		}
 	}
-	c.store[c.nextLoc] = variable(n,rt,inf,head(c.stack),l);
+	return c;
+}
+
+public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
+	c.store[c.nextLoc] = variable(RSimpleName("_"),rt,true,head(c.stack),l);
 	c.definitions = c.definitions + < c.nextLoc, l >;
 	c.nextLoc = c.nextLoc + 1;
 	return c;
@@ -375,7 +430,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
 			c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype",l);
 		c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
 		c.store[c.nextLoc+1] = overload({ c.fcvEnv[n], c.nextLoc }, overloaded({ c.store[c.fcvEnv[n]].rtype, rt }));
-		c.fcvEnv[n] = c.nextLoc+1;
+		// TOOD: Here, we need to map all defs of n (including qualified) to the new id
+		for (cname <- invert(c.fcvEnv)[c.fcvEnv[n]])
+			c.fcvEnv[cname] = c.nextLoc+1;
 		c.nextLoc = c.nextLoc + 2;
 	} else {
 		throw "Invalid addition: cannot add constructor into scope, it clashes with non-constructor variable or function names";
@@ -483,32 +540,6 @@ public Configuration addTag(Configuration c, TagKind tk, RName n, set[Symbol] on
 		c.nextLoc = c.nextLoc + 1;
 	}
 	
-	return c;
-}
-
-@doc{Check to see if a var with name n can shadow. It always can if the name is not yet defined. If the name is defined,
-     it can be shadowed if it was declared outside the current function (or module, if we are at the top level). }
-public bool varCanShadow(Configuration c, RName n) {
-	// If the name isn't in scope, we can always add it
-	if (n notin c.fcvEnv) return true;
-	
-	// If the name is the same as the name of one of the functions we are nested inside,
-	// we can never add it.
-	if (size({ idx | idx <- c.stack, function(n,_,_,_,_) := c.store[idx] }) > 0) return false;
-
-	// This gets the scopes defined back to the most recent function or module.	
-	stackItems = toSet(head(c.stack,head([ idx | idx <- index(c.stack), function(_,_,_,_,_) := c.store[c.stack[idx]] || closure(_,_,_) := c.store[c.stack[idx]] || \module(_,_) := c.store[c.stack[idx]]])+1));
-
-	av = c.store[c.fcvEnv[n]];
-	if (overload(items,_) := av) {
-		return isEmpty(stackItems & { c.store[i].containedIn | i <- items });
-	} else {
-		return av.containedIn notin stackItems;
-	}
-}
-
-public Configuration assignVariableType(Configuration c, RName n, Symbol t) {
-	c.store[c.fcvEnv[n]].rtype = t;
 	return c;
 }
 
@@ -731,7 +762,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
 				// list, while failing in cases where the type is dependent on
 				// the number of iterations.
 				erType = t3;
-				cRed = assignVariableType(cRed, RSimpleName("it"), erType);
+				cRed.store[cRed.fcvEnv[RSimpleName("it")]].rtype = erType;
 				< cRed, t3 > = checkExp(er, cRed);
 				if (!isFailType(t3)) {
 					if (!equivalent(erType,t3)) {
@@ -746,7 +777,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
 		} else {
 			erType = t3;
 		}
-		cRed = assignVariableType(cRed, RSimpleName("it"), erType);
+		cRed.store[cRed.fcvEnv[RSimpleName("it")]].rtype = erType;
 	}
 
 	// Leave the boolean scope, which will remove all names added in the generators and
@@ -1146,7 +1177,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<QualifiedName qn>`, Con
 		c.uses = c.uses + < c.fcvEnv[n], exp@\loc >;
 		return markLocationType(c, exp@\loc, c.store[c.fcvEnv[n]].rtype);
 	} else {
-		return markLocationFailed(c, exp@\loc, makeFailType("Name is not in scope", exp@\loc));
+		return markLocationFailed(c, exp@\loc, makeFailType("Name <prettyPrintName(n)> is not in scope", exp@\loc));
 	}
 }
 
@@ -2098,7 +2129,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Pattern p> <- <Expressi
 		< cEnum, t2 > = calculatePatternType(p, cEnum, getMapDomainType(t1));
 	else if (isADTType(t1) || isTupleType(t1) || isNodeType(t1))
 		< cEnum, t2 > = calculatePatternType(p, cEnum, \value());
-	
+	else {
+		t2 = makeFailType("Type <prettyPrintType(t1)> is not enumerable", exp@\loc);
+	}
+	//println("<exp@\loc>: pattern type for pattern <p> is <prettyPrintType(t2)>");
 	c = needNewScope ? exitBooleanScope(cEnum, c) : cEnum;
 	
 	if (isFailType(t2)) return markLocationFailed(c, exp@\loc, t2);
@@ -2243,12 +2277,9 @@ public CheckResult checkLiteral(Literal l:(Literal)`<RegExpLiteral rl>`, Configu
 					c.uses += < c.fcvEnv[rn], n@\loc >;
 				}
 			} else {
-				// If this is a definition, add it into scope if possible.
-				if (varCanShadow(c, rn)) {
-					c = addVariable(c, rn, false, n@\loc, \str());
-				} else {
-					c = addScopeMessage(c, error("Name is already bound in the current scope", n@\loc));
-				}
+				// If this is a definition, add it into scope.
+				c = addVariable(c, rn, false, n@\loc, \str());
+				
 				// Then process names used in the def part.
 				for (cn <- defUses[n]) {
 					if (!fcvExists(c,convertName(cn))) {
@@ -2458,6 +2489,9 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <
 @doc{Allows PatternTree nodes to be annotated with types.}
 public anno Symbol PatternTree@rtype;
 
+@doc{Allows PatternTree nodes to keep track of which ids they define.}
+public anno set[int] PatternTree@defs;
+
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
 
@@ -2478,12 +2512,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		case ptn:setNode(ptns) : {
 			for (idx <- index(ptns), multiNameNode(n) := ptns[idx]) {
 				if (RSimpleName("_") == n) {
-					ptns[idx] = ptns[idx][@rtype = \inferred(c.uniqueify)];
+					rt = \inferred(c.uniqueify);
 					c.uniqueify = c.uniqueify + 1;
+					c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+					ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 				} else if (!fcvExists(c, n)) {
-					c = addVariable(c, n, true, ptns[idx]@at, \set(\inferred(c.uniqueify)));
-					ptns[idx] = ptns[idx][@rtype = \inferred(c.uniqueify)];
+					rt = \inferred(c.uniqueify);
 					c.uniqueify = c.uniqueify + 1;
+					c = addVariable(c, n, true, ptns[idx]@at, \set(rt));
+					ptns[idx] = ptns[idx][@rtype = rt];
 				} else {
 					c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
 					Symbol rt = c.store[c.fcvEnv[n]].rtype;
@@ -2499,12 +2536,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		case ptn:listNode(ptns) : {
 			for (idx <- index(ptns), multiNameNode(n) := ptns[idx]) {
 				if (RSimpleName("_") == n) {
-					ptns[idx] = ptns[idx][@rtype = \inferred(c.uniqueify)];
+					rt = \inferred(c.uniqueify);
 					c.uniqueify = c.uniqueify + 1;
+					c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+					ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 				} else if (!fcvExists(c, n)) {
-					c = addVariable(c, n, true, ptns[idx]@at, \list(\inferred(c.uniqueify)));
-					ptns[idx] = ptns[idx][@rtype = \inferred(c.uniqueify)];
+					rt = \inferred(c.uniqueify);
 					c.uniqueify = c.uniqueify + 1;
+					c = addVariable(c, n, true, ptns[idx]@at, \list(rt));
+					ptns[idx] = ptns[idx][@rtype = rt];
 				} else {
 					c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
 					Symbol rt = c.store[c.fcvEnv[n]].rtype;
@@ -2519,14 +2559,21 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 
 		case ptn:nameNode(n) : { 
 			if (RSimpleName("_") == n) {
-				insert(ptn[@rtype = \inferred(c.uniqueify)]);
+				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
+				c = addUnnamedVariable(c, ptn@at, rt);
+				insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
 			} else if (!fcvExists(c, n)) {
-				c = addVariable(c, n, true, ptn@at, \inferred(c.uniqueify));
+				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
+				if ("<prettyPrintName(n)>" == "label") println(c.fcvEnv);
+				c = addVariable(c, n, true, ptn@at, rt);
+				println("<ptn@at>: added variable for name <n> with type <c.store[c.fcvEnv[n]].rtype>");
+				if ("<prettyPrintName(n)>" == "label") println(c.fcvEnv);
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			} else {
 				c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+				println("<ptn@at>: added use for name <n> with type <c.store[c.fcvEnv[n]].rtype>");
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}
 		}
@@ -2536,12 +2583,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		case ptn:literalNode(list[tuple[DefOrUse,loc]] names) : {
 			for ( < d, l > <- names ) {
 				if (def(n) := d) {
-					if (varCanShadow(c, n)) {
-						c = addVariable(c, n, false, l, \str());
-					} else {
-						failures += makeFailType("Invalid declaration of name <prettyPrintName(n)>, name already in scope", ptn@at);
-						c.uses = c.uses + < c.fcvEnv[n], ptn@at >; // Just use the current declaration in scope, that is the semantics
-					}
+					c = addVariable(c, n, false, l, \str());
 				} else if (use(n) := d) {
 					if (!fcvExists(c, n)) {
 						failures += makeFailType("Name <prettyPrintName(n)> not yet defined", ptn@at);
@@ -2555,24 +2597,24 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		
 		case ptn:typedNameNode(n, l, rt) : { 
 			if (RSimpleName("_") == n) {
-				insert(ptn[@rtype = rt]);
-			} else if (varCanShadow(c, n)) {
-				c = addVariable(c, n, false, l, rt);
-				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
+				c = addUnnamedVariable(c, l, rt);
+				insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
 			} else {
-				failures += makeFailType("Invalid declaration of name <prettyPrintName(n)>, name already in scope", ptn@at);
-				c.uses = c.uses + < c.fcvEnv[n], ptn@at >; // Just use the current declaration in scope, that is the semantics
+				c = addVariable(c, n, false, l, rt);
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}
 		}
 		
 		case ptn:varBecomesNode(n, l, _) : { 
 			if (RSimpleName("_") == n) {
-				insert(ptn[@rtype = \inferred(c.uniqueify)]);
+				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
+				c = addUnnamedVariable(c, l, rt);
+				insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
 			} else if (!fcvExists(c, n)) {
-				c = addVariable(c, n, true, l, \inferred(c.uniqueify));
+				rt = \inferred(c.uniqueify);
 				c.uniqueify = c.uniqueify + 1;
+				c = addVariable(c, n, true, l, rt);
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}  else {
 				c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
@@ -2588,18 +2630,15 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		
 		case ptn:tvarBecomesNode(rt, n, l, _) : { 
 			if (RSimpleName("_") == n) {
-				insert(ptn[@rtype = rt]);
-			} else if (varCanShadow(c, n)) {
-				c = addVariable(c, n, false, l, rt);
-				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
+				c = addUnnamedVariable(c, l, rt);
+				insert(ptn[@rtype = rt][@defs = { c.nextLoc - 1 }]);
 			} else {
-				failures += makeFailType("Invalid declaration of name <prettyPrintName(n)>, name already in scope", ptn@at);
-				c.uses = c.uses + < c.fcvEnv[n], ptn@at >; // Just use the current declaration in scope, that is the semantics
+				c = addVariable(c, n, false, l, rt);
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}
 		}
 	}
-	//println("<pt@at>: tree after initial visit is <pt>");
+	println("<pt@at>: tree after initial visit is <pt>");
 	bool modified = true;
 
 	PatternTree updateRT(PatternTree pt, Symbol rt) {
@@ -2645,6 +2684,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			case ptn:mapNode(ptns) => updateRT(ptn,\map(lubList([d@rtype|<d,_> <- ptns]),lubList([r@rtype|<_,r><-ptns])))
 									  when all(idx <- index(ptns), <d,r> := ptns[idx], (d@rtype)?, (r@rtype)?, concreteType(d@rtype), concreteType(r@rtype))
 									  
+			case ptn:deepNode(cp) => updateRT(ptn, \value()) when (cp@rtype)? && concreteType(cp@rtype)
+
 			case ptn:antiNode(cp) => updateRT(ptn, cp@rtype) when (cp@rtype)? && concreteType(cp@rtype)
 			
 			case ptn:varBecomesNode(n,l,cp) : {
@@ -2653,12 +2694,20 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					bool isInferred = (RSimpleName("_") == n) ? true : c.store[c.fcvEnv[n]].inferred;
 					if (isInferred) {
 						if (isInferredType(rt)) {
-							if (RSimpleName("_") != n) c.store[c.fcvEnv[n]].rtype = cp@rtype;
+							if (RSimpleName("_") == n) {
+								c.store[getOneFrom(ptn@defs)].rtype = cp@rtype; 
+							} else {
+								c.store[c.fcvEnv[n]].rtype = cp@rtype;
+							}
 							insert updateRT(ptn, cp@rtype);
 						} else {
 							Symbol rtNew = lub(rt, cp@rtype);
 							if (!equivalent(rtNew,rt)) {
-								if (RSimpleName("_") != n) c.store[c.fcvEnv[n]].rtype = rtNew;
+								if (RSimpleName("_") == n) {
+									c.store[getOneFrom(ptn@defs)].rtype = rtNew; 
+								} else {
+									c.store[c.fcvEnv[n]].rtype = rtNew;
+								}
 								insert updateRT(ptn, rtNew);
 							}
 						}
@@ -2728,7 +2777,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			}		
 		}
 		
-		//println("At location <pt@at>, tree is <pt>");
+		println("At location <pt@at>, tree is <pt>");
 		
 		if (size(subjects) == 1) {
 			try {
@@ -2755,6 +2804,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     	if (size(unresolved) > 0)
 			return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
 		else {
+			c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );	
 			return < c, pt@rtype >;
 		}
     } else {
@@ -2800,10 +2850,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		
 		case nameNode(RSimpleName("_")) : {
 			Symbol currentType = pt@rtype;
-			if (isInferredType(currentType))
+			if (isInferredType(currentType)) {
+				c.store[getOneFrom(pt@defs)].rtype = rt;
 				return < c, pt[@rtype = rt] >;
-			else
+			} else {
+				c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
 				return < c, pt[@rtype = lub(currentType, rt)] >;
+			}
 		}
 		
 		case nameNode(rn) : {
@@ -2825,10 +2878,13 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		
 		case multiNameNode(RSimpleName("_")) : {
 			Symbol currentType = pt@rtype;
-			if (isInferredType(currentType))
+			if (isInferredType(currentType)) {
+				c.store[getOneFrom(pt@defs)].rtype = rt;
 				return < c, pt[@rtype = rt] >;
-			else
-				return < c, pt[@rtype = lub(rt,pt@rtype)] >;
+			} else {
+				c.store[getOneFrom(pt@defs)].rtype = lub(currentType, rt);
+				return < c, pt[@rtype = lub(currentType, rt)] >;
+			}
 		}
 
 		case multiNameNode(rn) : {
@@ -3393,7 +3449,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
 		if (fcvExists(c, n)) {
 			c.uses = c.uses + < c.fcvEnv[n], qn@\loc >;
 		} else {
-			failures = failures + makeFailType("Name is not in scope", qn@\loc);
+			failures = failures + makeFailType("Name <prettyPrintName(n)> is not in scope", qn@\loc);
 		}
 	}
 	
@@ -3590,12 +3646,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
 					}
 										
 					RName rn = convertName(n);
-					if (varCanShadow(c, rn)) {
-						c = addVariable(c, rn, false, n@\loc, rt);
-					} else {
-						c = addScopeMessage(c, error("Illegal redeclaration of existing name <prettyPrintName(rn)>", v@\loc));
-						c.uses = c.uses + < c.fcvEnv[rn], n@\loc >;						
-					}
+					c = addVariable(c, rn, false, n@\loc, rt);
 				} 
 			}
 		}
@@ -3663,6 +3714,9 @@ data AssignableTree
 @doc{Mark assignable trees with the source location of the assignable}
 public anno loc AssignableTree@at;
 
+@doc{Allows AssignableTree nodes to keep track of which ids they define.}
+public anno set[int] AssignableTree@defs;
+
 @doc{Allows AssignableTree nodes to be annotated with types.}
 public anno Symbol AssignableTree@otype;
 public anno Symbol AssignableTree@atype;
@@ -3679,7 +3733,12 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, Configuration c) {
 	n = convertName(qn);
-	if (fcvExists(c, n)) {
+	if (RSimpleName("_") == n) {
+		rt = \inferred(c.uniqueify);
+		c.uniqueify = c.uniqueify + 1;  
+		c = addUnnamedVariable(c, qn@\loc, rt);
+		return < c, variableNode(n)[@otype=rt][@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
+	} else if (fcvExists(c, n)) {
 		c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
 		rt = c.store[c.fcvEnv[n]].rtype;
 		return < c, variableNode(n)[@otype=rt][@atype=rt][@at=assn@\loc] >;
@@ -3818,8 +3877,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
-	else
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
 		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Division (DONE)}
@@ -3840,8 +3901,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 	rt = computeDivisionType(atree@atype, st, l);
 	if (isFailType(rt))
 		return markLocationType(c, l, rt);
-	else
-		return markLocationType(c, l, atree@otype);  
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Product (DONE)}
@@ -3862,8 +3925,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 	rt = computeProductType(atree@atype, st, l);
 	if (isFailType(rt))
 		return markLocationType(c, l, rt);
-	else
-		return markLocationType(c, l, atree@otype);  
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Intersection (DONE)}
@@ -3884,8 +3949,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 	rt = computeIntersectionType(atree@atype, st, l);
 	if (isFailType(rt))
 		return markLocationType(c, l, rt);
-	else
-		return markLocationType(c, l, atree@otype);  
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Subtraction (DONE)}
@@ -3906,8 +3973,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 	rt = computeSubtractionType(atree@atype, st, l);
 	if (isFailType(rt))
 		return markLocationType(c, l, rt);
-	else
-		return markLocationType(c, l, atree@otype);  
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Default (DONE)}
@@ -3929,8 +3998,11 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
-	else
+	else {
+		//println("<l>: adding location types mappings <( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? )>");
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
 		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Addition (DONE)}
@@ -3951,8 +4023,10 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 	rt = computeAdditionType(atree@atype, st, l);
 	if (isFailType(rt))
 		return markLocationType(c, l, rt);
-	else
-		return markLocationType(c, l, atree@otype);  
+	else {
+		c.locationTypes = c.locationTypes + ( atnode@at : atnode@atype | /AssignableTree atnode := atree, (atnode@atype)? );
+		return markLocationType(c, l, atree@otype);
+	}
 }
 
 @doc{Check the type of Rascal assignments: Append}
@@ -3973,17 +4047,31 @@ public ATResult bindAssignable(AssignableTree atree:bracketNode(AssignableTree c
 
 @doc{Bind variable types to variables in assignables: Variable}
 public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Symbol st, Configuration c) {
-	Symbol currentType = c.store[c.fcvEnv[name]].rtype;
-	if (c.store[c.fcvEnv[name]].inferred) {
+	//println("<atree@at>: binding name <prettyPrintName(name)> to type <st>");
+	if (RSimpleName("_") == name) {
+		varId = getOneFrom(atree@defs);
+		Symbol currentType = c.store[varId].rtype;
 		if (isInferredType(currentType)) {
-			c.store[c.fcvEnv[name]].rtype = st;
+			c.store[varId].rtype = st;
 		} else {
-			c.store[c.fcvEnv[name]].rtype = lub(currentType, st);
+			c.store[varId].rtype = lub(currentType, st);
 		}
-	} else if (!comparable(currentType, st)) {
-		throw "Bind error, cannot bind subject of type <prettyPrintType(st)> to pattern of type <prettyPrintType(currentType)>";
+		return < c, atree[@otype=c.store[varId].rtype][@atype=c.store[varId].rtype] >;
+	} else {
+		Symbol currentType = c.store[c.fcvEnv[name]].rtype;
+		//println("current type is <currentType>");
+		if (c.store[c.fcvEnv[name]].inferred) {
+			if (isInferredType(currentType)) {
+				c.store[c.fcvEnv[name]].rtype = st;
+			} else {
+				c.store[c.fcvEnv[name]].rtype = lub(currentType, st);
+			}
+		} else if (!comparable(currentType, st)) {
+			throw "Bind error, cannot bind subject of type <prettyPrintType(st)> to pattern of type <prettyPrintType(currentType)>";
+		}
+		//println("final type is <c.store[c.fcvEnv[name]].rtype>");
+		return < c, atree[@otype=c.store[c.fcvEnv[name]].rtype][@atype=c.store[c.fcvEnv[name]].rtype] >;
 	}
-	return < c, atree[@otype=c.store[c.fcvEnv[name]].rtype][@atype=c.store[c.fcvEnv[name]].rtype] >;
 }
 
 @doc{Bind variable types to variables in assignables: Subscript}
@@ -4066,12 +4154,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 			}
 								
 			RName rn = convertName(n);
-			if (varCanShadow(c, rn)) {
-				c = addVariable(c, rn, false, getVis(vis), v@\loc, rt);
-			} else {
-				c = addScopeMessage(c, error("Illegal redeclaration of existing name", v@\loc));						
-				c.uses = c.uses + < c.fcvEnv[rn], n@\loc >;						
-			}
+			c = addVariable(c, rn, false, getVis(vis), v@\loc, rt);
 		} 
 	}
 	
@@ -4223,7 +4306,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		// for typing the patterns in the function signature. Names used in these patterns cannot be existing variables
 		// and/or functions that are live in the current environment. Also, this way we can just get the type and drop
 		// all the changes that would be made to the environment.
-		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_) := c.store[consid]})>0) )];
 			
 		// Put the function in, so we can enter the correct scope. This also puts the function name into the
 		// scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
@@ -4253,7 +4336,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
-		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_) := c.store[consid]})>0) )];
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
@@ -4272,6 +4355,8 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		if (!isFailType(funType)) {
 			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
 		} else {
+			// TODO: These need to appear in the error log
+			println("<fd@\loc>: Found failure type for function: <funType>");
 			cFun = setExpectedReturn(c, \void());
 		}
 		//println("Before processing signature: current name environment is <cFun.fcvEnv>");
@@ -4294,7 +4379,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
-		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_) := c.store[consid]})>0) )];
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
@@ -4338,7 +4423,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	println("Checking function <prettyPrintName(rn)>");
 	
 	if (fd@\loc notin c.definitions<1>) { 
-		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
+		cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] || (overload(ids,_) := c.store[c.fcvEnv[ename]] && size({consid | consid <- ids, constructor(_,_,_,_) := c.store[consid]})>0) )];
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
@@ -4466,8 +4551,6 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
 @doc{Import a signature item: Variable}
 public Configuration importVariable(RName variableName, Type variableType, loc at, Vis vis, Configuration c) {
 	< c, rt > = convertAndExpandType(variableType,c);
-	if (!varCanShadow(c, variableName))
-		c = addScopeWarning(c,"Imported variable masks already-imported variable, constructor, or function of the same name", at);
 	return addVariable(c, variableName, false, vis, at, rt);						
 }
 
@@ -5043,7 +5126,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{
 	// We can bind variables in the condition that can be used in the body,
 	// so enter a new scope here. NOTE: We always enter a new scope, since we
 	// want to remove any introduced names at the end of the construct.
-	cIf = enterBlock(c, st@\loc);
+	cIf = enterBooleanScope(c, st@\loc);
 	
 	// Make sure each of the conditions evaluates to bool.
 	for (cond <- conds) {
@@ -5072,7 +5155,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{
 	cIf = exitBlock(cIfThen, cIf);
 	
 	// Finally, recover the initial scope to remove any added names.
-	c = exitBlock(cIf, c);
+	c = exitBooleanScope(cIf, c);
 	
 	if (size(failures) > 0)
 		return markLocationFailed(c, st@\loc, failures);
@@ -5087,7 +5170,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{
 	// We can bind variables in the condition that can be used in the body,
 	// so enter a new scope here. NOTE: We always enter a new scope, since we
 	// want to remove any introduced names at the end of the construct.
-	cIf = enterBlock(c, st@\loc);
+	cIf = enterBooleanScope(c, st@\loc);
 	
 	// Make sure each of the conditions evaluates to bool.
 	for (cond <- conds) {
@@ -5133,7 +5216,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`if (<{
 	cIf = exitBlock(cIfElse, cIf);
 	
 	// Finally, recover the initial scope to remove any added names.
-	c = exitBlock(cIf, c);
+	c = exitBooleanScope(cIf, c);
 	
 	if (size(failures) > 0)
 		return markLocationFailed(c, st@\loc, failures);
@@ -5148,7 +5231,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`for (<
 	// We can bind variables in the condition that can be used in the body,
 	// so enter a new scope here. NOTE: We always enter a new scope, since we
 	// want to remove any introduced names at the end of the construct.
-	cFor = enterBlock(c, st@\loc);
+	cFor = enterBooleanScope(c, st@\loc);
 	
 	// Make sure each of the generators evaluates to bool.
 	for (gen <- gens) {
@@ -5177,7 +5260,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`for (<
 	cFor = exitBlock(cForBody, cFor);
 	
 	// Finally, recover the initial scope to remove any added names.
-	c = exitBlock(cFor, c);
+	c = exitBooleanScope(cFor, c);
 	
 	if (size(failures) > 0)
 		return markLocationFailed(c, st@\loc, failures);
@@ -5235,7 +5318,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`while 
 	// We can bind variables in the condition that can be used in the body,
 	// so enter a new scope here. NOTE: We always enter a new scope, since we
 	// want to remove any introduced names at the end of the construct.
-	cWhile = enterBlock(c, st@\loc);
+	cWhile = enterBooleanScope(c, st@\loc);
 	
 	// Make sure the condition evaluates to bool.
 	< cWhile, tc > = checkExp(cond, cWhile);
@@ -5264,7 +5347,7 @@ public CheckResult checkStringTemplate(StringTemplate st:(StringTemplate)`while 
 	cWhile = exitBlock(cWhileBody, cWhile);
 	
 	// Finally, recover the initial scope to remove any added names.
-	c = exitBlock(cWhile, c);
+	c = exitBooleanScope(cWhile, c);
 	
 	if (size(failures) > 0)
 		return markLocationFailed(c, st@\loc, failures);

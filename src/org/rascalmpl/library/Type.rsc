@@ -268,6 +268,9 @@ public Symbol lub(\reified(Symbol l), \node()) = \node();
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = Symbol::\func(lub(lr,lp), lp) when subtype(lp,rp);
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = Symbol::\func(lub(lr,lp), rp) when subtype(rp,lp);
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) = \value() when !subtype(lp,rp) && !subtype(rp,lp);
+public Symbol lub(\label(_,Symbol l), Symbol r) = lub(l,r);
+public Symbol lub(Symbol l, \label(_,Symbol r)) = lub(l,r);
+
 // TODO: Add lub rules for varargs functions
 
 public list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [lub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
