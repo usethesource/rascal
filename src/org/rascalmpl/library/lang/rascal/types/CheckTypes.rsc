@@ -116,6 +116,9 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 25. Need to account for default functions and constructors which have the same signature,
 //     this is allowed, and we give precedence to the function
+//
+// 26. Need to pre-populate the type environment with the constructors for
+//     reified types, since we get these back if someone uses #type.
 
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
@@ -1138,7 +1141,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <{Expression ","}* es>
 @doc{Check the types of Rascal expressions: ReifyType (DONE)}
 public CheckResult checkExp(Expression exp:(Expression)`# <Type t>`, Configuration c) {
 	< c, rt > = convertAndExpandType(t,c);
-	return markLocationType(c, exp@\loc, \type(rt));
+	return markLocationType(c, exp@\loc, \reified(rt));
 }
 
 @doc{Check the types of Rascal expressions: Range (DONE)}
@@ -1298,7 +1301,7 @@ private map[Symbol,map[str,Symbol]] fieldMap =
           "file" : \str(), "ls" : \list(\loc()), "extension" : \str(), "fragment" : \str(), 
           "query" : \str(), "user" : \str(), "port" : \int(), "length" : \int(), "offset" : \int(), 
           "begin" : \tuple([\label("line",\int()),\label("column",\int())]), 
-          "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str()
+          "end" : \tuple([\label("line",\int()),\label("column",\int())]), "uri" : \str(), "top" : \loc()
         ),
       \datetime() :
         ( "year" : \int(), "month" : \int(), "day" : \int(), "hour" : \int(), "minute" : \int(), 
@@ -1744,6 +1747,9 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
 		return \bool();
 	if (isLocType(t1) && isLocType(t2))
 		return \loc();
+	if (isLocType(t1) && isStrType(t2))
+		return \loc();
+		
 	// TODO: Need to properly handle field name propagation here
 	if (isTupleType(t1) && isTupleType(t2))
 		return \tuple(getTupleFields(t1),getTupleFields(t2));
@@ -1792,22 +1798,31 @@ Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
 		return numericArithTypes(t1, t2);
 
 	// Maybe we should check what we are trying to subtract, but currently we don't
-	// inside the interpreter, so TODO: should we check the type of t2?	
+	// inside the interpreter, so TODO: should we check the type of t2?
+	if (isListType(t1) && isListType(t2))
+		return t1;
 	if (isListType(t1)) {
 		if (!comparable(getListElementType(t1),t2))
 			return makeFailType("List of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
 		return t1;
 	}
+	
+	if (isSetType(t1) && isSetType(t2))
+		return t1;
 	if (isSetType(t1)) { // Covers relations too
 		if (!comparable(getSetElementType(t1),t2))
 			return makeFailType("Set of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
 		return t1;
 	}
+	
+	if (isBagType(t1) && isBagType(t2))
+		return t1;
 	if (isBagType(t1)) {
 		if (!comparable(getBagElementType(t1),t2))
 			return makeFailType("Bag of type <prettyPrintType(t1)> could never contain subtracted element of type <prettyPrintType(t2)>", l); 
 		return t1;
 	}
+
 	if (isMapType(t1)) {
 		if (!comparable(t1,t2))
 			return makeFailType("Map of type <prettyPrintType(t1)> could never contain a sub-map of type <prettyPrintType(t2)>", l); 
@@ -1840,7 +1855,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> mod <Exp
 	< c, t1 > = checkExp(e1, c);
 	< c, t2 > = checkExp(e2, c);
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-	if (isIntType(tl) && isIntType(t2)) return markLocationType(c,exp@\loc,\int());
+	if (isIntType(t1) && isIntType(t2)) return markLocationType(c,exp@\loc,\int());
 	return markLocationFailed(c,exp@\loc,makeFailType("Modulo not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>",exp@\loc));
 }
 
@@ -3828,27 +3843,30 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 	< c, atree > = buildAssignableTree(ar, c);
 	< c, tsub > = checkExp(sub, c);
 	
-	if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
+	if (isFailType(atree@atype) || isFailType(tsub))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
+
+	if (!concreteType(atree@atype)) {
 		failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
 		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=failtype][@at=assn@\loc] >;
 	}
-	if (!isFailType(atree@atype) && !isFailType(tsub)) {
-		if (isListType(atree@atype) && isIntType(tsub)) {
-			return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
-		} else if (isMapType(atree@atype) && subtype(tsub,getMapDomainType(atree@atype))) {
-			return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getMapRangeType(atree@atype)][@at=assn@\loc] >;
-		} else if (isNodeType(atree@atype) && isIntType(tsub)) {
-			return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
-		} else if (isTupleType(atree@atype) && isIntType(tsub)) {
-			return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
-		} else if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0])) {
-			return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
-		}
-	}
-	if (isFailType(atree@atype) || isFailType(tsub))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
-	else
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+
+	if (isListType(atree@atype) && isIntType(tsub))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+
+	if (isNodeType(atree@atype) && isIntType(tsub))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
+
+	if (isTupleType(atree@atype) && isIntType(tsub))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
+
+	if (isMapType(atree@atype))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getMapRangeType(atree@atype)][@at=assn@\loc] >;
+
+	if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0]))
+		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
+
+	return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
@@ -3898,7 +3916,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`< <Assignable a
 		trees = trees + atree;
 	}
 	
-	failures = { t@atype |t <- trees, isFailType(t@atype) };
+	failures = { t@atype | t <- trees, isFailType(t@atype) };
 	
 	if (size(failures) > 0)
 		return < c, tupleNodeAT(trees)[@otype=collapseFailTypes(failures)][@atype=collapseFailTypes(failures)][@at=assn@\loc] >;
@@ -3908,16 +3926,25 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`< <Assignable a
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Annotation (DONE)}
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> @ <Name an>`, Configuration c) {
-	< c, atree > = buildAssignableTree(a1, c);
+	// First, build the tree for the receiver and convert the annotation name into something
+	// we can use below.
+	< c, atree > = buildAssignableTree(ar, c);
 	aname = convertName(an);
-	list[AssignableTree] trees = [ atree ];
 
+	// Then, check the assignment type of the receiver -- for us to proceed, it cannot be fail and
+	// it has to be concrete, since we need to know the type before we can look up the annotation.
 	if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
 		failtype = makeFailType("Assignable <ar> must have an actual type before assigning to an annotation", assn@\loc);
 		return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=failtype][@at=assn@\loc] >;
 	}
 	
-	if (isNodeType(ttgt) || isADTType(ttgt)) {
+	// Now, check the assignment type to make sure it is a type that can carry an annotation.
+	if (isNodeType(atree@atype) || isADTType(atree@atype)) {
+		// Check to make sure that the annotation is actually declared on the receiver type. We do this
+		// by grabbing back all the types on which this annotation is defined and making sure that
+		// the current type is a subtype of one of these.
+		// TODO: Make sure all annotations of the same name are given equivalent types. This
+		// requirement is implicit in the code below, but I'm not sure it's being checked.
 		if (aname in c.annotationEnv, true in { subtype(atree@atype,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
 			aType = c.store[c.annotationEnv[aname]].rtype;
 			return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=aType][@at=assn@\loc] >;
@@ -3926,8 +3953,157 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 			return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=rt][@at=assn@\loc] >;
 		}
 	} else {
-		rt = makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(ttgt)>", assn@\loc);
+		rt = makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(atree@atype)>", assn@\loc);
 		return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=rt][@at=assn@\loc] >;
+	}
+}
+
+@doc{Patch the map assignment rules to handle a corner case.}
+public ATResult patchMapAssignment(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), bool top, Configuration c) {
+	// This code is needed to handle the scenario where we have an inferred variable of map type that is the
+	// top-level target of an assignment. In that case, inserting a new key will cause the type of the key
+	// to change if it is not the same as the current key type. Most of the code below just enforces the
+	// conditions for this scenario to take place.
+	
+	println("Called on tree <atree> with top = <top> and subscript type <prettyPrintType(stype)>");
+	
+	// First, this only happens when we have a map as the subscripted type
+	if (isMapType(receiver@atype)) {
+		println("I am a map!");
+		// Second, this only happens when we have a variable as the recevier
+		if (avar:variableNode(vname) := receiver) {
+			println("The receiver is a var!");
+			// Third, this only happens when the types are not equivalent
+			if (!equivalent(getMapDomainType(receiver@atype), stype)) {
+				println("The types are not equivalent!");
+				// Fourth, this only happens when we are at the top of the assignable
+				if (top) {
+					// Fifth, this only happens when the name has an inferred type originally; it cannot
+					// have a type that is still inferred at this point, or we would not know that it is
+					// a map...
+					if (c.store[c.fcvEnv[vname]].inferred) {
+						// If all these conditions are met, we need to update the name to set the map domain
+						// type to the new type.
+						Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),stype),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
+						c.store[c.fcvEnv[vname]].rtype = newMapType;
+						println("Updated map type to <prettyPrintType(newMapType)>");
+						return < c, atree[receiver=receiver[@otype=newMapType][@atype=newMapType]] >;
+					}
+				}
+			}
+		}
+	}
+	
+	println("Did not make it through all the conditionals!");
+	
+	// If this is a map, but it didn't meet all the conditions above, make sure we are accessing it with the
+	// correct subscript type. If not, mark an error on the assignment type for this node -- the map is valid,
+	// the subscript is valid, but the combination is not, so that is the correct level at which to mark it.
+	if (isMapType(receiver@atype) && !subtype(stype, getMapDomainType(receiver@atype))) {
+		failType = makeFailType("Cannot subscript map of type <prettyPrintType(receiver@atype)> with expression of type <prettyPrintType(stype)>", atree@at);
+		return < c, atree[@atype=failType] >;
+	}
+	
+	return < c, atree >;
+}
+
+@doc{Patch the map assignment rules to handle a corner case.}
+public default ATResult patchMapAssignment(AssignableTree atree, Configuration c) = < c, atree >;
+
+public set[Symbol] getATFailures(AssignableTree atree) {
+	set[Symbol] failures = { };
+	if (isFailType(atree@otype)) failures += atree@otype;
+	if (isFailType(atree@atype)) failures += atree@atype;
+	return failures;
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:bracketNode(AssignableTree child), bool top, Configuration c) {
+	< c, child > = postProcessATree(child, top, c);
+	failures = getATFailures(child);
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[child=child][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[child=child][@atype=child@atype][@otype=child@otype] >;
+	}
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:variableNode(RName name), bool top, Configuration c) {
+	return < c, atree >;
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:subscriptNode(AssignableTree _, Symbol _), bool top, Configuration c) {
+	< c, atree > = patchMapAssignment(atree, top, c);
+	< c, receiver > = postProcessATree(atree.receiver, false, c);
+	failures = getATFailures(receiver); 
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[receiver=receiver] >;
+	}
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:fieldAccessNode(AssignableTree receiver, RName name), bool top, Configuration c) {
+	< c, receiver > = postProcessATree(receiver, false, c);
+	failures = getATFailures(receiver); 
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[receiver=receiver] >;
+	}
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:ifDefinedOrDefaultNode(AssignableTree receiver, Symbol dtype), bool top, Configuration c) {
+	< c, receiver > = postProcessATree(receiver, false, c);
+	failures = getATFailures(receiver); 
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[receiver=receiver] >;
+	}
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:constructorNode(RName name,list[AssignableTree] children), bool top, Configuration c) {
+	return < c, atree >;
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:tupleNodeAT(list[AssignableTree] children), bool top, Configuration c) {
+	newChildren = [ ];
+	failures = { };
+	
+	for (child <- children) {
+		< c, child > = postProcessATree(child, top, c);
+		failures = failures + getATFailures(child);
+		newChildren = newChildren + child;
+	}
+	 
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[children = newChildren][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[children = newChildren] >;
+	}
+}
+
+@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
+public ATResult postProcessATree(AssignableTree atree:annotationNode(AssignableTree receiver, RName name), bool top, Configuration c) {
+	< c, receiver > = postProcessATree(receiver, false, c);
+	failures = getATFailures(receiver); 
+	if (size(failures) > 0) {
+		ft = collapseFailTypes(failures);
+		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
+	} else {
+		return < c, atree[receiver=receiver] >;
 	}
 }
 
@@ -3935,6 +4111,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -3960,6 +4137,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -3984,6 +4162,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -4008,6 +4187,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -4032,6 +4212,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -4056,6 +4237,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -4081,6 +4263,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	
 	// If either the overall type or the type of the assignment point is a failure,
 	// don't try to proceed further.
@@ -4104,13 +4287,11 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`<<=`, Assignable a, Symbol st, Configuration c) {
 	< c, atree > = buildAssignableTree(a, c);
+	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
 	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
 	throw "Not yet implemented";
 }
 
-@doc{Result types for assignables, which include both the overall result type and the type of the immediate target.}
-alias AssignableTypeResult = tuple[Configuration conf, Symbol result, Symbol target];
- 
 @doc{Bind variable types to variables in assignables: Bracket}
 public ATResult bindAssignable(AssignableTree atree:bracketNode(AssignableTree child), Symbol st, Configuration c) {
 	< c, newChild > = bindAssignable(child, st, c);
