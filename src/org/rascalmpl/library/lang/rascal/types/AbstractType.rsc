@@ -61,7 +61,7 @@ public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s
 public str prettyPrintType(\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
 //public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
-public str prettyPrintType(\reified(Symbol t)) = "type[#<prettyPrintType(t)>]";
+public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
 public str prettyPrintType(\failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";

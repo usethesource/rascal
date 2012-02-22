@@ -158,6 +158,8 @@ public bool subtype(\parameter(str _, Symbol bound), Symbol r) = subtype(bound, 
 public bool subtype(Symbol l, \parameter(str _, Symbol bound)) = subtype(l, bound);
 public bool subtype(\label(str _, Symbol s), Symbol t) = subtype(s,t);
 public bool subtype(Symbol s, \label(str _, Symbol t)) = subtype(s,t);
+public bool subtype(\reified(Symbol s), \reified(Symbol t)) = subtype(s,t);
+public bool subtype(\reified(Symbol s), \node()) = true;
 public bool subtype(list[Symbol] l, list[Symbol] r) = all(i <- index(l), subtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
 public default bool subtype(list[Symbol] l, list[Symbol] r) = size(l) == 0 && size(r) == 0;
 
