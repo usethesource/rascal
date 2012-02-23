@@ -35,9 +35,9 @@ public set[Production] expand(Symbol s) {
     case \iter(t) : 
       return {choice(s,{prod(s,[t],{}),prod(s,[t,s],{})})};
     case \iter-star(t) : 
-      return {choice(s,{prod(s,[],{}),prod(s,[iter(t)],{})})} + expand(iter(t));
+      return {choice(s,{prod(s,[],{}),prod(s,[\iter(t)],{})})} + expand(\iter(t));
     case \iter-seps(t,list[Symbol] seps) : 
-      return {choice(s, {prod(s,[t],{}),prod(s,[t,seps,s],{})})};
+      return {choice(s, {prod(s,[t],{}),prod(s,[t,*seps,s],{})})};
     case \iter-star-seps(t, list[Symbol] seps) : 
       return {choice(s,{prod(s,[],{}),prod(s,[\iter-seps(t,seps)],{})})} 
              + expand(\iter-seps(t,seps));
