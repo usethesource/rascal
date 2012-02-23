@@ -112,7 +112,9 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 23. Typing for loops -- should this always be void? We never know if the loop actually evaluates.
 //
-// 24. Remember to keep track of throws declarations, right now these are just discarded...
+// 24. Remember to keep track of throws declarations, right now these are just discarded.
+//     PARTIALLY DONE: We are now keeping track of these, but still need to check
+//     them to enforce they are constructors for runtime exception.
 //
 // 25. Need to account for default functions and constructors which have the same signature,
 //     this is allowed, and we give precedence to the function
@@ -122,6 +124,11 @@ import lang::rascal::syntax::RascalRascal;
 //
 // 27. Finish the binders for assignables, we still need to modify these for more complex
 //     binders that push information back through multiple levels of field accesses, etc
+//     DONE
+//
+// 28. In statement blocks, segregate out function defs, these see the scope of the
+//     entire block, not just what came before
+//
 
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
@@ -147,7 +154,7 @@ default Vis getVis(Visibility v) = defaultVis();
 data AbstractValue 
 	= label(RName name, LabelSource source, int containedIn, loc at) 
 	| variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
-	| function(RName name, Symbol rtype, bool isVarArgs, int containedIn, loc at)
+	| function(RName name, Symbol rtype, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, loc at)
 	| closure(Symbol rtype, int containedIn, loc at)
 	| \module(RName name, loc at)
 	| overload(set[int] items, Symbol rtype)
@@ -239,14 +246,14 @@ public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 public int definingContainer(Configuration c, int i) {
 	cid = c.store[i].containedIn;
 	if (\module(_,_) := c.store[cid]) return cid;
-	if (\function(_,_,_,_,_) := c.store[cid]) return cid;
+	if (\function(_,_,_,_,_,_) := c.store[cid]) return cid;
 	if (\closure(_,_,_) := c.store[cid]) return cid;
 	return definingContainer(c,cid);
 }
 
 public list[int] upToContainer(Configuration c, int i) {
 	if (\module(_,_) := c.store[i]) return [i];
-	if (\function(_,_,_,_,_) := c.store[i]) return [i];
+	if (\function(_,_,_,_,_,_) := c.store[i]) return [i];
 	if (\closure(_,_,_) := c.store[i]) return [i];
 	return [i] + upToContainer(c,c.store[i].containedIn);
 }
@@ -438,7 +445,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt) 
 			c.adtConstructors = c.adtConstructors + < adtId, c.nextLoc >;
 			c.nextLoc = c.nextLoc + 1;
 		}
-	} else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+	} else if (constructor(_,_,_,_) := c.store[c.fcvEnv[n]] || function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
 		// If the same constructor definitions comes in along multiple paths, this is fine.
 		// The only thing we do then is make sure the names are correct, since, given module
 		// B extending module A, we could call the constructor A::cons or B::cons.
@@ -487,7 +494,7 @@ public Configuration addClosure(Configuration c, Symbol rt, loc l) {
 	return c;
 }
 
-public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVarArgs, Vis visibility, loc l) {
+public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l) {
 	// TODO: Handle the visibility properly. The main point is that we should not have variants
 	// for the same function that are given different visibilities.
 	// TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -510,20 +517,20 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
 			moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 			c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
 		}
-		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
 		c.definitions = c.definitions + < c.nextLoc, l >;
 		c.visibilities[c.nextLoc] = visibility;
 		c.stack = c.nextLoc + c.stack;
 		c.nextLoc = c.nextLoc + 1;
 	} else if (overload(items, overloaded(itemTypes)) := c.store[c.fcvEnv[n]]) {
-		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
 		c.store[c.fcvEnv[n]] = overload(items + c.nextLoc, overloaded(itemTypes + rt));
 		c.definitions = c.definitions + < c.nextLoc, l >;
 		c.visibilities[c.nextLoc] = visibility;
 		c.stack = c.nextLoc + c.stack;
 		c.nextLoc = c.nextLoc + 1;
-	} else if (function(_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
-		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+	} else if (function(_,_,_,_,_,_) := c.store[c.fcvEnv[n]] || constructor(_,_,_,_) := c.store[c.fcvEnv[n]]) {
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
 		c.definitions = c.definitions + < c.nextLoc, l >;
 		c.visibilities[c.nextLoc] = visibility;
 		c.stack = c.nextLoc + c.stack;
@@ -540,7 +547,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, bool isVar
 			moduleName = head([m | i <- c.stack, m:\module(_,_) := c.store[i]]).name;
 			c.fcvEnv[appendName(moduleName,n)] = c.nextLoc;
 		}
-		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),l);
+		c.store[c.nextLoc] = function(n,rt,isVarArgs,head(c.stack),throwsTypes,l);
 		c.definitions = c.definitions + < c.nextLoc, l >;
 		c.visibilities[c.nextLoc] = visibility;
 		c.stack = c.nextLoc + c.stack;
@@ -2434,13 +2441,17 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>`, 
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<QualifiedName qn>*`, Configuration c) {
 	return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
 }
+public BindResult extractPatternTree(Pattern pat:(Pattern)`* <QualifiedName qn>`, Configuration c) {
+	return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
+}
 public BindResult extractPatternTree(Pattern pat:(Pattern)`* <Pattern p>`, Configuration c) {
-	< c, pti > = extractPatternTree(p,c);
-	return < c, spliceNode(pti)[@at = pat@\loc] >;
+	throw "Not yet implemented";
+}
+public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <QualifiedName qn>`, Configuration c) {
+	return < c, multiNameNode(convertName(qn))[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`+ <Pattern p>`, Configuration c) {
-	< c, pti > = extractPatternTree(p,c);
-	return < c, spliceNode(pti)[@at = pat@\loc] >;
+	throw "Not yet implemented";
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`- <Pattern p>`, Configuration c) {
 	< c, pti > = extractPatternTree(p,c);
@@ -2509,7 +2520,7 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Pattern p> ( <{Patte
 	< c, pti > = extractPatternTree(p,c);
 	list[PatternTree] psList = [ ];
 	for (psi <- ps) { < c, psit > = extractPatternTree(psi,c); psList = psList + psit; }
-	return < c, callOrTreeNode(pti,psList)[@at = pat@\loc] >;
+	return < c, callOrTreeNode(pti[@headPosition=true],psList)[@at = pat@\loc] >;
 }
 public BindResult extractPatternTree(Pattern pat:(Pattern)`<Name n> : <Pattern p>`, Configuration c) {
 	< c, pti > = extractPatternTree(p,c);
@@ -2539,6 +2550,9 @@ public anno Symbol PatternTree@rtype;
 
 @doc{Allows PatternTree nodes to keep track of which ids they define.}
 public anno set[int] PatternTree@defs;
+
+@doc{Is this node in head position in a call or tree node?}
+public anno bool PatternTree@headPosition;
 
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
@@ -2574,7 +2588,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					if (isSetType(rt))
 						ptns[idx] = ptns[idx][@rtype = getSetElementType(rt)];
 					else
-						failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at); 
+						failures += makeFailType("Expected type set, not <prettyPrintType(rt)>", ptns[idx]@at);
+					c = addNameWarning(c,n,ptns[idx]@at);
 				}
 			}
 			insert(ptn[children=ptns]);
@@ -2599,6 +2614,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 						ptns[idx] = ptns[idx][@rtype = getListElementType(rt)];
 					else
 						failures += makeFailType("Expected type list, not <prettyPrintType(rt)>", ptns[idx]@at); 
+					c = addNameWarning(c,n,ptns[idx]@at);
 				}
 			}
 			insert(ptn[children=ptns]);
@@ -2617,6 +2633,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			} else {
 				c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+				if ( !((ptn@headPosition)?) || ((ptn@headPosition)? && !ptn@headPosition)) {
+					if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+						c = addScopeWarning(c, "<prettyPrintName(n)> is a function or constructor name", ptn@at);
+					} else {
+						c = addNameWarning(c,n,ptn@at);
+					}
+				}
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}
 		}
@@ -2661,6 +2684,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}  else {
 				c.uses = c.uses + < c.fcvEnv[n], ptn@at >;
+				if (variable(_,_,_,_,_) !:= c.store[c.fcvEnv[n]]) {
+					c = addScopeWarning(c, "Name <prettyPrintName(n)> is a function or constructor name", ptn@at);
+				} else {
+					c = addNameWarning(c,n,ptn@at);
+				}
 				insert(ptn[@rtype = c.store[c.fcvEnv[n]].rtype]);
 			}
 		}
@@ -2836,6 +2864,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 								list[PatternTree] newChildren = [ ];
 								try {
 									for (idx <- index(pargs)) {
+										//println("<ptn@at>: pushing down <getConstructorArgumentTypes(matchType)[idx]> for arg <pargs[idx]>");  
 										< c, newarg > = bind(pargs[idx],getConstructorArgumentTypes(matchType)[idx],c);
 										newChildren += newarg;
 									}
@@ -2870,7 +2899,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 					firstTime = false;
 				}
 			} catch v : {
-				println("Bind attempt failed, now have <pt>");
+				//println("Bind attempt failed, now have <pt>");
 				; // May want to do something here in the future, but for now just consume the exception, this still fails to assign a type...
 			}
 		}
@@ -2885,10 +2914,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     	if (size(unresolved) > 0) {
     		unknowns = unknownConstructorFailures(pt);
     		if (size(unknowns) == 0) {
-				return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
+    			//println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
+				return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
 			} else {
 				for (unk <- unknowns) failures += makeFailType("Constructor name is not in scope", unk@at);
-				return < cbak, collapseFailTypes(failures) >;
+				return < c, collapseFailTypes(failures) >;
 			}
 		} else {
 			c.locationTypes = c.locationTypes + ( ptnode@at : ptnode@rtype | /PatternTree ptnode := pt, (ptnode@rtype)? );	
@@ -2897,10 +2927,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
     } else {
 		unknowns = unknownConstructorFailures(pt);
 		if (size(unknowns) == 0) {
-	    	return < cbak, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
+			//println("<pt@at>: Pattern tree is <pt>, with subjects <subjects>");
+	    	return < c, makeFailType("Type of pattern could not be computed, please add additional type annotations", pat@\loc) >;
 		} else {
 			for (unk <- unknowns) failures += makeFailType("Constructor name is not in scope", unk@at);
-			return < cbak, collapseFailTypes(failures) >;
+			return < c, collapseFailTypes(failures) >;
 		}
     }
 }
@@ -2923,7 +2954,10 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		case setNode(cs) : {
 			if (isSetType(rt)) {
 				list[PatternTree] res = [ ];
-				for (csi <- cs) { < c, pti > = bind(csi, getSetElementType(rt), c); res += pti; }
+				for (csi <- cs) { 
+					< c, pti > = bind(csi, getSetElementType(rt), c); 
+					res += pti; 
+				}
 				return < c, pt[children = res] >; 
 			} else if (isValueType(rt)) {
 				return < c, pt >;
@@ -2933,7 +2967,12 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 		case listNode(cs) : {
 			if (isListType(rt)) {
 				list[PatternTree] res = [ ];
-				for (csi <- cs) { < c, pti > = bind(csi, getListElementType(rt), c); res += pti; }
+				for (csi <- cs) { 
+					//println("<csi@at>: Binding <csi> to type <prettyPrintType(getListElementType(rt))>");
+					< c, pti > = bind(csi, getListElementType(rt), c); 
+					//println("<csi@at>: Binding result is <pti>");
+					res += pti; 
+				}
 				return < c, pt[children = res] >; 
 			} else if (isValueType(rt)) {
 				return < c, pt >;
@@ -2989,10 +3028,10 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c) {
 					c.store[c.fcvEnv[rn]].rtype = \list(rt);
 					return < c, pt[@rtype = rt] >;
 				} else if (isSetType(currentType)) {
-					c.store[c.fcvEnv[rn]].rtype = \set(lub(currentType, rt));
+					c.store[c.fcvEnv[rn]].rtype = \set(lub(getSetElementType(currentType), rt));
 					return < c, pt[@rtype = getSetElementType(c.store[c.fcvEnv[rn]].rtype)] >;
 				} else if (isListType(currentType)) {
-					c.store[c.fcvEnv[rn]].rtype = \list(lub(currentType, rt));
+					c.store[c.fcvEnv[rn]].rtype = \list(lub(getListElementType(currentType), rt));
 					return < c, pt[@rtype = getListElementType(c.store[c.fcvEnv[rn]].rtype)] >;
 				}
 			} else {
@@ -3816,70 +3855,90 @@ public anno Symbol AssignableTree@atype;
 alias ATResult = tuple[Configuration, AssignableTree];
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Bracket (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar>)`, Configuration c) {
-	< c, atree > = buildAssignableTree(ar, c);
-	return < c, bracketNode(atree)[@otype=atree@otype][@atype=atree@atype][@at=assn@\loc] >;
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`(<Assignable ar>)`, bool top, Configuration c) {
+	< c, atree > = buildAssignableTree(ar, top, c);
+	return < c, bracketNode(atree)[@atype=atree@atype][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Variable (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, Configuration c) {
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<QualifiedName qn>`, bool top, Configuration c) {
 	n = convertName(qn);
 	if (RSimpleName("_") == n) {
 		rt = \inferred(c.uniqueify);
 		c.uniqueify = c.uniqueify + 1;  
 		c = addUnnamedVariable(c, qn@\loc, rt);
-		return < c, variableNode(n)[@otype=rt][@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
+		return < c, variableNode(n)[@atype=rt][@at=assn@\loc][@defs={c.nextLoc-1}] >;
 	} else if (fcvExists(c, n)) {
-		c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
-		rt = c.store[c.fcvEnv[n]].rtype;
-		return < c, variableNode(n)[@otype=rt][@atype=rt][@at=assn@\loc] >;
+		if (variable(_,_,_,_,_) := c.store[c.fcvEnv[n]]) {
+			c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+			rt = c.store[c.fcvEnv[n]].rtype;
+			c = addNameWarning(c,n,assn@\loc);
+			return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
+		} else {
+			c.uses = c.uses + < c.fcvEnv[n], assn@\loc >;
+			return < c, variableNode(n)[@atype=makeFailType("Cannot assign to an existing constructor or function name",assn@\loc)][@at=assn@\loc] >;
+		}
 	} else {
 		rt = \inferred(c.uniqueify);
 		c.uniqueify = c.uniqueify + 1;  
 		c = addVariable(c, n, true, qn@\loc, rt);
-		return < c, variableNode(n)[@otype=rt][@atype=rt][@at=assn@\loc] >;
+		return < c, variableNode(n)[@atype=rt][@at=assn@\loc] >;
 	}
 }
 
 @doc{Extract a tree representation of the assignable and perform basic checks: Subscript (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <Expression sub> ]`, Configuration c) {
-	< c, atree > = buildAssignableTree(ar, c);
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> [ <Expression sub> ]`, bool top, Configuration c) {
+	< c, atree > = buildAssignableTree(ar, false, c);
 	< c, tsub > = checkExp(sub, c);
 	
 	if (isFailType(atree@atype) || isFailType(tsub))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
 
 	if (!concreteType(atree@atype)) {
 		failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=failtype][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=failtype][@at=assn@\loc] >;
 	}
 
 	if (isListType(atree@atype) && isIntType(tsub))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
 
 	if (isNodeType(atree@atype) && isIntType(tsub))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=\value()][@at=assn@\loc] >;
 
 	if (isTupleType(atree@atype) && isIntType(tsub))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=\value()][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=\value()][@at=assn@\loc] >;
 
-	if (isMapType(atree@atype))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getMapRangeType(atree@atype)][@at=assn@\loc] >;
+	if (isMapType(atree@atype)) {
+		if (avar:variableNode(vname) := atree) {
+			if (!equivalent(getMapDomainType(atree@atype), tsub)) {
+				if (top) {
+					if (c.store[c.fcvEnv[vname]].inferred) {
+						Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),tsub),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
+						c.store[c.fcvEnv[vname]].rtype = newMapType;
+						atree@atype=newMapType;
+					}
+				}
+			}
+		}
+		if (!comparable(getMapDomainType(atree@atype), tsub))
+			atree@atype = makeFailType("Cannot subscript map of type <prettyPrintType(atree@atype)> using subscript of type <prettyPrintType(tsub)>", assn@\loc);
+		return < c, subscriptNode(atree,tsub)[@atype=getMapRangeType(atree@atype)][@at=assn@\loc] >;
+	}
 
 	if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0]))
-		return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
+		return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
 
-	return < c, subscriptNode(atree,tsub)[@otype=atree@otype][@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
+	return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: FieldAccess (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> . <Name fld>`, Configuration c) {
-	< c, atree > = buildAssignableTree(ar, c);
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> . <Name fld>`, bool top, Configuration c) {
+	< c, atree > = buildAssignableTree(ar, false, c);
 	fldName = convertName(fld);
 	
 	if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
 		failtype = makeFailType("Assignable <ar> must have an actual type before assigning to a field", assn@\loc);
-		return < c, subscriptNode(atree, fldName)[@otype=atree@otype][@atype=failtype][@at=assn@\loc] >;
+		return < c, subscriptNode(atree, fldName)[@atype=failtype][@at=assn@\loc] >;
 	}
 	
 	if (!isFailType(atree@atype)) {
@@ -3891,54 +3950,54 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 			}
 		} 
 		
-		return < c, fieldAccessNode(atree, fldName)[@otype=atree@otype][@atype=tfield][@at=assn@\loc] >;
+		return < c, fieldAccessNode(atree, fldName)[@atype=tfield][@at=assn@\loc] >;
 	}
 	
-	return < c, fieldAccessNode(atree,fldName)[@otype=atree@otype][@atype=atree@atype][@at=assn@\loc] >;
+	return < c, fieldAccessNode(atree,fldName)[@atype=atree@atype][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: IfDefinedOrDefault (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> ? <Expression dflt>`, Configuration c) {
-	< c, atree > = buildAssignableTree(ar, c);
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> ? <Expression dflt>`, bool top, Configuration c) {
+	< c, atree > = buildAssignableTree(ar, top, c);
 	< c, tdef > = checkExp(dflt, c);
-	return < c, ifDefinedOrDefaultNode(atree,tdef)[@otype=atree@otype][@atype=lub(atree@atype,tdef)][@at=assn@\loc] >;
+	return < c, ifDefinedOrDefaultNode(atree,tdef)[@atype=lub(atree@atype,tdef)][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Constructor (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Name n> ( <{Assignable ","}+ args> )`, Configuration c) {
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Name n> ( <{Assignable ","}+ args> )`, bool top, Configuration c) {
 	throw "Not implemented";
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Tuple (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`< <Assignable a1>, <{Assignable ","}* as> >`, Configuration c) {
-	< c, atree > = buildAssignableTree(a1, c);
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`< <Assignable a1>, <{Assignable ","}* as> >`, bool top, Configuration c) {
+	< c, atree > = buildAssignableTree(a1, true, c);
 	list[AssignableTree] trees = [ atree ];
 
 	for (ai <- as) {
-		< c, atree > = buildAssignableTree(ai, c);
+		< c, atree > = buildAssignableTree(ai, true, c);
 		trees = trees + atree;
 	}
 	
 	failures = { t@atype | t <- trees, isFailType(t@atype) };
 	
 	if (size(failures) > 0)
-		return < c, tupleNodeAT(trees)[@otype=collapseFailTypes(failures)][@atype=collapseFailTypes(failures)][@at=assn@\loc] >;
+		return < c, tupleNodeAT(trees)[@atype=collapseFailTypes(failures)][@at=assn@\loc] >;
 	else
-		return < c, tupleNodeAT(trees)[@otype=\tuple([t@otype|t<-trees])][@atype=\tuple([t@atype|t<-trees])][@at=assn@\loc] >;
+		return < c, tupleNodeAT(trees)[@atype=\tuple([t@atype|t<-trees])][@at=assn@\loc] >;
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Annotation (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> @ <Name an>`, Configuration c) {
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> @ <Name an>`, bool top, Configuration c) {
 	// First, build the tree for the receiver and convert the annotation name into something
 	// we can use below.
-	< c, atree > = buildAssignableTree(ar, c);
+	< c, atree > = buildAssignableTree(ar, false, c);
 	aname = convertName(an);
 
 	// Then, check the assignment type of the receiver -- for us to proceed, it cannot be fail and
 	// it has to be concrete, since we need to know the type before we can look up the annotation.
 	if (!isFailType(atree@atype) && !concreteType(atree@atype)) {
 		failtype = makeFailType("Assignable <ar> must have an actual type before assigning to an annotation", assn@\loc);
-		return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=failtype][@at=assn@\loc] >;
+		return < c, annotationNode(atree,aname)[@atype=failtype][@at=assn@\loc] >;
 	}
 	
 	// Now, check the assignment type to make sure it is a type that can carry an annotation.
@@ -3950,175 +4009,22 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 		// requirement is implicit in the code below, but I'm not sure it's being checked.
 		if (aname in c.annotationEnv, true in { subtype(atree@atype,ot) | ot <- c.store[c.annotationEnv[aname]].onTypes }) {
 			aType = c.store[c.annotationEnv[aname]].rtype;
-			return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=aType][@at=assn@\loc] >;
+			return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
 		} else {
 			rt = makeFailType("Annotation <an> not declared on <prettyPrintType(atree@atype)> or its supertypes",assn@\loc);
-			return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=rt][@at=assn@\loc] >;
+			return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
 		}
 	} else {
 		rt = makeFailType("Invalid type: expected node or ADT types, found <prettyPrintType(atree@atype)>", assn@\loc);
-		return < c, annotationNode(atree,aname)[@otype=atree@otype][@atype=rt][@at=assn@\loc] >;
-	}
-}
-
-@doc{Patch the map assignment rules to handle a corner case.}
-public ATResult patchMapAssignment(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), bool top, Configuration c) {
-	// This code is needed to handle the scenario where we have an inferred variable of map type that is the
-	// top-level target of an assignment. In that case, inserting a new key will cause the type of the key
-	// to change if it is not the same as the current key type. Most of the code below just enforces the
-	// conditions for this scenario to take place.
-	
-	println("Called on tree <atree> with top = <top> and subscript type <prettyPrintType(stype)>");
-	
-	// First, this only happens when we have a map as the subscripted type
-	if (isMapType(receiver@atype)) {
-		println("I am a map!");
-		// Second, this only happens when we have a variable as the recevier
-		if (avar:variableNode(vname) := receiver) {
-			println("The receiver is a var!");
-			// Third, this only happens when the types are not equivalent
-			if (!equivalent(getMapDomainType(receiver@atype), stype)) {
-				println("The types are not equivalent!");
-				// Fourth, this only happens when we are at the top of the assignable
-				if (top) {
-					// Fifth, this only happens when the name has an inferred type originally; it cannot
-					// have a type that is still inferred at this point, or we would not know that it is
-					// a map...
-					if (c.store[c.fcvEnv[vname]].inferred) {
-						// If all these conditions are met, we need to update the name to set the map domain
-						// type to the new type.
-						Symbol newMapType = \map(lub(getMapDomainType(c.store[c.fcvEnv[vname]].rtype),stype),getMapRangeType(c.store[c.fcvEnv[vname]].rtype));
-						c.store[c.fcvEnv[vname]].rtype = newMapType;
-						println("Updated map type to <prettyPrintType(newMapType)>");
-						return < c, atree[receiver=receiver[@otype=newMapType][@atype=newMapType]] >;
-					}
-				}
-			}
-		}
-	}
-	
-	println("Did not make it through all the conditionals!");
-	
-	// If this is a map, but it didn't meet all the conditions above, make sure we are accessing it with the
-	// correct subscript type. If not, mark an error on the assignment type for this node -- the map is valid,
-	// the subscript is valid, but the combination is not, so that is the correct level at which to mark it.
-	if (isMapType(receiver@atype) && !comparable(stype, getMapDomainType(receiver@atype))) {
-		failType = makeFailType("Cannot subscript map of type <prettyPrintType(receiver@atype)> with expression of type <prettyPrintType(stype)>", atree@at);
-		return < c, atree[@atype=failType] >;
-	}
-	
-	return < c, atree >;
-}
-
-@doc{Patch the map assignment rules to handle a corner case.}
-public default ATResult patchMapAssignment(AssignableTree atree, Configuration c) = < c, atree >;
-
-public set[Symbol] getATFailures(AssignableTree atree) {
-	set[Symbol] failures = { };
-	if (isFailType(atree@otype)) failures += atree@otype;
-	if (isFailType(atree@atype)) failures += atree@atype;
-	return failures;
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:bracketNode(AssignableTree child), bool top, Configuration c) {
-	< c, child > = postProcessATree(child, top, c);
-	failures = getATFailures(child);
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[child=child][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[child=child][@atype=child@atype][@otype=child@otype] >;
-	}
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:variableNode(RName name), bool top, Configuration c) {
-	return < c, atree >;
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:subscriptNode(AssignableTree _, Symbol _), bool top, Configuration c) {
-	< c, atree > = patchMapAssignment(atree, top, c);
-	< c, receiver > = postProcessATree(atree.receiver, false, c);
-	failures = getATFailures(receiver); 
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[receiver=receiver] >;
-	}
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:fieldAccessNode(AssignableTree receiver, RName name), bool top, Configuration c) {
-	< c, receiver > = postProcessATree(receiver, false, c);
-	failures = getATFailures(receiver); 
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[receiver=receiver] >;
-	}
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:ifDefinedOrDefaultNode(AssignableTree receiver, Symbol dtype), bool top, Configuration c) {
-	< c, receiver > = postProcessATree(receiver, top, c);
-	failures = getATFailures(receiver); 
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[receiver=receiver] >;
-	}
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:constructorNode(RName name,list[AssignableTree] children), bool top, Configuration c) {
-	return < c, atree >;
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:tupleNodeAT(list[AssignableTree] children), bool top, Configuration c) {
-	newChildren = [ ];
-	failures = { };
-	
-	for (child <- children) {
-		< c, child > = postProcessATree(child, top, c);
-		failures = failures + getATFailures(child);
-		newChildren = newChildren + child;
-	}
-	 
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[children = newChildren][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[children = newChildren] >;
-	}
-}
-
-@doc{Perform post-processing steps over the assignable tree to ensure it is properly formed.}
-public ATResult postProcessATree(AssignableTree atree:annotationNode(AssignableTree receiver, RName name), bool top, Configuration c) {
-	< c, receiver > = postProcessATree(receiver, false, c);
-	failures = getATFailures(receiver); 
-	if (size(failures) > 0) {
-		ft = collapseFailTypes(failures);
-		return < c, atree[receiver=receiver][@atype=ft][@otype=ft] >;
-	} else {
-		return < c, atree[receiver=receiver] >;
+		return < c, annotationNode(atree,aname)[@atype=rt][@at=assn@\loc] >;
 	}
 }
 
 @doc{Check the type of Rascal assignments: IfDefined (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
 	// Now, using the subject type, try to bind it to the assignable tree
 	try {
@@ -4127,7 +4033,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4139,16 +4045,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 @doc{Check the type of Rascal assignments: Division (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
-	// If the assignment point or the overall type are not concrete, we cannot do
-	// the assignment -- the subject type cannot influence the type here.
-	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	// If the assignment point is not concrete, we cannot do the assignment -- 
+	// the subject type cannot influence the type here.
+	if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
 	
 	// Check to ensure the division is valid. If so, the resulting type is the overall
 	// type of the assignable, else it is the failure type generated by the operation.
@@ -4162,7 +4064,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4174,16 +4076,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 @doc{Check the type of Rascal assignments: Product (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
-	// If the assignment point or the overall type are not concrete, we cannot do
-	// the assignment -- the subject type cannot influence the type here.
-	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	// If the assignment point is not concrete, we cannot do the assignment -- 
+	// the subject type cannot influence the type here.
+	if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
 	
 	// Check to ensure the product is valid. If so, the resulting type is the overall
 	// type of the assignable, else it is the failure type generated by the operation.
@@ -4197,7 +4095,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4209,16 +4107,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 @doc{Check the type of Rascal assignments: Intersection (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
-	// If the assignment point or the overall type are not concrete, we cannot do
-	// the assignment -- the subject type cannot influence the type here.
-	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	// If the assignment point is not concrete, we cannot do the assignment -- 
+	// the subject type cannot influence the type here.
+	if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
 	
 	// Check to ensure the intersection is valid. If so, the resulting type is the overall
 	// type of the assignable, else it is the failure type generated by the operation.
@@ -4232,7 +4126,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4244,16 +4138,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 @doc{Check the type of Rascal assignments: Subtraction (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
-	// If the assignment point or the overall type are not concrete, we cannot do
-	// the assignment -- the subject type cannot influence the type here.
-	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	// If the assignment point is not concrete, we cannot do the assignment -- 
+	// the subject type cannot influence the type here.
+	if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
 	
 	// Check to ensure the subtraction is valid. If so, the resulting type is the overall
 	// type of the assignable, else it is the failure type generated by the operation.
@@ -4267,7 +4157,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4279,21 +4169,19 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 @doc{Check the type of Rascal assignments: Default (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	//println("<assn@\loc>: build assignable tree <atree> with subject type <st>");
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
 	// Now, using the subject type, try to bind it to the assignable tree
 	try {
 		< c, atree > = bindAssignable(atree, st, c);
-	} catch : {
+	} catch msg : {
+		//println("Failed to bind: <msg>");
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4305,16 +4193,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 @doc{Check the type of Rascal assignments: Addition (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	
-	// If either the overall type or the type of the assignment point is a failure,
-	// don't try to proceed further.
-	if (isFailType(atree@otype) || isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, { atree@otype, atree@atype });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
-	// If the assignment point or the overall type are not concrete, we cannot do
-	// the assignment -- the subject type cannot influence the type here.
-	if (!concreteType(atree@otype) || !concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
+	// If the assignment point is not concrete, we cannot do the assignment -- 
+	// the subject type cannot influence the type here.
+	if (!concreteType(atree@atype)) return markLocationFailed(cbak, a@\loc, makeFailType("Cannot initialize variables using a += operation", a@\loc));
 	
 	// Check to ensure the addition is valid. If so, the resulting type is the overall
 	// type of the assignable, else it is the failure type generated by the operation.
@@ -4328,7 +4212,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind result type <prettyPrintType(rt)> to assignable", l));
 	}
 
-	unresolved = { ati | /AssignableTree ati := atree, !((ati@atype)?) || !concreteType(ati@atype) } + { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
+	unresolved = { ati | /AssignableTree ati := atree, !((ati@otype)?) || !concreteType(ati@otype) };
 	if (size(unresolved) > 0)
 		return markLocationFailed(cbak, l, makeFailType("Type of assignable could not be computed", l));
 	else {
@@ -4339,20 +4223,32 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 
 @doc{Check the type of Rascal assignments: Append}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`<<=`, Assignable a, Symbol st, Configuration c) {
-	< c, atree > = buildAssignableTree(a, c);
-	if (!(isFailType(atree@otype) || isFailType(atree@atype))) < c, atree > = postProcessATree(atree, true, c);
-	if (isFailType(tRes) || isFailType(tTgt)) return markLocationFailed(c, assn@\loc, { tRes, tTgt });
+	< c, atree > = buildAssignableTree(a, true, c);
+	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 	throw "Not yet implemented";
 }
 
 @doc{Bind variable types to variables in assignables: Bracket}
 public ATResult bindAssignable(AssignableTree atree:bracketNode(AssignableTree child), Symbol st, Configuration c) {
+	// Since bracketing does not impact anything, binding just passes the type
+	// information through to the bracketed assignable node.
 	< c, newChild > = bindAssignable(child, st, c);
 	return < c, atree[@otype=newChild@otype][@atype=newChild@atype] >;
 }
 
 @doc{Bind variable types to variables in assignables: Variable}
 public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Symbol st, Configuration c) {
+	// Binding the name involves assigning the binding type. In the case of names with
+	// inferred types, we may be able to assign the type directly, or may have to compute
+	// the lub of the type. If the name has a defined type, we ensure that the
+	// type of the value being assigned is a subtype of the current type.
+	
+	// TODO: A sensible restriction would be that a name can occur at most once in
+	// an assignable IF it is assigned into. We should add that, although it makes
+	// more sense to do this when building the assignable tree, not here. This will
+	// also prevent odd errors that could occur if a name changes types, such as from
+	// an ADT type (with fields) to a node type (without fields).
+	
 	if (RSimpleName("_") == name) {
 		varId = getOneFrom(atree@defs);
 		Symbol currentType = c.store[varId].rtype;
@@ -4370,8 +4266,8 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 			} else {
 				c.store[c.fcvEnv[name]].rtype = lub(currentType, st);
 			}
-		} else if (!comparable(currentType, st)) {
-			throw "Bind error, cannot bind subject of type <prettyPrintType(st)> to pattern of type <prettyPrintType(currentType)>";
+		} else if (!subtype(st, currentType)) {
+			throw "Cannot assign value of type <prettyPrintType(st)> to assignable of type <prettyPrintType(currentType)>";
 		}
 		return < c, atree[@otype=c.store[c.fcvEnv[name]].rtype][@atype=c.store[c.fcvEnv[name]].rtype] >;
 	}
@@ -4379,6 +4275,15 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
+	// To bind the subscript, we push the subject type back through into the receiver
+	// after calculating the proper type. For instance, given x is a list[int], an
+	// assignable like x[5] was originally given an atype of int. To calculate
+	// the type we are trying to bind, we then take the lub of the list element
+	// type and the subject type and wrap those in a list. So, for x[5] = 3.4,
+	// this would be \list(\num()). NOTE: The expected subject type below is
+	// always the element type, never the container type -- we are assigning
+	// into a list, tuple, etc, not over one.
+	
 	if (isListType(receiver@atype)) {
 		< c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
 		return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
@@ -4387,6 +4292,10 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
 		return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
 	} else if (isTupleType(receiver@atype)) {
 		tupleFields = getTupleFields(receiver@atype);
+		// This type is as exact as we can get. Assuming the subscript is
+		// in range, all we can infer about the resulting type is that, since
+		// we could assign to each field, each field could have a type based
+		// on the lub of the existing field type and the subject type.
 		< c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]));
 		return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=\value()] >;
 	} else if (isMapType(receiver@atype)) {
@@ -4401,16 +4310,29 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
 
 @doc{Bind variable types to variables in assignables: FieldAccess}
 public ATResult bindAssignable(AssignableTree atree:fieldAccessNode(AssignableTree receiver, RName name), Symbol st, Configuration c) {
-	// NOTE: We should not need to bind further down in this term. This is because, in a case
-	// where we have a term like a.x, a MUST have a concrete type, so no parts of a could be
-	// inferred (and thus there is nothing to bind).
-	return < c, atree >; 
+	// Note that, for field access, we have to know the receiver type, since
+	// it holds the field information. However, unlike with subscripts, writing
+	// to a field cannot change the type of the item holding the field -- all fields
+	// have non-inferred types. So, we don't need to push back anything other than
+	// the current receiver type. We do, however, need to make sure the value being
+	// assigned is of the correct type.
+	
+	if (subtype(st, atree@atype)) {
+		< c, receiver > = bindAssignable(receiver, receiver@atype, c);
+		return < c, atree[receiver=receiver][@otype=receiver@otype] >;
+	} else {
+		throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree@atype)>";
+	}
 }
 
 @doc{Bind variable types to variables in assignables: IfDefinedOrDefault}
 public ATResult bindAssignable(AssignableTree atree:ifDefinedOrDefaultNode(AssignableTree receiver, Symbol dtype), Symbol st, Configuration c) {
-	< c, newTree > = bindAssignable(receiver, st, c);
-	return < c, atree[receiver=newTree][@otype=newTree@otype] >;
+	// For and If Defined or Default assignable, we just push the type through, much
+	// like with a bracket. It will be checked by the receiver to ensure it is
+	// correct, using the logic behind the proper receiver (subscript, etc).
+	
+	< c, receiver > = bindAssignable(receiver, st, c);
+	return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=receiver@atype] >;
 }
 
 @doc{Check the type of Rascal assignables: Constructor}
@@ -4420,6 +4342,10 @@ public ATResult bindAssignable(AssignableTree atree:constructorNode(RName name,l
 
 @doc{Bind variable types to variables in assignables: Tuple}
 public ATResult bindAssignable(AssignableTree atree:tupleNodeAT(list[AssignableTree] children), Symbol st, Configuration c) {
+	// For tuple assignables, we make sure that the subject is also a tuple with the
+	// same number of fields. We then push the tuple type of the subject through each
+	// of the children of the tuple assignable, in order. The final type is then based
+	// on the final types of the children.
 	if (isTupleType(st)) {
 		list[Symbol] tflds = getTupleFields(st);
 		if (size(tflds) == size(children)) {
@@ -4428,22 +4354,29 @@ public ATResult bindAssignable(AssignableTree atree:tupleNodeAT(list[AssignableT
 				< c, newTree > = bindAssignable(children[idx], tflds[idx], c);
 				newChildren = newChildren + newTree;
 			}
-			return < c, atree[children = newChildren][@atype=st][@otype=st] >; 
+			return < c, atree[children = newChildren][@otype=\tuple([child@otype|child <- newChildren])][@atype=\tuple([child@atype|child <- newChildren])] >; 
 		} else {
-			throw "Cannot bind tuple assignable with arity <size(children)> to tuple type <prettyPrintType(st)>";
+			throw "Cannot bind tuple assignable with arity <size(children)> to value of tuple type <prettyPrintType(st)> with arity <size(tflds)>";
 		}
 	} else {
 		throw "Cannot bind tuple assignable to non-tuple type <prettyPrintType(st)>";
 	}
-	return < c, atree >;
 }
 
 @doc{Check the type of Rascal assignables: Annotation}
 public ATResult bindAssignable(AssignableTree atree:annotationNode(AssignableTree receiver, RName name), Symbol st, Configuration c) {
-	// NOTE: We should not need to bind further down in this term. This is because, in a case
-	// where we have a term like a@x, a MUST have a concrete type, so no parts of a could be
-	// inferred (and thus there is nothing to bind).
-	return < c, atree >; 
+	// Note that, for annotations, we have to know the receiver type, since the
+	// annotation type is based on this. However, unlike with subscripts, writing
+	// to an annotation cannot change the type of the annotated item. So, we don't 
+	// need to push back anything other than the current receiver type. We do, 
+	// however, need to make sure the value being assigned is of the correct type.
+	
+	if (subtype(st, atree@atype)) {
+		< c, receiver > = bindAssignable(receiver, receiver@atype, c);
+		return < c, atree[receiver=receiver][@otype=receiver@otype] >;
+	} else {
+		throw "Bind error, cannot assign value of type <prettyPrintType(st)> to assignable expecting type <prettyPrintType(atree@atype)>";
+	}
 }
 
 @doc{Check the type of the components of a declaration: Variable}
@@ -4624,7 +4557,12 @@ private Configuration prepareFunctionBodyEnv(Configuration c) {
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig>;`, bool descend, Configuration c) {
 	// TODO: Enforce that this is a java function?
 	rn = getFunctionName(sig);
-
+	throwsTypes = [ ];
+	for ( ttype <- getFunctionThrows(sig)) { 
+		< c, ttypeC > = convertAndExpandType(ttype, c); 
+		throwsTypes += ttypeC; 
+	}
+	
 	println("Checking function <prettyPrintName(rn)>");
 
 	// First, check to see if we have processed this declaration before. If we have, just get back the
@@ -4635,12 +4573,12 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		// Put the function in, so we can enter the correct scope. This also puts the function name into the
 		// scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
 		// and this makes sure we find it when checking the patterns in the signature.
-		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 	
 		// We now have the function type. So, we can throw cFun away, and add this as a proper function
 		// into the scope. NOTE: This can be a failure type.
-		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4656,14 +4594,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Check function declarations: Expression}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp>;`, bool descend, Configuration c) {
 	rn = getFunctionName(sig);
+	throwsTypes = [ ];
+	for ( ttype <- getFunctionThrows(sig)) { 
+		< c, ttypeC > = convertAndExpandType(ttype, c); 
+		throwsTypes += ttypeC; 
+	}
 
 	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
 		cFun = prepareSignatureEnv(c);
-		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
-		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4680,7 +4623,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
 		} else {
 			// TODO: These need to appear in the error log
-			println("<fd@\loc>: Found failure type for function: <funType>");
+			//println("<fd@\loc>: Found failure type for function: <funType>");
 			cFun = setExpectedReturn(c, \void());
 		}
 		< cFun, tFun > = processSignature(sig, cFun);
@@ -4697,14 +4640,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Check function declarations: Conditional}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> = <Expression exp> when <{Expression ","}+ conds>;`, bool descend, Configuration c) {
 	rn = getFunctionName(sig);
+	throwsTypes = [ ];
+	for ( ttype <- getFunctionThrows(sig)) { 
+		< c, ttypeC > = convertAndExpandType(ttype, c); 
+		throwsTypes += ttypeC; 
+	}
 
 	println("Checking function <prettyPrintName(rn)>");
 
 	if (fd@\loc notin c.definitions<1>) { 
 		cFun = prepareSignatureEnv(c);
-		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
-		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4741,14 +4689,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 @doc{Check function declarations: Default}
 public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDeclaration)`<Tags tags> <Visibility vis> <Signature sig> <FunctionBody body>`, bool descend, Configuration c) {
 	rn = getFunctionName(sig);
+	throwsTypes = [ ];
+	for ( ttype <- getFunctionThrows(sig)) { 
+		< c, ttypeC > = convertAndExpandType(ttype, c); 
+		throwsTypes += ttypeC; 
+	}
 
 	println("Checking function <prettyPrintName(rn)>");
 	
 	if (fd@\loc notin c.definitions<1>) { 
 		cFun = prepareSignatureEnv(c);
-		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), fd@\loc);
+		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
-		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), fd@\loc);
+		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4827,6 +4780,10 @@ set[Modifier] getModifiers(FunctionModifiers fmods:(FunctionModifiers)`<Function
 public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = convertName(n);
 public RName getFunctionName(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = convertName(n);
 
+@doc{Extract the throws information from the signature.}
+public list[Type] getFunctionThrows(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps> throws <{Type ","}+ exs>`) = [ exsi | exsi <- exs ];
+public list[Type] getFunctionThrows(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> <Parameters ps>`) = [ ];
+
 @doc{Check to see if the function is a varargs function.}
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ) throws <{Type ","}+ exs>`) = false;
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... ) throws <{Type ","}+ exs>`) = true;
@@ -4863,10 +4820,15 @@ public Configuration importFunction(RName functionName, Signature sig, loc at, V
 	// parameter names into scope.
 	// NOTE: There is no descend option here. Instead we process imports of function and variable names
 	// from top to bottom, and don't descend into them at any point.
+	throwsTypes = [ ];
+	for ( ttype <- getFunctionThrows(sig)) { 
+		< c, ttypeC > = convertAndExpandType(ttype, c); 
+		throwsTypes += ttypeC; 
+	}
 	cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_) := c.store[c.fcvEnv[ename]] )];
-	cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), isVarArgs(sig), vis, at);
+	cFun = addFunction(cFun, functionName, Symbol::\func(\void(),[]), isVarArgs(sig), vis, throwsTypes, at);
 	< cFun, tFun > = processSignature(sig, cFun);
-	c = addFunction(c, functionName, tFun, isVarArgs(sig), vis, at);
+	c = addFunction(c, functionName, tFun, isVarArgs(sig), vis, throwsTypes, at);
 	return c;
 }
 
@@ -4944,15 +4906,20 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	// Get the information about each import, including the module signature
 	for (importItem <- importList) {
 		if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
-			modName = getNameOfImportedModule(im);
-			modTree = getModuleParseTree(prettyPrintName(modName));
-			sigMap[modName] = getModuleSignature(modTree);
-			moduleLocs[modName] = modTree@\loc;
-			importOrder = importOrder + modName;
-			c = addModule(c,modName,modTree@\loc);
-			moduleIds[modName] = head(c.stack);
-			c = popModule(c);
-			isExtends[modName] = (Import)`extend <ImportedModule im>;` := importItem;		
+			try {
+				modName = getNameOfImportedModule(im);
+				//println("Getting tree for module <prettyPrintName(modName)>");
+				modTree = getModuleParseTree(prettyPrintName(modName));
+				sigMap[modName] = getModuleSignature(modTree);
+				moduleLocs[modName] = modTree@\loc;
+				importOrder = importOrder + modName;
+				c = addModule(c,modName,modTree@\loc);
+				moduleIds[modName] = head(c.stack);
+				c = popModule(c);
+				isExtends[modName] = (Import)`extend <ImportedModule im>;` := importItem;
+			} catch perror : {
+				c = addScopeError(c, "Cannot calculate signature for imported module", importItem@\loc);
+			}		
 		} else {
 			// This is where we would need to add support for syntax.
 			;
@@ -4998,7 +4965,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	for (modName <- importOrder) {
 		sig = sigMap[modName];
 		c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
-		for (item <- sig.privateVariables) c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
+		for (item <- sig.publicVariables) c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
 		for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
 		for (item <- sig.annotations) c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
 		c.stack = tail(c.stack);
@@ -5749,7 +5716,12 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
 	// available in the catch body. NOTE: Calculating the pattern type
 	// has the side effect of introducing the variables into scope.
 	cCatch = enterBlock(c, ctch@\loc);
-	< cCatch, tp > = calculatePatternType(p, cCatch);
+	tp = \void();
+	if ((Pattern)`<QualifiedName qn>` := p) {
+		< cCatch, tp > = calculatePatternType(p, cCatch, \adt("RuntimeException",[]));
+	} else {
+		< cCatch, tp > = calculatePatternType(p, cCatch);
+	}
 	if (isFailType(tp)) cCatch.messages = getFailures(tp);
 		
 	// Attempt to check the body regardless of whether the pattern is typable. NOTE: We could
@@ -5761,6 +5733,13 @@ public Configuration checkCatch(Catch ctch:(Catch)`catch <Pattern p> : <Statemen
 	// Exit the block to remove the bound variables from the scope.
 	c = exitBlock(cCatch, c);
 	
+	return c;
+}
+
+public Configuration addNameWarning(Configuration c, RName n, loc l) {
+	currentModuleLoc = head([c.store[i].at | i <- c.stack, \module(_,_) := c.store[i]]);
+	if (c.store[c.fcvEnv[n]] has at && currentModuleLoc.path != c.store[c.fcvEnv[n]].at.path)
+		c = addScopeWarning(c, "Name defined outside of current module", l);
 	return c;
 }
 
