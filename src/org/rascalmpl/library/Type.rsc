@@ -150,7 +150,8 @@ public bool subtype(\tuple(list[Symbol] l), \tuple(list[Symbol] r)) = subtype(l,
 public bool subtype(\rel(list[Symbol] l), \rel(list[Symbol] r)) = subtype(l, r);
 public bool subtype(\list(Symbol s), \list(Symbol t)) = subtype(s, t);  
 public bool subtype(\set(Symbol s), \set(Symbol t)) = subtype(s, t);
-public bool subtype(\set(\void()), \rel(list[Symbol] _)) = true;  
+public bool subtype(\set(Symbol s), \rel(list[Symbol] ls)) = subtype(s,\tuple(ls));
+public bool subtype(\rel(list[Symbol] ls), \set(Symbol s)) = subtype(\tuple(ls),s);
 public bool subtype(\bag(Symbol s), \bag(Symbol t)) = subtype(s, t);  
 public bool subtype(\map(Symbol from1, Symbol to1), \map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
@@ -234,8 +235,8 @@ public Symbol lub(\num(), \real()) = \num();
 public Symbol lub(\num(), \rat()) = \num();
 
 public Symbol lub(\set(Symbol s), \set(Symbol t)) = \set(lub(s, t));  
-public Symbol lub(\set(Symbol _), \rel(list[Symbol] _)) = \set(\value());  
-public Symbol lub(\rel(list[Symbol] _), \set(Symbol _)) = \set(\value());
+public Symbol lub(\set(Symbol s), \rel(list[Symbol] ts)) = \set(lub(s,\tuple(ts)));  
+public Symbol lub(\rel(list[Symbol] ts), \set(Symbol s)) = \set(lub(s,\tuple(ts)));
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) == getLabels(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(lub(stripLabels(l), stripLabels(r))) when size(l) == size(r) && allLabeled(l) && allLabeled(r) && getLabels(l) != getLabels(r);
 public Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r)) = \rel(addLabels(lub(stripLabels(l), stripLabels(r)),getLabels(l))) when size(l) == size(r) && allLabeled(l) && noneLabeled(r);
@@ -279,8 +280,8 @@ public Symbol lub(Symbol l, \label(_,Symbol r)) = lub(l,r);
 public list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [lub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
 public default list[Symbol] lub(list[Symbol] l, list[Symbol] r) = [\value()]; 
 
-private bool allLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) := l[i]);
-private bool noneLabeled(list[Symbol] l) = all(i <- index(l), \label(_,_) !:= l[i]);
+private bool allLabeled(list[Symbol] l) = all(li <- l, \label(_,_) := li);
+private bool noneLabeled(list[Symbol] l) = all(li <- l, \label(_,_) !:= li);
 private list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
 private list[Symbol] addLabels(list[Symbol] l, list[str] s) = [ \label(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
 private default list[Symbol] addLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list <l> and label list <s> much match"; }

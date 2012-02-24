@@ -23,7 +23,7 @@ import lang::rascal::syntax::RascalRascal;
 @doc{Extension to add new types used internally during name resolution and checking.}
 public data Symbol =
 	  \user(RName rname, list[Symbol] parameters)
-	| \failure(set[Message] messages)
+	| failure(set[Message] messages)
 	| \inferred(int uniqueId)
 	| \overloaded(set[Symbol] overloads)
 	;
@@ -63,7 +63,7 @@ public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <pr
 //public str prettyPrintType(\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
-public str prettyPrintType(\failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
+public str prettyPrintType(failure(set[Message] ms)) = "fail"; // TODO: Add more detail?
 public str prettyPrintType(\inferred(int n)) = "inferred(<n>)";
 public str prettyPrintType(\overloaded(set[Symbol] os)) = "overloaded:\n\t\t<intercalate("\n\t\t",[prettyPrintType(o) | o <- os])>";
 public default str prettyPrintType(Symbol s) { throw "Invalid type to pretty-print: <s>"; }
@@ -513,23 +513,23 @@ public Symbol unwindAliases(Symbol t) {
 }
 
 @doc{Is the provided type a failure type?}
-public bool isFailType(\failure(_)) = true;
+public bool isFailType(failure(_)) = true;
 public default bool isFailType(Symbol _) = false;
 
 @doc{Construct a new fail type with the given message and error location.}
-public Symbol makeFailType(str s, loc l) = \failure({error(s,l)});
+public Symbol makeFailType(str s, loc l) = failure({error(s,l)});
 
 @doc{Get the failure messages out of the type.}
-public set[Message] getFailures(\failure(set[Message] ms)) = ms;
+public set[Message] getFailures(failure(set[Message] ms)) = ms;
 
 @doc{Extend a failure type with new failure messages.}
-public Symbol extendFailType(\failure(set[Message] ms), set[Message] msp) = \failure(ms + msp);
+public Symbol extendFailType(failure(set[Message] ms), set[Message] msp) = failure(ms + msp);
 public default Symbol extendFailType(Symbol t) { 	
 	throw "Cannot extend a non-failure type with failure information, type <prettyPrintType(t)>";
 }
 
 @doc{Collapse a set of failure types into a single failure type with all the failures included.} 
-public Symbol collapseFailTypes(set[Symbol] rt) = \failure({ s | \failure(ss) <- rt, s <- ss }); 
+public Symbol collapseFailTypes(set[Symbol] rt) = failure({ s | failure(ss) <- rt, s <- ss }); 
 
 @doc{Is this type an inferred type?}
 public bool isInferredType(\inferred(_)) = true;
