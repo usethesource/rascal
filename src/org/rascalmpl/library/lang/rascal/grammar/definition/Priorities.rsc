@@ -67,7 +67,6 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
       }
     } 
   }
-  println("associativity: <result + {*doNotNest(x) | x <- alts}>");
   return result + {*doNotNest(x) | x <- alts};  
 }
 
