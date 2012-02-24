@@ -21,7 +21,7 @@ import List;
 import String;    
 import ParseTree;
 import IO;  
-import Integer;
+import util::Math;
 
 
 // conversion functions
