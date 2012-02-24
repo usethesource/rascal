@@ -399,8 +399,7 @@ str generateClassConditional(set[Symbol] classes) {
 
 str generateRangeConditional(CharRange r) {
   switch (r) {
-    case single(i) : return "(lookAheadChar == <i>)";
-    case range(0,65535) : return "(true /*every char*/)";
+    case range(0,0xFFFFF) : return "(true /*every char*/)";
     case range(i, i) : return "(lookAheadChar == <i>)";
     case range(i, j) : return "((lookAheadChar \>= <i>) && (lookAheadChar \<= <j>))";
     default: throw "unexpected range type: <r>";
