@@ -20,6 +20,7 @@ import Node;
 import Type;
 import Relation;
 import util::Reflective;
+import DateTime;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -186,11 +187,14 @@ data Configuration = config(set[Message] messages,
 							rel[int,int] adtConstructors,
 							list[int] stack,
 							list[tuple[RName labelName,LabelSource labelSource,Symbol labelType]] labelStack,
+							list[tuple[str tmsg,datetime tstart,datetime tend]] timings,
 							int nextLoc,
 							int uniqueify
 						   );
 
-public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],[],0,0);
+public Configuration newConfiguration() = config({},(),\void(),(),(),(),(),(),(),(),(),(),{},{},{},{},[],[],[],0,0);
+
+public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + <m,s,e>];
 
 @doc{Add a new location type.}
 public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
@@ -891,12 +895,19 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 							list[Symbol] varPart = tail(tl,size(tl)-size(args)+1);
 							list[Symbol] fixedArgs = head(args,size(args)-1);
 							Symbol varArgsType = getListElementType(last(args));
-							if (size(fixedPart) == 0 && all(idx <- index(varPart),subtype(varPart[idx],varArgsType)))
-								matches += a;
-							else if (all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx])) && all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType)))
-								matches += a;
-							 else
+							if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtype(fixedPart[idx],fixedArgs[idx]))) {
+								if (size(varPart) == 0) {
+									matches += a;
+								} else if (size(varPart) == 1 && subtype(varPart[0],last(args))) {
+									matches += a;
+								} else if (all(idx2 <- index(varPart),subtype(varPart[idx2],varArgsType))) {
+									matches += a;
+								} else {
+									failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+								}
+							} else {
 								failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+							}
 						}
 					}
 				}
@@ -1638,7 +1649,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
 		}
 	}
 	
-	if (isRelationType(t1) && isRelationType(t2)) {
+	if (isRelType(t1) && isRelType(t2)) {
 		list[Symbol] lflds = getRelFields(t1);
 		list[Symbol] rflds = getRelFields(t2);
 		set[Symbol] failures = { };
@@ -1803,7 +1814,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> - <Expre
 	return markLocationType(c,exp@\loc,computeSubtractionType(t1,t2,exp@\loc));
 }
 
-Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
+public Symbol computeSubtractionType(Symbol t1, Symbol t2, loc l) {
 	if (subtype(t1, \num()) && subtype(t2, \num()) && !isVoidType(t1) && !isVoidType(t2))
 		return numericArithTypes(t1, t2);
 
@@ -3600,7 +3611,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`solve ( <{QualifiedName 
 	c = exitBlock(cBody, c);
 	if (isFailType(tbody)) failures = failures + tbody;
 	
-	if (size(failure) > 0)
+	if (size(failures) > 0)
 		return markLocationFailed(c, stmt@\loc, failures);
 	else
 		return markLocationType(c, stmt@\loc, tbody);
@@ -4170,14 +4181,12 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
 	cbak = c;
 	< c, atree > = buildAssignableTree(a, true, c);
-	//println("<assn@\loc>: build assignable tree <atree> with subject type <st>");
 	if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
 	// Now, using the subject type, try to bind it to the assignable tree
 	try {
 		< c, atree > = bindAssignable(atree, st, c);
 	} catch msg : {
-		//println("Failed to bind: <msg>");
 		return markLocationFailed(cbak, l, makeFailType("Unable to bind subject type <prettyPrintType(st)> to assignable", l));
 	}
 
@@ -4575,6 +4584,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		// and this makes sure we find it when checking the patterns in the signature.
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
+		if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 	
 		// We now have the function type. So, we can throw cFun away, and add this as a proper function
 		// into the scope. NOTE: This can be a failure type.
@@ -4607,6 +4617,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+		if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4623,7 +4634,6 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 			cFun = setExpectedReturn(c, getFunctionReturnType(funType));
 		} else {
 			// TODO: These need to appear in the error log
-			//println("<fd@\loc>: Found failure type for function: <funType>");
 			cFun = setExpectedReturn(c, \void());
 		}
 		< cFun, tFun > = processSignature(sig, cFun);
@@ -4653,6 +4663,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+		if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4702,6 +4713,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		cFun = addFunction(cFun, rn, Symbol::\func(\void(),[]), isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 		< cFun, tFun > = processSignature(sig, cFun);
 		c = addFunction(c, rn, tFun, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+		if (isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
 	} else {
 		funId = getOneFrom(invert(c.definitions)[fd@\loc]);
 		c.stack = funId + c.stack;
@@ -4907,8 +4919,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	for (importItem <- importList) {
 		if ((Import)`import <ImportedModule im>;` := importItem || (Import)`extend <ImportedModule im>;` := importItem) {
 			try {
+				dt1 = now();
 				modName = getNameOfImportedModule(im);
-				//println("Getting tree for module <prettyPrintName(modName)>");
 				modTree = getModuleParseTree(prettyPrintName(modName));
 				sigMap[modName] = getModuleSignature(modTree);
 				moduleLocs[modName] = modTree@\loc;
@@ -4917,9 +4929,10 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 				moduleIds[modName] = head(c.stack);
 				c = popModule(c);
 				isExtends[modName] = (Import)`extend <ImportedModule im>;` := importItem;
+				c = pushTiming(c, "Generate signature for <prettyPrintName(modName)>", dt1, now());
 			} catch perror : {
 				c = addScopeError(c, "Cannot calculate signature for imported module", importItem@\loc);
-			}		
+			}
 		} else {
 			// This is where we would need to add support for syntax.
 			;
@@ -4929,6 +4942,7 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 	// Add all the aliases and ADTs from each module without descending. Do tags here to, although
 	// (when they are really used) we need to add them in a reasonable order. Right now we just
 	// ignore them. So, TODO: Handle tags appropriately.
+	dt1 = now();
 	for (modName <- importOrder) {
 		sig = sigMap[modName];
 		c.stack = ( isExtends[modName] ? currentModuleId : moduleIds[modName] ) + c.stack;
@@ -4979,9 +4993,11 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		for (item <- sig.publicFunctions) c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
 		c.stack = tail(c.stack);
 	}
+	c = pushTiming(c, "Imported module signatures", dt1, now());
 			
 	// Process the current module
 	if ((Body)`<Toplevel* tls>` := body) {
+		dt1 = now();
 		list[Declaration] typesAndTags = [ ];
 		list[Declaration] annotations = [ ];
 		list[Declaration] names = [ ];
@@ -5016,6 +5032,8 @@ public Configuration checkModule(Module md:(Module)`<Header header> <Body body>`
 		for (t <- names) c = checkDeclaration(t,true,c);
 		
 		c.stack = tail(c.stack);
+		
+		c = pushTiming(c, "Checked current module", dt1, now());
 	}
 
 	// TODO: We currently leave the environment "dirty" by not removing the items
@@ -5080,13 +5098,10 @@ public CheckResult convertAndExpandUserType(UserType t, Configuration c) {
 public tuple[Configuration,Symbol] expandType(Symbol rt, loc l, Configuration c) {
 	rt = bottom-up visit(rt) {
 		case utc:\user(rn,pl) : {
-			//println("Current type info <l>:<utc>");
-			//println("Is it in? <rn in c.typeEnv>");
 			if (rn in c.typeEnv) {
 				ut = c.store[c.typeEnv[rn]].rtype;
 				if ((utc@at)?) {
 					c.uses = c.uses + < c.typeEnv[rn], utc@at >;
-					//println("Added <c.typeEnv[rn]> and <utc@at> to uses");
 				} 
 				if (isAliasType(ut)) {
 					atps = getAliasTypeParameters(ut);
@@ -5753,6 +5768,7 @@ public Module check(Module m) {
 	//| overload(set[int] items, Symbol rtype)
 	//| datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
 
+	dt1 = now();
 	map[loc,set[loc]] docLinks = ( );
 	for (<l,i> <- invert(c.uses)) {
 		set[loc] toAdd = { };
@@ -5763,14 +5779,14 @@ public Module check(Module m) {
 		} else {
 			toAdd = { c.store[i].at };
 		}	
-		println("For <l>, adding <toAdd>");
 		if (l in docLinks) {
 			docLinks[l] = docLinks[l] + toAdd;
 		} else {
 			docLinks[l] = toAdd;
 		}
 	}
-			
+	c = pushTiming(c,"Annotating", dt1, now());
+	for (t <- c.timings) println("<t.tmsg>:<createDuration(t.tstart,t.tend)>");
 	return m[@messages = c.messages]
 	        [@docStrings = ( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)]
 	        [@docLinks = docLinks];
