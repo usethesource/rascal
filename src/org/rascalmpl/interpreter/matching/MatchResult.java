@@ -62,13 +62,10 @@ public class MatchResult extends AbstractBooleanResult {
 
     @Override
 	public boolean hasNext() {
-    	if (positive) {
-    		return mp.hasNext();
-    	}
-    	
-		if (firstTime) {
+    	if (firstTime) {
 			return true;
 		}
+    	
 		return mp.hasNext();
 	}
 
