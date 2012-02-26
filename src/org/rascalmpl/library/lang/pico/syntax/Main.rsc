@@ -39,7 +39,7 @@ syntax Expression
   | strcon: String string
   | natcon: Natural natcon
   | bracket "(" Expression e ")"
-  > concat: Expression lhs "||" Expression rhs
+  > left concat: Expression lhs "||" Expression rhs
   > left ( add: Expression lhs "+" Expression rhs
          | min: Expression lhs "-" Expression rhs
          )
@@ -54,7 +54,7 @@ layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
 
 lexical WhitespaceAndComment 
    = [\ \t\n\r]
-   | @category="Comment" "%" ![%]* "%"
+   | @category="Comment" "%" ![%]+ "%"
    | @category="Comment" "%%" ![\n]* $
    ;
 
