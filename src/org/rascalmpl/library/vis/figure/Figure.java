@@ -148,7 +148,7 @@ public abstract class Figure implements Comparable<Figure> {
 	 * 
 	 * Down: 
 	 * - initialize (computefigure, register controls and other stuff) (*)
-	 * - registerNames (defined by id's).
+	 * - registerNames (defined by id property).
 	 * Up:
 	 * - register measures
 	 * - compute min size (*)
@@ -571,6 +571,14 @@ public abstract class Figure implements Comparable<Figure> {
 			toArrow.drawElement(gc,visibleSWTElements); 
 			gc.popMatrix();
 		}
+	}
+	
+	public Coordinate getGlobalCenter(){
+		return new Coordinate(globalLocation.getX() + size.getX()/2, globalLocation.getY() + size.getY()/2);
+	}
+	
+	public Coordinate getLocalCenter(){
+		return new Coordinate(localLocation.getX() + size.getX()/2, localLocation.getY() + size.getY()/2);
 	}
 	
 	
