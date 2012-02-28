@@ -432,6 +432,7 @@ public class LayeredGraphEdge extends Figure {
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		
+		System.err.println("Drawing edge " +  getFrom().name + " -> " + getTo().name);
 		if(getFrom().isVirtual()){
 			return;
 		}

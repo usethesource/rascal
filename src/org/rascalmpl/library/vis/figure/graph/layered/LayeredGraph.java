@@ -23,6 +23,7 @@ import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -32,8 +33,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 /**
@@ -200,31 +203,6 @@ public class LayeredGraph extends Figure {
 		System.err.println("*** length = " + this.children.length);
 	}
 	
-//	private void setGraphMinSize(){
-//		double minWidth = 0;
-//		double minHeight = 0;
-//		double w;
-//		double h;
-//		for(LayeredGraphNode g : nodes){
-//			w = g.x + g.width()/2;
-//			h = g.y + g.height()/2;
-//			if(w > minWidth)
-//				minWidth = w;
-//			if(h > minHeight)
-//				minHeight = h;
-//		}
-//		for(LayeredGraphEdge e1 : edges){
-//			w = e1.minSize.getX();
-//			h = e1.minSize.getY();
-//			
-//			if(w > minWidth)
-//				minWidth = w;
-//			if(h > minHeight)
-//				minHeight = h;
-//		}
-//		minSize.set(minWidth, minHeight);
-//	}
-
 	@Override
 	public void resizeElement(Rectangle view) {
 		localLocation.set(0,0);
@@ -236,9 +214,11 @@ public class LayeredGraph extends Figure {
 		}
 		*/
 	}
-	
-/*	
+	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		
+		System.err.println("DrawElement for LayeredGraph");
+		/*
 		applyProperties(gc);
 		gc.translate(globalLocation.getX(), globalLocation.getY());
 		//for(LayeredGraphEdge e : edges){
@@ -253,8 +233,9 @@ public class LayeredGraph extends Figure {
 		}
 		gc.translate(-globalLocation.getX(), -globalLocation.getY());
 		System.out.printf("Going back %s\n",globalLocation);
+		*/
 	}
-*/
+
 	/*
 	public boolean initChildren(IFigureConstructionEnv env,
 			NameResolver resolver, MouseOver mparent, boolean swtSeen, boolean visible) {
