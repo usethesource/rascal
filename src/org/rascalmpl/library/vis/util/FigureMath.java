@@ -124,8 +124,7 @@ public class FigureMath {
 	}
 	
 	public static double random(double x,  double y) {
-		int k = random.nextInt((int) (y-x));
-		return x + k;
+		return x + random.nextDouble() * (y-x);
 	}
 	
 	public static int floor(double f){
