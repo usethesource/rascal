@@ -200,7 +200,7 @@ public class FigureColorUtils {
 	public static final int BLACK = colorNames.get("black").intValue();
 	public static final int LIGHTGRAY = colorNames.get("lightgray").intValue();
 
-	static IInteger rgb(int r, int g, int b) {
+	public static IInteger rgb(int r, int g, int b) {
 		return vf.integer(figureColor(r, g, b));
 	}
 
