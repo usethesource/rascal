@@ -31,9 +31,10 @@ import org.rascalmpl.library.vis.figure.compose.HVCat;
 import org.rascalmpl.library.vis.figure.compose.Overlay;
 import org.rascalmpl.library.vis.figure.compose.Pack;
 import org.rascalmpl.library.vis.figure.compose.WidthDependsOnHeightWrapper;
-import org.rascalmpl.library.vis.figure.graph.layered.LayerGraphRecompute;
 import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraph;
 import org.rascalmpl.library.vis.figure.graph.layered.LayeredGraphEdge;
+import org.rascalmpl.library.vis.figure.graph.spring.SpringGraph;
+import org.rascalmpl.library.vis.figure.graph.spring.SpringGraphEdge;
 import org.rascalmpl.library.vis.figure.interaction.ComputeFigure;
 import org.rascalmpl.library.vis.figure.interaction.FigureSwitch;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
@@ -247,13 +248,14 @@ public class FigureFactory {
 		case GRAPH:
 			//if(properties.getStringProperty(Properties.HINT).contains("lattice"))
 			//	return new LatticeGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			//if(properties.getStr(Properties.HINT).contains("layered"))
+			if(properties.getStr(Properties.HINT).contains("layered"))
 				return new LayeredGraph(env, properties, makeList(env, c.get(0), properties, childPropsNext), (IList)c.get(1));
 				//return new LayerGraphRecompute(env, properties, (IList) c.get(0), (IList)c.get(1));
 				
 			//if(properties.getStringProperty(Properties.HINT).contains("leveled"))
 			//	return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			//return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
+				if(properties.getStr(Properties.HINT).contains("spring"))
+					return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
 			//throw new Error("Graph temporarily out of order");
 			
 		case SCREEN:
@@ -381,22 +383,17 @@ public class FigureFactory {
 	}
 	
 	
-//	
-//	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureConstructionEnv env, IConstructor c,
-//			PropertyManager properties) {
-//		IString from = (IString)c.get(0);
-//		IString to = (IString)c.get(1);
-//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
-//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
-//		return new SpringGraphEdge(G, env, properties, from, to, toArrow, fromArrow);
-//	}
+	public static SpringGraphEdge makeSpringGraphEdge(SpringGraph G, IFigureConstructionEnv env, IConstructor c,
+			PropertyManager properties) {
+		IString from = (IString)c.get(0);
+		IString to = (IString)c.get(1);
+		return new SpringGraphEdge(G, env, properties, from, to);
+	}
 	
 	public static LayeredGraphEdge makeLayeredGraphEdge(LayeredGraph G, IFigureConstructionEnv env, IConstructor c,
 			PropertyManager properties) {
 		IString from = (IString)c.get(0);
 		IString to = (IString)c.get(1);
-//		IConstructor toArrow = c.arity() > 3 ? (IConstructor) c.get(2) : null;
-//		IConstructor fromArrow = c.arity() > 4 ? (IConstructor)  c.get(3) : null;
 		return new LayeredGraphEdge(G, env, properties, from, to);
 	}
 //
