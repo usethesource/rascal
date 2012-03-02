@@ -201,6 +201,19 @@ public abstract class FunctionDeclaration extends
 		return false;
 	}
 
+	public static boolean hasTestModifier(
+			org.rascalmpl.ast.FunctionDeclaration func) {
+		List<FunctionModifier> mods = func.getSignature().getModifiers()
+				.getModifiers();
+		for (FunctionModifier m : mods) {
+			if (m.isTest()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public FunctionDeclaration(IConstructor __param1) {
 		super(__param1);
 	}
