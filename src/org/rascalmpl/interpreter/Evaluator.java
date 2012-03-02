@@ -981,6 +981,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		try {
 			Set<String> onHeap = new HashSet<String>();
 			Set<String> extendingModules = new HashSet<String>();
+
+			if (!names.isEmpty()) {
+				notifyConstructorDeclaredListeners();
+			}
 			
 			try {
 				monitor.startJob("Cleaning modules", names.size());
@@ -1474,6 +1478,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			heap.addModule(env);
 		}
 		try {
+			startJob("Loading module " + name);
 			Module module = loadModule(name, env);
 
 			if (module != null) {
