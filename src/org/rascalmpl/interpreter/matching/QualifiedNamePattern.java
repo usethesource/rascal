@@ -85,7 +85,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 	}
 	
 	public String getName(){
-		return Names.name(Names.lastName(name));
+		return ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName();
 	}
 	
 	public boolean isAnonymous(){

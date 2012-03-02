@@ -53,6 +53,16 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		//System.err.println("ConcreteListVariablePattern");
 	}
 
+	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
+			org.eclipse.imp.pdb.facts.type.Type type, String name) {
+		super(ctx, x);
+		this.name = name;
+		this.declaredType = (NonTerminalType) type;
+		this.anonymous = name.equals("_");
+		this.iDeclaredItMyself = false;
+		//System.err.println("ConcreteListVariablePattern");
+	}
+	
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return declaredType;

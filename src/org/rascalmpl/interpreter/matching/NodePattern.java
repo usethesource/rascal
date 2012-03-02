@@ -32,11 +32,8 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredConstructorError;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -44,23 +41,20 @@ public class NodePattern extends AbstractMatchingResult {
 	private final TuplePattern tuple;
 	private INode subject;
 	private final NodeWrapperTuple tupleSubject;
-	private boolean isGenericNodeType;
 	private QualifiedName qName;
 	private Type type;
-	private final OverloadedFunctionResult constructors;
+	private final Type constructorType;
 	
-	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, OverloadedFunctionResult constructors, List<IMatchingResult> list){
+	public NodePattern(IEvaluatorContext ctx, Expression x, IMatchingResult matchPattern, QualifiedName name, Type constructorType, List<IMatchingResult> list){
 		super(ctx, x);
-		this.constructors = constructors;
+		this.constructorType = constructorType;
 		
 		if (matchPattern != null) {
 			list.add(0, matchPattern);
-			isGenericNodeType = true;
 		}
 		else if (name != null) {
-			IString nameVal = ctx.getValueFactory().string(Names.name(Names.lastName(name)));
+			IString nameVal = ctx.getValueFactory().string(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName());
 			list.add(0, new ValuePattern(ctx, x, ResultFactory.makeResult(tf.stringType(), nameVal, ctx)));
-			isGenericNodeType = false;
 			qName = name;
 		}
 		
@@ -180,7 +174,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 		else {
 			hasNext = false;
-		}
+		}  
 	}
 	
 	@Override
@@ -195,39 +189,8 @@ public class NodePattern extends AbstractMatchingResult {
 		return type;
 	}
 
-	private Type getSignatureType(Environment env) {
-		int arity = tuple.getType(env, null).getArity() - 1;
-
-		Type[] types = new Type[arity];
-
-		for (int i = 1; i < arity + 1; i += 1) {
-			types[i - 1] =  tuple.getType(env, null).getFieldType(i);
-		}
-
-		return tf.tupleType(types);
-	}
-	
-	
 	public Type getConstructorType(Environment env) {
-		 Type signature = getSignatureType(env);
-
-		 if (!isGenericNodeType) {
-			 if (constructors != null) {
-				 for (AbstractFunction d : ((OverloadedFunctionResult) constructors).iterable()) {
-					 if (d.match(signature)) {
-						 String cons = Names.name(Names.lastName(qName));
-						Type constructor = env.getConstructor(d.getReturnType(), cons, signature);
-						 
-						 if (constructor == null) {
-							 // it was a function, not a constructor!
-							 throw new UndeclaredConstructorError(cons, signature, ctx, qName);
-						 }
-						return constructor;
-					 }
-				 }
-			 }
-		 }
-	     return tf.nodeType();
+		 return constructorType;
 	}
 	
 	@Override

@@ -69,7 +69,6 @@ import org.rascalmpl.interpreter.matching.VariableBecomesPattern;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.BoolResult;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -81,7 +80,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
-import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -90,6 +88,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -304,6 +303,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		private Result<IValue> cachedPrefix = null;
 		private boolean registeredCacheHandler = false;
+		private Type cachedConstructorType = null;
+		private boolean registeredTypeCacheHandler = false;
 
 		public CallOrTree(IConstructor __param1,
 				org.rascalmpl.ast.Expression __param2,
@@ -321,31 +322,75 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			org.rascalmpl.ast.Expression nameExpr = getExpression();
 		
 			if (nameExpr.isQualifiedName()) {
-				 Result<IValue> constructors = eval.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
-
-				 if (constructors == null) {
-					 throw new UndeclaredVariableError(Names.fullName(nameExpr.getQualifiedName()), this);
-				 }
+				if (cachedConstructorType == null) {
+					registerTypeCacheHandler(eval);
+					cachedConstructorType  = computeConstructorType(eval, nameExpr);
+				}
 				 
-				 if (!(constructors instanceof OverloadedFunctionResult)) {
-					 throw new UnsupportedPatternError("tree pattern with receiver not a constructor", this);
-				 }
-
-				 if (!registeredCacheHandler) {
-					 eval.getEvaluator().registerConstructorDeclaredListener(
-							 new IConstructorDeclared() {
-								 public void handleConstructorDeclaredEvent() {
-									 cachedPrefix = null;
-									 registeredCacheHandler = false;
-								 }
-							 });
-					 registeredCacheHandler = true;
-				 }
-				 return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), (OverloadedFunctionResult) constructors, visitArguments(eval));
+				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval));
 			}
 
-			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, null, visitArguments(eval));
+			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval));
+		}
 
+		private Type computeConstructorType(IEvaluatorContext eval,
+				org.rascalmpl.ast.Expression nameExpr) {
+			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
+			String cons = Names.consName(nameExpr.getQualifiedName());
+			eval.getCurrentEnvt().getAllFunctions(cons, functions);
+			
+			if (functions.isEmpty()) {
+				throw new UndeclaredVariableError(Names.fullName(nameExpr.getQualifiedName()), this);
+			}
+
+			Type signature = getArgumentTypes(eval);
+			Type constructorType = TF.nodeType();
+			
+			for (AbstractFunction candidate : functions) {
+				if (candidate.match(signature)) {
+					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
+					if (decl != null) {
+						constructorType = decl;
+					}
+				}
+			}
+			return constructorType;
+		}
+
+		private Type getArgumentTypes(IEvaluatorContext eval) {
+			java.util.List<IMatchingResult> args = visitArguments(eval);
+			Type[] argTypes = new Type[args.size()];
+			for (int i = 0; i < argTypes.length; i++) {
+				argTypes[i] = args.get(i).getType(eval.getCurrentEnvt(), null);
+			}
+			Type signature = TF.tupleType(argTypes);
+			return signature;
+		}
+
+		private void registerCacheHandler(IEvaluatorContext eval) {
+			if (!registeredCacheHandler) {
+				eval.getEvaluator().registerConstructorDeclaredListener(
+						new IConstructorDeclared() {
+							public void handleConstructorDeclaredEvent() {
+								cachedPrefix = null;
+								registeredCacheHandler = false;
+							}
+						});
+				registeredCacheHandler = true;
+			}
+		}
+		
+		private void registerTypeCacheHandler(IEvaluatorContext eval) {
+			if (!registeredTypeCacheHandler) {
+				eval.getEvaluator().registerConstructorDeclaredListener(
+						new IConstructorDeclared() {
+							public void handleConstructorDeclaredEvent() {
+								cachedConstructorType = null;
+								registeredTypeCacheHandler = false;
+							}
+						});
+				registeredTypeCacheHandler = true;
+			}
 		}
 		
 		private java.util.List<IMatchingResult> visitArguments(IEvaluatorContext eval) {
@@ -373,17 +418,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						
 						if (__eval.getCurrentEnvt().isNameFinal(qname)) {
 							this.cachedPrefix = function;
-							
-							
-							if (!registeredCacheHandler) {
-								__eval.getEvaluator().registerConstructorDeclaredListener(
-										new IConstructorDeclared() {
-											public void handleConstructorDeclaredEvent() {
-												cachedPrefix = null;
-											}
-										});
-								registeredCacheHandler = true;
-							}
+							registerCacheHandler(__eval);
 						}
 					}
 					else {
@@ -406,26 +441,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 				Result<IValue> res = function.call(types, actuals);
 
-				// we need to update the strategy context when the function is of
-				// type Strategy
-				IStrategyContext strategyContext = __eval.getStrategyContext();
-				if (strategyContext != null) {
-					if (function.getValue() instanceof AbstractFunction) {
-						AbstractFunction f = (AbstractFunction) function.getValue();
-						if (f.isTypePreserving()) {
-							strategyContext.update(actuals[0], res.getValue());
-						}
-					} else if (function.getValue() instanceof OverloadedFunctionResult) {
-						OverloadedFunctionResult fun = (OverloadedFunctionResult) function
-						.getValue();
-
-						for (AbstractFunction f : fun.iterable()) {
-							if (f.isTypePreserving()) {
-								strategyContext.update(actuals[0], res.getValue());
-							}
-						}
-					}
-				}
 				return res;
 
 			}
@@ -481,9 +496,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type returnType = typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
-			return new RascalFunction(this, __eval, (FunctionType) RTF
+			return new RascalFunction(this, __eval, null,
+					(FunctionType) RTF
 					.functionType(returnType, formals), this.getParameters()
-					.isVarArgs(), false, this.getStatements(), __eval
+					.isVarArgs(), false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}
@@ -1834,7 +1850,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (type instanceof NonTerminalType) {
 					NonTerminalType cType = (NonTerminalType) type;
 					if (cType.isConcreteListType()) {
-						return new ConcreteListVariablePattern(eval, this, type, org.rascalmpl.interpreter.utils.Names.lastName(name));
+						return new ConcreteListVariablePattern(eval, this, type, ((Default) name).lastName());
 					}
 				}
 
@@ -2205,7 +2221,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		
 		private boolean isWildCard(org.rascalmpl.ast.Expression fieldName) {
 			if (fieldName.isQualifiedName()) {
-				return Names.name(Names.lastName(fieldName.getQualifiedName())).equals("_");
+				return ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) fieldName.getQualifiedName()).lastName().equals("_");
 			}
 			return false;
 		}
@@ -2513,9 +2529,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
-			return new RascalFunction(this, __eval, (FunctionType) RTF
+			return new RascalFunction(this, __eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals), this.getParameters()
-					.isVarArgs(), false, this.getStatements(), __eval
+					.isVarArgs(), false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}

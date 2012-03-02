@@ -81,7 +81,6 @@ public abstract class FunctionDeclaration extends
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -109,11 +108,8 @@ public abstract class FunctionDeclaration extends
 
 		@Override
 		public Type typeOf(Environment __eval) {
-
 			return this.getSignature().typeOf(__eval);
-
 		}
-
 	}
 
 	static public class Expression extends
@@ -137,12 +133,13 @@ public abstract class FunctionDeclaration extends
 
 			lambda = new RascalFunction(eval, this, varArgs, eval
 					.getCurrentEnvt(), eval.__getAccumulators());
-
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			
+			lambda.setPublic(this.getVisibility().isPublic());
 			eval.getCurrentEnvt().markNameFinal(lambda.getName());
 			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
-
-			lambda.setPublic(this.getVisibility().isPublic());
+			
+			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			
 			return lambda;
 		}
 
@@ -188,7 +185,7 @@ public abstract class FunctionDeclaration extends
 
 }
 
-	private static boolean hasJavaModifier(
+	public static boolean hasJavaModifier(
 			org.rascalmpl.ast.FunctionDeclaration func) {
 		List<FunctionModifier> mods = func.getSignature().getModifiers()
 				.getModifiers();
@@ -200,7 +197,7 @@ public abstract class FunctionDeclaration extends
 
 		return false;
 	}
-
+	
 	public static boolean hasTestModifier(
 			org.rascalmpl.ast.FunctionDeclaration func) {
 		List<FunctionModifier> mods = func.getSignature().getModifiers()

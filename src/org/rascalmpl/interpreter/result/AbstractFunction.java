@@ -17,8 +17,10 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -38,26 +40,19 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
-/**
- * Lambda implements the basic functionality of callable functions. Since functions are
- * values in Rascal, we need to implement an IValue interface. In this case, since function
- * types are sub-typed of Map types, we should therefore implement IMap. The IMap methods
- * are implemented in such a way such that a function value simulates an empty map if it
- * escapes beyond the reach of the Rascal interpreter. This is useless, but safe behavior.
- */
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
     protected final Evaluator eval;
     
-    protected FunctionType functionType;
+    protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
 	
 	protected final static TypeStore hiddenStore = new TypeStore();
 
 	protected final AbstractAST ast;
-	protected IValueFactory vf;
+	protected final IValueFactory vf;
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
@@ -72,6 +67,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		this.declarationEnvironment = env;
 		this.vf = eval.getValueFactory();
 	}
+
 	
 	public boolean isTest() {
 		return false;
@@ -85,6 +81,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public static void setCallTracing(boolean value){
 		callTracing = value;
 	}
+	
+	public boolean isPatternDispatched() {
+		return false;
+	}
+	
+	public boolean isConcretePatternDispatched() {
+		return false;
+	}
     
 	public Type getFormals() {
 		return functionType.getArgumentTypes();
@@ -92,6 +96,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	public AbstractAST getAst() {
 		return ast;
+	}
+	
+	public String getFirstOutermostConstructorLabel() {
+		return null;
+	}
+	
+	public IConstructor getFirstOutermostProduction() {
+		return null;
 	}
 	
 	@Override

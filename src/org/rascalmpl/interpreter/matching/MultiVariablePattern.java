@@ -34,7 +34,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		
 		// If not anonymous, store the value.
 		if(!anonymous) {
-			ctx.getCurrentEnvt().storeVariable(Names.name(Names.lastName(name)), subject);
+			ctx.getCurrentEnvt().storeVariable(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) name).lastName(), subject);
 		}
 		return true;
 	}

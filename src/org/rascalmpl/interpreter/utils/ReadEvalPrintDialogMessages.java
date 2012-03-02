@@ -1,6 +1,8 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.regex.Matcher;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -134,9 +136,15 @@ public class ReadEvalPrintDialogMessages {
 	}
 
 	public static String throwableMessage(Throwable e, String rascalTrace) {
-		String content;
-		content = e.toString() + " (internal error, see error log)";
-		return content;
+		StringWriter w = new StringWriter();
+		PrintWriter p = new PrintWriter(w);
+		p.append(e.toString());
+		p.append("(internal error)");
+		p.append(rascalTrace);
+		e.printStackTrace(p);
+		p.flush();
+		w.flush();
+		return w.toString();
 	}
 
 	public static String throwMessage(Throw e) {

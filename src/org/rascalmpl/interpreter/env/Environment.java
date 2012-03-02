@@ -19,6 +19,7 @@ package org.rascalmpl.interpreter.env;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,7 +39,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -69,7 +70,7 @@ public class Environment {
 	}
 	
 	protected Map<String, Result<IValue>> variableEnvironment;
-	protected Map<String, OverloadedFunctionResult> functionEnvironment;
+	protected Map<String, List<AbstractFunction>> functionEnvironment;
 	protected Map<String,NameFlags> nameFlags;
 	protected Map<Type, Type> typeParameters;
 	protected final Environment parent;
@@ -184,7 +185,13 @@ public class Environment {
 			return t;
 		}
 		
-		return getAllFunctions(name);
+		List<AbstractFunction> funcs = new LinkedList<AbstractFunction>(); 
+		getAllFunctions(name, funcs);
+		
+		if (funcs.isEmpty()) {
+			return null;
+		}
+		return new OverloadedFunction(name, funcs);
 	}
 	
 	public Result<IValue> getSimpleVariable(Name name) {
@@ -209,25 +216,36 @@ public class Environment {
 		return null;
 	}
 	
-	protected OverloadedFunctionResult getAllFunctions(String name) {
-		OverloadedFunctionResult result = null;
-		
+	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			result = functionEnvironment.get(name);
+			List<AbstractFunction> locals = functionEnvironment.get(name);
+			
+			if (locals != null) {
+				collection.addAll(locals);
+			}
 		}
 		
-		if (isRootScope()) {
-			return result;
+		if (parent != null) {
+			parent.getAllFunctions(name, collection);
+		}
+	}
+	
+	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
+		if (functionEnvironment != null) {
+			List<AbstractFunction> locals = functionEnvironment.get(name);
+			
+			if (locals != null) {
+				for (AbstractFunction func : locals) {
+					if (func.getReturnType().isSubtypeOf(returnType)) {
+						collection.add(func);
+					}
+				}
+			}
 		}
 		
-		if (result == null) {
-			return parent.getAllFunctions(name);
+		if (parent != null) {
+			parent.getAllFunctions(returnType, name, collection);
 		}
-		
-		OverloadedFunctionResult resultFromParent = parent.getAllFunctions(name);
-		if(resultFromParent == null) return result;
-		
-		return result.join(resultFromParent);
 	}
 
 	protected boolean isNameFlagged(QualifiedName name, int flags) {
@@ -419,21 +437,23 @@ public class Environment {
 	}
  
 	public void storeFunction(String name, AbstractFunction function) {
-		OverloadedFunctionResult list = null;
+		List<AbstractFunction> list = null;
 		
 		if (functionEnvironment != null) {
 			list = functionEnvironment.get(name);
 		}
 		
 		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
-			list = new OverloadedFunctionResult(function);
+			list = new LinkedList<AbstractFunction>();
+			
 			if (functionEnvironment == null) {
-				functionEnvironment = new HashMap<String, OverloadedFunctionResult>();
+				functionEnvironment = new HashMap<String, List<AbstractFunction>>();
 			}
 			functionEnvironment.put(name, list);
 		}
 
-		functionEnvironment.put(name, list.add(function));
+		list.add(function);
+		functionEnvironment.put(name, list);
 	}
 
 	public boolean declareVariable(Type type, Name name) {
@@ -613,15 +633,15 @@ public class Environment {
 		return vars;
 	}
 
-	public List<Pair<String, OverloadedFunctionResult>> getFunctions() {
-		ArrayList<Pair<String, OverloadedFunctionResult>> functions = new ArrayList<Pair<String, OverloadedFunctionResult>>();
+	public List<Pair<String, List<AbstractFunction>>> getFunctions() {
+		ArrayList<Pair<String, List<AbstractFunction>>> functions = new ArrayList<Pair<String, List<AbstractFunction>>>();
 		if (parent != null) {
 			functions.addAll(parent.getFunctions());
 		}
 		if (functionEnvironment != null) {
 			// don't just add the Map.Entries, as they may not live outside the iteration
-			for(Entry<String, OverloadedFunctionResult> entry : functionEnvironment.entrySet()) {
-				functions.add(new Pair<String, OverloadedFunctionResult>(entry.getKey(), entry.getValue()));
+			for (Entry<String, List<AbstractFunction>> entry : functionEnvironment.entrySet()) {
+				functions.add(new Pair<String, List<AbstractFunction>>(entry.getKey(), entry.getValue()));
 			}
 		}
 		return functions;

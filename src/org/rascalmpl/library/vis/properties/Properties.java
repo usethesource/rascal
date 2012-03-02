@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.CombinedProperty.Combine;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
@@ -157,7 +157,7 @@ public enum Properties {
 	private static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env,Convert<PropValue> convert){
 
-		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunctionResult))){
+		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunction))){
 			return new ComputedValue<PropValue>(arg, env, pm, convert);
 		}
 		return new ConstantValue<PropValue>( convert.convert(arg, pm, env));

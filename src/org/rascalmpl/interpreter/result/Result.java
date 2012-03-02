@@ -77,7 +77,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String REMAINDER_STRING = "remainder";
 	
 	private Iterator<Result<IValue>> iterator = null;
-	protected Type type;
+	protected final Type type;
 	protected T value;
 	private boolean isPublic;
 	private boolean inferredType = false;
@@ -557,7 +557,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunctionResult that) {
+	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
@@ -602,7 +602,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public <U extends IValue> Result<U> compareOverloadedFunction(
-			OverloadedFunctionResult that) {
+			OverloadedFunction that) {
 		return that.undefinedError(COMPARE_STRING, this);
 	}
 	
@@ -678,7 +678,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> equalToOverloadedFunction(OverloadedFunctionResult that) {
+	public <U extends IValue> Result<U> equalToOverloadedFunction(OverloadedFunction that) {
 		return that.undefinedError(EQUALS_STRING, this);
 	}
 	
