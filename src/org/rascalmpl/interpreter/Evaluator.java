@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -178,7 +179,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.resolverRegistry = rascalPathResolver.getRegistry();
 		this.stderr = stderr;
 		this.stdout = stdout;
-		this.constructorDeclaredListeners = new WeakHashMap<IConstructorDeclared,Object>();
+		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
 		
 		updateProperties();
 
@@ -982,9 +983,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			Set<String> onHeap = new HashSet<String>();
 			Set<String> extendingModules = new HashSet<String>();
 
-			if (!names.isEmpty()) {
-				notifyConstructorDeclaredListeners();
-			}
 			
 			try {
 				monitor.startJob("Cleaning modules", names.size());
@@ -1066,6 +1064,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			
 			if (recurseToExtending && !extendingModules.isEmpty()) {
 				reloadModules(monitor, extendingModules, errorLocation, false);
+			}
+			
+			if (!names.isEmpty()) {
+				notifyConstructorDeclaredListeners();
 			}
 		}
 		finally {
