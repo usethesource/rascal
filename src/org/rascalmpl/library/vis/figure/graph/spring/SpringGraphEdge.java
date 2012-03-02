@@ -38,6 +38,7 @@ public class SpringGraphEdge extends Figure {
 	private SpringGraphNode to;
 	private Figure toArrow;
 	private Figure fromArrow;
+	private boolean visible = true;
 	private static boolean debug = false;
 	
 	public SpringGraphEdge(SpringGraph G, IFigureConstructionEnv fpa, PropertyManager properties, 
@@ -70,12 +71,18 @@ public class SpringGraphEdge extends Figure {
 		return to;
 	}
 	
+	public void setVisible(boolean b){
+		visible = b;
+	}
+	
 	@Override
 	public
 	void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
+		if(!visible)
+			return;
 		applyProperties(gc);
-		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getX() + "," + getFrom().getY() + ") -> (" + 
-				to.name + ": " + to.getX() + "," + to.getY() + ")");
+		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getCenterX() + "," + getFrom().getCenterY() + ") -> (" + 
+				to.name + ": " + to.getCenterX() + "," + to.getCenterY() + ")");
 
 		double globalX = globalLocation.getX();
 		double globalY = globalLocation.getY();
@@ -84,20 +91,17 @@ public class SpringGraphEdge extends Figure {
 		
 		gc.line(centerFrom.getX(), centerFrom.getY(), centerTo.getX(), centerTo.getY());
 		
-		
-//		gc.line(globalX + getFrom().getX(), globalY + getFrom().getY(), 
-//				globalX + getTo().getX(),   globalY + getTo().getY());
 		if(toArrow != null){
 			getTo().figure.connectArrowFrom(
-					globalX + getTo().getX(), globalY + getTo().getY(), 
-					globalX + getFrom().getX(), globalY + getFrom().getY(),
+					globalX + getTo().getCenterX(), globalY + getTo().getCenterY(), 
+					globalX + getFrom().getCenterX(), globalY + getFrom().getCenterY(),
 					toArrow,gc, visibleSWTElements
 			);
 
 			if(fromArrow != null)
 				getFrom().figure.connectArrowFrom(
-						globalX + getFrom().getX(), globalY + getFrom().getY(), 
-						globalX + getTo().getX(), globalY + getTo().getY(),
+						globalX + getFrom().getCenterX(), globalY + getFrom().getCenterY(), 
+						globalX + getTo().getCenterX(), globalY + getTo().getCenterY(),
 						fromArrow,gc, visibleSWTElements
 				);
 		}	
