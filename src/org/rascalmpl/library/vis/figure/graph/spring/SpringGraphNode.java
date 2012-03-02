@@ -31,11 +31,12 @@ public class SpringGraphNode extends Figure {
 	private final SpringGraph G;
 	protected final String name;
 	protected final Figure figure;
-	private double x;
+	private double x;	// Coordinates of center of node
 	private double y;
 
 	double temperature;
 	double skew;
+	Vector2D oldImpulse;
 
 	protected LinkedList<SpringGraphNode> in;
 	protected LinkedList<SpringGraphNode> out;
@@ -50,12 +51,12 @@ public class SpringGraphNode extends Figure {
 		this.children[0] = fig;
 		in = new LinkedList<SpringGraphNode>();
 		out = new LinkedList<SpringGraphNode>();
-		init();
+		//init();
 	}
 
 	public void init() {
-		x = FigureMath.random(100, 400);
-		y = FigureMath.random(100, 400);
+		x = FigureMath.random(width()/2, minSize.getX() - width()/2);
+		y = FigureMath.random(height()/2, minSize.getY() -height()/2);
 		temperature = G.MAX_LOCAL_TEMPERATURE;
 		skew = 0;
 		oldImpulse = new Vector2D(0, 0);
@@ -83,32 +84,40 @@ public class SpringGraphNode extends Figure {
 		return figure != null ? figure.minSize.getY() : 0;
 	}
 
-	protected void setX(double x) {
+	protected void setCenterX(double x) {
 		if (x < figure.minSize.getX() / 2 - 0.000001
 				|| x > G.minSize.getX() - figure.minSize.getX() / 2 + 0.000001)
 			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,
 					x);
-		this.x = x;
+		this.x = x; //FigureMath.constrain(x, figure.minSize.getX() / 2,  G.minSize.getX() - figure.minSize.getX() / 2);
+		figure.localLocation.setX(
+				localLocation.getX() + x - figure.minSize.getX() / 2);
 	}
 
-	protected double getX() {
+	protected double getCenterX() {
 		return x;
 	}
 
-	protected void setY(double y) {
+	protected void setCenterY(double y) {
 		if (y < figure.minSize.getY() / 2 - 0.000001
 				|| y > G.minSize.getY() - figure.minSize.getY() / 2 + 0.000001)
 			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name,
 					y);
-		this.y = y;
+		this.y = y; //FigureMath.constrain(y, figure.minSize.getY() / 2,  G.minSize.getY() - figure.minSize.getY() / 2);
+		figure.localLocation.setY(
+				localLocation.getY() + x - figure.minSize.getY() / 2);
 	}
 
-	protected double getY() {
+	protected double getCenterY() {
 		return y;
 	}
 	
 	public Vector2D getCenter() {
 		return new Vector2D(x, y);
+	}
+	
+	public double getMass(){
+		return /* 0.005 * width() * height() * */ (1 + degree() / 2);
 	}
 	
 	public double distance(SpringGraphNode other){
@@ -122,8 +131,6 @@ public class SpringGraphNode extends Figure {
 	protected void moveBy(double dx, double dy) {
 		x += dx;
 		y += dy;
-		// x = FigureMath.constrain(x + dx, 0, 500);
-		// y = FigureMath.constrain(y + dy, 0, 500);
 	}
 
 	@Override
@@ -150,9 +157,9 @@ public class SpringGraphNode extends Figure {
 						  msg, name, x, y, ix, iy, temperature, skew);
 	}
 
-	Vector2D oldImpulse = new Vector2D();
+	// Perform one step of the spring simulation algorithm for this node
 
-	public void update() {
+	public void step() {
 		if(debug) print("update, before");
 		Vector2D impulse = computeNodeImpulse();
 		double angle = oldImpulse.angle(impulse);
@@ -160,8 +167,7 @@ public class SpringGraphNode extends Figure {
 		double dx = G.UPDATE_STEP * impulse.getX() * temperature;
 		double dy = G.UPDATE_STEP * impulse.getY() * temperature;
 
-		// adjust local position
-		moveBy(dx, dy);
+		moveBy(dx, dy); // adjust local position
 
 		if(debug){
 			print("relax, after ");
@@ -172,7 +178,6 @@ public class SpringGraphNode extends Figure {
 		oldImpulse = impulse;
 	}
 
-
 	/**
 	 * Compute the attractive force A with another node: 
 	 * A = (this - other) * distance^2 / (EDGE_LENGTH_2 * PHI) * ATTRACT
@@ -182,9 +187,7 @@ public class SpringGraphNode extends Figure {
 		double distance2 = distance2(other);
 		Vector2D thisVector = new Vector2D(x, y);
 		Vector2D otherVector = new Vector2D(other.x, other.y);
-		double phi = 1 + degree() / 2;
-		return thisVector.sub(otherVector).mul(distance2)
-				.div(G.EDGE_LENGTH_2 * phi) .mul(G.ATTRACT);
+		return thisVector.sub(otherVector).mul(distance2).div(G.EDGE_LENGTH_2 * getMass()) .mul(G.ATTRACT);
 	}
 
 	/**
@@ -198,8 +201,7 @@ public class SpringGraphNode extends Figure {
 		if (distance2 > 0) {
 			Vector2D thisVector = new Vector2D(getCenter());
 			Vector2D otherVector = new Vector2D(other.getCenter());
-			return thisVector.sub(otherVector).mul(G.EDGE_LENGTH_2)
-					.div(distance2).mul(G.REPEL);
+			return thisVector.sub(otherVector).mul(G.EDGE_LENGTH_2).div(distance2).mul(G.REPEL);
 		}
 		return (new Vector2D(0, 0));
 	}
@@ -269,14 +271,11 @@ public class SpringGraphNode extends Figure {
 	/**
 	 * This method computes the gravitational force between a node and the
 	 * barycenter of the drawing. 
-	 * G = (barycenter - thisVector) * PHI * Gravity
-	 * where PHI is the mass of the node
+	 * G = (barycenter - thisVector) * Mass * Gravity
 	 */
 	public Vector2D gravitionalForce() {
-		// compute the mass with the node degree
-		double phi = 1 + degree() / 2;
 		Vector2D barycenter = new Vector2D(G.getBaryCenter());
 		Vector2D thisVector = new Vector2D(getCenter());
-		return barycenter.sub(thisVector).mul(phi).mul(G.GRAVITY);
+		return barycenter.sub(thisVector).mul(getMass()).mul(G.GRAVITY);
 	}
 }

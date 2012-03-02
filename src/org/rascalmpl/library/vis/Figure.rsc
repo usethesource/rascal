@@ -1216,4 +1216,3 @@ public Figure ifFig(bool () cond, Figure onTrue, FProperty props...){
 public Figure boolFig(bool () cond, Figure onTrue, Figure onFalse, FProperty props...){
 	return fswitch(int () { bool b = cond(); return b ? 1 : 0;}, [ onFalse, onTrue], props);
 }
-
