@@ -214,4 +214,17 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		appletRoot.writeScreenshot(s);
 	}
 
+	@Override
+	public void registerAnimation(Animation a) {
+		appletRoot.registerAnimation(a);
+		
+	}
+
+	@Override
+	public void unregisterAnimation(Animation a) {
+		appletRoot.unregisterAnimation(a);
+		
+	}
+
+
 }

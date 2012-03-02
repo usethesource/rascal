@@ -14,8 +14,11 @@ package org.rascalmpl.library.vis.swt.applet;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
@@ -33,6 +36,7 @@ import org.rascalmpl.library.vis.figure.combine.Overlap;
 import org.rascalmpl.library.vis.figure.combine.containers.WhiteSpace;
 import org.rascalmpl.library.vis.properties.IRunTimePropertyChanges;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.Animation;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
@@ -41,6 +45,7 @@ import org.rascalmpl.library.vis.util.vector.Coordinate;
 public class FigureSWTApplet extends Composite 
 	implements IFigureConstructionEnv, DisposeListener{
 
+	public static final int ANIMATION_DELAY = 50; // miliseconds
 
 	private static final int SWT_FLAGS = SWT.BORDER | SWT.NO_BACKGROUND | SWT.NO_MERGE_PAINTS ;
 	private List<FigureSWTApplet> children;
@@ -53,6 +58,7 @@ public class FigureSWTApplet extends Composite
 	private boolean redrawRequested;
 	private boolean busy;
 	private int computeClock = -1;
+	private Set<Animation> animations;
 	
 	public FigureSWTApplet(Composite parent, IConstructor cfig, FigureExecutionEnvironment env){
 		this(parent,cfig,env,true,true);
@@ -83,7 +89,7 @@ public class FigureSWTApplet extends Composite
 		this.figure = fig;
 		inputHandler = new InputHandler(this, overlapFigures);
 		viewPortHandler = new ViewPortHandler(this,overlapFigures);
-
+		animations = new HashSet<Animation>();
 		addPaintListener(viewPortHandler);
 		addControlListener(viewPortHandler);
 		addMouseListener(inputHandler);
@@ -95,6 +101,28 @@ public class FigureSWTApplet extends Composite
 	
 	public boolean isUpToDate(){
 		return computeClock == env.getComputeClock();
+	}
+	
+	public void animate(){
+		for(Animation a : animations){
+			if(!a.moreFrames()){
+				unregisterAnimation(a);
+			}
+		}
+		if(animations.isEmpty()){
+			return;
+		}
+		getDisplay().timerExec(ANIMATION_DELAY, new Runnable() {
+
+			@Override
+			public void run() {
+				for(Animation a : animations){
+					a.animate();
+				}
+			}
+			
+		});
+		redraw();
 	}
 	
 	public void triggerRecompute(){
@@ -240,6 +268,16 @@ public class FigureSWTApplet extends Composite
 
 	public Image getFigureImage() {
 		return viewPortHandler.getFigureImage();
+	}
+
+	public void registerAnimation(Animation a) {
+		animations.add(a);
+		
+	}
+
+	public void unregisterAnimation(Animation a) {
+		animations.remove(a);
+		
 	}
 
 
