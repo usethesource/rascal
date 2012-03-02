@@ -272,6 +272,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 	@Override
 	public void paintControl(PaintEvent e) {
 		draw(e.gc);
+		parent.animate();
 	}
 	
 

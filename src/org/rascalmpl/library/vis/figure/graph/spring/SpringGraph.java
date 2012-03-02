@@ -18,6 +18,7 @@ import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -29,8 +30,12 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
+import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
+import org.rascalmpl.library.vis.swt.Animation;
+import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.Vector2D;
@@ -67,12 +72,13 @@ public class SpringGraph extends Figure {
 	// Fields for force layout
 	protected int temperature;
 	private static boolean debug = false;
-	IFigureConstructionEnv fpa;
+	private final ICallbackEnv env;
+	private Animation currentAnimation;
 
 	public SpringGraph(IFigureConstructionEnv fpa, PropertyManager properties, IList nodes,	IList edges) {
 		super(properties);
 		this.nodes = new ArrayList<SpringGraphNode>();
-		
+		this.env = fpa.getCallBackEnv();
 		registered = new HashMap<String,SpringGraphNode>();
 		for(IValue v : nodes){
 			IConstructor c = (IConstructor) v;
@@ -85,6 +91,7 @@ public class SpringGraph extends Figure {
 			SpringGraphNode node = new SpringGraphNode(this, name, fig);
 			this.nodes.add(node);
 			register(name, node);
+
 		}
 
 		this.edges = new ArrayList<SpringGraphEdge>();
@@ -205,22 +212,18 @@ public class SpringGraph extends Figure {
 			if (n.getCenterY() + h2 > maxY)
 				maxY = n.getCenterY() + h2;
 		}
-		double scaleX = minSize.getX()/(maxX - minX);
-		double scaleY = minSize.getY()/(maxY - minY);
-		minSize.set(maxX - minX, maxY - minY);
+		double scaleX = size.getX()/(maxX - minX);
+		double scaleY = size.getY()/(maxY - minY);
+//		minSize.set(maxX - minX, maxY - minY);
 		
 		for(SpringGraphNode n : nodes){
 			n.setCenterX(scaleX * (n.getCenterX() - n.width()/2 - minX) + n.width()/2 );
 			n.setCenterY(scaleY * (n.getCenterY() - n.height()/2 - minY) + n.height()/2);
+			n.setElementPosition();
 			System.err.println(n);
 		}		
 	}
-	
-	@Override
-	public void resizeElement(Rectangle view) {
-		localLocation.set(0,0);
-		size.set(view.getSize().getX(), view.getSize().getY());
-	}	 
+ 
 	 
 	 public Vector2D getBaryCenter(){
 		 double cx = 0;
@@ -235,8 +238,6 @@ public class SpringGraph extends Figure {
 	 @Override
 	 public void computeMinSize(){
 		// localLocation.set(0,0);
-		 minSize.set(prop.getReal(HSIZE), prop.getReal(VSIZE));
-		 if(minSize.getX() == 0 || minSize.getY() == 0){
 			 double maxw = 0;
 			 double maxh = 0;
 			 for(SpringGraphNode nd : nodes){
@@ -246,37 +247,64 @@ public class SpringGraph extends Figure {
 					 maxh = nd.height();
 			 }
 			 minSize.set(nodes.size() * maxw, nodes.size() * maxh);
-		 }
+	 }
+	 
 
-		 long n = Math.round(Math.sqrt(minSize.getX() * minSize.getY()) / nodes.size());
 
+			
+	 
+	
+	@Override
+	public void resizeElement(Rectangle view) {
+		localLocation.set(0,0);
+		 long n = Math.round(Math.sqrt(size.getX() * size.getY()) / nodes.size());
 		 EDGE_LENGTH = n;
 		 EDGE_LENGTH_2 =  n * n;
 		 RAND_DISTURB = EDGE_LENGTH/4;
-		 printValues();
-
-		 resizable.set(false, false);
-		
-		 //initialPlacement();
 		 for (SpringGraphNode nd : nodes){
 				nd.init();
 			}
+		 //initialPlacement();
+		currentAnimation = new AnimateForces();
 		 MIN_GLOBAL_TEMPERATURE = 0.005 * MAX_LOCAL_TEMPERATURE/ (1 +nodes.size());
-		 int iteration = 0;
-		 for(;iteration < MAX_ROUNDS && globalTemperature() > MIN_GLOBAL_TEMPERATURE; iteration++){
+	}
+	
+	@Override
+	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
+		
+		if(currentAnimation != null){
+			env.registerAnimation(currentAnimation);
+		}
+	}
+	 // The global temperature is the sum of all node temperatures.
+	class AnimateForces implements Animation{
+		int iteration;
+		
+		public AnimateForces() {
+			 iteration = 0;
+			 printValues();
+
+		}
+		
+		@Override
+		public boolean moreFrames() {
+			return iteration < MAX_ROUNDS && globalTemperature() > MIN_GLOBAL_TEMPERATURE;
+		}
+
+		@Override
+		public void animate() {
 			 if(debug)System.err.println("\nITERATION: " + iteration + ", total temp: "+ globalTemperature());
 			Collections.shuffle(nodes);
-			 for (SpringGraphNode nd : nodes){
-				 nd.step();				 
-			 }
-		 }
-		 System.err.println("\nTerminated: " + iteration + ", total temp: "+ globalTemperature() + 
-				            ", size: (" + minSize.getX() + ", " + minSize.getY() + ")");
-		 scale();
-	 }
-			
-	 // The global temperature is the sum of all node temperatures.
-
+			for (SpringGraphNode nd : nodes){
+				nd.step();				 
+			}
+			iteration++;
+			if(!moreFrames()){
+				scale();
+			}
+		}
+		
+	}
 	 public double globalTemperature(){
 		 double result = 0;
 		 for (SpringGraphNode n : nodes){
@@ -285,5 +313,9 @@ public class SpringGraph extends Figure {
 		 return result;
 	 }
 
+	 @Override
+	public void destroyElement(IFigureConstructionEnv env) { 
+		 env.getCallBackEnv().unregisterAnimation(currentAnimation);
+	 }
 
 }

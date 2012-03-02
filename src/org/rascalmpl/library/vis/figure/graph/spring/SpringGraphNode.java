@@ -142,10 +142,16 @@ public class SpringGraphNode extends Figure {
 	public void resizeElement(Rectangle view) {
 		localLocation.set(0, 0);
 		
+		setElementPosition();
+		computeMinSize();
+	}
+	
+	void setElementPosition(){
 		figure.localLocation.set(
 				localLocation.getX() + x - figure.minSize.getX() / 2,
 				localLocation.getY() + y - figure.minSize.getY() / 2);
-		computeMinSize();
+		figure.globalLocation.set(figure.localLocation);
+		figure.globalLocation.add(globalLocation);
 	}
 
 	// ---------------------
@@ -176,6 +182,7 @@ public class SpringGraphNode extends Figure {
 						dx, dy);
 		}
 		oldImpulse = impulse;
+		setElementPosition();
 	}
 
 	/**
