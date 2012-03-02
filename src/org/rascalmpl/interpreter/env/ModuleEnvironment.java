@@ -42,7 +42,7 @@ import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -112,6 +112,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = val;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void declareProduction(SyntaxDefinition x) {
 		productions.add(x.getTree());
@@ -236,8 +237,12 @@ public class ModuleEnvironment extends Environment {
 		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
 		
 		if (functionEnvironment != null) {
-			for (OverloadedFunctionResult f : functionEnvironment.values()) {
-				result.addAll(f.getTests());
+			for (List<AbstractFunction> f : functionEnvironment.values()) {
+				for (AbstractFunction c : f) {
+					if (c.isTest()) {
+						result.add(c);
+					}
+				}
 			}
 		}
 		
@@ -298,18 +303,14 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			OverloadedFunctionResult result = null;
-			OverloadedFunctionResult candidates = getAllFunctions(cons);
+			List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+			getAllFunctions(adt, cons, result);
 			
-			if(candidates != null){
-				for(AbstractFunction candidate : candidates.iterable()){
-					if (candidate.getReturnType() == adt) {
-						result = result == null ? new OverloadedFunctionResult(candidate) : result.add(candidate);
-					}
-				}
+			if (result.isEmpty()) {
+				return null;
 			}
 			
-			return result;
+			return new OverloadedFunction(cons, result);
 		}
 		
 		if (modulename != null) {
@@ -402,21 +403,23 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	protected OverloadedFunctionResult getAllFunctions(String name) {
-		OverloadedFunctionResult funs = super.getAllFunctions(name);
+	public void getAllFunctions(String name, List<AbstractFunction> collection) {
+		super.getAllFunctions(name, collection);
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			OverloadedFunctionResult locals = mod.getLocalPublicFunctions(name);
-			if (locals != null && funs != null) {
-				funs = locals.join(funs);
-			}
-			else if (funs == null && locals != null) {
-				funs = locals;
-			}
+			mod.getLocalPublicFunctions(name, collection);
 		}
-
-		return funs;
+	}
+	
+	@Override
+	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
+		super.getAllFunctions(returnType, name, collection);
+		
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			mod.getLocalPublicFunctions(returnType, name, collection);
+		}
 	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
@@ -433,25 +436,31 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	private OverloadedFunctionResult getLocalPublicFunctions(String name) {
-		OverloadedFunctionResult all = null;
-		
+	private void getLocalPublicFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
-			all = functionEnvironment.get(name);
-		}
-		OverloadedFunctionResult result = null;
-		
-		if (all == null) {
-			return null;
-		}
-		
-		for (AbstractFunction l : all.iterable()) {
-			if (l.isPublic()) {
-				result = result == null ? new OverloadedFunctionResult(l) : result.add(l);
+			List<AbstractFunction> lst = functionEnvironment.get(name);
+			if (lst != null) {
+				for (AbstractFunction func : lst) {
+					if (func.isPublic()) {
+						collection.add(func);
+					}
+				}
 			}
 		}
-		
-		return result;
+	}
+	
+	private void getLocalPublicFunctions(Type returnType, String name, List<AbstractFunction> collection) {
+		if (functionEnvironment != null) {
+			List<AbstractFunction> lst = functionEnvironment.get(name);
+			
+			if (lst != null) {
+				for (AbstractFunction func : lst) {
+					if (func.isPublic() && func.getReturnType().isSubtypeOf(returnType)) {
+						collection.add(func);
+					}
+				}
+			}
+		}
 	}
 
 	@Override

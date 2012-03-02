@@ -18,7 +18,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 abstract public class NamedFunction extends AbstractFunction {
-	protected String name;
+	protected final String name;
 	
 	public NamedFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, String name,
 			boolean varargs, Environment env) {

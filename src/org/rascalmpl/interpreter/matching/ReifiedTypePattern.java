@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class ReifiedTypePattern extends AbstractMatchingResult {
 	private final NodePattern nodePattern;
@@ -32,7 +33,7 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 		List<IMatchingResult> arguments = new ArrayList<IMatchingResult>(2);
 		arguments.add(symbol);
 		arguments.add(def);
-        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, x, ctx.getValueFactory().string("type")), null, null, arguments);
+        this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, x, ctx.getValueFactory().string("type")), null, Factory.Type_Reified, arguments);
 	}
 
 	@Override

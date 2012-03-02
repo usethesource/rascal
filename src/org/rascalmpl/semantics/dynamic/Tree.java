@@ -36,7 +36,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -329,7 +328,7 @@ public abstract class Tree {
 		wrap.add(setMatcher);
 		
 		Result<IValue> ambCons = eval.getCurrentEnvt().getVariable("amb");
-		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, null, wrap);
+		return new NodePattern(eval, this, new LiteralPattern(eval, this,  ambCons.getValue()), null, Factory.Tree_Amb, wrap);
 	} 
   }
   

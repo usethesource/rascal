@@ -39,7 +39,7 @@ public class Symbols {
 	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {
 			if (lex) {
-				return (IConstructor) Factory.Symbol_Lex.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));
+				return (IConstructor) Factory.Symbol_Lex.make(factory, factory.string(((org.rascalmpl.semantics.dynamic.QualifiedName.Default) type.getUser().getName()).lastName()));
 			}
 			else {
 				return (IConstructor) Factory.Symbol_Sort.make(factory, factory.string(Names.name(Names.lastName(type.getUser().getName()))));

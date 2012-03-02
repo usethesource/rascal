@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -30,8 +31,11 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
+import org.rascalmpl.ast.FunctionDeclaration.Conditional;
+import org.rascalmpl.ast.FunctionDeclaration.Default;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Statement;
@@ -53,49 +57,109 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.semantics.dynamic.Tree.Appl;
 
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
 	private final boolean isDefault;
-	private boolean isTest;
-	private boolean isStatic;
+	private final boolean isTest;
+	private final boolean isStatic;
 	private final List<Expression> formals;
+	private final String firstOutermostLabel;
+	private final IConstructor firstOutermostProduction;
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
+				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func),
+				varargs, isDefault(func),hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
-		this.name = Names.name(func.getSignature().getName());
-		this.isTest = hasTestMod(func.getSignature());
-		// static means that the function is defined in a module (and not the console prompt).
-		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
 	}
 
 	
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
-				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func),
+				Names.name(func.getSignature().getName()),
+				(FunctionType) func.getSignature().typeOf(env), 
+				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
-		this.name = Names.name(func.getSignature().getName());
-		this.isTest = hasTestMod(func.getSignature());
 	}
 
 	@SuppressWarnings("unchecked")
-	public RascalFunction(AbstractAST ast, Evaluator eval, FunctionType functionType,
-			boolean varargs, boolean isDefault, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-		super(ast, eval, functionType, null, varargs, env);
+	public RascalFunction(AbstractAST ast, Evaluator eval, String name, FunctionType functionType,
+			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+		super(ast, eval, functionType, name, varargs, env);
 		this.body = body;
 		this.isDefault = isDefault;
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
+		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
+		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
+		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
+		this.isTest = isTest;
+	}
+	
+	private String computeFirstOutermostLabel(AbstractAST ast) {
+		return ast.accept(new NullASTVisitor<String>() {
+			@Override
+			public String visitFunctionDeclarationDefault(Default x) {
+				return extract(x);
+			}
+
+			@Override
+			public String visitFunctionDeclarationExpression(
+					org.rascalmpl.ast.FunctionDeclaration.Expression x) {
+				return extract(x);
+			}
+			
+			
+			@Override
+			public String visitFunctionDeclarationConditional(Conditional x) {
+				return extract(x);
+			}
+			
+			private String extract(FunctionDeclaration x) {
+				List<Expression> formals = x.getSignature().getParameters().getFormals().getFormals();
+				return processFormals(formals);
+			}
+			
+			private String processFormals(List<Expression> formals) {
+				if (formals.size() > 0) {
+					Expression first = formals.get(0);
+					
+					if (first.isAsType()) {
+						first = first.getArgument();
+					}
+					else if (first.isTypedVariableBecomes() || first.isVariableBecomes()) {
+						first = first.getPattern();
+					}
+					
+					if (first.isCallOrTree() && first.getExpression().isQualifiedName()) {
+						return ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) first.getExpression().getQualifiedName()).lastName();
+					}
+				}
+
+				return null;
+			}
+		});
+	}
+
+
+	@Override
+	public String getFirstOutermostConstructorLabel() {
+		return firstOutermostLabel;
+	}
+	
+	@Override
+	public IConstructor getFirstOutermostProduction() {
+		return firstOutermostProduction;
 	}
 	
 	private List<Expression> cacheFormals() throws ImplementationError {
@@ -151,7 +215,7 @@ public class RascalFunction extends NamedFunction {
 		return isTest;
 	}
 	
-	private boolean hasTestMod(Signature sig) {
+	private static boolean hasTestMod(Signature sig) {
 		for (FunctionModifier m : sig.getModifiers().getModifiers()) {
 			if (m.isTest()) {
 				return true;
@@ -338,5 +402,52 @@ public class RascalFunction extends NamedFunction {
 	@Override
 	public <U extends IValue> Result<U> equalToRascalFunction(RascalFunction that) {
 		return ResultFactory.bool((this == that), ctx);
+	}
+
+
+	private IConstructor computeFirstOutermostProduction(AbstractAST ast) {
+		return ast.accept(new NullASTVisitor<IConstructor>() {
+			@Override
+			public IConstructor visitFunctionDeclarationDefault(Default x) {
+				return extract(x);
+			}
+	
+			@Override
+			public IConstructor visitFunctionDeclarationExpression(
+					org.rascalmpl.ast.FunctionDeclaration.Expression x) {
+				return extract(x);
+			}
+			
+			
+			@Override
+			public IConstructor visitFunctionDeclarationConditional(Conditional x) {
+				return extract(x);
+			}
+			
+			private IConstructor extract(FunctionDeclaration x) {
+				List<Expression> formals = x.getSignature().getParameters().getFormals().getFormals();
+				return processFormals(formals);
+			}
+			
+			private IConstructor processFormals(List<Expression> formals) {
+				if (formals.size() > 0) {
+					Expression first = formals.get(0);
+					
+					if (first.isAsType()) {
+						first = first.getArgument();
+					}
+					else if (first.isTypedVariableBecomes() || first.isVariableBecomes()) {
+						first = first.getPattern();
+					}
+					
+					if (first instanceof Tree.Appl) {
+						Tree.Appl appl = (Appl) first;
+						return appl.getProduction();
+					}
+				}
+	
+				return null;
+			}
+		});
 	}
 }

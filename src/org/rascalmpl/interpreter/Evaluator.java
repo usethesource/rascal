@@ -75,7 +75,7 @@ import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
@@ -421,7 +421,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
-		OverloadedFunctionResult func = (OverloadedFunctionResult) getCurrentEnvt().getVariable(qualifiedName);
+		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
 
 		Type[] types = new Type[args.length];
 
@@ -1035,7 +1035,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					}
 					monitor.event("Reconnected " + mod, 1);
 				}
+			}
+			finally {
+				monitor.endJob(true);
+			}
 				
+			try {
 				monitor.startJob("Reconnecting extenders of affected modules", dependingExtends.size());
 				for (String mod : dependingExtends) {
 					ModuleEnvironment env = heap.getModule(mod);
@@ -1048,7 +1053,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 								env.addExtend(ext);
 							}
 						}
-
 					}
 					monitor.event("Reconnected " + mod, 1);
 				}

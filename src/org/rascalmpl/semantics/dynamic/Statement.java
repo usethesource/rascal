@@ -477,9 +477,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
 			return this.getFunctionDeclaration().interpret(__eval);
-
 		}
 
 	}

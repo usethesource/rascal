@@ -82,7 +82,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		if (!namePart.isQualifiedName()) {
 			throw new ImplementationError("weird AST");
 		}
-		String name = Names.name(Names.lastName(namePart.getQualifiedName()));
+		String name = ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) namePart.getQualifiedName()).lastName();
 		
 		if (name.equals("lit")) {
 			StringConstant.Lexical arg = 

@@ -19,6 +19,7 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -223,7 +224,7 @@ public class Cases  {
 			String key = null;
 
 			if (name.isQualifiedName()) {
-				key = Names.name(Names.lastName(name.getQualifiedName()));
+				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
 				key = ((StringConstant.Lexical) name.getLiteral().getStringLiteral().getConstant()).getString();
 			}

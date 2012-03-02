@@ -14,10 +14,12 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -34,7 +36,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 
-public class OverloadedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
+public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	
 	private final List<AbstractFunction> primaryCandidates; // it should be a list to allow proper shadowing
@@ -42,7 +44,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	private final String name;
 	private final boolean isStatic;
 
-	public OverloadedFunctionResult(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
+	public OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
 		super(type, null, ctx);
 		
 		if (candidates.size() + defaults.size() <= 0) {
@@ -53,23 +55,13 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		this.primaryCandidates = new ArrayList<AbstractFunction>(candidates.size());
 		this.defaultCandidates = new ArrayList<AbstractFunction>(candidates.size());
 		
-	    primaryCandidates.addAll(candidates);
-	    defaultCandidates.addAll(defaults);
+		addAll(primaryCandidates, candidates, true);
+		addAll(defaultCandidates, defaults, false);
 
 	    isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
 	}
 	
-	@Override
-	public int getArity() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean hasVarArgs() {
-		throw new UnsupportedOperationException();
-	}
-	
-	public OverloadedFunctionResult(AbstractFunction function) {
+	public OverloadedFunction(AbstractFunction function) {
 		super(function.getType(), null, function.getEval());
 		this.name = function.getName();
 		
@@ -86,12 +78,142 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		this.isStatic = function.isStatic();
 	}
 	
+	public OverloadedFunction(String name, List<AbstractFunction> funcs) {
+		super(lub(funcs), null, funcs.iterator().next().getEval());
+		this.name = name;
+		
+		this.primaryCandidates = new ArrayList<AbstractFunction>(1);
+		this.defaultCandidates = new ArrayList<AbstractFunction>(1);
+		
+		addAll(primaryCandidates, funcs, true);
+		addAll(defaultCandidates, funcs, false);
+		
+		this.isStatic = checkStatic(funcs);
+	}
+	
+	/**
+	 * This function groups  occurrences of pattern dispatched functions as one "PatternFunction" that
+	 * has a hash table to look up based on outermost function symbol. A group is a bunch
+	 * of functions that have an ADT as a first parameter type and a call or tree pattern with a fixed name as
+	 * the first parameter pattern, or it is a singleton other case. The addAll function retains the order of
+	 * the functions from the candidates list, in order to preserve shadowing rules!
+	 */
+	private void addAll(List<AbstractFunction> container, List<AbstractFunction> candidates, boolean nonDefault) {
+		Map<String, List<AbstractFunction>> constructors = new HashMap<String,List<AbstractFunction>>();
+		Map<IConstructor, List<AbstractFunction>> productions = new HashMap<IConstructor, List<AbstractFunction>>();
+		List<AbstractFunction> other = new LinkedList<AbstractFunction>();
+		
+		
+		for (AbstractFunction func : candidates) {
+			if (nonDefault && func.isDefault()) {
+				continue;
+			}
+			if (!nonDefault && !func.isDefault()) {
+				continue;
+			}
+			
+			String label = null;
+			IConstructor prod = null;
+			
+			if (func.isPatternDispatched()) {
+				// this one is already hashed, but we might find more to add to that map in the next round
+				Map<String, List<AbstractFunction>> funcMap = ((AbstractPatternDispatchedFunction) func).getMap();
+				for (String key : funcMap.keySet()) {
+					addFuncsToMap(constructors, funcMap.get(key), key);
+				}
+			}
+			else if (func.isConcretePatternDispatched()) {
+				// this one is already hashed, but we might find more to add to that map in the next round
+				Map<IConstructor, List<AbstractFunction>> funcMap = ((ConcretePatternDispatchedFunction) func).getMap();
+				for (IConstructor key : funcMap.keySet()) {
+					addProdsToMap(productions, funcMap.get(key), key);
+				}
+			}
+			else {
+				// a new function definition, that may be hashable
+				label = func.getFirstOutermostConstructorLabel();
+				prod = func.getFirstOutermostProduction();
+				
+				if (label != null) {
+					// we found another one to hash
+					addFuncToMap(constructors, func, label);
+				}
+				else if (prod != null) {
+					addProdToMap(productions, func, prod);
+				}
+				else {
+					other.add(func);
+				}
+			}
+		}
+		
+		if (!constructors.isEmpty()) {
+			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), type, constructors));
+		}
+		if (!productions.isEmpty()) {
+			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), type, productions));
+		}
+		container.addAll(other);
+	}
+
+	private void addFuncToMap(Map<String, List<AbstractFunction>> map,
+			AbstractFunction func, String label) {
+		List<AbstractFunction> l = map.get(label);
+		if (l == null) {
+			l = new LinkedList<AbstractFunction>();
+			map.put(label, l);
+		}
+		l.add(func);
+	}
+	
+	private void addProdToMap(Map<IConstructor, List<AbstractFunction>> map,
+			AbstractFunction func, IConstructor label) {
+		List<AbstractFunction> l = map.get(label);
+		if (l == null) {
+			l = new LinkedList<AbstractFunction>();
+			map.put(label, l);
+		}
+		l.add(func);
+	}
+	
+	private void addFuncsToMap(Map<String, List<AbstractFunction>> map,
+			List<AbstractFunction> funcs, String label) {
+		List<AbstractFunction> l = map.get(label);
+		if (l == null) {
+			l = new LinkedList<AbstractFunction>();
+			map.put(label, l);
+		}
+		l.addAll(funcs);
+	}
+	
+	private void addProdsToMap(Map<IConstructor, List<AbstractFunction>> map,
+			List<AbstractFunction> funcs, IConstructor label) {
+		List<AbstractFunction> l = map.get(label);
+		if (l == null) {
+			l = new LinkedList<AbstractFunction>();
+			map.put(label, l);
+		}
+		l.addAll(funcs);
+	}
+
+	@Override
+	public int getArity() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean hasVarArgs() {
+		throw new UnsupportedOperationException();
+	}
+	
+	
+	
 	@Override
 	public boolean isStatic() {
 		return isStatic;
 	}
 
-	private boolean checkStatic(List<AbstractFunction> l) {
+	private static boolean checkStatic(List<AbstractFunction> l) {
 		for (ICallableValue f : l) {
 			if (!f.isStatic()) {
 				return false;
@@ -105,7 +227,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return this;
 	}
 
-	private Type lub(List<AbstractFunction> candidates) {
+	private static Type lub(List<AbstractFunction> candidates) {
 		Type lub = TF.voidType();
 		
 		for (AbstractFunction l : candidates) {
@@ -138,23 +260,21 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
 			all.addAll(primaryCandidates);
 			all.addAll(defaultCandidates);
+			for (IValue arg : argValues) {
+				System.err.println("arg did not match? " + arg);
+			}
 			throw new ArgumentsMismatchError(name, all, argTypes, ctx.getCurrentAST());
 		}
 		
 		return result;
 	}
 
-	private Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
-//		Type tuple = getTypeFactory().tupleType(argTypes);
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 		
 		for (AbstractFunction candidate : candidates) {
-			// TODO: if match would accept an array of argTypes, the tuple type would not need to be constructed
-			// TODO: this match on a static type breaks dynamic dispatch a bit because it pre-filters on a static
-			// type! Can't remove it without introducing bugs elsewhere..
-//			if (candidate.match(tuple)) {
-			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1) 
+			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length) {
 				try {
 					return candidate.call(argTypes, argValues);
@@ -177,7 +297,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 		return null;
 	}
 	
-	public OverloadedFunctionResult join(OverloadedFunctionResult other) {
+	public OverloadedFunction join(OverloadedFunction other) {
+		if (other == null) {
+			return this;
+		}
 		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(other.primaryCandidates.size() + primaryCandidates.size());
 		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(other.defaultCandidates.size() + defaultCandidates.size());
 		
@@ -196,10 +319,10 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			}
 		}
 		
-		return new OverloadedFunctionResult(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 	
-	public OverloadedFunctionResult add(AbstractFunction candidate) {
+	public OverloadedFunction add(AbstractFunction candidate) {
 		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(primaryCandidates.size() + 1);
 		joined.addAll(primaryCandidates);
 		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(defaultCandidates.size() + 1);
@@ -212,39 +335,13 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			joined.add(candidate);
 		}
 		
-		return new OverloadedFunctionResult(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
-	public Iterable<AbstractFunction> iterable() {
-		return new Iterable<AbstractFunction>() {
-			public Iterator<AbstractFunction> iterator() {
-				return new Iterator<AbstractFunction> () {
-					private final Iterator<AbstractFunction> primary = primaryCandidates.iterator();
-					private final Iterator<AbstractFunction> defaults = defaultCandidates.iterator();
-					
-					public boolean hasNext() {
-						return primary.hasNext() || defaults.hasNext();
-					}
-
-					public AbstractFunction next() {
-						if (primary.hasNext()) {
-							return primary.next();
-						}
-						return defaults.next();
-					}
-
-					public void remove() {
-						throw new UnsupportedOperationException();
-					}
-				};
-			}
-		};
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof OverloadedFunctionResult) {
-			OverloadedFunctionResult other = (OverloadedFunctionResult) obj;
+		if (obj instanceof OverloadedFunction) {
+			OverloadedFunction other = (OverloadedFunction) obj;
 			return primaryCandidates.containsAll(other.primaryCandidates)
 			&& other.primaryCandidates.containsAll(primaryCandidates)
 			&& defaultCandidates.containsAll(other.defaultCandidates)
@@ -256,7 +353,11 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		for (AbstractFunction l : iterable()) {
+		for (AbstractFunction l : primaryCandidates) {
+			b.append(l.toString());
+			b.append(' ');
+		}
+		for (AbstractFunction l : defaultCandidates) {
 			b.append(l.toString());
 			b.append(' ');
 		}
@@ -269,8 +370,8 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	}
 
 	public boolean isEqual(IValue other) {
-		if (other instanceof OverloadedFunctionResult) {
-			return primaryCandidates.equals(((OverloadedFunctionResult) other).primaryCandidates);
+		if (other instanceof OverloadedFunction) {
+			return primaryCandidates.equals(((OverloadedFunction) other).primaryCandidates);
 		}
 		return false;
 	}
@@ -283,7 +384,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	@Override
 	public <U extends IValue> Result<U> equalToOverloadedFunction(
-			OverloadedFunctionResult that) {
+			OverloadedFunction that) {
 		return ResultFactory.bool(primaryCandidates.equals(that.primaryCandidates) && defaultCandidates.equals(that.defaultCandidates), ctx);
 	}
 	
@@ -295,7 +396,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	@Override
 	public <U extends IValue> Result<U> compareOverloadedFunction(
-			OverloadedFunctionResult that) {
+			OverloadedFunction that) {
 		if (that == this) {
 			return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
 		}
@@ -346,7 +447,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunctionResult that) {
+	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
 		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
 		
 		
@@ -372,7 +473,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			return undefinedError("composition", that);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
+		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -398,7 +499,7 @@ public class OverloadedFunctionResult extends Result<IValue> implements IExterna
 			return undefinedError("composition", g);
 		}
 		
-		return (Result<U>) new OverloadedFunctionResult(name, getType(), newAlternatives, newDefaults, ctx);
+		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
 	}
 	
 	public List<AbstractFunction> getTests() {
