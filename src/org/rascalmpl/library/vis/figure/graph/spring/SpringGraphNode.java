@@ -13,7 +13,6 @@ package org.rascalmpl.library.vis.figure.graph.spring;
 
 import java.util.LinkedList;
 
-import org.eclipse.imp.pdb.facts.IReal;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
@@ -51,12 +50,13 @@ public class SpringGraphNode extends Figure {
 		this.children[0] = fig;
 		in = new LinkedList<SpringGraphNode>();
 		out = new LinkedList<SpringGraphNode>();
-		//init();
 	}
 
 	public void init() {
-		x = FigureMath.random(width()/2, minSize.getX() - width()/2);
-		y = FigureMath.random(height()/2, minSize.getY() -height()/2);
+		//x = FigureMath.random(width()/2, minSize.getX() - width()/2);
+		//y = FigureMath.random(height()/2, minSize.getY() -height()/2);
+		x = G.minSize.getX()/2;
+		y = G.minSize.getY()/2;
 		temperature = G.MAX_LOCAL_TEMPERATURE;
 		skew = 0;
 		oldImpulse = new Vector2D(0, 0);
@@ -84,30 +84,10 @@ public class SpringGraphNode extends Figure {
 		return figure != null ? figure.minSize.getY() : 0;
 	}
 
-	protected void setCenterX(double x) {
-		if (x < figure.minSize.getX() / 2 - 0.000001
-				|| x > G.minSize.getX() - figure.minSize.getX() / 2 + 0.000001)
-			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,
-					x);
-		this.x = x; //FigureMath.constrain(x, figure.minSize.getX() / 2,  G.minSize.getX() - figure.minSize.getX() / 2);
-		figure.localLocation.setX(
-				localLocation.getX() + x - figure.minSize.getX() / 2);
-	}
-
 	protected double getCenterX() {
 		return x;
 	}
-
-	protected void setCenterY(double y) {
-		if (y < figure.minSize.getY() / 2 - 0.000001
-				|| y > G.minSize.getY() - figure.minSize.getY() / 2 + 0.000001)
-			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name,
-					y);
-		this.y = y; //FigureMath.constrain(y, figure.minSize.getY() / 2,  G.minSize.getY() - figure.minSize.getY() / 2);
-		figure.localLocation.setY(
-				localLocation.getY() + x - figure.minSize.getY() / 2);
-	}
-
+	
 	protected double getCenterY() {
 		return y;
 	}
@@ -116,8 +96,29 @@ public class SpringGraphNode extends Figure {
 		return new Vector2D(x, y);
 	}
 	
-	public double getMass(){
-		return /* 0.005 * width() * height() * */ (1 + degree() / 2);
+	// Move node during simulation
+	
+	protected void moveBy(double dx, double dy) {
+		x += dx;
+		y += dy;
+	}
+	
+	// Move node after one round, update all dependent positions
+	
+	protected void shiftCenter(double x, double y) {
+		if (x < figure.minSize.getX() / 2 - 0.000001
+				|| x > G.minSize.getX() - figure.minSize.getX() / 2 + 0.000001)
+			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,	x);
+		
+		this.x = x; 
+		
+		if (y < figure.minSize.getY() / 2 - 0.000001
+				|| y > G.minSize.getY() - figure.minSize.getY() / 2 + 0.000001)
+			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name, y);
+		
+		this.y = y;
+		
+		setElementPosition();
 	}
 	
 	public double distance(SpringGraphNode other){
@@ -127,10 +128,11 @@ public class SpringGraphNode extends Figure {
 	public double distance2(SpringGraphNode other){
 		return getCenter().distance2(other.getCenter());
 	}
-
-	protected void moveBy(double dx, double dy) {
-		x += dx;
-		y += dy;
+	
+	// Mass of this node: surface * number of connections.
+	
+	public double getMass(){
+		return  0.005 * width() * height() *  (1 + degree() / 2);
 	}
 
 	@Override
@@ -140,18 +142,22 @@ public class SpringGraphNode extends Figure {
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		localLocation.set(0, 0);
-		
+		localLocation.set(0, 0); // x - figure.minSize.getX() / 2, y - figure.minSize.getY() / 2);
 		setElementPosition();
-		computeMinSize();
+		
 	}
 	
 	void setElementPosition(){
 		figure.localLocation.set(
 				localLocation.getX() + x - figure.minSize.getX() / 2,
 				localLocation.getY() + y - figure.minSize.getY() / 2);
+		
+	//	figure.computeMinSize();
+	//	figure.localLocation.set(x - figure.minSize.getX()/2, y - figure.minSize.getY()/2);		
 		figure.globalLocation.set(figure.localLocation);
 		figure.globalLocation.add(globalLocation);
+		
+		figure.computeMinSize();
 	}
 
 	// ---------------------
@@ -182,7 +188,6 @@ public class SpringGraphNode extends Figure {
 						dx, dy);
 		}
 		oldImpulse = impulse;
-		setElementPosition();
 	}
 
 	/**
@@ -217,6 +222,7 @@ public class SpringGraphNode extends Figure {
 	private final static double DegMin45 = Math.toDegrees(-Math.PI/4);
 	private final static double Deg145 = Math.toDegrees(3*Math.PI/4);
 	private final static double Deg225 = Math.toDegrees(5*Math.PI/4);
+	
 	/**
 	 * Adjust the temperature of the node according to the old temperature and
 	 * the the old impulse

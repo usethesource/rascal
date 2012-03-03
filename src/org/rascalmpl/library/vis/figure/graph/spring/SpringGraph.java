@@ -11,9 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.graph.spring;
 
-import static org.rascalmpl.library.vis.properties.Properties.HSIZE;
 import static org.rascalmpl.library.vis.properties.Properties.ID;
-import static org.rascalmpl.library.vis.properties.Properties.VSIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -31,12 +28,12 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.Animation;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.library.vis.util.vector.Vector2D;
 
@@ -128,6 +125,8 @@ public class SpringGraph extends Figure {
 			}
 		}
 		
+		// Create the children of the SpringGraph figure
+		
 		int nChildren = this.nodes.size() + this.edges.size();
 		int nedges = this.edges.size();
 		this.children = new Figure[nChildren];
@@ -137,8 +136,6 @@ public class SpringGraph extends Figure {
 		
 		for(int i = 0; i < this.nodes.size(); i++)
 			this.children[nedges + i] = this.nodes.get(i);		
-		
-		
 	}
 	
 	public void register(String name, SpringGraphNode nd){
@@ -148,7 +145,6 @@ public class SpringGraph extends Figure {
 	public SpringGraphNode getRegistered(String name) {
 		return registered.get(name);
 	}
-	
 	
 	public double EDGE_LENGTH;       		 // Set on Graph creation
 	public double EDGE_LENGTH_2;             // Set on Graph creation
@@ -163,9 +159,10 @@ public class SpringGraph extends Figure {
 	public double SKEW = 1.0;
 	public double ROTATION = 1.0;
 	public double GRAVITY = 1.0 / 16.0;
-	public static int MAX_ROUNDS = 2000;
+	public static int MAX_ROUNDS = 100;
 
 	public void printValues() {
+		System.err.println("-----------------------------------------");
 		System.err.println("#NODES                 = " + nodes.size());
 		System.err.println("#EDGES                 = " + edges.size());
 		System.err.println("ATTRACT                = " + ATTRACT);
@@ -180,94 +177,56 @@ public class SpringGraph extends Figure {
 		System.err.println("MAX_LOCAL_TEMPERATURE  = " + MAX_LOCAL_TEMPERATURE);
 		System.err.println("MIN_GLOBAL_TEMPERATURE = " + MIN_GLOBAL_TEMPERATURE);
 	}
-	
-	public void initialPlacement() {
-		
-		for (SpringGraphNode n : nodes) {
-			n.setCenterX(FigureMath.random(n.figure.minSize.getX()/2, 500 - n.figure.minSize.getX()/2));
-			n.setCenterY(FigureMath.random(n.figure.minSize.getY()/2, 500 - n.figure.minSize.getY()/2));
-			
-			System.err.printf("Initial: node %s, width=%f, height=%f, x=%f, y=%f\n", n.name, n.figure.minSize.getX(), n.figure.minSize.getY(), n.getCenterX(), n.getCenterY());
-		}
-	}
-	
-	private void scale(){
-
-		double minX = Double.MAX_VALUE;
-		double maxX = Double.MIN_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxY = Double.MIN_VALUE;
-
-		for(SpringGraphNode n : nodes){
-			double w2 = n.width()/2;
-			double h2 = n.height()/2;			
-
-			if(n.getCenterX() - w2 < minX)
-				minX = n.getCenterX() - w2;
-			if (n.getCenterX() + w2 > maxX)
-				maxX = n.getCenterX() + w2;
-
-			if (n.getCenterY() - h2 < minY)
-				minY = n.getCenterY() - h2;
-			if (n.getCenterY() + h2 > maxY)
-				maxY = n.getCenterY() + h2;
-		}
-		double scaleX = size.getX()/(maxX - minX);
-		double scaleY = size.getY()/(maxY - minY);
-//		minSize.set(maxX - minX, maxY - minY);
-		
-		for(SpringGraphNode n : nodes){
-			n.setCenterX(scaleX * (n.getCenterX() - n.width()/2 - minX) + n.width()/2 );
-			n.setCenterY(scaleY * (n.getCenterY() - n.height()/2 - minY) + n.height()/2);
-			n.setElementPosition();
-			System.err.println(n);
-		}		
-	}
  
-	 
-	 public Vector2D getBaryCenter(){
-		 double cx = 0;
-		 double cy = 0;
-		 for (SpringGraphNode n : nodes){
-			 cx += n.getCenterX();
-			 cy += n.getCenterY();
-		 }
-		 return new Vector2D(cx / nodes.size(), cy / nodes.size());
-	 }
+	public Vector2D getBaryCenter(){
+		double cx = 0;
+		double cy = 0;
+		for (SpringGraphNode n : nodes){
+			cx += n.getCenterX();
+			cy += n.getCenterY();
+		}
+		return new Vector2D(cx / nodes.size(), cy / nodes.size());
+	}
 	
 	 @Override
 	 public void computeMinSize(){
-		// localLocation.set(0,0);
-			 double maxw = 0;
-			 double maxh = 0;
-			 for(SpringGraphNode nd : nodes){
-				 if(nd.width() > maxw)
-					 maxw = nd.width();
-				 if(nd.height() > maxh)
-					 maxh = nd.height();
-			 }
-			 minSize.set(nodes.size() * maxw, nodes.size() * maxh);
+		 double avW = 0;
+		 double avH = 0;
+		 double maxW = 0;
+		 double maxH = 0;
+		 for(SpringGraphNode nd : nodes){
+			 avW = nd.width();
+			 avH = nd.height();
+			 if(nd.width() > maxW)
+				 maxW = nd.width();
+			 if(nd.height() > maxH)
+				 maxH = nd.height();
+		 }
+		 
+		 minSize.set(nodes.size() * (avW + (maxW - avW)/2), nodes.size() * (avH + (maxH - avH)/2));
 	 }
-	 
 
-
-			
-	 
-	
-	@Override
-	public void resizeElement(Rectangle view) {
-		localLocation.set(0,0);
-		 long n = Math.round(Math.sqrt(size.getX() * size.getY()) / nodes.size());
-		 EDGE_LENGTH = n;
-		 EDGE_LENGTH_2 =  n * n;
+	 @Override
+	 public void resizeElement(Rectangle view) {
+		 localLocation.set(0,0);
+		 //computeMinSize();
+		 
+		 double hgap = prop.getReal(Properties.HGAP);
+		 double vgap = prop.getReal(Properties.VGAP);
+		 
+		 long n = Math.round(0.6 * Math.sqrt(size.getX() * size.getY()) / nodes.size());
+		 EDGE_LENGTH = Math.max(Math.round(Math.sqrt(hgap * hgap + vgap * vgap)), n);
+		 EDGE_LENGTH_2 = EDGE_LENGTH * EDGE_LENGTH;
 		 RAND_DISTURB = EDGE_LENGTH/4;
-		 for (SpringGraphNode nd : nodes){
-				nd.init();
-			}
-		 //initialPlacement();
-		currentAnimation = new AnimateForces();
 		 MIN_GLOBAL_TEMPERATURE = 0.005 * MAX_LOCAL_TEMPERATURE/ (1 +nodes.size());
-	}
+		 
+		 minSize.set(view.getSize());
+		 for (SpringGraphNode nd : nodes){
+			 nd.init();
+		 }
+		 currentAnimation = new AnimateForces();
+		
+	 }
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
@@ -276,16 +235,20 @@ public class SpringGraph extends Figure {
 			env.registerAnimation(currentAnimation);
 		}
 	}
-	 // The global temperature is the sum of all node temperatures.
-	class AnimateForces implements Animation{
-		int iteration;
-		
-		public AnimateForces() {
-			 iteration = 0;
-			 printValues();
+	
+	 @Override
+	public void destroyElement(IFigureConstructionEnv env) { 
+		 env.getCallBackEnv().unregisterAnimation(currentAnimation);
+	 }
 
+	class AnimateForces implements Animation {
+		int iteration;
+
+		public AnimateForces() {
+			iteration = 0;
+			printValues();
 		}
-		
+
 		@Override
 		public boolean moreFrames() {
 			return iteration < MAX_ROUNDS && globalTemperature() > MIN_GLOBAL_TEMPERATURE;
@@ -293,29 +256,60 @@ public class SpringGraph extends Figure {
 
 		@Override
 		public void animate() {
-			 if(debug)System.err.println("\nITERATION: " + iteration + ", total temp: "+ globalTemperature());
+			if(debug)System.err.println("\nITERATION: " + iteration + ", total temp: "+ globalTemperature());
 			Collections.shuffle(nodes);
+			double minX = Double.MAX_VALUE;
+			double maxX = Double.MIN_VALUE;
+			double minY = Double.MAX_VALUE;
+			double maxY = Double.MIN_VALUE;
+			
 			for (SpringGraphNode nd : nodes){
-				nd.step();				 
+				nd.step();		
+				double w2 = nd.width()/2;
+				double h2 = nd.height()/2;			
+
+				if(nd.getCenterX() - w2 < minX)
+					minX = nd.getCenterX() - w2;
+				if (nd.getCenterX() + w2 > maxX)
+					maxX = nd.getCenterX() + w2;
+
+				if (nd.getCenterY() - h2 < minY)
+					minY = nd.getCenterY() - h2;
+				if (nd.getCenterY() + h2 > maxY)
+					maxY = nd.getCenterY() + h2;
 			}
+			//localLocation.set(0, 0);
+			//globalLocation.set(localLocation);
+			
+			System.err.printf("X: %f -- %f, Y: %f -- %f\n", minX, maxX, minY, maxY);
+			
+			double shiftX = - minX + (minSize.getX() - (maxX - minX))/2;
+			double shiftY = - minY + (minSize.getY() - (maxY - minY))/2;
+			
+			double scaleX = minSize.getX() / (maxX - minX);
+			double scaleY = minSize.getY() / (maxY - minY);
+			
+			
+			for(SpringGraphNode n : nodes){
+				n.shiftCenter((n.getCenterX() + shiftX), (n.getCenterY() + shiftY));
+				n.setElementPosition();
+				System.err.println(n);
+			}	
+			
+			
 			iteration++;
-			if(!moreFrames()){
-				scale();
-			}
+			//if(!moreFrames()){
+			//	scale();
+			//}
 		}
 		
+		// The global temperature is the sum of all node temperatures.
+		public double globalTemperature(){
+			double result = 0;
+			for (SpringGraphNode n : nodes){
+				result += n.temperature;
+			}
+			return result;
+		}
 	}
-	 public double globalTemperature(){
-		 double result = 0;
-		 for (SpringGraphNode n : nodes){
-			 result += n.temperature;
-		 }
-		 return result;
-	 }
-
-	 @Override
-	public void destroyElement(IFigureConstructionEnv env) { 
-		 env.getCallBackEnv().unregisterAnimation(currentAnimation);
-	 }
-
 }
