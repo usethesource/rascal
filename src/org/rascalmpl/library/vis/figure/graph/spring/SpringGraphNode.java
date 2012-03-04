@@ -53,10 +53,8 @@ public class SpringGraphNode extends Figure {
 	}
 
 	public void init() {
-		//x = FigureMath.random(width()/2, minSize.getX() - width()/2);
-		//y = FigureMath.random(height()/2, minSize.getY() -height()/2);
-		x = G.minSize.getX()/2;
-		y = G.minSize.getY()/2;
+		x = FigureMath.random(width()/2, G.minSize.getX() - width()/2);
+		y = FigureMath.random(height()/2, G.minSize.getY() -height()/2);
 		temperature = G.MAX_LOCAL_TEMPERATURE;
 		skew = 0;
 		oldImpulse = new Vector2D(0, 0);
@@ -103,20 +101,39 @@ public class SpringGraphNode extends Figure {
 		y += dy;
 	}
 	
-	// Move node after one round, update all dependent positions
+	// Place node after one round, update all dependent positions
 	
-	protected void shiftCenter(double x, double y) {
-		if (x < figure.minSize.getX() / 2 - 0.000001
-				|| x > G.minSize.getX() - figure.minSize.getX() / 2 + 0.000001)
-			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,	x);
+	protected void placeCenter(double newX, double newY) {
+		double w2 = width()/2;
+		double h2 = height()/2;
+		if (newX <= w2){
+			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,	newX);
+		    this.x = w2 + 20;	
+		    if(oldImpulse.getX() < 0)
+		    	oldImpulse.setX(-oldImpulse.getX());
+		} else
+		if(newX >= G.minSize.getX() - w2){
+			System.err.printf("ERROR: node %s, x outside boundary: %f\n", name,	newX);
+			this.x = G.minSize.getX() - w2 - 20;
+			if(oldImpulse.getX() > 0)
+				oldImpulse.setX(-oldImpulse.getX());
+		} else
+			this.x = newX; 
 		
-		this.x = x; 
 		
-		if (y < figure.minSize.getY() / 2 - 0.000001
-				|| y > G.minSize.getY() - figure.minSize.getY() / 2 + 0.000001)
-			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name, y);
-		
-		this.y = y;
+		if (newY <= h2){
+			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name,	newY);
+		    this.y = h2 + 20;	
+		    if(oldImpulse.getY() < 0)
+		    	oldImpulse.setY(-oldImpulse.getY());
+		} else
+		if(newY >= G.minSize.getY() - h2){
+			System.err.printf("ERROR: node %s, y outside boundary: %f\n", name,	newY);
+			this.y = G.minSize.getY() - h2 - 20;	
+			if(oldImpulse.getY() > 0)
+				oldImpulse.setY(-oldImpulse.getY());
+		} else
+			this.y = newY; 
 		
 		setElementPosition();
 	}
@@ -142,9 +159,8 @@ public class SpringGraphNode extends Figure {
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		localLocation.set(0, 0); // x - figure.minSize.getX() / 2, y - figure.minSize.getY() / 2);
+		localLocation.set(0, 0);
 		setElementPosition();
-		
 	}
 	
 	void setElementPosition(){
@@ -152,8 +168,6 @@ public class SpringGraphNode extends Figure {
 				localLocation.getX() + x - figure.minSize.getX() / 2,
 				localLocation.getY() + y - figure.minSize.getY() / 2);
 		
-	//	figure.computeMinSize();
-	//	figure.localLocation.set(x - figure.minSize.getX()/2, y - figure.minSize.getY()/2);		
 		figure.globalLocation.set(figure.localLocation);
 		figure.globalLocation.add(globalLocation);
 		figure.updateGlobalLocation();
@@ -218,6 +232,16 @@ public class SpringGraphNode extends Figure {
 		}
 		return (new Vector2D(0, 0));
 	}
+	
+	public Vector2D repulsiveForceWall(Vector2D wallVector) {
+		Vector2D thisVector = new Vector2D(getCenter());
+		double distance2 = thisVector.distance2(wallVector);
+
+		if (distance2 > 0) {
+			return thisVector.sub(wallVector).mul(G.EDGE_LENGTH_2).div(distance2).mul(10 * G.REPEL);
+		}
+		return (new Vector2D(0, 0));
+	}
 
 	private final static double Deg45 = Math.toDegrees(Math.PI/4);
 	private final static double DegMin45 = Math.toDegrees(-Math.PI/4);
@@ -267,6 +291,16 @@ public class SpringGraphNode extends Figure {
 		for (SpringGraphNode otherNode : out) {
 			resultForce = resultForce.sub(attractiveForce(otherNode));
 		}
+		
+		// Repulsion of left and right wall
+		
+		resultForce = resultForce.add(repulsiveForceWall(new Vector2D(0, y)));
+		resultForce = resultForce.add(repulsiveForceWall(new Vector2D(G.minSize.getX(), y)));
+		
+		// Repulsion of top and bottom wall
+		
+		resultForce = resultForce.add(repulsiveForceWall(new Vector2D(x, 0)));
+		resultForce = resultForce.add(repulsiveForceWall(new Vector2D(x, G.minSize.getY())));
 
 		// we only need the impulse
 		return resultForce.normalize();

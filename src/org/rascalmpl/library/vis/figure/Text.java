@@ -103,7 +103,7 @@ public class Text extends Figure {
 	}
 
 	@Override
-	public void resizeElement(Rectangle view) {}
+	public void resizeElement(Rectangle view) { }
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
