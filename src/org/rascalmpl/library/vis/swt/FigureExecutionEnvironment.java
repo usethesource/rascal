@@ -14,6 +14,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.FigureMath;
@@ -149,6 +150,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 			e.printStackTrace(ctx.getStdErr());
 			ctx.getStdErr().printf("Callback error: " + e.getMessage() + ""
 					+ e.getTrace());
+		}
+		catch (StaticError e) {
+			e.printStackTrace(ctx.getStdErr());
+			ctx.getStdErr().printf("Callback error: " + e.getMessage());
 		}
 		if(profile) rascalTime += System.nanoTime() - startTime;
 		if(!computing){
