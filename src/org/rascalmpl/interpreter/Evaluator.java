@@ -140,8 +140,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private final ModuleEnvironment rootScope;
 	private boolean concreteListsShouldBeSpliced;
 
-	private final PrintWriter stderr;
-	private final PrintWriter stdout;
+	private final PrintWriter defStderr;
+	private final PrintWriter defStdout;
+	private PrintWriter curStderr = null;
+	private PrintWriter curStdout = null;
 
 	private ITestResultListener testReporter;
 	/**
@@ -177,8 +179,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.javaBridge = new JavaBridge(classLoaders, vf);
 		this.rascalPathResolver = rascalPathResolver;
 		this.resolverRegistry = rascalPathResolver.getRegistry();
-		this.stderr = stderr;
-		this.stdout = stdout;
+		this.defStderr = stderr;
+		this.defStdout = stdout;
 		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
 		
 		updateProperties();
@@ -300,7 +302,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public PrintWriter getStdOut() {
-		return stdout;
+		return curStdout == null ? defStdout : curStdout;
 	}
 
 	public TypeDeclarationEvaluator __getTypeDeclarator() {
@@ -352,7 +354,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	public PrintWriter getStdErr() {
-		return stderr;
+		return curStderr == null ? defStderr : curStderr;
 	}
 
 	public void setTestResultListener(ITestResultListener l) {
@@ -1006,7 +1008,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				monitor.startJob("Reloading modules", onHeap.size());
 				for (String mod : onHeap) {
 					if (!heap.existsModule(mod)) {
-						stderr.print("Reloading module " + mod);
+						defStderr.print("Reloading module " + mod);
 						reloadModule(mod, errorLocation);
 					}
 					monitor.event("loaded " + mod, 1);
@@ -1728,6 +1730,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			return monitor;
 		
 		return new NullRascalMonitor();
+	}
+
+	public void overrideDefaultWriters(PrintWriter newStdOut, PrintWriter newStdErr) {
+		this.curStdout = newStdOut;
+		this.curStderr = newStdErr;
+	}
+
+	public void revertToDefaultWriters() {
+		this.curStderr = null;
+		this.curStdout = null;
 	}
 
 }
