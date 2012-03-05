@@ -127,6 +127,9 @@ public class FigureSWTApplet extends Composite
 					a.animate();
 				}
 				redraw();
+				for(FigureSWTApplet app : children){
+					app.redraw();
+				}
 			}
 			
 		});
