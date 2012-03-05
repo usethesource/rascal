@@ -168,8 +168,8 @@ public class SpringGraphNode extends Figure {
 				localLocation.getX() + x - figure.minSize.getX() / 2,
 				localLocation.getY() + y - figure.minSize.getY() / 2);
 		
+		figure.globalLocation.set(globalLocation);
 		figure.globalLocation.set(figure.localLocation);
-		figure.globalLocation.add(globalLocation);
 		figure.updateGlobalLocation();
 		
 		figure.computeMinSize();

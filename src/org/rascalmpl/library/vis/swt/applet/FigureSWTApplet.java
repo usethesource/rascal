@@ -45,7 +45,8 @@ import org.rascalmpl.library.vis.util.vector.Coordinate;
 public class FigureSWTApplet extends Composite 
 	implements IFigureConstructionEnv, DisposeListener{
 
-	public static final int ANIMATION_DELAY = 50; // miliseconds
+	public static final double ANIMATION_TARGET_FPS = 50;
+	public static final int ANIMATION_DELAY = (int)(1000.0/ANIMATION_TARGET_FPS);
 
 	private static final int SWT_FLAGS = SWT.BORDER | SWT.NO_BACKGROUND | SWT.NO_MERGE_PAINTS ;
 	private List<FigureSWTApplet> children;
@@ -103,11 +104,16 @@ public class FigureSWTApplet extends Composite
 		return computeClock == env.getComputeClock();
 	}
 	
+	
 	public void animate(){
+		List<Animation> remove = new ArrayList<Animation>();
 		for(Animation a : animations){
 			if(!a.moreFrames()){
-				unregisterAnimation(a);
+				remove.add(a);
 			}
+		}
+		for(Animation a : remove){
+			unregisterAnimation(a);
 		}
 		if(animations.isEmpty()){
 			return;
@@ -117,12 +123,14 @@ public class FigureSWTApplet extends Composite
 			@Override
 			public void run() {
 				for(Animation a : animations){
+					System.out.printf("Animating %d!\n", animations.size());
 					a.animate();
 				}
+				redraw();
 			}
 			
 		});
-		redraw();
+
 	}
 	
 	public void triggerRecompute(){

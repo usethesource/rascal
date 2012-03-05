@@ -170,14 +170,8 @@ public class SpringGraph extends Figure {
 		 if(vsize == 0)
 			 vsize = 100;
 		 minSize.set(hsize,vsize);
-	 }
-
-	 @Override
-	 public void resizeElement(Rectangle view) {
-
-		 computeMinSize();
+		 resizable.set(false, false);
 		 size.set(minSize);
-		 localLocation.set(0,0);
 
 		 double hgap = prop.getReal(Properties.HGAP);
 		 double vgap = prop.getReal(Properties.VGAP);
@@ -200,6 +194,10 @@ public class SpringGraph extends Figure {
 		if(currentAnimation != null){
 			env.registerAnimation(currentAnimation);
 		}
+	}
+	
+	@Override
+	public void resizeElement(Rectangle view) {
 	}
 	
 	 @Override
@@ -245,4 +243,6 @@ public class SpringGraph extends Figure {
 			return result;
 		}
 	}
+
+	
 }
