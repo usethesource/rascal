@@ -862,7 +862,7 @@ public class Prelude {
 			
 			java.lang.String str = result.toString();
 			
-			if(sloc.getOffset() != -1){
+			if(sloc.hasOffsetLength() && sloc.getOffset() != -1){
 				str = str.substring(sloc.getOffset(), sloc.getOffset() + sloc.getLength());
 			}
 			
