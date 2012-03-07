@@ -280,7 +280,9 @@ public class ModuleEnvironment extends Environment {
 	
 	public void unImport(String moduleName) {
 		ModuleEnvironment old = importedModules.remove(moduleName);
-		typeStore.unimportStores(new TypeStore[] { old.getStore() });
+		if (old != null) {
+			typeStore.unimportStores(new TypeStore[] { old.getStore() });
+		}
 	}
 	
 	public void unExtend(String moduleName) {
