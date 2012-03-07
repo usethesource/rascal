@@ -37,7 +37,7 @@ public list[Box] highlight(Tree t) {
 		} 
 
 		case appl(prod(\layouts(_), _, _), as): 
-			return [ highlightLayout(a) | a <- as ];
+			return [ *highlightLayout(a) | a <- as ];
 			
 		case a:appl(prod(_, _, {_*, \tag("category"("Constant"))}), _):
 			return [STRING(L(unparse(a)))];
@@ -49,7 +49,7 @@ public list[Box] highlight(Tree t) {
 			return [L(unparse(a))];
 			
 		case appl(_, as):
-			return [ highlight(a) | a <- as ];
+			return [ *highlight(a) | a <- as ];
 
 		case amb({k, _*}): {
 			// this triggers a bug in stringtemplates??? 
@@ -70,7 +70,7 @@ private list[Box] highlightLayout(Tree t) {
 			return [COMM(L(unparse(a)))];
 			
 		case appl(_, as):
-			return [ highlightLayout(a) | a <- as ];
+			return [ *highlightLayout(a) | a <- as ];
 			
 		case char(n):
 			return [L(stringChar(n))];
