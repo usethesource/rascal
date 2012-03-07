@@ -23,6 +23,7 @@ import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
@@ -502,6 +503,8 @@ public abstract class SGTDBF implements IGTD{
 	// Reuse these structures.
 	private final IntegerList firstTimeRegistration = new IntegerList();
 	private final IntegerList firstTimeReductions = new IntegerList();
+
+	private final boolean recovering = false;
 	
 	/**
 	 * Handles reductions which may be associated with nesting restrictions.
@@ -663,9 +666,23 @@ public abstract class SGTDBF implements IGTD{
 				return true;
 			}
 		}
+		
+		if (recovering) {
+			return findStacksToRevive();
+		}
+		
 		return false;
 	}
 	
+	private boolean findStacksToRevive() {
+		boolean unexpandable = reviveFailedNodes(unexpandableNodes);
+		boolean unmatchable = reviveFailedNodes(unmatchableNodes);
+		boolean filtered = reviveFiltered(filteredNodes);
+		
+		// don't inline the booleans (short-circuit + side-effects)
+		return unexpandable || unmatchable || filtered; 
+	}
+
 	/**
 	 * Inserts a stack bottom into the todo-list.
 	 */
@@ -923,6 +940,8 @@ public abstract class SGTDBF implements IGTD{
 		
 		if(findFirstStacksToReduce()){
 			boolean shiftedLevel = (location != 0);
+			boolean recover = false;
+			
 			do{
 				lookAheadChar = (location < input.length) ? input[location] : 0;
 				if(shiftedLevel){ // Nullable fix for the first level.
@@ -957,15 +976,34 @@ public abstract class SGTDBF implements IGTD{
 			}
 		}
 		
+		
 		// A parse error occured.
 		parseErrorOccured = true;
-		
+
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
 		throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
 	}
 	
+	private boolean reviveFiltered(DoubleStack<AbstractStackNode, AbstractNode> nodes) {
+		return false;
+	}
+
+	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
+		
+		while (!failedNodes.isEmpty()) {
+			AbstractStackNode failer = failedNodes.pop();
+			
+			
+//			Object symbol = getParentSymbol(failer);
+//			AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
+//			
+//			errorNodes.push(unexpandableNode, resultStore);
+		}
+		return false;
+	}
+
 	private int[] charsToInts(char[] input) {
 		int[] result = new int[Character.codePointCount(input, 0, input.length)];
 		int j = 0;
