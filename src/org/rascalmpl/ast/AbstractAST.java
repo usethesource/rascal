@@ -42,7 +42,6 @@ public abstract class AbstractAST implements IVisitable {
 	protected final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	protected final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected IMatchingResult matcher;
-	protected IBooleanResult backtracker;
 	
 	AbstractAST() {
 	
@@ -170,7 +169,7 @@ public abstract class AbstractAST implements IVisitable {
 	}
 	
 	public IMatchingResult getMatcher(IEvaluatorContext eval) {
-		return buildMatcher(eval);
+			return buildMatcher(eval);
 	}
 
 	/**
