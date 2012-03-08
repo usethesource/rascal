@@ -20,10 +20,10 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
+import org.rascalmpl.parser.gtd.result.RecoveryNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
-import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
@@ -32,6 +32,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.RecoveryStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -81,6 +82,7 @@ public abstract class SGTDBF implements IGTD{
 	private boolean invoked;
 	
 	// Error reporting
+	private final boolean recovering = false;
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
@@ -504,7 +506,7 @@ public abstract class SGTDBF implements IGTD{
 	private final IntegerList firstTimeRegistration = new IntegerList();
 	private final IntegerList firstTimeReductions = new IntegerList();
 
-	private final boolean recovering = false;
+	
 	
 	/**
 	 * Handles reductions which may be associated with nesting restrictions.
@@ -987,20 +989,26 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	private boolean reviveFiltered(DoubleStack<AbstractStackNode, AbstractNode> nodes) {
+		// TODO: perhaps this is not really necessary
 		return false;
 	}
 
 	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
-		
 		while (!failedNodes.isEmpty()) {
 			AbstractStackNode failer = failedNodes.pop();
 			
+			// TODO: not stepping up level here to programmeable robust non-terminals yet.
+			Object production = null;
 			
-//			Object symbol = getParentSymbol(failer);
-//			AbstractNode resultStore = new ExpectedNode(NO_CHILDREN, symbol, inputURI, location, location, unexpandableNode.isSeparator(), unexpandableNode.isLayout());
-//			
-//			errorNodes.push(unexpandableNode, resultStore);
+			// TODO: skipping to newline here, instead of programmeable follow set
+			RecoveryStackNode node = new RecoveryStackNode(0, production, new int[] {'\n'});
+			RecoveryNode result = (RecoveryNode) node.match(input, location);
+			
+			if (result != null) {
+				addTodo(node, result.getLength(), result);
+			}
 		}
+		
 		return false;
 	}
 

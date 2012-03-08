@@ -41,6 +41,7 @@ public abstract class AbstractStackNode{
 	private boolean isEndNode;
 	private boolean isSeparator;
 	private boolean isLayout;
+	private boolean isRecovering;
 	
 	// Filters
 	private final IEnterFilter[] enterFilters;
@@ -87,6 +88,7 @@ public abstract class AbstractStackNode{
 		isEndNode = original.isEndNode;
 		isSeparator = original.isSeparator;
 		isLayout = original.isLayout;
+		isRecovering = original.isRecovering;
 		
 		parentProduction = original.parentProduction;
 		enterFilters = original.enterFilters;
@@ -137,11 +139,23 @@ public abstract class AbstractStackNode{
 		isLayout = true;
 	}
 	
+	public void markAsRecovering() {
+		isRecovering = true;
+	}
+	
 	/**
 	 * Checks whether or not this node represents layout.
 	 */
 	public boolean isLayout(){
 		return isLayout;
+	}
+	
+	/**
+	 * Checker whether this node will be replaced by an error terminal when while
+	 * it is predicted the parser fails completely.
+	 */
+	public boolean isRecovering() {
+		return isRecovering;
 	}
 	
 	/**
