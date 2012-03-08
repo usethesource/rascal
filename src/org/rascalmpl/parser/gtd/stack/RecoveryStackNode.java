@@ -17,19 +17,30 @@ import org.rascalmpl.parser.gtd.result.RecoveryNode;
 
 public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	private final int[] until;
-	private final Object production;
-	private RecoveryNode result;
+	private final RecoveryNode result;
 	
-	public RecoveryStackNode(int id, Object production, int[] until){
+	public RecoveryStackNode(int id, int[] until){
 		super(id, 0);
 		this.until = until;
-		this.production = production;
+		this.result = null;
 	}
 	
 	private RecoveryStackNode(RecoveryStackNode original, int startLocation){
 		super(original, startLocation);
 		this.until = original.until;
-		this.production = original.production;
+		this.result = null;
+	}
+	
+	private RecoveryStackNode(RecoveryStackNode original, RecoveryNode result, int startLocation){
+		super(original, startLocation);
+		this.until = original.until;
+		this.result = result;
+	}
+	
+	@Override
+	public boolean isEndNode() {
+		// TODO: I hope this makes sure that a failing production will end with this node
+		return true;
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -42,11 +53,14 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		
 		for ( ; to < input.length; to++) {
 			for (int i = 0; i < until.length; i++) {
-				if (input[location] == until[i]) {
-					result = buildResult(input, from, to);
-					return result;
+				if (input[to] == until[i]) {
+					return buildResult(input, from, to);
 				}
 			}
+		}
+		
+		if (to == input.length) {
+			return buildResult(input, from, input.length - 1);
 		}
 		
 		return null; // no lookahead character found to skip to, match failes
@@ -54,8 +68,8 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	
 	private RecoveryNode buildResult(int[] input, int from, int to) {
 		CharNode[] chars = new CharNode[to - from + 1];
-		for (int i = from; i <= to; i++) {
-			chars[i] = new CharNode(input[i]);
+		for (int i = from, j = 0; i <= to; i++, j++) {
+			chars[j] = new CharNode(input[i]);
 		}
 		
 		return new RecoveryNode(chars, production, from);
@@ -66,7 +80,7 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	}
 	
 	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new RecoveryStackNode(this, startLocation);
+		return new RecoveryStackNode(this, (RecoveryNode) result, startLocation);
 	}
 	
 	public int getLength(){
