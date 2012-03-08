@@ -82,7 +82,7 @@ public abstract class SGTDBF implements IGTD{
 	private boolean invoked;
 	
 	// Error reporting
-	private final boolean recovering = false;
+	private boolean recovering = false;
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableNodes;
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
@@ -115,6 +115,10 @@ public abstract class SGTDBF implements IGTD{
 		unexpandableNodes = new Stack<AbstractStackNode>();
 		unmatchableNodes = new Stack<AbstractStackNode>();
 		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
+	}
+	
+	public void enableRecovery() {
+		recovering = true;
 	}
 	
 	/**
@@ -942,7 +946,6 @@ public abstract class SGTDBF implements IGTD{
 		
 		if(findFirstStacksToReduce()){
 			boolean shiftedLevel = (location != 0);
-			boolean recover = false;
 			
 			do{
 				lookAheadChar = (location < input.length) ? input[location] : 0;
@@ -994,22 +997,25 @@ public abstract class SGTDBF implements IGTD{
 	}
 
 	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
+		boolean revived = false;
+		
 		while (!failedNodes.isEmpty()) {
+			// TODO: not stepping up level here to programmeable robust non-terminals yet.
 			AbstractStackNode failer = failedNodes.pop();
 			
-			// TODO: not stepping up level here to programmeable robust non-terminals yet.
-			Object production = null;
-			
 			// TODO: skipping to newline here, instead of programmeable follow set
-			RecoveryStackNode node = new RecoveryStackNode(0, production, new int[] {'\n'});
+			RecoveryStackNode node = new RecoveryStackNode(0, new int[] {'\n'});
 			RecoveryNode result = (RecoveryNode) node.match(input, location);
 			
 			if (result != null) {
+				node = (RecoveryStackNode) node.getCleanCopyWithResult(location, result);
+				failer.addEdge(node, node.getStartLocation());
 				addTodo(node, result.getLength(), result);
+				revived = true;
 			}
 		}
 		
-		return false;
+		return revived;
 	}
 
 	private int[] charsToInts(char[] input) {
