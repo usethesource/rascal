@@ -1013,12 +1013,12 @@ public abstract class SGTDBF implements IGTD{
 			RecoveryStackNode recoverLiteral = new RecoveryStackNode(0, new int[] {'\n'}, input, location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
-			edges.add(recoverLiteral);
+			edges.add(recoveryNode);
 			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
 			
 			recoveryNode.setIncomingEdges(edges);
 			
-			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
+			addTodo(recoverLiteral, recoverLiteral.getLength() + 1, recoverLiteral.getResult());
 		}
 	
 		findFirstStacksToReduce();
