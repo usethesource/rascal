@@ -56,6 +56,21 @@ stringChar(charAt("abc", 0));
 public java int charAt(str s, int i) throws out_of_range(str msg);
 
 @doc{
+Synopsis: Return characters of a string.
+Description:
+Return a list of the characters of `s` as integer character codes.
+Also see [$String/stringChars] that converts character codes back to string.
+
+Examples:
+<screen>
+import String;
+chars("abc");
+stringChars(chars("abc")) == "abc";
+</screen>
+}
+public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)-1]];
+
+@doc{
 Synopsis: Check that a string contains another string.
 
 Description:
