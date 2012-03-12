@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
+import org.rascalmpl.parser.gtd.result.RecoveryNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -128,6 +129,9 @@ public class ListContainerNodeConverter{
 			
 			newEnvironment = actionExecutor.enteringListNode(production, index++, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			
+			if (node instanceof RecoveryNode) {
+				System.err.println("recovery in list element");
+			}
 			if(!(node instanceof CycleNode)){ // Not a cycle.
 				IConstructor constructedNode = converter.convert(node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, newEnvironment);
 				if(constructedNode == null){
