@@ -64,6 +64,7 @@ public class Factory {
 	public static final Type Tree_Amb = tf.constructor(uptr, Tree, "amb", Alternatives, "alternatives");
 	public static final Type Tree_Char = tf.constructor(uptr, Tree, "char", tf.integerType(), "character");
 	
+	public static final Type Tree_Skipped = tf.constructor(uptr, Tree, "skipped", tf.listType(Tree), "rest");
 	public static final Type Tree_Expected = tf.constructor(uptr, Tree, "expected", Symbol, "symbol", tf.listType(Tree), "rest");
 	public static final Type Tree_Error = tf.constructor(uptr, Tree, "error", Production, "prod", tf.listType(Tree), "args", tf.listType(Tree), "rest");
 	public static final Type Tree_Error_Amb = tf.constructor(uptr, Tree, "erroramb", Alternatives, "alternatives");
