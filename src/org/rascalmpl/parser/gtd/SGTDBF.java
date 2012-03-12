@@ -20,7 +20,6 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
-import org.rascalmpl.parser.gtd.result.RecoveryNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
@@ -42,6 +41,7 @@ import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
 /**
@@ -167,7 +167,7 @@ public abstract class SGTDBF implements IGTD{
 					if(alternative.getStartLocation() == location){
 						EdgesSet alternativeEdgesSet = alternative.getIncomingEdges();
 						int resultStoreId = getResultStoreId(alternative.getId());
-						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisistedLevel(resultStoreId) == location){
+						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 							// Encountered a stack 'overtake'.
 							propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
 							return alternative;
@@ -224,7 +224,7 @@ public abstract class SGTDBF implements IGTD{
 				}else{
 					EdgesSet alternativeEdgesSet = alternative.getIncomingEdges();
 					int resultStoreId = getResultStoreId(alternative.getId());
-					if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisistedLevel(resultStoreId) == location){
+					if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 						AbstractContainerNode nextResult = alternativeEdgesSet.getLastResult(resultStoreId);
 						// Encountered a stack 'overtake'.
 						propagateAlternativeEdgesAndPrefixes(node, result, alternative, nextResult, node.getEdges().size(), edgesMap, prefixesMap);
@@ -324,7 +324,7 @@ public abstract class SGTDBF implements IGTD{
 			}else{
 				EdgesSet nextNextAlternativeEdgesSet = nextNextAlternative.getIncomingEdges();
 				int resultStoreId = getResultStoreId(nextNextAlternative.getId());
-				if(nextNextAlternativeEdgesSet != null && nextNextAlternativeEdgesSet.getLastVisistedLevel(resultStoreId) == location){
+				if(nextNextAlternativeEdgesSet != null && nextNextAlternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 					propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges);
 				}else{
 					nextNextAlternative.updateNode(next, nextResult);
@@ -360,7 +360,7 @@ public abstract class SGTDBF implements IGTD{
 					}else{
 						EdgesSet nextAlternativeEdgesSet = nextNextAlternative.getIncomingEdges();
 						int resultStoreId = getResultStoreId(nextNextAltAlternative.getId());
-						if(nextAlternativeEdgesSet != null && nextAlternativeEdgesSet.getLastVisistedLevel(resultStoreId) == location){
+						if(nextAlternativeEdgesSet != null && nextAlternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 							propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
 						}else{
 							nextNextAltAlternative.updatePrefixSharedNode(nextNextEdgesMap, nextNextPrefixesMap);
@@ -485,7 +485,7 @@ public abstract class SGTDBF implements IGTD{
 	private void handleEdgeList(EdgesSet edgeSet, String name, Object production, Link resultLink, int startLocation){
 		AbstractContainerNode resultStore = null;
 		int resultStoreId = EdgesSet.DEFAULT_RESULT_STORE_ID;
-		if(edgeSet.getLastVisistedLevel(resultStoreId) != location){
+		if(edgeSet.getLastVisitedLevel(resultStoreId) != location){
 			AbstractStackNode edge = edgeSet.get(0);
 			
 			resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ExpandableContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
@@ -531,7 +531,7 @@ public abstract class SGTDBF implements IGTD{
 				// Check whether or not the nesting is allowed.
 				if(filteredParents == null || !filteredParents.contains(edge.getId())){
 					AbstractContainerNode resultStore = null;
-					if(edgeSet.getLastVisistedLevel(resultStoreId) == location){
+					if(edgeSet.getLastVisitedLevel(resultStoreId) == location){
 						resultStore = edgeSet.getLastResult(resultStoreId);
 					}
 					if(resultStore == null){
@@ -819,7 +819,7 @@ public abstract class SGTDBF implements IGTD{
 				}
 			}else{
 				int resultStoreId = getResultStoreId(stack.getId());
-				if(cachedEdges.getLastVisistedLevel(resultStoreId) == location){ // Is nullable, add the known results.
+				if(cachedEdges.getLastVisitedLevel(resultStoreId) == location){ // Is nullable, add the known results.
 					stacksWithNonTerminalsToReduce.push(stack, cachedEdges.getLastResult(resultStoreId));
 				}
 			}
@@ -898,7 +898,7 @@ public abstract class SGTDBF implements IGTD{
 			}
 
 			int resultStoreId = getResultStoreId(stack.getId());
-			if(cachedEdges.getLastVisistedLevel(resultStoreId) == location){ // Is nullable, add the known results.
+			if(cachedEdges.getLastVisitedLevel(resultStoreId) == location){ // Is nullable, add the known results.
 				stacksWithNonTerminalsToReduce.push(stack, cachedEdges.getLastResult(resultStoreId));
 			}
 			
@@ -975,7 +975,7 @@ public abstract class SGTDBF implements IGTD{
 		if(location == input.length){
 			EdgesSet startNodeEdgesSet = startNode.getIncomingEdges();
 			int resultStoreId = getResultStoreId(startNode.getId());
-			if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisistedLevel(resultStoreId) == input.length){
+			if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
 				// Parsing succeeded.
 				return startNodeEdgesSet.getLastResult(resultStoreId); // Success.
 			}
@@ -997,25 +997,84 @@ public abstract class SGTDBF implements IGTD{
 	}
 
 	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
-		boolean revived = false;
-		
+		Stack<AbstractStackNode> recoveryNodes = new Stack<AbstractStackNode>();
 		while (!failedNodes.isEmpty()) {
-			// TODO: not stepping up level here to programmeable robust non-terminals yet.
-			AbstractStackNode failer = failedNodes.pop();
-			
-			// TODO: skipping to newline here, instead of programmeable follow set
-			RecoveryStackNode node = new RecoveryStackNode(0, new int[] {'\n'});
-			RecoveryNode result = (RecoveryNode) node.match(input, location);
-			
-			if (result != null) {
-				node = (RecoveryStackNode) node.getCleanCopyWithResult(location, result);
-				failer.addEdge(node, node.getStartLocation());
-				addTodo(node, result.getLength(), result);
-				revived = true;
-			}
+			findRecoveryNodes(failedNodes.pop(), recoveryNodes);
 		}
 		
-		return revived;
+		if (recoveryNodes.isEmpty()) {
+			return false;
+		}
+		
+		while (!recoveryNodes.isEmpty()) {
+			AbstractStackNode recoveryNode = recoveryNodes.pop();
+			
+			// TODO: skipping to newline here, instead of programmeable follow set
+			RecoveryStackNode recoverLiteral = new RecoveryStackNode(0, new int[] {'\n'}, input, location);
+			recoverLiteral.initEdges();
+			EdgesSet edges = new EdgesSet(1);
+			edges.add(recoverLiteral);
+			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
+			
+			recoveryNode.setIncomingEdges(edges);
+			
+			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
+		}
+	
+		findFirstStacksToReduce();
+		return true;
+	}
+
+	/**
+	 * This method travels up the graph to find the first nodes that are recoverable.
+	 * The graph may split and merge, and even cycle, so we take care of knowing where
+	 * we have been and what we still need to do.
+	 */
+	private void findRecoveryNodes(AbstractStackNode failer, Stack<AbstractStackNode> recoveryNodes) {
+		Stack<AbstractStackNode> todo = new Stack<AbstractStackNode>();
+		ObjectKeyedIntegerMap<AbstractStackNode> visited = new ObjectKeyedIntegerMap<AbstractStackNode>();
+		
+		todo.push(failer);
+		
+		OUTER: while (!todo.isEmpty()) {
+			AbstractStackNode node = todo.pop();
+			visited.put(node, 0);
+			
+			if (node.isRecovering()) {
+				recoveryNodes.push(node);
+				continue;
+			}
+			
+			IntegerObjectList<EdgesSet> toParents = node.getEdges();
+
+			// Terminals don't have edges to parents because they are predicted, but
+			// we can safely skip them here, because their parents will be among the failedNodes
+			if (toParents == null) { 
+				continue;
+			}
+
+			for (int i = 0; i < toParents.size(); i++) {
+				EdgesSet edges = toParents.getValue(i);
+
+				if (edges != null) {
+					for (int j = 0; j < edges.size(); j++) {
+						AbstractStackNode parent = edges.get(j);
+
+						if (visited.contains(parent)) {
+							continue OUTER;
+						}
+						else if (parent.isRecovering()) {
+							if (!recoveryNodes.contains(parent)) {
+								recoveryNodes.push(parent);
+							}
+						}
+						else {
+							todo.push(parent);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private int[] charsToInts(char[] input) {
@@ -1118,7 +1177,7 @@ public abstract class SGTDBF implements IGTD{
 		}else if(filterErrorOccured){
 			EdgesSet rootNodeEdgesSet = startNode.getIncomingEdges();
 			int resultStoreId = getResultStoreId(startNode.getId());
-			if(rootNodeEdgesSet != null && rootNodeEdgesSet.getLastVisistedLevel(resultStoreId) == input.length){
+			if(rootNodeEdgesSet != null && rootNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
 				result = rootNodeEdgesSet.getLastResult(resultStoreId);
 			}else{
 				throw new RuntimeException("This can't happen, as filtering errors can't occur on incomplete trees.");
