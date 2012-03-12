@@ -2081,7 +2081,7 @@ public class Prelude {
 		int[] chars = new int[lst.length()];
 		
 		for (int i = 0; i < lst.length(); i ++) {
-			chars[i] = ((IInteger) lst.get(0)).intValue();
+			chars[i] = ((IInteger) lst.get(i)).intValue();
 			if (!Character.isValidCodePoint(chars[i])) {
 				throw RuntimeExceptionFactory.illegalCharacter(values.integer(chars[i]), null, null);
 			}
