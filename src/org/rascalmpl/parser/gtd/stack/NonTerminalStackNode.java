@@ -40,6 +40,11 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return false;
 	}
 	
+	@Override
+	public boolean isRecovering() {
+		return expectIdentifier.equals("Statement");
+	}
+	
 	public String getName(){
 		return expectIdentifier;
 	}

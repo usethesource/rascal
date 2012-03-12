@@ -19,28 +19,33 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	private final int[] until;
 	private final RecoveryNode result;
 	
-	public RecoveryStackNode(int id, int[] until){
+	public RecoveryStackNode(int id, int[] until, int[] input, int location) {
 		super(id, 0);
 		this.until = until;
-		this.result = null;
+		this.result = (RecoveryNode) match(input, location);
 	}
 	
 	private RecoveryStackNode(RecoveryStackNode original, int startLocation){
 		super(original, startLocation);
 		this.until = original.until;
-		this.result = null;
+		this.result = original.result;
 	}
 	
 	private RecoveryStackNode(RecoveryStackNode original, RecoveryNode result, int startLocation){
 		super(original, startLocation);
 		this.until = original.until;
+		assert original.result == result;
 		this.result = result;
 	}
 	
 	@Override
 	public boolean isEndNode() {
-		// TODO: I hope this makes sure that a failing production will end with this node
 		return true;
+	}
+	
+	@Override
+	public String getName() {
+		return "***recovery***";
 	}
 	
 	public boolean isEmptyLeafNode(){
@@ -54,16 +59,12 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		for ( ; to < input.length; to++) {
 			for (int i = 0; i < until.length; i++) {
 				if (input[to] == until[i]) {
-					return buildResult(input, from, to);
+					return buildResult(input, from, to - 1);
 				}
 			}
 		}
 		
-		if (to == input.length) {
-			return buildResult(input, from, input.length - 1);
-		}
-		
-		return null; // no lookahead character found to skip to, match failes
+		return buildResult(input, from, input.length - 1);
 	}
 	
 	private RecoveryNode buildResult(int[] input, int from, int to) {
@@ -102,7 +103,7 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	}
 	
 	public int hashCode(){
-		return production.hashCode();
+		return until.hashCode();
 	}
 	
 	public boolean isEqual(AbstractStackNode stackNode){
@@ -110,8 +111,6 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		
 		RecoveryStackNode otherNode = (RecoveryStackNode) stackNode;
 		
-		if(!production.equals(otherNode.production)) return false;
-		
-		return true;
+		return otherNode.until.equals(until);
 	}
 }

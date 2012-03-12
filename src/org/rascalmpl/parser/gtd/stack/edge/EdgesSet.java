@@ -86,7 +86,7 @@ public class EdgesSet{
 		}
 	}
 	
-	public int getLastVisistedLevel(int resultStoreId){
+	public int getLastVisitedLevel(int resultStoreId){
 		if(resultStoreId == DEFAULT_RESULT_STORE_ID) return lastVisitedLevel;
 		
 		if(lastVisitedFilteredLevel == null){
