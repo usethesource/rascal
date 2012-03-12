@@ -17,6 +17,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
+import org.rascalmpl.parser.gtd.result.RecoveryNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
@@ -33,6 +34,7 @@ public class NodeToUPTR implements INodeConverter{
 	private final LiteralNodeConverter literalNodeConverter;
 	private final SortContainerNodeConverter sortContainerNodeConverter;
 	private final ListContainerNodeConverter listContainerNodeConverter;
+	private final RecoveryNodeConverter recoveryNodeConverter;
 	
 	public NodeToUPTR(){
 		super();
@@ -40,6 +42,7 @@ public class NodeToUPTR implements INodeConverter{
 		literalNodeConverter = new LiteralNodeConverter();
 		sortContainerNodeConverter = new SortContainerNodeConverter();
 		listContainerNodeConverter = new ListContainerNodeConverter();
+		recoveryNodeConverter = new RecoveryNodeConverter();
 	}
 	
 	/**
@@ -89,6 +92,8 @@ public class NodeToUPTR implements INodeConverter{
 				return sortContainerNodeConverter.convertToUPTR(this, (SortContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case ExpandableContainerNode.ID:
 				return listContainerNodeConverter.convertToUPTR(this, (ExpandableContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+			case RecoveryNode.ID:
+				return recoveryNodeConverter.convertToUPTR((RecoveryNode) node);
 			default:
 				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}

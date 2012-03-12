@@ -674,7 +674,9 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		if (recovering) {
-			return findStacksToRevive();
+			if (findStacksToRevive()) {
+				return findStacksToReduce();
+			}
 		}
 		
 		return false;
@@ -1010,7 +1012,7 @@ public abstract class SGTDBF implements IGTD{
 			AbstractStackNode recoveryNode = recoveryNodes.pop();
 			
 			// TODO: skipping to newline here, instead of programmeable follow set
-			RecoveryStackNode recoverLiteral = new RecoveryStackNode(0, new int[] {'\n'}, input, location);
+			RecoveryStackNode recoverLiteral = new RecoveryStackNode(0, new int[] {'\n',';'}, input, location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(recoveryNode);
@@ -1018,10 +1020,9 @@ public abstract class SGTDBF implements IGTD{
 			
 			recoveryNode.setIncomingEdges(edges);
 			
-			addTodo(recoverLiteral, recoverLiteral.getLength() + 1, recoverLiteral.getResult());
+			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
 		}
 	
-		findFirstStacksToReduce();
 		return true;
 	}
 
