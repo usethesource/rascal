@@ -1024,8 +1024,9 @@ public abstract class SGTDBF implements IGTD{
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(recoveryNode);
-			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
 			
+			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
+
 			recoveryNode.setIncomingEdges(edges);
 			
 			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
@@ -1040,18 +1041,18 @@ public abstract class SGTDBF implements IGTD{
 	 * we have been and what we still need to do.
 	 */
 	private void findRecoveryNodes(AbstractStackNode failer, DoubleStack<AbstractStackNode,Object> recoveryNodes) {
-		DoubleStack<AbstractStackNode,AbstractStackNode[]> todo = new DoubleStack<AbstractStackNode,AbstractStackNode[]>();
+		DoubleStack<AbstractStackNode,Object> todo = new DoubleStack<AbstractStackNode,Object>();
 		ObjectKeyedIntegerMap<AbstractStackNode> visited = new ObjectKeyedIntegerMap<AbstractStackNode>();
 		
 		todo.push(failer, failer.getProduction());
 		
 		OUTER: while (!todo.isEmpty()) {
 			AbstractStackNode node = todo.peekFirst();
-			AbstractStackNode[] prod = todo.popSecond();
+			Object prod = todo.popSecond();
 			visited.put(node, 0);
 			
 			if (node.isRecovering()) {
-				recoveryNodes.push(node, findProduction(prod));
+				recoveryNodes.push(node, prod);
 				continue;
 			}
 			
@@ -1073,13 +1074,8 @@ public abstract class SGTDBF implements IGTD{
 						if (visited.contains(parent)) {
 							continue OUTER;
 						}
-						else if (parent.isRecovering()) {
-							if (!recoveryNodes.containsFirst(parent)) {
-								recoveryNodes.push(parent, findProduction(prod));
-							}
-						}
 						else {
-							todo.push(parent, node.getProduction());
+							todo.push(parent, findProduction(node.getProduction()));
 						}
 					}
 				}
