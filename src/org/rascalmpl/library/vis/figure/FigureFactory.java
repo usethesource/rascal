@@ -254,9 +254,9 @@ public class FigureFactory {
 				
 			//if(properties.getStringProperty(Properties.HINT).contains("leveled"))
 			//	return new LeveledGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-				if(properties.getStr(Properties.HINT).contains("spring"))
+//				if(properties.getStr(Properties.HINT).contains("spring"))
 					return new SpringGraph(env, properties, (IList) c.get(0), (IList)c.get(1));
-			//throw new Error("Graph temporarily out of order");
+//			throw new Error("NO hint!");
 			
 		case SCREEN:
 			return new Screen(makeChild(env,c,properties,childPropsNext),properties );
