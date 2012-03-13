@@ -15,14 +15,12 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveryNode;
-import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /**
- * A converter for literal result nodes.
+ * A converter for result nodes that contain skipped characters for error recovery
  */
 public class RecoveryNodeConverter{
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -44,6 +42,6 @@ public class RecoveryNodeConverter{
 			listWriter.append(VF.constructor(Factory.Tree_Char, VF.integer(content[i].getCharacter())));
 		}
 		
-		return VF.constructor(Factory.Tree_Skipped, listWriter.done());
+		return (IConstructor) Factory.Tree_Appl.make(VF, Factory.Production_Skipped.make(VF), listWriter.done());
 	}
 }

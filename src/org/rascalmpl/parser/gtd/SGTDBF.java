@@ -497,7 +497,7 @@ public abstract class SGTDBF implements IGTD{
 				stacksWithNonTerminalsToReduce.push(edge, resultStore);
 			}
 		
-			edgeSet.setLastVisistedLevel(location, resultStoreId);
+			edgeSet.setLastVisitedLevel(location, resultStoreId);
 			edgeSet.setLastResult(resultStore, resultStoreId);
 		}else{
 			resultStore = edgeSet.getLastResult(resultStoreId);
@@ -536,7 +536,7 @@ public abstract class SGTDBF implements IGTD{
 					}
 					if(resultStore == null){
 						resultStore = (!edge.isExpandable()) ? new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ExpandableContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
-						edgeSet.setLastVisistedLevel(location, resultStoreId);
+						edgeSet.setLastVisitedLevel(location, resultStoreId);
 						edgeSet.setLastResult(resultStore, resultStoreId);
 						
 						stacksWithNonTerminalsToReduce.push(edge, resultStore);
@@ -990,7 +990,12 @@ public abstract class SGTDBF implements IGTD{
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
-		throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
+		if (location == input.length) {
+			throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
+		}
+		else {
+			throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, unexpandableNodes, unmatchableNodes, filteredNodes);
+		}
 	}
 	
 	private boolean reviveFiltered(DoubleStack<AbstractStackNode, AbstractNode> nodes) {
@@ -998,8 +1003,10 @@ public abstract class SGTDBF implements IGTD{
 		return false;
 	}
 
+	private int recoveryId = 5000;
+	
 	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
-		Stack<AbstractStackNode> recoveryNodes = new Stack<AbstractStackNode>();
+		DoubleStack<AbstractStackNode,Object> recoveryNodes = new DoubleStack<AbstractStackNode,Object>();
 		while (!failedNodes.isEmpty()) {
 			findRecoveryNodes(failedNodes.pop(), recoveryNodes);
 		}
@@ -1009,10 +1016,11 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		while (!recoveryNodes.isEmpty()) {
-			AbstractStackNode recoveryNode = recoveryNodes.pop();
+			AbstractStackNode recoveryNode = recoveryNodes.peekFirst();
+			Object prod = recoveryNodes.popSecond();
 			
 			// TODO: skipping to newline here, instead of programmeable follow set
-			RecoveryStackNode recoverLiteral = new RecoveryStackNode(0, new int[] {'\n',';'}, input, location);
+			RecoveryStackNode recoverLiteral = new RecoveryStackNode(recoveryId++, new int[] {'\n',';'}, input, location, prod);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(recoveryNode);
@@ -1031,18 +1039,19 @@ public abstract class SGTDBF implements IGTD{
 	 * The graph may split and merge, and even cycle, so we take care of knowing where
 	 * we have been and what we still need to do.
 	 */
-	private void findRecoveryNodes(AbstractStackNode failer, Stack<AbstractStackNode> recoveryNodes) {
-		Stack<AbstractStackNode> todo = new Stack<AbstractStackNode>();
+	private void findRecoveryNodes(AbstractStackNode failer, DoubleStack<AbstractStackNode,Object> recoveryNodes) {
+		DoubleStack<AbstractStackNode,AbstractStackNode[]> todo = new DoubleStack<AbstractStackNode,AbstractStackNode[]>();
 		ObjectKeyedIntegerMap<AbstractStackNode> visited = new ObjectKeyedIntegerMap<AbstractStackNode>();
 		
-		todo.push(failer);
+		todo.push(failer, failer.getProduction());
 		
 		OUTER: while (!todo.isEmpty()) {
-			AbstractStackNode node = todo.pop();
+			AbstractStackNode node = todo.peekFirst();
+			AbstractStackNode[] prod = todo.popSecond();
 			visited.put(node, 0);
 			
 			if (node.isRecovering()) {
-				recoveryNodes.push(node);
+				recoveryNodes.push(node, findProduction(prod));
 				continue;
 			}
 			
@@ -1065,17 +1074,25 @@ public abstract class SGTDBF implements IGTD{
 							continue OUTER;
 						}
 						else if (parent.isRecovering()) {
-							if (!recoveryNodes.contains(parent)) {
-								recoveryNodes.push(parent);
+							if (!recoveryNodes.containsFirst(parent)) {
+								recoveryNodes.push(parent, findProduction(prod));
 							}
 						}
 						else {
-							todo.push(parent);
+							todo.push(parent, node.getProduction());
 						}
 					}
 				}
 			}
 		}
+	}
+
+	private Object findProduction(AbstractStackNode[] prod) {
+		if (prod.length > 0) {
+			AbstractStackNode last = prod[prod.length - 1];
+			return last.getParentProduction();
+		}
+		return null;
 	}
 
 	private int[] charsToInts(char[] input) {

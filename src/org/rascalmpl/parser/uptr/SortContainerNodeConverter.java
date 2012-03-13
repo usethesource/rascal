@@ -128,12 +128,14 @@ public class SortContainerNodeConverter{
 	 */
 	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		int offset = node.getOffset();
+		// TODO: this is temporary debug code
+		if (offset == -1) {
+			RecoveryNode node2 = (RecoveryNode) node.getFirstAlternative().getNode();
+			offset = node2.getOffset();
+		}
 		int endOffset = node.getEndOffset();
 
 		Object firstProduction = node.getFirstProduction();
-		if (firstProduction == null) {
-			System.err.println("this is weird");
-		}
 		IConstructor rhs = ProductionAdapter.getType((IConstructor) firstProduction);
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		

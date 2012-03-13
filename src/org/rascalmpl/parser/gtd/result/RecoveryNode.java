@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.result;
 
 
+
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
@@ -19,16 +20,13 @@ public class RecoveryNode extends AbstractNode {
 	public final static int ID = 9;
 	
 	private final CharNode[] skippedChars;
-	private final Object production;
 	
 	private final int offset;
 	
-	public RecoveryNode(CharNode[] skippedChars, Object production, int offset){
+	public RecoveryNode(CharNode[] skippedChars, int offset){
 		super();
 		
-		this.production = production;
 		this.skippedChars = skippedChars;
-		
 		this.offset = offset;
 	}
 	
@@ -38,10 +36,6 @@ public class RecoveryNode extends AbstractNode {
 	
 	public CharNode[] getSkippedChars(){
 		return skippedChars;
-	}
-	
-	public Object getProduction(){
-		return production;
 	}
 	
 	/**
