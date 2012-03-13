@@ -260,9 +260,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			List<AbstractFunction> all = new ArrayList<AbstractFunction>(primaryCandidates.size() + defaultCandidates.size());
 			all.addAll(primaryCandidates);
 			all.addAll(defaultCandidates);
-			for (IValue arg : argValues) {
-				System.err.println("arg did not match? " + arg);
-			}
 			throw new ArgumentsMismatchError(name, all, argTypes, ctx.getCurrentAST());
 		}
 		
