@@ -96,6 +96,20 @@ public class DoubleStack<E, F>{
 		return secondData[index];
 	}
 	
+	public boolean containsFirst(E object){
+		for(int i = size - 1; i >= 0; --i){
+			if(firstData[i].equals(object)) return true;
+		}
+		return false;
+	}
+	
+	public boolean containsSecond(F object){
+		for(int i = size - 1; i >= 0; --i){
+			if(secondData[i].equals(object)) return true;
+		}
+		return false;
+	}
+	
 	public int getSize(){
 		return size;
 	}

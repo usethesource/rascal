@@ -19,10 +19,11 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	private final int[] until;
 	private final RecoveryNode result;
 	
-	public RecoveryStackNode(int id, int[] until, int[] input, int location) {
+	public RecoveryStackNode(int id, int[] until, int[] input, int location, Object parentProduction) {
 		super(id, 0);
 		this.until = until;
 		this.result = (RecoveryNode) match(input, location);
+		setParentProduction(parentProduction);
 	}
 	
 	private RecoveryStackNode(RecoveryStackNode original, int startLocation){
@@ -36,11 +37,6 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		this.until = original.until;
 		assert original.result == result;
 		this.result = result;
-	}
-	
-	@Override
-	public boolean isEndNode() {
-		return true;
 	}
 	
 	@Override
@@ -73,7 +69,7 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 			chars[j] = new CharNode(input[i]);
 		}
 		
-		return new RecoveryNode(chars, production, from);
+		return new RecoveryNode(chars, from);
 	}
 
 	public AbstractStackNode getCleanCopy(int startLocation){
@@ -111,6 +107,6 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		
 		RecoveryStackNode otherNode = (RecoveryStackNode) stackNode;
 		
-		return otherNode.until.equals(until);
+		return otherNode.id == id;
 	}
 }

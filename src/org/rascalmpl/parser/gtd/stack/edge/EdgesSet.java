@@ -74,7 +74,7 @@ public class EdgesSet{
 		return edges[index];
 	}
 	
-	public void setLastVisistedLevel(int level, int resultStoreId){
+	public void setLastVisitedLevel(int level, int resultStoreId){
 		if(resultStoreId == DEFAULT_RESULT_STORE_ID){
 			lastVisitedLevel = level;
 		}else{
