@@ -45,8 +45,10 @@ Optionally, a map of options can be given:
 * `"header" : "false"` specifies that no header is present.
 * `"separator" : ","` specifies that `,` is the separator character between fields (default).
 
+The CSV data should conform to the specified type (if any).
 
-The type of the resulting value is _inferred_ in three steps:
+
+If the required type is not specified, it is _inferred_ in three steps:
 
 _Step 1_: The type of each field occurrence is inferred from its contents using the
 following rules:
@@ -64,7 +66,6 @@ _Step 2_: The type of each field is inferred from the type of all of its occurre
 its inferred type will be `str`.
 
 
-_Step 3_: The inferred type should be a subtype of the requested type.
 
 Reading the values in fields is straightforward, except for the case that the text in the field is enclosed between double quotes (`"`):
 * the text may include line breaks which are represented as `\n` in the resulting string value of the field.
@@ -80,11 +81,20 @@ import lang::csv::IO;
 R1 = readCSV(#rel[int position, str artist, str title, int year],  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
 //Now we can, for instance, select one of the fields of `R1`:
 R1.artist;
-//It is also possible to use the most general type `value` as result type:
-R1 = readCSV(#value,  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
+//It is also possible to infer the type:
+R1 = readCSV(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
 </screen>
 
 }
+
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java value readCSV(loc location);
+
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java value readCSV(loc location, map[str,str] options);
+
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
 public java &T readCSV(type[&T] result, loc location);
