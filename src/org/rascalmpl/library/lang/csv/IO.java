@@ -12,14 +12,12 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -103,6 +101,9 @@ public class IO {
 				resultType = inferType(records, ctx);
 				ctx.getStdOut().println("readCSV inferred the relation type: " + resultType);
 				ctx.getStdOut().flush();
+			}
+			else if (header) {
+				records.remove(0);
 			}
 			return buildCollection(resultType, records, ctx);
 		}
@@ -443,15 +444,13 @@ class Record implements Iterable<String> {
 				fieldTypes.add(types.voidType());
 				//System.err.println(" void");
 			} else
-			if(field.matches("[+-]?[0-9]+")){
-				int n = Integer.parseInt(field);
-				rfields.add(values.integer(n));
+			if(field.matches("^[+-]?[0-9]+$")){
+				rfields.add(values.integer(field));
 				fieldTypes.add(types.integerType());
 				//System.err.println(" int");
 			} else
 			if(field.matches("[+-]?[0-9]+\\.[0-9]*")){
-				double d = Double.parseDouble(field);
-				rfields.add(values.real(d));
+				rfields.add(values.real(field));
 				fieldTypes.add(types.realType());
 				//System.err.println(" real");
 			} else
@@ -473,9 +472,14 @@ class Record implements Iterable<String> {
 	 * @return the type of this record.
 	 */
 	Type getType(){
-		Type[] typeArray = new Type[fieldTypes.size()];
-		for (int i = 0; i < fieldTypes.size(); i++) {
-			typeArray[i] = fieldTypes.get(i);
+		Type[] typeArray = new Type[rfields.size()];
+		for (int i = 0; i < rfields.size(); i++) {
+			if (rfields.get(i) == null) {
+				typeArray[i] = types.voidType();
+			}
+			else {
+				typeArray[i] = rfields.get(i).getType();
+			}
 		}
 		return types.tupleType(typeArray);
 	}
