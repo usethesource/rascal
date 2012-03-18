@@ -31,6 +31,11 @@ zzz,yyy,xxx CRLF
 }
 module lang::csv::IO
 
+import lang::csv::syntax::Parse;
+import lang::csv::ast::CSV;
+import lang::csv::ast::Implode;
+
+
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
 
@@ -143,3 +148,8 @@ public java void writeCSV(&T relation, loc location);
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses type parameter.}
 public java void writeCSV(&T relation, loc location, map[str,str] options);
+
+
+public Table loadCSV(loc l) = implodeCSV(parseCSV(l));
+
+public Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));

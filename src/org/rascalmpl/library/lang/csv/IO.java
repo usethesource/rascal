@@ -211,13 +211,16 @@ public class IO {
 	}
 
 	private void checkRecord(Type eltType, Record record, IEvaluatorContext ctx) {
+		// TODO: not all inconsistencies are detected yet
+		// probably because absent values get type void
+		// but are nevertheless initialized eventually
+		// to 0, false, or "".
 		if (record.getType().isSubtypeOf(eltType)) {
 			return;
 		}
 		if (eltType.isTupleType()) {
 			int expectedArity = eltType.getArity();
-			List<Type> fieldTypes = record.getFieldTypes();
-			int actualArity = fieldTypes.size();
+			int actualArity = record.getType().getArity();
 			if (expectedArity == actualArity) {
 				return;
 			}
@@ -441,26 +444,26 @@ class Record implements Iterable<String> {
 			
 			if(field.isEmpty()){
 				rfields.add(null);
-				fieldTypes.add(types.voidType());
+//				fieldTypes.add(types.voidType());
 				//System.err.println(" void");
 			} else
 			if(field.matches("^[+-]?[0-9]+$")){
 				rfields.add(values.integer(field));
-				fieldTypes.add(types.integerType());
+//				fieldTypes.add(types.integerType());
 				//System.err.println(" int");
 			} else
 			if(field.matches("[+-]?[0-9]+\\.[0-9]*")){
 				rfields.add(values.real(field));
-				fieldTypes.add(types.realType());
+//				fieldTypes.add(types.realType());
 				//System.err.println(" real");
 			} else
 			if(field.equals("true") || field.equals("false")){
 				rfields.add(values.bool(field.equals("true")));
-				fieldTypes.add(types.boolType());
+//				fieldTypes.add(types.boolType());
 				//System.err.println(" bool");
 			} else {
 				rfields.add(values.string(field));
-				fieldTypes.add(types.stringType());
+//				fieldTypes.add(types.stringType());
 				//System.err.println(" str");
 			}
 		}
