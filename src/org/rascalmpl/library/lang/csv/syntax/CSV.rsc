@@ -14,16 +14,17 @@ syntax Field
   ;
   
 lexical UQStr
-  = ![\n\r\",]* !>> ![\n\r\",]
+  = ![\n\r\",] ![\n\r,]* !>> ![\n\r,] 
+  | /* empty */
   ;
     
 lexical QStr
-  = [\"] QChar* [\"]
+  = [\"] QChar* [\"] !>> ![,\n\r]
   ;
   
 lexical QChar
   = ![\"\n\r]
-  | QStr
+  | [\"][\"]
   ;
   
 lexical EOL
