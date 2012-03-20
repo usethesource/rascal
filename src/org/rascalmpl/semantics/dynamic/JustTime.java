@@ -44,7 +44,7 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 				timePart.replaceAll(":","");
 
 				StandardTextReader parser = new StandardTextReader();
-				IValue result = parser.read(VF, new StringReader("T" + timePart));
+				IValue result = parser.read(VF, new StringReader("$T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
 				throw new ImplementationError(e.getMessage());

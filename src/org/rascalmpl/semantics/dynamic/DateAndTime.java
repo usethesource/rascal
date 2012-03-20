@@ -55,7 +55,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 				timePart.replaceAll(":","");
 
 				StandardTextReader parser = new StandardTextReader();
-				IValue result = parser.read(VF, new StringReader(datePart + "T" + timePart));
+				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
 				throw new ImplementationError(e.getMessage());
