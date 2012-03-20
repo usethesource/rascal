@@ -55,71 +55,54 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>1
 int: 1
-</pre> <pre class="screen"><span class="prompt">rascal></span>throw "Hello Error";
-exception:"Hello Error"
-stacktrace:|stdin:///|(6,13,&lt;1,6>,&lt;1,19>)
-	somewhere in: ___SCREEN_INSTANCE___53
+</pre> //<screen errors>
+ //throw "Hello Error";
+ //</screen>
+  //<screen>
+ //throw "Bye error";
+ //</screen>
+  //<screen>
+ //// a function
+ //int f(int i) {
+ //  return i * i;
+ //}
+ //f(2);
+ //
+ //
+ //7 + 90
+ //1
+ //2
+ //3
+ //</screen>
+  //<screen>
+ //1 + 1
+ //// dat was 1 + 1
+ //2 + 1
+ //// dat was 2 + 1
+ //3
+ //// gooi
+ //throw 1;
+ //// multi-line?
+ //[1,
+ //1]
+ //// triple line?
+ //[1,
+ //2,
+ //3
+ //]
+ //[1,
+ //
+ //</screen>
+ <br/>
+<br/>
 
-</pre> <pre class="screen"><span class="prompt">rascal></span>throw "Bye error";
-exception:"Bye error"
-stacktrace:|stdin:///|(6,11,&lt;1,6>,&lt;1,17>)
-	somewhere in: ___SCREEN_INSTANCE___54
+ some void functions:
+ //<screen>
+ //import IO;
+ //void f() { println("Hello void"); }
+ //f();
+ //</screen>
 
-</pre>   a function
-<pre class="screen"><span class="prompt">rascal></span>int f(int i) {
-<span class="continuation">>>>>>>></span>  return i * i;
-<span class="continuation">>>>>>>></span>}
-int (int): int f(int);
-<span class="prompt">rascal></span>f(2);
-int: 4
-<span class="prompt">rascal></span>
-cancelled
-<span class="prompt">rascal></span>
-cancelled
-<span class="prompt">rascal></span>7 + 90
-int: 97
-<span class="prompt">rascal></span>1
-int: 1
-<span class="prompt">rascal></span>2
-int: 2
-<span class="prompt">rascal></span>3
-int: 3
-</pre> <pre class="screen"><span class="prompt">rascal></span>1 + 1
-int: 2
-</pre>  dat was 1 + 1
-<pre class="screen"><span class="prompt">rascal></span>2 + 1
-int: 3
-</pre>  dat was 2 + 1
-<pre class="screen"><span class="prompt">rascal></span>3
-int: 3
-</pre>  gooi
-<pre class="screen"><span class="prompt">rascal></span>throw 1;
-exception:1
-stacktrace:|stdin:///|(0,8,&lt;1,0>,&lt;1,8>)
-	somewhere in: ___SCREEN_INSTANCE___56
-
-</pre>  multi-line?
-<pre class="screen"><span class="prompt">rascal></span>[1,
-<span class="continuation">>>>>>>></span>1]
-list[int]: [1,1]
-</pre>  triple line?
-<pre class="screen"><span class="prompt">rascal></span>[1,
-<span class="continuation">>>>>>>></span>2,
-<span class="continuation">>>>>>>></span>3
-<span class="continuation">>>>>>>></span>]
-list[int]: [1,2,3]
-<span class="prompt">rascal></span>[1,
-
-cancelled
-</pre> some void functions:
- <pre class="screen"><span class="prompt">rascal></span>import IO;
-ok
-<span class="prompt">rascal></span>void f() { println("Hello void"); }
-void (): void f();
-<span class="prompt">rascal></span>f();
-Hello void
-ok
-</pre>
 </div>
 
   	                       
@@ -128,7 +111,7 @@ ok
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Test/ScreenTest&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Test/ScreenTest&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Test"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Test/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Courses/Test/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

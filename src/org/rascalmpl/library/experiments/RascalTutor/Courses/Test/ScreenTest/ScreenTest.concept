@@ -20,54 +20,54 @@ Examples:
 1
 </screen>
 
-<screen errors>
-throw "Hello Error";
-</screen>
+//<screen errors>
+//throw "Hello Error";
+//</screen>
 
-<screen>
-throw "Bye error";
-</screen>
+//<screen>
+//throw "Bye error";
+//</screen>
 
-<screen>
-// a function
-int f(int i) {
-  return i * i;
-}
-f(2);
+//<screen>
+//// a function
+//int f(int i) {
+//  return i * i;
+//}
+//f(2);
+//
+//
+//7 + 90
+//1
+//2
+//3
+//</screen>
 
-
-7 + 90
-1
-2
-3
-</screen>
-
-<screen>
-1 + 1
-// dat was 1 + 1
-2 + 1
-// dat was 2 + 1
-3
-// gooi
-throw 1;
-// multi-line?
-[1,
-1]
-// triple line?
-[1,
-2,
-3
-]
-[1,
-
-</screen>
+//<screen>
+//1 + 1
+//// dat was 1 + 1
+//2 + 1
+//// dat was 2 + 1
+//3
+//// gooi
+//throw 1;
+//// multi-line?
+//[1,
+//1]
+//// triple line?
+//[1,
+//2,
+//3
+//]
+//[1,
+//
+//</screen>
 
 some void functions:
-<screen>
-import IO;
-void f() { println("Hello void"); }
-f();
-</screen>
+//<screen>
+//import IO;
+//void f() { println("Hello void"); }
+//f();
+//</screen>
 Benefits:
 
 Pitfalls:
