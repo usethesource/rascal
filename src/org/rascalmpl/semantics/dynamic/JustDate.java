@@ -44,7 +44,7 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 				datePart.replaceAll("-", "");
 
 				StandardTextReader parser = new StandardTextReader();
-				IValue result = parser.read(VF, new StringReader(datePart));
+				IValue result = parser.read(VF, new StringReader("$" + datePart));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
 				throw new ImplementationError(e.getMessage());
