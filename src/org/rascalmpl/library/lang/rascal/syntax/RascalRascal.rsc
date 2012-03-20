@@ -49,7 +49,8 @@ syntax ModuleParameters
 	= Default: "[" {TypeVar ","}+ parameters "]" ;
 
 lexical DateAndTime
-	= "$" DatePart "T" TimePartNoTZ TimeZonePart? ;
+	= "$" DatePart "T" TimePartNoTZ !>> [+\-]
+    | "$" DatePart "T" TimePartNoTZ TimeZonePart ;
 
 syntax Strategy
 	= TopDownBreak: "top-down-break" 
@@ -378,7 +379,9 @@ lexical StringCharacter
 	;
 
 lexical JustTime
-	= "$T" TimePartNoTZ TimeZonePart? ;
+	= "$T" TimePartNoTZ !>> [+\-] 
+	| "$T" TimePartNoTZ TimeZonePart
+	;
 
 lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
