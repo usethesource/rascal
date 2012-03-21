@@ -97,6 +97,9 @@ bool similar(str a, str b) = nLegs(a) == nLegs(b);
 group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
 </screen>
 
+
+
+
 Questions:
 
 QValue:
@@ -420,9 +423,41 @@ test: size(text) == <N>;
 public java int size(set[&T] st);
 
 @doc{
-Synopsis: Pick an arbitrary element from a set, returns the element and the set without the selected element.
+Synopsis: Sum the elements of a set.
 
-Description: Also see [$Set/getOneFrom].
+Examples:
+<screen>
+import Set;
+sum({3, 1, 4, 5});
+sum({3, 1.5, 4, 5});
+</screen>
+
+Questions:
+
+QType:
+prep: import Set;
+make: S = set[num,2,7]
+test: sum(<S>)
+
+QValue:
+prep: import Set;
+make: S = set[int,2,7]
+expr: H = sum(<S>)
+hint: <H>
+test: sum(<S>)
+
+}
+
+public num sum(set[num] s) {
+  <f ,r> = takeOneFrom(s);
+  return (f | it + e | e <- s);
+}
+
+
+@doc{
+Synopsis: Pick an arbitrary element from a set.
+
+Description: Also see [$Set/takeOneFrom].
 
 Examples:
 
@@ -439,13 +474,17 @@ Questions:
 QType:
 prep: import Set;
 make: S = set[arb[int,str], 1, 6]
-test: takeOneFrom(<S>)
+test: getOneFrom(<S>)
 }
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T getOneFrom(set[&T] st) throws EmptySet;
+
 @doc{
 Synopsis:  Remove an arbitrary element from a set, returns the element and a set without that element.
 
 Description:
 Remove an arbitrary element from set `s` and return a tuple consisting of the element and a set without that element.
+ Also see [$Set/getOneFrom].
 
 Examples:
 <screen>
