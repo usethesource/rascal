@@ -15,33 +15,49 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class NonTerminalStackNode extends AbstractStackNode{
-	private final String expectIdentifier;
-	
-	public NonTerminalStackNode(int id, int dot, String expectIdentifier){
-		super(id, dot);
-		
-		this.expectIdentifier = expectIdentifier;
+public class ContinueStackNode extends AbstractStackNode{
+	private final String name;
+	private final Object parent;
+
+	public ContinueStackNode(int id, Object parent, AbstractStackNode robustNode){
+		super(id, robustNode, robustNode.startLocation);
+		this.prefixesMap = robustNode.prefixesMap;
+		this.alternateProductions = robustNode.alternateProductions;
+		// TODO: could modify production here to include recovery literal
+		this.production = robustNode.production;
+		this.parent = parent;
+		this.name = robustNode.getName();
+		this.edgesMap = robustNode.edgesMap;
 	}
 	
-	public NonTerminalStackNode(int id, int dot, String expectIdentifier, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
-		super(id, dot, enterFilters, completionFilters);
-		
-		this.expectIdentifier = expectIdentifier;
+	@Override
+	public Object getParentProduction() {
+		return parent;
 	}
 	
-	private NonTerminalStackNode(NonTerminalStackNode original, int startLocation){
-		super(original, startLocation);
-		
-		expectIdentifier = original.expectIdentifier;
-	}
-	
+	@Override
 	public boolean isEmptyLeafNode(){
 		return false;
 	}
 	
+	@Override
+	public boolean isEndNode() {
+		return true;
+	}
+	
+	@Override
+	public ICompletionFilter[] getCompletionFilters() {
+		return new ICompletionFilter[] {};
+	};
+	
+	@Override
+	public IEnterFilter[] getEnterFilters() {
+		return new IEnterFilter[] {};
+	};
+
+	@Override
 	public String getName(){
-		return expectIdentifier;
+		return "***robust:" + name + "***";
 	}
 	
 	public AbstractNode match(int[] input, int location){
@@ -49,7 +65,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	}
 	
 	public AbstractStackNode getCleanCopy(int startLocation){
-		return new NonTerminalStackNode(this, startLocation);
+		throw new UnsupportedOperationException();
 	}
 	
 	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
@@ -78,7 +94,8 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(expectIdentifier);
+		sb.append(getName());
+		sb.append(':');
 		sb.append(getId());
 		sb.append('(');
 		sb.append(startLocation);
@@ -88,16 +105,14 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 	}
 	
 	public int hashCode(){
-		return expectIdentifier.hashCode();
+		return getName().hashCode();
 	}
 	
 	public boolean isEqual(AbstractStackNode stackNode){
-		if(!(stackNode instanceof NonTerminalStackNode)) return false;
+		if(!(stackNode instanceof ContinueStackNode)) return false;
 		
-		NonTerminalStackNode otherNode = (NonTerminalStackNode) stackNode;
+		ContinueStackNode otherNode = (ContinueStackNode) stackNode;
 
-		if(!expectIdentifier.equals(otherNode.expectIdentifier)) return false;
-		
-		return hasEqualFilters(stackNode);
+		return otherNode.name.equals(name) && otherNode.startLocation == startLocation;
 	}
 }

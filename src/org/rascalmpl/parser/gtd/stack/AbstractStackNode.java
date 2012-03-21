@@ -75,9 +75,13 @@ public abstract class AbstractStackNode{
 	}
 	
 	protected AbstractStackNode(AbstractStackNode original, int startLocation){
+		this(original.id, original, startLocation);
+	}
+	
+	protected AbstractStackNode(int id, AbstractStackNode original, int startLocation){
 		super();
 		
-		id = original.id;
+		this.id = id;
 		dot = original.dot;
 		
 		production = original.production;
@@ -148,14 +152,6 @@ public abstract class AbstractStackNode{
 	 */
 	public boolean isLayout(){
 		return isLayout;
-	}
-	
-	/**
-	 * Checker whether this node will be replaced by an error terminal when while
-	 * it is predicted the parser fails completely.
-	 */
-	public boolean isRecovering() {
-		return isRecovering;
 	}
 	
 	/**
