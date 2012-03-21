@@ -13,26 +13,26 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.RecoveryNode;
+import org.rascalmpl.parser.gtd.result.SkippedNode;
 
-public final class RecoveryStackNode extends AbstractMatchableStackNode{
+public final class SkippingStackNode extends AbstractMatchableStackNode{
 	private final int[] until;
-	private final RecoveryNode result;
+	private final SkippedNode result;
 	
-	public RecoveryStackNode(int id, int dot, int[] until, int[] input, int location, Object parentProduction) {
+	public SkippingStackNode(int id, int dot, int[] until, int[] input, int location, Object parentProduction) {
 		super(id, dot);
 		this.until = until;
-		this.result = (RecoveryNode) match(input, location);
+		this.result = (SkippedNode) match(input, location);
 		setParentProduction(parentProduction);
 	}
 	
-	private RecoveryStackNode(RecoveryStackNode original, int startLocation){
+	private SkippingStackNode(SkippingStackNode original, int startLocation){
 		super(original, startLocation);
 		this.until = original.until;
 		this.result = original.result;
 	}
 	
-	private RecoveryStackNode(RecoveryStackNode original, RecoveryNode result, int startLocation){
+	private SkippingStackNode(SkippingStackNode original, SkippedNode result, int startLocation){
 		super(original, startLocation);
 		this.until = original.until;
 		assert original.result == result;
@@ -63,21 +63,21 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 		return buildResult(input, from, input.length - 1);
 	}
 	
-	private RecoveryNode buildResult(int[] input, int from, int to) {
+	private SkippedNode buildResult(int[] input, int from, int to) {
 		CharNode[] chars = new CharNode[to - from + 1];
 		for (int i = from, j = 0; i <= to; i++, j++) {
 			chars[j] = new CharNode(input[i]);
 		}
 		
-		return new RecoveryNode(chars, from);
+		return new SkippedNode(chars, from);
 	}
 
 	public AbstractStackNode getCleanCopy(int startLocation){
-		return new RecoveryStackNode(this, startLocation);
+		return new SkippingStackNode(this, startLocation);
 	}
 	
 	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new RecoveryStackNode(this, (RecoveryNode) result, startLocation);
+		return new SkippingStackNode(this, (SkippedNode) result, startLocation);
 	}
 	
 	public int getLength(){
@@ -103,9 +103,9 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	}
 	
 	public boolean isEqual(AbstractStackNode stackNode){
-		if(!(stackNode instanceof RecoveryStackNode)) return false;
+		if(!(stackNode instanceof SkippingStackNode)) return false;
 		
-		RecoveryStackNode otherNode = (RecoveryStackNode) stackNode;
+		SkippingStackNode otherNode = (SkippingStackNode) stackNode;
 		
 		return otherNode.id == id;
 	}

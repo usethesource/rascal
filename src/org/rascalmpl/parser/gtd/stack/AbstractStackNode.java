@@ -122,6 +122,10 @@ public abstract class AbstractStackNode{
 		return isEndNode;
 	}
 	
+	public boolean isRecovered() {
+		return false;
+	}
+	
 	/**
 	 * Mark this node as being a separator.
 	 */
