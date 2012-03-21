@@ -19,8 +19,8 @@ public final class RecoveryStackNode extends AbstractMatchableStackNode{
 	private final int[] until;
 	private final RecoveryNode result;
 	
-	public RecoveryStackNode(int id, int[] until, int[] input, int location, Object parentProduction) {
-		super(id, 0);
+	public RecoveryStackNode(int id, int dot, int[] until, int[] input, int location, Object parentProduction) {
+		super(id, dot);
 		this.until = until;
 		this.result = (RecoveryNode) match(input, location);
 		setParentProduction(parentProduction);
