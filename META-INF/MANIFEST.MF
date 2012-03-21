@@ -5,20 +5,7 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.4.19.qualifier
 Bundle-ClassPath: rascal.jar,
- lib/jline-0.9.94.jar,
- lib/junit-4.5.jar,
- lib/joda-time-1.6.jar,
- lib/xercesImpl.jar,
- src,
- lib/jetty-continuation-7.1.5.v20100705.jar,
- lib/jetty-http-7.1.5.v20100705.jar,
- lib/jetty-io-7.1.5.v20100705.jar,
- lib/jetty-security-7.1.5.v20100705.jar,
- lib/jetty-server-7.1.5.v20100705.jar,
- lib/jetty-servlet-7.1.5.v20100705.jar,
- lib/jetty-util-7.1.5.v20100705.jar,
- lib/jetty-webapp-7.1.5.v20100705.jar,
- lib/jetty-xml-7.1.5.v20100705.jar
+ src
 Export-Package: 
  org.rascalmpl.ast,
  org.rascalmpl.checker,
