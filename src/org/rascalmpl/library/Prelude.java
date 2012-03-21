@@ -932,10 +932,10 @@ public class Prelude {
 			
 			int i = 0;
 //			int offset = sloc.getOffset();
-			int beginLine = sloc.getBeginLine();
-			int beginColumn = sloc.getBeginColumn();
-			int endLine = sloc.getEndLine();
-			int endColumn = sloc.getEndColumn();
+			int beginLine = sloc.hasLineColumn() ? sloc.getBeginLine() : -1;
+			int beginColumn = sloc.hasLineColumn() ? sloc.getBeginColumn() : -1;
+			int endLine = sloc.hasLineColumn() ? sloc.getEndLine() : -1;
+			int endColumn = sloc.hasLineColumn() ? sloc.getEndColumn() : -1;
 
 			do{
 				line = in.readLine();
