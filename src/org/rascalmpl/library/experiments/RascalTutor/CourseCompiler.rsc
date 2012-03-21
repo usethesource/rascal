@@ -22,6 +22,7 @@ import Graph;
 import IO;
 import ValueIO;
 import DateTime;
+import Exception;
 import experiments::RascalTutor::HTMLUtils;
 import experiments::RascalTutor::HTMLGenerator;
 import experiments::RascalTutor::ValueGenerator;
@@ -279,17 +280,17 @@ public Concept compileConcept(ConceptName conceptName){
 	   warnings         = getAndClearWarnings() + local_warnings;
 	      
 	   C =  concept(conceptName, warnings, optDetails, searchTs, questions);
-	   //println("<conceptName>: creating concept done: <C>");
+	   println("<conceptName>: creating concept done: <C>");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
-	   //println("<conceptName>: generating HTML done.");
+	   println("<conceptName>: generating HTML done.");
 	   return C;
 
 	} catch NoSuchKey(e):
 	    throw ConceptError(conceptName, "Missing section \"<e>\"");
 	  catch IOError(e):
 	    throw ConceptError(conceptName, "<e>");
-	 // catch e: 
-	 //   throw ConceptError(conceptName, "Uncaught exception <e>");
+	  catch value e: 
+	    throw ConceptError(conceptName, "Uncaught exception <e>");
 }
 
 public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
@@ -850,11 +851,14 @@ public str showQuestion(ConceptName cpid, Question q){
 	  }
 	  //println("env = <env>");
 
-	  for(<name, exp> <- auxVars){
+	  for(<str name, str exp> <- auxVars){
          exp1 = subst(exp, env);
          println("exp1 = <exp1>");
          try {
-           env[name] = <parseType("<evalType(setup + (exp1 + ";"))>"), "<eval(setup + (exp1 + ";")).val>">;
+           tp = parseType("<evalType(setup + (exp1 + ";"))>");
+           r = eval(setup + (exp1 + ";")).val;
+           env[name] = <tp, "<r>">;
+           println("env[<name>] = <env[name]>");
          }
          catch ParseError(loc l):
 	           throw "Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
@@ -910,7 +914,6 @@ public str showQuestion(ConceptName cpid, Question q){
   sep = "_";
   ecpid = escapeConcept(cpid);
   answerForm = answerFormBegin(ecpid, qid, "answerForm") + qform  + (!isExam ? answerFormEnd("Give answer", "answerSubmit") : "");
-  
 
   return div("<ecpid><sep><qid>", "question",
                   b(basename("Question [" + qid + "]. ")) + 

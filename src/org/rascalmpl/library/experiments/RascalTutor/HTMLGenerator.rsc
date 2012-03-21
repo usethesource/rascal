@@ -144,8 +144,8 @@ private tuple[str, int] markup(list[str] lines, int i, int n){
       try {
       	codeLines = readFileLines(L);
       	return < markupListing(stripLicense(codeLines)), skipOneNL(lines, i+1, n) >;
-      } catch: {
-            msg = "File <name> not found.";
+      } catch value x: {
+            msg = "<x>: L = <L>, File <name>.";
             addWarning(msg);
       		return <"\<warning\><msg>\</warning\>", i + 1>;
       }
@@ -377,6 +377,7 @@ private str markupCode(str text){
   };
 }
 
+/*
 private str lookForErrors(list[str] lines){
    errors = "";
    for(line <- lines)
@@ -386,6 +387,7 @@ private str lookForErrors(list[str] lines){
       addWarning(errors);
    return errors;
 }
+*/
 
 private str markupFigure(list[str] lines, int width, int height, str file){
   n = size(lines);
@@ -421,16 +423,18 @@ private str markupFigure(list[str] lines, int width, int height, str file){
   return errors + markupListing(lines);
 }
 
+/*
 private str markupRascalPrompt(list[str] lines){
   return  "<for(str line <- lines){><visit(line){ case /^rascal\>/ => b("rascal\>") }>\n<}>";
 }
+*/
 
 // Do screen markup
 
 private str printShellInput(str input) = printShellInput(split("\n",input));
   
 private str printShellInput(list[str] input) = { println("input was: <input>");
-  "\<span class=\"prompt\"\>rascal\>\</span\><head(input)>
+  "\<span class=\"prompt\"\>rascal\>\</span\><escapeForHtml(head(input))>
   '<for (cont <- tail(input)) {>\<span class=\"continuation\"\>\>\>\>\>\>\>\>\</span\><markupCode(cont)>
   '<}>"; };
 
@@ -482,10 +486,10 @@ private str markupScreen(list[str] lines, bool generatesError){
      
      // deal with normal command
      try {
-       result = shell(first, 100000);
-       println("result: <result>");
+       res = shell(first, 100000);
+       //println("result: <res>");
        codeLines += printShellInput(first); 
-       codeLines += markupCode(result);
+       codeLines += markupCode(res);
      }
      catch parseError(str msg, loc x) : {
      println("error: <msg>, <x>");
@@ -515,7 +519,7 @@ private str markupScreen(list[str] lines, bool generatesError){
         addWarning("screen command failed: \"<first>\", with exception: <x>");
      }
    } 
-   catch value x: throw x; // only because we have not try without finally
+   catch value x: throw x; // only because we have not a try without finally
    finally {
      endShell();
    }
