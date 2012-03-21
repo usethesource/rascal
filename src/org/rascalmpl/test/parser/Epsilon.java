@@ -57,6 +57,7 @@ public class Epsilon extends SGTDBF implements IParserTest{
 		return (IConstructor) parse(NONTERMINAL_START_S, null, new int[]{}, new NodeToUPTR());
 	}
 	
+	
 	public IValue getExpectedResult() throws IOException{
 		String expectedInput = "appl(prod(sort(\"S\"),[empty()],{}),[])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
