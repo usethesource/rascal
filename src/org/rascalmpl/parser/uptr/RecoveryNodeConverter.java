@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.RecoveryNode;
+import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -32,7 +32,7 @@ public class RecoveryNodeConverter{
 	/**
 	 * Converts the given literal result node to the UPTR format.
 	 */
-	public IConstructor convertToUPTR(RecoveryNode node){
+	public IConstructor convertToUPTR(SkippedNode node){
 		CharNode[] content = node.getSkippedChars();
 		
 		int numberOfCharacters = content.length;

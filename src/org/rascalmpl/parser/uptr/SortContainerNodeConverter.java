@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.RecoveryNode;
+import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
@@ -96,7 +96,7 @@ public class SortContainerNodeConverter{
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
 			
-			if (node instanceof RecoveryNode) {
+			if (node instanceof SkippedNode) {
 				System.err.println("hallo, hier is een recovery node");
 			}
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
@@ -128,11 +128,6 @@ public class SortContainerNodeConverter{
 	 */
 	public IConstructor convertToUPTR(NodeToUPTR converter, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor actionExecutor, Object environment){
 		int offset = node.getOffset();
-		// TODO: this is temporary debug code
-		if (offset == -1) {
-			RecoveryNode node2 = (RecoveryNode) node.getFirstAlternative().getNode();
-			offset = node2.getOffset();
-		}
 		int endOffset = node.getEndOffset();
 
 		Object firstProduction = node.getFirstProduction();

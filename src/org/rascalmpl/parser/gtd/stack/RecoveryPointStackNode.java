@@ -15,11 +15,11 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class ContinueStackNode extends AbstractStackNode{
+public class RecoveryPointStackNode extends AbstractStackNode{
 	private final String name;
 	private final Object parent;
 
-	public ContinueStackNode(int id, Object parent, AbstractStackNode robustNode){
+	public RecoveryPointStackNode(int id, Object parent, AbstractStackNode robustNode){
 		super(id, robustNode, robustNode.startLocation);
 		this.prefixesMap = robustNode.prefixesMap;
 		this.alternateProductions = robustNode.alternateProductions;
@@ -33,6 +33,11 @@ public class ContinueStackNode extends AbstractStackNode{
 	@Override
 	public Object getParentProduction() {
 		return parent;
+	}
+	
+	@Override
+	public boolean isRecovered() {
+		return true;
 	}
 	
 	@Override
@@ -109,9 +114,9 @@ public class ContinueStackNode extends AbstractStackNode{
 	}
 	
 	public boolean isEqual(AbstractStackNode stackNode){
-		if(!(stackNode instanceof ContinueStackNode)) return false;
+		if(!(stackNode instanceof RecoveryPointStackNode)) return false;
 		
-		ContinueStackNode otherNode = (ContinueStackNode) stackNode;
+		RecoveryPointStackNode otherNode = (RecoveryPointStackNode) stackNode;
 
 		return otherNode.name.equals(name) && otherNode.startLocation == startLocation;
 	}

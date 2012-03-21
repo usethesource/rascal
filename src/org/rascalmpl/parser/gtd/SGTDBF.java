@@ -20,6 +20,7 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
+import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
@@ -29,10 +30,10 @@ import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.ContinueStackNode;
+import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.gtd.stack.RecoveryStackNode;
+import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -489,9 +490,15 @@ public abstract class SGTDBF implements IGTD{
 		if(edgeSet.getLastVisitedLevel(resultStoreId) != location){
 			AbstractStackNode edge = edgeSet.get(0);
 			
-			resultStore = (!edge.isExpandable()) ? 
-					new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) 
-			: new ExpandableContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+			if (recovering && edge.isRecovered()) {
+				resultStore = new RecoveredNode(inputURI, startLocation, location);
+			}
+			else if (edge.isExpandable()) {
+				resultStore = new ExpandableContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+			}
+			else {
+				resultStore = new SortContainerNode(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+			}
 			
 			stacksWithNonTerminalsToReduce.push(edge, resultStore);
 			
@@ -1026,11 +1033,11 @@ public abstract class SGTDBF implements IGTD{
 		while (!recoveryNodes.isEmpty()) {
 			AbstractStackNode recoveryNode = recoveryNodes.pop();
 			Object prod = recoveryProds.pop();
-			ContinueStackNode continuer = new ContinueStackNode(recoveryId++, prod, recoveryNode);
+			RecoveryPointStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode);
 			int dot = recoveryDots.pop();
 			
 			// TODO: skipping to newline here, instead of programmeable follow set
-			RecoveryStackNode recoverLiteral = (RecoveryStackNode) new RecoveryStackNode(recoveryId++, dot, new int[] {'\n',';'}, input, location, prod).getCleanCopy(location);
+			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot, new int[] {'\n',';'}, input, location, prod).getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(continuer);
