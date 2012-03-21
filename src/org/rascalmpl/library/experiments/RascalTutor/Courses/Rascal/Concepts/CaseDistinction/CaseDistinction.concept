@@ -25,9 +25,10 @@ Examples:
 We use the [Recipes:ColoredTrees] datatype as example and use a switch to
 distinguish between red and black nodes:
 <screen>
-data ColoredTree = leaf(int N)      
-                 | red(ColoredTree left, ColoredTree right) 
-                 | black(ColoredTree left, ColoredTree right);
+data ColoredTree = 
+      leaf(int N) 
+    | red(ColoredTree left, ColoredTree right) 
+    | black(ColoredTree left, ColoredTree right);
 ColoredTree CT 
        = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 import IO;

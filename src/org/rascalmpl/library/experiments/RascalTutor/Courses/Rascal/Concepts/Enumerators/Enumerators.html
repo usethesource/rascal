@@ -83,10 +83,10 @@ int x &lt;- [ 1 .. 10 ]
 <br/>
 
  Let's practice some of these examples.
-  <pre class="screen"><span class="prompt">rascal></span>int x <- {};
+  <pre class="screen"><span class="prompt">rascal></span>int x &lt;- {};
 bool: false
 </pre> The enumerator does not produce any value and returns <code>false</code>.
-  <pre class="screen"><span class="prompt">rascal></span>int x <- {1, 3, 5, 7, 11 };
+  <pre class="screen"><span class="prompt">rascal></span>int x &lt;- {1, 3, 5, 7, 11 };
 bool: true
 <span class="prompt">rascal></span>x;
 |stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable, function or constructor: x
@@ -97,7 +97,7 @@ bool: true
 <br/>
 
  Another example that results in an error:
- <pre class="screen"><span class="prompt">rascal></span>str x <- {1, 3, 5, 7, 11 };
+ <pre class="screen"><span class="prompt">rascal></span>str x &lt;- {1, 3, 5, 7, 11 };
 |stdin:///|(0,27,&lt;1,0>,&lt;1,27>): Expected int, but got str
 
 </pre> Here, the enumerator produces its first integer value, an attempt is made to assign this to variable <code>x</code> that is declared as string,
@@ -106,14 +106,14 @@ bool: true
 <br/>
 
  A more satisfying use is as follows:
- <pre class="screen"><span class="prompt">rascal></span>{ x * x | int x <- {1, 3, 5, 7, 11 }};
+ <pre class="screen"><span class="prompt">rascal></span>{ x * x | int x &lt;- {1, 3, 5, 7, 11 }};
 set[int]: {9,25,121,1,49}
 </pre> When used inside <a href="/Courses/Rascal/Expressions/Comprehensions/Comprehensions.html">Comprehensions</a>, or <a href="/Courses/Rascal/Statements/For/For.html">For</a>, <a href="/Courses/Rascal/Statements/Do/Do.html">Do</a>, or <a href="/Courses/Rascal/Statements/While/While.html">While</a> statement, all values of the generator will be produced and used.
  The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
  Here is a similar example:
  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>for(int x <- {1, 3, 5, 7, 11 })
+<span class="prompt">rascal></span>for(int x &lt;- {1, 3, 5, 7, 11 })
 <span class="continuation">>>>>>>></span>    println("x = &lt;x>");
 x = 11
 x = 7

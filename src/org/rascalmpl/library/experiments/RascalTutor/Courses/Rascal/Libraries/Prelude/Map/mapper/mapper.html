@@ -72,11 +72,11 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Map;
 ok
-<span class="prompt">rascal></span>str prefix(str s) { return "X" + s; }
+<span class="prompt">rascal></span>str prefix(str s) { return &quot;X&quot; + s; }
 str (str): str prefix(str);
 <span class="prompt">rascal></span>int incr(int x) { return x + 1; }
 int (int): int incr(int);
-<span class="prompt">rascal></span>mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
+<span class="prompt">rascal></span>mapper((&quot;apple&quot;: 1, &quot;pear&quot;: 2, &quot;orange&quot;: 3), prefix, incr);
 map[str, int]: ("Xpear":3,"Xorange":4,"Xapple":2)
 </pre>
 </div>

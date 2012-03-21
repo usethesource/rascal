@@ -78,6 +78,7 @@ data Symbol                            // Composite types.
      | \cons(Symbol \adt, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters)
+     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;
 data Symbol

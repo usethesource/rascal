@@ -184,12 +184,14 @@ set[Constraint]: {
     leq(),
     7)
 }
-<span class="prompt">rascal></span>cost = linearExp(("europe" : 180000, "asia" : 160000));
+<span class="prompt">rascal></span>cost = linearExp((&quot;europe&quot; : 180000, &quot;asia&quot; : 160000));
 ObjectiveFun: linearExp(
   ("asia":160000,"europe":180000),
   0)
 <span class="prompt">rascal></span>minimizeNonNegative(constraints,cost);
-null
+Maybe[Solution]: just(solution(
+    ("asia":2.857142857142857,"europe":1.7142857142857142),
+    765714.2857142857))
 </pre>
 </div>
 

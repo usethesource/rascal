@@ -66,9 +66,9 @@
  Then, register the outliner:
  <pre class="screen"><span class="prompt">rascal></span>import util::IDE;
 ok
-<span class="prompt">rascal></span>syntax Program = "main";
+<span class="prompt">rascal></span>syntax Program = &quot;main&quot;;
 ok
-<span class="prompt">rascal></span>registerOutliner("myLanguage", node (Program t) { 
+<span class="prompt">rascal></span>registerOutliner(&quot;myLanguage&quot;, node (Program t) { 
 <span class="continuation">>>>>>>></span>  n = "myNode"();
 <span class="continuation">>>>>>>></span>  n@\loc = t@\loc;
 <span class="continuation">>>>>>>></span>  n@label = "My node label";

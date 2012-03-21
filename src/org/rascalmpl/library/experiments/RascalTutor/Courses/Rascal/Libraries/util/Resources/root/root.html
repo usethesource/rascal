@@ -64,161 +64,174 @@ ok
 <span class="prompt">rascal></span>root();
 Resource: root({
     project(
-      |project://myRascal|,
+      |project://Pacioli|,
       {
+        file(|project://Pacioli/.project|),
         folder(
-          |project://myRascal/std|,
+          |project://Pacioli/eclipse|,
           {
-            file(|project://myRascal/std/Map.rsc|),
-            file(|project://myRascal/std/IO.rsc|),
-            file(|project://myRascal/std/ValueIO.rsc|),
-            file(|project://myRascal/std/Node.rsc|),
-            file(|project://myRascal/std/SourceHierarchy.rsc|),
-            file(|project://myRascal/std/Time.rsc|),
-            file(|project://myRascal/std/Number.rsc|),
-            file(|project://myRascal/std/FileSystem.rsc|),
-            file(|project://myRascal/std/TopologicalStrategy.rsc|),
-            file(|project://myRascal/std/Set.rsc|),
             folder(
-              |project://myRascal/std/.svn|,
+              |project://Pacioli/eclipse/vis|,
+              {
+                file(|project://Pacioli/eclipse/vis/Render.rsc|),
+                file(|project://Pacioli/eclipse/vis/RenderSWT.rsc|)
+              }),
+            folder(
+              |project://Pacioli/eclipse/util|,
+              {
+                file(|project://Pacioli/eclipse/util/Prompt.rsc|),
+                file(|project://Pacioli/eclipse/util/Editors.rsc|),
+                file(|project://Pacioli/eclipse/util/Clipboard.rsc|),
+                file(|project://Pacioli/eclipse/util/ValueUI.rsc|),
+                file(|project://Pacioli/eclipse/util/Resources.rsc|),
+                file(|project://Pacioli/eclipse/util/ParseTreeUI.rsc|),
+                file(|project://Pacioli/eclipse/util/ResourceMarkers.rsc|),
+                file(|project://Pacioli/eclipse/util/IDE.rsc|),
+                file(|project://Pacioli/eclipse/util/SyntaxHighlightingTemplates.rsc|)
+              }),
+            folder(
+              |project://Pacioli/eclipse/lang|,
               {
                 folder(
-                  |project://myRascal/std/.svn/text-base|,
+                  |project://Pacioli/eclipse/lang/sdf2|,
+                  {file(|project://Pacioli/eclipse/lang/sdf2/Plugin.rsc|)}),
+                folder(
+                  |project://Pacioli/eclipse/lang/java|,
+                  {folder(
+                      |project://Pacioli/eclipse/lang/java/jdt|,
+                      {
+                        file(|project://Pacioli/eclipse/lang/java/jdt/JavaADT.rsc|),
+                        folder(
+                          |project://Pacioli/eclipse/lang/java/jdt/internal|,
+                          {}),
+                        folder(
+                          |project://Pacioli/eclipse/lang/java/jdt/nanopatterns|,
+                          {
+                            file(|project://Pacioli/eclipse/lang/java/jdt/nanopatterns/NanoPattern.rsc|),
+                            file(|project://Pacioli/eclipse/lang/java/jdt/nanopatterns/NanoPatternAnalyzer.rsc|)
+                          }),
+                        file(|project://Pacioli/eclipse/lang/java/jdt/Java.rsc|),
+                        file(|project://Pacioli/eclipse/lang/java/jdt/JDTRefactoring.rsc|),
+                        file(|project://Pacioli/eclipse/lang/java/jdt/JDT.rsc|)
+                      })}),
+                folder(
+                  |project://Pacioli/eclipse/lang/c90|,
+                  {file(|project://Pacioli/eclipse/lang/c90/Plugin.rsc|)})
+              })
+          }),
+        folder(
+          |project://Pacioli/std|,
+          {
+            file(|project://Pacioli/std/Rational.rsc|),
+            file(|project://Pacioli/std/Time.rsc|),
+            folder(
+              |project://Pacioli/std/.svn|,
+              {
+                folder(
+                  |project://Pacioli/std/.svn/props|,
                   {}),
                 folder(
-                  |project://myRascal/std/.svn/props|,
+                  |project://Pacioli/std/.svn/prop-base|,
                   {}),
                 folder(
-                  |project://myRascal/std/.svn/tmp|,
+                  |project://Pacioli/std/.svn/tmp|,
                   {
                     folder(
-                      |project://myRascal/std/.svn/tmp/prop-base|,
+                      |project://Pacioli/std/.svn/tmp/text-base|,
                       {}),
                     folder(
-                      |project://myRascal/std/.svn/tmp/text-base|,
+                      |project://Pacioli/std/.svn/tmp/props|,
                       {}),
                     folder(
-                      |project://myRascal/std/.svn/tmp/props|,
+                      |project://Pacioli/std/.svn/tmp/prop-base|,
                       {})
                   }),
                 folder(
-                  |project://myRascal/std/.svn/prop-base|,
+                  |project://Pacioli/std/.svn/text-base|,
                   {})
               }),
-            file(|project://myRascal/std/Origins.rsc|),
-            file(|project://myRascal/std/Graph.rsc|),
-            file(|project://myRascal/std/HTMLIO.rsc|),
-            file(|project://myRascal/std/Message.rsc|),
-            file(|project://myRascal/std/Strategy.rsc|),
+            file(|project://Pacioli/std/ToString.rsc|),
+            file(|project://Pacioli/std/FileSystem.rsc|),
+            file(|project://Pacioli/std/String.rsc|),
+            file(|project://Pacioli/std/Grammar.rsc|),
             folder(
-              |project://myRascal/std/experiments|,
+              |project://Pacioli/std/experiments|,
               {
                 folder(
-                  |project://myRascal/std/experiments/scm|,
+                  |project://Pacioli/std/experiments/scm|,
                   {
                     folder(
-                      |project://myRascal/std/experiments/scm/.svn|,
-                      {
-                        folder(
-                          |project://myRascal/std/experiments/scm/.svn/prop-base|,
-                          {}),
-                        folder(
-                          |project://myRascal/std/experiments/scm/.svn/props|,
-                          {}),
-                        folder(
-                          |project://myRascal/std/experiments/scm/.svn/tmp|,
-                          {
-                            folder(
-                              |project://myRascal/std/experiments/scm/.svn/tmp/props|,
-                              {}),
-                            folder(
-                              |project://myRascal/std/experiments/scm/.svn/tmp/text-base|,
-                              {}),
-                            folder(
-                              |project://myRascal/std/experiments/scm/.svn/tmp/prop-base|,
-                              {})
-                          }),
-                        folder(
-                          |project://myRascal/std/experiments/scm/.svn/text-base|,
-                          {})
-                      }),
-                    folder(
-                      |project://myRascal/std/experiments/scm/cvs|,
+                      |project://Pacioli/std/experiments/scm/cvs|,
                       {folder(
-                          |project://myRascal/std/experiments/scm/cvs/.svn|,
+                          |project://Pacioli/std/experiments/scm/cvs/.svn|,
                           {
                             folder(
-                              |project://myRascal/std/experiments/scm/cvs/.svn/prop-base|,
+                              |project://Pacioli/std/experiments/scm/cvs/.svn/props|,
                               {}),
                             folder(
-                              |project://myRascal/std/experiments/scm/cvs/.svn/tmp|,
+                              |project://Pacioli/std/experiments/scm/cvs/.svn/text-base|,
+                              {}),
+                            folder(
+                              |project://Pacioli/std/experiments/scm/cvs/.svn/prop-base|,
+                              {}),
+                            folder(
+                              |project://Pacioli/std/experiments/scm/cvs/.svn/tmp|,
                               {
                                 folder(
-                                  |project://myRascal/std/experiments/scm/cvs/.svn/tmp/props|,
+                                  |project://Pacioli/std/experiments/scm/cvs/.svn/tmp/prop-base|,
                                   {}),
                                 folder(
-                                  |project://myRascal/std/experiments/scm/cvs/.svn/tmp/text-base|,
+                                  |project://Pacioli/std/experiments/scm/cvs/.svn/tmp/props|,
                                   {}),
                                 folder(
-                                  |project://myRascal/std/experiments/scm/cvs/.svn/tmp/prop-base|,
+                                  |project://Pacioli/std/experiments/scm/cvs/.svn/tmp/text-base|,
                                   {})
-                              }),
+                              })
+                          })}),
+                    folder(
+                      |project://Pacioli/std/experiments/scm/.svn|,
+                      {
+                        folder(
+                          |project://Pacioli/std/experiments/scm/.svn/text-base|,
+                          {}),
+                        folder(
+                          |project://Pacioli/std/experiments/scm/.svn/props|,
+                          {}),
+                        folder(
+                          |project://Pacioli/std/experiments/scm/.svn/prop-base|,
+                          {}),
+                        folder(
+                          |project://Pacioli/std/experiments/scm/.svn/tmp|,
+                          {
                             folder(
-                              |project://myRascal/std/experiments/scm/cvs/.svn/props|,
+                              |project://Pacioli/std/experiments/scm/.svn/tmp/prop-base|,
                               {}),
                             folder(
-                              |project://myRascal/std/experiments/scm/cvs/.svn/text-base|,
+                              |project://Pacioli/std/experiments/scm/.svn/tmp/text-base|,
+                              {}),
+                            folder(
+                              |project://Pacioli/std/experiments/scm/.svn/tmp/props|,
                               {})
-                          })})
+                          })
+                      })
                   }),
+                file(|project://Pacioli/std/experiments/Subversion.rsc|),
                 folder(
-                  |project://myRascal/std/experiments/RascalTutor|,
+                  |project://Pacioli/std/experiments/.svn|,
                   {
-                    file(|project://myRascal/std/experiments/RascalTutor/RascalUtils.rsc|),
-                    file(|project://myRascal/std/experiments/RascalTutor/HTMLGenerator.rsc|),
-                    file(|project://myRascal/std/experiments/RascalTutor/CourseCompiler.rsc|),
                     folder(
-                      |project://myRascal/std/experiments/RascalTutor/.svn|,
+                      |project://Pacioli/std/experiments/.svn/tmp|,
                       {
                         folder(
-                          |project://myRascal/std/experiments/RascalTutor/.svn/tmp|,
-                          {
-                            folder(
-                              |project://myRascal/std/experiments/RascalTutor/.svn/tmp/prop-base|,
-                              {}),
-                            folder(
-                              |project://myRascal/std/experiments/RascalTutor/.svn/tmp/text-base|,
-                              {}),
-                            folder(
-                              |project://myRascal/std/experiments/RascalTutor/.svn/tmp/props|,
-                              {})
-                          }),
-                        folder(
-                          |project://myRascal/std/experiments/RascalTutor/.svn/prop-base|,
+                          |project://Pacioli/std/experiments/.svn/tmp/prop-base|,
                           {}),
                         folder(
-                          |project://myRascal/std/experiments/RascalTutor/.svn/text-base|,
+                          |project://Pacioli/std/experiments/.svn/tmp/text-base|,
                           {}),
                         folder(
-                          |project://myRascal/std/experiments/RascalTutor/.svn/props|,
+                          |project://Pacioli/std/experiments/.svn/tmp/props|,
                           {})
-                      }),
-                    folder(
-                      |project://myRascal/std/experiments/RascalTutor/Courses|,
-                      {
-                        folder(
-                          |project://myRascal/std/experiments/RascalTutor/Courses/EASY|,
-                          {
-                            folder(
-                              |project://myRascal/std/experiments/RascalTutor/Courses/EASY/ModelDrivenEngineering|,
-                              {folder(
-                                  |project://myRascal/std/experiments/RascalTutor/Courses/EASY/ModelDrivenEngineering/.svn|,
-                                  {
-                                    folder(
-                                      |project://myRascal/std/experiments/RascalTutor/Courses/EASY/ModelDrivenEngineering/.svn/props|,
-                                      {}),
-                                    folder(
-                                 ...
+                    ...
 </pre>
 </div>
 

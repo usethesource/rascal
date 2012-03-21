@@ -71,15 +71,15 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>    Introduce a map of <code>fruits</code>:
-<pre class="screen"><span class="prompt">rascal></span>fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
+<pre class="screen"><span class="prompt">rascal></span>fruits = (&quot;pear&quot; : 1, &quot;apple&quot; : 3, &quot;banana&quot; : 0, &quot;berry&quot; : 25, &quot;orange&quot;: 35);
 map[str, int]: ("orange":35,"apple":3,"pear":1,"berry":25,"banana":0)
 <span class="prompt">rascal></span>import String;
 ok
 </pre>  Use a map comprehension to filter fruits with a name of at most 5 characters:
-<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit <- fruits, size(fruit) <= 5);
+<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit &lt;- fruits, size(fruit) &lt;= 5);
 map[str, int]: ("apple":3,"berry":25,"pear":1)
 </pre>  Use a map comprehension to filter fruits with an associated value larger than 10:
-<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
+<pre class="screen"><span class="prompt">rascal></span>(fruit : fruits[fruit] | fruit &lt;- fruits, fruits[fruit] &gt; 10);
 map[str, int]: ("orange":35,"berry":25)
 </pre>
 </div>

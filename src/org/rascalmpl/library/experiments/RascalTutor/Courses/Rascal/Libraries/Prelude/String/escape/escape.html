@@ -75,9 +75,9 @@
 ok
 <span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>escape("abracadabra", ("a" : "AA", "c" : "C"));
+<span class="prompt">rascal></span>escape(&quot;abracadabra&quot;, (&quot;a&quot; : &quot;AA&quot;, &quot;c&quot; : &quot;C&quot;));
 str: "AAbrAACAAdAAbrAA"
-<span class="prompt">rascal></span>L = escape("\"Good Morning\", he said", ("\"": "\\\""));
+<span class="prompt">rascal></span>L = escape(&quot;\&quot;Good Morning\&quot;, he said&quot;, (&quot;\&quot;&quot;: &quot;\\\&quot;&quot;));
 str: "\\\"Good Morning\\\", he said"
 <span class="prompt">rascal></span>println(L);
 \"Good Morning\", he said

@@ -85,10 +85,10 @@ real: 3.5
  This makes it possible to set annotations on any <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>.
   <pre class="screen"><span class="prompt">rascal></span>import Node;
 ok
-<span class="prompt">rascal></span>nd = "f"(10, "abc");
+<span class="prompt">rascal></span>nd = &quot;f&quot;(10, &quot;abc&quot;);
 node: f(10,"abc")
 </pre>  First we apply <code>setAnnotations</code> to a node value:
-<pre class="screen"><span class="prompt">rascal></span>setAnnotations(nd, ("color" : "red", "size" : "large"));
+<pre class="screen"><span class="prompt">rascal></span>setAnnotations(nd, (&quot;color&quot; : &quot;red&quot;, &quot;size&quot; : &quot;large&quot;));
 node: f(10,"abc")[
   @color="red",
   @size="large"
@@ -99,7 +99,7 @@ ok
 <span class="prompt">rascal></span>st = diamonds();
 Suite: diamonds()
 </pre>  And apply <code>setAnnotations</code> to a value of type <code>Suite</code>:
-<pre class="screen"><span class="prompt">rascal></span>setAnnotations(st, ("player" : "Hossein", "gain" : "120"));
+<pre class="screen"><span class="prompt">rascal></span>setAnnotations(st, (&quot;player&quot; : &quot;Hossein&quot;, &quot;gain&quot; : &quot;120&quot;));
 Suite: diamonds()[
   @gain="120",
   @player="Hossein"

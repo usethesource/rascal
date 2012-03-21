@@ -83,7 +83,7 @@
  <pre class="listing">R+ = R + (R o R) + (R o R o R) + ...
 </pre> In other words, it is the union of succesive <a href="/Courses/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a>s of the relation <code>R</code> with itself. 
  Fo a given relation <code>R</code> this can be expressed as follows:
- <pre class="screen"><span class="prompt">rascal></span>rel[int,int] R = {<1,2>, <2,3>, <3,4>};
+ <pre class="screen"><span class="prompt">rascal></span>rel[int,int] R = {&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;};
 rel[int, int]: {
   &lt;1,2>,
   &lt;2,3>,

@@ -42,10 +42,12 @@ Let's define a variant of the [head] function that returns the first element of 
 but throws an exception when the list is empty. Our variant will return `0` for an empty list:
 <screen>
 import List;
+import Exception;
 int hd(list[int] x) { try return head(x); catch: return 0; }
 hd([1,2,3]);
 hd([]);
-// We can also be more specific and catch the `EmptyList` exception:
+// We can also be more specific and catch the `EmptyList` exception
+// (which is available here since we have imported the `Exception` module):
 int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
 hd2([]);
 </screen>

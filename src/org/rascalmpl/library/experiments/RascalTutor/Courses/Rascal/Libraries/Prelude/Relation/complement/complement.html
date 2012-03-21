@@ -78,7 +78,7 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Relation;
 ok
 </pre>  Declare <code>R</code> and compute corresponding <code>U</code>:
-<pre class="screen"><span class="prompt">rascal></span>R = {<1,10>, <2, 20>, <3, 30>};
+<pre class="screen"><span class="prompt">rascal></span>R = {&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;};
 rel[int, int]: {
   &lt;2,20>,
   &lt;1,10>,
@@ -106,7 +106,7 @@ rel[int, int]: {
   &lt;1,30>,
   &lt;2,30>
 }
-<span class="prompt">rascal></span>complement({<1,10>, <2, 20>, <3, 30>});
+<span class="prompt">rascal></span>complement({&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;});
 rel[int, int]: {
   &lt;3,20>,
   &lt;1,20>,
@@ -142,8 +142,8 @@ rel[int, int]: {
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:R" value="{&lt;&quot;Bruno&quot;, -7&gt;, &lt;&quot;Dill&quot;, 4&gt;, &lt;&quot;G&quot;, 11&gt;}">
-The type of <tt>complement({&lt;&quot;Bruno&quot;, -7&gt;, &lt;&quot;Dill&quot;, 4&gt;, &lt;&quot;G&quot;, 11&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_1:R" value="{&lt;&quot;Lime&quot;, -20&gt;, &lt;&quot;Curry&quot;, 6&gt;}">
+The type of <tt>complement({&lt;&quot;Lime&quot;, -20&gt;, &lt;&quot;Curry&quot;, 6&gt;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -167,8 +167,8 @@ The type of <tt>complement({&lt;&quot;Bruno&quot;, -7&gt;, &lt;&quot;Dill&quot;,
 <span id="answerFeedback_Rascal_Libraries_Prelude_Relation_complement_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:R" value="{&lt;&quot;Bert&quot;, 12&gt;, &lt;&quot;Pepper&quot;, 3&gt;, &lt;&quot;Strawberry&quot;, -20&gt;}">
-<pre class="prequestion">complement({&lt;&quot;Bert&quot;, 12&gt;, &lt;&quot;Pepper&quot;, 3&gt;, &lt;&quot;Strawberry&quot;, -20&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:R" value="{&lt;&quot;E-3PO&quot;, -16&gt;, &lt;&quot;Nutmeg&quot;, -2&gt;}">
+<pre class="prequestion">complement({&lt;&quot;E-3PO&quot;, -16&gt;, &lt;&quot;Nutmeg&quot;, -2&gt;}) == <input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_complement_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_complement_2:another" value="yes">

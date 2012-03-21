@@ -80,14 +80,14 @@
 </pre> String values are, like all other values, also immutable. Let's experiment with the <a href="/Courses/Rascal/Libraries/Prelude/String/replaceAll/replaceAll.html">replaceAll</a> function:
  <pre class="screen"><span class="prompt">rascal></span>import String;
 ok
-<span class="prompt">rascal></span>replaceAll("abracadabra", "a", "A");
+<span class="prompt">rascal></span>replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
 str: "AbrAcAdAbrA"
 </pre>  Now assign to variables <code>S</code> and <code>T</code> the string <code>"abracadabra"</code> and let's see what happens:
-<pre class="screen"><span class="prompt">rascal></span>S = "abracadabra";
+<pre class="screen"><span class="prompt">rascal></span>S = &quot;abracadabra&quot;;
 str: "abracadabra"
 <span class="prompt">rascal></span>T = S;
 str: "abracadabra"
-<span class="prompt">rascal></span>S = replaceAll("abracadabra", "a", "A");
+<span class="prompt">rascal></span>S = replaceAll(&quot;abracadabra&quot;, &quot;a&quot;, &quot;A&quot;);
 str: "AbrAcAdAbrA"
 <span class="prompt">rascal></span>S;
 str: "AbrAcAdAbrA"

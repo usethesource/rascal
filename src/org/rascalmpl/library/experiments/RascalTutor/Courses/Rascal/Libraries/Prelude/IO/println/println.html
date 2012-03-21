@@ -75,23 +75,23 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>println("Hello World");
+<span class="prompt">rascal></span>println(&quot;Hello World&quot;);
 Hello World
 ok
 </pre>  Introduce variable S and print it:
-<pre class="screen"><span class="prompt">rascal></span>S = "Hello World";
+<pre class="screen"><span class="prompt">rascal></span>S = &quot;Hello World&quot;;
 str: "Hello World"
 <span class="prompt">rascal></span>println(S);
 Hello World
 ok
 </pre>  Introduce variable L and print it:
-<pre class="screen"><span class="prompt">rascal></span>L = ["a", "b", "c"];
+<pre class="screen"><span class="prompt">rascal></span>L = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];
 list[str]: ["a","b","c"]
 <span class="prompt">rascal></span>println(L);
 ["a","b","c"]
 ok
 </pre>  Use a string template to print several values:
-<pre class="screen"><span class="prompt">rascal></span>println("<S>: <L>");
+<pre class="screen"><span class="prompt">rascal></span>println(&quot;&lt;S&gt;: &lt;L&gt;&quot;);
 Hello World: ["a","b","c"]
 ok
 </pre>  Just print a newline

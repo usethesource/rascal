@@ -129,25 +129,25 @@
 <pre class="screen"><span class="prompt">rascal></span>lexical AlphaNumeric = [a-zA-Z0-9];
 ok
 </pre>  A character class that defines anything except quotes:
-<pre class="screen"><span class="prompt">rascal></span>lexical AnythingExceptQuote = ![\"];
+<pre class="screen"><span class="prompt">rascal></span>lexical AnythingExceptQuote = ![\&quot;];
 ok
 </pre>  An identifier class with longest match (can not be followed immediately by [a-z]):
-<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !>> [a-z];
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !&gt;&gt; [a-z];
 ok
 </pre>  An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
-<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z] !&lt;&lt; [a-z]+ !&gt;&gt; [a-z];
 ok
 </pre>  An identifier class with some reserved keywords and longest match:
-<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !>> [a-z] \ "if" \ "else" \ "fi";
+<pre class="screen"><span class="prompt">rascal></span>lexical Id = [a-z]+ !&gt;&gt; [a-z] \ &quot;if&quot; \ &quot;else&quot; \ &quot;fi&quot;;
 ok
 </pre>  An optional else branch coded using sequence and optional symbols:
-<pre class="screen"><span class="prompt">rascal></span>syntax Statement = "if" Expression "then" Statement ("else" Statement)? "fi";
+<pre class="screen"><span class="prompt">rascal></span>syntax Statement = &quot;if&quot; Expression &quot;then&quot; Statement (&quot;else&quot; Statement)? &quot;fi&quot;;
 ok
 </pre>  A block of statements separated by semicolons:
-<pre class="screen"><span class="prompt">rascal></span>syntax Statement = "{" {Statement ";"}* "}";
+<pre class="screen"><span class="prompt">rascal></span>syntax Statement = &quot;{&quot; {Statement &quot;;&quot;}* &quot;}&quot;;
 ok
 </pre>  A declaration with an embedded list of alternative modifiers and a list of typed parameters:
-<pre class="screen"><span class="prompt">rascal></span>syntax Declaration = ("public" | "private" | "static" | "final")* Type Id "(" {(Type Id) ","}* ")" Statement;
+<pre class="screen"><span class="prompt">rascal></span>syntax Declaration = (&quot;public&quot; | &quot;private&quot; | &quot;static&quot; | &quot;final&quot;)* Type Id &quot;(&quot; {(Type Id) &quot;,&quot;}* &quot;)&quot; Statement;
 ok
 </pre>
 </div>

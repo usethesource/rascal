@@ -75,7 +75,7 @@
 ok
 <span class="prompt">rascal></span>domain([1, 3, 5]);
 set[int]: {2,1,0}
-<span class="prompt">rascal></span>domain(["zebra", "elephant", "snake", "owl"]);
+<span class="prompt">rascal></span>domain([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 set[int]: {3,2,1,0}
 </pre>  Compare this with the result of <a href="/Courses/Rascal/Libraries/Prelude/List/index/index.html">index</a>:
 <pre class="screen"><span class="prompt">rascal></span>index([1, 3, 5]);
@@ -109,14 +109,11 @@ list[int]: [0,1,2]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_domain_1:answer" id="Rascal/Libraries/Prelude/List/domain_1_3" value="3">
-<label for="Rascal/Libraries/Prelude/List/domain_1_3">One larger than the number of elements in the list.</label><br/>
-
 <input type="radio" name="Rascal_Libraries_Prelude_List_domain_1:answer" id="Rascal/Libraries/Prelude/List/domain_1_1" value="1">
 <label for="Rascal/Libraries/Prelude/List/domain_1_1">Depends on the number of repeated elements in the list.</label><br/>
 
-<input type="radio" name="Rascal_Libraries_Prelude_List_domain_1:answer" id="Rascal/Libraries/Prelude/List/domain_1_2" value="2">
-<label for="Rascal/Libraries/Prelude/List/domain_1_2">One less than the number of elements in the list.</label><br/>
+<input type="radio" name="Rascal_Libraries_Prelude_List_domain_1:answer" id="Rascal/Libraries/Prelude/List/domain_1_3" value="3">
+<label for="Rascal/Libraries/Prelude/List/domain_1_3">One larger than the number of elements in the list.</label><br/>
 
 <input type="radio" name="Rascal_Libraries_Prelude_List_domain_1:answer" id="Rascal/Libraries/Prelude/List/domain_1_0" value="0">
 <label for="Rascal/Libraries/Prelude/List/domain_1_0">Equal to the number of elements in the list.</label><br/>
@@ -143,8 +140,8 @@ list[int]: [0,1,2]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_domain_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_domain_2:L" value="[&quot;D&quot;, &quot;Mango&quot;, &quot;J&quot;, &quot;Blueberry&quot;, &quot;Anise&quot;]">
-The type of <tt>domain([&quot;D&quot;, &quot;Mango&quot;, &quot;J&quot;, &quot;Blueberry&quot;, &quot;Anise&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_domain_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_domain_2:L" value="[&quot;T&quot;, &quot;R&quot;, &quot;Coriander&quot;, &quot;Pepper&quot;, &quot;Prince Charming&quot;]">
+The type of <tt>domain([&quot;T&quot;, &quot;R&quot;, &quot;Coriander&quot;, &quot;Pepper&quot;, &quot;Prince Charming&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_domain_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -168,8 +165,8 @@ The type of <tt>domain([&quot;D&quot;, &quot;Mango&quot;, &quot;J&quot;, &quot;B
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_domain_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_domain_3:L" value="[&quot;Isolder&quot;, &quot;Saffron&quot;, &quot;Blackberry&quot;, &quot;Vanilla&quot;, &quot;Joh Yowza&quot;]">
-<pre class="prequestion">domain([&quot;Isolder&quot;, &quot;Saffron&quot;, &quot;Blackberry&quot;, &quot;Vanilla&quot;, &quot;Joh Yowza&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_domain_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_domain_3:L" value="[]">
+<pre class="prequestion">domain([]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_domain_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_domain_3:another" value="yes">

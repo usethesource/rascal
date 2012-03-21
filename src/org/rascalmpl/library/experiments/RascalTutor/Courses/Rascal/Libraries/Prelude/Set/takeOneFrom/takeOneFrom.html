@@ -8,7 +8,7 @@
 <head>
 <title>Rascal/Libraries/Prelude/Set/takeOneFrom</title>
 
-<meta name="description" content="Rascal/Libraries/Prelude/Set/takeOneFrom:  Pick an arbitrary element from a set, returns the element and the set without the selected element.">
+<meta name="description" content="Rascal/Libraries/Prelude/Set/takeOneFrom:  Remove an arbitrary element from a set, returns the element and a set without that element.">
 
 <meta name="keywords" content="Rascal/Libraries/Prelude/Set/takeOneFrom, Rascal, meta-programming, software analysis, software transformation">
 <link type="text/css" rel="stylesheet" href="/Courses/prelude.css"/>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="Synopsis">
-<span class="sectionHead">Synopsis</span>  Pick an arbitrary element from a set, returns the element and the set without the selected element.
+<span class="sectionHead">Synopsis</span>  Remove an arbitrary element from a set, returns the element and a set without that element.
 
 </div>
 
@@ -64,7 +64,8 @@
 </div>
 
 <div id="Description">
-<span class="sectionHead">Description</span>  Also see <a href="/Courses/Rascal/Libraries/Prelude/Set/getOneFrom/getOneFrom.html">getOneFrom</a>.
+<span class="sectionHead">Description</span>  Remove an arbitrary element from set <code>s</code> and return a tuple consisting of the element and a set without that element.
+  Also see <a href="/Courses/Rascal/Libraries/Prelude/Set/getOneFrom/getOneFrom.html">getOneFrom</a>.
 
 </div>
 
@@ -72,58 +73,18 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import Set;
 ok
-<span class="prompt">rascal></span>getOneFrom({"elephant", "zebra", "snake"});
-str: "snake"
-<span class="prompt">rascal></span>getOneFrom({"elephant", "zebra", "snake"});
-str: "zebra"
-<span class="prompt">rascal></span>getOneFrom({"elephant", "zebra", "snake"});
-str: "zebra"
-<span class="prompt">rascal></span>getOneFrom({"elephant", "zebra", "snake"});
-str: "zebra"
+<span class="prompt">rascal></span>takeOneFrom({1, 2, 3, 4});
+tuple[int,set[int]]: &lt;4,{3,2,1}>
+<span class="prompt">rascal></span>takeOneFrom({1, 2, 3, 4});
+tuple[int,set[int]]: &lt;2,{4,3,1}>
+<span class="prompt">rascal></span>takeOneFrom({1, 2, 3, 4});
+tuple[int,set[int]]: &lt;1,{4,3,2}>
 </pre>
 </div>
 
   	                       
   	                       
   	                       
-<div id="questions">
-
-
-<br/>
-
-<span class="sectionHead">Questions</span> <br/>
-
-
-<div id="Rascal_Libraries_Prelude_Set_takeOneFrom_1" class="question">
-<b>Question [1]. </b>
-<span id="good_Rascal_Libraries_Prelude_Set_takeOneFrom_1" class="answerStatus">
-<img height="25" width="25" src="/Courses/images/good.png"/>
-</span>
-
-<span id="bad_Rascal_Libraries_Prelude_Set_takeOneFrom_1" class="answerStatus">
-<img height="25" width="25" src="/Courses/images/bad.png"/>
-</span>
-
-<span id="answerFeedback_Rascal_Libraries_Prelude_Set_takeOneFrom_1" class="answerFeedback"></span>
- <br/>
-
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_takeOneFrom_1:S" value="{8, 15, -2, -1, 14, -6}">
-The type of <tt>takeOneFrom({8, 15, -2, -1, 14, -6})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_takeOneFrom_1:answer" class="answerText"><br/>
-
-<input type="submit" value="Give answer" class="answerSubmit">
-</form>
-<form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_takeOneFrom_1:another" value="yes">
-
-<input type="submit" value="I want another question" class="anotherSubmit">
-</form><br/>
-
-</div>
- <br/>
-
-<br/>
-
-</div>
-
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/takeOneFrom&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/Prelude/Set/takeOneFrom&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |

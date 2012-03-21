@@ -69,17 +69,17 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{<1,2>, <10,20>} join {<2,3>};
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>{&lt;1,2&gt;, &lt;10,20&gt;} join {&lt;2,3&gt;};
 rel[int, int, int, int]: {
   &lt;1,2,2,3>,
   &lt;10,20,2,3>
 }
-<span class="prompt">rascal></span>{<1,2>} join {3, 4};
+<span class="prompt">rascal></span>{&lt;1,2&gt;} join {3, 4};
 rel[int, int, int]: {
   &lt;1,2,4>,
   &lt;1,2,3>
 }
-<span class="prompt">rascal></span>{<1,2>, <10,20>} join {<2,3>, <20,30>};
+<span class="prompt">rascal></span>{&lt;1,2&gt;, &lt;10,20&gt;} join {&lt;2,3&gt;, &lt;20,30&gt;};
 rel[int, int, int, int]: {
   &lt;1,2,2,3>,
   &lt;10,20,20,30>,
@@ -115,9 +115,9 @@ cancelled
 <span id="answerFeedback_Rascal_Expressions_Values_Relation_Join_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_Join_1:A" value="{&lt;-16, &quot;Parsley&quot;&gt;}">
-<input type="hidden" name="Rascal_Expressions_Values_Relation_Join_1:B" value="{&lt;&quot;D&quot;, -4&gt;, &lt;&quot;Tibor&quot;, -13&gt;}">
-The type of <tt>{&lt;-16, &quot;Parsley&quot;&gt;} join {&lt;&quot;D&quot;, -4&gt;, &lt;&quot;Tibor&quot;, -13&gt;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Relation_Join_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_Join_1:A" value="{&lt;-17, &quot;Papaya&quot;&gt;}">
+<input type="hidden" name="Rascal_Expressions_Values_Relation_Join_1:B" value="{&lt;&quot;Ginger&quot;, 18&gt;, &lt;&quot;Luke Skywalker&quot;, 19&gt;, &lt;&quot;G&quot;, -3&gt;}">
+The type of <tt>{&lt;-17, &quot;Papaya&quot;&gt;} join {&lt;&quot;Ginger&quot;, 18&gt;, &lt;&quot;Luke Skywalker&quot;, 19&gt;, &lt;&quot;G&quot;, -3&gt;}</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_Relation_Join_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -141,9 +141,9 @@ The type of <tt>{&lt;-16, &quot;Parsley&quot;&gt;} join {&lt;&quot;D&quot;, -4&g
 <span id="answerFeedback_Rascal_Expressions_Values_Relation_Join_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_Join_2:A" value="{&lt;6, &quot;Emperor Palpatine&quot;&gt;, &lt;-10, &quot;R2-D2&quot;&gt;}">
-<input type="hidden" name="Rascal_Expressions_Values_Relation_Join_2:B" value="{&lt;&quot;Basil&quot;, 7&gt;, &lt;&quot;Two-Headed Monster&quot;, -19&gt;}">
-<pre class="prequestion">{&lt;6, &quot;Emperor Palpatine&quot;&gt;, &lt;-10, &quot;R2-D2&quot;&gt;} join {&lt;&quot;Basil&quot;, 7&gt;, &lt;&quot;Two-Headed Monster&quot;, -19&gt;} == <input type="text" size="30" name="Rascal_Expressions_Values_Relation_Join_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_Join_2:A" value="{&lt;11, &quot;Coriander&quot;&gt;, &lt;15, &quot;Peppermint&quot;&gt;}">
+<input type="hidden" name="Rascal_Expressions_Values_Relation_Join_2:B" value="{&lt;&quot;Blueberry&quot;, -1&gt;, &lt;&quot;Ailyn Vel&quot;, 4&gt;}">
+<pre class="prequestion">{&lt;11, &quot;Coriander&quot;&gt;, &lt;15, &quot;Peppermint&quot;&gt;} join {&lt;&quot;Blueberry&quot;, -1&gt;, &lt;&quot;Ailyn Vel&quot;, 4&gt;} == <input type="text" size="30" name="Rascal_Expressions_Values_Relation_Join_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_Relation_Join_2:another" value="yes">

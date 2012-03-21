@@ -72,14 +72,14 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
 ok
-<span class="prompt">rascal></span>for(int n <- [1 .. 5]) println("n = <n>");
+<span class="prompt">rascal></span>for(int n &lt;- [1 .. 5]) println(&quot;n = &lt;n&gt;&quot;);
 n = 1
 n = 2
 n = 3
 n = 4
 n = 5
 list[void]: []
-<span class="prompt">rascal></span>for(int n <- [1 .. 5]) append n * n;
+<span class="prompt">rascal></span>for(int n &lt;- [1 .. 5]) append n * n;
 list[int]: [1,4,9,16,25]
 </pre>
 </div>

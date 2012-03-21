@@ -77,7 +77,7 @@ ok
 list[int]: [3,1]
 <span class="prompt">rascal></span>take(6, [3, 1, 4, 5]);
 list[int]: [3,1,4,5]
-<span class="prompt">rascal></span>take(2, ["zebra", "elephant", "snake", "owl"]);
+<span class="prompt">rascal></span>take(2, [&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 list[str]: ["zebra","elephant"]
 </pre>
 </div>
@@ -108,11 +108,11 @@ list[str]: ["zebra","elephant"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_take_1:answer" id="Rascal/Libraries/Prelude/List/take_1_1" value="1">
-<label for="Rascal/Libraries/Prelude/List/take_1_1">N-M elements.</label><br/>
-
 <input type="radio" name="Rascal_Libraries_Prelude_List_take_1:answer" id="Rascal/Libraries/Prelude/List/take_1_2" value="2">
 <label for="Rascal/Libraries/Prelude/List/take_1_2">N elements.</label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_take_1:answer" id="Rascal/Libraries/Prelude/List/take_1_3" value="3">
+<label for="Rascal/Libraries/Prelude/List/take_1_3">N * M elements.</label><br/>
 
 <input type="radio" name="Rascal_Libraries_Prelude_List_take_1:answer" id="Rascal/Libraries/Prelude/List/take_1_0" value="0">
 <label for="Rascal/Libraries/Prelude/List/take_1_0">M elements.</label><br/>
@@ -139,9 +139,9 @@ list[str]: ["zebra","elephant"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_take_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_take_2:L" value="[3, 14, 9, -12, -14]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_take_2:N" value="0">
-The type of <tt>take(0, [3, 14, 9, -12, -14])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_take_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_take_2:L" value="[&quot;Sy Snootles&quot;, &quot;Barkley the Dog&quot;, &quot;Luke Skywalker&quot;, &quot;I&quot;]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_take_2:N" value="1">
+The type of <tt>take(1, [&quot;Sy Snootles&quot;, &quot;Barkley the Dog&quot;, &quot;Luke Skywalker&quot;, &quot;I&quot;])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_take_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -165,9 +165,9 @@ The type of <tt>take(0, [3, 14, 9, -12, -14])</tt> is <input type="text" size="3
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_take_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_take_3:L" value="[true, true, true, false, false]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_take_3:L" value="[&quot;Anakin Skywalker&quot;, &quot;Jasmine&quot;, &quot;Oregano&quot;, &quot;Fig&quot;, &quot;Lychee&quot;, &quot;Lychee&quot;]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_take_3:N" value="0">
-<pre class="prequestion">take(0, [true, true, true, false, false]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_take_3:answer" class="answerText"></pre>
+<pre class="prequestion">take(0, [&quot;Anakin Skywalker&quot;, &quot;Jasmine&quot;, &quot;Oregano&quot;, &quot;Fig&quot;, &quot;Lychee&quot;, &quot;Lychee&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_take_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_take_3:another" value="yes">

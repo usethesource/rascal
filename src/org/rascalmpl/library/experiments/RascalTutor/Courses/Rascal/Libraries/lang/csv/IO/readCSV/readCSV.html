@@ -52,7 +52,9 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>&amp;T readCSV(type[&amp;T] result, loc location)</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>value readCSV(loc location)</code></li>
+<li> <code>value readCSV(loc location, map[str,str] options)</code></li>
+<li> <code>&amp;T readCSV(type[&amp;T] result, loc location)</code></li>
 <li> <code>&amp;T readCSV(type[&amp;T] result, loc location, map[str,str] options)</code></li>
 </ol>
 </div>
@@ -74,8 +76,11 @@
  Optionally, a map of options can be given:
  <ul><li> <code>"header" : "true"</code> specifies that a header is present (default).</li>
 <li> <code>"header" : "false"</code> specifies that no header is present.</li>
-<li> <code>"separator" : ","</code> specifies that <code>,</code> is the separator character between fields (default).</li>
-</ul> The type of the resulting value is <i>inferred</i> in three steps:
+<li> <code>"separator" : ","</code> specifies that <code>,</code> is the separator character between fields (default).<br/>
+<br/>
+ The CSV data should conform to the specified type (if any).
+</li>
+</ul> If the required type is not specified, it is <i>inferred</i> in three steps:
  <br/>
 <br/>
 
@@ -90,8 +95,7 @@
 <li> If the occurrences have a mixed type, i.e., numeric, non-numeric, boolean or string, then the type is <code>str</code>.</li>
 <li> If the requested type for a field is <code>str</code> and another type would be inferred by the preceeding two rules,  its inferred type will be <code>str</code>.
 </li>
-</ul> <i>Step 3</i>: The inferred type should be a subtype of the requested type.
- <br/>
+</ul> <br/>
 <br/>
 
  Reading the values in fields is straightforward, except for the case that the text in the field is enclosed between double quotes (<code>"</code>):
@@ -110,8 +114,7 @@
 </pre> We can read it in various ways:
  <pre class="screen"><span class="prompt">rascal></span>import lang::csv::IO;
 ok
-<span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
-readCSV inferred the relation type: rel[int position, str artist, str title, int year]
+<span class="prompt">rascal></span>R1 = readCSV(#rel[int position, str artist, str title, int year],  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
 rel[int position, str artist, str title, int year]: {
   &lt;1,"Eagles","Hotel California",1977>,
   &lt;2,"Queen","Bohemian rhapsody",1975>,
@@ -120,14 +123,18 @@ rel[int position, str artist, str title, int year]: {
 </pre> Now we can, for instance, select one of the fields of <code>R1</code>:
 <pre class="screen"><span class="prompt">rascal></span>R1.artist;
 set[str]: {"Eagles","Boudewijn de Groot","Queen"}
-</pre> It is also possible to use the most general type <code>value</code> as result type:
-<pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(#value,  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
-readCSV inferred the relation type: rel[int position, str artist, str title, int year]
-value: {
-  &lt;1,"Eagles","Hotel California",1977>,
-  &lt;2,"Queen","Bohemian rhapsody",1975>,
-  &lt;3,"Boudewijn de Groot","Avond",1997>
-}
+</pre> It is also possible to infer the type:
+<pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
+|stdin:///|(104,3,&lt;1,104>,&lt;1,107>): Java("0")
+
+	org.rascalmpl.library.lang.csv.IO.extractLabels(IO.java:173)
+	org.rascalmpl.library.lang.csv.IO.inferType(IO.java:138)
+	org.rascalmpl.library.lang.csv.IO.read(IO.java:101)
+	org.rascalmpl.library.lang.csv.IO.readCSV(IO.java:84)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)
+	somewhere in: ___SCREEN_INSTANCE___
+
+
 </pre>
 </div>
 
@@ -137,7 +144,7 @@ value: {
 <a id="tutorAction" href="/Courses/index.html"><img id="leftIcon" height="40" width="40" src="/Courses/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/readCSV&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/csv/IO/readCSV&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Courses/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 1 warning in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

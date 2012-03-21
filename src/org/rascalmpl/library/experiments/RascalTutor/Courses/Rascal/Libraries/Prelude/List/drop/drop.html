@@ -77,7 +77,7 @@ ok
 list[int]: [7,3]
 <span class="prompt">rascal></span>drop(10, [5, 1, 7, 3]);
 list[int]: []
-<span class="prompt">rascal></span>drop(2, ["zebra", "elephant", "snake", "owl"]);
+<span class="prompt">rascal></span>drop(2, [&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 list[str]: ["snake","owl"]
 </pre>
 </div>
@@ -108,14 +108,17 @@ list[str]: ["snake","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_0" value="0">
-<label for="Rascal/Libraries/Prelude/List/drop_1_0">n elements less than the original list.</label><br/>
-
 <input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_4" value="4">
 <label for="Rascal/Libraries/Prelude/List/drop_1_4">n-1 elements less than the original list.</label><br/>
 
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_3" value="3">
+<label for="Rascal/Libraries/Prelude/List/drop_1_3">n-1 elements.</label><br/>
+
 <input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_2" value="2">
 <label for="Rascal/Libraries/Prelude/List/drop_1_2">n elements.</label><br/>
+
+<input type="radio" name="Rascal_Libraries_Prelude_List_drop_1:answer" id="Rascal/Libraries/Prelude/List/drop_1_0" value="0">
+<label for="Rascal/Libraries/Prelude/List/drop_1_0">n elements less than the original list.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -139,9 +142,9 @@ list[str]: ["snake","owl"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_drop_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:L" value="[true, false, false, false, false, false]">
-<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:N" value="1">
-The type of <tt>drop(1, [true, false, false, false, false, false])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:L" value="[2, 15, -1, -8, 14]">
+<input type="hidden" name="Rascal_Libraries_Prelude_List_drop_2:N" value="2">
+The type of <tt>drop(2, [2, 15, -1, -8, 14])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -165,9 +168,9 @@ The type of <tt>drop(1, [true, false, false, false, false, false])</tt> is <inpu
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_drop_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:L" value="[true, false, true, true]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:L" value="[17, 5, -14, 5, 9, -1]">
 <input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:N" value="0">
-<pre class="prequestion">drop(0, [true, false, true, true]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_3:answer" class="answerText"></pre>
+<pre class="prequestion">drop(0, [17, 5, -14, 5, 9, -1]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_drop_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_drop_3:another" value="yes">

@@ -74,19 +74,19 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  This test can, for instance, be used to handle the case that a certain key value is not in a map:
- <pre class="screen"><span class="prompt">rascal></span>T = ("a" : 1, "b" : 2);
+ <pre class="screen"><span class="prompt">rascal></span>T = (&quot;a&quot; : 1, &quot;b&quot; : 2);
 map[str, int]: ("b":2,"a":1)
 </pre>  Trying to access the key <code>"c"</code> will result in an error:
-<pre class="screen"><span class="prompt">rascal></span>T["c"];
+<pre class="screen"><span class="prompt">rascal></span>T[&quot;c&quot;];
 |stdin:///|(2,3,&lt;1,2>,&lt;1,5>): NoSuchKey("c")
 	somewhere in: ___SCREEN_INSTANCE___
 
 
 </pre>  Using the <code>?</code> operator, we can write:
-<pre class="screen"><span class="prompt">rascal></span>T["c"] ? 0;
+<pre class="screen"><span class="prompt">rascal></span>T[&quot;c&quot;] ? 0;
 int: 0
 </pre>  This is very usefull, if we want to modify the associated value, but are not sure whether it exists:
-<pre class="screen"><span class="prompt">rascal></span>T["c"] ? 0 += 1;
+<pre class="screen"><span class="prompt">rascal></span>T[&quot;c&quot;] ? 0 += 1;
 map[str, int]: ("c":1,"b":2,"a":1)
 </pre>  Another example using a list:
 <pre class="screen"><span class="prompt">rascal></span>L = [10, 20, 30];

@@ -82,13 +82,16 @@ finally: <i>Statement</i><sub>3</sub>;
  but throws an exception when the list is empty. Our variant will return <code>0</code> for an empty list:
  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
+<span class="prompt">rascal></span>import Exception;
+ok
 <span class="prompt">rascal></span>int hd(list[int] x) { try return head(x); catch: return 0; }
 int (list[int]): int hd(list[int]);
 <span class="prompt">rascal></span>hd([1,2,3]);
 int: 1
 <span class="prompt">rascal></span>hd([]);
 int: 0
-</pre>  We can also be more specific and catch the <code>EmptyList</code> exception:
+</pre>  We can also be more specific and catch the <code>EmptyList</code> exception
+  (which is available here since we have imported the <code>Exception</code> module):
 <pre class="screen"><span class="prompt">rascal></span>int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
 int (list[int]): int hd2(list[int]);
 <span class="prompt">rascal></span>hd2([]);

@@ -52,8 +52,8 @@
                            
                            
 <div id="Function">
-<span class="sectionHead">Function</span>  <ol><li> <code>duration createDuration(datetime begin, datetime end)</code></li>
-<li> <code>duration createDuration(interval i)</code></li>
+<span class="sectionHead">Function</span>  <ol><li> <code>Duration createDuration(datetime begin, datetime end)</code></li>
+<li> <code>Duration createDuration(interval i)</code></li>
 </ol>
 </div>
 
@@ -69,15 +69,15 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import DateTime;
 ok
 <span class="prompt">rascal></span>B = now();
-datetime: $2012-02-01T16:59:35.237+0100
+datetime: $2012-03-21T23:09:06.090+0100
 <span class="prompt">rascal></span>E1 = incrementHours(B);
-datetime: $2012-02-01T17:59:35.237+0100
+datetime: $2012-03-22T00:09:06.090+0100
 <span class="prompt">rascal></span>createDuration(B, E1);
-duration: Duration(0,0,0,1,0,0,0)
+Duration: duration(0,0,0,1,0,0,0)
 <span class="prompt">rascal></span>E2 = incrementMinutes(B);
-datetime: $2012-02-01T17:00:35.237+0100
+datetime: $2012-03-21T23:10:06.090+0100
 <span class="prompt">rascal></span>createDuration(B, E2);
-duration: Duration(0,0,0,0,1,0,0)
+Duration: duration(0,0,0,0,1,0,0)
 </pre>
 </div>
 

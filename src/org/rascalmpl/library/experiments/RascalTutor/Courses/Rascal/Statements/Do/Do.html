@@ -75,7 +75,7 @@
 ok
 <span class="prompt">rascal></span>int n = 3;
 int: 3
-<span class="prompt">rascal></span>do { println("n = <n>"); n -= 1; } while (n > 0);
+<span class="prompt">rascal></span>do { println(&quot;n = &lt;n&gt;&quot;); n -= 1; } while (n &gt; 0);
 n = 3
 n = 2
 n = 1
@@ -83,7 +83,7 @@ list[void]: []
 </pre>  Now build a list result using the <code>append</code> statement:
 <pre class="screen"><span class="prompt">rascal></span>n = 3;
 int: 3
-<span class="prompt">rascal></span>do { append n * n; n -= 1; } while (n > 0);
+<span class="prompt">rascal></span>do { append n * n; n -= 1; } while (n &gt; 0);
 list[int]: [9,4,1]
 </pre>
 </div>

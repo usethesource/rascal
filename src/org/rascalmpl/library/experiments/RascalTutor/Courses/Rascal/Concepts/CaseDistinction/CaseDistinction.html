@@ -71,9 +71,10 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  We use the <a href="/Courses/Recipes/Common/ColoredTrees/ColoredTrees.html">Recipes:ColoredTrees</a> datatype as example and use a switch to
  distinguish between red and black nodes:
- <pre class="screen"><span class="prompt">rascal></span>data ColoredTree = leaf(int N)      
-<span class="continuation">>>>>>>></span>                 | red(ColoredTree left, ColoredTree right) 
-<span class="continuation">>>>>>>></span>                 | black(ColoredTree left, ColoredTree right);
+ <pre class="screen"><span class="prompt">rascal></span>data ColoredTree = 
+<span class="continuation">>>>>>>></span>      leaf(int N) 
+<span class="continuation">>>>>>>></span>    | red(ColoredTree left, ColoredTree right) 
+<span class="continuation">>>>>>>></span>    | black(ColoredTree left, ColoredTree right);
 ok
 <span class="prompt">rascal></span>ColoredTree CT 
 <span class="continuation">>>>>>>></span>       = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));

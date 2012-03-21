@@ -132,35 +132,35 @@
 <span class="continuation">>>>>>>></span>}
 rel[int, int] (rel[int, int]): rel[int, int] invert(rel[int, int]);
 </pre>  Call it
-<pre class="screen"><span class="prompt">rascal></span>invert({<1,10>, <2,20>});
+<pre class="screen"><span class="prompt">rascal></span>invert({&lt;1,10&gt;, &lt;2,20&gt;});
 rel[int, int]: {
   &lt;20,2>,
   &lt;10,1>
 }
 </pre> In the following example we illustrate the use of type vriables in function declarations.
  Declare an inversion function that is applicable to any binary relation:
- <pre class="screen"><span class="prompt">rascal></span>rel[&T2, &T1] invert2(rel[&T1,&T2] R){  
+ <pre class="screen"><span class="prompt">rascal></span>rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1,&amp;T2] R){  
 <span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;&amp;T1 X, &amp;T2 Y> &lt;- R };
 <span class="continuation">>>>>>>></span>}
 rel[&amp;T2, &amp;T1] (rel[&amp;T1, &amp;T2]): rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1, &amp;T2]);
 </pre> Now apply it to relations with different types:
-<pre class="screen"><span class="prompt">rascal></span>invert2({<1,10>, <2,20>});
+<pre class="screen"><span class="prompt">rascal></span>invert2({&lt;1,10&gt;, &lt;2,20&gt;});
 rel[int, int]: {
   &lt;20,2>,
   &lt;10,1>
 }
-<span class="prompt">rascal></span>invert2({<"mon", 1>, <"tue", 2>});
+<span class="prompt">rascal></span>invert2({&lt;&quot;mon&quot;, 1&gt;, &lt;&quot;tue&quot;, 2&gt;});
 rel[int, str]: {
   &lt;1,"mon">,
   &lt;2,"tue">
 }
 </pre>  As another example declare a function that can be used to swap the elements of pairs of arbitrary types
   (also see <a href="/Courses/Rascal/Expressions/Values/Tuple/Subscription/Subscription.html">Tuple/Subscription</a>):
-<pre class="screen"><span class="prompt">rascal></span>tuple[&T2, &T1] swap(tuple[&T1, &T2] TP) { return <TP[1], TP[0]>;}
+<pre class="screen"><span class="prompt">rascal></span>tuple[&amp;T2, &amp;T1] swap(tuple[&amp;T1, &amp;T2] TP) { return &lt;TP[1], TP[0]&gt;;}
 tuple[&amp;T2,&amp;T1] (tuple[&amp;T1,&amp;T2]): tuple[&amp;T2,&amp;T1] swap(tuple[&amp;T1,&amp;T2]);
-<span class="prompt">rascal></span>swap(<1, 2>);
+<span class="prompt">rascal></span>swap(&lt;1, 2&gt;);
 tuple[int,int]: &lt;2,1>
-<span class="prompt">rascal></span>swap(<"wed", 3>);
+<span class="prompt">rascal></span>swap(&lt;&quot;wed&quot;, 3&gt;);
 tuple[int,str]: &lt;3,"wed">
 </pre> Here we use an overloaded definition with incomparable patterns:
  <pre class="screen"><span class="prompt">rascal></span>int f(int i) = 1;

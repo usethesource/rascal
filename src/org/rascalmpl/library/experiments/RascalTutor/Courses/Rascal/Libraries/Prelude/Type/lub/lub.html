@@ -71,8 +71,8 @@
 <li> <code>Symbol lub(\num(), \real())</code></li>
 <li> <code>Symbol lub(\num(), \rat())</code></li>
 <li> <code>Symbol lub(\set(Symbol s), \set(Symbol t))</code></li>
-<li> <code>Symbol lub(\set(Symbol _), \rel(list[Symbol] _))</code></li>
-<li> <code>Symbol lub(\rel(list[Symbol] _), \set(Symbol _))</code></li>
+<li> <code>Symbol lub(\set(Symbol s), \rel(list[Symbol] ts))</code></li>
+<li> <code>Symbol lub(\rel(list[Symbol] ts), \set(Symbol s))</code></li>
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
 <li> <code>Symbol lub(\rel(list[Symbol] l), \rel(list[Symbol] r))</code></li>
@@ -104,9 +104,12 @@
 <li> <code>Symbol lub(\parameter(str _, Symbol bound), Symbol r)</code></li>
 <li> <code>Symbol lub(Symbol l, \parameter(str _, Symbol bound))</code></li>
 <li> <code>Symbol lub(\reified(Symbol l), \reified(Symbol r))</code></li>
+<li> <code>Symbol lub(\reified(Symbol l), \node())</code></li>
 <li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
 <li> <code>Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp))</code></li>
+<li> <code>Symbol lub(\label(_,Symbol l), Symbol r)</code></li>
+<li> <code>Symbol lub(Symbol l, \label(_,Symbol r))</code></li>
 <li> <code>list[Symbol] lub(list[Symbol] l, list[Symbol] r)</code></li>
 <li> <code>default list[Symbol] lub(list[Symbol] l, list[Symbol] r)</code></li>
 </ol>

@@ -54,6 +54,10 @@
 <span class="sectionHead">Types</span>  <pre class="listing">data Contribution
      = popup(Menu menu)
      | menu(Menu menu)
+     | categories(map[str categoryName, FontProperties fontStyle] styleMap)
+     | builder(set[Message] ((&amp;T&lt;:Tree) tree) messages)
+     | annotator((&amp;T&lt;:Tree) (&amp;T&lt;:Tree input) annotator)
+     | outliner(node (&amp;T&lt;:Tree input) outliner)
      ;
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)
@@ -78,6 +82,10 @@ data Menu
   	                       
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  This data type is not yet complete.
+ <br/>
+<br/>
+
+ The categories do not support changing the font name or the font size.
 
 </div>
 

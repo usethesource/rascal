@@ -68,13 +68,13 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1, 2, 3, 4] > [1, 2, 3];
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>[1, 2, 3, 4] &gt; [1, 2, 3];
 bool: true
-<span class="prompt">rascal></span>[1, 2, 3, 4] > [1, 2, 3, 4];
+<span class="prompt">rascal></span>[1, 2, 3, 4] &gt; [1, 2, 3, 4];
 bool: false
-<span class="prompt">rascal></span>[1, 2, 3, 4] > [1, 2, 3];
+<span class="prompt">rascal></span>[1, 2, 3, 4] &gt; [1, 2, 3];
 bool: true
-<span class="prompt">rascal></span>[1, 2, 3, 4, 5] > [1, 3, 5]
+<span class="prompt">rascal></span>[1, 2, 3, 4, 5] &gt; [1, 3, 5]
 bool: true
 </pre>
 </div>
@@ -103,9 +103,9 @@ bool: true
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSuperList_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_1:A" value="[&quot;Darth Sidious&quot;, &quot;Cookie Monster&quot;, &quot;X&quot;, &quot;Guava&quot;]">
-<input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_1:B" value="[&quot;Joh Yowza&quot;, &quot;Bruno&quot;, &quot;Ailyn Vel&quot;]">
-The type of <tt>[&quot;Darth Sidious&quot;, &quot;Cookie Monster&quot;, &quot;X&quot;, &quot;Guava&quot;] &gt; [&quot;Joh Yowza&quot;, &quot;Bruno&quot;, &quot;Ailyn Vel&quot;]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_1:A" value="[true, false, true, false]">
+<input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_1:B" value="[true, true, true, true]">
+The type of <tt>[true, false, true, false] &gt; [true, true, true, true]</tt> is <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -129,9 +129,9 @@ The type of <tt>[&quot;Darth Sidious&quot;, &quot;Cookie Monster&quot;, &quot;X&
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSuperList_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_2:DIFF" value="{94, 62, 28, 89, 22}">
-<input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_2:B" value="{74, 75, 90, 93, 60}">
-<pre class="prequestion">[22,89,90,74,75,28,60,93,94,62] &gt; [74,90,75,60,93] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_2:DIFF" value="{20, 46, 2}">
+<input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_2:B" value="{26}">
+<pre class="prequestion">[2,20,26,46] &gt; [26] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_2:another" value="yes">
@@ -154,8 +154,8 @@ The type of <tt>[&quot;Darth Sidious&quot;, &quot;Cookie Monster&quot;, &quot;X&
 <span id="answerFeedback_Rascal_Expressions_Values_List_StrictSuperList_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_3:A" value="[&quot;Redcurrant&quot;, &quot;X&quot;, &quot;K&quot;]">
-<pre class="prequestion">[&quot;Redcurrant&quot;, &quot;X&quot;, &quot;K&quot;] &gt; [&quot;Redcurrant&quot;, &quot;X&quot;, &quot;K&quot;] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_3:A" value="[3, 12, -3, -10, -5]">
+<pre class="prequestion">[3, 12, -3, -10, -5] &gt; [3, 12, -3, -10, -5] == <input type="text" size="30" name="Rascal_Expressions_Values_List_StrictSuperList_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Expressions_Values_List_StrictSuperList_3:another" value="yes">

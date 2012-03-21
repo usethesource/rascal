@@ -62,11 +62,11 @@
 ok
 <span class="prompt">rascal></span>import ParseTree;
 ok
-<span class="prompt">rascal></span>m1 = popup(menu("MyMenu", [action("Example item", void (Tree t, loc s) { println("<t> @ <s>");})]));
+<span class="prompt">rascal></span>m1 = popup(menu(&quot;MyMenu&quot;, [action(&quot;Example item&quot;, void (Tree t, loc s) { println(&quot;&lt;t&gt; @ &lt;s&gt;&quot;);})]));
 Contribution: popup(menu(
     "MyMenu",
     [action("Example item",void (Tree, loc);)]))
-<span class="prompt">rascal></span>registerContributions("myLanguage", {m1});
+<span class="prompt">rascal></span>registerContributions(&quot;myLanguage&quot;, {m1});
 ok
 </pre>
 </div>

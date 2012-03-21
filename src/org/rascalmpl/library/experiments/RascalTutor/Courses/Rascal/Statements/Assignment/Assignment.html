@@ -128,24 +128,24 @@ list[int]: [10,200,30]
 <pre class="screen"><span class="prompt">rascal></span>P;
 list[int]: [10,20,30]
 </pre>   2. Subscription assignable with a map:
-<pre class="screen"><span class="prompt">rascal></span>M = ("abc": 1, "def" : 2);
+<pre class="screen"><span class="prompt">rascal></span>M = (&quot;abc&quot;: 1, &quot;def&quot; : 2);
 map[str, int]: ("def":2,"abc":1)
-<span class="prompt">rascal></span>M["def"] = 3;
+<span class="prompt">rascal></span>M[&quot;def&quot;] = 3;
 map[str, int]: ("def":3,"abc":1)
 </pre>  2. Subscription assignable to a tuple:
-<pre class="screen"><span class="prompt">rascal></span>T = <1, "abc", true>;
+<pre class="screen"><span class="prompt">rascal></span>T = &lt;1, &quot;abc&quot;, true&gt;;
 tuple[int,str,bool]: &lt;1,"abc",true>
-<span class="prompt">rascal></span>T[1] = "def";
+<span class="prompt">rascal></span>T[1] = &quot;def&quot;;
 tuple[int,str,bool]: &lt;1,"def",true>
 </pre>  3. Field assignable:
 <pre class="screen"><span class="prompt">rascal></span>data FREQ = wf(str word, int freq);
 ok
-<span class="prompt">rascal></span>W = wf("rascal", 1000);
+<span class="prompt">rascal></span>W = wf(&quot;rascal&quot;, 1000);
 FREQ: wf("rascal",1000)
 <span class="prompt">rascal></span>W.freq = 100000;
 FREQ: wf("rascal",100000)
 </pre>  4. Multiple assignable:
-<pre class="screen"><span class="prompt">rascal></span><A, B, C> = <"abc", 2.5, [1,2,3]>;
+<pre class="screen"><span class="prompt">rascal></span>&lt;A, B, C&gt; = &lt;&quot;abc&quot;, 2.5, [1,2,3]&gt;;
 tuple[str,real,list[int]]: &lt;"abc",2.5,[1,2,3]>
 <span class="prompt">rascal></span>A;
 str: "abc"
@@ -164,12 +164,12 @@ int: 3
 int: 3
 </pre>  Next consider, the isDefined assignable itself; recall that earlier we assigned a map value to <code><i>M</i></code> and that 
   it does not contain the key <code>"cef"</code> so essentially we try to increment a non-existing map entry:
-<pre class="screen"><span class="prompt">rascal></span>M["cef"] ? 0 += 1;
+<pre class="screen"><span class="prompt">rascal></span>M[&quot;cef&quot;] ? 0 += 1;
 map[str, int]: ("def":3,"cef":1,"abc":1)
 </pre>  6. Annotation assignable:
 <pre class="screen"><span class="prompt">rascal></span>anno str FREQ@color;
 ok
-<span class="prompt">rascal></span>W @ color = "red";
+<span class="prompt">rascal></span>W @ color = &quot;red&quot;;
 FREQ: wf("rascal",100000)[
   @color="red"
 ]

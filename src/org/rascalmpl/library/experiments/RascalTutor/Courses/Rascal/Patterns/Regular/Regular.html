@@ -163,32 +163,32 @@
 <br/>
 
  Multi-line matching:
- <pre class="screen"><span class="prompt">rascal></span>/XX$/ := "lineoneXX\nlinetwo";
+ <pre class="screen"><span class="prompt">rascal></span>/XX$/ := &quot;lineoneXX\nlinetwo&quot;;
 bool: false
-<span class="prompt">rascal></span>/XX$/m := "lineoneXX\nlinetwo";
+<span class="prompt">rascal></span>/XX$/m := &quot;lineoneXX\nlinetwo&quot;;
 bool: true
-<span class="prompt">rascal></span>/(?m)XX$/ := "lineoneXX\nlinetwo";
+<span class="prompt">rascal></span>/(?m)XX$/ := &quot;lineoneXX\nlinetwo&quot;;
 bool: true
 </pre> Case-insensitive matching:
- <pre class="screen"><span class="prompt">rascal></span>/XX/ := "some xx";
+ <pre class="screen"><span class="prompt">rascal></span>/XX/ := &quot;some xx&quot;;
 bool: false
-<span class="prompt">rascal></span>/XX/i := "some xx";
+<span class="prompt">rascal></span>/XX/i := &quot;some xx&quot;;
 bool: true
-<span class="prompt">rascal></span>/(?i)XX/ := "some xx";
+<span class="prompt">rascal></span>/(?i)XX/ := &quot;some xx&quot;;
 bool: true
 </pre> Single-line mode:
- <pre class="screen"><span class="prompt">rascal></span>/a.c/ := "abc";
+ <pre class="screen"><span class="prompt">rascal></span>/a.c/ := &quot;abc&quot;;
 bool: true
-<span class="prompt">rascal></span>/a.c/ := "a\nc";
+<span class="prompt">rascal></span>/a.c/ := &quot;a\nc&quot;;
 bool: false
-<span class="prompt">rascal></span>/a.c/s := "a\nc";
+<span class="prompt">rascal></span>/a.c/s := &quot;a\nc&quot;;
 bool: true
-<span class="prompt">rascal></span>/(?s)a.c/ := "a\nc";
+<span class="prompt">rascal></span>/(?s)a.c/ := &quot;a\nc&quot;;
 bool: true
 </pre> Here are examples, how to escape punctuation characters in regular expressions:
- <pre class="screen"><span class="prompt">rascal></span>/a\/b/ := "a/b";
+ <pre class="screen"><span class="prompt">rascal></span>/a\/b/ := &quot;a/b&quot;;
 bool: true
-<span class="prompt">rascal></span>/a\+b/ := "a+b";
+<span class="prompt">rascal></span>/a\+b/ := &quot;a+b&quot;;
 bool: true
 </pre>
 </div>

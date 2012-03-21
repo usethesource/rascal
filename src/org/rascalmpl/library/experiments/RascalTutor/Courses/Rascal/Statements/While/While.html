@@ -77,7 +77,7 @@
 ok
 <span class="prompt">rascal></span>int n = 3;
 int: 3
-<span class="prompt">rascal></span>while( n > 0 ) { println("n = <n>"); n -= 1; }
+<span class="prompt">rascal></span>while( n &gt; 0 ) { println(&quot;n = &lt;n&gt;&quot;); n -= 1; }
 n = 3
 n = 2
 n = 1
@@ -85,10 +85,10 @@ list[void]: []
 </pre>  Now build a list result using the <code>append</code> statement:
 <pre class="screen"><span class="prompt">rascal></span>n = 3;
 int: 3
-<span class="prompt">rascal></span>while (n > 0) { append n * n; n -= 1; }
+<span class="prompt">rascal></span>while (n &gt; 0) { append n * n; n -= 1; }
 list[int]: [9,4,1]
 </pre> Just to be sure, a <a href="/Courses/Rascal/Expressions/Values/List/Comprehension/Comprehension.html">List/Comprehension</a> is the superior way to write this:
- <pre class="screen"><span class="prompt">rascal></span>[n * n | n <- [3 .. 1]];
+ <pre class="screen"><span class="prompt">rascal></span>[n * n | n &lt;- [3 .. 1]];
 list[int]: [9,4,1]
 </pre>
 </div>

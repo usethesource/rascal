@@ -110,9 +110,9 @@ ok
 <span class="prompt">rascal></span>import IO;
 ok
 </pre>  Define the map <code>weekend</code> and do a subscription with a non-existing key:
-<pre class="screen"><span class="prompt">rascal></span>weekend = ("saturday": 1, "sunday": 2);
+<pre class="screen"><span class="prompt">rascal></span>weekend = (&quot;saturday&quot;: 1, &quot;sunday&quot;: 2);
 map[str, int]: ("saturday":1,"sunday":2)
-<span class="prompt">rascal></span>weekend["monday"];
+<span class="prompt">rascal></span>weekend[&quot;monday&quot;];
 |stdin:///|(8,8,&lt;1,8>,&lt;1,16>): NoSuchKey("monday")
 	somewhere in: ___SCREEN_INSTANCE___
 

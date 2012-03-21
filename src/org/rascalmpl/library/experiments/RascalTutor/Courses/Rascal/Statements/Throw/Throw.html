@@ -69,11 +69,11 @@
   	                       
 <div id="Examples">
 <span class="sectionHead">Examples</span>  Here is a a variant of string concatenation for ball haters:
- <pre class="screen"><span class="prompt">rascal></span>str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
+ <pre class="screen"><span class="prompt">rascal></span>str conc(str x, str y){ if(&quot;ball&quot; in {x, y}) throw &quot;I hate balls&quot;; return x + y; }
 str (str, str): str conc(str, str);
-<span class="prompt">rascal></span>conc("fairy", "tale");
+<span class="prompt">rascal></span>conc(&quot;fairy&quot;, &quot;tale&quot;);
 str: "fairytale"
-<span class="prompt">rascal></span>conc("foot", "ball");
+<span class="prompt">rascal></span>conc(&quot;foot&quot;, &quot;ball&quot;);
 |stdin:///|(51,14,&lt;1,51>,&lt;1,65>): "I hate balls"
 	somewhere in: conc
 	somewhere in: ___SCREEN_INSTANCE___

@@ -112,14 +112,14 @@ ok
 <span class="continuation">>>>>>>></span>  return parse(#start[ABC], x, l); 
 <span class="continuation">>>>>>>></span>}
 start[ABC] (str, loc): start[ABC] abc(str, loc);
-<span class="prompt">rascal></span>registerLanguage("The ABC language", "abc", abc);
+<span class="prompt">rascal></span>registerLanguage(&quot;The ABC language&quot;, &quot;abc&quot;, abc);
 ok
 </pre>  After this, your <b>current</b> Eclipse instance will start editors for all files ending in <code>.abc</code> and parse them using the <code>abc</code> function. The editor will provide some default highlighting features.
  <br/>
 <br/>
 
   To add annotations to trees, just after parsing, you should register an 'annotator' function:
-<pre class="screen"><span class="prompt">rascal></span>registerAnnotator("abc", Tree (Tree t) { return t[@doc="Hello!"]; });
+<pre class="screen"><span class="prompt">rascal></span>registerAnnotator(&quot;abc&quot;, Tree (Tree t) { return t[@doc=&quot;Hello!&quot;]; });
 ok
 </pre>
 </div>
