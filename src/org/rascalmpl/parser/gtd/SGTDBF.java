@@ -30,9 +30,9 @@ import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
@@ -117,10 +117,6 @@ public abstract class SGTDBF implements IGTD{
 		unexpandableNodes = new Stack<AbstractStackNode>();
 		unmatchableNodes = new Stack<AbstractStackNode>();
 		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
-	}
-	
-	public void enableRecovery() {
-		recovering = true;
 	}
 	
 	/**
@@ -520,8 +516,10 @@ public abstract class SGTDBF implements IGTD{
 	private final IntegerList firstTimeRegistration = new IntegerList();
 	private final IntegerList firstTimeReductions = new IntegerList();
 
-	
-	
+	// Data needed for error recovery
+	private int[][] continuations;
+	private ObjectKeyedIntegerMap<Object> robust;
+
 	/**
 	 * Handles reductions which may be associated with nesting restrictions.
 	 */
@@ -929,11 +927,16 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input){
+		return parse(startNode, inputURI, input, new Object[] {}, new int[][] {});
+	}
+	
 	/**
 	 * Initiates parsing.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input){
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input, Object[] robustNodes, int[][] continuationCharacters){
+		
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
 		}
@@ -943,6 +946,11 @@ public abstract class SGTDBF implements IGTD{
 		this.startNode = startNode.getCleanCopy(0);
 		this.inputURI = inputURI;
 		this.input = input;
+		
+		if (robustNodes.length > 0) {
+			recovering = true;
+			initializeRecovery(robustNodes, continuationCharacters);
+		}
 		
 		// Initialzed the position store.
 		positionStore.index(input);
@@ -1008,6 +1016,16 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
+	private void initializeRecovery(Object[] robustNodes,
+			int[][] continuationCharacters) {
+		this.robust = new ObjectKeyedIntegerMap<Object>();
+		this.continuations = continuationCharacters;
+		
+		for (int i = 0; i < robustNodes.length; i++) {
+			robust.put(robustNodes[i], i);
+		}
+	}
+
 	private boolean reviveFiltered(DoubleStack<AbstractStackNode, AbstractNode> nodes) {
 		// TODO: perhaps this is not really necessary
 		return false;
@@ -1037,7 +1055,7 @@ public abstract class SGTDBF implements IGTD{
 			int dot = recoveryDots.pop();
 			
 			// TODO: skipping to newline here, instead of programmeable follow set
-			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot, new int[] {'\n',';'}, input, location, prod).getCleanCopy(location);
+			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot, continuations[robust.get(prod)], input, location, prod).getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(continuer);
@@ -1053,8 +1071,9 @@ public abstract class SGTDBF implements IGTD{
 	}
 
 	private boolean isRecovering(Object prod) {
-		return prod.toString().contains("Statement");
+		return robust.contains(prod);
 	}
+	
 	/**
 	 * This method travels up the graph to find the first nodes that are recoverable.
 	 * The graph may split and merge, and even cycle, so we take care of knowing where
@@ -1122,46 +1141,68 @@ public abstract class SGTDBF implements IGTD{
 		
 		return result;
 	}
-	
+
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter) {
+		return parse(nonterminal, inputURI, input, actionExecutor, converter, new Object[] { }, new int[][] { });
+	}
+
 	/**
 	 * Parses with post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter){
-		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter);
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, robustNodes, continuationCharacters);
 	}
 	
 	/**
 	 * Parses with post parse filtering.
 	 */
-	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
+	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, robustNodes, continuationCharacters);
 		return buildResult(result, converter, actionExecutor);
 	}
 	
+	public Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter) {
+		return parse(nonterminal, inputURI, input, converter, new Object[] { }, new int[][] { });
+	}
+	
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter) {
+		return parse(nonterminal, inputURI, input, converter, new Object[] { }, new int[][] { });
+	}
+
 	/**
 	 * Parses without post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter){
-		return parse(nonterminal, inputURI, charsToInts(input), converter);
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		return parse(nonterminal, inputURI, charsToInts(input), converter, robustNodes, continuationCharacters);
 	}
 	
-	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input);
+	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, robustNodes, continuationCharacters);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter) {
+		return parse(startNode, inputURI, input, converter, new Object[] {}, new int[][] { });
+	}
+	
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter){
-		return parse(startNode, inputURI, charsToInts(input), converter);
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		return parse(startNode, inputURI, charsToInts(input), converter, robustNodes, continuationCharacters);
 	}
 	
 	/**
 	 * Parses without post parse filtering.
 	 */
 	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter){
-		AbstractNode result = parse(startNode, inputURI, input);
+		return parse(startNode, inputURI, input, converter, new Object[]{}, new int[][]{});
+	}
+	/**
+	 * Parses without post parse filtering.
+	 */
+	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
+		AbstractNode result = parse(startNode, inputURI, input, robustNodes, continuationCharacters);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
@@ -1173,9 +1214,10 @@ public abstract class SGTDBF implements IGTD{
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		Object parseResult = null;
-		try{
+		try {
 			parseResult = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
-		}finally{
+		}
+		finally {
 			actionExecutor.completed(rootEnvironment, (parseResult == null));
 		}
 		if(parseResult != null){

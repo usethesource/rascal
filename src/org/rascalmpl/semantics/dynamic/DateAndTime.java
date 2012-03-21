@@ -51,9 +51,6 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 		
 		public Result<IValue> createVisitedDateTime(Evaluator eval, String datePart, String timePart, Lexical x) {
 			try {
-				datePart.replaceAll("-", "");
-				timePart.replaceAll(":","");
-
 				StandardTextReader parser = new StandardTextReader();
 				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));
 				return makeResult(TF.dateTimeType(), result, eval);
