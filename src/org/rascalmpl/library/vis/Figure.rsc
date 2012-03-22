@@ -909,7 +909,7 @@ public Figure pack(Figures figs, FProperty props ...){
 }
 
 public Figure graph(Figures nodes, Edges edges, FProperty props...){
-  return _graph(nodes, edges, [resizable(false)] + props);
+  return _graph(nodes, edges, [std(resizable(false))] + props);
 }
 
 public Figure treemap(Figures nodes,  FProperty props...){
