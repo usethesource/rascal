@@ -535,11 +535,11 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	}
 	
 	double width(){
-		return innerFig != null ? innerFig.size.getX() : virtWidth;
+		return innerFig != null ? innerFig.minSize.getX() : virtWidth;
 	}
 	
 	double height(){
-		return innerFig != null ? innerFig.size.getY() : virtHeight;
+		return innerFig != null ? innerFig.minSize.getY() : virtHeight;
 	}
 	
 	String getLayer(){
@@ -551,7 +551,7 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 		super.resizeElement(view);
 		localLocation.set(0, 0);
 		if(innerFig != null){
-			innerFig.localLocation.set(x - innerFig.size.getX()/2, y - innerFig.size.getY()/2);
+			innerFig.localLocation.set(x - innerFig.minSize.getX()/2, y - innerFig.minSize.getY()/2);
 		}
 	}
 	

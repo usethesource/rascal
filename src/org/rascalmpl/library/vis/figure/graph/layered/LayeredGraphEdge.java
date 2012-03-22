@@ -114,9 +114,9 @@ public class LayeredGraphEdge extends Figure {
 		if(toArrow != null){
 			toArrow.init(env, resolver, mparent, swtSeen, visible);
 		}
-//		if(label!=null){
-//			label.init(env, resolver, mparent, swtSeen, visible);
-//		}
+		if(label!=null){
+			label.init(env, resolver, mparent, swtSeen, visible);
+		}
 		return false;
 	}
 	
