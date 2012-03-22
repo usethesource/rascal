@@ -619,4 +619,8 @@ public class TreeAdapter {
 	public static IConstructor getCycleType(IConstructor tree) {
 		return (IConstructor) tree.get("symbol");
 	}
+
+	public static boolean isSkipped(IConstructor arg) {
+		return ProductionAdapter.isSkipped(getProduction(arg));
+	}
 }

@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
@@ -96,9 +95,6 @@ public class SortContainerNodeConverter{
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
 			
-			if (node instanceof SkippedNode) {
-				System.err.println("hallo, hier is een recovery node");
-			}
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			
 			IConstructor constructedNode = converter.convert(node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
@@ -187,9 +183,10 @@ public class SortContainerNodeConverter{
 		IConstructor result = null;
 		
 		int nrOfAlternatives = gatheredAlternatives.size();
-		if(nrOfAlternatives == 1){ // Not ambiguous.
+		if (nrOfAlternatives == 1) { // Not ambiguous.
 			result = gatheredAlternatives.get(0);
-		}else if(nrOfAlternatives > 0){ // Ambiguous.
+		}
+		else if (nrOfAlternatives > 0) { // Ambiguous.
 			ISetWriter ambSetWriter = VF.setWriter(Factory.Tree);
 			
 			for(int i = nrOfAlternatives - 1; i >= 0; --i){

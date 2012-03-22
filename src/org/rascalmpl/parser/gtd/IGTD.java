@@ -14,7 +14,6 @@ package org.rascalmpl.parser.gtd;
 import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 
 /**
@@ -28,6 +27,19 @@ public interface IGTD{
 	 * executor will be used to execute semantic actions.
 	 */
 	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
+
+	/**
+	 * Experimental!
+	 * @param nonterminal
+	 * @param inputURI
+	 * @param input
+	 * @param actionExecutor
+	 * @param converter
+	 * @param robustNodes
+	 * @param continuationCharacters
+	 * @return
+	 */
+	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters);
 	
 	/**
 	 * Parse the input string, using the given non-terminal as start node. If
@@ -37,17 +49,5 @@ public interface IGTD{
 	 */
 	Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
 	
-	/**
-	 * Constructs an error result. Error results can only be constructed if a
-	 * parse error occured. The parse will use all available information to
-	 * build a result which is as complete as possible.
-	 */
-	Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor);
-	
-	/**
-	 * Constructs an error result. Error results can only be constructed if a
-	 * parse error occured. The parse will use all available information to
-	 * build a result which is as complete as possible.
-	 */
-	Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter);
+	boolean parseErrorHasOccurred();
 }
