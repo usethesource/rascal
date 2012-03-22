@@ -17,6 +17,7 @@ package org.rascalmpl.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
@@ -104,22 +105,6 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 
-	
-	@Test(expected=StaticError.class)
-	public void comprehensionError1() {
-		runTest("{X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}};");
-	}
-	
-	@Test(expected=StaticError.class)
-	public void comprehensionError2() {
-		runTest("[X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}];");
-	}
-	
-	@Test(expected=StaticError.class)
-	public void comprehensionError3() {
-		runTest("(X < 2 ? \"a\" : 3.5 : 5 | int X <- {1,2,3});");
-	}
-	
 	
 	@Test(expected=StaticError.class)
 	public void testGen1() {
@@ -286,6 +271,16 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 	@Test
+	public void setComprehensionNested() {
+		assertTrue(runTest("{ {X + y | int y <- [1..X]} | int X <- {1,2,3}} == {{2}, {3,4}, {4,5,6}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X]} | int X <- {1,2,3}} == {2, 3, 4, 5, 6};"));
+		assertTrue(runTest("{ {X + y | int y <- [1..X], X < 2} | int X <- [1,2,3]} == {{2}, {}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X], X < 2} | int X <- [1,2,3]} == {2};"));
+		assertTrue(runTest("{ {X + y | int y <- [1..X], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};"));
+		assertTrue(runTest("{ *{X + y | int y <- [1..X], X > 2} | int X <- [1,2,3]} == {4, 5, 6};"));
+	}
+	
+	@Test
 	public void emptySetGeneratorError(){
 		assertTrue(runTest("[ X | int X <- {} ] == [];"));
 	}
@@ -404,6 +399,17 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 	@Test
+	public void listComprehensionNested() {
+		assertTrue(runTest("[  [y | int y <- [0..X]] | int X <- [1,2,3]] == [[0,1], [0,1,2], [0,1,2,3]];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X]] | int X <- [1,2,3]] == [0,1, 0,1,2, 0,1,2,3];"));
+		assertTrue(runTest("[ [y | int y <- [0..X], X < 2] | int X <- [1,2,3]] == [[0,1], [], []];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X], X < 2] | int X <- [1,2,3]] == [0,1];"));
+		assertTrue(runTest("[ [y | int y <- [0..X], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];"));
+		assertTrue(runTest("[ *[y | int y <- [0..X], X > 2] | int X <- [1,2,3]] == [0,1,2,3];"));
+		
+	}
+	
+	@Test
 	public void emptyTupleGeneratorError1(){
 		assertTrue(runTest("{<X,Y> | <int X, int Y> <- {}} == {} ;"));
 	}
@@ -471,6 +477,13 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("( X : 2 * X | int X <- [1, 2]) == (1:2,2:4);"));
 		
 		assertTrue(runTest("( X: 2 * X| int X<- [1,2,3] ) == (1:2,2:4,3:6);"));
+	}
+	
+	@Test
+	public void mapComprehensionNested() {
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X]) | int X <- [1,2,3] ) == (1:(3:1),2:(5:1,6:2),3:(7:1,8:2,9:3));"));
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X], X < 2) | int X <- [1,2,3] ) == (1:(3:1), 2:(), 3:());"));
+		assertTrue(runTest("( X: (2 * X + y : y | int y <- [1..X], X > 2) | int X <- [1,2,3] ) == (1:(),2:(),3:(7:1,8:2,9:3));"));
 	}
 	
 	@Test public void nodeGenerator()  {
