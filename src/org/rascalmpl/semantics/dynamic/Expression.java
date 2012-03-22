@@ -1244,6 +1244,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new ListPattern(eval, this, buildMatchers(getElements(), eval));
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -1326,11 +1327,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 							throw new NonVoidTypeRequired(expr);
 						}
 
-						if(resultElem.getType().isListType()){
+						if(resultElem.getType().isListType()|| resultElem.getType().isSetType()){
 							/*
 							 * Splice elements in list
 							 */
-							for (IValue val : ((IList) resultElem.getValue())) {
+							for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
 								elementType = elementType.lub(val.getType());
 								results.add(val);
 							}
@@ -2068,6 +2069,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new SetPattern(eval, this, buildMatchers(this.getElements(), eval));
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
@@ -2086,12 +2088,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 						throw new NonVoidTypeRequired(expr.getArgument());
 					}
 
-					if (resultElem.getType().isSetType()){
+					if (resultElem.getType().isSetType() || resultElem.getType().isListType()){
 						/*
 						 * Splice the elements in the set
 						 * __eval.
 						 */
-						for (IValue val : ((ISet) resultElem.getValue())) {
+						for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
 							elementType = elementType.lub(val.getType());
 							results.add(val);
 						}

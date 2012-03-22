@@ -16,14 +16,15 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 		this.elementType1 = TF.voidType();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void append() {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> list = resExpr.getArgument().interpret(this.ev);
-				if (list.getType().isListType()) {
+				if (list.getType().isListType() || list.getType().isSetType()) {
 					elementType1 = elementType1.lub(list.getType().getElementType());
-					((IListWriter)writer).appendAll((IList)list.getValue());
+					((IListWriter)writer).appendAll((Iterable<IValue>)list.getValue());
 				}
 				else {
 					// original code supported slicing on no list?
