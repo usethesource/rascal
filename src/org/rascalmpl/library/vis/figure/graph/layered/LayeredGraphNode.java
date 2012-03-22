@@ -66,12 +66,6 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 		super(fig,g.prop);
 		this.graph = g;
 		this.name = name;
-		this.innerFig = fig;
-		if(fig != null){
-			this.children = new Figure[1];
-		    this.children[0] = fig;
-		} else
-			this.children = childless;
 		in = new LinkedList<LayeredGraphNode>();
 		out = new LinkedList<LayeredGraphNode>();
 		root = align = sink = this;
@@ -541,11 +535,11 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	}
 	
 	double width(){
-		return innerFig != null ? innerFig.minSize.getX() : virtWidth;
+		return innerFig != null ? innerFig.size.getX() : virtWidth;
 	}
 	
 	double height(){
-		return innerFig != null ? innerFig.minSize.getY() : virtHeight;
+		return innerFig != null ? innerFig.size.getY() : virtHeight;
 	}
 	
 	String getLayer(){
@@ -554,9 +548,11 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 
 	@Override
 	public void resizeElement(Rectangle view) {
+		System.out.printf("HALLL)OOO!!!!!!!\n");
+		super.resizeElement(view);
 		localLocation.set(0, 0);
 		if(innerFig != null){
-			innerFig.localLocation.set(x - innerFig.minSize.getX()/2, y - innerFig.minSize.getY()/2);
+			innerFig.localLocation.set(x - innerFig.size.getX()/2, y - innerFig.size.getY()/2);
 		}
 	}
 	
