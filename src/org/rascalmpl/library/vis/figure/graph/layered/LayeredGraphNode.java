@@ -548,7 +548,6 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		System.out.printf("HALLL)OOO!!!!!!!\n");
 		super.resizeElement(view);
 		localLocation.set(0, 0);
 		if(innerFig != null){
