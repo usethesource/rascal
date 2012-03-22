@@ -569,8 +569,19 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("[1, 2] + 3 == [1, 2, 3];"));
 		assertTrue(runTest("1 +  [2, 3] == [1, 2, 3];"));
 		
-		assertTrue(runTest("[1,1,2,2,3,3,4,4,5] - [1,2,4] == [3,3,5];"));
-		assertTrue(runTest("[1,2,3,4,5,4,3,2,1] - [1,2,4] == [3,5,3];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - 1 == [2,1,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - 2 == [1,1,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - 5 == [1,2,1,2,3,4,3,4];"));
+		
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [1] == [2,1,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [2] == [1,1,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [5] == [1,2,1,2,3,4,3,4];"));
+		
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [1,1] == [2,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [1,1,1] == [2,2,3,4,3,4,5];"));
+		
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [1,2] == [1,2,3,4,3,4,5];"));
+		assertTrue(runTest("[1,2,1,2,3,4,3,4,5] - [2,3] == [1,1,2,4,3,4,5];"));
 		
 		assertTrue(runTest("[] & [1,2,4] == [];"));
 		assertTrue(runTest("[1,2,3] & [] == [];"));
