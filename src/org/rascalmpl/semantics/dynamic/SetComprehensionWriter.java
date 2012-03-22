@@ -14,14 +14,15 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 		this.elementType1 = TF.voidType();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void append() {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> set = resExpr.getArgument().interpret(this.ev);
-				if (set.getType().isSetType()) {
+				if (set.getType().isSetType() || set.getType().isListType()) {
 					elementType1 = elementType1.lub(set.getType().getElementType());
-					writer.insertAll((ISet)set.getValue());
+					writer.insertAll((Iterable<IValue>)set.getValue());
 				}
 				else {
 					// original code supported slicing on no set?

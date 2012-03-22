@@ -693,6 +693,14 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2],5]; L3 == [[1,2],[[3,4]],5];}"));
 	}
 	
+	@Test 
+	public void testSetInListSplicing() {
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; [L1,S2,5] == [[1,2],{3,4},5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; [*L1,S2,5] == [1,2,{3,4},5];}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; ([L1,*S2,5] == [[1,2],3,4,5]) || ([L1,*S2,5] == [[1,2],4,3,5]);}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; ([*L1,*S2,5] == [1,2,3,4,5]) || ([*L1,*S2,5] == [1,2,4,3,5]) ;}"));
+	}
+	
 	@Test
 	public void testRange() {
 		
@@ -1101,6 +1109,14 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[set[int]]] S3 = {{S1},{S2}}; S3 == {{{1,2}},{{3,4}}};}"));
 		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2}}; S3 == {{1,2},{{3,4}}};}"));
 		assertTrue(runTest("{set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2},5}; S3 == {{1,2},{{3,4}},5};}"));
+	}
+	
+	@Test 
+	public void testListInSetSplicing() {
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; {L1,S2,5} == {[1,2],{3,4},5};}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; {*L1,S2,5} == {1,2,{3,4},5};}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; {L1,*S2,5} == {[1,2],3,4,5};}"));
+		assertTrue(runTest("{list[int] L1 = [1,2]; set[int] S2 = {3,4}; {*L1,*S2,5} == {1,2,3,4,5};}"));
 	}
 	
 	@Test

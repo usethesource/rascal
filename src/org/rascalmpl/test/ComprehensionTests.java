@@ -247,6 +247,10 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("{X * 2 | int X <- {1,2,3}} == {2,4,6};"));
 		assertTrue(runTest("{X * 2 | int X <- [1,2,3]} == {2,4,6};"));
+		
+		
+		assertTrue(runTest("{*[X * 2] | int X <- {1,2,3}} == {2,4,6};"));
+		assertTrue(runTest("{*[X * 2, X * 2 + 1] | int X <- {1,2,3}} == {2,3,4,5,6,7};"));
 	}
 	
 	@Test
@@ -380,7 +384,10 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("{ L = [X * 2 | int X <- {2,3}]; (L == [4,6]) || (L == [6,4]);}"));
 		assertTrue(runTest("[X * 2 | int X <- [1,2,3]] == [2,4,6];"));
-
+		
+		assertTrue(runTest("[*{X * 2} | int X <- [1,2,3]] == [2,4,6];"));
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("toSet([*{X * 2, X * 2 + 1} | int X <- [1,2,3]]) == {2,3,4,5, 6, 7};"));
 	}
 	
 	@Test
