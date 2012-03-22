@@ -10,6 +10,8 @@
 module util::Dot
 import IO;
 import String;
+import Set;
+import Map;
 
 public alias Id = str;
 
@@ -24,6 +26,8 @@ public alias NodeId = tuple[Id, PortId];
 public alias PortId = tuple[Id, CompassPt];
 
 public data CompassPt = N()|NE()|E()|SE()|S()|SW()|W()|NW()|C()|_();
+
+
 
 public data Stm = 
   N(Id id, Attrs attrs) | N(Id id) 
@@ -48,13 +52,30 @@ public alias Attr =  tuple[str prop,  Id val];
 
 public alias Attrs = list[Attr];
 
+public alias Outline = map[int key, list[str] args];
+
+public alias Dotline = tuple[DotGraph graph, Outline outline];
+
+
 @doc{Dummy function call needed to tag initialized global variables of type DotGraph.
 It is possible to select that variable on the outline menu of the Rascal Editor.
 An application is for example to display dotgraphs.}  
  
 public DotGraph export(DotGraph g) {return g;}
 
-@doc{Translates ADT DotGraph to String which can be parsed by dot}
+public Dotline export(Dotline g) {return g;}
+
+public bool hasOutline(Dotline g) {return true;}
+
+public bool hasOutline(DotGraph g) {return false;}
+
+public Outline currentOutline;
+
+public void setCurrentOutline(Dotline current) {
+   currentOutline = current.outline;
+   }
+
+@doc{Translates DotGraph to String input for dot}
 public str toString(DotGraph g) {
        if (digraph(Id id,Stms stms):=g) {
             str r= "digraph <id> {<for (x<-stms) {> <oStm(x)>;<}>}"; 
@@ -62,6 +83,27 @@ public str toString(DotGraph g) {
             }
     return "error";
     }
+
+public str toString(Dotline g) {
+    return toString(g.graph);
+    }
+    
+        
+public list[value] getChildren(value key) {
+    if (int k:=key) {
+       if (k==-1) return toList(domain(currentOutline));
+       return currentOutline[k];
+       }     
+    return [];
+    }
+/*    
+public str getParent(Dotline g, str v) {
+    Outline m = g.outline;
+    list[str] parents =  [d|str d<-domain(m), v in m[d]];
+    if (isEmpty(parents)) return "";
+    return parents[0];
+    }
+*/ 
 /*--------------------------------------------------------------------------------------------------------------------------*/
 
 DotGraph g1(int n) {
