@@ -16,6 +16,7 @@ Details:
 
 Description:
 Returns the intersection of the two set values of $Exp_1$ and $Exp_2$.
+The intersection consists of the common elements of both sets.
 
 Examples:
 <screen>

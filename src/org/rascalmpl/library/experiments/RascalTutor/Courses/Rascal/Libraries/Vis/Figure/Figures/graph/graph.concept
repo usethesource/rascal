@@ -71,16 +71,33 @@ edges = [ edge("A", "B"), edge("A", "C"), edge("A", "D"),
 render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
 </figure>
 
-![graph 1](g2.png)
+![graph 2](g2.png)
+
+<figure g3.png>
+Figure n(str nm) = box(text(nm), id(nm), grow(1.2), fillColor(color("yellow", 0.7)));
+nodes = [n("joe"), n("food"), n("dog"), n("tea"), n("cat"), n("table"), n("plate"),
+         n("mouse"), n("cup"), n("spoon"), n("fork"), n("flea1"), n("flea2"), n("knife")];
+edges = [edge("joe", "food"), edge("joe", "dog"), edge("joe", "tea"), edge("joe", "cat"),
+	 edge("joe", "table"), edge("table", "plate"), edge("plate", "food"), 
+         edge("food", "mouse"),	edge("food", "dog"), edge("mouse", "cat"), 
+         edge("table", "cup"), edge("cup", "tea"), edge("dog", "cat"), edge("cup", "spoon"),
+	 edge("plate", "fork"),	edge("dog", "flea1"), edge("dog", "flea2"),
+	 edge("flea1", "flea2"), edge("plate", "knife")];
+render(graph(nodes, edges, hint("spring"), size(500), gap(20)));
+</figure>
+
+![graph 3](screenshot.png)
 
 Benefits:
 
 Pitfalls:
-* The layered graph layout performs best when (these are imperfections of the current implementation):
-** the node sizes are more or less equal.
+* The layered graph layout performs currently best when:
 ** the [hgap] is set to a value equal to the average width of the nodes.
+** [orientation] is not used.
 
-* Spring layout is at the moment disabled.
+* For spring layout the following do not yet work:
+** labels,
+** arrows.
 
 Questions:
 

@@ -23,6 +23,10 @@ Computing a list of squares of the numbers from 0 to 10 that are divisible by 3:
 <screen>
 [n * n | int n <- [0 .. 10], n % 3 == 0];
 </screen>
+But we can also include the relevant `n` in the resulting list:
+<screen>
+[n, n * n | int n <- [0 .. 10], n % 3 == 0];
+</screen>
 
 Benefits:
 

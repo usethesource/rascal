@@ -72,6 +72,9 @@
 <span class="sectionHead">Examples</span>  Computing a list of squares of the numbers from 0 to 10 that are divisible by 3:
  <pre class="screen"><span class="prompt">rascal></span>[n * n | int n &lt;- [0 .. 10], n % 3 == 0];
 list[int]: [0,9,36,81]
+</pre> But we can also include the relevant <code>n</code> in the resulting list:
+ <pre class="screen"><span class="prompt">rascal></span>[n, n * n | int n &lt;- [0 .. 10], n % 3 == 0];
+list[int]: [0,0,3,9,6,36,9,81]
 </pre>
 </div>
 

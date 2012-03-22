@@ -116,17 +116,33 @@ edges = [ edge("A", "B"), edge("A", "C"), edge("A", "D"),
     	  edge("K", "G"), edge("A", "G")
     	]; 
 render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
-</pre> <img class="TutorImg"  title="graph 1" alt="graph 1" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g2.png">
+</pre> <img class="TutorImg"  title="graph 2" alt="graph 2" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/g2.png">
+ <br/>
+<br/>
+
+ <pre class="listing">Figure n(str nm) = box(text(nm), id(nm), grow(1.2), fillColor(color("yellow", 0.7)));
+nodes = [n("joe"), n("food"), n("dog"), n("tea"), n("cat"), n("table"), n("plate"),
+         n("mouse"), n("cup"), n("spoon"), n("fork"), n("flea1"), n("flea2"), n("knife")];
+edges = [edge("joe", "food"), edge("joe", "dog"), edge("joe", "tea"), edge("joe", "cat"),
+	 edge("joe", "table"), edge("table", "plate"), edge("plate", "food"), 
+         edge("food", "mouse"),	edge("food", "dog"), edge("mouse", "cat"), 
+         edge("table", "cup"), edge("cup", "tea"), edge("dog", "cat"), edge("cup", "spoon"),
+	 edge("plate", "fork"),	edge("dog", "flea1"), edge("dog", "flea2"),
+	 edge("flea1", "flea2"), edge("plate", "knife")];
+render(graph(nodes, edges, hint("spring"), size(500), gap(20)));
+</pre> <img class="TutorImg"  title="graph 3" alt="graph 3" src="/Courses/Rascal/Libraries/Vis/Figure/Figures/graph/screenshot.png">
 
 </div>
 
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> The layered graph layout performs best when (these are imperfections of the current implementation): <ul><li> the node sizes are more or less equal.</li>
-<li> the <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.html">hgap</a> is set to a value equal to the average width of the nodes.</li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> The layered graph layout performs currently best when: <ul><li> the <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/hgap/hgap.html">hgap</a> is set to a value equal to the average width of the nodes.</li>
+<li> <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/orientation/orientation.html">orientation</a> is not used.</li>
 </ul></li>
-<li> Spring layout is at the moment disabled.</li>
+<li> For spring layout the following do not yet work: <ul><li> labels,</li>
+<li> arrows.</li>
+</ul></li>
 </ul>
 </div>
 
