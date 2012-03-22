@@ -134,7 +134,7 @@ public class ListResult extends CollectionResult<IList> {
 		// Note the reversal of args
 		IList list = l.getValue();
 		for (IValue v: getValue()) {
-			while (list.contains(v)) {
+			if (list.contains(v)) {
 				list = list.delete(v);
 			}
 		}
