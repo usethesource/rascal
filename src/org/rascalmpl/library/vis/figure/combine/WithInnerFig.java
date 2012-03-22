@@ -48,9 +48,9 @@ public abstract class WithInnerFig extends Figure {
 			for(Dimension d : HOR_VER){
 				minSize.set(d, innerFig.minSize.get(d) * getGrowFactor(d));
 				minSize.setMax(d, innerFig.minSize.get(d) + 2 * prop.get2DReal(d, GAP));
-				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){
-					resizable.set(d,false);
-				}
+//				if(!innerFig.resizable.get(d) && prop.is2DPropertySet(d, GROW)){
+//					resizable.set(d,false);
+//				}
 			}
 		}
 	}
