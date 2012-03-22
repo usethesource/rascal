@@ -204,6 +204,7 @@ public class LayeredGraph extends Figure {
 	
 	@Override
 	public void resizeElement(Rectangle view) {
+
 		localLocation.set(0,0);
 		/*
 		 for(LayeredGraphNode g : nodes){

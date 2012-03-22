@@ -21,14 +21,18 @@ public abstract class LayoutProxy extends WithInnerFig {
 
 	@Override
 	public void computeMinSize() {
-		minSize.set(innerFig.minSize);
-		resizable.set(innerFig.resizable);
+		if(innerFig!=null){
+			minSize.set(innerFig.minSize);
+			resizable.set(innerFig.resizable);
+		}
 	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		innerFig.size.set(size);
-		innerFig.localLocation.set(0,0);
+		if(innerFig!=null){
+			innerFig.size.set(size);
+			innerFig.localLocation.set(0,0);
+		}
 	}
 	
 
