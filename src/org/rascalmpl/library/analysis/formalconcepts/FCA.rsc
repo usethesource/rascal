@@ -13,6 +13,7 @@ import Set;
 import Map;
 import Relation;
 import util::Dot;
+import IO;
 
 @doc{Data Types belonging to Formal Concept Analysis }
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
@@ -21,6 +22,7 @@ public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object], Concept
 
 public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribute]];
 public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
+
                                                      
 @doc{Computes Concept Lattice given the Object Attribute Relation }
 public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc) {
@@ -46,6 +48,31 @@ public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
      return digraph("fca", nodes+edges); 
      }
      
+public Dotline toDotline(ConceptLattice[&Object, &Attribute] cl) {
+     return <toDot(cl), toOutline(cl)>;
+     }
+/*
+public list[Node] toOutline(ConceptLattice[&Object, &Attribute] cl) {
+     map[Concept[&Object, &Attribute], int] z = makeNodes(cl);
+     set[Concept[&Object, &Attribute]] d = domain(z);
+     list[Node] r = [];
+     for (Concept[&Object, &Attribute] c <- d) {
+       Node obj = element(none(), "<c[0]>", []);
+       Node attr = element(none(), "<c[1]>", []);
+       int key = z[c];
+       r += element(none(), "<key>", [obj, attr]);
+     }  
+     return r;
+     }
+*/ 
+     
+public Outline toOutline(ConceptLattice[&Object, &Attribute] cl) {
+     map[Concept[&Object, &Attribute], int] z = makeNodes(cl);
+     set[Concept[&Object, &Attribute]] d = domain(z);
+     Outline r = (z[c]:["<c[0]>", "<c[1]>"] | Concept[&Object, &Attribute] c <- d);
+     return r;
+     } 
+        
 public FormalContext[&Object, &Attribute] toFormalContext(Object2Attributes objects) {
     return {<object, attribute>  | &Object object <- domain(objects), 
             &Attribute attribute <- objects[object]}; 
@@ -79,15 +106,15 @@ bool isSubset(set[set[&T]] candidate, set[&T] s ) {
          for (set[&T] c <- candidate) 
          if (s<c) return true;
          return false;
-     } 
-     
+     }   
+
 set[&Attribute] sigma(FormalContext[&Object, &Attribute] fc, set[&Object] objects) {
       return isEmpty(objects)?fc<1>:intersection({{y|<x,y><-fc}| x <- objects});
       }
       
 set[&Object] tau(FormalContext[&Object, &Attribute] fc, set[&Attributes] attributes) {
       return isEmpty(attributes)?fc<0>:intersection({{x|<x,y><-fc}|y <- attributes});
-      }  
+      }
       
 set[set[&T]] maxincl(set[set[&T]] c) {return {s|set[&T] s <- c, !isSubset(c, s)};}
 
