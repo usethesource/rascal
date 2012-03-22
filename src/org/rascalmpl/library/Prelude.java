@@ -1597,13 +1597,17 @@ public class Prelude {
 	 */
 	
 	private final TypeReifier tr;
-	
+
 	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, ctx);
+	}
+	
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getURI());
+			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getURI());
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -1618,23 +1622,15 @@ public class Prelude {
 		}
 	}
 
-	public IValue parseWithErrorTree(IValue start, ISourceLocation input, IEvaluatorContext ctx){
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
-		
-		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getURI());
-
-		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-		}
-		return pt;
-	}
-	
 	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, ctx);
+	}
+	
+	public IValue parse(IValue start, IMap robust, IString input, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
+			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -1648,26 +1644,17 @@ public class Prelude {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-	}
-	
-	public IValue parseWithErrorTree(IValue start, IString input, IEvaluatorContext ctx){
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
-		
-		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue());
-
-		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-		}
-
-		return pt;
 	}
 	
 	public IValue parse(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, loc, ctx);
+	}
+	
+	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
+			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc);
 
 			if (TreeAdapter.isAppl(pt)) {
 				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
@@ -1681,19 +1668,6 @@ public class Prelude {
 			ISourceLocation errorLoc = values.sourceLocation(pe.getLocation(), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-	}
-	
-	public IValue parseWithErrorTree(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
-		
-		IConstructor pt = ctx.getEvaluator().parseObjectWithErrorTree(ctx.getEvaluator().getMonitor(), startSort, input.getValue(), loc);
-		
-		if(SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-			pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-		}
-		
-		return pt;
 	}
 	
 	public IString unparse(IConstructor tree) {

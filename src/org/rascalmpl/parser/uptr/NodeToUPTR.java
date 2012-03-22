@@ -20,9 +20,6 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.error.ErrorListContainerNode;
-import org.rascalmpl.parser.gtd.result.error.ErrorSortContainerNode;
-import org.rascalmpl.parser.gtd.result.error.ExpectedNode;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
@@ -100,41 +97,9 @@ public class NodeToUPTR implements INodeConverter{
 	}
 	
 	/**
-	 * Convert the given node (which possibly contains errors).
-	 */
-	protected IConstructor convertWithErrors(AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, IActionExecutor actionExecutor, Object environment){
-		switch(node.getTypeIdentifier()){
-			case CharNode.ID:
-				return CharNodeConverter.convertToUPTR((CharNode) node);
-			case LiteralNode.ID:
-				return literalNodeConverter.convertToUPTR((LiteralNode) node);
-			case SortContainerNode.ID:
-				return SortContainerNodeInErrorConverter.convertToUPTR(this, (SortContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			case ExpandableContainerNode.ID:
-				return ListContainerNodeInErrorConverter.convertToUPTR(this, (ExpandableContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			case ErrorSortContainerNode.ID:
-				return ErrorSortContainerNodeConverter.convertToUPTR(this, (ErrorSortContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			case ErrorListContainerNode.ID:
-				return ErrorListContainerNodeConverter.convertToUPTR(this, (ErrorListContainerNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			case ExpectedNode.ID:
-				return ExpectedNodeConverter.convertToUPTR(this, (ExpectedNode) node, stack, depth, cycleMark, positionStore, actionExecutor, environment);
-			default:
-				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
-		}
-	}
-	
-	/**
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
 	public IConstructor convert(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment, FilteringTracker filteringTracker){
 		return convert(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
-	}
-	
-	/**
-	 * Converts the given parse tree to a tree in UPTR format. This method is
-	 * also able to handle incomplete trees and trees with filtering errors.
-	 */
-	public IConstructor convertWithErrors(AbstractNode parseTree, PositionStore positionStore, IActionExecutor actionExecutor, Object rootEnvironment){
-		return convertWithErrors(parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, actionExecutor, rootEnvironment);
 	}
 }

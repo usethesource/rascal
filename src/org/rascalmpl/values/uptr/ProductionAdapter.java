@@ -168,4 +168,8 @@ public class ProductionAdapter {
 		}
 		return false;
 	}
+
+	public static boolean isSkipped(IConstructor production) {
+		return production.getConstructorType() == Factory.Production_Skipped;
+	}
 }

@@ -24,7 +24,6 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
-import org.rascalmpl.parser.gtd.result.error.IErrorBuilderHelper;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConverter;
 import org.rascalmpl.parser.gtd.result.struct.Link;
@@ -682,6 +681,8 @@ public abstract class SGTDBF implements IGTD{
 		}
 		
 		if (recovering) {
+			parseErrorOccured = true;
+			
 			if (findStacksToRevive()) {
 				return findStacksToReduce();
 			}
@@ -692,13 +693,18 @@ public abstract class SGTDBF implements IGTD{
 	
 	private boolean findStacksToRevive() {
 		boolean unexpandable = reviveFailedNodes(unexpandableNodes);
-		boolean unmatchable = reviveFailedNodes(unmatchableNodes);
-		boolean filtered = reviveFiltered(filteredNodes);
+//		boolean unmatchable = reviveFailedNodes(unmatchableNodes);
+//		boolean filtered = reviveFiltered(filteredNodes);
 		
 		// don't inline the booleans (short-circuit + side-effects)
-		return unexpandable || unmatchable || filtered; 
+		return unexpandable ; // || unmatchable || filtered; 
 	}
 
+	@Override
+	public boolean parseErrorHasOccurred() {
+		return parseErrorOccured;
+	}
+	
 	/**
 	 * Inserts a stack bottom into the todo-list.
 	 */
@@ -1001,8 +1007,7 @@ public abstract class SGTDBF implements IGTD{
 			}
 		}
 		
-		
-		// A parse error occured.
+		// A parse error occured, and recovery failed as well
 		parseErrorOccured = true;
 
 		int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
@@ -1026,11 +1031,6 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 
-	private boolean reviveFiltered(DoubleStack<AbstractStackNode, AbstractNode> nodes) {
-		// TODO: perhaps this is not really necessary
-		return false;
-	}
-
 	// TODO: its a magic constant, and it may clash with other generated constants
 	// should generate implementation of static int getLastId() in generated parser to fix this.
 	private int recoveryId = 100000;
@@ -1051,10 +1051,9 @@ public abstract class SGTDBF implements IGTD{
 		while (!recoveryNodes.isEmpty()) {
 			AbstractStackNode recoveryNode = recoveryNodes.pop();
 			Object prod = recoveryProds.pop();
-			RecoveryPointStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode);
+			AbstractStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode); 
 			int dot = recoveryDots.pop();
 			
-			// TODO: skipping to newline here, instead of programmeable follow set
 			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot, continuations[robust.get(prod)], input, location, prod).getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
@@ -1112,7 +1111,7 @@ public abstract class SGTDBF implements IGTD{
 							recoveryProds.push(parentProd);
 							recoveryDots.push(node.getDot());
 						}
-						else {
+						else if (!visited.contains(parent)) {
 							todo.push(parent);
 						}
 					}
@@ -1235,53 +1234,5 @@ public abstract class SGTDBF implements IGTD{
 		int endLine = positionStore.findLine(endOffset);
 		int endColumn = positionStore.getColumn(endOffset, endLine);
 		throw new ParseError("All results were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
-	}
-	
-	/**
-	 * Constructs an error parse result, using the given converter and action
-	 * executor.
-	 */
-	private Object buildError(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor){
-		AbstractContainerNode result;
-		
-		if(parseErrorOccured){
-			ErrorResultBuilder errorTreeBuilder = new ErrorResultBuilder(errorBuilderHelper, this, startNode, input, location, inputURI);
-			result = errorTreeBuilder.buildErrorTree(unexpandableNodes, filteredNodes);
-			
-			if(result == null) return null; // We were unable to construct an error tree.
-		}else if(filterErrorOccured){
-			EdgesSet rootNodeEdgesSet = startNode.getIncomingEdges();
-			int resultStoreId = getResultStoreId(startNode.getId());
-			if(rootNodeEdgesSet != null && rootNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
-				result = rootNodeEdgesSet.getLastResult(resultStoreId);
-			}else{
-				throw new RuntimeException("This can't happen, as filtering errors can't occur on incomplete trees.");
-			}
-		}else{
-			throw new RuntimeException("Cannot build an error result as no parse error occurred.");
-		}
-		
-		// Invoke "the bulldozer" that constructs error results while it's flattening the forest.
-		Object rootEnvironment = actionExecutor.createRootEnvironment();
-		try{
-			return converter.convertWithErrors(result, positionStore, actionExecutor, rootEnvironment);
-		}finally{
-			actionExecutor.completed(rootEnvironment, true);
-		}
-	}
-	
-	/**
-	 * Constructed an error parse result, using the given converter and action
-	 * executor.
-	 */
-	public Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter, IActionExecutor actionExecutor){
-		return buildError(errorBuilderHelper, converter, actionExecutor);
-	}
-	
-	/**
-	 * Constructed a error parse result using the given converter.
-	 */
-	public Object buildErrorResult(IErrorBuilderHelper errorBuilderHelper, INodeConverter converter){
-		return buildError(errorBuilderHelper, converter, new VoidActionExecutor());
 	}
 }

@@ -902,7 +902,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			__eval.__setInterrupt(false);
 			try {
-				IConstructor tree = __eval.parseObject(symbol,
+				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
 						this.getLocation().getURI(),
 						((IString) result.getValue()).getValue().toCharArray(),
 						false);

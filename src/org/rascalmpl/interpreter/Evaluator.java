@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -98,11 +100,9 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
-import org.rascalmpl.parser.uptr.UPTRErrorBuilderHelper;
 import org.rascalmpl.parser.uptr.action.BootRascalActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.CWDURIResolver;
@@ -439,7 +439,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return func.call(getMonitor(), types, args).getValue();
 	}
 	
-	public IConstructor parseObject(IConstructor startSort, URI location, char[] input, boolean withErrorTree){
+	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree){
 		IGTD parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -451,90 +451,78 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			name += SymbolAdapter.getName(startSort);
 		}
 
+		int[][] lookaheads = new int[robust.size()][];
+		Object[] robustProds = new Object[robust.size()];
+		initializeRecovery(robust, lookaheads, robustProds);
+		
 		__setInterrupt(false);
 		IActionExecutor exec = new RascalFunctionActionExecutor(this);
 		
-		IConstructor result = null;
-		try{
-			result = (IConstructor) parser.parse(name, location, input, exec, new NodeToUPTR());
-		}catch(ParseError pe){
-			if(withErrorTree){
-				try{
-					IConstructor errorTree = (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), exec);
-					if(errorTree != null) return errorTree; // We were unable to construct an error tree.
-				}catch(NullPointerException npex){
-					// Ignore, so we rethrow the orginial parse error.
+		return (IConstructor) parser.parse(name, location, input, exec, new NodeToUPTR(), robustProds, lookaheads);
+	}
+	
+	/**
+	 * This converts a map from productions to character classes to
+	 * two pair-wise arrays, with char-classes unfolded as lists of ints.
+	 */
+	private void initializeRecovery(IMap robust, int[][] lookaheads, Object[] robustProds) {
+		int i = 0;
+		
+		for (IValue prod : robust) {
+			robustProds[i] = prod;
+			List<Integer> chars = new LinkedList<Integer>();
+			IList ranges = (IList) robust.get(prod);
+			
+			for (IValue range : ranges) {
+				int from = ((IInteger) ((IConstructor) range).get("begin")).intValue();
+				int to = ((IInteger) ((IConstructor) range).get("end")).intValue();
+				
+				for (int j = from; j <= to; j++) {
+					chars.add(j);
 				}
 			}
 			
-			throw pe; // Rethrow the exception if building the error tree fails.
-		}
-		
-		return result;
-	}
-	
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, URI location){
-		IRascalMonitor old = setMonitor(monitor);
-		
-		try{
-			char[] input = getResourceContent(location);
-			return parseObject(startSort, location, input, false);
-		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, URI location){
-		IRascalMonitor old = setMonitor(monitor);
-		
-		try{
-			char[] input = getResourceContent(location);
-			return parseObject(startSort, location, input, true);
-		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), false);
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, URI.create("file://-"), input.toCharArray(), true);
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, loc.getURI(), input.toCharArray(), false);
-		}finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseObjectWithErrorTree(IRascalMonitor monitor, IConstructor startSort, String input, ISourceLocation loc){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, loc.getURI(), input.toCharArray(), true);
-		}finally{
-			setMonitor(old);
+			lookaheads[i] = new int[chars.size()];
+			for (int k = 0; k < chars.size(); k++) {
+				lookaheads[i][k] = chars.get(k);
+			}
+			
+			i++;
 		}
 	}
 
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, URI location){
+		IRascalMonitor old = setMonitor(monitor);
+		
+		try{
+			char[] input = getResourceContent(location);
+			return parseObject(startSort, robust, location, input, false);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(startSort, robust, URI.create("file://-"), input.toCharArray(), false);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc){
+		IRascalMonitor old = setMonitor(monitor);
+		try{
+			return parseObject(startSort, robust, loc.getURI(), input.toCharArray(), false);
+		}finally{
+			setMonitor(old);
+		}
+	}
+	
 	private IGTD getObjectParser(URI loc){
 		return getObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
@@ -1254,9 +1242,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	
 	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
-		try{
+		try {
 			return parseModule(data, location, env, false, true);
-		}finally{
+		}
+		finally{
 			setMonitor(old);
 		}
 	}
@@ -1331,14 +1320,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				parser = new RascalRascal();
 				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new NodeToUPTR());
 			} 
-		}
-		catch (ParseError pe) {
-			if (withErrorTree) {
-				IConstructor errorTree = (IConstructor) parser.buildErrorResult(new UPTRErrorBuilderHelper(), new NodeToUPTR(), actions);
-				if(errorTree != null) return errorTree; // We were unable to construct an error tree.
-			}
-			
-			throw pe;
 		}
 		finally {
 			endJob(true);

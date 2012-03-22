@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd.result;
 
 
 
+
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
@@ -22,7 +23,7 @@ public class SkippedNode extends AbstractNode {
 	private final CharNode[] skippedChars;
 	
 	private final int offset;
-	
+
 	public SkippedNode(CharNode[] skippedChars, int offset){
 		super();
 		
