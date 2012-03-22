@@ -264,7 +264,7 @@ public class LayeredGraphEdge extends Figure {
 		double endImY = globalY + points[cp - 3];
 		
 		if(getFromArrow() != null){
-			getFrom().figure.connectArrowFrom(globalX + getFrom().figX(), globalY + getFrom().figY(), 
+			getFrom().innerFig.connectArrowFrom(globalX + getFrom().figX(), globalY + getFrom().figY(), 
 											  startImX,  startImY,
 					                          getFromArrow(), gc, 
 					                          visibleSWTElements);
@@ -273,7 +273,7 @@ public class LayeredGraphEdge extends Figure {
 		if(getToArrow() != null && endNode != null){
 			if(debug)System.err.println("Has a to arrow");
 			
-			endNode.figure.connectArrowFrom(globalX + endNode.figX(), globalY + endNode.figY(),
+			endNode.innerFig.connectArrowFrom(globalX + endNode.figX(), globalY + endNode.figY(),
 											endImX,  endImY,
 											getToArrow(), gc, 
 											visibleSWTElements);
@@ -356,8 +356,8 @@ public class LayeredGraphEdge extends Figure {
 			if(debug)System.err.println("Drawing a line " + getFrom().name + " -> " + getTo().name + "; inverted=" + reversed);
 			if(getTo() == getFrom()){  // Drawing a self edge
 				LayeredGraphNode node = getTo();
-				double h = node.figure.minSize.getY();
-				double w = node.figure.minSize.getX();
+				double h = node.innerFig.minSize.getY();
+				double w = node.innerFig.minSize.getX();
 				double hgap = getFrom().graph.prop.getReal(HGAP);
 				double vgap = getFrom().graph.prop.getReal(VGAP);
 				System.err.printf("hgap=%f, vgap=%f\n", hgap, vgap);
@@ -448,8 +448,8 @@ public class LayeredGraphEdge extends Figure {
 			if(getTo() == getFrom()){  // Drawing a self edge
 				drawCurve(gc);
 				LayeredGraphNode node = getTo();
-				double h = node.figure.minSize.getY();
-				double w = node.figure.minSize.getX();
+				double h = node.innerFig.minSize.getY();
+				double w = node.innerFig.minSize.getX();
 				drawSelfArrow(toArrow,   globalX + node.figX()+w/4, globalY + node.figY()-h/2, gc, visibleSWTElements);
 				drawSelfArrow(fromArrow, globalX + node.figX()+w/2, globalY + node.figY()-h/4, gc, visibleSWTElements);
 				return;
@@ -466,7 +466,7 @@ public class LayeredGraphEdge extends Figure {
 		if(arrow != null){
 			LayeredGraphNode from = towards ? getFrom() : getTo();
 			LayeredGraphNode to   = towards ? getTo() : getFrom();
-			to.figure.connectArrowFrom(globalLocation.getX() + to.figX(),   globalLocation.getY() + to.figY(), 
+			to.innerFig.connectArrowFrom(globalLocation.getX() + to.figX(),   globalLocation.getY() + to.figY(), 
 					      			   globalLocation.getX() + from.figX(), globalLocation.getY() + from.figY(), 
 					      			   arrow, gc, visibleSWTElements);
 			applyProperties(gc);
@@ -476,7 +476,7 @@ public class LayeredGraphEdge extends Figure {
 	private void drawSelfArrow(Figure arrow, double cx, double cy, GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
 		if(arrow != null){
 			LayeredGraphNode to = getTo();
-			to.figure.connectArrowFrom(globalLocation.getX() + to.figX(), globalLocation.getY() + to.figY(), 
+			to.innerFig.connectArrowFrom(globalLocation.getX() + to.figX(), globalLocation.getY() + to.figY(), 
 									   cx, cy,
 									   arrow, gc, visibleSWTElements); 
 			applyProperties(gc);
