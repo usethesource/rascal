@@ -33,12 +33,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.FigureFactory;
-import org.rascalmpl.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
-import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
 import org.rascalmpl.values.ValueFactoryFactory;
 /**
@@ -168,7 +166,7 @@ public class LayeredGraph extends Figure {
 	
 
 	@Override
-	public void initElem(IFigureConstructionEnv env, MouseOver mparent, boolean swtSeen, boolean visible, NameResolver resolver) {
+	public void computeMinSize() {
 		if(doneLayout)
 			return;
 		doneLayout = true;
@@ -199,12 +197,14 @@ public class LayeredGraph extends Figure {
 		for(int i = 0; i < nodes.size(); i++)
 			this.children[nedges + i] = nodes.get(i);
 	
+		for(Figure fig : children)
+			fig.computeMinSize();
+	
 		System.err.println("*** length = " + this.children.length);
 	}
 	
 	@Override
 	public void resizeElement(Rectangle view) {
-
 		localLocation.set(0,0);
 		/*
 		 for(LayeredGraphNode g : nodes){
@@ -1542,12 +1542,5 @@ public class LayeredGraph extends Figure {
 		
 		for(LinkedList<LayeredGraphEdge> layerLabels : labels)
 			LayeredGraphEdge.optimizeLabels(layerLabels);
-	}
-
-
-	@Override
-	public void computeMinSize() {
-		// TODO Auto-generated method stub
-		
 	}
 }

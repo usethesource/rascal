@@ -20,8 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.library.vis.figure.Figure;
-import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
-import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
@@ -32,9 +30,10 @@ import org.rascalmpl.library.vis.util.vector.Rectangle;
  *
  */
 
-public class LayeredGraphNode extends LayoutProxy /*implements Comparable<LayeredGraphNode>*/ {
+public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGraphNode>*/ {
 	
 	protected String name;
+	protected Figure figure;
 	protected double x = -1;
 	protected double y = -1;
 	
@@ -63,9 +62,16 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	private double virtHeight = 20;
 	
 	LayeredGraphNode(LayeredGraph g, String name, Figure fig){
-		super(fig,g.prop);
+		super(g.prop);
 		this.graph = g;
 		this.name = name;
+		this.figure = fig;
+		if(fig != null){
+			this.children = new Figure[1];
+		    this.children[0] = fig;
+		} else {
+			this.children = childless;
+		}
 		in = new LinkedList<LayeredGraphNode>();
 		out = new LinkedList<LayeredGraphNode>();
 		root = align = sink = this;
@@ -82,6 +88,10 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 		x = y = -1;
 		marked = false;
 		root = align = sink = this;
+	}
+	
+	public void computeMinSize(){
+		//resizable.set(false,false);
 	}
 	
 	public void print(){
@@ -114,7 +124,7 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	/* Elementary operations on nodes */
 	
 	public boolean isVirtual(){
-		return innerFig == null;
+		return figure == null;
 	}
 	
 	public void addIn(LayeredGraphNode n){
@@ -159,10 +169,10 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	}
 	
 	public void exchangeWidthAndHeight(){
-		if(innerFig != null){
-			double tmp = innerFig.minSize.getX(); 
-			innerFig.minSize.setX(innerFig.minSize.getY()); 
-			innerFig.minSize.setY(tmp);
+		if(figure != null){
+			double tmp = figure.minSize.getX(); 
+			figure.minSize.setX(figure.minSize.getY()); 
+			figure.minSize.setY(tmp);
 		}
 	}
 	
@@ -535,23 +545,22 @@ public class LayeredGraphNode extends LayoutProxy /*implements Comparable<Layere
 	}
 	
 	double width(){
-		return innerFig != null ? innerFig.minSize.getX() : virtWidth;
+		return figure != null ? figure.minSize.getX() : virtWidth;
 	}
 	
 	double height(){
-		return innerFig != null ? innerFig.minSize.getY() : virtHeight;
+		return figure != null ? figure.minSize.getY() : virtHeight;
 	}
 	
 	String getLayer(){
-		return innerFig != null ? innerFig.prop.getStr(LAYER): "";
+		return figure != null ? figure.prop.getStr(LAYER): "";
 	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
-		super.resizeElement(view);
 		localLocation.set(0, 0);
-		if(innerFig != null){
-			innerFig.localLocation.set(x - innerFig.minSize.getX()/2, y - innerFig.minSize.getY()/2);
+		if(figure != null){
+			figure.localLocation.set(x - figure.minSize.getX()/2, y - figure.minSize.getY()/2);
 		}
 	}
 	
