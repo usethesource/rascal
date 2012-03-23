@@ -44,10 +44,10 @@ public final class SkippingStackNode extends AbstractMatchableStackNode{
 		return "***recovery***";
 	}
 	
-//	@Override
-//	public boolean isEndNode() {
-//		return true;
-//	}
+	@Override
+	public boolean isEndNode() {
+		return true;
+	}
 	
 	public boolean isEmptyLeafNode(){
 		return false;
