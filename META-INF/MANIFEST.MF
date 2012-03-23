@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.4.19.qualifier
+Bundle-Version: 0.5.0.qualifier
 Bundle-ClassPath: rascal.jar,
  src
 Export-Package: 
