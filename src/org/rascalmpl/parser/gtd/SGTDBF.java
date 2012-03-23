@@ -51,7 +51,6 @@ import org.rascalmpl.parser.gtd.util.Stack;
 public abstract class SGTDBF implements IGTD{
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
-	private AbstractStackNode startNode;
 	private URI inputURI;
 	private int[] input;
 	
@@ -90,7 +89,6 @@ public abstract class SGTDBF implements IGTD{
 	
 	// Error reporting guards
 	private boolean parseErrorOccured;
-	private boolean filterErrorOccured;
 	
 	public SGTDBF(){
 		super();
@@ -697,7 +695,7 @@ public abstract class SGTDBF implements IGTD{
 //		boolean filtered = reviveFiltered(filteredNodes);
 		
 		// don't inline the booleans (short-circuit + side-effects)
-		return unexpandable ; // || unmatchable || filtered; 
+		return unexpandable; // || unmatchable || filtered; 
 	}
 
 	@Override
@@ -949,7 +947,7 @@ public abstract class SGTDBF implements IGTD{
 		invoked = true;
 		
 		// Initialize.
-		this.startNode = startNode.getCleanCopy(0);
+//		this.startNode = startNode.getCleanCopy(0);
 		this.inputURI = inputURI;
 		this.input = input;
 		
@@ -1054,7 +1052,8 @@ public abstract class SGTDBF implements IGTD{
 			AbstractStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode); 
 			int dot = recoveryDots.pop();
 			
-			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot, continuations[robust.get(prod)], input, location, prod).getCleanCopy(location);
+			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, prod);
+			recoverLiteral = (SkippingStackNode) recoverLiteral.getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet edges = new EdgesSet(1);
 			edges.add(continuer);
@@ -1222,9 +1221,6 @@ public abstract class SGTDBF implements IGTD{
 		if(parseResult != null){
 			return parseResult; // Success.
 		}
-		
-		// Filtering error.
-		filterErrorOccured = true;
 		
 		int offset = filteringTracker.getOffset();
 		int endOffset = filteringTracker.getEndOffset();
