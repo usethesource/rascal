@@ -166,7 +166,7 @@ public class IO {
 
 	
 	private String[] extractLabels(Record record)  {
-		String[] labels = new String[record.getFieldTypes().size()];
+		String[] labels = new String[record.getWidth()];
 		int i = 0;
 		for (String label: record) {
 			label = normalizeLabel(label, i);
@@ -444,26 +444,26 @@ class Record implements Iterable<String> {
 			
 			if(field.isEmpty()){
 				rfields.add(null);
-//				fieldTypes.add(types.voidType());
+				fieldTypes.add(types.voidType());
 				//System.err.println(" void");
 			} else
 			if(field.matches("^[+-]?[0-9]+$")){
 				rfields.add(values.integer(field));
-//				fieldTypes.add(types.integerType());
+				fieldTypes.add(types.integerType());
 				//System.err.println(" int");
 			} else
 			if(field.matches("[+-]?[0-9]+\\.[0-9]*")){
 				rfields.add(values.real(field));
-//				fieldTypes.add(types.realType());
+				fieldTypes.add(types.realType());
 				//System.err.println(" real");
 			} else
 			if(field.equals("true") || field.equals("false")){
 				rfields.add(values.bool(field.equals("true")));
-//				fieldTypes.add(types.boolType());
+				fieldTypes.add(types.boolType());
 				//System.err.println(" bool");
 			} else {
 				rfields.add(values.string(field));
-//				fieldTypes.add(types.stringType());
+				fieldTypes.add(types.stringType());
 				//System.err.println(" str");
 			}
 		}
@@ -492,6 +492,10 @@ class Record implements Iterable<String> {
 	 */
 	ArrayList<Type> getFieldTypes(){
 		return fieldTypes;
+	}
+	
+	int getWidth() {
+		return fieldTypes.size();
 	}
 	
 	/**
