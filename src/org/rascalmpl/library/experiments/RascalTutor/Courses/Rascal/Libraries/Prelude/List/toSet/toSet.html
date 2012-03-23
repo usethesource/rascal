@@ -76,6 +76,11 @@ ok
 set[int]: {30,10,40,20}
 <span class="prompt">rascal></span>toSet([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
 set[str]: {"zebra","owl","elephant","snake"}
+</pre>  Note that the same can be done using splicing
+<pre class="screen"><span class="prompt">rascal></span>l = [10,20,30,40];
+list[int]: [10,20,30,40]
+<span class="prompt">rascal></span>s = {*l};
+set[int]: {30,10,40,20}
 </pre>
 </div>
 
@@ -103,8 +108,8 @@ set[str]: {"zebra","owl","elephant","snake"}
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toSet_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_1:L" value="[-15]">
-The type of <tt>toSet([-15])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_1:L" value="[16, -1]">
+The type of <tt>toSet([16, -1])</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -128,8 +133,8 @@ The type of <tt>toSet([-15])</tt> is <input type="text" size="30" name="Rascal_L
 <span id="answerFeedback_Rascal_Libraries_Prelude_List_toSet_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:L" value="[&quot;Boba Fett&quot;]">
-<pre class="prequestion">toSet([&quot;Boba Fett&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:L" value="[&quot;Pincess Leia&quot;, &quot;Lychee&quot;, &quot;Mango&quot;, &quot;Oregano&quot;]">
+<pre class="prequestion">toSet([&quot;Pincess Leia&quot;, &quot;Lychee&quot;, &quot;Mango&quot;, &quot;Oregano&quot;]) == <input type="text" size="30" name="Rascal_Libraries_Prelude_List_toSet_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_List_toSet_2:another" value="yes">

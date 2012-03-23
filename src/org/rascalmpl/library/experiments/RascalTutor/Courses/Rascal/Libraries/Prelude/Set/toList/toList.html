@@ -71,6 +71,11 @@ ok
 list[int]: [1,2,3,4]
 <span class="prompt">rascal></span>toList({&quot;elephant&quot;, &quot;zebra&quot;, &quot;snake&quot;});
 list[str]: ["snake","elephant","zebra"]
+</pre>  Note that the same result can be obtained using splicing:
+<pre class="screen"><span class="prompt">rascal></span>s = {1,2,3,4};
+set[int]: {4,3,2,1}
+<span class="prompt">rascal></span>l = [*s];
+list[int]: [4,3,2,1]
 </pre>
 </div>
 
@@ -103,8 +108,8 @@ list[str]: ["snake","elephant","zebra"]
 <span id="answerFeedback_Rascal_Libraries_Prelude_Set_toList_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_toList_1:S" value="{-8, -4, 12}">
-The type of <tt>toList({-8, -4, 12})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_toList_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_toList_1:S" value="{&quot;Prune&quot;, &quot;Admiral Sarn&quot;}">
+The type of <tt>toList({&quot;Prune&quot;, &quot;Admiral Sarn&quot;})</tt> is <input type="text" size="30" name="Rascal_Libraries_Prelude_Set_toList_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -128,8 +133,8 @@ The type of <tt>toList({-8, -4, 12})</tt> is <input type="text" size="30" name="
 <span id="answerFeedback_Rascal_Libraries_Prelude_Set_toList_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_toList_2:S" value="{&quot;Hoots The Owl&quot;}">
-<pre class="prequestion">toList(<input type="text" size="30" name="Rascal_Libraries_Prelude_Set_toList_2:answer" class="answerText">) == [&quot;Hoots The Owl&quot;]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_toList_2:S" value="{-19, -18, 19}">
+<pre class="prequestion">toList(<input type="text" size="30" name="Rascal_Libraries_Prelude_Set_toList_2:answer" class="answerText">) == [19,-19,-18]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Set_toList_2:another" value="yes">

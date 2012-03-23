@@ -1447,6 +1447,9 @@ Examples:
 import List;
 toSet([10, 20, 30, 40]);
 toSet(["zebra", "elephant", "snake", "owl"]);
+// Note that the same can be done using splicing
+l = [10,20,30,40];
+s = {*l};
 </screen>
 
 Questions:
@@ -1466,6 +1469,7 @@ test: toSet(<L>) == <?>
 
 
 }
+@deprecated{Please use {*myList} instead.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[&T] toSet(list[&T] lst);
 

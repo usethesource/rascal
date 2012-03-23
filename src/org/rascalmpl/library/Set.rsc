@@ -505,6 +505,9 @@ Examples:
 import Set;
 toList({1, 2, 3, 4});
 toList({"elephant", "zebra", "snake"});
+// Note that the same result can be obtained using splicing:
+s = {1,2,3,4};
+l = [*s];
 </screen>
 
 Pitfalls:

@@ -563,7 +563,7 @@ public rel[&T0,&T1] rangeR (rel[&T0,&T1] R, set[&T2] S)
   return { <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 in S };
 }
 
-@doc{
+@doc{ 
 Synopsis: Relation excluding certain range values.
 
 Description:
@@ -595,3 +595,17 @@ public rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)
 {
   return { <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S };
 }
+
+@doc{
+Synopsis: Indexes a binary relation as a map
+
+Description:
+Converts a binary relation to a map of the domain to a set of the range.
+
+Examples:
+<screen>
+import Relation;
+toMap({<1,10>, <2,20>, <3,30>}, {30, 10});
+</screen>
+}
+public map[&K, set[&V]] toMap(rel[&K, &V] R) = (k:R[k] | <&K k,_> <- R);
