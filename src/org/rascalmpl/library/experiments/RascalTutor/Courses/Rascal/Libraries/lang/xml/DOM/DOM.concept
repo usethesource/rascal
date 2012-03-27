@@ -10,6 +10,7 @@ Description:
 
 The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
 way of representing and manipulating HTML, XHTML and XML documents.
+We use a version of DOM called [JDOM](http://jdom.org/).
 
 The typical processing of an XML document will contain (depending on the application) a combination of the following steps:
 * Read the XML file as a string using [readFile].
