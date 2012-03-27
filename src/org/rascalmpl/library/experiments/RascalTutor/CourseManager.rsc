@@ -50,7 +50,7 @@ public str compile(ConceptName rootConcept){
      crs = compileCourse(rootConcept);
      return showConcept(crs.concepts[rootConcept]);
   } else
-     throw "Course <rootConcept> not found";
+     throw ConceptError(rootConcept, "not found");
 }
 
 // ------------------------------------ Editing --------------------------------------------------

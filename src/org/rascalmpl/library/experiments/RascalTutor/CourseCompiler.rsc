@@ -225,6 +225,7 @@ public Concept compileConcept(ConceptName conceptName){
    
    println("compileConcept: <conceptName>");
    sections = getSections(conceptName);
+   println("<conceptName>: sections = <sections>");
 
    if(!(sections["Name"]?))
       throw ConceptError(conceptName, "Missing section \"Name\"");
@@ -287,10 +288,10 @@ public Concept compileConcept(ConceptName conceptName){
 
 	} catch NoSuchKey(e):
 	    throw ConceptError(conceptName, "Missing section \"<e>\"");
-	  catch IOError(e):
-	    throw ConceptError(conceptName, "<e>");
+	  catch IO(e):
+	    throw ConceptError(conceptName, "IO error: <e>");
 	  catch value e: 
-	    throw ConceptError(conceptName, "Uncaught exception <e>");
+	    throw ConceptError(conceptName, "Uncaught exception: <e>");
 }
 
 public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
