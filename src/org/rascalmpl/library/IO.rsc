@@ -27,7 +27,7 @@ Append a textual representation of some values to an existing or a newly created
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void appendToFile(loc file, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Print a value and return true.
@@ -241,7 +241,7 @@ Create a directory at location `file`.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void mkDirectory(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Print a value without subsequent newline.
@@ -377,12 +377,12 @@ The second version of `readFile` with a string argument is __deprecated__.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java str readFile(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @deprecated{Use @see str readFile(loc file)}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFile(str filename)
-throws NoSuchFileError(str msg), IOError(str msg);
+throws NoSuchFileError(str msg), IO(str msg);
 
 @doc{
 Synopsis: Read the contents of a file and return it as a list of bytes.
@@ -390,7 +390,7 @@ Synopsis: Read the contents of a file and return it as a list of bytes.
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[int] readFileBytes(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 
 @doc{
@@ -403,7 +403,7 @@ Also see [readFile].
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java list[str] readFileLines(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{Write a textual representation of some values to a file
    * If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -424,13 +424,13 @@ Write a textual representation of some values to a file:
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{
 Synopsis: Changes the last modification date of a file.
 }
 public void touch(loc file)
-throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg){
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg){
   appendToFile(file);
 }
 
