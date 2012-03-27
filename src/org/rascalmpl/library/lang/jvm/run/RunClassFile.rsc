@@ -12,4 +12,4 @@ module lang::jvm::run::RunClassFile
 @javaClass{org.rascalmpl.library.lang.jvm.run.RunClassFile}
 @reflect{Uses URI Resolver Registry}
 public java void runClassFile(loc path,loc dependencies...)
-throws PathNotFound(loc), IOError(str msg);
+throws PathNotFound(loc), IO(str msg);
