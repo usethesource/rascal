@@ -605,7 +605,7 @@ Converts a binary relation to a map of the domain to a set of the range.
 Examples:
 <screen>
 import Relation;
-toMap({<1,10>, <2,20>, <3,30>}, {30, 10});
+toMap({<1,10>, <2,20>, <3,30>, <30,10>});
 </screen>
 }
 public map[&K, set[&V]] toMap(rel[&K, &V] R) = (k:R[k] | <&K k,_> <- R);
