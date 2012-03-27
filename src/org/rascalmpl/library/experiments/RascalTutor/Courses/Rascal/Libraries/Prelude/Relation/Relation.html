@@ -84,6 +84,7 @@
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a relation.</li>
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeR/rangeR.html">rangeR</a>: Relation restricted to certain range values.</li>
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeX/rangeX.html">rangeX</a>: Relation excluding certain range values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/toMap/toMap.html">toMap</a>: Indexes a binary relation as a map</li>
 </ul>
 </div>
 
@@ -113,8 +114,8 @@
  Fill in the missing function name.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_1:R" value="{&lt;&quot;Lychee&quot;, &quot;Pumpkin&quot;&gt;}">
-<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_1:answer" class="answerText">({&lt;&quot;Lychee&quot;, &quot;Pumpkin&quot;&gt;}) == {&lt;&quot;Pumpkin&quot;,&quot;Lychee&quot;&gt;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_1:R" value="{&lt;-12, &quot;R2-D2&quot;&gt;, &lt;-12, &quot;Garlic&quot;&gt;, &lt;-7, &quot;Dill&quot;&gt;, &lt;4, &quot;E&quot;&gt;, &lt;11, &quot;C-3PO&quot;&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_1:answer" class="answerText">({&lt;-12, &quot;R2-D2&quot;&gt;, &lt;-12, &quot;Garlic&quot;&gt;, &lt;-7, &quot;Dill&quot;&gt;, &lt;4, &quot;E&quot;&gt;, &lt;11, &quot;C-3PO&quot;&gt;}) == {&lt;&quot;R2-D2&quot;,-12&gt;,&lt;&quot;E&quot;,4&gt;,&lt;&quot;Garlic&quot;,-12&gt;,&lt;&quot;C-3PO&quot;,11&gt;,&lt;&quot;Dill&quot;,-7&gt;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_1:another" value="yes">
@@ -138,8 +139,8 @@
  Fill in the missing function name.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_2:R" value="{&lt;&quot;Sage&quot;, -19&gt;, &lt;&quot;D&quot;, 19&gt;, &lt;&quot;Luke Skywalker&quot;, -8&gt;, &lt;&quot;Emperor Palpatine&quot;, -12&gt;, &lt;&quot;K&quot;, -4&gt;}">
-<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_2:answer" class="answerText">({&lt;&quot;Sage&quot;, -19&gt;, &lt;&quot;D&quot;, 19&gt;, &lt;&quot;Luke Skywalker&quot;, -8&gt;, &lt;&quot;Emperor Palpatine&quot;, -12&gt;, &lt;&quot;K&quot;, -4&gt;}) == {-19,-4,-8,-12,19}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_2:R" value="{&lt;&quot;R2-D2&quot;, 12&gt;, &lt;&quot;Admiral Sarn&quot;, 3&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_2:answer" class="answerText">({&lt;&quot;R2-D2&quot;, 12&gt;, &lt;&quot;Admiral Sarn&quot;, 3&gt;}) == {12,3}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_2:another" value="yes">
@@ -163,8 +164,8 @@
  Fill in the missing function name.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_3:S" value="{12, 4, 19, 10}">
-<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_3:answer" class="answerText">({12, 4, 19, 10}) == {&lt;19,19&gt;,&lt;4,4&gt;,&lt;10,10&gt;,&lt;12,12&gt;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_3:S" value="{6, 5, 4}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_3:answer" class="answerText">({6, 5, 4}) == {&lt;4,4&gt;,&lt;5,5&gt;,&lt;6,6&gt;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_3:another" value="yes">
@@ -188,8 +189,8 @@
  Fill in the missing function name.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_4:R" value="{&lt;&quot;Basil&quot;, 0&gt;, &lt;&quot;Mandarin&quot;, -5&gt;, &lt;&quot;J&quot;, 5&gt;, &lt;&quot;R2-D2&quot;, -11&gt;}">
-<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_4:answer" class="answerText">({&lt;&quot;Basil&quot;, 0&gt;, &lt;&quot;Mandarin&quot;, -5&gt;, &lt;&quot;J&quot;, 5&gt;, &lt;&quot;R2-D2&quot;, -11&gt;}) == {&quot;R2-D2&quot;,&quot;J&quot;,&quot;Basil&quot;,&quot;Mandarin&quot;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_4:R" value="{&lt;&quot;Isolder&quot;, -17&gt;, &lt;&quot;Pepper&quot;, -14&gt;, &lt;&quot;Prince Charming&quot;, 17&gt;, &lt;&quot;Redcurrant&quot;, -2&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_4:answer" class="answerText">({&lt;&quot;Isolder&quot;, -17&gt;, &lt;&quot;Pepper&quot;, -14&gt;, &lt;&quot;Prince Charming&quot;, 17&gt;, &lt;&quot;Redcurrant&quot;, -2&gt;}) == {&quot;Isolder&quot;,&quot;Redcurrant&quot;,&quot;Prince Charming&quot;,&quot;Pepper&quot;}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_4:another" value="yes">
@@ -213,8 +214,8 @@
  Fill in the missing function name.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_5:R" value="{&lt;&quot;Telly Monster&quot;, 9&gt;, &lt;&quot;C-3PO&quot;, -2&gt;}">
-<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_5:answer" class="answerText">({&lt;&quot;Telly Monster&quot;, 9&gt;, &lt;&quot;C-3PO&quot;, -2&gt;}) == {-2,9,&quot;C-3PO&quot;,&quot;Telly Monster&quot;}</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_5:R" value="{&lt;&quot;L&quot;, -14&gt;}">
+<pre class="prequestion"><input type="text" size="30" name="Rascal_Libraries_Prelude_Relation_5:answer" class="answerText">({&lt;&quot;L&quot;, -14&gt;}) == {&quot;L&quot;,-14}</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Rascal_Libraries_Prelude_Relation_5:another" value="yes">
