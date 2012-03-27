@@ -24,7 +24,7 @@ module util::Benchmark
 import IO;
 
 @doc{
-Synopsis: Measuring CPU time.
+Synopsis: CPU time in nanoseconds (10$^-9$ sec).
 
 Details:
 
@@ -61,7 +61,7 @@ public int cpuTime(void () block) {
 }
 
 @doc{
-Synopsis: Measuring system time.
+Synopsis: System time in nanoseconds (10$^-9$ sec).
 
 Details:
 
@@ -96,7 +96,7 @@ public int systemTime(void () block) {
 }
 
 @doc{
-Synopsis: Measuring user time.
+Synopsis: User time in nanoseconds (10$^-9$ sec).
 
 Description:
 # Current time in __nanoseconds__ (10$^-9$ sec) since the start of the thread that runs the code that calls this function.
@@ -131,7 +131,7 @@ public int userTime(void () block) {
 @deprecated{This function can disappear}
 
 @doc{
-Synopsis: Current time in milliseconds.
+Synopsis: Current time in milliseconds (10$^-3$ sec).
 
 Description:
 
@@ -189,7 +189,7 @@ public map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)
 }
 
 @doc{
-Synopsis: Current time in __nanoseconds__ (10$^-9$ sec) since January 1, 1970 GMT.
+Synopsis: Current time in nanoseconds (10$^-9$ sec) since January 1, 1970 GMT.
 
 
 }
@@ -197,7 +197,7 @@ Synopsis: Current time in __nanoseconds__ (10$^-9$ sec) since January 1, 1970 GM
 public java int getNanoTime();
 
 @doc{
-Synopsis: Current time in __milliseconds__ (10$^-3$ sec) since January 1, 1970 GMT.
+Synopsis: Current time in milliseconds (10$^-3$ sec) since January 1, 1970 GMT.
 
 Description:
 This function is a synonym for [realTime].

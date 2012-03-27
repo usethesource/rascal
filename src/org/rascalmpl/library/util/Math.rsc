@@ -51,7 +51,8 @@ public &T <: num abs(&T <: num N)
 Synopsis: Generate a random integer value.
 
 Description:
-Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`].
+Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`),
+i.e., the limit is exclusive.
 
 Examples:
 <screen>
