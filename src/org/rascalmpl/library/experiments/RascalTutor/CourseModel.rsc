@@ -456,23 +456,23 @@ void extractAndCacheRemoteConcepts(loc file, str root){
      println("extractAndCacheRemoteConcepts: <file1>, <root>");
      rmap =  remoteContentMap[rootname(root)] ? ();
      cmap = extractRemoteConcepts(file1, root);
-     println("Extracted extracted <size(cmap)> concepts from <file1>");
-     //for(cn <- cmap)
-     //    println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
+     println("Extracted extracted <size(cmap)> concepts from <file1>: <domain(cmap)>");
+     for(cn <- cmap)
+         println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
          rmap[cn] = cmap[cn];
      remoteContentMap[rootname(root)] = rmap;
 }
 
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
-    //println("getUncachedCourseConcepts: read all concepts");
+    println("getUncachedCourseConcepts: read all concepts");
     remoteContentMap[rootConcept] = ();
     rmap = ();
     remote = courseDir + rootConcept + remoteConcepts;
     if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
       for(<root, dir> <- remoteMap){
-          //println("root = <root>, dir = <dir>");
+          println("root = <root>, dir = <dir>");
           remoteFiles =  crawlFiles(dir, rascalExtension);
           for(file <- remoteFiles){
               extractAndCacheRemoteConcepts(file, root);

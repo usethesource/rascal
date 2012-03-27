@@ -278,6 +278,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
  
   L1 = L.top;
    println("extractRemoteConcepts: <L>, <L1>, <root>");
+
   Module M = parseModule(readFile(L1), L1).top;
  
   declarations = [];
@@ -308,7 +309,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
       i += 1;
   	}
   }
-  return contentMap;
+return contentMap;
 }
 
 // ---- Functions for editing individual concepts in a library file ----
