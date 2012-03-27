@@ -18,4 +18,5 @@
 <"Rascal/Libraries",|std:///util/Math.rsc|>,
 <"Rascal/Libraries",|std:///util/Monitor.rsc|>,
 <"Rascal/Libraries",|std:///util/ShellExec.rsc|>,
-<"Rascal/Libraries",|std:///lang/csv/IO.rsc|>]
+<"Rascal/Libraries",|std:///lang/csv/IO.rsc|>,
+<"Rascal/Libraries",|std:///lang/xml/DOM.rsc|>]
