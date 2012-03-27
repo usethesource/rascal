@@ -28,6 +28,10 @@ module lang::xml::DOM
 
 @doc{
 Synopsis: Datatypes for representing an instance of the DOM.
+
+Description:
+The `Node` data type is loosely based on the 
+[JDOM](http://jdom.org/) model.
 }
 
 data Node 
