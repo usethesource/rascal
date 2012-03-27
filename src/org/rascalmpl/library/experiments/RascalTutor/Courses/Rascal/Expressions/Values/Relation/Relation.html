@@ -97,7 +97,7 @@
 <li><a href="/Courses/Rascal/Expressions/Values/Relation/Join/Join.html">Join</a>: Join two relation values.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Relation/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.html">ReflexiveTransitiveClosure</a>: The reflexive transitive closure of a binary relation.</li>
 <li><a href="/Courses/Rascal/Expressions/Values/Relation/Subscription/Subscription.html">Subscription</a>: Indexing of a relation via tuple values.</li>
-<li><a href="/Courses/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">TransitiveClosure</a>: Transitive closure on relation values.</li>
+<li><a href="/Courses/Rascal/Expressions/Values/Relation/TransitiveClosure/TransitiveClosure.html">TransitiveClosure</a>: Transitive closure on binary relation values.</li>
 </ul> The following additional functions are provided on relations:
  <ul><li><a href="/Courses/Rascal/Libraries/Prelude/Relation/carrier/carrier.html">carrier</a>: Return the set of all elements in any tuple in a relation.</li>
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/carrierR/carrierR.html">carrierR</a>: A relation restricted to certain element values in tuples.</li>
@@ -114,6 +114,7 @@
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/range/range.html">range</a>: The range (i.e., all but the first element of each tuple) of a relation.</li>
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeR/rangeR.html">rangeR</a>: Relation restricted to certain range values.</li>
 <li><a href="/Courses/Rascal/Libraries/Prelude/Relation/rangeX/rangeX.html">rangeX</a>: Relation excluding certain range values.</li>
+<li><a href="/Courses/Rascal/Libraries/Prelude/Relation/toMap/toMap.html">toMap</a>: Indexes a binary relation as a map</li>
 </ul>
 </div>
 
@@ -167,17 +168,20 @@ rel[str, int, str]: {
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="5">
-<label for="Rascal/Expressions/Values/Relation_1_5">Has a fixed length.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_1" value="1">
+<label for="Rascal/Expressions/Values/Relation_1_1">Is a list of tuples.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_3" value="3">
 <label for="Rascal/Expressions/Values/Relation_1_3">Has ordered elements.</label><br/>
 
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_5" value="5">
+<label for="Rascal/Expressions/Values/Relation_1_5">Has a fixed length.</label><br/>
+
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_2" value="2">
 <label for="Rascal/Expressions/Values/Relation_1_2">Is a tuple of tuples.</label><br/>
 
-<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_1" value="1">
-<label for="Rascal/Expressions/Values/Relation_1_1">Is a list of tuples.</label><br/>
+<input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_4" value="4">
+<label for="Rascal/Expressions/Values/Relation_1_4">Can contain duplicates.</label><br/>
 
 <input type="radio" name="Rascal_Expressions_Values_Relation_1:answer" id="Rascal/Expressions/Values/Relation_1_0" value="0">
 <label for="Rascal/Expressions/Values/Relation_1_0">Is a set of tuples.</label><br/>

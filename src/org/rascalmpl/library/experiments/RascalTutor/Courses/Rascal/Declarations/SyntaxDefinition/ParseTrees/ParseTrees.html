@@ -350,6 +350,11 @@ catch ParseError(loc l): {
 @reflect{uses information about syntax definitions at call site}
 public java &amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input);
 
+@experimental
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{uses information about syntax definitions at call site}
+public java &amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, map[Production robust, CharClass lookaheads] recovery, str input, loc origin);
+
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
 public java &amp;T&lt;:Tree parse(type[&amp;T&lt;:Tree] begin, str input, loc origin);
