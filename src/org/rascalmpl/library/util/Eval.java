@@ -93,7 +93,8 @@ public class Eval {
 		else {
 			Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(param, result.getType());
-			return Result_value.instantiate(bindings).make(values, result.getValue());
+			IValue res = Result_value.instantiate(bindings).make(values, result.getValue());
+			return res;
 		}
 	}
 	

@@ -34,5 +34,5 @@ public java str getSystemProperty(str property);
 will be replaced by stringquotes. And the stringquotes inside them will be escaped.}
 @javaClass{org.rascalmpl.library.util.SystemAPI}
 public java str getRascalFileContent(loc g) throws 
-              UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg);
+              UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 */
