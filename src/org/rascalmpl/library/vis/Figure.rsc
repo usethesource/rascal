@@ -1129,63 +1129,60 @@ public Figure triangle(int side,FProperty props...){
 
 public Figure headNormal(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,1.>, <0.5, 0.>, <1., 1.>];
-		  return space(overlay([
+		  return overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props), std(size(10)));
+		  [ shapeConnected(true), shapeClosed(true)]+props+std(size(10)));
 }
 
 public Figure headInv(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,0.>, <0.5, 1.>, <1., 0.>];
-   return space(overlay([
+   return overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props),  std(size(10)));
+		  [ shapeConnected(true), shapeClosed(true)]+props+std(size(10)));
 		
 }
 
 public  Figure headDot(FProperty props...) {
-	return space(ellipse(props),  std(size(10)));
+	return ellipse(props+std(size(10)));
 }
 
 public  Figure headBox(FProperty props...) {
-	return space(box(props),  std(size(10)));
+	return box(props+std(size(10)));
 }
 
 public Figure headDiamond(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
-		  return space(overlay([
+		  return overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  [ shapeConnected(true), shapeClosed(true)]+props),  std(width(10)), std(height(15)));
+		  [ shapeConnected(true), shapeClosed(true)]+props+std(width(10))+std(height(15)));
 }
 
-public  Figure headBox(FProperty props...) {
-	return space(ellipse(props),  std(size(10)));
-}
 
 public  Figure shapeEllipse(FProperty props...) {
-	return space(ellipse(props), props+std(width(40))+std(height(30)));
+	return ellipse(props+std(width(40))+std(height(30)));
 }
 
 public  Figure shapeDoubleEllipse(FProperty props...) {
-	return space(ellipse(ellipse(props+std(shrink(0.8))), props),  props+std(width(40))+std(height(30)));
+	return ellipse(ellipse(props+std(shrink(0.8))), props +std(width(40))+std(height(30)));
 }
 
 public  Figure shapeBox(FProperty props...) {
-	return space(box(props),props+std(width(40))+std(height(30)));
+	return box(props+std(width(40))+std(height(30)));
 }
 
 public Figure shapeDiamond(FProperty props...) {
   list[tuple[real x, real y]]  tup = [<0.,.5>, <.5, 1.>, <1., .5>, <.5, 0.>];
-		  return space(overlay([
+		  return overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  props+std(width(60))+std(height(40)));
+		  props+shapeConnected(true)+shapeClosed(true)+std(width(60))+std(height(40)));
 }
 
 public Figure shapeParallelogram(FProperty props...) {
   real delta = 0.30;
   list[tuple[real x, real y]]  tup = [<delta, 0.>, <1., 0.>, <1.-delta, 1.>, <0., 1.>];
-		  return space(overlay([
+		  return overlay([
 		point(halign(t.x), valign(t.y))|tuple[real x, real y] t <-tup], 
-		  props+shapeConnected(true)+shapeClosed(true)),  props+std(width(80))+std(height(50)));
+		  props+shapeConnected(true)+shapeClosed(true)+std(width(80))+std(height(50)));
 }
 
 public  Figure shapeEllipse(Figure fig, FProperty props...) {
