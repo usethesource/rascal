@@ -12,7 +12,7 @@ module analysis::formalconcepts::FCA
 import Set;
 import Map;
 import Relation;
-import util::Dot;
+import Dot;
 import IO;
 
 @doc{Data Types belonging to Formal Concept Analysis }
@@ -45,7 +45,9 @@ public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
        nodes += compose(c, z);
      }  
      Stms edges =   [ E("\"<z[x[0]]>\"", "\"<z[x[1]]>\"") | x<-cl]; 
-     return digraph("fca", nodes+edges); 
+     return digraph("fca", 
+      [NODE( [<"style","filled">, <"fillcolor","cornsilk">,<"fontcolor","blue">,<"shape","ellipse">])] 
+         +nodes+edges); 
      }
      
 public Dotline toDotline(ConceptLattice[&Object, &Attribute] cl) {
@@ -162,5 +164,5 @@ set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, 
      }  
 
 Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z) {
-     return N("\"<z[c]>\"", [<"style","filled">, <"fillcolor","cornsilk">]);
+     return N("\"<z[c]>\"");
      }     
