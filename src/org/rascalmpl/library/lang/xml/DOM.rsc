@@ -28,10 +28,6 @@ module lang::xml::DOM
 
 @doc{
 Synopsis: Datatypes for representing an instance of the DOM.
-
-Description:
-The `Node` data type is loosely based on the 
-[JDOM](http://jdom.org/) model.
 }
 
 data Node 
@@ -156,24 +152,5 @@ Observe that the elements inside `<note> ... </note>` are indented.
 public java str xmlPretty(Node x);
 
 
-// TODO: remove these; use Rascal stdlib for IO
-@javaClass{org.rascalmpl.library.lang.xml.DOM}
-@reflect{Uses URI Resolver Registry}
-public java void writeXMLRaw(loc file, Node x);
 
-@javaClass{org.rascalmpl.library.lang.xml.DOM}
-@reflect{Uses URI Resolver Registry}
-public java Node readXMLDOM(loc file);
-
-@javaClass{org.rascalmpl.library.lang.xml.DOM}
-@reflect{Uses URI Resolver Registry}
-public java Node readXMLDOMTrim(loc file);
-
-@javaClass{org.rascalmpl.library.lang.xml.DOM}
-@reflect{Uses URI Resolver Registry}
-public java void writeXMLCompact(loc file, Node x);
-
-@javaClass{org.rascalmpl.library.lang.xml.DOM}
-@reflect{Uses URI Resolver Registry}
-public java void writeXMLPretty(loc file, Node x);
 
