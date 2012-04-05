@@ -180,7 +180,7 @@ public class StringTemplateConverter {
 		
 		
 		private abstract static class IndentingStringFragmentAppend extends ConstAppend {
-			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'[^']*$");
+			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
 			private String indent;
 			
 			public IndentingStringFragmentAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
@@ -196,11 +196,16 @@ public class StringTemplateConverter {
 			private String computeIndent(String arg) {
 				Matcher m = INDENT.matcher(arg);
 				if (m.find()) {
-					return m.group().substring(1);
+					return m.group(1) + replaceEverythingBySpace(m.group(2));
 				}
 				return "";
 			}
 			
+			private static final Pattern NONSPACE = Pattern.compile("[^ \t]");
+			private String replaceEverythingBySpace(String input) {
+				return NONSPACE.matcher(input).replaceAll(" ");
+			}
+
 			protected String getIndent() {
 				return indent;
 			}
