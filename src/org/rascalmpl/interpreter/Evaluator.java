@@ -152,7 +152,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private IRascalMonitor monitor;
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private Stack<Integer> indentStack = new Stack<Integer>();
+	private Stack<String> indentStack = new Stack<String>();
 	private final RascalURIResolver rascalPathResolver;
 
 	private final URIResolverRegistry resolverRegistry;
@@ -372,7 +372,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		return rascalPathResolver;
 	}
 	
-	public void indent(int n) {
+	public void indent(String n) {
 		indentStack.push(n);
 	}
 	
@@ -380,7 +380,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		indentStack.pop();
 	}
 	
-	public int getCurrentIndent() {
+	public String getCurrentIndent() {
 		return indentStack.peek();
 	}
 
