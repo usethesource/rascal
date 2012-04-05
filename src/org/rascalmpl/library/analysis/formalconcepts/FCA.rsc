@@ -12,13 +12,13 @@ module analysis::formalconcepts::FCA
 import Set;
 import Map;
 import Relation;
-import Dot;
+import util::Dot;
 import IO;
 
 @doc{Data Types belonging to Formal Concept Analysis }
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
-public alias Concept[&Object, &Attribute] = tuple[set[&Object], set[&Attribute]];
-public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object], Concept[&Attribute]];
+public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
+public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]];
 
 public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribute]];
 public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
@@ -36,12 +36,6 @@ public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
      set[Concept[&Object, &Attribute]] d = domain(z);
      Stms nodes = [];
      for (Concept[&Object, &Attribute] c <- d) {
-       /*
-       set[&Object] a0 = newAdded0(q, c);
-       set[&Attribute] a1 = newAdded1(q, c);
-       &Object s0 = (isEmpty(a0)?"":((size(a0)==1)?getOneFrom(a0):toString(a0)));
-       &Attribute s1 = (isEmpty(a1)?"":((size(a1)==1)?getOneFrom(a1):toString(a1)));
-       */
        nodes += compose(c, z);
      }  
      Stms edges =   [ E("\"<z[x[0]]>\"", "\"<z[x[1]]>\"") | x<-cl]; 
@@ -53,20 +47,7 @@ public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
 public Dotline toDotline(ConceptLattice[&Object, &Attribute] cl) {
      return <toDot(cl), toOutline(cl)>;
      }
-/*
-public list[Node] toOutline(ConceptLattice[&Object, &Attribute] cl) {
-     map[Concept[&Object, &Attribute], int] z = makeNodes(cl);
-     set[Concept[&Object, &Attribute]] d = domain(z);
-     list[Node] r = [];
-     for (Concept[&Object, &Attribute] c <- d) {
-       Node obj = element(none(), "<c[0]>", []);
-       Node attr = element(none(), "<c[1]>", []);
-       int key = z[c];
-       r += element(none(), "<key>", [obj, attr]);
-     }  
-     return r;
-     }
-*/ 
+
      
 public Outline toOutline(ConceptLattice[&Object, &Attribute] cl) {
      map[Concept[&Object, &Attribute], int] z = makeNodes(cl);
