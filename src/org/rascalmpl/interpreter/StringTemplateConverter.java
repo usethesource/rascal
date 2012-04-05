@@ -115,10 +115,7 @@ public class StringTemplateConverter {
 					appendToString(v, sb);
 					v = vf.string(sb.toString());
 				}
-				int indent = __eval.getCurrentIndent();
-				char[] arr = new char[indent];
-				Arrays.fill(arr, ' ');
-				java.lang.String fill = new java.lang.String(arr);
+				java.lang.String fill = __eval.getCurrentIndent();
 				java.lang.String content = ((IString)v).getValue();
 				content = content.replaceAll("\n", "\n" + fill);
 				v = vf.string(content);
@@ -184,7 +181,7 @@ public class StringTemplateConverter {
 		
 		private abstract static class IndentingStringFragmentAppend extends ConstAppend {
 			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'[^']*$");
-			private int indent;
+			private String indent;
 			
 			public IndentingStringFragmentAppend(ISourceLocation __param1, DataTarget __param2, String arg) {
 				super(__param1, __param2, arg);
@@ -196,15 +193,15 @@ public class StringTemplateConverter {
 				return super.initString(arg);
 			}
 
-			private int computeIndent(String arg) {
+			private String computeIndent(String arg) {
 				Matcher m = INDENT.matcher(arg);
 				if (m.find()) {
-					return m.group().length() - 1;
+					return m.group().substring(1);
 				}
-				return 0;
+				return "";
 			}
 			
-			protected int getIndent() {
+			protected String getIndent() {
 				return indent;
 			}
 			
