@@ -21,13 +21,10 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwM
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.util.List;
 
@@ -301,56 +298,3 @@ public class RascalShell {
 		System.err.println("Done.");
 	}
 }
-
-/**  
- * Adapter for a Writer to behave like a PrintStream. 
- * This is needed RascalShell gets PrintWriters as argument but the
- * IO module needs a PrintStream.  
- * 
- * Bytes are converted to chars using the platform default encoding. 
- * If this encoding is not a single-byte encoding, some data may be lost. 
- */  
-
-class WriterPrintStream extends PrintStream {  
-   
-    private final Writer writer;  
-  
-    public WriterPrintStream(Writer writer) throws FileNotFoundException { 
-    	super("tmp");
-        this.writer = writer;  
-    }  
- 
-    public void write(int b) {  
-        // It's tempting to use writer.write((char) b), but that may get the encoding wrong  
-        // This is inefficient, but it works  
-        write(new byte[] {(byte) b}, 0, 1);  
-    }  
-   
-    public void write(byte b[], int off, int len) {  
-        try {
-			writer.write(new String(b, off, len));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-    }  
-   
-    public void flush() {  
-        try {
-			writer.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-    }  
-   
-    public void close() {  
-        try {
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  
-    }  
-}  
-
