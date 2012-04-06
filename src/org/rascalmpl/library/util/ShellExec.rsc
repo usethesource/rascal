@@ -56,10 +56,22 @@ Synopsis: Kill a running process.
 public java void killProcess(PID processId);
 
 @doc{
-Synopsis: Read from an existing process's output stream.
+Synopsis: Read from an existing process's output stream. This is non-blocking.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readFrom(PID processId);
+
+@doc{
+Synopsis: Read the entire stream from an existing process's output stream. This is blocking.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readEntireStream(PID processId);
+
+@doc{
+Synopsis: Read the entire error stream from an existing process's output stream. This is blocking.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readEntireErrStream(PID processId);
 
 @doc{
 Synopsis: Write to an existing process's input stream.

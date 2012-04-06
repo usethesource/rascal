@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -147,6 +148,40 @@ public class ShellExec {
 //				line = line + (char)isr.read();
 			}
 			return vf.string(line.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+		}
+	}
+	
+	public synchronized IString readEntireStream(IInteger processId) {
+		if (!runningProcesses.containsKey(processId))
+			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+		try {
+			Process runningProcess = runningProcesses.get(processId);
+			BufferedReader br = new BufferedReader(new InputStreamReader(runningProcess.getInputStream()));
+			StringBuffer lines = new StringBuffer();
+			String line = "";
+			while (null != (line = br.readLine())) {
+				lines.append(line);
+			}
+			return vf.string(lines.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+		}
+	}
+
+	public synchronized IString readEntireErrStream(IInteger processId) {
+		if (!runningProcesses.containsKey(processId))
+			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+		try {
+			Process runningProcess = runningProcesses.get(processId);
+			BufferedReader br = new BufferedReader(new InputStreamReader(runningProcess.getErrorStream()));
+			StringBuffer lines = new StringBuffer();
+			String line = "";
+			while (null != (line = br.readLine())) {
+				lines.append(line);
+			}
+			return vf.string(lines.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
 		}
