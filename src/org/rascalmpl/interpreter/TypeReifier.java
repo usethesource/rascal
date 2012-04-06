@@ -198,6 +198,9 @@ public class TypeReifier {
 			return tf.nodeType();
 		}
 		else if (cons == Factory.Symbol_Parameter) {
+			return tf.parameterType(((IString) symbol.get("name")).getValue());
+		}
+		else if (cons == Factory.Symbol_BoundParameter) {
 			return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
 		}
 		else if (cons == Factory.Symbol_ReifiedType) {
