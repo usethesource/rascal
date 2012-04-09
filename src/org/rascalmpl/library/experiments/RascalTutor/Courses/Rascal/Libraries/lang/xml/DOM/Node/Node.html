@@ -54,13 +54,13 @@
 <span class="sectionHead">Types</span>  <pre class="listing">data Node
      = document(Node root)
      | attribute(Namespace namespace, str name, str text)
-     | element(Namespace namespace, str name, list[Node] children)
-     | charData(str text)
-     | cdata(str text)
-     | comment(str text)
-     | pi(str target, str text)
-     | entityRef(str name)
-     | charRef(int code)
+	 | element(Namespace namespace, str name, list[Node] children)
+	 | charData(str text)
+	 | cdata(str text)
+	 | comment(str text)
+	 | pi(str target, str text)
+	 | entityRef(str name)
+	 | charRef(int code)
      ;
 data Namespace 
      = namespace(str prefix, str uri)
@@ -74,12 +74,6 @@ data Namespace
 <div id="Usage">
 <span class="sectionHead">Usage</span>  <code>import lang::xml::DOM;</code>
  </AUTOINSERTED>
-
-</div>
-
-<div id="Description">
-<span class="sectionHead">Description</span>  The <code>Node</code> data type is loosely based on the 
- <a href="http://jdom.org/">JDOM<img src="/Courses/images/www-icon.png" with="20" height="20"></a> model.
 
 </div>
 
