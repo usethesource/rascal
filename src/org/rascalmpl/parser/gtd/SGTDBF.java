@@ -84,7 +84,8 @@ public abstract class SGTDBF implements IGTD{
 	// Error reporting
 	private boolean recovering = false;
 	private final Stack<AbstractStackNode> unexpandableNodes;
-	private final Stack<AbstractStackNode> unmatchableNodes;
+	private final Stack<AbstractStackNode> unmatchableLeafNodes;
+	private final DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes;
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
@@ -112,7 +113,8 @@ public abstract class SGTDBF implements IGTD{
 		propagatedReductions = new IntegerObjectList<IntegerList>();
 		
 		unexpandableNodes = new Stack<AbstractStackNode>();
-		unmatchableNodes = new Stack<AbstractStackNode>();
+		unmatchableLeafNodes = new Stack<AbstractStackNode>();
+		unmatchableMidProductionNodes = new DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode>();
 		filteredNodes = new DoubleStack<AbstractStackNode, AbstractNode>();
 	}
 	
@@ -181,7 +183,13 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				unmatchableNodes.push(next);
+				// Push the node including it's predecessor to the appropriate error tracking collection (and take care of merging when necessary).
+				ArrayList<AbstractStackNode> predecessors = unmatchableMidProductionNodes.findFirstWithSecond(next);
+				if(predecessors == null){
+					predecessors = new ArrayList<AbstractStackNode>();
+					unmatchableMidProductionNodes.push(predecessors, next);
+				}
+				predecessors.add(node);
 				return null;
 			}
 			
@@ -238,7 +246,13 @@ public abstract class SGTDBF implements IGTD{
 			
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
-				unmatchableNodes.push(next);
+				// Push the node including it's predecessor to the appropriate error tracking collection (and take care of merging when necessary).
+				ArrayList<AbstractStackNode> predecessors = unmatchableMidProductionNodes.findFirstWithSecond(next);
+				if(predecessors == null){
+					predecessors = new ArrayList<AbstractStackNode>();
+					unmatchableMidProductionNodes.push(predecessors, next);
+				}
+				predecessors.add(node);
 				return false;
 			}
 			
@@ -746,7 +760,7 @@ public abstract class SGTDBF implements IGTD{
 				
 				AbstractNode result = first.match(input, location);
 				if(result == null){
-					unmatchableNodes.push(first);
+					unmatchableLeafNodes.push(first);
 					continue;
 				}
 				
@@ -866,7 +880,7 @@ public abstract class SGTDBF implements IGTD{
 							
 							AbstractNode result = child.match(input, location);
 							if(result == null){
-								unmatchableNodes.push(child);
+								unmatchableLeafNodes.push(child);
 								continue;
 							}
 							
@@ -981,7 +995,8 @@ public abstract class SGTDBF implements IGTD{
 					propagatedReductions.dirtyClear();
 					
 					unexpandableNodes.dirtyClear();
-					unmatchableNodes.dirtyClear();
+					unmatchableLeafNodes.dirtyClear();
+					unmatchableMidProductionNodes.dirtyClear();
 					filteredNodes.dirtyClear();
 				}
 				
@@ -1012,10 +1027,10 @@ public abstract class SGTDBF implements IGTD{
 		int line = positionStore.findLine(errorLocation);
 		int column = positionStore.getColumn(errorLocation, line);
 		if (location == input.length) {
-			throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableNodes, filteredNodes);
+			throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 		}
 		else {
-			throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, unexpandableNodes, unmatchableNodes, filteredNodes);
+			throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 		}
 	}
 	

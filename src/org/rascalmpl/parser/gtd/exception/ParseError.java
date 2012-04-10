@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.Stack;
 
@@ -19,10 +20,11 @@ public class ParseError extends RuntimeException{
 	private final int endColumn;
 	
 	private final Stack<AbstractStackNode> unexpandableNodes;
-	private final Stack<AbstractStackNode> unmatchableNodes;
+	private final Stack<AbstractStackNode> unmatchableLeafNodes;
+	private final DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes;
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
-	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn, Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn, Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableLeafNodes, DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
 		super(message);
 		
 		this.location = location;
@@ -34,7 +36,8 @@ public class ParseError extends RuntimeException{
 		this.endColumn = endColumn;
 		
 		this.unexpandableNodes = unexpandableNodes;
-		this.unmatchableNodes = unmatchableNodes;
+		this.unmatchableLeafNodes = unmatchableLeafNodes;
+		this.unmatchableMidProductionNodes = unmatchableMidProductionNodes;
 		this.filteredNodes = filteredNodes;
 	}
 	
@@ -50,7 +53,8 @@ public class ParseError extends RuntimeException{
 		this.endColumn = endColumn;
 		
 		this.unexpandableNodes = null;
-		this.unmatchableNodes = null;
+		this.unmatchableLeafNodes = null;
+		this.unmatchableMidProductionNodes = null;
 		this.filteredNodes = null;
 	}
 	
@@ -86,8 +90,12 @@ public class ParseError extends RuntimeException{
 		return unexpandableNodes;
 	}
 	
-	public Stack<AbstractStackNode> getUnmatchableNodes(){
-		return unmatchableNodes;
+	public Stack<AbstractStackNode> getUnmatchableLeafNodes(){
+		return unmatchableLeafNodes;
+	}
+	
+	public DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> getUnmatchableMidProductionNodes(){
+		return unmatchableMidProductionNodes;
 	}
 	
 	public DoubleStack<AbstractStackNode, AbstractNode> getFilteredNodes(){
@@ -153,13 +161,25 @@ public class ParseError extends RuntimeException{
 		
 		sb.append("\n");
 		sb.append("Unmatchable nodes: ");
-		int nrOfUnmatchableNodes = unmatchableNodes.getSize();
-		if(nrOfUnmatchableNodes == 0){
+		int nrOfUnmatchableLeafNodes = unmatchableLeafNodes.getSize();
+		if(nrOfUnmatchableLeafNodes == 0){
 			sb.append("none");
 		}else{
-			for(int i = nrOfUnmatchableNodes - 1; i >= 0; --i){
+			for(int i = nrOfUnmatchableLeafNodes - 1; i >= 0; --i){
 				sb.append("\n");
-				sb.append(unmatchableNodes.get(i));
+				sb.append(unmatchableLeafNodes.get(i));
+			}
+		}
+		
+		sb.append("\n");
+		sb.append("Unmatchable nodes: ");
+		int nrOfUnmatchableMidProductionNodes = unmatchableMidProductionNodes.getSize();
+		if(nrOfUnmatchableMidProductionNodes == 0){
+			sb.append("none");
+		}else{
+			for(int i = nrOfUnmatchableMidProductionNodes - 1; i >= 0; --i){
+				sb.append("\n");
+				sb.append(unmatchableMidProductionNodes.getSecond(i));
 			}
 		}
 		
