@@ -44,8 +44,8 @@ public Figure visParsetree(Tree t){
      
      case amb(set[Tree] alternatives):{
          FProperty p = popup("Ambiguous: <size(alternatives)>");
-         viewTrees(root, toList(alternatives));
-         return tree(ellipse(size(10), fillColor("red"), p),[visParsetree(c) | c <- args]);
+        // viewTrees(root, toList(alternatives));
+         return tree(ellipse(size(10), fillColor("red"), p),[visParsetree(c) | c <- alternatives]);
       }
      
     case char(int c) : {
