@@ -96,6 +96,20 @@ public class DoubleStack<E, F>{
 		return secondData[index];
 	}
 	
+	public int findFirst(E object){
+		for(int i = size - 1; i >= 0; --i){
+			if(firstData[i].equals(object)) return i;
+		}
+		return -1;
+	}
+	
+	public int findSecond(F object){
+		for(int i = size - 1; i >= 0; --i){
+			if(secondData[i].equals(object)) return i;
+		}
+		return -1;
+	}
+	
 	public boolean containsFirst(E object){
 		for(int i = size - 1; i >= 0; --i){
 			if(firstData[i].equals(object)) return true;
@@ -108,6 +122,36 @@ public class DoubleStack<E, F>{
 			if(secondData[i].equals(object)) return true;
 		}
 		return false;
+	}
+	
+	public E findFirstWithFirst(E object){
+		for(int i = size - 1; i >= 0; --i){
+			E objectToCompareWith = firstData[i];
+			if(objectToCompareWith.equals(object)) return objectToCompareWith;
+		}
+		return null;
+	}
+	
+	public F findSecondWithFirst(E object){
+		for(int i = size - 1; i >= 0; --i){
+			if(firstData[i].equals(object)) return secondData[i];
+		}
+		return null;
+	}
+	
+	public E findFirstWithSecond(F object){
+		for(int i = size - 1; i >= 0; --i){
+			if(secondData[i].equals(object)) return firstData[i];
+		}
+		return null;
+	}
+	
+	public F findSecondWithSecond(F object){
+		for(int i = size - 1; i >= 0; --i){
+			F objectToCompareWith = secondData[i];
+			if(objectToCompareWith.equals(object)) return objectToCompareWith;
+		}
+		return null;
 	}
 	
 	public int getSize(){
