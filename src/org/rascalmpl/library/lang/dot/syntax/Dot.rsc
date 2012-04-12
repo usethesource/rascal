@@ -1,32 +1,41 @@
+@license{
+  Copyright (c) 2009-2011 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl}
+
 module lang::dot::syntax::Dot
 
 start syntax DOT  = LAYOUT* Graph  Id "{" StatementList "}" "\n"?;
 
-syntax Graph = "graph"|"digraph";
+keyword Reserved = "graph"|"digraph"|"node"|"edge"|"subgraph";
 
-syntax AttrTag = "graph"|"node"|"edge";
+syntax Graph = "graph"|"digraph"|AttrTag;
+
+syntax AttrTag = "node"|"edge"|"graph";
 
 syntax Nod = NodeId|Subgraph;
 
-lexical Id = [a-zA-Z0-9_]+ !>> [a-zA-Z0-9_] \ Keyword 
+lexical Id = ([A-Z a-z 0-9 _] !<< [A-Z a-z  0-9 _]+ !<< [a-z A-Z 0-9 _][a-z A-Z 0-9 _]* !>> [0-9 A-Z _ a-z]) \ Reserved 
            | [\"] (![\"] | "\\\"")* [\"]
-             ;
+           | [\-]? "." [0-9]+
+           | [\-]? [0-9]+ "." [0-9]*
+           ;
                     
 syntax StatementList = StatementOptional*;
-                    
-syntax Keyword = "graph"|"digraph"|"subgraph"|"node"|"edge";
 
 syntax Statement = NodeStatement
                   |EdgeStatement
-                  |AttrStatement
-                  |Id "=" Id
-                  |Subgraph
+                  |AttrStatement  
+                  >Id "=" Id
                   ;
   
 syntax StatementOptional = Statement ";"?;              
                                    
-syntax NodeStatement = NodeId AttrList;
+syntax NodeStatement = Nod AttrList;
 
 syntax EdgeStatement = Nod EdgeRhs AttrList ;
 
@@ -34,18 +43,18 @@ syntax Edg =  EdgeOp Nod;
 
 syntax EdgeOp = "-\>" | "--";
 
-syntax EdgeRhs = Edg*;
+syntax EdgeRhs = Edg+;
 
 syntax NodeId = Id 
                 | Id Port
                 ;
 
-syntax Port = ":" Id Compass_pt
-            | ":" Id
-            | ":" Compass_pt
+syntax Port = ":" Id Id?
+//          | ":" Id
+//          | ":" CompassPt
             ;
 
-syntax CompassPt = "n" | "ne" | "e" | "se" | "s" | "sw" | "w"| "nw" | "c" |"_";
+// syntax CompassPt = "n" | "ne" | "e" | "se" | "s" | "sw" | "w"| "nw" | "c" |"_";
 
 syntax AttrList =   AttrList0*;
 
@@ -55,7 +64,7 @@ syntax DotAttr = Id "=" Id | Id "=" Id "," ;
 
 syntax AttrStatement = AttrTag AttrList;
 
-syntax Subgraph = ("subgraph" Id ","?)? "{" StatementList "}";
+syntax Subgraph = ("subgraph" Id? )?  "{" StatementList "}";
 
 lexical Comment = "/*" (![*] | [*] !>> "/")* "*/"
                 | "//" ![\n]* $
