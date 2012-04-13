@@ -107,6 +107,16 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("Set::size({1}) == 1;"));
 		assertTrue(runTestInSameEvaluator("Set::size({1,2,3}) == 3;"));
 	}
+	@Test
+	public void sum() {
+
+		prepare("import Set;");
+
+		assertTrue(runTestInSameEvaluator("sum({}) == 0;"));
+		assertTrue(runTestInSameEvaluator("sum({1}) == 1;"));
+		assertTrue(runTestInSameEvaluator("sum({1,2}) == 3;"));
+		assertTrue(runTestInSameEvaluator("sum({1,2,3}) == 6;"));
+	}
 
 	@Test
 	public void takeOneFrom() {
