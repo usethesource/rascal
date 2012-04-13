@@ -449,8 +449,10 @@ test: sum(<S>)
 }
 
 public num sum(set[num] s) {
+  if(size(s) == 0)
+     return 0;
   <f ,r> = takeOneFrom(s);
-  return (f | it + e | e <- s);
+  return (f | it + e | e <- r);
 }
 
 
