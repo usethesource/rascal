@@ -1232,7 +1232,7 @@ test: sum(<L>)
 
 
 }
-public num sum(list[num] l) = (head(l) | it + e | e <- tail(l));
+public num sum(list[num] l) = (size(l) == 0) ? 0 : (head(l) | it + e | e <- tail(l));
 
 @doc{
 Synopsis: Get the tail element(s) from a list.
