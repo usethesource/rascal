@@ -41,3 +41,19 @@ Use [PearsonsCorrelation] when there is a __linear dependence__ between the vari
 }
 @javaClass{org.rascalmpl.library.stat.Correlations}
 public java num SpearmansCorrelation(list[tuple[num x,num y]] values);
+
+@doc{
+Synopsis: Covariance of data values.
+
+Description:
+
+Computes the [covariance](http://en.wikipedia.org/wiki/Covariance) between the `x` and `y` values.
+
+Examples:
+<screen>
+import stat::Correlation;
+covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
+</screen>
+}
+@javaClass{org.rascalmpl.library.stat.Correlations}
+public java num covariance(list[tuple[num x,num y]] values);
