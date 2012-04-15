@@ -15,6 +15,7 @@
 <"Rascal/Libraries",|std:///stat/Frequency.rsc|>,
 <"Rascal/Libraries",|std:///stat/Descriptive.rsc|>,
 <"Rascal/Libraries",|std:///stat/Correlation.rsc|>,
+<"Rascal/Libraries",|std:///stat/Inference.rsc|>,
 <"Rascal/Libraries",|std:///stat/SimpleRegression.rsc|>,
 <"Rascal/Libraries",|std:///util/Benchmark.rsc|>,
 <"Rascal/Libraries",|std:///util/Eval.rsc|>,

@@ -64,180 +64,174 @@ ok
 <span class="prompt">rascal></span>root();
 Resource: root({
     project(
-      |project://XXX|,
-      {}),
-    project(
-      |project://kpmg2011|,
+      |project://RobustParsing|,
       {
-        file(|project://kpmg2011/.classpath|),
         folder(
-          |project://kpmg2011/java-src|,
+          |project://RobustParsing/src|,
           {
-            folder(
-              |project://kpmg2011/java-src/src|,
-              {folder(
-                  |project://kpmg2011/java-src/src/metrics|,
-                  {
-                    file(|project://kpmg2011/java-src/src/metrics/Misc.java|),
-                    file(|project://kpmg2011/java-src/src/metrics/FunctionCalls.java|),
-                    file(|project://kpmg2011/java-src/src/metrics/NotAnalyzed.java|)
-                  })}),
-            file(|project://kpmg2011/java-src/.classpath|),
-            folder(
-              |project://kpmg2011/java-src/bin|,
-              {folder(
-                  |project://kpmg2011/java-src/bin/metrics|,
-                  {
-                    file(|project://kpmg2011/java-src/bin/metrics/NotAnalyzed.class|),
-                    file(|project://kpmg2011/java-src/bin/metrics/FunctionCalls.class|),
-                    file(|project://kpmg2011/java-src/bin/metrics/Misc.class|)
-                  })}),
-            file(|project://kpmg2011/java-src/.project|)
+            file(|project://RobustParsing/src/PicoPlugin.rsc|),
+            file(|project://RobustParsing/src/Tst1.pico|)
           }),
         folder(
-          |project://kpmg2011/src|,
+          |project://RobustParsing/eclipse|,
           {
             folder(
-              |project://kpmg2011/src/tester|,
-              {file(|project://kpmg2011/src/tester/DotCreatorTester.rsc|)}),
-            folder(
-              |project://kpmg2011/src/soup|,
+              |project://RobustParsing/eclipse/lang|,
               {
                 folder(
-                  |project://kpmg2011/src/soup/tests|,
+                  |project://RobustParsing/eclipse/lang/java|,
                   {folder(
-                      |project://kpmg2011/src/soup/tests/analyzer|,
-                      {folder(
-                          |project://kpmg2011/src/soup/tests/analyzer/pattern|,
-                          {file(|project://kpmg2011/src/soup/tests/analyzer/pattern/AP1QueriesInALoopTest.rsc|)})})}),
-                folder(
-                  |project://kpmg2011/src/soup/analyzer|,
-                  {
-                    file(|project://kpmg2011/src/soup/analyzer/Facts.rsc|),
-                    folder(
-                      |project://kpmg2011/src/soup/analyzer/output|,
+                      |project://RobustParsing/eclipse/lang/java/jdt|,
                       {
-                        file(|project://kpmg2011/src/soup/analyzer/output/SimpleConsole.rsc|),
-                        file(|project://kpmg2011/src/soup/analyzer/output/Csv.rsc|),
-                        file(|project://kpmg2011/src/soup/analyzer/output/Console.rsc|),
-                        file(|project://kpmg2011/src/soup/analyzer/output/SimpleGraphical.rsc|)
-                      }),
-                    file(|project://kpmg2011/src/soup/analyzer/Dispatch.rsc|),
-                    file(|project://kpmg2011/src/soup/analyzer/Mapping.rsc|),
-                    folder(
-                      |project://kpmg2011/src/soup/analyzer/pattern|,
-                      {
-                        file(|project://kpmg2011/src/soup/analyzer/pattern/Ap1QueriesInALoop.rsc|),
-                        file(|project://kpmg2011/src/soup/analyzer/pattern/Ap2EagerFetchMapping.rsc|),
-                        file(|project://kpmg2011/src/soup/analyzer/pattern/Ap3RecordFiltering.rsc|)
-                      }),
-                    file(|project://kpmg2011/src/soup/analyzer/Types.rsc|)
-                  }),
+                        file(|project://RobustParsing/eclipse/lang/java/jdt/JDT.rsc|),
+                        file(|project://RobustParsing/eclipse/lang/java/jdt/JavaADT.rsc|),
+                        folder(
+                          |project://RobustParsing/eclipse/lang/java/jdt/nanopatterns|,
+                          {
+                            file(|project://RobustParsing/eclipse/lang/java/jdt/nanopatterns/NanoPatternAnalyzer.rsc|),
+                            file(|project://RobustParsing/eclipse/lang/java/jdt/nanopatterns/NanoPattern.rsc|)
+                          }),
+                        file(|project://RobustParsing/eclipse/lang/java/jdt/Java.rsc|),
+                        folder(
+                          |project://RobustParsing/eclipse/lang/java/jdt/internal|,
+                          {}),
+                        file(|project://RobustParsing/eclipse/lang/java/jdt/JDTRefactoring.rsc|)
+                      })}),
                 folder(
-                  |project://kpmg2011/src/soup/project|,
-                  {file(|project://kpmg2011/src/soup/project/MkbPortal.rsc|)}),
-                file(|project://kpmg2011/src/soup/Analyzer.rsc|)
+                  |project://RobustParsing/eclipse/lang/c90|,
+                  {file(|project://RobustParsing/eclipse/lang/c90/Plugin.rsc|)}),
+                folder(
+                  |project://RobustParsing/eclipse/lang/sdf2|,
+                  {file(|project://RobustParsing/eclipse/lang/sdf2/Plugin.rsc|)})
               }),
             folder(
-              |project://kpmg2011/src/utils|,
+              |project://RobustParsing/eclipse/vis|,
               {
-                file(|project://kpmg2011/src/utils/Utils.rsc|),
-                file(|project://kpmg2011/src/utils/String.rsc|),
-                file(|project://kpmg2011/src/utils/Node.rsc|),
-                file(|project://kpmg2011/src/utils/EntityNameConverter.rsc|),
-                file(|project://kpmg2011/src/utils/Statistics.rsc|),
-                file(|project://kpmg2011/src/utils/ProjectToDotParser.rsc|),
-                file(|project://kpmg2011/src/utils/Registry.rsc|),
-                file(|project://kpmg2011/src/utils/ADTUtils.rsc|),
-                file(|project://kpmg2011/src/utils/CsvWriter.rsc|),
-                file(|project://kpmg2011/src/utils/XMLDOM.rsc|),
-                file(|project://kpmg2011/src/utils/DotWriter.rsc|),
-                file(|project://kpmg2011/src/utils/Resources.rsc|)
+                file(|project://RobustParsing/eclipse/vis/RenderSWT.rsc|),
+                file(|project://RobustParsing/eclipse/vis/Render.rsc|)
               }),
             folder(
-              |project://kpmg2011/src/metrics|,
+              |project://RobustParsing/eclipse/util|,
               {
-                file(|project://kpmg2011/src/metrics/MetricDisplayer.rsc|),
-                file(|project://kpmg2011/src/metrics/CalculatorTest.rsc|),
-                file(|project://kpmg2011/src/metrics/Metric.rsc|),
-                file(|project://kpmg2011/src/metrics/Calculator.rsc|),
-                file(|project://kpmg2011/src/metrics/CloneAnalyzer.rsc|)
+                file(|project://RobustParsing/eclipse/util/SyntaxHighlightingTemplates.rsc|),
+                file(|project://RobustParsing/eclipse/util/Editors.rsc|),
+                file(|project://RobustParsing/eclipse/util/Clipboard.rsc|),
+                file(|project://RobustParsing/eclipse/util/ResourceMarkers.rsc|),
+                file(|project://RobustParsing/eclipse/util/IDE.rsc|),
+                file(|project://RobustParsing/eclipse/util/Prompt.rsc|),
+                file(|project://RobustParsing/eclipse/util/ValueUI.rsc|),
+                file(|project://RobustParsing/eclipse/util/Resources.rsc|),
+                file(|project://RobustParsing/eclipse/util/ParseTreeUI.rsc|)
               })
           }),
-        file(|project://kpmg2011/.project|),
         folder(
-          |project://kpmg2011/META-INF|,
-          {file(|project://kpmg2011/META-INF/MANIFEST.MF|)}),
-        folder(
-          |project://kpmg2011/std|,
+          |project://RobustParsing/bin|,
           {
-            file(|project://kpmg2011/std/ValueIO.rsc|),
-            file(|project://kpmg2011/std/Type.rsc|),
-            file(|project://kpmg2011/std/Reflective.rsc|),
-            file(|project://kpmg2011/std/Relation.rsc|),
-            file(|project://kpmg2011/std/ATermIO.rsc|),
-            file(|project://kpmg2011/std/Map.rsc|),
-            file(|project://kpmg2011/std/IO.rsc|),
             folder(
-              |project://kpmg2011/std/demo|,
+              |project://RobustParsing/bin/eclipse|,
               {
                 folder(
-                  |project://kpmg2011/std/demo/lang|,
+                  |project://RobustParsing/bin/eclipse/vis|,
+                  {
+                    file(|project://RobustParsing/bin/eclipse/vis/Render.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/vis/RenderSWT.rsc|)
+                  }),
+                folder(
+                  |project://RobustParsing/bin/eclipse/lang|,
                   {
                     folder(
-                      |project://kpmg2011/std/demo/lang/MissGrant|,
-                      {
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/ToObjects.rsc|),
-                        folder(
-                          |project://kpmg2011/std/demo/lang/MissGrant/.svn|,
+                      |project://RobustParsing/bin/eclipse/lang/sdf2|,
+                      {file(|project://RobustParsing/bin/eclipse/lang/sdf2/Plugin.rsc|)}),
+                    folder(
+                      |project://RobustParsing/bin/eclipse/lang/c90|,
+                      {file(|project://RobustParsing/bin/eclipse/lang/c90/Plugin.rsc|)}),
+                    folder(
+                      |project://RobustParsing/bin/eclipse/lang/java|,
+                      {folder(
+                          |project://RobustParsing/bin/eclipse/lang/java/jdt|,
+                          {
+                            file(|project://RobustParsing/bin/eclipse/lang/java/jdt/Java.rsc|),
+                            folder(
+                              |project://RobustParsing/bin/eclipse/lang/java/jdt/internal|,
+                              {}),
+                            file(|project://RobustParsing/bin/eclipse/lang/java/jdt/JDTRefactoring.rsc|),
+                            file(|project://RobustParsing/bin/eclipse/lang/java/jdt/JDT.rsc|),
+                            file(|project://RobustParsing/bin/eclipse/lang/java/jdt/JavaADT.rsc|),
+                            folder(
+                              |project://RobustParsing/bin/eclipse/lang/java/jdt/nanopatterns|,
+                              {
+                                file(|project://RobustParsing/bin/eclipse/lang/java/jdt/nanopatterns/NanoPattern.rsc|),
+                                file(|project://RobustParsing/bin/eclipse/lang/java/jdt/nanopatterns/NanoPatternAnalyzer.rsc|)
+                              })
+                          })})
+                  }),
+                folder(
+                  |project://RobustParsing/bin/eclipse/util|,
+                  {
+                    file(|project://RobustParsing/bin/eclipse/util/Prompt.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/ValueUI.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/Resources.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/ParseTreeUI.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/SyntaxHighlightingTemplates.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/Editors.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/Clipboard.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/ResourceMarkers.rsc|),
+                    file(|project://RobustParsing/bin/eclipse/util/IDE.rsc|)
+                  })
+              }),
+            file(|project://RobustParsing/bin/build.properties|),
+            folder(
+              |project://RobustParsing/bin/std|,
+              {
+                folder(
+                  |project://RobustParsing/bin/std/experiments|,
+                  {
+                    folder(
+                      |project://RobustParsing/bin/std/experiments/viz|,
+                      {folder(
+                          |project://RobustParsing/bin/std/experiments/viz/.svn|,
                           {
                             folder(
-                              |project://kpmg2011/std/demo/lang/MissGrant/.svn/tmp|,
-                              {
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/.svn/tmp/props|,
-                                  {}),
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/.svn/tmp/text-base|,
-                                  {}),
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/.svn/tmp/prop-base|,
-                                  {})
-                              }),
-                            folder(
-                              |project://kpmg2011/std/demo/lang/MissGrant/.svn/prop-base|,
+                              |project://RobustParsing/bin/std/experiments/viz/.svn/props|,
                               {}),
                             folder(
-                              |project://kpmg2011/std/demo/lang/MissGrant/.svn/props|,
-                              {}),
-                            folder(
-                              |project://kpmg2011/std/demo/lang/MissGrant/.svn/text-base|,
-                              {})
-                          }),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/ToRelation.rsc|),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/ToMethods.rsc|),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/MissGrant.rsc|),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/Outline.rsc|),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/AST.rsc|),
-                        file(|project://kpmg2011/std/demo/lang/MissGrant/Rename.rsc|),
+                              |project://RobustParsing/bin/std/experiments/viz/.svn/tmp|,
+                              {folder(
+                                  |project://RobustParsing/bin/std/experiments/viz/.svn/tmp/props|,
+                                  {})})
+                          })}),
+                    folder(
+                      |project://RobustParsing/bin/std/experiments/Concept|,
+                      {
+                        file(|project://RobustParsing/bin/std/experiments/Concept/Fca.rsc|),
+                        file(|project://RobustParsing/bin/std/experiments/Concept/GetFigure.rsc|),
+                        file(|project://RobustParsing/bin/std/experiments/Concept/Types.rsc|),
+                        file(|project://RobustParsing/bin/std/experiments/Concept/Dot.rsc|),
                         folder(
-                          |project://kpmg2011/std/demo/lang/MissGrant/input|,
-                          {folder(
-                              |project://kpmg2011/std/demo/lang/MissGrant/input/.svn|,
+                          |project://RobustParsing/bin/std/experiments/Concept/.svn|,
+                          {
+                            folder(
+                              |project://RobustParsing/bin/std/experiments/Concept/.svn/props|,
+                              {}),
+                            folder(
+                              |project://RobustParsing/bin/std/experiments/Concept/.svn/tmp|,
+                              {folder(
+                                  |project://RobustParsing/bin/std/experiments/Concept/.svn/tmp/props|,
+                                  {})})
+                          }),
+                        file(|project://RobustParsing/bin/std/experiments/Concept/Examples.rsc|)
+                      }),
+                    folder(
+                      |project://RobustParsing/bin/std/experiments/resource|,
+                      {
+                        file(|project://RobustParsing/bin/std/experiments/resource/Resource.rsc|),
+                        folder(
+                          |project://RobustParsing/bin/std/experiments/resource/resources|,
+                          {
+                            folder(
+                              |project://RobustParsing/bin/std/experiments/resource/resources/.svn|,
                               {
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/input/.svn/text-base|,
-                                  {}),
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/input/.svn/props|,
-                                  {}),
-                                folder(
-                                  |project://kpmg2011/std/demo/lang/MissGrant/input/.svn/tmp|,
-                                  {
-                                    folder(
-                                      |project://kpmg2011/std/demo/lang/MissGrant/input/.svn/tmp/prop-base|,
-                                      {}),
-        ...
+                    ...
 </pre>
 </div>
 
