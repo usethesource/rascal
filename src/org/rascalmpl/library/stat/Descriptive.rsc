@@ -38,6 +38,25 @@ Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of 
 public java num mean(list[num] values);
 
 @doc{
+Synopsis: Median of data values.
+
+Description:
+
+Returns the [median](http://en.wikipedia.org/wiki/Median) of the available values.
+This is the same as the 50th [percentile].
+
+Examples:
+<screen>
+import stat::Descriptive;
+median([1,2,5,7,8]);
+median([1,2,2,6,7,8]);
+</screen>
+
+}
+@javaClass{org.rascalmpl.library.stat.Descriptive}
+public java num median(list[num] values);
+
+@doc{
 Synopsis: Smallest data value.
 }
 @javaClass{org.rascalmpl.library.stat.Descriptive}
