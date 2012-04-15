@@ -1,0 +1,35 @@
+Various:
++ Gini
+
+Mike Godfrey:
+
++ median
++ ANOVA (analysis of variance), 
+- multiple regression, 
+- probability models, 
+- methods for hypothesis testing. 
+
+Plot distributions:
++	PDF
++	CDF
++	Histogram
+
+Compare distributions:
++	Chi^2 Test (X^2 Test)
++	T-Test
+-	Wilcoxon Test
+-	Kolmorogov Smirnov Test
++	Covariance
+
+Regressions:
++	Linear
+-	Logistic
+
+He felt that the biggest weakness right now is the lack of distribution comparison and Logistic
+regression.  
+
+He also suggested that you might want to consider the GSL (Gnu Scientific Library) for more functionality.
+
+Wietse:
+@PaulKlint it would be great to be able to inspect the distribution of a set of data with density histogram plot.
+

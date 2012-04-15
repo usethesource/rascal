@@ -145,7 +145,6 @@ Description:
 Returns the sum of squared deviations of the y values about their mean.
 This is defined as [SSTO](http://www.xycoon.com/SumOfSquares.htm).
 
-If n < 2, this returns Double.NaN.
 }
 @javaClass{org.rascalmpl.library.stat.SimpleRegressions}
 public java num totalSumSquares(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
@@ -155,7 +154,7 @@ Synopsis: Sum of squared deviations of x values about their mean.
 
 Description:
 
-Returns the sum of squared deviations of the x values about their mean. If n < 2, this returns Double.NaN.
+Returns the sum of squared deviations of the x values about their mean.
 }
 @javaClass{org.rascalmpl.library.stat.SimpleRegressions}
 public java num XSumSquares(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);

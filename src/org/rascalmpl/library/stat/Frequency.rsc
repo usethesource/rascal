@@ -39,7 +39,6 @@ Returns the cumulative percentage of values less than or equal to v (as a propor
 
 <screen>
 import stat::Frequency;
-
 D = [1, 2, 1, 1, 3, 5];
 cumPct(D, 1);
 cumPct(D, 2);
@@ -61,7 +60,6 @@ Returns the percentage of values that are equal to v (as a proportion between 0 
 Examples:
 <screen>
 import stat::Frequency;
-
 D = [1, 2, 1, 1, 3, 5];
 pct(D, 1);
 pct(D, 2);
