@@ -39,6 +39,10 @@ public class Descriptive {
 		return values.real(make(dataValues).getMean());
 	}
 	
+	public IValue median(IList dataValues){
+		return values.real(make(dataValues).getPercentile(50));
+	}
+	
 	public IValue min(IList dataValues){
 		return values.real(make(dataValues).getMin());
 	}
