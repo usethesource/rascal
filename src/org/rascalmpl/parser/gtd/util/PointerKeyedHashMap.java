@@ -72,21 +72,21 @@ public class PointerKeyedHashMap<K, V>{
 		Entry<K, V> currentEntryRoot = new Entry<K, V>(0, null, null, null);
 		Entry<K, V> shiftedEntryRoot = new Entry<K, V>(0, null, null, null);
 		
-		int newLoad = load;
 		int oldSize = oldData.length;
 		for(int i = oldSize - 1; i >= 0; i--){
 			Entry<K, V> e = oldData[i];
 			if(e != null){
 				Entry<K, V> lastCurrentEntry = currentEntryRoot;
 				Entry<K, V> lastShiftedEntry = shiftedEntryRoot;
+				int lastPosition = -1;
 				do{
 					int position = e.hash & newHashMask;
 					
 					if(position == i){
-						lastCurrentEntry.next = e;
+						if(position != lastPosition) lastCurrentEntry.next = e;
 						lastCurrentEntry = e;
 					}else{
-						lastShiftedEntry.next = e;
+						if(position != lastPosition) lastShiftedEntry.next = e;
 						lastShiftedEntry = e;
 					}
 					
@@ -101,8 +101,6 @@ public class PointerKeyedHashMap<K, V>{
 				newData[i | oldSize] = shiftedEntryRoot.next; // The entries got shifted by the size of the old table.
 			}
 		}
-		
-		load = newLoad;
 		
 		threshold <<= 1;
 		data = newData;

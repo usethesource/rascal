@@ -48,21 +48,21 @@ public class IntegerKeyedHashMap<V>{
 		Entry<V> currentEntryRoot = new Entry<V>(-1, null, null);
 		Entry<V> shiftedEntryRoot = new Entry<V>(-1, null, null);
 		
-		int newLoad = load;
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<V> e = oldEntries[i];
 			if(e != null){
 				Entry<V> lastCurrentEntry = currentEntryRoot;
 				Entry<V> lastShiftedEntry = shiftedEntryRoot;
+				int lastPosition = -1;
 				do{
 					int position = e.key & newHashMask;
 					
 					if(position == i){
-						lastCurrentEntry.next = e;
+						if(position != lastPosition) lastCurrentEntry.next = e;
 						lastCurrentEntry = e;
 					}else{
-						lastShiftedEntry.next = e;
+						if(position != lastPosition) lastShiftedEntry.next = e;
 						lastShiftedEntry = e;
 					}
 					
@@ -76,8 +76,6 @@ public class IntegerKeyedHashMap<V>{
 				newEntries[i | oldSize] = shiftedEntryRoot.next;
 			}
 		}
-		
-		load = newLoad;
 		
 		threshold <<= 1;
 		entries = newEntries;
