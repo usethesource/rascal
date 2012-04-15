@@ -2,6 +2,7 @@ package org.rascalmpl.library.stat;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.stat.correlation.Covariance;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INumber;
@@ -78,5 +79,10 @@ public class Correlations {
 	public IValue SpearmansCorrelation(IList dataValues){
 		make(dataValues);
 		return values.real(new org.apache.commons.math.stat.correlation.SpearmansCorrelation().correlation(xvalues, yvalues));
+	}
+	
+	public IValue covariance(IList dataValues){
+		make(dataValues);
+		return values.real(new Covariance().covariance(xvalues, yvalues, false));
 	}
 }
