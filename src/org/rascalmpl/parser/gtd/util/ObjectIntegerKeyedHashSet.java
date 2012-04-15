@@ -44,21 +44,21 @@ public class ObjectIntegerKeyedHashSet<E>{
 		Entry<E> currentEntryRoot = new Entry<E>(null, 0, 0, null);
 		Entry<E> shiftedEntryRoot = new Entry<E>(null, 0, 0, null);
 		
-		int newLoad = load;
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<E> e = oldEntries[i];
 			if(e != null){
 				Entry<E> lastCurrentEntry = currentEntryRoot;
 				Entry<E> lastShiftedEntry = shiftedEntryRoot;
+				int lastPosition = -1;
 				do{
 					int position = e.hash & newHashMask;
 					
 					if(position == i){
-						lastCurrentEntry.next = e;
+						if(position != lastPosition) lastCurrentEntry.next = e;
 						lastCurrentEntry = e;
 					}else{
-						lastShiftedEntry.next = e;
+						if(position != lastPosition) lastShiftedEntry.next = e;
 						lastShiftedEntry = e;
 					}
 					
@@ -72,8 +72,6 @@ public class ObjectIntegerKeyedHashSet<E>{
 				newEntries[i | oldSize] = shiftedEntryRoot.next;
 			}
 		}
-		
-		load = newLoad;
 		
 		threshold <<= 1;
 		entries = newEntries;

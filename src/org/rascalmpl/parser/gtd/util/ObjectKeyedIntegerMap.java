@@ -33,21 +33,21 @@ public class ObjectKeyedIntegerMap<K>{
 		Entry<K> currentEntryRoot = new Entry<K>(null, -1, -1, null);
 		Entry<K> shiftedEntryRoot = new Entry<K>(null, -1, -1, null);
 		
-		int newLoad = load;
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<K> e = oldEntries[i];
 			if(e != null){
 				Entry<K> lastCurrentEntry = currentEntryRoot;
 				Entry<K> lastShiftedEntry = shiftedEntryRoot;
+				int lastPosition = -1;
 				do{
 					int position = e.hash & newHashMask;
 					
 					if(position == i){
-						lastCurrentEntry.next = e;
+						if(position != lastPosition) lastCurrentEntry.next = e;
 						lastCurrentEntry = e;
 					}else{
-						lastShiftedEntry.next = e;
+						if(position != lastPosition) lastShiftedEntry.next = e;
 						lastShiftedEntry = e;
 					}
 					
@@ -61,8 +61,6 @@ public class ObjectKeyedIntegerMap<K>{
 				newEntries[i | oldSize] = shiftedEntryRoot.next;
 			}
 		}
-		
-		load = newLoad;
 		
 		threshold <<= 1;
 		entries = newEntries;
