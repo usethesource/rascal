@@ -227,7 +227,6 @@ th { background-color: silver; }
     width: 200pt;
     padding-bottom: 1px;
     position: relative;
-    bottom : -5px;
 }
 
 .answerStatus {
