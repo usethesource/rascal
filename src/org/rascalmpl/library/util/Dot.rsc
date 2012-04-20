@@ -78,7 +78,7 @@ public void setCurrentOutline(Dotline current) {
 @doc{Translates DotGraph to String input for dot}
 public str toString(DotGraph g) {
        if (digraph(Id id,Stms stms):=g) {
-            str r= "digraph <id> {<for (x<-stms) {> <oStm(x)>;<}>}"; 
+            str r= "digraph <id> {<for (x<-stms) {>\n<oStm(x)>;<}>}\n"; 
             return r;
             }
     return "error";
