@@ -45,6 +45,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
+// TODO Factor out the recovery code.
 /**
  * This is the core of the parser; it drives the parse process.
  */
@@ -82,14 +83,15 @@ public abstract class SGTDBF implements IGTD{
 	private boolean invoked;
 	
 	// Error reporting
-	private boolean recovering = false;
 	private final Stack<AbstractStackNode> unexpandableNodes;
 	private final Stack<AbstractStackNode> unmatchableLeafNodes;
-	private final DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes;
+	private final DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes; // TODO Optimize, we now need to do a linear search for every failing node in here.
 	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
 	private boolean parseErrorOccured;
+
+	private boolean recovering;
 	
 	public SGTDBF(){
 		super();
@@ -695,7 +697,7 @@ public abstract class SGTDBF implements IGTD{
 		if (recovering) {
 			parseErrorOccured = true;
 			
-			if (findStacksToRevive()) {
+			if (reviveStacks()) {
 				return findStacksToReduce();
 			}
 		}
@@ -703,17 +705,19 @@ public abstract class SGTDBF implements IGTD{
 		return false;
 	}
 	
-	private boolean findStacksToRevive() {
-		boolean unexpandable = reviveFailedNodes(unexpandableNodes);
-//		boolean unmatchable = reviveFailedNodes(unmatchableNodes);
-//		boolean filtered = reviveFiltered(filteredNodes);
+	private boolean reviveStacks() {
+		ArrayList<AbstractStackNode> failedNodes = new ArrayList<AbstractStackNode>();
+		collectUnexpandableNodes(unexpandableNodes, failedNodes);
+//		collectFailedNodes(unmatchableNodes);
+//		collectFiltered(filteredNodes);
+		collectUnmatchableMidProductionNodes(unmatchableMidProductionNodes, failedNodes);
 		
-		// don't inline the booleans (short-circuit + side-effects)
-		return unexpandable; // || unmatchable || filtered; 
+		reviveFailedNodes(failedNodes);
+		
+		return (failedNodes.size() != 0);
 	}
-
-	@Override
-	public boolean parseErrorHasOccurred() {
+	
+	public boolean parseErrorHasOccurred(){
 		return parseErrorOccured;
 	}
 	
@@ -1034,8 +1038,7 @@ public abstract class SGTDBF implements IGTD{
 		}
 	}
 	
-	private void initializeRecovery(Object[] robustNodes,
-			int[][] continuationCharacters) {
+	private void initializeRecovery(Object[] robustNodes, int[][] continuationCharacters) {
 		this.robust = new ObjectKeyedIntegerMap<Object>();
 		this.continuations = continuationCharacters;
 		
@@ -1048,24 +1051,12 @@ public abstract class SGTDBF implements IGTD{
 	// should generate implementation of static int getLastId() in generated parser to fix this.
 	private int recoveryId = 100000;
 	
-	private boolean reviveFailedNodes(Stack<AbstractStackNode> failedNodes) {
-		Stack<AbstractStackNode> recoveryNodes = new Stack<AbstractStackNode>();
-		Stack<Object> recoveryProds = new Stack<Object>();
-		Stack<Integer> recoveryDots = new Stack<Integer>();
-		
-		while (!failedNodes.isEmpty()) {
-			findRecoveryNodes(failedNodes.pop(), recoveryNodes, recoveryProds, recoveryDots);
-		}
-		
-		if (recoveryNodes.isEmpty()) {
-			return false;
-		}
-		
-		while (!recoveryNodes.isEmpty()) {
-			AbstractStackNode recoveryNode = recoveryNodes.pop();
-			Object prod = recoveryProds.pop();
-			AbstractStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode); 
-			int dot = recoveryDots.pop();
+	private void reviveNodes(ArrayList<AbstractStackNode> recoveryNodes, ArrayList<Object> recoveryProds, IntegerList recoveryDots){
+		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
+			AbstractStackNode recoveryNode = recoveryNodes.get(i);
+			Object prod = recoveryProds.get(i);
+			AbstractStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode);
+			int dot = recoveryDots.get(i);
 			
 			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, prod);
 			recoverLiteral = (SkippingStackNode) recoverLiteral.getCleanCopy(location);
@@ -1079,8 +1070,39 @@ public abstract class SGTDBF implements IGTD{
 			
 			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
 		}
+	}
 	
-		return true;
+	private void reviveFailedNodes(ArrayList<AbstractStackNode> failedNodes) {
+		ArrayList<AbstractStackNode> recoveryNodes = new ArrayList<AbstractStackNode>();
+		ArrayList<Object> recoveryProds = new ArrayList<Object>();
+		IntegerList recoveryDots = new IntegerList();
+		
+		for(int i = failedNodes.size() - 1; i >= 0; --i){
+			findRecoveryNodes(failedNodes.get(i), recoveryNodes, recoveryProds, recoveryDots);
+		}
+		
+		reviveNodes(recoveryNodes, recoveryProds, recoveryDots);
+	}
+	
+	private void collectUnexpandableNodes(Stack<AbstractStackNode> unexpandableNodes, ArrayList<AbstractStackNode> failedNodes) {
+		for(int i = unexpandableNodes.getSize() - 1; i >= 0; --i){
+			failedNodes.add(unexpandableNodes.get(i));
+		}
+	}
+	
+	private void collectUnmatchableMidProductionNodes(DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes, ArrayList<AbstractStackNode> failedNodes){
+		for(int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i){
+			ArrayList<AbstractStackNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
+			AbstractStackNode failedNode = unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
+			
+			// Merge the information on the predecessors into the failed node.
+			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j){
+				AbstractStackNode predecessor = failedNodePredecessors.get(j);
+				failedNode.updateNode(predecessor, predecessor.getResult());
+			}
+			
+			failedNodes.add(failedNode);
+		}
 	}
 
 	private boolean isRecovering(Object prod) {
@@ -1092,7 +1114,7 @@ public abstract class SGTDBF implements IGTD{
 	 * The graph may split and merge, and even cycle, so we take care of knowing where
 	 * we have been and what we still need to do.
 	 */
-	private void findRecoveryNodes(AbstractStackNode failer, Stack<AbstractStackNode> recoveryNodes, Stack<Object> recoveryProds, Stack<Integer> recoveryDots) {
+	private void findRecoveryNodes(AbstractStackNode failer, ArrayList<AbstractStackNode> recoveryNodes, ArrayList<Object> recoveryProds, IntegerList recoveryDots) {
 		ObjectKeyedIntegerMap<AbstractStackNode> visited = new ObjectKeyedIntegerMap<AbstractStackNode>();
 		Stack<AbstractStackNode> todo = new Stack<AbstractStackNode>();
 		
@@ -1121,9 +1143,9 @@ public abstract class SGTDBF implements IGTD{
 						Object parentProd = findProduction(node.getProduction());
 						
 						if (isRecovering(parentProd)) {
-							recoveryNodes.push(node);
-							recoveryProds.push(parentProd);
-							recoveryDots.push(node.getDot());
+							recoveryNodes.add(node);
+							recoveryProds.add(parentProd);
+							recoveryDots.add(node.getDot());
 						}
 						else if (!visited.contains(parent)) {
 							todo.push(parent);
