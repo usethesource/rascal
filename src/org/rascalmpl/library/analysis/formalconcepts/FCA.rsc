@@ -32,11 +32,15 @@ public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribut
 
 @doc{Computes Dot Graph from Concept Lattice  }
 public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
+   return toDot(cl, true);
+   }
+   
+public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl, bool lab) {
      map[Concept[&Object, &Attribute], int] z = makeNodes(cl);
      set[Concept[&Object, &Attribute]] d = domain(z);
      Stms nodes = [];
      for (Concept[&Object, &Attribute] c <- d) {
-       nodes += compose(c, z);
+       nodes += compose(c, z, lab);
      }  
      Stms edges =   [ E("\"<z[x[0]]>\"", "\"<z[x[1]]>\"") | x<-cl]; 
      return digraph("fca", 
@@ -45,7 +49,7 @@ public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
      }
      
 public Dotline toDotline(ConceptLattice[&Object, &Attribute] cl) {
-     return <toDot(cl), toOutline(cl)>;
+     return <toDot(cl, false), toOutline(cl)>;
      }
 
      
@@ -144,6 +148,6 @@ set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, 
      return c[0] - union({p[0]|Concept[&Object, &Attribute] p <-parents});
      }  
 
-Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z) {
-     return N("\"<z[c]>\"");
+Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z, bool lab) {
+     return N("\"<z[c]>\"", lab?[<"label", "<c>">]:[]);
      }     
