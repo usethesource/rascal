@@ -1,39 +1,21 @@
 module demo::lang::turing::l1::cst::Syntax
 
-layout Standard 
-  = WhitespaceOrComment* !>> [\ \t\n\f\r] !>> "//";
-  
-syntax WhitespaceOrComment 
-  = whitespace: Whitespace
-  | comment: Comment
+start syntax Program = program: {Statement EOL}+  statements;
+
+lexical EOL
+  = [\n]
+  | [\r][\n]
+  | [\r] !>> [\n]
   ; 
-
-lexical Whitespace = [\ \t\f]; 
-
-lexical Comment = @category="Comment" "//" ![\n\r]* $;
-
-start syntax Program = program: Statement+  statements;
-
-lexical Statement
-	= jump: "J" Condition con LineNumber num [\n\r]+
-	| write: "W" TapeLanguage val [\n\r]+
-	| move: "M" Direction direction [\n\r]+
-	;
-
-lexical Condition 
-	= \any: "_" 
-	| \set: "1"
-	| unset: "0"
+  
+syntax Statement
+	= jumpAlways: "J_" LineNumber num 
+	| jumpSet: "J1" LineNumber num 
+	| jumpUnset: "J0" LineNumber num 
+	| writeSet: "W1"
+	| writeUnset: "W0" 
+	| moveForward: "MF"
+	| moveBackward: "MB" 
 	;
 	
 lexical LineNumber = [0-9]+ !>> [0-9];
-
-lexical TapeLanguage 
-	= \set: "1"
-	| unset: "0"
-	;
-	
-lexical Direction 
-	= forward : "F"
-	| backward: "B"
-	;
