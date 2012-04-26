@@ -9,7 +9,27 @@ public Program desugar(Program prog)
 	
 
 private Program removeLoops(Program prog) {
-	return prog;
+	list[Statement] newStatements = [];
+	for (s <- prog.statements) {
+		if (loop(c, st) := s) {
+			for (lc <- [1..c]) {
+				map[str, str] labelReplacement = (l : "<l>_<lc>" | label(l) <- st);
+				for (st_l <- st) {
+					switch(st_l) {
+						case label(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
+						case jumpAlwaysLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
+						case jumpSetLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
+						case jumpUnsetLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
+						default: newStatements += [st_l];
+					}
+				}
+			}		
+		}
+		else {
+			newStatements += [s];	
+		}	
+	}
+	return prog[statements = newStatements];
 }
 
 private Program removeLabels(Program prog) {
