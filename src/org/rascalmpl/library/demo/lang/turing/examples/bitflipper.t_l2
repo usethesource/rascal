@@ -1,0 +1,9 @@
+L Start
+	J1 Set
+	W1
+	J_ Move
+L Set
+	W0
+L Move
+	MF
+	J_ Start

@@ -12,3 +12,6 @@ public Program load(loc inp)
 	
 public Program load(str s, loc inp) 
 	= implode(#Program, parse(s, inp));
+	
+public Program load(Tree parsed) 
+	= implode(#Program, parsed);
