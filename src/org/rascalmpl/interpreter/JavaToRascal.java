@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
@@ -23,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -30,10 +32,6 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-/**
- * @author bertl
- *
- */
 public class JavaToRascal {
 
 	private final static String SHELL_MODULE = "$shell$";
@@ -78,9 +76,9 @@ public class JavaToRascal {
 		return javaObject(evaluator.call(name, vals));
 	}
 
-	 public IValue call(String name, IValue... args) {
-	 return evaluator.call(name, args);
-	 }
+	public IValue call(String name, IValue... args) {
+		return evaluator.call(name, args);
+	}
 
 	public void voidValue(String command, String location) {
 		evaluator.eval(null, command, URI.create(location));
@@ -139,7 +137,6 @@ public class JavaToRascal {
 		return boolValue(command, "stdin:///");
 	}
 
-	
 	private Object[] _listValue(IList q) {
 		ArrayList<Object> r = new ArrayList<Object>();
 		for (IValue v : q) {
@@ -187,43 +184,55 @@ public class JavaToRascal {
 	public Object eval(String command) {
 		return eval(command, "stdin:///");
 	}
-	
+
 	/**
 	 * @param moduleName
 	 * @param variableName
 	 * @param variableType
-	 * @return true iff variableName is defined in moduleName and has type variableType
+	 * @return true iff variableName is defined in moduleName and the list
+	 *         variableType contains its type
 	 */
 	public boolean isVariableInModule(String moduleName, String variableName,
-			String variableType) {
+			String... variableType) {
 		Environment old = evaluator.getCurrentEnvt();
 		try {
 			evaluator.doImport(null, moduleName);
-			ModuleEnvironment env = evaluator.getCurrentEnvt()
-					.getImport(moduleName);
+			ModuleEnvironment env = evaluator.getCurrentEnvt().getImport(
+					moduleName);
 			Result<IValue> simpleVariable = env.getSimpleVariable(variableName);
-			if (simpleVariable==null) return false;
-			return simpleVariable.getType().equivalent(getType(env, variableType));
+			if (simpleVariable == null)
+				return false;
+			for (String vt : variableType) {
+				Type tp = getType(env, vt);
+				if (tp == null)
+					continue;
+				if (simpleVariable.getType().equivalent(tp))
+					return true;
+			}
+			return false;
 		} finally {
 			evaluator.unwind(old);
 		}
 	}
-	
+
 	/**
 	 * @param moduleName
 	 * @param procedureName
 	 * @param procedureResultType
-	 * @return true iff procedureName is defined in moduleName and has type procedureResultType
+	 * @return true iff procedureName is defined in moduleName and has type
+	 *         procedureResultType
 	 */
 	public boolean isProcedureInModule(String moduleName, String procedureName,
 			String procedureResultType, int arity) {
 		Environment old = evaluator.getCurrentEnvt();
 		try {
 			evaluator.doImport(null, moduleName);
-			ModuleEnvironment env = evaluator.getCurrentEnvt()
-					.getImport(moduleName);
+			ModuleEnvironment env = evaluator.getCurrentEnvt().getImport(
+					moduleName);
 			ArrayList<AbstractFunction> funcs = new ArrayList<AbstractFunction>();
-			Type typ = getType(env,  procedureResultType);
+			Type typ = getType(env, procedureResultType);
+			if (typ == null)
+				return false;
 			env.getAllFunctions(typ, procedureName, funcs);
 			for (AbstractFunction f : funcs) {
 				if (f.getArity() == arity) {
@@ -235,15 +244,19 @@ public class JavaToRascal {
 			evaluator.unwind(old);
 		}
 	}
-	
+
 	private Type getType(ModuleEnvironment m, String typeString) {
 		Type t = toType.get(typeString);
 		if (t != null)
 			return t;
-		t = m.getAbstractDataType(typeString);
+		TypeStore ts = m.getStore();
+		t = ts.lookupAlias(typeString);
+		if (t != null)
+			return t;
+		t = ts.lookupAbstractDataType(typeString);
 		return t;
 	}
-	
+
 	private Object javaObject(IValue v) {
 		if (v.getType().isBoolType())
 			return new Boolean(((IBool) v).getValue());
@@ -251,6 +264,8 @@ public class JavaToRascal {
 			return new Integer(((IInteger) v).intValue());
 		if (v.getType().isStringType())
 			return ((IString) v).getValue();
+		if (v.getType().isRealType())
+			return new Double(((IReal) v).doubleValue());
 		if (v.getType().isListType())
 			return _listValue((IList) v);
 		return null;
@@ -265,9 +280,12 @@ public class JavaToRascal {
 			return vf.string(((String) v));
 		if (v instanceof Boolean)
 			return vf.bool(((Boolean) v).booleanValue());
+		if (v instanceof Double)
+			return vf.real(((Double) v).doubleValue());
+		if (v instanceof Float)
+			return vf.real(((Float) v).floatValue());
 		return null;
 	}
-
 
 	public static void main(String[] args) {
 		final JavaToRascal jr = new JavaToRascal(new PrintWriter(System.out),
