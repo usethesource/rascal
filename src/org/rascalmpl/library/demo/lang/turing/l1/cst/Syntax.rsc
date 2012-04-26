@@ -1,5 +1,7 @@
 module demo::lang::turing::l1::cst::Syntax
 
+layout WhiteSpace = [\ \t]* !>> [\ \t];
+
 start syntax Program = program: {Statement EOL}+  statements;
 
 lexical EOL
