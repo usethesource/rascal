@@ -9,13 +9,13 @@ lexical EOL
   ; 
   
 syntax Statement
-	= jumpAlways: "J_" LineNumber num 
-	| jumpSet: "J1" LineNumber num 
-	| jumpUnset: "J0" LineNumber num 
+	= jumpAlways: "J_" Number num 
+	| jumpSet: "J1" Number num 
+	| jumpUnset: "J0" Number num 
 	| writeSet: "W1"
 	| writeUnset: "W0" 
 	| moveForward: "MF"
 	| moveBackward: "MB" 
 	;
 	
-lexical LineNumber = [0-9]+ !>> [0-9];
+lexical Number = [0-9]+ !>> [0-9];
