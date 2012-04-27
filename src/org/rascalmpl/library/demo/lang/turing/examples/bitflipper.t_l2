@@ -1,9 +1,22 @@
-L Start
-	J1 Set
-	W1
-	J_ Move
-L Set
-	W0
-L Move
-	MF
-	J_ Start
+L Restart
+REP 10 {
+	L Start 
+		J1 Unset
+		W1
+		J_ Move
+	L Unset
+		W0
+	L Move
+		MF
+}
+REP 10 {
+	L Start 
+		J1 Unset
+		W1
+		J_ Move
+	L Unset
+		W0
+	L Move
+		MB
+}
+	J_ Restart
