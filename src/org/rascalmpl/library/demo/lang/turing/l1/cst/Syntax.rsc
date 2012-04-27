@@ -1,14 +1,8 @@
 module demo::lang::turing::l1::cst::Syntax
 
-layout WhiteSpace = [\ \t]* !>> [\ \t];
+layout WhiteSpace = [\ \t\n\r]* !>> [\ \t\n\r];
 
-start syntax Program = program: {Statement EOL}+  statements;
-
-lexical EOL
-  = [\n]
-  | [\r][\n]
-  | [\r] !>> [\n]
-  ; 
+start syntax Program = program: Statement+  statements;
   
 syntax Statement
 	= jumpAlways: "J_" Number num 
