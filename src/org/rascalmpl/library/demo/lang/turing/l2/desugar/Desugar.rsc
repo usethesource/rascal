@@ -35,7 +35,6 @@ private Program removeLoops(Program prog) {
 }
 
 private Program removeLabels(Program prog) {
-	iprintln(prog);
 	map[str, int] labelLocs = ();
 	list[Statement] newStatements = [];
 	for (s <- prog.statements) {
