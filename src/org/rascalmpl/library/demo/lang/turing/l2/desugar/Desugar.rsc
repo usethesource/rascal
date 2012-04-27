@@ -10,10 +10,12 @@ public Program desugar(Program prog)
 
 private Program removeLoops(Program prog) {
 	list[Statement] newStatements = [];
+	int loopId = 0;
 	for (s <- prog.statements) {
 		if (loop(c, st) := s) {
+			loopId += 1;
 			for (lc <- [1..c]) {
-				map[str, str] labelReplacement = (l : "<l>_<lc>" | label(l) <- st);
+				map[str, str] labelReplacement = (l : "_<loopId>_<l>_<lc>" | label(l) <- st);
 				for (st_l <- st) {
 					switch(st_l) {
 						case label(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
@@ -33,6 +35,7 @@ private Program removeLoops(Program prog) {
 }
 
 private Program removeLabels(Program prog) {
+	iprintln(prog);
 	map[str, int] labelLocs = ();
 	list[Statement] newStatements = [];
 	for (s <- prog.statements) {
