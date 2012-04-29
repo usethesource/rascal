@@ -1,0 +1,8 @@
+begin
+  declare
+     x : natural,
+     n : natural;
+  x := 4;
+  n := 10;
+  while n do n := n - 1; x := x + x od
+end
