@@ -6,8 +6,7 @@ Syntax: `lang::java::jdt::JavaADT;`
 
 Types:
 <listing>
-data AstNode = 
-	  compilationUnit(AstNode package, list[AstNode] imports, list[AstNode] typeDeclarations)
+data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
 	// Declarations
 	| anonymousClassDeclaration(list[AstNode] bodyDeclarations)
@@ -43,8 +42,8 @@ data AstNode =
 	| infixExpression(str operator, AstNode leftSide, AstNode rightSide, list[AstNode] extendedOperands)
 	| instanceofExpression(AstNode leftSide, AstNode rightSide)
 	| methodInvocation(Option[AstNode] optionalExpression, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
-	| superMethodInvocation(Option[str] optionalQualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
-	| qualifiedName(str qualifiedName)
+	| superMethodInvocation(Option[AstNode] optionalQualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
+	| qualifiedName(AstNode qualifier, str name)
 	| simpleName(str simpleName)
 	| nullLiteral()
 	| numberLiteral(str number)
@@ -52,11 +51,11 @@ data AstNode =
 	| postfixExpression(AstNode operand, str operator)
 	| prefixExpression(AstNode operand, str operator)
 	| stringLiteral(str stringValue)
-	| superFieldAccess(Option[str] optionalQualifier, str name)
-	| thisExpression(Option[str] optionalQualifierString)
+	| superFieldAccess(Option[AstNode] optionalQualifier, str name)
+	| thisExpression(Option[AstNode] optionalQualifier)
 	| typeLiteral(AstNode \type)
 	| variableDeclarationExpression(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
-					
+						
 	// Statements
 	| assertStatement(AstNode expression, Option[AstNode] message)
 	| block(list[AstNode] statements)
@@ -70,7 +69,7 @@ data AstNode =
 	| expressionStatement(AstNode expression)
 	| forStatement(list[AstNode] initializers, Option[AstNode] optionalBooleanExpression, list[AstNode] updaters, AstNode body)
 	| ifStatement(AstNode booleanExpression, AstNode thenStatement, Option[AstNode] elseStatement)
-	| labeledStatement(str label, AstNode body)
+	| labeledStatement(str name, AstNode body)
 	| returnStatement(Option[AstNode] optionalExpression)
 	| switchStatement(AstNode expression, list[AstNode] statements)
 	| switchCase(bool isDefault, Option[AstNode] optionalExpression)
@@ -81,15 +80,15 @@ data AstNode =
 	| typeDeclarationStatement(AstNode typeDeclaration)
 	| variableDeclarationStatement(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 	| whileStatement(AstNode expression, AstNode body)
-						
+							
 	// Types
 	| arrayType(AstNode \typeOfArray)
 	| parameterizedType(AstNode \typeOfParam, list[AstNode] genericTypes)
-	| qualifiedType(str qualifier, str name)
+	| qualifiedType(AstNode qualifier, str name)
 	| primitiveType(str primitive)
 	| simpleType(str name)
-	| wildcardType(Option[AstNode] wildcardType, Option[str] bound)
-																		
+	| wildcardType(Option[AstNode] bound, Option[str] lowerOrUpper)
+																			
 	// Comments 
 	| blockComment()
 	| lineComment()
@@ -102,8 +101,7 @@ data AstNode =
 	| memberRefParameter()
 	;
 				
-data Option[&T] = 
-	  some(&T opt)
+data Option[&T] = some(&T opt)
 	| none()
 	;
 </listing>
