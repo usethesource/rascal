@@ -112,9 +112,16 @@ DotGraph g1(int n) {
     return digraph("g1", ts+t);
     }
 
+str reLabel(str prop, str val) {
+  println(prop);
+  if (prop=="label") {
+      return "\"<replaceAll(val,"\"","\\\"")>\"";
+      }
+  return val;
+  }
 
 str oAttrs(Attrs attrs) {
-    return "[<for (y<-attrs) {> <y.prop>=<y.val>,<}>]";
+    return "[<for (y<-attrs) {> <y.prop>=<reLabel(y.prop, y.val)>,<}>]";
     }
 
 str oCompassPt(CompassPt id) {
