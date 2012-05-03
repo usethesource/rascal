@@ -14,7 +14,7 @@ CFSEGMENT cflowStat(asgStat(PicoId Id, EXP Exp)) {
   return <E, {}, E>;
 }
 
-CFSEGMENT cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats1)) { 
+CFSEGMENT cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) { 
    CFSEGMENT CF = cflow(Stats); 
    set[CP] E = {exp(Exp)}; 
    return < E, (E * CF.entry) + CF.graph + (CF.exit * E), E >;
@@ -28,6 +28,10 @@ CFSEGMENT cflowStat(ifElseStat(EXP Exp,
    set[CP] E = {exp(Exp)}; 
    return < E, (E * CF1.entry) + (E * CF2.entry) + CF1.graph + CF2.graph, CF1.exit + CF2.exit >;
 }
+
+CFSEGMENT cflow(list[STATEMENT] Stats){
+    return cflowStats(Stats);
+    }
 
 CFSEGMENT cflowStats(list[STATEMENT] Stats){ 
   if(size(Stats) == 1)
