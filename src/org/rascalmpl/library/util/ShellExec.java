@@ -147,6 +147,7 @@ public class ShellExec {
 				line.append((char)isr.read());
 //				line = line + (char)isr.read();
 			}
+			if (isr != null) isr.close();
 			return vf.string(line.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
@@ -164,6 +165,7 @@ public class ShellExec {
 			while (null != (line = br.readLine())) {
 				lines.append(line);
 			}
+			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
@@ -181,6 +183,7 @@ public class ShellExec {
 			while (null != (line = br.readLine())) {
 				lines.append(line);
 			}
+			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
@@ -195,6 +198,7 @@ public class ShellExec {
 			BufferedWriter buf = new BufferedWriter(new OutputStreamWriter(runningProcess.getOutputStream()));
 			buf.write(msg.getValue());
 			buf.flush();
+			buf.close();
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
 		}

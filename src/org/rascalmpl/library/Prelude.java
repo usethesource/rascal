@@ -2526,6 +2526,12 @@ public class Prelude {
 		}
 	}
 	
+	public IBool rexpMatch(IString s, IString re) {
+		if(Pattern.matches(re.getValue(), s.getValue()))
+			return values.bool(true);
+		else
+			return values.bool(false);
+	}
 }
 
 // Utilities used by Graph
