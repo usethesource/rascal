@@ -169,7 +169,9 @@ syntax ImportedModule
 	= Default: QualifiedName name 
 	| ActualsRenaming: QualifiedName name ModuleActuals actuals Renamings renamings 
 	| Renamings: QualifiedName name Renamings renamings 
-	| Actuals: QualifiedName name ModuleActuals actuals ;
+	| Actuals: QualifiedName name ModuleActuals actuals
+	| External: QualifiedName name "=" LocationLiteral at  
+	;
 
 syntax Target
 	= Empty: 
