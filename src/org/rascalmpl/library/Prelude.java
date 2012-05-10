@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -1272,7 +1273,7 @@ public class Prelude {
 	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 	
-	public IValue toMap(IList lst)
+	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{
 		Type tuple = lst.getElementType();
@@ -1935,6 +1936,30 @@ public class Prelude {
 	// @doc{size -- number of elements in a set}
 	{
 		return values.integer(st.size());
+	}
+	
+	public IMap index(IRelation s) {
+		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.size());
+		
+		for (IValue t : s) {
+			ITuple tuple = (ITuple) t;
+			IValue key = tuple.get(0);
+			IValue value = tuple.get(1);
+			
+			ISetWriter writer = map.get(key);
+			if (writer == null) {
+				writer = values.setWriter();
+				map.put(key, writer);
+			}
+			writer.insert(value);
+		}
+		
+		IMapWriter mapWriter = values.mapWriter();
+		for (IValue key : map.keySet()) {
+			mapWriter.put(key, map.get(key).done());
+		}
+		
+		return mapWriter.done();
 	}
 
 	public IValue takeOneFrom(ISet st)

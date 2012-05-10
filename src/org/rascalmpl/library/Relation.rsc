@@ -608,4 +608,5 @@ import Relation;
 toMap({<1,10>, <2,20>, <3,30>, <30,10>});
 </screen>
 }
-public map[&K, set[&V]] toMap(rel[&K, &V] R) = (k:R[k] | <&K k,_> <- R);
+@javaClass{org.rascalmpl.library.Prelude}
+public java map[&K, set[&V]] index(rel[&K, &V] R);
