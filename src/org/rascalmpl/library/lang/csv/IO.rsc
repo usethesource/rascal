@@ -34,7 +34,7 @@ module lang::csv::IO
 import lang::csv::syntax::Parse;
 import lang::csv::ast::CSV;
 import lang::csv::ast::Implode;
-
+import Type;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -108,6 +108,13 @@ public java &T readCSV(type[&T] result, loc location);
 @reflect{Uses URI Resolver Registry}
 public java &T readCSV(type[&T] result, loc location, map[str,str] options);
 
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java Symbol getCSVType(loc location);
+
+@javaClass{org.rascalmpl.library.lang.csv.IO}
+@reflect{Uses URI Resolver Registry}
+public java Symbol getCSVType(loc location, map[str,str] options);
 
 @doc{
 Synopsis: Write a relation to a CSV (Comma Separated Values) file.

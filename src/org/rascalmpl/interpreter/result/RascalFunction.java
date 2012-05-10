@@ -31,14 +31,17 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.Closure;
 import org.rascalmpl.ast.Expression.VoidClosure;
+import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Default;
-import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Tag;
+import org.rascalmpl.ast.TagString;
+import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.Evaluator;
@@ -67,9 +70,11 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isDefault;
 	private final boolean isTest;
 	private final boolean isStatic;
+	private final String resourceScheme;
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
+	private static final String RESOURCE_TAG = "resource";
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
@@ -80,7 +85,6 @@ public class RascalFunction extends NamedFunction {
 				func.getBody().getStatements(), env, accumulators);
 	}
 
-	
 	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
@@ -104,6 +108,36 @@ public class RascalFunction extends NamedFunction {
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
 		this.isTest = isTest;
+		
+		if (ast instanceof FunctionDeclaration) {
+			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
+			if (resourceScheme.equals("")) {
+					this.resourceScheme = null;
+			} else { 
+				this.resourceScheme = resourceScheme;
+			}
+		} else {
+			this.resourceScheme = null;
+		}
+	}
+	
+	private static String getResourceScheme(FunctionDeclaration declaration) {
+		Tags tags = declaration.getTags();
+		
+		if (tags.hasTags()) {
+			for (Tag tag : tags.getTags()) {
+				if (Names.name(tag.getName()).equals(RESOURCE_TAG)) {
+					String contents = ((TagString.Lexical) tag.getContents()).getString();
+					
+					if (contents.length() > 2 && contents.startsWith("{")) {
+						contents = contents.substring(1, contents.length() - 1);
+					}
+					return contents;
+				}
+			}
+		}
+		
+		return "";
 	}
 	
 	private String computeFirstOutermostLabel(AbstractAST ast) {
@@ -449,5 +483,15 @@ public class RascalFunction extends NamedFunction {
 				return null;
 			}
 		});
+	}
+	
+	@Override
+	public String getResourceScheme() {
+		return this.resourceScheme;
+	}
+	
+	@Override
+	public boolean hasResourceScheme() {
+		return this.resourceScheme != null;
 	}
 }

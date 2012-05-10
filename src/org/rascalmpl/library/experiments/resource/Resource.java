@@ -1,6 +1,9 @@
 package org.rascalmpl.library.experiments.resource;
 
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,12 +21,15 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Resource {
 
 	private static HashMap<String, IResource> resourceHandlers = new HashMap<String, IResource>();
+	private IValueFactory vf = null;
 	
 	public Resource(IValueFactory vf) {
+		this.vf = vf;
 	}
 
 	public static void registerResourceHandler(String provider, IResource handler) {
@@ -69,7 +75,7 @@ public class Resource {
 		}
 	}
 	
-	public IValue getTypedResource(ISourceLocation uriLoc, IConstructor type, IEvaluatorContext ctx) {
+	public IValue getTypedResource(ISourceLocation uriLoc, IValue type, IEvaluatorContext ctx) {
 		// TODO: We may not need this here, since we already create the same type internally
 		// when we create the resource. Commenting out for now...
 		Type resourceType = ((ReifiedType) type.getType()).getTypeParameters().getFieldType(0);
@@ -105,5 +111,21 @@ public class Resource {
 
 		currentOutStream.println("Generated function " + fun0.toString());
 		currentOutStream.flush();
+	}
+
+	public IValue uriEncode(IString str) {
+		try {
+			return vf.string(URLEncoder.encode(str.getValue(), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw RuntimeExceptionFactory.illegalArgument(str, null, null, "UTF-8 is not a valid encoding");
+		}
+	}
+	
+	public IValue uriDecode(IString str) {
+		try {
+			return vf.string(URLDecoder.decode(str.getValue(), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw RuntimeExceptionFactory.illegalArgument(str, null, null, "UTF-8 is not a valid encoding");
+		}
 	}
 }

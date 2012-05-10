@@ -35,11 +35,25 @@ public abstract class Import extends AbstractAST {
   public org.rascalmpl.ast.SyntaxDefinition getSyntax() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasAt() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.LocationLiteral getAt() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasModule() {
     return false;
   }
 
   public org.rascalmpl.ast.ImportedModule getModule() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasName() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.QualifiedName getName() {
     throw new UnsupportedOperationException();
   }
 
@@ -85,6 +99,54 @@ public abstract class Import extends AbstractAST {
   
 
   
+  public boolean isExternal() {
+    return false;
+  }
+
+  static public class External extends Import {
+    // Production: sig("External",[arg("org.rascalmpl.ast.QualifiedName","name"),arg("org.rascalmpl.ast.LocationLiteral","at")])
+  
+    
+    private final org.rascalmpl.ast.QualifiedName name;
+    private final org.rascalmpl.ast.LocationLiteral at;
+  
+    public External(IConstructor node , org.rascalmpl.ast.QualifiedName name,  org.rascalmpl.ast.LocationLiteral at) {
+      super(node);
+      
+      this.name = name;
+      this.at = at;
+    }
+  
+    @Override
+    public boolean isExternal() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitImportExternal(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.LocationLiteral getAt() {
+      return this.at;
+    }
+  
+    @Override
+    public boolean hasAt() {
+      return true;
+    }	
+  }
   public boolean isExtend() {
     return false;
   }

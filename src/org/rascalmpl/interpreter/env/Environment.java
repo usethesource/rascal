@@ -454,6 +454,12 @@ public class Environment {
 
 		list.add(function);
 		functionEnvironment.put(name, list);
+		
+		if (function.hasResourceScheme()) {
+			if (getRoot() instanceof ModuleEnvironment) {
+				((ModuleEnvironment)getRoot()).addResourceImporter(function);
+			}
+		}
 	}
 
 	public boolean declareVariable(Type type, Name name) {

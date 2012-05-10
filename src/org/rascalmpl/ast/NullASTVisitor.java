@@ -884,6 +884,22 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitImportExternal(Import.External x) { 
+    return null; 
+  }
+
+  public T visitImportExtend(Import.Extend x) { 
+    return null; 
+  }
+
+  public T visitImportDefault(Import.Default x) { 
+    return null; 
+  }
+
+  public T visitImportSyntax(Import.Syntax x) { 
+    return null; 
+  }
+
   public T visitFormalsDefault(Formals.Default x) { 
     return null; 
   }
@@ -1144,18 +1160,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitImportExtend(Import.Extend x) { 
-    return null; 
-  }
-
-  public T visitImportDefault(Import.Default x) { 
-    return null; 
-  }
-
-  public T visitImportSyntax(Import.Syntax x) { 
-    return null; 
-  }
-
   public T visitAssocRight(Assoc.Right x) { 
     return null; 
   }
@@ -1276,26 +1280,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitImportedModuleExternal(ImportedModule.External x) { 
-    return null; 
-  }
-
-  public T visitImportedModuleRenamings(ImportedModule.Renamings x) { 
-    return null; 
-  }
-
-  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x) { 
-    return null; 
-  }
-
-  public T visitImportedModuleActuals(ImportedModule.Actuals x) { 
-    return null; 
-  }
-
-  public T visitImportedModuleDefault(ImportedModule.Default x) { 
-    return null; 
-  }
-
   public T visitComprehensionSet(Comprehension.Set x) { 
     return null; 
   }
@@ -1345,6 +1329,22 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitPathTailPost(PathTail.Post x) { 
+    return null; 
+  }
+
+  public T visitImportedModuleRenamings(ImportedModule.Renamings x) { 
+    return null; 
+  }
+
+  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x) { 
+    return null; 
+  }
+
+  public T visitImportedModuleActuals(ImportedModule.Actuals x) { 
+    return null; 
+  }
+
+  public T visitImportedModuleDefault(ImportedModule.Default x) { 
     return null; 
   }
 

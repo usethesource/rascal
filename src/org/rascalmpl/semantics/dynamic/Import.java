@@ -14,19 +14,119 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.ImportedModule;
+import org.rascalmpl.ast.LocationLiteral;
+import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
+	
+	static public class External extends org.rascalmpl.ast.Import.External {
+
+		public External(IConstructor node, QualifiedName name,
+				LocationLiteral at) {
+			super(node, name, at);
+		}
+		
+	
+		@Override
+		public Result<IValue> interpret(Evaluator eval) {
+			// Compute the URI location, which contains the scheme (and other info we need later)
+			ISourceLocation sl = (ISourceLocation)getAt().interpret(eval).getValue();
+			String moduleName = Names.fullName(this.getName());
+			IString mn = this.VF.string(moduleName);
+			
+			// Using the scheme, get back the correct importer
+			ICallableValue importer = getImporter(sl, eval.getCurrentEnvt());
+			
+			if (importer != null) {
+				Type[] argTypes = new org.eclipse.imp.pdb.facts.type.Type[] {TF.stringType(), TF.sourceLocationType()};
+				IValue[] argValues = new IValue[] { mn, sl };
+				
+				// Invoke the importer, which should generate the text of the module that we need
+				// to actually import.
+				IString moduleText = (IString) importer.call(argTypes, argValues).getValue();
+				
+				// For now, stick this in cdw just to get it working; later we need to put this
+				// somewhere more reasonable
+				try {
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(eval.getResolverRegistry().getOutputStream(new URI("cwd:///"+mn.getValue()+".rsc"), false)));
+					writer.write(moduleText.getValue());
+					writer.close();
+
+					// TODO: Copied from the code for Default; see if there is a good way to
+					// factor this out (maybe put into Import?)
+					GlobalEnvironment heap = eval.__getHeap();
+					if (!heap.existsModule(moduleName)) {
+						// deal with a fresh module that needs initialization
+						heap.addModule(new ModuleEnvironment(moduleName, heap));
+						eval.evalRascalModule(this, moduleName);
+						eval.addImportToCurrentModule(this, moduleName);
+					} else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
+						// in the root scope we treat an import as a "reload"
+						heap.resetModule(moduleName);
+						eval.evalRascalModule(this, moduleName);
+						eval.addImportToCurrentModule(this, moduleName);
+					} else {
+						// otherwise simply add the current imported name to the imports
+						// of the current module
+						if (!heap.getModule(moduleName).isInitialized()) {
+							eval.evalRascalModule(this, moduleName);
+						}
+						eval.addImportToCurrentModule(this, moduleName);
+					}
+
+					if (heap.getModule(moduleName).isDeprecated()) {
+						eval.getStdErr().println(getLocation() + ":" + moduleName + " is deprecated, " + heap.getModule(moduleName).getDeprecatedMessage());
+					}
+					// End of copied code
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					throw RuntimeExceptionFactory.io(this.VF.string("Cannot open cwd:///" + mn.getValue() + ".rsc for writing"), eval.getCurrentAST(), e.getMessage());
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					throw RuntimeExceptionFactory.malformedURI("cwd:///"+mn.getValue()+".rsc", null, e.getMessage());
+				}
+				
+			} else {
+				throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), null);
+			}
+			
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+			
+		}
+		
+		@Override
+		public String declareSyntax(Evaluator eval, boolean withImports) {
+			// TODO: this means that external imports do not support syntax definition for now
+			return Names.fullName(getName());
+		}
+
+
+		private ICallableValue getImporter(ISourceLocation sl, Environment currentEnvt) {
+			return currentEnvt.getHeap().getResourceImporter(sl.getURI().getScheme());
+		}
+	}
 	
 	static public class Extend extends org.rascalmpl.ast.Import.Extend {
 

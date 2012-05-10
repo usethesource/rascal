@@ -418,4 +418,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 		return false;
 	}
+	
+	public String getResourceScheme() {
+		return null;
+	}
+	
+	public boolean hasResourceScheme() {
+		return false;
+	}
+	
 }
