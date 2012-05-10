@@ -36,3 +36,9 @@ public void generateTypedInterface(str tagname, loc uri, str params...) {
     }
     generateTypedInterfaceInternal(tagname,uri);
 }
+
+@javaClass{org.rascalmpl.library.experiments.resource.Resource}
+public java str uriEncode(str toEncode);
+
+@javaClass{org.rascalmpl.library.experiments.resource.Resource}
+public java str uriDecode(str toDecode);

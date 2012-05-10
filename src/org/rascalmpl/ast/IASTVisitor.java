@@ -450,6 +450,14 @@ public interface IASTVisitor<T> {
 
   public T visitReplacementConditional(Replacement.Conditional x);
 
+  public T visitImportExternal(Import.External x);
+
+  public T visitImportExtend(Import.Extend x);
+
+  public T visitImportDefault(Import.Default x);
+
+  public T visitImportSyntax(Import.Syntax x);
+
   public T visitFormalsDefault(Formals.Default x);
 
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
@@ -580,12 +588,6 @@ public interface IASTVisitor<T> {
 
   public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x);
 
-  public T visitImportExtend(Import.Extend x);
-
-  public T visitImportDefault(Import.Default x);
-
-  public T visitImportSyntax(Import.Syntax x);
-
   public T visitAssocRight(Assoc.Right x);
 
   public T visitAssocNonAssociative(Assoc.NonAssociative x);
@@ -646,16 +648,6 @@ public interface IASTVisitor<T> {
 
   public T visitBoundDefault(Bound.Default x);
 
-  public T visitImportedModuleExternal(ImportedModule.External x);
-
-  public T visitImportedModuleRenamings(ImportedModule.Renamings x);
-
-  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
-
-  public T visitImportedModuleActuals(ImportedModule.Actuals x);
-
-  public T visitImportedModuleDefault(ImportedModule.Default x);
-
   public T visitComprehensionSet(Comprehension.Set x);
 
   public T visitComprehensionMap(Comprehension.Map x);
@@ -681,6 +673,14 @@ public interface IASTVisitor<T> {
   public T visitPathTailMid(PathTail.Mid x);
 
   public T visitPathTailPost(PathTail.Post x);
+
+  public T visitImportedModuleRenamings(ImportedModule.Renamings x);
+
+  public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
+
+  public T visitImportedModuleActuals(ImportedModule.Actuals x);
+
+  public T visitImportedModuleDefault(ImportedModule.Default x);
 
   public T visitStrategyOutermost(Strategy.Outermost x);
 

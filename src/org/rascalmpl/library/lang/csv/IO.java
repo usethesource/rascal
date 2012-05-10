@@ -89,6 +89,17 @@ public class IO {
 	}
 
 
+	/*
+	 * Calculate the type of a CSV file, returned as the string 
+	 */
+	public IValue getCSVType(ISourceLocation loc, IEvaluatorContext ctx){
+		return computeType(loc, null, ctx);
+	}
+
+	public IValue getCSVType(ISourceLocation loc, IMap options, IEvaluatorContext ctx){
+		return computeType(loc, options, ctx);
+	}
+	
 	//////
 	
 	private IValue read(Type resultType, ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
@@ -119,6 +130,11 @@ public class IO {
 				}
 			}
 		}
+	}
+
+	private IValue computeType(ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
+		IValue csvResult = this.read(null, loc, options, ctx);
+		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue()).get("symbol");
 	}
 
 	private List<Record> loadRecords(InputStream in) throws IOException {

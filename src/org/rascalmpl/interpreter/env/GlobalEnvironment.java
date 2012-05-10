@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -233,5 +234,13 @@ public class GlobalEnvironment {
 		public Class<IGTD> getParser() {
 			return parser;
 		}
+	}
+	
+	public AbstractFunction getResourceImporter(String resourceScheme) {
+		for (ModuleEnvironment menv : this.moduleEnvironment.values()) {
+			if (menv.hasImporterForResource(resourceScheme))
+				return menv.getResourceImporter(resourceScheme);
+		}
+		return null;
 	}
 }

@@ -169,8 +169,7 @@ syntax ImportedModule
 	= Default: QualifiedName name 
 	| ActualsRenaming: QualifiedName name ModuleActuals actuals Renamings renamings 
 	| Renamings: QualifiedName name Renamings renamings 
-	| Actuals: QualifiedName name ModuleActuals actuals
-	| External: QualifiedName name "=" LocationLiteral at  
+	| Actuals: QualifiedName name ModuleActuals actuals 
 	;
 
 syntax Target
@@ -266,7 +265,8 @@ syntax UserType
 
 syntax Import
 	= Extend: "extend" ImportedModule module ";" 
-	| Default: "import" ImportedModule module ";" 
+	| Default: "import" ImportedModule module ";"
+	| External: "import" QualifiedName name "=" LocationLiteral at ";"
 	| Syntax: SyntaxDefinition syntax ;
 
 syntax Body

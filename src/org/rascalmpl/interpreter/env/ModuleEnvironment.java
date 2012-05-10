@@ -71,6 +71,7 @@ public class ModuleEnvironment extends Environment {
 	private boolean bootstrap;
 	private String cachedParser;
 	private String deprecated;
+	protected Map<String, AbstractFunction> resourceImporters;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -84,6 +85,7 @@ public class ModuleEnvironment extends Environment {
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
+		this.resourceImporters = new HashMap<String, AbstractFunction>();
 	}
 	
 	public void reset() {
@@ -807,5 +809,21 @@ public class ModuleEnvironment extends Environment {
 	
 	public String getDeprecatedMessage() {
 		return deprecated;
+	}
+	
+	public boolean hasImporterForResource(String resourceScheme) {
+		return this.resourceImporters.containsKey(resourceScheme);
+	}
+
+	public void addResourceImporter(AbstractFunction fun) {
+		// TODO: Need checking to make sure an importer for this scheme does not already exist
+		this.resourceImporters.put(fun.getResourceScheme(), fun);
+	}
+	
+	public AbstractFunction getResourceImporter(String resourceScheme) {
+		if (this.hasImporterForResource(resourceScheme))
+			return this.resourceImporters.get(resourceScheme);
+		else
+			return null; // TODO: May be better to throw an exception here
 	}
 }
