@@ -306,6 +306,7 @@ public class IO {
 		}finally{
 			if(out != null){
 				try{
+					out.flush();
 					out.close();
 				}catch(IOException ioex){
 					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
