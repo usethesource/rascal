@@ -105,6 +105,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.uptr.NodeToUPTR;
 import org.rascalmpl.parser.uptr.action.BootRascalActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
+import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.FileURIResolver;
@@ -458,7 +459,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		__setInterrupt(false);
 		IActionExecutor exec = new RascalFunctionActionExecutor(this);
 		
-		return (IConstructor) parser.parse(name, location, input, exec, new NodeToUPTR(), robustProds, lookaheads);
+		return (IConstructor) parser.parse(name, location, input, exec, new NodeToUPTR(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
 	}
 	
 	/**

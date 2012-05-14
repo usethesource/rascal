@@ -53,21 +53,21 @@ public class NullableSharing extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = NONTERMINAL_N2;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].setParentProduction(PROD_S_NN);
+		S_EXPECT_1[1].setAlternativeProduction(PROD_S_NN);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = EPSILON3;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_empty);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_empty);
 	}
 	
 	private final static AbstractStackNode[] N_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		N_EXPECT_1[0] = NONTERMINAL_A0;
 		N_EXPECT_1[0].setProduction(N_EXPECT_1);
-		N_EXPECT_1[0].setParentProduction(PROD_N_A);
+		N_EXPECT_1[0].setAlternativeProduction(PROD_N_A);
 	}
 	
 	public NullableSharing(){

@@ -23,7 +23,7 @@ public final class SkippingStackNode extends AbstractMatchableStackNode{
 		super(id, dot);
 		this.until = until;
 		this.result = (SkippedNode) match(input, location);
-		setParentProduction(parentProduction);
+		setAlternativeProduction(parentProduction);
 	}
 	
 	private SkippingStackNode(SkippingStackNode original, int startLocation){

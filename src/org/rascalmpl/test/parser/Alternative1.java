@@ -54,7 +54,7 @@ public class Alternative1 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2] = new LiteralStackNode(5, 2, PROD_d_d, new int[]{'d'});
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2].setParentProduction(PROD_S_a_ALTbc_d);
+		S_EXPECT_1[2].setAlternativeProduction(PROD_S_a_ALTbc_d);
 	}
 	
 	public Alternative1(){

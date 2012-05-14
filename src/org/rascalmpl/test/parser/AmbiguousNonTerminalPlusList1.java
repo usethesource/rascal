@@ -58,7 +58,7 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = LIST1;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].setParentProduction(PROD_S_aPLUSLISTA);
+		S_EXPECT_1[1].setAlternativeProduction(PROD_S_aPLUSLISTA);
 	}
 	
 	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[2];
@@ -67,14 +67,14 @@ public class AmbiguousNonTerminalPlusList1 extends SGTDBF implements IParserTest
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
 		S_EXPECT_2[1] = LITERAL_a4;
 		S_EXPECT_2[1].setProduction(S_EXPECT_2);
-		S_EXPECT_2[1].setParentProduction(PROD_S_PLUSLISTAa);
+		S_EXPECT_2[1].setAlternativeProduction(PROD_S_PLUSLISTAa);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_a5;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	public AmbiguousNonTerminalPlusList1(){

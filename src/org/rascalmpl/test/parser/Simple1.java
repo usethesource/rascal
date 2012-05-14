@@ -54,14 +54,14 @@ public class Simple1 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = LITERAL_b2;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].setParentProduction(PROD_S_Ab);
+		S_EXPECT_1[1].setAlternativeProduction(PROD_S_Ab);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_aa1;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_aa);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_aa);
 	}
 	
 	

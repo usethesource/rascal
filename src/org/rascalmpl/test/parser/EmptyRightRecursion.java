@@ -59,28 +59,28 @@ public class EmptyRightRecursion extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = NONTERMINAL_B1;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].setParentProduction(PROD_S_AB);
+		S_EXPECT_1[1].setAlternativeProduction(PROD_S_AB);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_a3;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		B_EXPECT_1[0] = NONTERMINAL_B2;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].setParentProduction(PROD_B_B);
+		B_EXPECT_1[0].setAlternativeProduction(PROD_B_B);
 	}
 	
 	private final static AbstractStackNode[] B_EXPECT_2 = new AbstractStackNode[1];
 	static{
 		B_EXPECT_2[0] = EPSILON_4;
 		B_EXPECT_2[0].setProduction(B_EXPECT_2);
-		B_EXPECT_2[0].setParentProduction(PROD_B_epsilon);
+		B_EXPECT_2[0].setAlternativeProduction(PROD_B_epsilon);
 	}
 	
 	public EmptyRightRecursion(){

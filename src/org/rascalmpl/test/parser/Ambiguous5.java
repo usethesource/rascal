@@ -57,7 +57,7 @@ public class Ambiguous5 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_A0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_A);
+		S_EXPECT_1[0].setAlternativeProduction(PROD_S_A);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
@@ -66,21 +66,21 @@ public class Ambiguous5 extends SGTDBF implements IParserTest{
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
 		A_EXPECT_1[1] = NONTERMINAL_B2;
 		A_EXPECT_1[1].setProduction(A_EXPECT_1);
-		A_EXPECT_1[1].setParentProduction(PROD_A_BB);
+		A_EXPECT_1[1].setAlternativeProduction(PROD_A_BB);
 	}
 	
 	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		B_EXPECT_1[0] = LITERAL_a3;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].setParentProduction(PROD_B_a);
+		B_EXPECT_1[0].setAlternativeProduction(PROD_B_a);
 	}
 	
 	private final static AbstractStackNode[] B_EXPECT_2 = new AbstractStackNode[1];
 	static{
 		B_EXPECT_2[0] = LITERAL_aa4;
 		B_EXPECT_2[0].setProduction(B_EXPECT_2);
-		B_EXPECT_2[0].setParentProduction(PROD_B_aa);
+		B_EXPECT_2[0].setAlternativeProduction(PROD_B_aa);
 	}
 	public Ambiguous5(){
 		super();

@@ -58,7 +58,7 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 
 			AbstractStackNode[] prod = new AbstractStackNode[]{child};
 			child.setProduction(prod);
-			child.setParentProduction(production);
+			child.setAlternativeProduction(production);
 			
 			children[i] = child;
 		}

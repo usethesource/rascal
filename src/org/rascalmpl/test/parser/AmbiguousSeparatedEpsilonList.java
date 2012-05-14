@@ -44,28 +44,28 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	static{
 		S_EXPECT_1[0] = LIST2;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_PLUSLISTA);
+		S_EXPECT_1[0].setAlternativeProduction(PROD_S_PLUSLISTA);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_a3;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_2[0] = EPSILON4;
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
-		A_EXPECT_2[0].setParentProduction(PROD_A_epsilon);
+		A_EXPECT_2[0].setAlternativeProduction(PROD_A_epsilon);
 	}
 	
 	private final static AbstractStackNode[] SEP_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		SEP_EXPECT_1[0] = EPSILON5;
 		SEP_EXPECT_1[0].setProduction(SEP_EXPECT_1);
-		SEP_EXPECT_1[0].setParentProduction(PROD_SEP_epsilon);
+		SEP_EXPECT_1[0].setAlternativeProduction(PROD_SEP_epsilon);
 	}
 	
 	public AmbiguousSeparatedEpsilonList(){

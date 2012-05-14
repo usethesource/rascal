@@ -46,7 +46,7 @@ public class CharStarList extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = LIST1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_STARLISTa_z);
+		S_EXPECT_1[0].setAlternativeProduction(PROD_S_STARLISTa_z);
 	}
 	
 	public CharStarList(){

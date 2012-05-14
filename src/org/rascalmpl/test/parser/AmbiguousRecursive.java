@@ -56,7 +56,7 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2] = NONTERMINAL_S2;
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2].setParentProduction(PROD_S_SSS);
+		S_EXPECT_1[2].setAlternativeProduction(PROD_S_SSS);
 	}
 	
 	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[2];
@@ -65,14 +65,14 @@ public class AmbiguousRecursive extends SGTDBF implements IParserTest{
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
 		S_EXPECT_2[1] = NONTERMINAL_S4;
 		S_EXPECT_2[1].setProduction(S_EXPECT_2);
-		S_EXPECT_2[1].setParentProduction(PROD_S_SS);
+		S_EXPECT_2[1].setAlternativeProduction(PROD_S_SS);
 	}
 	
 	private final static AbstractStackNode[] S_EXPECT_3 = new AbstractStackNode[1];
 	static{
 		S_EXPECT_3[0] = LITERAL_a5;
 		S_EXPECT_3[0].setProduction(S_EXPECT_3);
-		S_EXPECT_3[0].setParentProduction(PROD_S_a);
+		S_EXPECT_3[0].setAlternativeProduction(PROD_S_a);
 	}
 	
 	public AmbiguousRecursive(){

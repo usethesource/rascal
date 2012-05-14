@@ -17,6 +17,7 @@ import java.net.URI;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
@@ -31,12 +32,11 @@ import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
-import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
@@ -90,7 +90,8 @@ public abstract class SGTDBF implements IGTD{
 	
 	// Error reporting guards
 	private boolean parseErrorOccured;
-
+	
+	private IRecoverer recoverer;
 	private boolean recovering;
 	
 	public SGTDBF(){
@@ -697,24 +698,14 @@ public abstract class SGTDBF implements IGTD{
 		if (recovering) {
 			parseErrorOccured = true;
 			
-			if (reviveStacks()) {
+			DoubleArrayList<AbstractStackNode, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode, AbstractNode>();
+			recoverer.reviveStacks(recoveredNodes, input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			if (recoveredNodes.size() > 0) {
 				return findStacksToReduce();
 			}
 		}
 		
 		return false;
-	}
-	
-	private boolean reviveStacks() {
-		ArrayList<AbstractStackNode> failedNodes = new ArrayList<AbstractStackNode>();
-		collectUnexpandableNodes(unexpandableNodes, failedNodes);
-//		collectFailedNodes(unmatchableNodes);
-//		collectFiltered(filteredNodes);
-		collectUnmatchableMidProductionNodes(unmatchableMidProductionNodes, failedNodes);
-		
-		reviveFailedNodes(failedNodes);
-		
-		return (failedNodes.size() != 0);
 	}
 	
 	public boolean parseErrorHasOccurred(){
@@ -950,14 +941,14 @@ public abstract class SGTDBF implements IGTD{
 	}
 	
 	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input){
-		return parse(startNode, inputURI, input, new Object[] {}, new int[][] {});
+		return parse(startNode, inputURI, input, (IRecoverer) null);
 	}
 	
 	/**
 	 * Initiates parsing.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input, Object[] robustNodes, int[][] continuationCharacters){
+	protected AbstractNode parse(AbstractStackNode startNode, URI inputURI, int[] input, IRecoverer recoverer){
 		
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
@@ -965,13 +956,12 @@ public abstract class SGTDBF implements IGTD{
 		invoked = true;
 		
 		// Initialize.
-//		this.startNode = startNode.getCleanCopy(0);
 		this.inputURI = inputURI;
 		this.input = input;
 		
-		if (robustNodes.length > 0) {
+		if (recoverer != null) {
+			this.recoverer = recoverer;
 			recovering = true;
-			initializeRecovery(robustNodes, continuationCharacters);
 		}
 		
 		// Initialzed the position store.
@@ -1037,132 +1027,6 @@ public abstract class SGTDBF implements IGTD{
 			throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 		}
 	}
-	
-	private void initializeRecovery(Object[] robustNodes, int[][] continuationCharacters) {
-		this.robust = new ObjectKeyedIntegerMap<Object>();
-		this.continuations = continuationCharacters;
-		
-		for (int i = 0; i < robustNodes.length; i++) {
-			robust.put(robustNodes[i], i);
-		}
-	}
-
-	// TODO: its a magic constant, and it may clash with other generated constants
-	// should generate implementation of static int getLastId() in generated parser to fix this.
-	private int recoveryId = 100000;
-	
-	private void reviveNodes(ArrayList<AbstractStackNode> recoveryNodes, ArrayList<Object> recoveryProds, IntegerList recoveryDots){
-		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
-			AbstractStackNode recoveryNode = recoveryNodes.get(i);
-			Object prod = recoveryProds.get(i);
-			AbstractStackNode continuer = new RecoveryPointStackNode(recoveryId++, prod, recoveryNode);
-			int dot = recoveryDots.get(i);
-			
-			SkippingStackNode recoverLiteral = (SkippingStackNode) new SkippingStackNode(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, prod);
-			recoverLiteral = (SkippingStackNode) recoverLiteral.getCleanCopy(location);
-			recoverLiteral.initEdges();
-			EdgesSet edges = new EdgesSet(1);
-			edges.add(continuer);
-			
-			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
-			
-			continuer.setIncomingEdges(edges);
-			
-			addTodo(recoverLiteral, recoverLiteral.getLength(), recoverLiteral.getResult());
-		}
-	}
-	
-	private void reviveFailedNodes(ArrayList<AbstractStackNode> failedNodes) {
-		ArrayList<AbstractStackNode> recoveryNodes = new ArrayList<AbstractStackNode>();
-		ArrayList<Object> recoveryProds = new ArrayList<Object>();
-		IntegerList recoveryDots = new IntegerList();
-		
-		for(int i = failedNodes.size() - 1; i >= 0; --i){
-			findRecoveryNodes(failedNodes.get(i), recoveryNodes, recoveryProds, recoveryDots);
-		}
-		
-		reviveNodes(recoveryNodes, recoveryProds, recoveryDots);
-	}
-	
-	private void collectUnexpandableNodes(Stack<AbstractStackNode> unexpandableNodes, ArrayList<AbstractStackNode> failedNodes) {
-		for(int i = unexpandableNodes.getSize() - 1; i >= 0; --i){
-			failedNodes.add(unexpandableNodes.get(i));
-		}
-	}
-	
-	private void collectUnmatchableMidProductionNodes(DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes, ArrayList<AbstractStackNode> failedNodes){
-		for(int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i){
-			ArrayList<AbstractStackNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
-			AbstractStackNode failedNode = unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
-			
-			// Merge the information on the predecessors into the failed node.
-			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j){
-				AbstractStackNode predecessor = failedNodePredecessors.get(j);
-				failedNode.updateNode(predecessor, predecessor.getResult());
-			}
-			
-			failedNodes.add(failedNode);
-		}
-	}
-
-	private boolean isRecovering(Object prod) {
-		return robust.contains(prod);
-	}
-	
-	/**
-	 * This method travels up the graph to find the first nodes that are recoverable.
-	 * The graph may split and merge, and even cycle, so we take care of knowing where
-	 * we have been and what we still need to do.
-	 */
-	private void findRecoveryNodes(AbstractStackNode failer, ArrayList<AbstractStackNode> recoveryNodes, ArrayList<Object> recoveryProds, IntegerList recoveryDots) {
-		ObjectKeyedIntegerMap<AbstractStackNode> visited = new ObjectKeyedIntegerMap<AbstractStackNode>();
-		Stack<AbstractStackNode> todo = new Stack<AbstractStackNode>();
-		
-		todo.push(failer);
-		
-		while (!todo.isEmpty()) {
-			AbstractStackNode node = todo.pop();
-			
-			visited.put(node, 0);
-			
-			IntegerObjectList<EdgesSet> toParents = node.getEdges();
-
-			// Terminals don't have edges to parents because they are predicted, but
-			// we can safely skip them here, because their parents will be among the failedNodes
-			if (toParents == null) { 
-				continue;
-			}
-
-			for (int i = 0; i < toParents.size(); i++) {
-				EdgesSet edges = toParents.getValue(i);
-
-				if (edges != null) {
-					for (int j = 0; j < edges.size(); j++) {
-						AbstractStackNode parent = edges.get(j);
-
-						Object parentProd = findProduction(node.getProduction());
-						
-						if (isRecovering(parentProd)) {
-							recoveryNodes.add(node);
-							recoveryProds.add(parentProd);
-							recoveryDots.add(node.getDot());
-						}
-						else if (!visited.contains(parent)) {
-							todo.push(parent);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private Object findProduction(AbstractStackNode[] prod) {
-		if (prod.length > 0) {
-			AbstractStackNode last = prod[prod.length - 1];
-			return last.getParentProduction();
-		}
-		return null;
-	}
 
 	private int[] charsToInts(char[] input) {
 		int[] result = new int[Character.codePointCount(input, 0, input.length)];
@@ -1178,66 +1042,66 @@ public abstract class SGTDBF implements IGTD{
 	}
 
 	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, actionExecutor, converter, new Object[] { }, new int[][] { });
+		return parse(nonterminal, inputURI, input, actionExecutor, converter, null);
 	}
 
 	/**
 	 * Parses with post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, robustNodes, continuationCharacters);
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, IRecoverer recoverer){
+		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, recoverer);
 	}
 	
 	/**
 	 * Parses with post parse filtering.
 	 */
-	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, robustNodes, continuationCharacters);
+	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter, IRecoverer recoverer){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer);
 		return buildResult(result, converter, actionExecutor);
 	}
 	
 	public Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, converter, new Object[] { }, new int[][] { });
+		return parse(nonterminal, inputURI, input, converter, null);
 	}
 	
 	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, converter, new Object[] { }, new int[][] { });
+		return parse(nonterminal, inputURI, input, converter, null);
 	}
 
 	/**
 	 * Parses without post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		return parse(nonterminal, inputURI, charsToInts(input), converter, robustNodes, continuationCharacters);
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter, IRecoverer recoverer){
+		return parse(nonterminal, inputURI, charsToInts(input), converter, recoverer);
 	}
 	
-	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, robustNodes, continuationCharacters);
+	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter, IRecoverer recoverer){
+		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
 	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter) {
-		return parse(startNode, inputURI, input, converter, new Object[] {}, new int[][] { });
+		return parse(startNode, inputURI, input, converter, null);
 	}
 	
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		return parse(startNode, inputURI, charsToInts(input), converter, robustNodes, continuationCharacters);
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter, IRecoverer recoverer){
+		return parse(startNode, inputURI, charsToInts(input), converter, recoverer);
 	}
 	
 	/**
 	 * Parses without post parse filtering.
 	 */
 	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter){
-		return parse(startNode, inputURI, input, converter, new Object[]{}, new int[][]{});
+		return parse(startNode, inputURI, input, converter, null);
 	}
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter, Object[] robustNodes, int[][] continuationCharacters){
-		AbstractNode result = parse(startNode, inputURI, input, robustNodes, continuationCharacters);
+	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter, IRecoverer recoverer){
+		AbstractNode result = parse(startNode, inputURI, input, recoverer);
 		return buildResult(result, converter, new VoidActionExecutor());
 	}
 	
