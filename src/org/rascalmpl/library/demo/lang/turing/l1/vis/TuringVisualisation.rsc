@@ -11,10 +11,11 @@ import demo::lang::turing::l1::interpreter::Interpreter;
 
 private int stepDelay = 150;
 
-private int instructionsPerCollumn = 42;
+private int instructionsPerCollumn = 30;
+private int tapeSize = 42;
 
 public void visInterpreter(Program prog){
-	state = initialState(prog,[false | i <- [1..16]]);
+	state = initialState(prog,[false | i <- [1..tapeSize]]);
 	bool running = false;
 	tape = hcat([box(computeFigure(Figure() { return (state.pos == i) ? ellipse(fillColor("red"),shrink(0.5)) : space(); }),
 		 fillColor(Color () {
