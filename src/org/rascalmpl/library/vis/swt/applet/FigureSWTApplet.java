@@ -14,7 +14,6 @@ package org.rascalmpl.library.vis.swt.applet;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;

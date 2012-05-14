@@ -19,7 +19,6 @@ import static org.rascalmpl.library.vis.properties.Properties.LABEL;
 import static org.rascalmpl.library.vis.properties.Properties.TO_ARROW;
 import static org.rascalmpl.library.vis.properties.Properties.VGAP;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
