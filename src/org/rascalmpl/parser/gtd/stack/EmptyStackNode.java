@@ -54,7 +54,7 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 	
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
-		empty.setParentProduction(production);
+		empty.setAlternativeProduction(production);
 		return empty;
 	}
 	

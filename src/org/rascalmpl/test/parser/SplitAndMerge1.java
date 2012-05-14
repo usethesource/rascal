@@ -62,7 +62,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2] = LITERAL_a4;
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2].setParentProduction(PROD_S_aAa);
+		S_EXPECT_1[2].setAlternativeProduction(PROD_S_aAa);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
@@ -71,7 +71,7 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
 		A_EXPECT_1[1] = LITERAL_a5;
 		A_EXPECT_1[1].setProduction(A_EXPECT_1);
-		A_EXPECT_1[1].setParentProduction(PROD_A_Ba);
+		A_EXPECT_1[1].setAlternativeProduction(PROD_A_Ba);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[2];
@@ -80,14 +80,14 @@ public class SplitAndMerge1 extends SGTDBF implements IParserTest{
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
 		A_EXPECT_2[1] = NONTERMINAL_B2;
 		A_EXPECT_2[1].setProduction(A_EXPECT_2);
-		A_EXPECT_2[1].setParentProduction(PROD_A_aB);
+		A_EXPECT_2[1].setAlternativeProduction(PROD_A_aB);
 	}
 	
 	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		B_EXPECT_1[0] = LITERAL_a7;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
-		B_EXPECT_1[0].setParentProduction(PROD_A_a);
+		B_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	public SplitAndMerge1(){

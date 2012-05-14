@@ -55,14 +55,14 @@ public class Optional2 extends SGTDBF implements IParserTest{
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[1] = OPTIONAL_3;
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1].setParentProduction(PROD_S_aOPTIONAL_O);
+		S_EXPECT_1[1].setAlternativeProduction(PROD_S_aOPTIONAL_O);
 	}
 	
 	private final static AbstractStackNode[] O_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		O_EXPECT_1[0] = LITERAL_a1;
 		O_EXPECT_1[0].setProduction(O_EXPECT_1);
-		O_EXPECT_1[0].setParentProduction(PROD_O_a);
+		O_EXPECT_1[0].setAlternativeProduction(PROD_O_a);
 	}
 	
 	public Optional2(){

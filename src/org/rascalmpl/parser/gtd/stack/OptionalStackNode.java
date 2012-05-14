@@ -56,7 +56,7 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode optional){
 		AbstractStackNode child = optional.getCleanCopy(DEFAULT_START_LOCATION);
-		child.setParentProduction(production);
+		child.setAlternativeProduction(production);
 		return new AbstractStackNode[]{child};
 	}
 	
@@ -65,7 +65,7 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
-		empty.setParentProduction(production);
+		empty.setAlternativeProduction(production);
 		return empty;
 	}
 	

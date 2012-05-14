@@ -69,7 +69,7 @@ public class ExpectBuilder{
 				if(sharedExpect == null){ // Not shared.
 					// Initialize and register.
 					alternative[alternative.length - 1].setProduction(alternative);
-					alternative[alternative.length - 1].setParentProduction(production);
+					alternative[alternative.length - 1].setAlternativeProduction(production);
 					
 					for(int k = alternative.length - 2; k >= 0; --k){
 						alternative[k].setProduction(alternative);
@@ -112,9 +112,9 @@ public class ExpectBuilder{
 						for(; k < alternative.length; ++k){
 							alternative[k].setProduction(alternative);
 						}
-						alternative[alternative.length - 1].setParentProduction(production);
+						alternative[alternative.length - 1].setAlternativeProduction(production);
 					}else{
-						sharedExpect[alternative.length - 1].setParentProduction(production); // The current alternative was shorter them the alternative we are sharing with, so mark the appropriate symbol as end node (end nodes can still have next nodes).
+						sharedExpect[alternative.length - 1].setAlternativeProduction(production); // The current alternative was shorter them the alternative we are sharing with, so mark the appropriate symbol as end node (end nodes can still have next nodes).
 					}
 				}
 			}

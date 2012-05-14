@@ -52,14 +52,14 @@ public class NonTerminalStarList extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = LIST1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_STARLISTA);
+		S_EXPECT_1[0].setAlternativeProduction(PROD_S_STARLISTA);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_a2;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	public NonTerminalStarList(){

@@ -57,7 +57,7 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode child, AbstractStackNode[] separators){
 		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
-		listNode.setParentProduction(production);
+		listNode.setAlternativeProduction(production);
 		
 		int numberOfSeparators = separators.length;
 		AbstractStackNode[] prod = new AbstractStackNode[numberOfSeparators + 2];
@@ -80,7 +80,7 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
-		empty.setParentProduction(production);
+		empty.setAlternativeProduction(production);
 		return empty;
 	}
 	

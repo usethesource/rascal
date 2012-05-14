@@ -56,7 +56,7 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode[] generateChildren(AbstractStackNode child){
 		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
-		listNode.setParentProduction(production);
+		listNode.setAlternativeProduction(production);
 		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
 		return new AbstractStackNode[]{listNode};
 	}
@@ -66,7 +66,7 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 	 */
 	private AbstractStackNode generateEmptyChild(){
 		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
-		empty.setParentProduction(production);
+		empty.setAlternativeProduction(production);
 		return empty;
 	}
 	

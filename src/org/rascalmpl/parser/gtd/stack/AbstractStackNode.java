@@ -48,7 +48,7 @@ public abstract class AbstractStackNode{
 	private final ICompletionFilter[] completionFilters;
 	
 	// The production (specific to end nodes only)
-	private Object parentProduction;
+	private Object alternativeProduction;
 	
 	protected AbstractStackNode(int id, int dot){
 		super();
@@ -94,7 +94,7 @@ public abstract class AbstractStackNode{
 		isLayout = original.isLayout;
 		isRecovering = original.isRecovering;
 		
-		parentProduction = original.parentProduction;
+		alternativeProduction = original.alternativeProduction;
 		enterFilters = original.enterFilters;
 		completionFilters = original.completionFilters;
 	}
@@ -192,8 +192,8 @@ public abstract class AbstractStackNode{
 	 * Associates a production with this node, indicating that this is the last node in the production.
 	 * This production will be used in result construction during reduction.
 	 */
-	public void setParentProduction(Object parentProduction){
-		this.parentProduction = parentProduction;
+	public void setAlternativeProduction(Object parentProduction){
+		this.alternativeProduction = parentProduction;
 		isEndNode = true;
 	}
 	
@@ -202,7 +202,7 @@ public abstract class AbstractStackNode{
 	 * Only the last node in the alternative will have this production on it.
 	 */
 	public Object getParentProduction(){
-		return parentProduction;
+		return alternativeProduction;
 	}
 	
 	/**

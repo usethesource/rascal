@@ -59,7 +59,7 @@ public class SequenceStackNode extends AbstractExpandableStackNode{
 			prod[i] = child;
 		}
 		
-		prod[prod.length - 1].setParentProduction(production);
+		prod[prod.length - 1].setAlternativeProduction(production);
 		
 		return new AbstractStackNode[]{prod[0]};
 	}

@@ -50,21 +50,21 @@ public class Ambiguous1 extends SGTDBF implements IParserTest{
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_A0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[0].setParentProduction(PROD_S_A);
+		S_EXPECT_1[0].setAlternativeProduction(PROD_S_A);
 	}
 	
 	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
 	static{
 		S_EXPECT_2[0] = LITERAL_a1;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
-		S_EXPECT_2[0].setParentProduction(PROD_S_a);
+		S_EXPECT_2[0].setAlternativeProduction(PROD_S_a);
 	}
 	
 	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = LITERAL_a2;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
-		A_EXPECT_1[0].setParentProduction(PROD_A_a);
+		A_EXPECT_1[0].setAlternativeProduction(PROD_A_a);
 	}
 	
 	public Ambiguous1(){
