@@ -42,7 +42,6 @@ import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
-import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
 // TODO Factor out the recovery code.
@@ -529,10 +528,6 @@ public abstract class SGTDBF implements IGTD{
 	// Reuse these structures.
 	private final IntegerList firstTimeRegistration = new IntegerList();
 	private final IntegerList firstTimeReductions = new IntegerList();
-
-	// Data needed for error recovery
-	private int[][] continuations;
-	private ObjectKeyedIntegerMap<Object> robust;
 
 	/**
 	 * Handles reductions which may be associated with nesting restrictions.

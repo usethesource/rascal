@@ -1,18 +1,10 @@
 package org.rascalmpl.library.lang.rascal.syntax;
 
-import java.io.IOException;
-import java.io.StringReader;
-
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.stack.*;
 import org.rascalmpl.parser.gtd.stack.filter.*;
 import org.rascalmpl.parser.gtd.stack.filter.follow.*;
-import org.rascalmpl.parser.gtd.stack.filter.match.*;
 import org.rascalmpl.parser.gtd.stack.filter.precede.*;
 import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;

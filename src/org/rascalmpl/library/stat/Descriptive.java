@@ -3,7 +3,6 @@ package org.rascalmpl.library.stat;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 

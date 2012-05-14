@@ -2,8 +2,6 @@ package org.rascalmpl.library.stat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
