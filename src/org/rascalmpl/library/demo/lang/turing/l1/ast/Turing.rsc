@@ -1,5 +1,7 @@
 module demo::lang::turing::l1::ast::Turing
 
+import ParseTree;
+
 data Program = program(list[Statement] statements);
 
 data Statement
@@ -11,3 +13,5 @@ data Statement
 	| moveForward()
 	| moveBackward()
 	;
+
+anno loc Statement@location;
