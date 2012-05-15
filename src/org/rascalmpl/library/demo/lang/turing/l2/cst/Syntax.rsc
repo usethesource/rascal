@@ -12,4 +12,4 @@ syntax Statement
 	| jumpUnsetLabel: "J0" Name name 
 	;
 	
-lexical Name = ([a-zA-Z] [a-zA-Z0-9]*) !>> [a-zA-Z0-9] ;
+lexical Name = @Category="Identifier" ([a-zA-Z] [a-zA-Z0-9]*) !>> [a-zA-Z0-9] ;
