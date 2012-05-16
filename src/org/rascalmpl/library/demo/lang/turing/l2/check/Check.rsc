@@ -7,7 +7,7 @@ import Node;
 
   
 public set[Message] check(Program p) {
- errs = {};
+ set[Message] errs = {};
  seen = {};
  for (/l:label(n) <- p) {
    if (n in seen) {

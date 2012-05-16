@@ -1,22 +1,20 @@
 L Restart
-REP 10 {
-	L Start 
-		J1 Unset
-		W1
-		J_ Move
-	L Unset
-		W0
-	L Move
-		MF
-}
-REP 10 {
-	L Start 
-		J1 Unset
-		W1
-		J_ Move
-	L Unset
-		W0
-	L Move
-		MB
-}
-	J_ Restart
+  REP 10 {
+    J1 Unset1
+    W1
+    J_ Move1
+    L Unset1
+      W0
+    L Move1
+      MF
+  }
+  REP 10 {
+    J1 Unset2
+    W1
+    J_ Move2
+    L Unset2
+      W0
+    L Move2
+      MB
+  }
+  J_ Restart
