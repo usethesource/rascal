@@ -4,51 +4,39 @@ import List;
 import IO;
 import demo::lang::turing::l2::ast::Turing;
 
-public Program desugar(Program prog) 
-	= removeLabels(removeLoops(prog));
 	
-
-private Program removeLoops(Program prog) {
-	list[Statement] newStatements = [];
-	int loopId = 0;
-	for (s <- prog.statements) {
-		if (loop(c, st) := s) {
-			loopId += 1;
-			for (lc <- [1..c]) {
-				map[str, str] labelReplacement = (l : "_<loopId>_<l>_<lc>" | label(l) <- st);
-				for (st_l <- st) {
-					switch(st_l) {
-						case label(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
-						case jumpAlwaysLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
-						case jumpSetLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
-						case jumpUnsetLabel(l) : newStatements += [st_l[name = labelReplacement[l]? l]];	
-						default: newStatements += [st_l];
-					}
-				}
-			}		
-		}
-		else {
-			newStatements += [s];	
-		}	
-	}
-	return prog[statements = newStatements];
+public Program expandLoops(Program p) {
+  return innermost visit (p) {
+    case [*stats1, loop(n, sts), *stats2] => [*stats1, *renameLabels(n,sts), loop(n-1, sts), *stats2]
+      when n > 0
+    case [*stats1, loop(0, sts), *stats2] => [*stats1, *stats2]
+  }
 }
 
-private Program removeLabels(Program prog) {
-	map[str, int] labelLocs = ();
-	list[Statement] newStatements = [];
-	for (s <- prog.statements) {
-		if (label(l) := s) {
-			labelLocs[l] = size(newStatements) + 1;	
-		}
-		else {
-			newStatements += [s];	
-		}	
-	}
-	return prog[statements = visit(newStatements) {
-			case jumpAlwaysLabel(l) => jumpAlways(labelLocs[l])	
-			case jumpSetLabel(l) => jumpSet(labelLocs[l])	
-			case jumpUnsetLabel(l) => jumpUnset(labelLocs[l])	
-		}
-	];
-} 
+public list[Statement] renameLabels(int n, list[Statement] ss) 
+  = [ (s has name) ? s[name="<s.name>_<n>"] : s | s <- ss ]; 
+
+public Program labelsToLineNumbers(Program p) {
+  lineNo = 1;
+  labels = ();
+    
+  for (s <- p.statements) {
+    if (label(l) := s) {
+      labels[l] = lineNo; 
+    }
+    else {
+      lineNo += 1;
+    }   
+  }
+  p.statements = [ labelToLineNo(s, labels) | s <- p.statements, !(s is label) ];
+  return p;
+}
+
+public Program(Program) desugar = expandLoops o labelsToLineNumbers;
+
+
+public Statement labelToLineNo(jumpAlwaysLabel(n), ren) = jumpAlways(ren[n]); 
+public Statement labelToLineNo(jumpSetLabel(n), ren) = jumpSet(ren[n]); 
+public Statement labelToLineNo(jumpUnsetLabel(n), ren) = jumpUnset(ren[n]);
+public default Statement labelToLineNo(Statement x, ren) = x; 
+

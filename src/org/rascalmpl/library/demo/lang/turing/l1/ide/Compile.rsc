@@ -9,7 +9,7 @@ public void compile(Program prog, loc target) {
 }
 
 public str compile(Program prog) 
-	= (compile(head(prog.statements)) | it + "\n" + compile(r) | r <- tail(prog.statements));
+  = intercalate("\n", [ compile(s) | s <- prog.statements]);
 	
 	
 public str compile(jumpAlways(l)) = "J_<l>";
@@ -20,6 +20,3 @@ public str compile(writeUnset()) = "W0";
 public str compile(moveForward()) = "MF";
 public str compile(moveBackward()) = "MB";
 
-public default str compile(Statement s) {
-	throw "Statement <s> not supported";
-}
