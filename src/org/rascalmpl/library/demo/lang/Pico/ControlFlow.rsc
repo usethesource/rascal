@@ -5,6 +5,7 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Assembly;
 import demo::lang::Pico::Load;
 
+
 data CP = exp(EXP exp) | stat(STATEMENT stat);
 
 alias CFSEGMENT = tuple[set[CP] entry, rel[CP,CP] graph, set[CP] exit];
@@ -43,7 +44,10 @@ CFSEGMENT cflowStats(list[STATEMENT] Stats){
 
 public CFSEGMENT cflowProgram(PROGRAM P){
   if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
-     return cflowStats(Series);
+     CF = cflowStats(Series);
+     Entry = exp(strCon("ENTRY"));
+     Exit = exp(strCon("EXIT"));
+     return <{Entry}, ({Entry} * CF.entry) + CF.graph + (CF.exit * {Exit}), {Exit}>;
   } else
     throw "Cannot happen";
 }

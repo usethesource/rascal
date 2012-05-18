@@ -3,7 +3,6 @@ module demo::lang::Pico::UseDef
 import Prelude;
 import demo::lang::Pico::Abstract;
 
-
 public rel[PicoId, EXP] uses(PROGRAM P) {
   rel[PicoId, EXP] r = {};
   top-down-break visit(P.stats){
