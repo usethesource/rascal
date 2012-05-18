@@ -11,23 +11,23 @@ alias VENV = map[PicoId, PicoValue];
 
 // Evaluate Expressions.
 
-PicoValue evalExp(exp:natCon(int N), VENV env) = natVal(N);
+PicoValue evalExp(exp:natCon(int N), VENV env) = natval(N);
 
 PicoValue evalExp(exp:strCon(str S), VENV env) = strval(S);
 
-PicoValue evalExp(exp:id(PicoId Id), VENV env)  = env[Id]?  ? env[Id] : errval(exp@location, "Uninitialized variable <Id>");
+PicoValue evalExp(exp:id(PicoId Id), VENV env)  = env[Id]?  ? env[Id] : errorval(exp@location, "Uninitialized variable <Id>");
 
 PicoValue evalExp(exp:add(EXP E1, EXP E2), VENV env) = 
    (natval(n1) := evalExp(E1, env) && natval(n2) := evalExp(E1, env)) ? natval(n1 + n2)
-                                                                      : errval(exp@location, "+ requires natural arguments");
+                                                                      : errorval(exp@location, "+ requires natural arguments");
   
 PicoValue evalExp(exp:sub(EXP E1, EXP E2), VENV env) = 
    (natval(n1) := evalExp(E1, env) && natval(n2) := evalExp(E1, env)) ? natval(n1 - n2)
-                                                                      : errval(exp@location, "- requires natural arguments");
+                                                                      : errorval(exp@location, "- requires natural arguments");
                                                                      
 PicoValue evalExp(exp:add(EXP E1, EXP E2), VENV env) = 
    (strval(s1) := evalExp(E1, env) && strval(s2) := evalExp(E1, env)) ? strval(s1 + s2)
-                                                                      : errval(exp@location, "|| requires string arguments");
+                                                                      : errorval(exp@location, "|| requires string arguments");
 
 
 // Evaluate a statement
@@ -46,7 +46,7 @@ VENV evalStat(stat:ifElseStat(EXP Exp,
 VENV evalStat(stat:ifThenStat(EXP Exp, 
                               list[STATEMENT] Stats1),
                VENV env) =
-    evalExp(Exp, env) != natval(0) ? eval(Stats1, env) : env;
+    evalExp(Exp, env) != natval(0) ? evalStats(Stats1, env) : env;
 
 VENV evalStat(stat:whileStat(EXP Exp, 
                              list[STATEMENT] Stats1),
@@ -80,6 +80,6 @@ public VENV evalProgram(PROGRAM P){
     throw "Cannot happen";
 }
 
-public map[PicoId, PicoValue] evalProgram(str txt) = evalProgram(load(txt));
+public VENV evalProgram(str txt) = evalProgram(load(txt));
 
     
