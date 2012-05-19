@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.IOException;
@@ -47,16 +48,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		intTuple = getTypeFactory().tupleType(getTypeFactory().integerType(), "line", getTypeFactory().integerType(), "column");
 	}
 
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
-		return that.equalToSourceLocation(this);
-	}
-
-	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
-		return that.nonEqualToSourceLocation(this);
-	}
-
+	
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] actuals) {
 		if (actuals.length >= 2) {
@@ -526,6 +518,61 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that) {
+		return that.equalToSourceLocation(this);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that) {
+		return that.nonEqualToSourceLocation(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that) {
+		return that.lessThanSourceLocation(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that) {
+		return that.lessThanOrEqualSourceLocation(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that) {
+		return that.greaterThanSourceLocation(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that) {
+		return that.greaterThanOrEqualSourceLocation(this);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanSourceLocation(SourceLocationResult that) {
+		// note reversed args: we need that < this
+		return bool((that.compareSourceLocationInt(this) < 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> lessThanOrEqualSourceLocation(SourceLocationResult that) {
+		// note reversed args: we need that <= this
+		return bool((that.compareSourceLocationInt(this) <= 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanSourceLocation(SourceLocationResult that) {
+		// note reversed args: we need that > this
+		return bool((that.compareSourceLocationInt(this) > 0), ctx);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
+		// note reversed args: we need that >= this
+		return bool((that.compareSourceLocationInt(this) >= 0), ctx);
+	}
+
+	
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result) {
 		return result.compareSourceLocation(this);
 	}
@@ -541,20 +588,24 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that) {
 		return that.nonEqualityBoolean(this);
 	}
-
+	
 	@Override
 	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that) {
+		return makeIntegerResult(that.compareSourceLocationInt(this));
+	}
+
+	protected int compareSourceLocationInt(SourceLocationResult that) {
 		// Note reverse of args
 		ISourceLocation left = that.getValue();
 		ISourceLocation right = this.getValue();
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
+			return 0;
 		}
 		
 		// they are not the same
 		int compare = left.getURI().toString().compareTo(right.getURI().toString());
 		if (compare != 0) {
-			return makeIntegerResult(compare);
+			return -compare;
 		}
 		
 		// but the uri's are the same
@@ -562,22 +613,22 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		
 		if (left.hasOffsetLength()) {
 			if (!right.hasOffsetLength()) {
-				return makeIntegerResult(1);
+				return 1;
 			}
 			else if (right.getOffset() != left.getOffset()) {
 				if (right.getOffset() < left.getOffset()) {
-					return makeIntegerResult(-1);
+					return -1;
 				}
 				else {
-					return makeIntegerResult(1);
+					return 1;
 				}
 			}
 			else { // lengths must be different
 				if (right.getLength() < left.getLength()) {
-					return makeIntegerResult(-1);
+					return -1;
 				}
 				else {
-					return makeIntegerResult(1);
+					return 1;
 				}
 			}
 		}
@@ -586,7 +637,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new ImplementationError("assertion failed");
 		}
 		
-		return makeIntegerResult(-1);
+		return -1;
 	}
 	
 	@Override
