@@ -929,6 +929,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
+	
+	// Comparison on DateTime
 
 	protected <U extends IValue> Result<U> lessThanDateTime(DateTimeResult that) {
 		return that.undefinedError(LESS_THAN_STRING, this);
@@ -945,6 +947,25 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> greaterThanOrEqualDateTime(DateTimeResult that) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
 	}
+	
+	// Comparison on SourceLocation
+	
+	protected <U extends IValue> Result<U> lessThanSourceLocation(SourceLocationResult that) {
+		return that.undefinedError(LESS_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualSourceLocation(SourceLocationResult that) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanSourceLocation(SourceLocationResult that) {
+		return that.undefinedError(GREATER_THAN_STRING, this);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualSourceLocation(SourceLocationResult that) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this);
+	}
+	
 	
 	protected <U extends IValue> Result<U> addNumber(NumberResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
