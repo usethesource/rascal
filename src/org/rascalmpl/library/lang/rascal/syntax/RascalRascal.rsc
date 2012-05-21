@@ -130,7 +130,9 @@ syntax Sym
 	        )
 	)
 	> 
-	left Unequal:  Sym symbol "\\" Sym match 
+	left ( Unequal:  Sym symbol "\\" Sym match
+	     | Except:   Sym symbol "!" NonterminalLabel label
+	     ) 
 	;
 
 lexical TimePartNoTZ
