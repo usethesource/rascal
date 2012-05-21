@@ -128,7 +128,14 @@ import lang::rascal::syntax::RascalRascal;
 //     DONE
 //
 // 28. In statement blocks, segregate out function defs, these see the scope of the
-//     entire block, not just what came before
+//     entire block, not just what came before; however, closures are still just
+//     expressions, so we still need the ability to capture an environment for them
+//     and smartly check for changes to inferred types
+//
+// 29. Make sure that, in a function, all paths return.
+//
+// 30. Make sure we don't allow changes to the types of variables bound in pattern matches.
+//     These do not follow the same rules as other inferred vars.
 //
 
 @doc{The source of a label (visit, block, etc).}
@@ -1986,6 +1993,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> >= <Expr
 		return markLocationType(c,exp@\loc,\bool());
 	if (isTupleType(t1) && isTupleType(t2))
 		return markLocationType(c,exp@\loc,\bool());
+    if (isLocType(t1) && isLocType(t2))
+        return markLocationType(c,exp@\loc,\bool());
 	if (isValueType(t1) || isValueType(t2))
 		return markLocationType(c,exp@\loc,\bool());
 		
@@ -2024,6 +2033,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> <= <Expr
 		return markLocationType(c,exp@\loc,\bool());
 	if (isTupleType(t1) && isTupleType(t2))
 		return markLocationType(c,exp@\loc,\bool());
+	if (isLocType(t1) && isLocType(t2))
+        return markLocationType(c,exp@\loc,\bool());
 	if (isValueType(t1) || isValueType(t2))
 		return markLocationType(c,exp@\loc,\bool());
 		
@@ -2062,6 +2073,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> < <Expre
 		return markLocationType(c,exp@\loc,\bool());
 	if (isTupleType(t1) && isTupleType(t2))
 		return markLocationType(c,exp@\loc,\bool());
+    if (isLocType(t1) && isLocType(t2))
+        return markLocationType(c,exp@\loc,\bool());
 	if (isValueType(t1) || isValueType(t2))
 		return markLocationType(c,exp@\loc,\bool());
 		
@@ -2100,6 +2113,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> > <Expre
 		return markLocationType(c,exp@\loc,\bool());
 	if (isTupleType(t1) && isTupleType(t2))
 		return markLocationType(c,exp@\loc,\bool());
+    if (isLocType(t1) && isLocType(t2))
+        return markLocationType(c,exp@\loc,\bool());
 	if (isValueType(t1) || isValueType(t2))
 		return markLocationType(c,exp@\loc,\bool());
 		
@@ -3260,8 +3275,29 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
 	// Check the body of the loop				
 	cWhileBody = enterBlock(cWhileBool, bdy@\loc);
 	< cWhileBody, t2 > = checkStmt(bdy, cWhileBody);
+	
+	// See if the loop changed the type of any vars declared outside of the loop.
+	modifiedVars = { vl | vl <- (cWhileBody.fcvEnv<1> & cWhile.fcvEnv<1>), variable(_,rt1,true,_,_) := cWhileBody.store[vl], variable(_,rt2,true,_,_) := cWhile.store[vl], !equivalent(rt1,rt2) };
+	modifiedVarValues = ( vl : cWhileBody.store[vl].rtype | vl <- modifiedVars );
+	
 	cWhileBool = exitBlock(cWhileBody, cWhileBool);
 	if (isFailType(t2)) failures += t2;
+	
+	// If the loop did change the type of any of these vars, iterate again and see if the type keeps changing. If so,
+	// the loop does not cause the type to stabilize, in which case we want to issue a warning and set the type of
+	// the var in question to value.
+	if (size(modifiedVars) > 0) {
+		cWhileBody = enterBlock(cWhileBool, bdy@\loc);
+		< cWhileBody, t2 > = checkStmt(bdy, cWhileBody);
+		modifiedVars2 = { vl | vl <- modifiedVars, !equivalent(cWhileBody.store[vl].rtype,modifiedVarValues[vl]) };
+		cWhileBool = exitBlock(cWhileBody, cWhileBool);
+		if (isFailType(t2)) failures += t2;
+		
+		for (vl <- modifiedVars2) {
+			cWhileBool.store[vl].rtype = \value();
+			cWhileBool = addMessage(cWhileBool, error("Type of variable <prettyPrintName(cWhileBool.store[vl].rname)> does not stabilize in loop", bdy@\loc));
+		}				
+	}
 
 	// Exit back to the block scope
 	cWhile = exitBooleanScope(cWhileBool, cWhile);
