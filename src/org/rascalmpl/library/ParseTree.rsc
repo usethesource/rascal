@@ -191,6 +191,7 @@ data Condition
      | \at-column(int column) 
      | \begin-of-line()  
      | \end-of-line()  
+     | \except(str label)
      ;
 
 @doc{
