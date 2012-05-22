@@ -14,7 +14,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,6 +33,8 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 public class ShellExec {
 	
 	private static HashMap<IInteger, Process> runningProcesses = new HashMap<IInteger, Process>();
+	private static HashMap<IInteger, InputStreamReader> processInputStreams = new HashMap<IInteger, InputStreamReader>();
+	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
 	private static IInteger processCounter = null;
 	
 	private final IValueFactory vf;
@@ -129,6 +133,27 @@ public class ShellExec {
 	public synchronized void killProcess(IInteger processId) {
 		if (!runningProcesses.containsKey(processId))
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+
+		if (processInputStreams.containsKey(processId)) {
+			try {
+				processInputStreams.get(processId).close();
+			} catch (IOException e) {
+				// eat it, we are just throwing it away anyway
+			} finally {
+				processInputStreams.remove(processId);
+			}
+		}
+		
+		if (processOutputStreams.containsKey(processId)) {
+			try {
+				processOutputStreams.get(processId).close();
+			} catch (IOException e) {
+				// eat it, we are just throwing it away anyway
+			} finally {
+				processOutputStreams.remove(processId);
+			}
+		}
+
 		Process runningProcess = runningProcesses.get(processId);
 		runningProcess.destroy();
 		runningProcesses.remove(processId);
@@ -140,14 +165,17 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 		try {
 			Process runningProcess = runningProcesses.get(processId);
-//			IString toReturn = vf.string("");
-			InputStreamReader isr = new InputStreamReader(runningProcess.getInputStream());
+			InputStreamReader isr = null;
+			if (processInputStreams.containsKey(processId)) {
+				isr = processInputStreams.get(processId);
+			} else {
+				isr = new InputStreamReader(runningProcess.getInputStream());
+				processInputStreams.put(processId, isr);
+			}
 			StringBuffer line = new StringBuffer();
 			while (isr.ready()) {
 				line.append((char)isr.read());
-//				line = line + (char)isr.read();
 			}
-			if (isr != null) isr.close();
 			return vf.string(line.toString());
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
