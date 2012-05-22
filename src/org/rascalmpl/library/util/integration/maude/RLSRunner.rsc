@@ -24,7 +24,7 @@ data RLSResult = NoResultHandler(str output) ;
 public PID startMaude(loc maudeLocation) {
     PID pid = createProcess(maudeLocation.path);
     res = readFrom(pid);
-    while (/Maude\>\s*$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt 
+    while (/Maude\>\s*$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt
     return pid;
 }
 
@@ -32,7 +32,7 @@ public PID startMaude(loc maudeLocation) {
 public PID startMaude(loc maudeLocation, loc maudeStartupFile) {
     PID pid = createProcess(maudeLocation.path,[maudeStartupFile.path]);
     res = readFrom(pid);
-    while (/Maude\>\s+$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt 
+    while (/Maude\>\s*$/ !:= res) res = res + readFrom(pid); // consume any of the initial output before the prompt
     return pid;
 }
 
@@ -132,11 +132,11 @@ data RLSPerf = RLSPerf(int rewrites, int cputime, int realtime, int rpers);
 
 @doc{Pull out the string results from a standard Maude result message.}
 public RLSResult processRLSResult(str res, RLSResult(RLSPerf,str) handler) {
-    if (/rewrites:\s*<n1:\d+>\s*in\s*<n2:\d+>ms\s*cpu\s*[(]<n3:\d+>ms real[)]\s*[(]<n4:\d+>\s*/ := res) {
-        if (/result\s*String:\s<rs:.*>\s*Maude[\>]\s*$/s := res) {
+    if (/rewrites:\s*<n1:\d+>\s*in\s*<n2:\d+>ms\s*cpu\s*[\(]<n3:\d+>ms real[\)]\s*[\(]<n4:\d+>\s*/ := res) {
+        if (/result\s*String:\s<rs:.*>\s*Maude[\>]\s.*$/s := res) {
             return handler(RLSPerf(toInt(n1), toInt(n2), toInt(n3), toInt(n4)), rs);
         }
-        if (/result\s*Char:\s<rs:.*>\s*Maude[\>]\s*$/s := res) {
+        if (/result\s*Char:\s<rs:.*>\s*Maude[\>]\s.*$/s := res) {
             return handler(RLSPerf(toInt(n1), toInt(n2), toInt(n3), toInt(n4)), rs);
         }
     }
@@ -177,8 +177,8 @@ public set[Message] createMessages(str info) {
         info = rest;
         if (/<severity:\d+>:::\|<path:.+?>::<offset:\d+>::<length:\d+>::<startRow:\d+>::<startCol:\d+>::<endRow:\d+>::<endCol:\d+>\|:::<errorMsg:.+>$/ := errorInfo) {
             loc errorLoc = |file:///dev/null|;
-            errorLoc.uri = path; errorLoc.offset = toInt(offset); errorLoc.length = toInt(length);
-            errorLoc.begin = <toInt(startRow), toInt(startCol)>; errorLoc.end = <toInt(endRow), toInt(endCol)>;
+            errorLoc = errorLoc[uri=path][offset=toInt(offset)][length=toInt(length)];
+            errorLoc = errorLoc[begin = <toInt(startRow), toInt(startCol)>][end = <toInt(endRow), toInt(endCol)>];
             if (severity == "1")
                 errorMsgs = errorMsgs + error(errorMsg, errorLoc);
             else if (severity == "2")
