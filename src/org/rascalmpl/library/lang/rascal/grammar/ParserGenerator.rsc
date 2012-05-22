@@ -459,7 +459,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
     list[str] exits = [];
     filters = "";
     
-    if (conditional(_, conds) := sym) {
+    if (conditional(def, conds) := sym) {
       conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
@@ -468,7 +468,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
-      exits += ["new ExceptRestriction(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,sym), _, _) := grammar]; 
+      exits += ["new ExceptRestriction(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
