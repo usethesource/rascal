@@ -62,15 +62,17 @@ public Symbol sym2symbol(Sym sym) {
     case (Sym) `<Sym s> @ <IntegerLiteral i>` : 
       return conditional(sym2symbol(s), {\at-column(toInt("<i>"))}); 
     case (Sym) `<Sym s> >> <Sym r>` : 
-      return conditional(sym2symbol(s), {follow(sym2symbol(r))});
+      return conditional(sym2symbol(s), {\follow(sym2symbol(r))});
     case (Sym) `<Sym s> !>> <Sym r>` : 
       return conditional(sym2symbol(s), {\not-follow(sym2symbol(r))});
     case (Sym) `<Sym s> << <Sym r>` : 
-      return conditional(sym2symbol(r), {precede(sym2symbol(s))});
+      return conditional(sym2symbol(r), {\precede(sym2symbol(s))});
     case (Sym) `<Sym s> !<< <Sym r>` : 
       return conditional(sym2symbol(r), {\not-precede(sym2symbol(s))});
     case (Sym) `<Sym s> \ <Sym r>` : 
       return conditional(sym2symbol(s), {\delete(sym2symbol(r))});
+    case (Sym) `<Sym s> ! <NonterminalLabel n>`:
+      return conditional(sym2symbol(s), {\except("<n>")});
     default: 
       throw "missed a case <sym>";
   }
