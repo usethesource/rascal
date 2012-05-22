@@ -30,8 +30,8 @@ public DoNotNest doNotNest(Production p) {
       if (match(t, s)) return {<p, 0, p>}; 
     case prod(s,[list[Symbol] o,t],{_*,\assoc(\non-assoc())}) :
       if (match(t, s)) return {<p, size(o), p>};
-    case choice(_, set[Production] alts) : 
-      return {*doNotNest(a) | a <- alts}; // SPLICE
+    case choice(_, set[Production] alts) :
+      return {*doNotNest(a) | a <- alts}; 
     case \lookahead(_,_,q) :
       return doNotNest(q); 
     case priority(_, list[Production] levels) : 
