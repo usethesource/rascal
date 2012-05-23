@@ -569,6 +569,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			throw new ImplementationError(e.getMessage(), e);
 		} catch (IllegalAccessException e) {
 			throw new ImplementationError(e.getMessage(), e);
+		} catch (ExceptionInInitializerError e) {
+			throw new ImplementationError(e.getMessage(), e);
 		}
 	}
 
