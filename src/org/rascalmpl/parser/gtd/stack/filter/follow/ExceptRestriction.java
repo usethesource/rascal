@@ -11,24 +11,41 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter.follow;
 
+import java.util.LinkedList;
+
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
- * A filter that requires the indicated substring to end at the end of a line.
+ * A filter that make sure that at this position we do not have
+ * this particular child.
  */
-public class AtEndOfLineRequirement implements ICompletionFilter{
+public class ExceptRestriction implements ICompletionFilter{
+	private final Object child;
 	
-	public AtEndOfLineRequirement(){
+	public ExceptRestriction(Object child){
 		super();
+		this.child = child;
 	}
 	
 	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
-		return !positionStore.endsLine(end);
+		if (result instanceof AbstractContainerNode) {
+			return ((AbstractContainerNode) result).getFirstProduction().equals(child);
+		}
+		
+		return false;
 	}
 	
-	public boolean isEqual(ICompletionFilter otherCompletionFilter){
-		return (otherCompletionFilter instanceof AtEndOfLineRequirement);
+	public boolean isEqual(ICompletionFilter otherCompletionFilter) {
+		if(!(otherCompletionFilter instanceof ExceptRestriction)) { 
+			return false;
+		}
+		
+		ExceptRestriction other = (ExceptRestriction) otherCompletionFilter;
+		return child.equals(other.child); 
 	}
 }

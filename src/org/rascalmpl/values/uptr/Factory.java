@@ -95,6 +95,7 @@ public class Factory {
 	public static final Type Condition_EndOfLine = tf.constructor(uptr, Condition, "end-of-line");
 	public static final Type Condition_StartOfLine = tf.constructor(uptr, Condition, "begin-of-line");
 	public static final Type Condition_AtColumn = tf.constructor(uptr, Condition, "at-column", tf.integerType(), "column");
+	public static final Type Condition_Except = tf.constructor(uptr, Condition, "except", tf.stringType(), "label");
 	
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
 	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "start");

@@ -54,6 +54,56 @@ public interface IASTVisitor<T> {
 
   public T visitFieldIndex(Field.Index x);
 
+  public T visitSymNotFollow(Sym.NotFollow x);
+
+  public T visitSymSequence(Sym.Sequence x);
+
+  public T visitSymNonterminal(Sym.Nonterminal x);
+
+  public T visitSymParameter(Sym.Parameter x);
+
+  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
+
+  public T visitSymColumn(Sym.Column x);
+
+  public T visitSymAlternative(Sym.Alternative x);
+
+  public T visitSymStart(Sym.Start x);
+
+  public T visitSymIterStarSep(Sym.IterStarSep x);
+
+  public T visitSymNotPrecede(Sym.NotPrecede x);
+
+  public T visitSymIter(Sym.Iter x);
+
+  public T visitSymParametrized(Sym.Parametrized x);
+
+  public T visitSymEmpty(Sym.Empty x);
+
+  public T visitSymExcept(Sym.Except x);
+
+  public T visitSymOptional(Sym.Optional x);
+
+  public T visitSymEndOfLine(Sym.EndOfLine x);
+
+  public T visitSymFollow(Sym.Follow x);
+
+  public T visitSymCharacterClass(Sym.CharacterClass x);
+
+  public T visitSymLabeled(Sym.Labeled x);
+
+  public T visitSymIterStar(Sym.IterStar x);
+
+  public T visitSymIterSep(Sym.IterSep x);
+
+  public T visitSymLiteral(Sym.Literal x);
+
+  public T visitSymUnequal(Sym.Unequal x);
+
+  public T visitSymPrecede(Sym.Precede x);
+
+  public T visitSymStartOfLine(Sym.StartOfLine x);
+
   public T visitTypeVarFree(TypeVar.Free x);
 
   public T visitTypeVarBounded(TypeVar.Bounded x);
@@ -197,54 +247,6 @@ public interface IASTVisitor<T> {
   public T visitCommandDeclaration(Command.Declaration x);
 
   public T visitFunctionModifiersList(FunctionModifiers.List x);
-
-  public T visitSymNotFollow(Sym.NotFollow x);
-
-  public T visitSymSequence(Sym.Sequence x);
-
-  public T visitSymNonterminal(Sym.Nonterminal x);
-
-  public T visitSymParameter(Sym.Parameter x);
-
-  public T visitSymCaseInsensitiveLiteral(Sym.CaseInsensitiveLiteral x);
-
-  public T visitSymColumn(Sym.Column x);
-
-  public T visitSymAlternative(Sym.Alternative x);
-
-  public T visitSymStart(Sym.Start x);
-
-  public T visitSymIterStarSep(Sym.IterStarSep x);
-
-  public T visitSymNotPrecede(Sym.NotPrecede x);
-
-  public T visitSymIter(Sym.Iter x);
-
-  public T visitSymParametrized(Sym.Parametrized x);
-
-  public T visitSymEmpty(Sym.Empty x);
-
-  public T visitSymOptional(Sym.Optional x);
-
-  public T visitSymEndOfLine(Sym.EndOfLine x);
-
-  public T visitSymFollow(Sym.Follow x);
-
-  public T visitSymCharacterClass(Sym.CharacterClass x);
-
-  public T visitSymLabeled(Sym.Labeled x);
-
-  public T visitSymIterStar(Sym.IterStar x);
-
-  public T visitSymIterSep(Sym.IterSep x);
-
-  public T visitSymLiteral(Sym.Literal x);
-
-  public T visitSymUnequal(Sym.Unequal x);
-
-  public T visitSymPrecede(Sym.Precede x);
-
-  public T visitSymStartOfLine(Sym.StartOfLine x);
 
   public T visitExpressionProduct(Expression.Product x);
 
@@ -888,8 +890,8 @@ public interface IASTVisitor<T> {
   public T visitCommandsAmbiguity(Commands.Ambiguity x);
   public T visitProtocolTailAmbiguity(ProtocolTail.Ambiguity x);
   public T visitTimePartNoTZAmbiguity(TimePartNoTZ.Ambiguity x);
-  public T visitSymAmbiguity(Sym.Ambiguity x);
   public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
+  public T visitSymAmbiguity(Sym.Ambiguity x);
   public T visitStringMiddleAmbiguity(StringMiddle.Ambiguity x);
   public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);
   public T visitDecimalIntegerLiteralAmbiguity(DecimalIntegerLiteral.Ambiguity x);

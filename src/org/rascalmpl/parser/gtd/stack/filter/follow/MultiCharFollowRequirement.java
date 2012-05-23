@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.stack.filter.follow;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
 /**
@@ -27,7 +28,7 @@ public class MultiCharFollowRequirement implements ICompletionFilter{
 		this.characters = characters;
 	}
 	
-	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
 		if((end + characters.length - 1) >= input.length) return true;
 		
 		OUTER : for(int i = characters.length - 1; i >= 0; --i){

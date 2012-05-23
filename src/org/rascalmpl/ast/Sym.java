@@ -709,6 +709,54 @@ public abstract class Sym extends AbstractAST {
   
     	
   }
+  public boolean isExcept() {
+    return false;
+  }
+
+  static public class Except extends Sym {
+    // Production: sig("Except",[arg("org.rascalmpl.ast.Sym","symbol"),arg("org.rascalmpl.ast.NonterminalLabel","label")])
+  
+    
+    private final org.rascalmpl.ast.Sym symbol;
+    private final org.rascalmpl.ast.NonterminalLabel label;
+  
+    public Except(IConstructor node , org.rascalmpl.ast.Sym symbol,  org.rascalmpl.ast.NonterminalLabel label) {
+      super(node);
+      
+      this.symbol = symbol;
+      this.label = label;
+    }
+  
+    @Override
+    public boolean isExcept() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSymExcept(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Sym getSymbol() {
+      return this.symbol;
+    }
+  
+    @Override
+    public boolean hasSymbol() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.NonterminalLabel getLabel() {
+      return this.label;
+    }
+  
+    @Override
+    public boolean hasLabel() {
+      return true;
+    }	
+  }
   public boolean isOptional() {
     return false;
   }

@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.stack.filter.match;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
 /**
@@ -27,7 +28,7 @@ public class StringMatchRestriction implements ICompletionFilter{
 		this.string = string;
 	}
 	
-	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
 		if((end - start) != string.length) return false;
 		
 		for(int i = string.length - 1; i >= 0; --i){
