@@ -1425,7 +1425,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public void extendCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
 		
-		if (env.getExtends().contains(name)) {
+		if (env.hasExtended(name)) {
 			getStdErr().println("Extending again?? " + name);
 			return;
 		}
@@ -1448,6 +1448,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 				((org.rascalmpl.semantics.dynamic.Module.Default)module).interpretInCurrentEnv(this);
 			}
 			
+			env.haveExtended(name);
 			return;
 		} catch (IOException e) {
 			env.removeExtend(name);

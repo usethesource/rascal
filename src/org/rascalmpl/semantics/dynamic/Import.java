@@ -150,17 +150,29 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		public String declareSyntax(Evaluator eval, boolean withImports) {
 			String name = Names.fullName(this.getModule().getName());
 
-			ModuleEnvironment env = eval.getHeap().getModule(name);
-			if (env != null && env.isSyntaxDefined()) {
-				// so modules that have been initialized already dont get parsed again and again
+			GlobalEnvironment heap = eval.__getHeap();
+			if (!heap.existsModule(name)) {
+				// deal with a fresh module that needs initialization
+				heap.addModule(new ModuleEnvironment(name, heap));
+			}
+
+			try {
+				eval.getCurrentModuleEnvironment().addExtend(name);
+
+				if (withImports) {
+					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());
+					mod.declareSyntax(eval, true);
+				}
+				
 				return name;
 			}
-			
-			org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());  
-			mod.declareSyntax(eval, withImports);
-
-			return null;
+			catch (ModuleLoadError e) {
+				// when a module does not load, the import should not fail here, rather it will fail when we evaluate the module
+				return null;
+			}
 		}
+		
+		
 	}
 
 	static public class Default extends org.rascalmpl.ast.Import.Default {
