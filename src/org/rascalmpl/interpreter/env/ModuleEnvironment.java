@@ -63,6 +63,7 @@ public class ModuleEnvironment extends Environment {
 	protected final GlobalEnvironment heap;
 	protected Map<String, ModuleEnvironment> importedModules;
 	protected Set<String> extended;
+	protected Set<String> haveExtended;
 	protected TypeStore typeStore;
 	protected Set<IValue> productions;
 	protected Map<String, NonTerminalType> concreteSyntaxTypes;
@@ -98,6 +99,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
+		this.haveExtended = new HashSet<String>();
 		this.deprecated = null;
 	}
 	
@@ -233,6 +235,21 @@ public class ModuleEnvironment extends Environment {
 			extended = new HashSet<String>();
 		}
 		extended.add(name);
+	}
+	
+	// register that this module has been extended with the named module (extension has executed)
+	public void haveExtended(String name) {
+		if (haveExtended == null) {
+			haveExtended = new HashSet<String>();
+		}
+		haveExtended.add(name);
+	}
+	
+	public boolean hasExtended(String name) {
+		if (haveExtended != null) {
+			return haveExtended.contains(name);
+		}
+		return false;
 	}
 	
 	public List<AbstractFunction> getTests() {
