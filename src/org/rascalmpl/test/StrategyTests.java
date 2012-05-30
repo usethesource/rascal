@@ -14,12 +14,13 @@ package org.rascalmpl.test;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 // TODO This test needs refactoring.
 public class StrategyTests extends TestFramework{
 	
-	@Test
+	@Test @Ignore
 	public void testStrategy(){
 		prepare("import StrategyTests;");
 		prepareMore("import Strategy;");
@@ -48,7 +49,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("outermost(rules)(t) == f(b(),b())"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testStrategySeperately(){
 		TestFramework tf = new TestFramework();
 		tf.prepare("import StrategyTests;");
@@ -107,7 +108,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(tf.runTestInSameEvaluator("outermost(rules)(t) == f(b(),b())"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testTopologicalStrategy(){
 		prepare("import StrategyTests;");
 		prepareMore("import TopologicalStrategy;");
@@ -123,7 +124,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("topological_outermost(rules6)(r2) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>}"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testTopologicalStrategySeperately(){
 		TestFramework tf = new TestFramework();
 		tf.prepare("import StrategyTests;");
@@ -160,7 +161,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(tf.runTestInSameEvaluator("topological_outermost(rules6)(r2) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>}"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testNestedTopologicalStrategy(){
 		prepare("import StrategyTests;");
 		prepareMore("import TopologicalStrategy;");
@@ -176,7 +177,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("topological_outermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testNestedTopologicalStrategySeperately(){
 		TestFramework tf = new TestFramework();
 		tf.prepare("import StrategyTests;");
@@ -215,7 +216,7 @@ public class StrategyTests extends TestFramework{
 		assertTrue(tf.runTestInSameEvaluator("topological_outermost(rules6)(r3) == {<h(aa()), h(dd())>, <h(aa()), h(ee())>, <h(dd()),h(ee())>, <h(aa()), {<h(aa()), h(ee())>}>}"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testCyclicStrategy(){
 		prepare("import StrategyTests;");
 		prepareMore("import TopologicalStrategy;");
