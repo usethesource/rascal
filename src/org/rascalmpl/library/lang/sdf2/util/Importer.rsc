@@ -10,7 +10,7 @@ import lang::rascal::format::Grammar;
   sdf://<modulename>
 }
 public str generate(str name, loc at) {
-   SDF def = loadSDF2Module(at.host, |rascal:///|);
+   SDF def = loadSDF2Module(at.host, [|rascal:///|]);
    Grammar gr = sdf2grammar o fuse (name, def);
    return "module <name>
           '
