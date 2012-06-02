@@ -665,10 +665,10 @@ public str unescapeStr(str chars){
        case /^\\\'/          => "\'"
        case /^\\"/           => "\""
        case /^\\\\/          => "\\"
-       case /^\\TOP/         => "\255"
-       case /^\\EOF/         => "\256"
+       case /^\\TOP/         => "\FF"
+       case /^\\EOF/         => "\A0"
        case /^\\BOT/         => "\0"
-       case /^\\LABEL_START/ => "\257"
+       case /^\\LABEL_START/ => "\A1"
        case /^\</			 => "\<"
        case /^\>/			 => "\>"
      };  
