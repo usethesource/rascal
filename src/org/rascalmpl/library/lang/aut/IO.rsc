@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Bert Lisser - Jurgen.Vinju@cwi.nl - CWI}
 
 module lang::aut::IO
 

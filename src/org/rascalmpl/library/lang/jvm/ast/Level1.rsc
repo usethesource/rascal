@@ -16,11 +16,12 @@ module lang::jvm::ast::Level1
  * - Deserialize
 */
 
-rule expandClass class(int version, set[ClassModifier] modifiers, str name, str signature, str superName, list[str] interfaces,
-				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods) =>
+public Class class(int version, set[ClassModifier] modifiers, str name, str signature, str superName, list[str] interfaces,
+				   list[InnerClass] innerClasses, list[Field] fields, list[Method] methods) =
 				 class(version, modifiers, name, signature, superName, interfaces, "", "", "", "", "",
 				   innerClasses, fields, methods);
-rule expandInnerClass innerClass(str name, int access) => innerClass(name, "", "", access);
+
+public Class innerClass(str name, int access) = innerClass(name, "", "", access);
 
 data PrimitiveTypeDescriptor = boolean() | char() | byte() | short() | \int() | float() | long() | double();
 data TypeDescriptor = primitive(PrimitiveTypeDescriptor \type) | object(str internalName) | array(TypeDescriptor \type);
