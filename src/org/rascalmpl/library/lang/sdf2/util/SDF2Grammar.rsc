@@ -17,7 +17,7 @@ module lang::sdf2::util::SDF2Grammar
                     
 import IO;
 import String;
-import Integer;
+import util::Math;
 import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Names;
@@ -222,7 +222,7 @@ test bool test9() = getProductions((SDF) `definition module A exports priorities
 
 
 public set[Production] getProductions(Prod* prods, bool isLex){
-	return {fixParameters(getProduction(prod, isLex)) | Prod prod <- prods};
+	return {*fixParameters(getProduction(prod, isLex)) | Prod prod <- prods};
 }
 
 set[Production] fixParameters(set[Production] input) {
@@ -290,7 +290,7 @@ public set[Symbol] getConditions(SDF m) {
     
 public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
 println("looping over < restrictions>");
-  res = { getRestriction(r, isLex) | Restriction r <- restrictions };
+  res = { *getRestriction(r, isLex) | Restriction r <- restrictions };
   println("collected: <res>");
   return res;
 }
@@ -769,7 +769,7 @@ test bool testCCX7() = ((Character) `\n`)   == 10;
 
 public set[Attr] getAttributes(Attrs as) {
   if ((Attrs) `{ <{Attribute ","}* mods> }` := as) {
-	  return {getAttribute(m) | Attribute m <- mods};
+	  return {*getAttribute(m) | Attribute m <- mods};
   }
   return {};
 }

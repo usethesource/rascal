@@ -3,6 +3,7 @@ module lang::sdf2::util::Importer
 import lang::sdf2::util::Load;
 import lang::sdf2::util::SDF2Grammar;
 import lang::rascal::format::Grammar;
+import lang::rascal::grammar::definition::Modules;
 
 @resource{sdf}
 @doc{
@@ -10,8 +11,8 @@ import lang::rascal::format::Grammar;
   sdf://<modulename>
 }
 public str generate(str name, loc at) {
-   SDF def = loadSDF2Module(at.host, [|rascal:///|,|rascal:///src|]);
-   Grammar gr = sdf2grammar o fuse (name, def);
+   def = loadSDF2Module(at.host, [|rascal:///|,|rascal:///src|]);
+   gr = fuse(sdf2grammar(name, def));
    return "module <name>
           '
           '<grammar2rascal(gr)>
