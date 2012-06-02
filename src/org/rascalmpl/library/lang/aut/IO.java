@@ -40,7 +40,7 @@ public class IO{
 	}
 	
 	/*
-	 * Read relations from an AUT file. An RSF file contains ternary relations
+	 * Read relations from an AUT file. An AUT file contains ternary relations
 	 * in the following format: "(" <int> "," <string> ","<int>")". readAUT
 	 * takes an AUT file nameAUTFile and generates a rel[int, str, int]
 	 */
