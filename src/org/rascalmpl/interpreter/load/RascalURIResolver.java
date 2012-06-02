@@ -119,14 +119,22 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 
 	private String getPath(URI uri) {
 		String path = uri.getPath();
-		if (!path.startsWith("/")) {
-			path = path.concat("/");
+		
+		if (path != null && path.length() != 0) {
+			return path;
 		}
-		if (!path.endsWith(Configuration.RASCAL_FILE_EXT)) {
-			path = path.concat(Configuration.RASCAL_FILE_EXT);
+		else {
+			String host = uri.getHost();
+			
+			if (host.endsWith("/")) {
+				host = host.substring(0, host.length() - 2);
+			}
+			if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
+				host = host.concat(Configuration.RASCAL_FILE_EXT);
+			}
+			host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+			return host;
 		}
-		path = path.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
-		return path;
 	}
 	
 	public InputStream getInputStream(URI uri) throws IOException {

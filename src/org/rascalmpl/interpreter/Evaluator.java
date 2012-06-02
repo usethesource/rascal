@@ -1401,7 +1401,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
 		try {
 			event("Loading module " + name);
-			IConstructor tree = parseModule(this, java.net.URI.create("rascal:///" + name), env);
+			IConstructor tree = parseModule(this, java.net.URI.create("rascal://" + name), env);
 			ASTBuilder astBuilder = getBuilder();
 			Module moduleAst = astBuilder.buildModule(tree);
 			
