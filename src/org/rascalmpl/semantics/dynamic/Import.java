@@ -160,7 +160,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				eval.getCurrentModuleEnvironment().addExtend(name);
 
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());
+					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal://" + name), this.getLocation());
 					mod.declareSyntax(eval, true);
 				}
 				
@@ -195,7 +195,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				eval.addImportToCurrentModule(this, name);
 
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal:///" + name), this.getLocation());
+					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal://" + name), this.getLocation());
 					Environment old = eval.getCurrentEnvt();
 					try {
 						eval.setCurrentEnvt(heap.getModule(name));

@@ -81,7 +81,7 @@ public class StaticChecker {
 		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
 		
 		for (IValue i : imports) {
-			URI uri = URI.create("rascal:///" + ((IString) i).getValue());
+			URI uri = URI.create("rascal://" + ((IString) i).getValue());
 			mw.put(i, VF.sourceLocation(uri));
 		}
 		
