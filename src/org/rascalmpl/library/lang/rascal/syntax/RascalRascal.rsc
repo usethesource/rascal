@@ -119,9 +119,10 @@ syntax Sym
 	| Column: Sym symbol "@" IntegerLiteral column 
 	| EndOfLine: Sym symbol "$" 
 	| StartOfLine: "^" Sym symbol
+	| Except:   Sym symbol "!" NonterminalLabel label
 	>  
 	assoc ( 
-	  left  ( Follow:     Sym symbol "\>\>" Sym match
+	  left  ( Follow:     Sym symbol  "\>\>" Sym match
 	        | NotFollow:  Sym symbol "!\>\>" Sym match
 	        )
 	  | 
@@ -130,9 +131,7 @@ syntax Sym
 	        )
 	)
 	> 
-	left ( Unequal:  Sym symbol "\\" Sym match
-	     | Except:   Sym symbol "!" NonterminalLabel label
-	     ) 
+	left Unequal:  Sym symbol "\\" Sym match
 	;
 
 lexical TimePartNoTZ
