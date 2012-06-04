@@ -38,6 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 	
@@ -53,11 +54,30 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		public Result<IValue> interpret(Evaluator eval) {
 			// Compute the URI location, which contains the scheme (and other info we need later)
 			ISourceLocation sl = (ISourceLocation)getAt().interpret(eval).getValue();
+			
+			// If we have a resource scheme, given as resource scheme + standard scheme, we
+			// extract that out, e.g., jdbctable+mysql would give a resource scheme of
+			// jdbctable and a standard URI scheme of mysql. If we do not have a separate
+			// resource scheme, we just use the specified scheme, e.g., sdf would give
+			// a resource scheme of sdf and a URI scheme of sdf.
+			URI uri = sl.getURI();
+			String resourceScheme = uri.getScheme();
+			if (resourceScheme.contains("+")) {
+				String uriScheme = resourceScheme.substring(resourceScheme.indexOf("+")+1); 
+				resourceScheme = resourceScheme.substring(0,resourceScheme.indexOf("+"));
+				try {
+					uri = new URI(uriScheme, uri.getUserInfo(), uri.getHost() == null ? "" : uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				} catch (URISyntaxException e) {
+					throw RuntimeExceptionFactory.malformedURI(uri.toString().substring(uri.toString().indexOf("+")+1), null, null);
+				}
+				sl = ValueFactoryFactory.getValueFactory().sourceLocation(uri);
+			}
+			
 			String moduleName = Names.fullName(this.getName());
 			IString mn = this.VF.string(moduleName);
 			
 			// Using the scheme, get back the correct importer
-			ICallableValue importer = getImporter(sl, eval.getCurrentEnvt());
+			ICallableValue importer = getImporter(resourceScheme, eval.getCurrentEnvt());
 			
 			if (importer != null) {
 				Type[] argTypes = new org.eclipse.imp.pdb.facts.type.Type[] {TF.stringType(), TF.sourceLocationType()};
@@ -123,8 +143,8 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 
-		private ICallableValue getImporter(ISourceLocation sl, Environment currentEnvt) {
-			return currentEnvt.getHeap().getResourceImporter(sl.getURI().getScheme());
+		private ICallableValue getImporter(String s, Environment currentEnvt) {
+			return currentEnvt.getHeap().getResourceImporter(s);
 		}
 	}
 	

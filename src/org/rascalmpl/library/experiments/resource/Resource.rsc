@@ -12,8 +12,6 @@ import List;
 
 data Option[&T] = none() | some(&T v);
     
-data Nullable[&T] = null() | notnull(&T v);
-
 @javaClass{org.rascalmpl.library.experiments.resource.Resource}
 @reflect{Uses Context for access to the current class loader}
 public java void registerResource(str javaClass);
