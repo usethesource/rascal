@@ -200,12 +200,16 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		}
 		else if (name.equals("params")) {
 			String query = uri.getQuery();
-			String[] params = query.split("&");
-			IMapWriter res = vf.mapWriter();
-			for (String param : params) {
-				String[] keyValue = param.split("=");
-				res.put(vf.string(keyValue[0]), vf.string(keyValue[1]));
+			IMapWriter res = vf.mapWriter(getTypeFactory().stringType(), getTypeFactory().stringType());
+			
+			if (query != null && query.length() > 0) {
+				String[] params = query.split("&");
+				for (String param : params) {
+					String[] keyValue = param.split("=");
+					res.put(vf.string(keyValue[0]), vf.string(keyValue[1]));
+				}
 			}
+			
 			IMap map = res.done();
 			return makeResult(map.getType(), map, ctx);
 		}
