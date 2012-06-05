@@ -25,6 +25,8 @@ import java.net.URISyntaxException;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -195,6 +197,17 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		else if (name.equals("query")) {
 			String query = uri.getQuery();
 			return makeResult(getTypeFactory().stringType(), vf.string(query != null ? query : ""), ctx);
+		}
+		else if (name.equals("params")) {
+			String query = uri.getQuery();
+			String[] params = query.split("&");
+			IMapWriter res = vf.mapWriter();
+			for (String param : params) {
+				String[] keyValue = param.split("=");
+				res.put(vf.string(keyValue[0]), vf.string(keyValue[1]));
+			}
+			IMap map = res.done();
+			return makeResult(map.getType(), map, ctx);
 		}
 		else if (name.equals("user")) {
 			String user = uri.getUserInfo();
