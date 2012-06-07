@@ -201,7 +201,7 @@ syntax Expression
 	| Comprehension  : Comprehension comprehension 
 	| Set            : "{" {Expression ","}* elements "}" 
 	| List           : "[" {Expression ","}* elements "]"
-	| ReifyType      : "#" Type type 
+	| ReifyType      : "#" Type type !>> "["
 	| Range          : "[" Expression first ".." Expression last "]"
 	| Tuple          : "\<" {Expression ","}+ elements "\>" 
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
