@@ -697,9 +697,14 @@ public class Prelude {
 		try{
 			if(arg.getType().isStringType()){
 				currentOutStream.print(((IString) arg).getValue().toString());
-			}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			}
+			else if(arg.getType().isSubtypeOf(Factory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-			}else{
+			}
+			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol")));
+			}
+			else{
 				currentOutStream.print(arg.toString());
 			}
 		}finally{
@@ -747,9 +752,14 @@ public class Prelude {
 		try{
 			if(arg.getType().isStringType()){
 				currentOutStream.print(((IString) arg).getValue());
-			}else if(arg.getType().isSubtypeOf(Factory.Tree)){
+			}
+			else if(arg.getType().isSubtypeOf(Factory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-			}else{
+			}
+			else if (arg.getType().isSubtypeOf(Factory.Type)) {
+				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol")));
+			}
+			else{
 				currentOutStream.print(arg.toString());
 			}
 			currentOutStream.println();
@@ -2441,6 +2451,9 @@ public class Prelude {
 	{
 		if (value.getType() == Factory.Tree) {
 			return values.string(TreeAdapter.yield((IConstructor) value));
+		}
+		else if (value.getType().isSubtypeOf(Factory.Type)) {
+			return values.string(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
 		}
 		if (value.getType().isStringType()) {
 			return (IString) value;
