@@ -236,12 +236,12 @@ public class RSFIO {
 			}
 		}
 		
-		IMapWriter mr = values.mapWriter(strType, symbolType);
+		IMapWriter mr = values.mapWriter();
 		
 		for (Map.Entry<java.lang.String, Type> entry : table.entrySet()) {
 			Type t = entry.getValue();
 			mr.put(values.string(entry.getKey()), 
-			       ((IConstructor) new TypeReifier(values).typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), ctx).getValue()).get("symbol"));	
+			       ((IConstructor) new TypeReifier(values).typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), ctx).getValue()));	
 		}
 		return mr.done();
 	}
