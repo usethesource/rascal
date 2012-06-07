@@ -124,6 +124,10 @@ public class RSFIO {
 		
 		Type resultType = tr.valueToType((IConstructor) result, new TypeStore());
 	
+		while (resultType.isAliasType()) {
+			resultType = resultType.getAliased();
+		}
+		
 		if(!resultType.isRelationType() || (resultType.getArity() != 2)){
 			throw RuntimeExceptionFactory.illegalArgument(
 					values.string("Type of an RSF relation should be a binary relation"),
