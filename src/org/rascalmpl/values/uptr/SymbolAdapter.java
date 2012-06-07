@@ -221,13 +221,7 @@ public class SymbolAdapter {
 			b.append(getName(symbol));
 			IList params = (IList) symbol.get("parameters");
 			b.append('[');
-			if (params.length() > 0) {
-				b.append(toString((IConstructor) params.get(0)));
-				for (int i = 1; i < params.length(); i++) {
-					b.append(',');
-					b.append(toString((IConstructor) params.get(i)));
-				}
-			}
+			b.append(toString(params));
 			b.append(']');
 			return b.toString();
 		}
@@ -238,11 +232,167 @@ public class SymbolAdapter {
 			return "&" + getName(symbol);
 		}
 		
+		if (isInt(symbol) || isStr(symbol) || isReal(symbol) || isBool(symbol) || isRat(symbol)
+				|| isNode(symbol) || isValue(symbol) || isVoid(symbol) || isNum(symbol) || isDatetime(symbol)) {
+			return symbol.getName();
+		}
+		
+		if (isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol)) {
+			return getName(symbol) + "[" + toString((IConstructor) symbol.get("symbol")) + "]";
+		}
+		
+		if (isRel(symbol) || isTuple(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(symbol.getName());
+			IList symbols = (IList) symbol.get("symbols");
+			b.append('[');
+			b.append(toString(symbols));
+			b.append(']');
+			return b.toString();
+		}
+		
+		if (isMap(symbol)) {
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("key")) + "," + toString((IConstructor) symbol.get("value")) + "]";
+		}
+		
+		if (isLabel(symbol)) {
+			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
+		}
+		
+		if (isADT(symbol) || isAlias(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(getName(symbol));
+			IList params = (IList) symbol.get("parameters");
+			
+			if (!params.isEmpty()) {
+				b.append('[');
+				b.append(toString(params));
+				b.append(']');
+			}
+			return b.toString();
+		}
+		
+		if (isFunc(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(toString((IConstructor) symbol.get("ret")));
+			b.append("(");
+			b.append(toString((IList) symbol.get("parameters")));
+			b.append(")");
+		}
+		
+		if (isCons(symbol)) {
+			StringBuilder b = new StringBuilder();
+			b.append(toString((IConstructor) symbol.get("adt")));
+			b.append(" ");
+			b.append(((IString) symbol.get("name")).getValue());
+			b.append("(");
+			b.append(toString((IList) symbol.get("parameters")));
+			b.append(")");
+		}
+		
 		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
 	}
+
 	
-	private static boolean isParameter(IConstructor symbol) {
+
+	private static String toString(IList symbols) {
+		StringBuilder b = new StringBuilder();
+		
+		b.append(toString((IConstructor) symbols.get(0)));
+		for (int i = 1; i < symbols.length(); i++) {
+			b.append(',');
+			b.append(toString((IConstructor) symbols.get(i)));
+		}
+		
+		return b.toString();
+	}
+	
+	public static boolean isCons(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Cons;
+	}
+	
+	public static boolean isFunc(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Func;
+	}
+
+	public static boolean isAlias(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Alias;
+	}
+
+	public static boolean isADT(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Adt;
+	}
+
+	public static boolean isReifiedType(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_ReifiedType;
+	}
+
+	public static boolean isBag(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Bag;
+	}
+
+	public static boolean isList(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_List;
+	}
+
+	public static boolean isSet(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Set;
+	}
+
+	public static boolean isTuple(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Tuple;
+	}
+
+	public static boolean isRel(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Rel;
+	}
+
+	public static boolean isMap(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Map;
+	}
+
+	public static boolean isDatetime(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Datetime;
+	}
+
+	public static boolean isNum(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Num;
+	}
+
+	public static boolean isVoid(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Void;
+	}
+
+	public static boolean isValue(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Value;
+	}
+
+	public static boolean isNode(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Node;
+	}
+
+	public static boolean isRat(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Rat;
+	}
+
+	public static boolean isBool(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Bool;
+	}
+
+	public static boolean isReal(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Real;
+	}
+
+	public static boolean isStr(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Str;
+	}
+
+	public static boolean isInt(IConstructor symbol) {
+		return symbol.getConstructorType() == Factory.Symbol_Int;
+	}
+
+	public static boolean isParameter(IConstructor symbol) {
 		return symbol.getConstructorType() == Factory.Symbol_Parameter;
 	}
 
@@ -347,7 +497,7 @@ public class SymbolAdapter {
 		return (IList) l.get("parameters");
 	}
 
-	private static boolean isCharClass(IConstructor r) {
+	public static boolean isCharClass(IConstructor r) {
 		return r.getConstructorType() == Factory.Symbol_CharClass;
 	}
 
@@ -355,7 +505,7 @@ public class SymbolAdapter {
 		return (IList) r.get("sequence");
 	}
 
-	private static boolean isEqual(ISet l, ISet r) {
+	public static boolean isEqual(ISet l, ISet r) {
 		if (l.size() != r.size()) {
 			return false;
 		}
@@ -377,11 +527,11 @@ public class SymbolAdapter {
 		return (ISet) r.get("alternatives");
 	}
 
-	private static boolean isAlt(IConstructor l) {
+	public static boolean isAlt(IConstructor l) {
 		return l.getConstructorType() == Factory.Symbol_Alt;
 	}
 
-	private static boolean isSeq(IConstructor l) {
+	public static boolean isSeq(IConstructor l) {
 		return l.getConstructorType() == Factory.Symbol_Seq;
 	}
 	
