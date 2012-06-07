@@ -134,7 +134,7 @@ public class IO {
 
 	private IValue computeType(ISourceLocation loc, IMap options, IEvaluatorContext ctx) {
 		IValue csvResult = this.read(null, loc, options, ctx);
-		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue()).get("symbol");
+		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
 	}
 
 	private List<Record> loadRecords(InputStream in) throws IOException {

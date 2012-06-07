@@ -110,11 +110,11 @@ public java &T readCSV(type[&T] result, loc location, map[str,str] options);
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java Symbol getCSVType(loc location);
+public java type[value] getCSVType(loc location);
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 @reflect{Uses URI Resolver Registry}
-public java Symbol getCSVType(loc location, map[str,str] options);
+public java type[value] getCSVType(loc location, map[str,str] options);
 
 @doc{
 Synopsis: Write a relation to a CSV (Comma Separated Values) file.
