@@ -203,6 +203,10 @@ public class IO {
 	
 	public IValue buildCollection(Type type, List<Record> records, IEvaluatorContext ctx) {
 		IWriter writer;
+		while (type.isAliasType()) {
+			type = type.getAliased();
+		}
+		
 		if (type.isListType()) {
 			writer = values.listWriter(type.getElementType());
 		}
