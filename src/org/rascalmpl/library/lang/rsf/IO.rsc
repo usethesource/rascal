@@ -8,8 +8,6 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rsf::IO
-import Type;
-
 
 @doc{Read an RSF file.
 
@@ -27,7 +25,7 @@ public java map[str, rel[str,str]] readRSF(str nameRSFFile);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 @reflect{Uses URI Resolver Registry}
-public java map[str, Symbol] getRSFTypes(loc location);
+public java map[str, type[value]] getRSFTypes(loc location);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 @reflect{Uses URI Resolver Registry}
