@@ -50,6 +50,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -129,9 +130,14 @@ public class StringTemplateConverter {
 			private void appendToString(IValue value, StringBuilder b) {
 				if (value.getType() == Factory.Tree) {
 					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
-				} else if (value.getType().isStringType()) {
+				}
+				else if (value.getType().isSubtypeOf(Factory.Type)) {
+					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol")));
+				}
+				else if (value.getType().isStringType()) {
 					b.append(((IString) value).getValue());
-				} else {
+				} 
+				else {
 					b.append(value.toString());
 				}
 			}

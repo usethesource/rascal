@@ -168,6 +168,10 @@ public class SymbolAdapter {
 	public static String toString(IConstructor symbol) {
 		// TODO: this does not do the proper escaping and such!!
 		
+		if (isLabel(symbol)) {
+			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
+		}
+		
 		if (isSort(symbol) || isLex(symbol) || isKeyword(symbol)) {
 			return getName(symbol);
 		}
@@ -255,9 +259,7 @@ public class SymbolAdapter {
 			return symbol.getName() + "[" + toString((IConstructor) symbol.get("key")) + "," + toString((IConstructor) symbol.get("value")) + "]";
 		}
 		
-		if (isLabel(symbol)) {
-			return toString((IConstructor) symbol.get("symbol")) + " " + ((IString) symbol.get("name")).getValue();
-		}
+		
 		
 		if (isADT(symbol) || isAlias(symbol)) {
 			StringBuilder b = new StringBuilder();
@@ -278,6 +280,7 @@ public class SymbolAdapter {
 			b.append("(");
 			b.append(toString((IList) symbol.get("parameters")));
 			b.append(")");
+			return b.toString();
 		}
 		
 		if (isCons(symbol)) {
