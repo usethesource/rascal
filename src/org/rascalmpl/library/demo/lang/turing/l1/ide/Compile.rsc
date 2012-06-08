@@ -5,7 +5,7 @@ import List;
 import demo::lang::turing::l1::ast::Turing;
 
 public void compile(Program prog, loc target) {
-	writeFile(target, compile(prog));
+	writeFile(target, compile(prog) + "\n");
 }
 
 public str compile(Program prog) 
