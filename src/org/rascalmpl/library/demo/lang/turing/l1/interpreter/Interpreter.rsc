@@ -3,7 +3,7 @@ module demo::lang::turing::l1::interpreter::Interpreter
 import List;
 import demo::lang::turing::l1::ast::Turing;
 
-private int tapeSize = 16;
+private int tapeSize = 32;
 
 alias Tape = list[bool];
 
@@ -12,12 +12,13 @@ alias TuringState = tuple[list[Statement] prog, int line, Tape tape, int pos];
 public TuringState interpreterStep(TuringState state) {
 	int oldLine = state.line;
 	state = state[line = state.line + 1];
+	bool currentState = state.tape[state.pos];
 	switch(state.prog[oldLine - 1]) { 
 		case jumpAlways(l) : state.line = l;
-		case jumpSet(l): if(state.tape[state.pos])  state.line = l;
-		case jumpUnset(l): if(!state.tape[state.pos]) state.line= l;
-		case writeSet(): state.tape[state.pos] = true;
-		case writeUnset(): state.tape[state.pos] = false;
+		case jumpSet(l): if(currentState)  state.line = l;
+		case jumpUnset(l): if(!currentState) state.line= l;
+		case writeSet(): if (currentState) throw "already set"; else state.tape[state.pos] = true;
+		case writeUnset(): if (!currentState) throw "already unset"; else state.tape[state.pos] = false;
 		case moveForward() : state.pos += 1;
 		case moveBackward(): state.pos -= 1;
 		default: throw "Unknown case";

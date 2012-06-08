@@ -5,6 +5,7 @@ import Integer;
 import vis::Render;
 import vis::Figure;
 import vis::KeySym;
+import util::Prompt;
 import demo::lang::turing::l1::ide::Compile;
 import demo::lang::turing::l1::ast::Turing;
 import demo::lang::turing::l1::interpreter::Interpreter;
@@ -33,6 +34,6 @@ public void visInterpreter(Program prog){
 				,button("go!",void () { if(!isFinished(state)) running = !running; }),slide],[ vresizable(false)]),progView,tape],
 			timer(TimerAction(TimerInfo info) { if((!hadChange || stopped(_) := info) && running){ hadChange = true; return restart((1000000/fps)/1000); } 
 												else { return noChange();}},
-				void() { state = interpreterStep(state); if(isFinished(state)) running =false; }));
+				void() { try {state = interpreterStep(state); if(isFinished(state)) running =false; } catch str e: {running=false; alert(e);} }));
 	render(view);
 }
