@@ -256,7 +256,9 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {\begin-of-line()}) :
         return "^<symbol2rascal(s)>";
     case conditional(s, {\end-of-line()}) :
-        return "<symbol2rascal(s)>$";    
+        return "<symbol2rascal(s)>$";
+    case conditional(s, {\except(str x)}) :
+        return "<symbol2rascal(s)>!<x>";
     case conditional(s, {}): {
         println("WARNING: empty conditional <sym>");
         return symbol2rascal(s);
