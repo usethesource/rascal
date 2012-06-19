@@ -3,13 +3,13 @@ module demo::lang::Pico::UseDef
 import Prelude;
 import demo::lang::Pico::Abstract;
 
-public rel[PicoId, EXP] uses(PROGRAM P) {
-  rel[PicoId, EXP] r = {};
-  top-down-break visit(P.stats){
-      case EXP Exp: r += {<Id, Exp> | /PicoId Id <- Exp};
+public set[Occurrence[PicoId]] uses(PROGRAM P) {       /*1*/
+  set[Occurrence[PicoId]] r = {};                      /*2*/
+  visit(P.stats){                                      /*3*/
+      case u:id(PicoId Id): r += {< u@location, Id >}; /*4*/
   }
-  return r;
+  return r;                                            /*5*/
 }
   
-public rel[PicoId, STATEMENT] defs(PROGRAM P) =
-  { < Id, Stat > | /Stat: asgStat(PicoId Id, EXP Exp) <- P.stats};
+public set[Occurrence[PicoId]] defs(PROGRAM P) =                     /*6*/
+  { < Exp@location, Id > | /asgStat(PicoId Id, EXP Exp) <- P.stats}; /*7*/

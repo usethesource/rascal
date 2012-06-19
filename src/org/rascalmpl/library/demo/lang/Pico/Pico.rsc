@@ -2,7 +2,6 @@ module demo::lang::Pico::Pico
 
 import Prelude;
 import util::IDE;
-import util::ValueUI;
 
 import vis::Figure;
 import vis::Render;
@@ -12,6 +11,9 @@ import demo::lang::Pico::Syntax;
 import demo::lang::Pico::Typecheck;
 import demo::lang::Pico::Eval;
 import demo::lang::Pico::Compile;
+import demo::lang::Pico::ControlFlow;
+import demo::lang::Pico::Uninit;
+import demo::lang::Pico::Visualize;
 
 
 private str Pico_NAME = "Pico";
@@ -28,13 +30,10 @@ public Program checkPicoProgram(Program x) {
 	p = implode(#PROGRAM, x);
 	env = checkProgram(p);
 	errors = { error(s, l) | <l, s> <- env.errors };
-	return x[@messages = errors];
-}
-
-public Program uninitPicoProgram(Program x) {
-	p = implode(#PROGRAM, x);
-	list[Occurrence] ids = uninitProgram(p);
-	warnings = { warning("Variable <v> is not initialized", l) | <str v, loc l> <- ids };
+	if(!isEmpty(errors))
+		return x[@messages = errors];
+    ids = uninitProgram(p);
+	warnings = { warning("Variable <v> maybe initialized", l) | <loc l, str v> <- ids };
 	return x[@messages = warnings];
 }
 
@@ -55,17 +54,12 @@ public void evalPicoProgram(Program x, loc selection) {
 
 // Visualize control flow graph
 
-Figure visCP(exp(Exp e)) = box(
-
 public void visualizePicoProgram(Program x, loc selection) {
 	m = implode(#PROGRAM, x); 
 	CFG = cflowProgram(m);
-	nodes = [box(text("<cp>"), id("<cp>"), size(20)) | /CP cp <- CFG];
-	edges = [edge("<cp1>", "<cp2>") |  <cp1, cp2> <- CFG.graph];
-	render(graph(nodes, edges, hint("layered"), gap(30)));
+	render(visCFG(CFG.graph));
 }
-
-
+	
 // Contributions to IDE
 
 public set[Contribution] Pico_CONTRIBS = {
@@ -82,8 +76,7 @@ public set[Contribution] Pico_CONTRIBS = {
 
 public void registerPico() {
   registerLanguage(Pico_NAME, Pico_EXT, parser);
- // registerAnnotator(Pico_NAME, checkPicoProgram);
-  registerAnnotator(Pico_NAME, uninitPicoProgram);
+  registerAnnotator(Pico_NAME, checkPicoProgram);
   
   registerContributions(Pico_NAME, Pico_CONTRIBS);
 }   
