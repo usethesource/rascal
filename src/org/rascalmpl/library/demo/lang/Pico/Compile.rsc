@@ -5,17 +5,17 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Assembly;
 import demo::lang::Pico::Load;
 
-alias Instrs = list[Instr];
+alias Instrs = list[Instr];                       /*1*/
 
 // compile Expressions.
 
-Instrs compileExp(natCon(int N)) = [pushNat(N)];
+Instrs compileExp(natCon(int N)) = [pushNat(N)];  /*2*/
 
 Instrs compileExp(strCon(str S)) = [pushStr(substring(S,1,size(S)-1))];
 
 Instrs compileExp(id(PicoId Id)) = [rvalue(Id)];
 
-public Instrs compileExp(add(EXP E1, EXP E2)) =
+public Instrs compileExp(add(EXP E1, EXP E2)) =    /*3*/
   [*compileExp(E1), *compileExp(E2), add2()];
 
 Instrs compileExp(sub(EXP E1, EXP E2)) =
@@ -26,7 +26,7 @@ Instrs compileExp(conc(EXP E1, EXP E2)) =
   
 // Unique label generation
 
-private int nLabel = 0;
+private int nLabel = 0;                            /*4*/
 
 private str nextLabel() {
   nLabel += 1;
@@ -38,49 +38,41 @@ private str nextLabel() {
 Instrs compileStat(asgStat(PicoId Id, EXP Exp)) =
 	[lvalue(Id), *compileExp(Exp), assign()];
 	
-Instrs compileStat(ifElseStat(EXP Exp, 
+Instrs compileStat(ifElseStat(EXP Exp,              /*5*/
                               list[STATEMENT] Stats1,
                               list[STATEMENT] Stats2)){
-  nextLab = nextLabel();  
-  falseLab = nextLabel();
+  
+  elseLab = nextLabel();
+  endLab = nextLabel();  
   return [*compileExp(Exp), 
-          gofalse(falseLab), 
+          gofalse(elseLab), 
           *compileStats(Stats1),  
-          go(nextLab), 
-          label(falseLab), 
+          go(endLab), 
+          label(elseLab), 
           *compileStats(Stats2), 
-          label(nextLab)];
-}
-
-Instrs compileStat(ifThenStat(EXP Exp, 
-                              list[STATEMENT] Stats1)){
-  falseLab = nextLabel();
-  return [*compileExp(Exp), 
-          gofalse(falseLab), 
-          *compileStats(Stats1),   
-          label(falseLab)];
+          label(endLab)];
 }
 
 Instrs compileStat(whileStat(EXP Exp, 
                              list[STATEMENT] Stats1)) {
   entryLab = nextLabel();
-  nextLab = nextLabel();
+  eendLab = nextLabel();
   return [label(entryLab), 
           *compileExp(Exp), 
-          gofalse(nextLab), 
+          gofalse(endLab), 
           *compileStats(Stats1), 
           go(entryLab), 
-          label(nextLab)];
+          label(endLab)];
 }
 
 // Compile a list of statements
-Instrs compileStats(list[STATEMENT] Stats1) =
+Instrs compileStats(list[STATEMENT] Stats1) =      /*6*/
   [ *compileStat(S) | S <- Stats1 ];
   
 // Compile declarations
 
 Instrs compileDecls(list[DECL] Decls) =
-  [ ((tp == natural()) ? dclNat(Id) : dclStr(Id))  |       
+  [ ((tp == natural()) ? dclNat(Id) : dclStr(Id))  |  /*7*/     
     decl(PicoId Id, TYPE tp) <- Decls
   ];
 

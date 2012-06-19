@@ -30,7 +30,6 @@ syntax Type
 syntax Statement 
    = asgStat: Id var ":="  Expression val 
    | ifElseStat: "if" Expression cond "then" {Statement ";"}*  thenPart "else" {Statement ";"}* elsePart "fi"
-   | ifThenStat: "if" Expression cond "then" {Statement ";"}*  thenPart "fi"
    | whileStat: "while" Expression cond "do" {Statement ";"}* body "od"
   ;  
      

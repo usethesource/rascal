@@ -7,16 +7,12 @@ import demo::lang::Pico::Load;
 import demo::lang::Pico::UseDef;
 import demo::lang::Pico::ControlFlow;
 
-public alias Occurrence = tuple[str id, loc where];
-
-public set[Occurrence] uninit(PROGRAM P) {
-   U = uses(P);
+public set[Occurrence[PicoId]] uninitProgram(PROGRAM P) {
    D = defs(P);
    CFG = cflowProgram(P);
-   root = CFG.entry;
-   pred = CFG.graph;
-   //println("U = <U>,\n D = <D>,\n CFG = <CFG>,\n root = <root>,\n pred = <pred>");
-   return {<Id, E@location> | <PicoId Id, EXP E> <- U, exp(E) in reachX(pred, root, {stat(S) | S <- D[Id]}) };
+   return { occ | occ <- uses(P), 
+                  any(CFNode N <- reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item})), N has location && occ.location <= N.location)
+          };
 }
 
-public set[Occurrence] uninitProgram(str txt) = uninit(load(txt)); 
+public set[Occurrence[PicoId]] uninitProgram(str txt) = uninitProgram(load(txt)); 
