@@ -107,7 +107,7 @@ public Result eval(List([Atom("define"), var, exp]), Env e){
                                                              <img src="/Courses/images/8.png">
 public Result eval(List([Atom("lambda"), List(vars*), exp]), Env defEnv) =
   &lt;Closure(Result(list[Lval] args, Env callEnv) { return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));}),
-   e>;
+   defEnv>;
 
 public default Result eval(List([ exps* ]), Env e) {         <img src="/Courses/images/9.png">
   if(isEmpty(exps))
@@ -190,11 +190,9 @@ ok
 ok
 <span class="prompt">rascal></span>eval(Integer(5));
 Lval: Integer(5)
-<span class="prompt">rascal></span>eval(Atom("x"));
+<span class="prompt">rascal></span>eval(Atom(&quot;x&quot;));
 Lval: Atom("x")
-<span class="prompt">rascal></span>eval(List([Atom("+"), Integer(5), Integer(7)]));
-apply: Atom("+"), [Integer(5),Integer(7)]
-env = [()]
+<span class="prompt">rascal></span>eval(List([Atom(&quot;+&quot;), Integer(5), Integer(7)]));
 Lval: Integer(12)
 </pre>
 </div>

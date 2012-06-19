@@ -112,12 +112,12 @@ syntax start[Exp] = Whitespace Exp top Whitespace;
  <pre class="screen"><span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
 <span class="prompt">rascal></span>import demo::lang::Exp::Concrete::WithLayout::Eval;
-debug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classdebug:expanding parameterized symbolsdebug:generating stubs for regulardebug:generating literalsdebug:establishing production setdebug:generating item allocationsdebug:computing priority and associativity filterdebug:printing the source code of the parser classok
-<span class="prompt">rascal></span>eval("2 +  3");
+ok
+<span class="prompt">rascal></span>eval(&quot;2 +  3&quot;);
 int: 5
-<span class="prompt">rascal></span>eval("2   +  3*4");
+<span class="prompt">rascal></span>eval(&quot;2   +  3*4&quot;);
 int: 14
-<span class="prompt">rascal></span>eval("( 2+3 )* 4");
+<span class="prompt">rascal></span>eval(&quot;( 2+3 )* 4&quot;);
 int: 20
 </pre>
 </div>

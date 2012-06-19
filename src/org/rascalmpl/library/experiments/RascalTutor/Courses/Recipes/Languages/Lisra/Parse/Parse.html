@@ -98,11 +98,11 @@ public Lval build((LispExp)`( &lt;LispExp* lst> )`)  = List([build(le) | le &lt;
 ok
 <span class="prompt">rascal></span>import demo::lang::Lisra::Runtime;
 ok
-<span class="prompt">rascal></span>parse("1");
+<span class="prompt">rascal></span>parse(&quot;1&quot;);
 Lval: Integer(1)
-<span class="prompt">rascal></span>parse("x");
+<span class="prompt">rascal></span>parse(&quot;x&quot;);
 Lval: Atom("x")
-<span class="prompt">rascal></span>parse("(+ 5 7)");
+<span class="prompt">rascal></span>parse(&quot;(+ 5 7)&quot;);
 Lval: List([
     Atom("+"),
     Integer(5),
