@@ -158,7 +158,7 @@ that measures the inequality among values in a frequency distribution.
 
 The Gini coefficient is computed using Deaton's formula and returns a
 value between 0 (completely equal distribution) and
-1 (completely inequal distribution).
+1 (completely unequal distribution).
 
 Examples:
 <screen>

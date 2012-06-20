@@ -110,7 +110,7 @@ Description:
 * The `start` symbol (/*8*/) wraps any symbol to indicate that it is a start symbol of the grammar and
         may occur at the root of a parse tree.
 * `Symbol` defines non-terminals (/*9*/), terminals (/*10*/) and regular expressions (/*11*/).
-* The `Conditional` wrapper (/*12*/) adds conditions to the existance of an instance of a symbol.
+* The `Conditional` wrapper (/*12*/) adds conditions to the existence of an instance of a symbol.
 * A `Condition` (/*13*/) on a symbol gives rise to a disambiguation filter.
 }
 
@@ -201,7 +201,7 @@ construct ordered and un-ordered compositions, and associativity groups.
 The intended semantics are that 
   * 'choice' means unordered choice (defined in |Type|)
   * 'priority'  means ordered choice, where alternatives are tried from left to right,
-  * 'assoc'  means all alternatives are acceptible, but nested on the declared side
+  * 'assoc'  means all alternatives are acceptable, but nested on the declared side
   * 'others' means '...', which is substituted for a choice among the other definitions
   * 'reference' means a reference to another production rule which should be substituted there,
                 for extending priority chains and such.

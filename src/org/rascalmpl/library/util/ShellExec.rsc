@@ -82,7 +82,7 @@ public java void writeTo(PID processId, str msg);
 @doc{
 Synopsis: Process Identifiers (PID).
 
-Description: Process IDentifiers (PIDs) are used to indentify external processes.
+Description: Process IDentifiers (PIDs) are used to identify external processes.
 A PID is returned by [createProcess] and is required for any further interaction with the created process.
 }
 public alias PID = int;

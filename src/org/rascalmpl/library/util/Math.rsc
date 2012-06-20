@@ -56,7 +56,7 @@ i.e., the limit is exclusive.
 
 Examples:
 <screen>
-import Integer;
+import util::Math;
 arbInt();
 arbInt();
 arbInt();

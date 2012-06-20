@@ -331,7 +331,7 @@ public list[int] index(list[&T] lst) = upTill(size(lst));
 
 
 @doc{
-Synopsis: Index of first occurence of an element in a list.
+Synopsis: Index of first occurrence of an element in a list.
 
 Description:
 Return index of first occurrence of `elt` in `lst`, or `-1` if `elt` is not found.
@@ -650,7 +650,7 @@ Synopsis: Mix the elements of two lists.
 
 Description:
 Let n be the minimum of the length of the two lists `l` and `r`.
-`mix` returns a list in which the first `n` elements are taken alternatingly from the left and the right list,
+`mix` returns a list in which the first `n` elements are taken alternately from the left and the right list,
 followed by the remaining elements of the longest list.
 
 Examples:
@@ -727,7 +727,7 @@ public &T last(list[&T] lst) throws EmptyList {
 }
 
 @doc{
-Synopsis: Return index of last occurence of elt in lst, or -1 if elt is not found.
+Synopsis: Return index of last occurrence of elt in lst, or -1 if elt is not found.
 
 Description:
 Also see [$List/indexOf].

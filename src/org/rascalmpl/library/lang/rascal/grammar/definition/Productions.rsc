@@ -38,6 +38,7 @@ public Grammar syntax2grammar(set[SyntaxDefinition] defs) {
       case (SyntaxDefinition) `start syntax <Nonterminal n> = <Prod p>;` : {
         prods += prod(\start(sort("<n>")),[label("top", sort("<n>"))],{}); 
         prods += prod2prod(sort("<n>"), p);
+        starts += \start(sort("<n>"));
       }
       case (SyntaxDefinition) `syntax <Sym s> = <Prod p>;` : {
         prods += prod2prod(sym2symbol(s), p);

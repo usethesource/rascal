@@ -149,7 +149,7 @@ public &T iprintExp(&T v) {
 }
 
 @doc{
-Synopsis: Print an indented representation of a value follwed by a newline and returns the value as result.
+Synopsis: Print an indented representation of a value followed by a newline and returns the value as result.
 
 Description:
 See [$IO/iprintExp] for a version that does not add a newline.
@@ -394,7 +394,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 
 @doc{
-Synopsis: Read the contens of a file location and return it as a list of strings.
+Synopsis: Read the contents of a file location and return it as a list of strings.
 
 Description:
 Return the contents of a file location as a list of lines.
