@@ -1,6 +1,6 @@
-Name: CarthesianProduct
+Name: CartesianProduct
 
-Synopsis: Carthesian product of two relation values.
+Synopsis: Cartesian product of two relation values.
 
 Syntax:
 `$Exp_1$ * $Exp_2$`
@@ -15,7 +15,7 @@ Function:
 Details:
 
 Description:
-Returns a binary relation that is the Carthesian product of two sets.
+Returns a binary relation that is the [Cartesian product](http://en.wikipedia.org/wiki/Cartesian_product) of two sets.
 
 Examples:
 <screen>
