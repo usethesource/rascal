@@ -27,8 +27,8 @@ Most language concepts are described separately but some features we just mentio
 * Rascal programs consist of modules that are organized in packages.
 * Modules can import other modules.
 * The visibility of entities declared in modules can be controlled using public/private modifiers.
-* Datastructures may have annotations that can be explicitly used and modified.
-* There is an extensive library for builtin datatypes, input/output, fact extraction from Java source code, visualization, and more.
+* Data structures may have annotations that can be explicitly used and modified.
+* There is an extensive library for built-in datatypes, input/output, fact extraction from Java source code, visualization, and more.
 
 
 Here is a brief summary of the concepts to be discussed:

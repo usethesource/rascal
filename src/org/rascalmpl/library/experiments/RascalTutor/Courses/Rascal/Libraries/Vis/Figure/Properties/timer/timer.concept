@@ -21,9 +21,9 @@ data TimerInfo  = stopped(int timeSinceLast)
 		| running(int timeLeft);
 </screen>
 
-This indicates if the timer has stopped and the time since the last execution of the timer (in milliseconds, initialy 0) or if the timer is running and the time that is still left till the callback `cbb` will be executed.
+This indicates if the timer has stopped and the time since the last execution of the timer (in milliseconds, initially 0) or if the timer is running and the time that is still left till the callback `cbb` will be executed.
 
-The callcack `ti` must then return a `TimerAction` which indicates what action it want to undertake:
+The callback `ti` must then return a `TimerAction` which indicates what action it want to undertake:
 
 <screen>
 data TimerAction = restart(int delay)
@@ -59,7 +59,7 @@ render(e);
 Benefits:
 
 Pitfalls:
-Unfortunatly we cannot show an animated version of the figure above, try it out in rascal yourself.
+Unfortunately we cannot show an animated version of the figure above, try it out in rascal yourself.
 
 Questions:
 

@@ -34,7 +34,7 @@ Typical applications of Rascal are:
 
 All these cases involve a form of meta-programming: software programs (in a wide sense) are the objects-of-interest that are being analyzed, transformed or generated. The Rascal language is designed for meta-programming following the [EASY:EASY] paradigm. It can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.
 
-Since representation of information is central to the approach, Rascal provides a rich set of built-in data types. To support extraction and analysis, parsing and advanced pattern matching are provided. High-level control structures make analysis and synthesis of complex datastructures simple.
+Since representation of information is central to the approach, Rascal provides a rich set of built-in data types. To support extraction and analysis, parsing and advanced pattern matching are provided. High-level control structures make analysis and synthesis of complex data structures simple.
 
 Benefits:
 * __Familiar syntax__ in a _what-you-see is-what-you-get_ style is used even for sophisticated concepts 
@@ -43,9 +43,9 @@ Benefits:
 * __Safety__ is achieved by finding most errors before the program is executed and by making common errors
    like missing initializations or invalid pointers impossible. 
 * __Local type inference__ makes local variable declarations redundant.
-* __Pattern matching__ can be used to analyze all complex datastructures.
+* __Pattern matching__ can be used to analyze all complex data structures.
 * __Syntax definitions__ make it possible to define new and existing languages and to write tools for them.
-* __Visiting__ makes it easy to traverse datastructures and to extract information from them or to synthesize results.
+* __Visiting__ makes it easy to traverse data structures and to extract information from them or to synthesize results.
 * __Templates__ enable easy code generation.
 * __Functions as values__ permit programming styles with high re-use.
 * __Generic types__ allow writing functions that are applicable for many different types.

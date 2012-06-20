@@ -14,7 +14,7 @@ Details:
 
 Description:
 Rigi Standard Format (RSF) is a textual format to represent binary relations and is 
-used to exchange relaional facts between different tools. 
+used to exchange relational facts between different tools. 
 
 An RSF file consists of triples of the form
 <listing>

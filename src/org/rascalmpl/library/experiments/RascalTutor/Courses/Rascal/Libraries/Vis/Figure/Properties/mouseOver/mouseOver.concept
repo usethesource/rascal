@@ -29,7 +29,7 @@ render(box(stairs(10),grow(1.2),bottom(),center()));
 Benefits:
 
 Pitfalls:
-Unfortunatly we cannot show an interactive version here. Try it out in Rascal yourself.
+Unfortunately we cannot show an interactive version here. Try it out in Rascal yourself.
 
 Questions:
 

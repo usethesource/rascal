@@ -58,11 +58,11 @@
 
                            
 <div id="Description">
-<span class="sectionHead">Description</span>  This property allows you to install a handler for keypresses. When the mouse is over the figure (i.e. the figure has focus) and a key is pressed then the callback <code>cb</code> will be called. This callback takes two arguments
+<span class="sectionHead">Description</span>  This property allows you to install a handler for key presses. When the mouse is over the figure (i.e. the figure has focus) and a key is pressed then the callback <code>cb</code> will be called. This callback takes two arguments
   <ul><li> <code>KeySym key</code> the key that is pressed, described by a <a href="/Courses/Rascal/Libraries/Vis/Figure/Properties/KeySym/KeySym.html">KeySym</a>.</li>
 <li> <code>map[KeyModifier,bool]</code> a map that indicates which modifier keys (Control, Alt, Super) are currently held down. Modifier keys are described by <a href="/Courses/Rascal/Libraries/Vis/Figure/KeyModifier/KeyModifier.html">KeyModifier</a>.<br/>
 <br/>
- The callback returns a <code>bool</code> which indicates if the event is captured. Keyhandlers are executed deepest-figure first, if the keypress is caputured then the keypress is not propagated further so figures below (less deep) than this figure will not recieve a keypress.
+ The callback returns a <code>bool</code> which indicates if the event is captured. Keyhandlers are executed deepest-figure first, if the key press is captured then the key press is not propagated further so figures below (less deep) than this figure will not receive a key press.
 </li>
 </ul>
 </div>
@@ -94,7 +94,7 @@ render(b2);
   	                       
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  Unfortunatly we cannot show an interactive version here, try it out in Rascal yourself.
+<span class="sectionHead">Pitfalls</span>  Unfortunately we cannot show an interactive version here, try it out in Rascal yourself.
 
 </div>
 

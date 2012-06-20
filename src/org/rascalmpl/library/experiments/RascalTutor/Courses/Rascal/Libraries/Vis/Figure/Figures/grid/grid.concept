@@ -48,7 +48,7 @@ gives:
 
 ![grid2](grid2.png)
 
-If a row or column contains only unresizable elements then the entire row or collumn will not be resized. For example:
+If a row or column contains only non-resizable elements then the entire row or column will not be resized. For example:
 <figure grid3.png>
 row1 = [ box(fillColor("Red"),hresizable(false), hsize(15),left()),
          ellipse(fillColor("Blue")),
@@ -66,7 +66,7 @@ Gives
 
 ![grid3](grid3.png)
 
-If the total [hshrink] in a row is more than 1.0 or if the total [hshrink] of a row is 1.0 but there are elements in row which do not specify a hshrink but do need space. Then we cannot meet the constraints and the grid will show a `Grid overconstrained message`. The same holds for [vshrink].
+If the total [hshrink] in a row is more than 1.0 or if the total [hshrink] of a row is 1.0 but there are elements in row which do not specify a hshrink but do need space. Then we cannot meet the constraints and the grid will show a `Grid over-constrained message`. The same holds for [vshrink].
 
 For example:
 <figure grid4.png 400x150>
@@ -100,7 +100,7 @@ Gives
 
 ![grid5](grid5.png)
 
-Altenatively we can use [hgap] and [vgap] to specify the gap in pixels, instead of relative to the size of the elements. 
+Alternatively we can use [hgap] and [vgap] to specify the gap in pixels, instead of relative to the size of the elements. 
 
 For example:
 <figure grid6.png>

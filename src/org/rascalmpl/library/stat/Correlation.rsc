@@ -36,7 +36,7 @@ Compute [Spearman's rank correlation coefficient](http://en.wikipedia.org/wiki/S
 The correlation between the data values is computed by first performing a rank transformation
 on the data values using a natural ranking and then computing [PearsonsCorrelation].
 
-Pitfalls: Spearman's correlation can only be applied when there is a __monotonous dependence__ bewteen the two variables.
+Pitfalls: Spearman's correlation can only be applied when there is a __monotonous dependence__ between the two variables.
 Use [PearsonsCorrelation] when there is a __linear dependence__ between the variables.
 }
 @javaClass{org.rascalmpl.library.stat.Correlations}

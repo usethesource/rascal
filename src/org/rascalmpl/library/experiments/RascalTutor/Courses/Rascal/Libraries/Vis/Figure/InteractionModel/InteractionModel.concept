@@ -45,7 +45,7 @@ Benefits:
 
 Pitfalls:
 * Interactive applications highly depend on dynamically changing property values. 
-  They frequently use the possibiliy to use a function, rather than a value for properties.
+  They frequently use the possibility to use a function, rather than a value for properties.
   For instance, instead of using `size(10)` one may use `size(int(){ return n;}`, where `n`
   is a variable in the scope of the function that created the figure.
 * Unfortunately we cannot show an interactive version of the above example here.

@@ -1,6 +1,6 @@
 Name: KeySym
 
-Synopsis: Dadatype describing a key on the keyboard.
+Synopsis: Datatype describing a key on the keyboard.
 
 Syntax: `import vis::KeySym;`
 
@@ -83,7 +83,7 @@ Function:
 Details:
 
 Description:
-A datatype describing a key on the keyboard. Any key that is printable is represented by `keyPrintable(str key)`, for example 'a' is described by `keyPrintable("a")`. Unkown keys are described by `keyUnkown(int keyCode)` where `keyCode` is their keycode.
+A datatype describing a key on the keyboard. Any key that is printable is represented by `keyPrintable(str key)`, for example 'a' is described by `keyPrintable("a")`. Unknown keys are described by `keyUnkown(int keyCode)` where `keyCode` is their key code.
 
 Examples:
 

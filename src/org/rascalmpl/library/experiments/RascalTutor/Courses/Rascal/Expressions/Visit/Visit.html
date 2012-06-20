@@ -100,7 +100,7 @@ default: ...
 <li> <code>outermost</code>: repeat a top-down traversal as long as the traversal changes the resulting value (compute a fixed-point).</li>
 </ul> The execution of the cases has the following effect:
   <ul><li> A PatternWithAction of the form <code><i>Pattern</i> => <i>Exp</i></code> replaces the current subtree of the subject by the value of <code><i>Exp</i></code>.  Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
- As a consequence, modifcations made during the visit cannot influence matches later on.
+ As a consequence, modifications made during the visit cannot influence matches later on.
  The modified copy of the subject is ultimately returned by the visit expression.
 </li>
 <li> A PatternWithAction of the form <code><i>Pattern</i> : <i>Statement</i></code> executes <code>Statement</code> and this should lead to one of the following: <ul><li> Execution of an Insert statement of the form <code>insert <i>Exp</i><sub>2</sub></code>. The value of <code><i>Exp</i><sub>2</sub></code> replaces the subtree of the subject that is currently being visited. 

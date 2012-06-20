@@ -82,7 +82,7 @@ The $Modifiers$ affect _visibility_ and _special behaviour_ of functions:
 * _ Special Behaviour_:
   * `java` declares that the body of the function is implemented in Java. The function should have a
     `javaClass` annotation that determines where the Java implementation can be found.
-  * `test` declares that this is a test function. A test function is a boolean function (currently) withou arguments. 
+  * `test` declares that this is a test function. A test function is a boolean function (currently) without arguments. 
     It can be called as any other function. However, it can also be called automatically
     by the unit test framework, by typing `:test` at the command line, see [Help].
   * `default` declares an alternative for an overloaded function that will only be tried after all non-default alternatives have been tried. Note that [AlgebraicDataType]s and [SyntaxDefinition]s _implicitly_ define `default` functions that may be overloaded by normal [Function]s.
@@ -98,7 +98,7 @@ rel[int, int] invert(rel[int,int] R){
 invert({<1,10>, <2,20>});
 </screen>
 
-In the following example we illustrate the use of type vriables in function declarations.
+In the following example we illustrate the use of type variables in function declarations.
 Declare an inversion function that is applicable to any binary relation:
 <screen>
 rel[&T2, &T1] invert2(rel[&T1,&T2] R){  

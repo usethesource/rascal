@@ -43,7 +43,7 @@ Inside a quoted pattern arbitrary lexical tokens may occur. Quoted patterns may 
 <listing>
 ($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
 </listing>
-is a quoted pattern that is preceeded by a nonterminal symbol to define its desired syntactic type.
+is a quoted pattern that is preceded by a nonterminal symbol to define its desired syntactic type.
 
 * A _typed variable pattern_
 <listing>

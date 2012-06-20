@@ -27,7 +27,7 @@ render(box(hcat(boxes,shrink(0.9)),std(lineColor("blue")), std(fillColor("grey")
 </figure>
 ![s1](s1.png)
 
-If a figure does not specifiy a certain property then the standard will be used.
+If a figure does not specify a certain property, then the standard will be used.
 
 Benefits:
 

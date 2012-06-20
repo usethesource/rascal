@@ -161,7 +161,7 @@ Synopsis: Measure and report the execution time of name:void-closure pairs
 Description:
 
 Given is a map that maps strings (used as label to identify each case) to void-closures that execute the code to be benchmarked.
-An optionl `duration` argument can be used to specify the function to perform the actual measurement. By default the function [realTime] is used. A map of labels and durantions is returned.
+An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function [realTime] is used. A map of labels and durations is returned.
 
 Examples:
 We use the factorial function described in [Recipes:Factorial] as example:

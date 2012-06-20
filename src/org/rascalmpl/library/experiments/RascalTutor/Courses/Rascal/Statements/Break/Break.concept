@@ -24,7 +24,7 @@ Here is an example using break to find the first number divisible by 3:
 import IO;
 for(int i <- [1 .. 10]){
     if(i % 3 == 0){
-       println("i = <i> is divible by 3");
+       println("i = <i> is divisible by 3");
        break;
     }
 }

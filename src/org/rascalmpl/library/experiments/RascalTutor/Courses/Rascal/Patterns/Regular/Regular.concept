@@ -27,7 +27,7 @@ This can be used to define so-called _non-linear_ patterns.
 
 * Java regular expressions allow optional groups, which may introduce null bindings. Since uninitialized variables are not allowed in Rascal, we limit the kinds of expressions one can write here by not allowing nesting of variable introductions.
 
-* We allow variable references in a regular expression of the form: `<$Name$>` which inserts the string value of $Name$ in the pattern. $Name$ should have been introduced in the regular experession itself or in the context in which the regular expression occurs.
+* We allow variable references in a regular expression of the form: `<$Name$>` which inserts the string value of $Name$ in the pattern. $Name$ should have been introduced in the regular expression itself or in the context in which the regular expression occurs.
 
 * In Perl matching options _follow_ the regular expression, but Java uses the notation `(?Option)` 
 at the _beginning_ of the regular expression to set matching options. We support both styles. 
@@ -38,7 +38,7 @@ When this option is set they also match any begin or end of line that is embedde
 
 **_case-insensitive matching_: `(?i)` or modifier `i`. Match characters irrespective of their case.
 
-**_single-line mode_: `(?s)` or modifer `s`. The `.` expression does usually not match line terminators. When single-line mode is set, it will match any character including line terminators.
+**_single-line mode_: `(?s)` or modifier `s`. The `.` expression does usually not match line terminators. When single-line mode is set, it will match any character including line terminators.
 
 **_unix lines_: `(?d)` or modifier `d`. Usually newlines (`\n`), carriage return (`\r`) and new line carriage return (`\n\r`) sequences are all considered line terminators. When this option is set, only newline is considered to be a line terminator.
 

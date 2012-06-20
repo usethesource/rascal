@@ -113,6 +113,7 @@ data Condition
      | \at-column(int column) 
      | \begin-of-line()  
      | \end-of-line()  
+     | \except(str label)
      ;
 </pre>
 </div>
@@ -138,7 +139,7 @@ data Condition
 <li> The <code>start</code> symbol (<img src="/Courses/images/8.png">) wraps any symbol to indicate that it is a start symbol of the grammar and         may occur at the root of a parse tree.
 </li>
 <li> <code>Symbol</code> defines non-terminals (<img src="/Courses/images/9.png">), terminals (<img src="/Courses/images/10.png">) and regular expressions (<img src="/Courses/images/11.png">).</li>
-<li> The <code>Conditional</code> wrapper (<img src="/Courses/images/12.png">) adds conditions to the existance of an instance of a symbol.</li>
+<li> The <code>Conditional</code> wrapper (<img src="/Courses/images/12.png">) adds conditions to the existence of an instance of a symbol.</li>
 <li> A <code>Condition</code> (<img src="/Courses/images/13.png">) on a symbol gives rise to a disambiguation filter.</li>
 </ul>
 </div>

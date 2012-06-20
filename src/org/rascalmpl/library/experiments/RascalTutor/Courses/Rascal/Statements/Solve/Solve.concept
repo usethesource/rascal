@@ -22,7 +22,7 @@ Statement can use and modify the listed variables $Var_i$.
 The statement is executed, assigning new values to the variables $Var_i$, and this is repeated as long as the value 
 of any of the variables was changed compared to the previous repetition. 
 Note that this computation will only terminate if the variables range over a so-called _bounded monotonic lattice_,
-in which values can only become larger until a fixed upperbound or become smaller until a fixed lower bound.
+in which values can only become larger until a fixed upper bound or become smaller until a fixed lower bound.
 
 Examples:
 Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
@@ -30,7 +30,7 @@ we use it here just as a simple illustration). Transitive closure of a relation 
 <listing>
 R+ = R + (R o R) + (R o R o R) + ...
 </listing>
-In other words, it is the union of succesive [Composition]s of the relation `R` with itself. 
+In other words, it is the union of successive [Composition]s of the relation `R` with itself. 
 Fo a given relation `R` this can be expressed as follows:
 <screen>
 rel[int,int] R = {<1,2>, <2,3>, <3,4>};

@@ -11,7 +11,7 @@ Function:
 Details:
 
 Description:
-Determines the positions of shadows. The shadow postion can also be set for separate dimensions by hshadowPos and vshadowPos.
+Determines the positions of shadows. The shadow position can also be set for separate dimensions by hshadowPos and vshadowPos.
 
 Note that:
 * `shadowPos(n)` is equivalent to `shadowPos(n, n)`.

@@ -17,7 +17,7 @@ Function:
 Details:
 
 Description:
-Yields `true` if the value of $Exp_1$ is numerically greather than or equal to the value of $Exp_2$, and `false` otherwise.
+Yields `true` if the value of $Exp_1$ is numerically greater than or equal to the value of $Exp_2$, and `false` otherwise.
 
 Examples:
 <screen>

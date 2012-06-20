@@ -59,9 +59,9 @@
                            
 <div id="Description">
 <span class="sectionHead">Description</span>  <code>onMouseDown</code> has a single argument: a callback <code>cb</code> that gets two arguments:
-  <ul><li> an <code>int</code> indicating the mousebutton, 1 indicates left mouse button, 2 the middle and 3 the right. Higher numbers are used for mice with more buttons.</li>
+  <ul><li> an <code>int</code> indicating the mouse button, 1 indicates left mouse button, 2 the middle and 3 the right. Higher numbers are used for mice with more buttons.</li>
 <li>an <code>map[KeyModifier,bool]</code> indicating which keyboard modifiers are currently pressed. See <a href="/Courses/Rascal/Libraries/Vis/Figure/KeyModifier/KeyModifier.html">KeyModifier</a>.</li>
-</ul> The callback returns a <code>bool</code> which indicates if the event is captured. Mousehandlers are executed deepest-figure first, if the mouse press is caputured then the mouse press is not propagated further so figures below (less deep than) this figure will not recieve a mousepress.
+</ul> The callback returns a <code>bool</code> which indicates if the event is captured. Mouse handlers are executed deepest-figure first, if the mouse press is captured then the mouse press is not propagated further so figures below (less deep than) this figure will not receive a mouse press.
 
 </div>
 

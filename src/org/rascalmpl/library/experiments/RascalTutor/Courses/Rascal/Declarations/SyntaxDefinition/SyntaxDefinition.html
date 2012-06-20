@@ -79,7 +79,7 @@
  There are four kinds of non-terminals that can be defined with slightly different characteristics.
   <ol><li> <i>Syntax</i> non-terminals are general context-free non-terminals. This mean left-recursion, right-recursion, any of the regular expression <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s and all kinds of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> can be used to define it. It is important to note that in between the <code><i>Symbols</i></code> that define a syntax non-terminal the locally defined layout non-terminal will be interleaved. For example, if you define <code>layout ML = [\ ]*;</code> and <code>syntax A = "a" "a"</code>, Rascal will <i>modify</i> the definition of A to <code>syntax A = "a" ML "a";</code> before generating a parser.</li>
 <li> <i>Lexical</i> non-terminals are just like <i>syntax</i> non-terminals, very much like <i>syntax</i> non-terminals. However, the definition of a lexical is <i>not</i> modified with interleaved layout non-terminals. And, the structure of lexicals is not traversed by the <a href="/Courses/Rascal/Expressions/Visit/Visit.html">Visit</a> statement and equality is checked between lexicals by checking the characters (not its structure) for equality. </li>
-<li> <i>Layout</i> non-terminals are just like <i>syntax</i> non-terminals as well. However, they are used to preprocess all <i>syntax</i> definitons in the same module scope (see above).</li>
+<li> <i>Layout</i> non-terminals are just like <i>syntax</i> non-terminals as well. However, they are used to preprocess all <i>syntax</i> definitions in the same module scope (see above).</li>
 <li> <i>Keyword</i> non-terminals are <i>not</i> like <i>syntax</i> non-terminals. These only allow definition of enumeration of literal symbols and single character classes. Keyword non-terminals play an important role in the semantics of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Disambiguation/Disambiguation.html">Disambiguation</a> where some disambiguation constructs require finite, non-empty enumeration of strings. The prime example is the definition of reserved keywords.</li>
 </ol> Each alternative of a syntax definition is defined by a list of <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s. Each of the <a href="/Courses/Rascal/Declarations/SyntaxDefinition/Symbol/Symbol.html">Symbol</a>s can be labeled or not.
  The alternative of a defined syntax type may be labeled or not as well. With the label additional operations are activated on the corresponding parse trees:
@@ -113,7 +113,7 @@ layout MyLayout = [\t\n\ \r\f]*;
 // identifiers are characters of lowercase alphabet letters, 
 // not immediately preceded or followed by those (longest match)
 // and not any of the reserved keywords
-lexical Identifier = [a-z] !&lt;&lt; [a-z]+ !>> [a-z] \\ MyKeywords;
+lexical Identifier = [a-z] !&lt;&lt; [a-z]+ !>> [a-z] \ MyKeywords;
 
 // this defines the reserved keywords used in the definition of Identifier
 keyword MyKeywords = "if" | "then" | "else" | "fi";
@@ -134,7 +134,7 @@ syntax Expression
 
   	                       
 <div id="Benefits">
-<span class="sectionHead">Benefits</span>  <ul><li> modular and composable</li>
+<span class="sectionHead">Benefits</span>  <ul><li> modular and compositional</li>
 <li> no grammar normalization or grammar factoring necessary</li>
 <li> generate a parser for any context-free grammar</li>
 <li> generate parsers are really fast (for general parsers)</li>

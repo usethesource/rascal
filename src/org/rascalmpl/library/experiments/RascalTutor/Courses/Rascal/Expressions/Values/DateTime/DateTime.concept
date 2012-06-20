@@ -31,11 +31,11 @@ The following fields provide access to information about the value, but cannot b
 * `isDateTime`: returns `true` if the value is a datetime value, `false` if the value is a
   date or time value.
 * `justTime`: returns the date component of a date or datetime value.
-* `justDate`: retunrs the time component of a time or datetime value.
+* `justDate`: returns the time component of a time or datetime value.
 * `century`: returns the century component of a year for date or datetime values.
 
 
-The following fields provide access to the indvidual components of date, time and datetime values,
+The following fields provide access to the individual components of date, time and datetime values,
 and can be accessed using [DateTime/FieldSelection] and be assigned using [DateTime/FieldSelection]:
 * `year`
 * `month`

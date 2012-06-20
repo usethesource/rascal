@@ -47,7 +47,7 @@ All operators are summarized in the following table. They are listed from highes
 <tr><td>`$Exp_1$ * $Exp_2$`</td>	               <td>[Number/Multiplication],
                                                        [List/Product],
                                                        [Set/Product],
-                                                       [Relation/CarthesianProduct]</td> <td>Multiply numbers; product of list, set, or relation</td></tr>
+                                                       [Relation/CartesianProduct]</td> <td>Multiply numbers; product of list, set, or relation</td></tr>
 <tr><td>`$Exp_1$ & $Exp_2$`</td>                   <td>[List/Intersection],
                                                        [Set/Intersection],
                                                        [Map/Intersection]</td>           <td>Intersection of list, set (including relation), or map</td></tr>

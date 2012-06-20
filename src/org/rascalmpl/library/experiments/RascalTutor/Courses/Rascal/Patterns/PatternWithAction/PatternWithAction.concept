@@ -1,6 +1,6 @@
 Name: PatternWithAction
 
-Synopsis: A pattern with an associated action that is executed on a succesfull match.
+Synopsis: A pattern with an associated action that is executed on a successful match.
 
 Syntax:
 # `$Pattern$ => $Exp$`
@@ -32,7 +32,7 @@ the switch statement are tried.
 In [Visit] expressions, the form `$Pattern$ => $Exp$` describes subtree replacement: 
 the current subtree of the subject of the visit expression is replaced by the value of $Exp$. 
 The form `$Pattern$ : $Statement$` is as described for switch statements, with the addition that execution of an 
-[$Statements/Insert] statement will replace the current subtree. After both succes or failure of the PatternWithAction, 
+[$Statements/Insert] statement will replace the current subtree. After both success or failure of the PatternWithAction, 
 the traversal of the subject continues.
 
 Examples:

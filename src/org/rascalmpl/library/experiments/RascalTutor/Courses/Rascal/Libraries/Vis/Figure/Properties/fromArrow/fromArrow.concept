@@ -13,7 +13,7 @@ Details:
 
 Description:
 Add an arrow to the source of a [$Figures/graph] edge. 
-The arrow is an arbitrary figure `f` and its upper side wille be used as the
+The arrow is an arbitrary figure `f` and its upper side will be used as the
 point of the arrow. The figure is appropriately rotated depending on the orientation of the edge.
 
 An arrow to the destination of an edge is defined with [toArrow].

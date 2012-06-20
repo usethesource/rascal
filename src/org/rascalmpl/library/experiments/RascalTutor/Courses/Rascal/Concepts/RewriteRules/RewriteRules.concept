@@ -54,14 +54,14 @@ At /*2*/ a default for `simp` is given: if no other definition applies, the defa
 At /*3*/ the actual `simplify` function is given: it performs a bottom up visit of the expression, replacing each subexpression by
 a simplified version.
 
-See [Recipes:derivative] for a full explantion of this example.
+See [Recipes:derivative] for a full explanation of this example.
 
 Benefits:
 
 Pitfalls:
 Rascal does still have special syntax for rewrite rules, but this has been __deprecated__ in favour of pattern-directed invocation that can achieve the same, see [Function].
 
-The above example can be written ussing rule notation:
+The above example can be written using rule notation:
 
 <listing>
 rule simp1 product(con(1), Expression e) => e;

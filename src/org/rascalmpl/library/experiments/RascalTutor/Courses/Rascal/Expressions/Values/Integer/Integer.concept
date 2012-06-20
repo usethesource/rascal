@@ -8,7 +8,7 @@ sequence of digits of arbitrary length.
 Types:
 `int`
 
-Usage: `import Integer`; (__deprecated__ use `import util::Math`;)
+Usage: `import Integer`; (__deprecated__, use `import util::Math`;)
 
 Function:
 

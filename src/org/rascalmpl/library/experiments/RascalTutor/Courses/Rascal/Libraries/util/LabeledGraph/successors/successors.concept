@@ -1,6 +1,6 @@
 Name: successors
 
-Synopsis: Determine the set of direct succesors of a labeled graph node.
+Synopsis: Determine the set of direct successors of a labeled graph node.
 
 Usage:
 `import util::LabeledGraph;`

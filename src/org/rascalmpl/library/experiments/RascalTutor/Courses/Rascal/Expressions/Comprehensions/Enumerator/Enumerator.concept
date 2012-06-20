@@ -14,7 +14,7 @@ Details:
 Description:
 An enumerator generates all the values in a given subject value. 
 For elementary types (`bool`, `int`, `real`, `num`, `loc`, `datetime`, `str`) this is just a singleton.
-For compositie types (`list`, `set`, `map`, `tuple`, `rel`, `node`) the values of their elements, 
+For composite types (`list`, `set`, `map`, `tuple`, `rel`, `node`) the values of their elements, 
 respectively, their direct children are enumerated. An enumerator is evaluated as follows:
 
 * Expression $Exp$ is evaluated and may have an arbitrary value $V$.

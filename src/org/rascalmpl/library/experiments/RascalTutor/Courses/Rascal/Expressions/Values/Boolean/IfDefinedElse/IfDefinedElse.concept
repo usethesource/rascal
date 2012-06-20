@@ -28,7 +28,7 @@ T = ("a" : 1, "b" : 2);
 T["c"];
 // Using the `?` operator, we can write:
 T["c"] ? 0;
-// This is very usefull, if we want to modify the associated value, but are not sure whether it exists:
+// This is very useful, if we want to modify the associated value, but are not sure whether it exists:
 T["c"] ? 0 += 1;
 // Another example using a list:
 L = [10, 20, 30];

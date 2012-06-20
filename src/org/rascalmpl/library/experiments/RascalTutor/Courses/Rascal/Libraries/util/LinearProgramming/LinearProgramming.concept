@@ -81,7 +81,7 @@ alias VariableVals = map[str var, num val];
 data Solution = solution(VariableVals varVals, num funVal);
 </listing>
 
-where the assigns field contains all assignments of the variables, and funVal contains the value of the objective function at the minimimum or maximum.
+where the assigns field contains all assignments of the variables, and funVal contains the value of the objective function at the minimum or maximum.
 
 
 Examples:

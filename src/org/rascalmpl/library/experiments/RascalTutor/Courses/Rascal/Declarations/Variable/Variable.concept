@@ -62,7 +62,7 @@ month ="December";
 Benefits:
 
 Pitfalls:
-* Local type inference for variables always uses the smallest possibe scope for a variable; this implies that
+* Local type inference for variables always uses the smallest possible scope for a variable; this implies that
   a variable introduced in an inner scope is not available outside that scope. Here is how things can go wrong:
 
 <screen errors>

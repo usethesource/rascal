@@ -65,7 +65,7 @@ The execution of the cases has the following effect:
 
 * A PatternWithAction of the form `$Pattern$ => $Exp$` replaces the current subtree of the subject by the value of $Exp$. 
 Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
-As a consequence, modifcations made during the visit cannot influence matches later on.
+As a consequence, modifications made during the visit cannot influence matches later on.
 The modified copy of the subject is ultimately returned by the visit expression.
 
 * A PatternWithAction of the form `$Pattern$ : $Statement$` executes `Statement` and this should lead to one of the following:

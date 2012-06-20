@@ -32,7 +32,7 @@ Suppose we want to naively analyze a sentence and print the topic it is about:
 import IO;
 S = "Princess Leila sipped from her rum punch";
 switch(S){
-  case /Leila/: println("The topic is Starwars");
+  case /Leila/: println("The topic is Star Wars");
   case /rum/:   println("The topic is Drunken man");
   case /punch/: println("The topic is Kick Boxing");
 }

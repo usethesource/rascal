@@ -1,6 +1,6 @@
 Name: Vis
 
-Synopsis: Functions for creating visualizations.
+Synopsis: Functions for creating visualisations.
 
 Syntax:
 
@@ -11,10 +11,10 @@ Function:
 Details:
 
 Description:
-The Rascal visualisation libraries provide a compositional visualization framework and
+The Rascal visualisation libraries provide a compositional visualisation framework and
 consists of:
 
-* The library [Figure] that defines the basic visualization infrastructure.
+* The library [Figure] that defines the basic visualisation infrastructure.
 * The library [$Vis/Render] that defines the rendering of figures to a screen or file.
 
 Examples:

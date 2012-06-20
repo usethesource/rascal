@@ -27,7 +27,7 @@ render(check());
 </figure>
 ![c1](c1.png)
 
-Check the checkbutton will change the variable `state` and this is reflected in the changed text.
+Checking the checkbox will change the variable `state` and this is reflected in the changed text.
 
 Benefits:
 

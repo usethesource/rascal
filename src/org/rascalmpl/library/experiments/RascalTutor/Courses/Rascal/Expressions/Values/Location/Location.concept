@@ -53,7 +53,7 @@ The elements of a location value can be accessed and modified using the standard
 
   **`host`: the host where the URI is hosted (part of authority), as a `str`
 
-  **`port`: port on host (part ofauthority), as a `int`
+  **`port`: port on host (part of authority), as a `int`
 
   **`path`: path name of file on host, as a `str`
 

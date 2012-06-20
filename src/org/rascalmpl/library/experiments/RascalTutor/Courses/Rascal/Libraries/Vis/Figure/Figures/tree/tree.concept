@@ -28,7 +28,7 @@ render(t1);
 </figure>
 ![tree 1](t1.png)
 
-The standard way of drawing trees is in _mahattan_-style: all connection between
+The standard way of drawing trees is in _manhattan_-style: all connection between
 tree nodes are horizontal or vertical. This style is controlled by the [manhattan] property:
 
 <figure t2.png>

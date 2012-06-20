@@ -72,7 +72,7 @@
  The statement is executed, assigning new values to the variables <code><i>Var</i><sub>i</sub></code>, and this is repeated as long as the value 
  of any of the variables was changed compared to the previous repetition. 
  Note that this computation will only terminate if the variables range over a so-called <i>bounded monotonic lattice</i>,
- in which values can only become larger until a fixed upperbound or become smaller until a fixed lower bound.
+ in which values can only become larger until a fixed upper bound or become smaller until a fixed lower bound.
 
 </div>
 
@@ -81,7 +81,7 @@
 <span class="sectionHead">Examples</span>  Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
  we use it here just as a simple illustration). Transitive closure of a relation is usually defined as:
  <pre class="listing">R+ = R + (R o R) + (R o R o R) + ...
-</pre> In other words, it is the union of succesive <a href="/Courses/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a>s of the relation <code>R</code> with itself. 
+</pre> In other words, it is the union of successive <a href="/Courses/Rascal/Expressions/Values/Relation/Composition/Composition.html">Composition</a>s of the relation <code>R</code> with itself. 
  Fo a given relation <code>R</code> this can be expressed as follows:
  <pre class="screen"><span class="prompt">rascal></span>rel[int,int] R = {&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;};
 rel[int, int]: {

@@ -189,7 +189,7 @@ Description:
 * The `start` symbol (<img src="/Courses/images/8.png">) wraps any symbol to indicate that it is a start symbol of the grammar and
         may occur at the root of a parse tree.
 * `Symbol` defines non-terminals (<img src="/Courses/images/9.png">), terminals (<img src="/Courses/images/10.png">) and regular expressions (<img src="/Courses/images/11.png">).
-* The `Conditional` wrapper (<img src="/Courses/images/12.png">) adds conditions to the existance of an instance of a symbol.
+* The `Conditional` wrapper (<img src="/Courses/images/12.png">) adds conditions to the existence of an instance of a symbol.
 * A `Condition` (<img src="/Courses/images/13.png">) on a symbol gives rise to a disambiguation filter.
 }
 
@@ -270,6 +270,7 @@ data Condition
      | \at-column(int column) 
      | \begin-of-line()  
      | \end-of-line()  
+     | \except(str label)
      ;
 
 @doc{
@@ -279,7 +280,7 @@ construct ordered and un-ordered compositions, and associativity groups.
 The intended semantics are that 
   * 'choice' means unordered choice (defined in |Type|)
   * 'priority'  means ordered choice, where alternatives are tried from left to right,
-  * 'assoc'  means all alternatives are acceptible, but nested on the declared side
+  * 'assoc'  means all alternatives are acceptable, but nested on the declared side
   * 'others' means '...', which is substituted for a choice among the other definitions
   * 'reference' means a reference to another production rule which should be substituted there,
                 for extending priority chains and such.

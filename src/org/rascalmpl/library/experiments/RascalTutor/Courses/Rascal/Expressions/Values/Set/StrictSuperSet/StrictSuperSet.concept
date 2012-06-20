@@ -15,7 +15,7 @@ Function:
 Details:
 
 Description:
-Yields `true` if the vaue of $Exp_1$ is a strict superset of the value of $Exp_2$, and `false` otherwise.
+Yields `true` if the value of $Exp_1$ is a strict superset of the value of $Exp_2$, and `false` otherwise.
 
 Examples:
 <screen>

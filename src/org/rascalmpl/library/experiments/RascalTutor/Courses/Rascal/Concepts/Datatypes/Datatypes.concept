@@ -32,13 +32,13 @@ Rascal provides a rich set of datatypes:
 
 There is a wealth of built-in operators and library functions available on the standard datatypes. 
 
-These builtin datatypes are closely related to each other:
+These built-in datatypes are closely related to each other:
 
 * In a list all elements have the same static type and the order of elements matters. A list may contain the same value more than once.
 * In a set all elements have the same static type and the order of elements does not matter.
   A set contains an element only once. In other words, duplicate elements are eliminated 
   and no matter how many times an element is added to a set, it will occur in it only once.
-* In a tuple alle elements (may) have a different static type. Each element of a tuple may have a label that can be used to select that  
+* In a tuple all elements (may) have a different static type. Each element of a tuple may have a label that can be used to select that  
   element of the tuple.
 * A relation is a set of tuples which all have the same static tuple type.
 * A map is an associative table of (key, value) pairs. Key and value (may) have different static 

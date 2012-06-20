@@ -117,7 +117,7 @@
 <li> <i> Special Behaviour</i>:</li>
 <li> <code>java</code> declares that the body of the function is implemented in Java. The function should have a     <code>javaClass</code> annotation that determines where the Java implementation can be found.
 </li>
-<li> <code>test</code> declares that this is a test function. A test function is a boolean function (currently) withou arguments.      It can be called as any other function. However, it can also be called automatically
+<li> <code>test</code> declares that this is a test function. A test function is a boolean function (currently) without arguments.      It can be called as any other function. However, it can also be called automatically
      by the unit test framework, by typing <code>:test</code> at the command line, see <a href="/Courses/Rascal/InstallingAndRunning/Running/Help/Help.html">Help</a>.
 </li>
 <li> <code>default</code> declares an alternative for an overloaded function that will only be tried after all non-default alternatives have been tried. Note that <a href="/Courses/Rascal/Declarations/AlgebraicDataType/AlgebraicDataType.html">AlgebraicDataType</a>s and <a href="/Courses/Rascal/Declarations/SyntaxDefinition/SyntaxDefinition.html">SyntaxDefinition</a>s <i>implicitly</i> define <code>default</code> functions that may be overloaded by normal <a href="/Courses/Rascal/Declarations/Function/Function.html">Function</a>s.</li>
@@ -137,7 +137,7 @@ rel[int, int]: {
   &lt;20,2>,
   &lt;10,1>
 }
-</pre> In the following example we illustrate the use of type vriables in function declarations.
+</pre> In the following example we illustrate the use of type variables in function declarations.
  Declare an inversion function that is applicable to any binary relation:
  <pre class="screen"><span class="prompt">rascal></span>rel[&amp;T2, &amp;T1] invert2(rel[&amp;T1,&amp;T2] R){  
 <span class="continuation">>>>>>>></span>   return {&lt;Y, X> | &lt;&amp;T1 X, &amp;T2 Y> &lt;- R };
