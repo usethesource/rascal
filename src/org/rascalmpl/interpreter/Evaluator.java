@@ -65,12 +65,8 @@ import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.debug.DebugStepMode;
-import org.rascalmpl.interpreter.debug.DebugSuspendMode;
-import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -1723,6 +1719,14 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	public void revertToDefaultWriters() {
 		this.curStderr = null;
 		this.curStdout = null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.IEvaluator#suspend(org.rascalmpl.ast.AbstractAST)
+	 */
+	@Override
+	public void suspend(AbstractAST currentAST) {
+		// emtpy, because {@link Evaluator) does not support debugging.
 	}
 	
 }

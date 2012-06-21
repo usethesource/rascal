@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -78,6 +79,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			Accumulator target = null;
 			if (__eval.__getAccumulators().empty()) {
 				throw new AppendWithoutLoop(this);
@@ -115,6 +118,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
@@ -144,6 +149,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
 
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
@@ -178,6 +185,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+
 			Result<IValue> right = this.getStatement().interpret(__eval);
 			return this.getAssignable().assignment(
 					new AssignableEvaluator(__eval.getCurrentEnvt(), this
@@ -195,12 +204,16 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
+			
 			if (getTarget().isEmpty()) {
 				throw new BreakException();
 			}
 			else {
 				throw new BreakException(Names.name(getTarget().getName()));
 			}
+			
 		}
 
 	}
@@ -213,6 +226,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
+
 			if (getTarget().isEmpty()) {
 				throw new ContinueException();
 			}
@@ -235,6 +251,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			org.rascalmpl.ast.Statement body = this.getBody();
 			org.rascalmpl.ast.Expression generator = this.getCondition();
 			IBooleanResult gen;
@@ -290,6 +308,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
@@ -306,6 +326,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			Environment old = __eval.getCurrentEnvt();
 
 			try {
@@ -328,6 +350,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			if (!this.getTarget().isEmpty()) {
 				throw new Failure(Names.name(this.getTarget().getName()));
 			}
@@ -345,7 +369,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 		
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
+
 			throw new Filtered();
+		
 		}
 
 	}
@@ -361,6 +389,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this
 					.getGenerators();
@@ -477,7 +507,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
+			
 			return this.getFunctionDeclaration().interpret(__eval);
+
 		}
 
 	}
@@ -507,7 +541,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
-
+			
+			suspend(__eval, this);
+			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this
 					.getConditions();
@@ -515,7 +551,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			IBooleanResult[] gens = new IBooleanResult[size];
 			Environment[] olds = new Environment[size];
 			Environment old = __eval.getCurrentEnvt();
-
+			
 			int i = 0;
 			try {
 				gens[0] = generators.get(0).getBacktracker(__eval);
@@ -580,6 +616,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this
 					.getConditions();
@@ -652,6 +690,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this
 					.getStatement().interpret(__eval));
 
@@ -670,6 +710,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
 					.nothing();
 			Environment old = __eval.getCurrentEnvt();
@@ -698,6 +740,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
 					.getStatement().interpret(__eval), this.getStatement()
 					.getLocation());
@@ -716,6 +760,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			int size = this.getVariables().size();
 			QualifiedName vars[] = new QualifiedName[size];
 			IValue currentValue[] = new IValue[size];
@@ -806,6 +852,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+			
+			suspend(__eval, this);
+			
 			Result<IValue> subject = this.getExpression().interpret(__eval);
 
 			for (CaseBlock cs : blocks) {
@@ -891,8 +940,12 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+			
+			suspend(__eval, this);
+
 			return org.rascalmpl.semantics.dynamic.Statement.Try.evalStatementTry(__eval, this.getBody(), this.getHandlers(),
 					this.getFinallyBody());
+		
 		}
 	}
 
@@ -906,6 +959,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
 
 			return this.getDeclaration().interpret(__eval);
 
@@ -923,6 +978,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			suspend(__eval, this);
+			
 			return this.getVisit().interpret(__eval);
 
 		}
@@ -939,6 +996,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
+
+			suspend(__eval, this);
 
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this
