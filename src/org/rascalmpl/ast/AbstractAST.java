@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.ast;
 
@@ -23,8 +24,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.debug.ISuspendable;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -34,7 +37,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public abstract class AbstractAST implements IVisitable {
+public abstract class AbstractAST implements ISuspendable, IVisitable {
 	protected ISourceLocation src;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
@@ -183,5 +186,21 @@ public abstract class AbstractAST implements IVisitable {
 		return buildBacktracker(ctx);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.ISuspendable#suspend(org.rascalmpl.interpreter.IEvaluator, org.rascalmpl.ast.AbstractAST)
+	 */
+	@Override
+	public void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
+
+		/**
+		 * TODO: not very clean measure to quickly re-enable debugging support.
+		 * {@link Evaluator} and {@link DebuggableEvaluator} should be merged. 
+		 * For further comments {@see DebuggableEvaluator}.
+		 * 
+		 * FIXME: Will be removed a.s.a.p.! Should be replaced by an observer pattern 
+		 * implementation.
+		 */	
+		evaluator.suspend(this);		
+	}
 	
 }

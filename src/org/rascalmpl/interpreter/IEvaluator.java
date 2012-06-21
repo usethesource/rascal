@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import org.rascalmpl.ast.AbstractAST;
+
 /**
  * TODO: This interface was used by the
  * {@link org.rascalmpl.interpreter.debug.DebuggingDecorator}, which is now
@@ -21,4 +23,9 @@ package org.rascalmpl.interpreter;
  */
 public interface IEvaluator<T> extends IEvaluatorContext {
 
+	/* (non-Javadoc)
+	 * Event handling callback, managing the current debugging state.
+	 */
+	public void suspend(AbstractAST currentAST);
+	
 }
