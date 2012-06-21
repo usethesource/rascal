@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI 
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
@@ -51,7 +52,6 @@ import org.rascalmpl.ast.EvalCommand;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.PreModule;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
@@ -65,8 +65,12 @@ import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.debug.DebugStepMode;
+import org.rascalmpl.interpreter.debug.DebugSuspendMode;
+import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -117,7 +121,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluator<Result<IValue>> {
+public class Evaluator implements IEvaluator<Result<IValue>> {
 	private IValueFactory vf;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	protected Environment currentEnvt;
@@ -134,7 +138,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Profiler profiler;
 
 	private final TypeDeclarationEvaluator typeDeclarator;
-	protected IEvaluator<IMatchingResult> patternEvaluator;
 
 	private final List<ClassLoader> classLoaders;
 	private final ModuleEnvironment rootScope;
@@ -327,10 +330,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public Stack<Accumulator> __getAccumulators() {
 		return accumulators;
-	}
-
-	public IEvaluator<IMatchingResult> __getPatternEvaluator() {
-		return patternEvaluator;
 	}
 
 	public IValueFactory __getVf() {
@@ -1725,5 +1724,5 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		this.curStderr = null;
 		this.curStdout = null;
 	}
-
+	
 }
