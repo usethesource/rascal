@@ -27,7 +27,6 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
@@ -39,89 +38,23 @@ import org.rascalmpl.interpreter.result.Result;
  * becomes a field in {@link Evaluator};
  */
 public class DebuggableEvaluator extends Evaluator {
-	protected final IDebugger debugger;
-
-	//when there is a suspend request from the debugger (caused by the pause button)
-	private boolean suspendRequest;
-
-	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
-	private AbstractAST referenceAST = null;
-	private Integer referenceEnvironmentStackSize = null;
-
+	protected final IDebugger debugger;
+	protected final DebuggingHandler debuggingHandler;
+	
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
 			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
 		this.debugger = debugger;
+		this.debuggingHandler = new DebuggingHandler(debugger);
 	}
 
-	protected void updateSteppingState(AbstractAST currentAST) {
-		setCurrentAST(currentAST); 
-		referenceAST = currentAST;
-		referenceEnvironmentStackSize = this.getCallStack().size();		
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.IEvaluator#suspend(org.rascalmpl.ast.AbstractAST)
 	 */
 	@Override
-	public void suspend(AbstractAST currentAST) {
-		
-		if (debugger.isTerminated()) {
-			//can happen when we evaluating a loop for example and the debugger is stopped
-			throw new QuitException();
-		}
-		
-		if(suspendRequest) {
-			
-			updateSteppingState(currentAST);			
-			debugger.notifySuspend(DebugSuspendMode.CLIENT_REQUEST);
-			
-			suspendRequest = false;
-			
-		} else if (debugger.isStepping()) {
-			switch (stepMode) {
-			
-			case STEP_INTO:
-				updateSteppingState(currentAST);
-				debugger.notifySuspend(DebugSuspendMode.STEP_END);
-				break;
-				
-			case STEP_OVER:
-				int currentEnvironmentStackSize = this.getCallStack().size();
-
-				/*
-				 * Stepping over implies:
-				 * * either there is a next statement in the same environment stack frame
-				 * * or there is no next statement in the same stack frame and thus the stack frame 
-				 *   eventually gets popped from the stack. As long the calls in deeper nesting levels 
-				 *   are executed, no action needs to be taken.
-				 */	
-				if (currentEnvironmentStackSize <= referenceEnvironmentStackSize) {
-					
-					/*
-					 * For the case that we are still within the same stack frame, positions are compared to
-					 * ensure that the statement was finished executing.
-					 */					
-					int referenceStart = referenceAST.getLocation().getOffset();
-					int referenceEnd = referenceAST.getLocation().getOffset() + referenceAST.getLocation().getLength();
-					int currentStart = currentAST.getLocation().getOffset();
-					
-					if (! (referenceStart <= currentStart && currentStart <= referenceEnd)) {
-						updateSteppingState(currentAST);
-						debugger.notifySuspend(DebugSuspendMode.STEP_END);
-					}
-				}
-				break;
-				
-			default:
-				break;
-			
-			}
-		} else if (debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
-			updateSteppingState(currentAST);
-			debugger.notifySuspend(DebugSuspendMode.BREAKPOINT);
-		}
+	public void suspend(AbstractAST currentAST) {		
+		debuggingHandler.suspend(this, currentAST);
 	}
 
 	/** 
@@ -130,11 +63,11 @@ public class DebuggableEvaluator extends Evaluator {
 	 * */
 	public void suspendRequest() {
 		// the evaluator will suspend itself at the next call of suspend or suspend Expression
-		suspendRequest = true;
+		debuggingHandler.requestSuspend();
 	}
 
 	public void setStepMode(DebugStepMode mode) {
-		stepMode = mode;
+		debuggingHandler.setStepMode(mode);
 	}
 
 	public IDebugger getDebugger() {
@@ -152,7 +85,7 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> eval(Statement stat) {
 		Result<IValue> result = super.eval(stat);
 		
-		setStepMode(DebugStepMode.NO_STEP);
+		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
 		debugger.stopStepping();
 		
 		return result;
@@ -166,7 +99,7 @@ public class DebuggableEvaluator extends Evaluator {
 			URI location) {
 		Result<IValue> result = super.eval(monitor, command, location);
 		
-		setStepMode(DebugStepMode.NO_STEP);
+		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
 		debugger.stopStepping();
 		
 		return result;
@@ -179,7 +112,7 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		Result<IValue> result = super.eval(monitor, command);
 
-		setStepMode(DebugStepMode.NO_STEP);
+		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
 		debugger.stopStepping();
 		
 		return result;	
