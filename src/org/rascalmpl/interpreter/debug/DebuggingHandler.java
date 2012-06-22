@@ -23,9 +23,11 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 
 public final class DebuggingHandler implements ISuspendable {
 
-	protected final IDebugger debugger;
+	private final IDebugger debugger;
 
-	//when there is a suspend request from the debugger (caused by the pause button)
+	/**
+	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
+	 */
 	private boolean suspendRequested;
 
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
@@ -45,8 +47,13 @@ public final class DebuggingHandler implements ISuspendable {
 	public DebuggingHandler(IDebugger debugger) {
 		this.debugger = debugger;
 	}
-
-	protected void updateSteppingState(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	
+	protected void clearSuspensionState() {
+		setReferenceAST(null);
+		setReferenceEnvironmentStackSize(null);
+	}	
+	
+	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
 		setReferenceAST(currentAST);
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
 		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
@@ -62,7 +69,7 @@ public final class DebuggingHandler implements ISuspendable {
 		
 		if(isSuspendRequested()) {
 			
-			updateSteppingState(evaluator, currentAST);			
+			updateSuspensionState(evaluator, currentAST);			
 			debugger.notifySuspend(DebugSuspendMode.CLIENT_REQUEST);
 			
 			setSuspendRequested(false);
@@ -71,7 +78,7 @@ public final class DebuggingHandler implements ISuspendable {
 			switch (stepMode) {
 			
 			case STEP_INTO:
-				updateSteppingState(evaluator, currentAST);
+				updateSuspensionState(evaluator, currentAST);
 				debugger.notifySuspend(DebugSuspendMode.STEP_END);
 				break;
 				
@@ -97,7 +104,7 @@ public final class DebuggingHandler implements ISuspendable {
 					int currentStart   = currentAST.getLocation().getOffset();
 					
 					if (! (referenceStart <= currentStart && currentStart <= referenceEnd)) {
-						updateSteppingState(evaluator, currentAST);
+						updateSuspensionState(evaluator, currentAST);
 						debugger.notifySuspend(DebugSuspendMode.STEP_END);
 					}
 				}
@@ -108,7 +115,7 @@ public final class DebuggingHandler implements ISuspendable {
 			
 			}
 		} else if (debugger.hasEnabledBreakpoint(currentAST.getLocation())) {
-			updateSteppingState(evaluator, currentAST);
+			updateSuspensionState(evaluator, currentAST);
 			debugger.notifySuspend(DebugSuspendMode.BREAKPOINT);
 		}
 		
@@ -123,10 +130,18 @@ public final class DebuggingHandler implements ISuspendable {
 		setSuspendRequested(true);
 	}
 
+	public void stopStepping() {
+		setStepMode(DebugStepMode.NO_STEP);
+		debugger.stopStepping();
+	}
+	
 	public void setStepMode(DebugStepMode mode) {
 		stepMode = mode;
 	}
-
+	
+	/**
+	 * @return the debugger associated with this handler object
+	 */
 	public IDebugger getDebugger() {
 		return debugger;
 	}

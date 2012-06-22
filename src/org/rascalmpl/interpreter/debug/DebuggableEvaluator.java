@@ -39,41 +39,49 @@ import org.rascalmpl.interpreter.result.Result;
  */
 public class DebuggableEvaluator extends Evaluator {
 	
-	protected final IDebugger debugger;
 	protected final DebuggingHandler debuggingHandler;
 	
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
 			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
-		this.debugger = debugger;
 		this.debuggingHandler = new DebuggingHandler(debugger);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.IEvaluator#suspend(org.rascalmpl.ast.AbstractAST)
+	 * 
+	 * TODO: Remove indirection and delegation.
 	 */
 	@Override
 	public void suspend(AbstractAST currentAST) {		
 		debuggingHandler.suspend(this, currentAST);
 	}
 
-	/** 
+	/* 
 	 * this method is called when the debugger send a suspend request 
 	 * correspond to a suspend event from the client
-	 * */
+	 * 
+	 * TODO: Remove indirection and delegation.
+	 */
 	public void suspendRequest() {
 		// the evaluator will suspend itself at the next call of suspend or suspend Expression
 		debuggingHandler.requestSuspend();
 	}
 
+	/*
+	 * TODO: Remove indirection and delegation.
+	 */
 	public void setStepMode(DebugStepMode mode) {
 		debuggingHandler.setStepMode(mode);
 	}
 
+	/*
+	 * TODO: Remove indirection and delegation.
+	 */
 	public IDebugger getDebugger() {
-		return debugger;
+		return debuggingHandler.getDebugger();
 	}
-
+		
 	public IConstructor parseCommand(IRascalMonitor monitor, String command){
 		return parseCommand(monitor, command, URI.create("debug:///"));
 	}
@@ -85,8 +93,7 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> eval(Statement stat) {
 		Result<IValue> result = super.eval(stat);
 		
-		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
-		debugger.stopStepping();
+		debuggingHandler.stopStepping();
 		
 		return result;
 	}
@@ -99,8 +106,7 @@ public class DebuggableEvaluator extends Evaluator {
 			URI location) {
 		Result<IValue> result = super.eval(monitor, command, location);
 		
-		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
-		debugger.stopStepping();
+		debuggingHandler.stopStepping();
 		
 		return result;
 	}
@@ -112,8 +118,7 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		Result<IValue> result = super.eval(monitor, command);
 
-		debuggingHandler.setStepMode(DebugStepMode.NO_STEP);
-		debugger.stopStepping();
+		debuggingHandler.stopStepping();
 		
 		return result;	
 	}
