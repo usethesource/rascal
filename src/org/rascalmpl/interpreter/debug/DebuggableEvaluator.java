@@ -55,62 +55,9 @@ public class DebuggableEvaluator extends Evaluator {
 		this.debugger = debugger;
 	}
 
-//	@Override
-//	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
-//		suspend(x);
-//		if (stepMode.equals(DebugStepMode.STEP_OVER)) {
-//			/* desactivate the stepping mode when evaluating the call */
-//			setStepMode(DebugStepMode.NO_STEP);
-//			Result<IValue> res = super.visitExpressionCallOrTree(x);
-//			setStepMode(DebugStepMode.STEP_OVER);
-//			// suspend when returning to the calling statement
-//			suspend(x);
-//			return res;
-//		}
-//		
-//		Result<IValue> res = super.visitExpressionCallOrTree(x);
-//		// suspend when returning to the calling statement
-//		suspend(x);
-//		return res;
-//	}
-//
-////	@Override
-////	public Result<IValue> visitExpressionEnumeratorWithStrategy(
-////			EnumeratorWithStrategy x) {
-////		suspend(x);
-////		return super.visitExpressionEnumeratorWithStrategy(x);
-////	}
-//	
-//	@Override
-//	public Result<IValue> visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) {
-//		/* no need to supend on a block */
-//		//suspend(x);
-//		return super.visitStatementNonEmptyBlock(x);
-//	}
-//	
-//	@Override
-//	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-//		/* no need to supend on a block */
-//		//suspend(x);
-//		return super.visitExpressionNonEmptyBlock(x);
-//	}
-//
-//	@Override
-//	public Result<IValue> visitStatementExpression(Expression x) {
-//		/**		
-//		 //should avoid to stop twice when stepping into
-//		if (! stepMode.equals(DebugStepMode.STEP_INTO)) {
-//			suspend(x);
-//		}
-//		*/
-//		return super.visitStatementExpression(x);
-//	}
-
 	protected void updateSteppingState(AbstractAST currentAST) {
 		setCurrentAST(currentAST); 
 		referenceAST = currentAST;
-
-		// referenceEnvironment = this.getCurrentEnvt();
 		referenceEnvironmentStackSize = this.getCallStack().size();		
 	}
 	
