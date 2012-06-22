@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.debug.ISuspendable;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -37,7 +36,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public abstract class AbstractAST implements ISuspendable, IVisitable {
+public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
@@ -186,21 +185,14 @@ public abstract class AbstractAST implements ISuspendable, IVisitable {
 		return buildBacktracker(ctx);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.ISuspendable#suspend(org.rascalmpl.interpreter.IEvaluator, org.rascalmpl.ast.AbstractAST)
+	/**
+	 * Notifying the <code>evaluator</code> to suspend interpretation of <code>currentAST</code>.
+	 * 
+	 * @param evaluator the evaluator used in {@link #interpret(Evaluator)}
+	 * @param currentAST the AST requesting suspection (should normally equal <code>this</code>);
 	 */
-	@Override
-	public void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
-
-		/**
-		 * TODO: not very clean measure to quickly re-enable debugging support.
-		 * {@link Evaluator} and {@link DebuggableEvaluator} should be merged. 
-		 * For further comments {@see DebuggableEvaluator}.
-		 * 
-		 * FIXME: Will be removed a.s.a.p.! Should be replaced by an observer pattern 
-		 * implementation.
-		 */	
-		evaluator.suspend(this);		
+	protected void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
+		evaluator.suspend(currentAST);
 	}
 	
 }

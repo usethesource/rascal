@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 /**
  * Interface for suspending an program interpretation.
  */
-public interface ISuspendable {
+public interface IRascalSuspendTriggerListener {
 
 	/**
 	 * Blocking suspension of the current program interpretation, used to allow
@@ -26,6 +26,6 @@ public interface ISuspendable {
 	 * @param evaluator the evaluator in charge of interpreting @param context.
 	 * @param currentAST the AST that is causes the suspension.
 	 */
-	public void suspend(IEvaluator<?> evaluator, AbstractAST currentAST);
+	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST);
 	
 }

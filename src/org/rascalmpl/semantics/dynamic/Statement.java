@@ -79,6 +79,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			Accumulator target = null;
@@ -118,6 +119,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			Result<IValue> r = this.getExpression().interpret(__eval);
@@ -150,6 +152,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			Result<IValue> r = this.getExpression().interpret(__eval);
@@ -185,6 +188,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			Result<IValue> right = this.getStatement().interpret(__eval);
@@ -205,6 +209,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			if (getTarget().isEmpty()) {
@@ -227,6 +232,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			if (getTarget().isEmpty()) {
@@ -251,6 +257,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			org.rascalmpl.ast.Statement body = this.getBody();
@@ -308,6 +315,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -326,6 +334,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			Environment old = __eval.getCurrentEnvt();
@@ -350,6 +359,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			if (!this.getTarget().isEmpty()) {
@@ -370,6 +380,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			throw new Filtered();
@@ -389,6 +400,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			org.rascalmpl.ast.Statement body = this.getBody();
@@ -508,6 +520,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			return this.getFunctionDeclaration().interpret(__eval);
@@ -542,6 +555,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
@@ -616,6 +630,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
@@ -690,6 +705,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this
@@ -710,6 +726,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
@@ -740,6 +757,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
@@ -760,6 +778,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			int size = this.getVariables().size();
@@ -853,6 +872,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			Result<IValue> subject = this.getExpression().interpret(__eval);
@@ -941,6 +961,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 			
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			return org.rascalmpl.semantics.dynamic.Statement.Try.evalStatementTry(__eval, this.getBody(), this.getHandlers(),
@@ -960,6 +981,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			return this.getDeclaration().interpret(__eval);
@@ -978,6 +1000,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 			
 			return this.getVisit().interpret(__eval);
@@ -997,6 +1020,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		@Override
 		public Result<IValue> interpret(Evaluator __eval) {
 
+			__eval.setCurrentAST(this);
 			suspend(__eval, this);
 
 			org.rascalmpl.ast.Statement body = this.getBody();

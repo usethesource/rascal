@@ -54,7 +54,7 @@ public class DebuggableEvaluator extends Evaluator {
 	 */
 	@Override
 	public void suspend(AbstractAST currentAST) {		
-		debuggingHandler.suspend(this, currentAST);
+		debuggingHandler.suspended(this, currentAST);
 	}
 
 	/* 
