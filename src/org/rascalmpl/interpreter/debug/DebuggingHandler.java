@@ -21,7 +21,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 
-public final class DebuggingHandler implements ISuspendable {
+public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 
 	private final IDebugger debugger;
 
@@ -55,12 +55,13 @@ public final class DebuggingHandler implements ISuspendable {
 	
 	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
 		setReferenceAST(currentAST);
+		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
 		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
 	}
 	
 	@Override
-	public void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
 		// TODO: Remove exception throwing herein.
 		if (debugger.isTerminated()) {
 			//can happen when we evaluating a loop for example and the debugger is stopped
@@ -103,7 +104,7 @@ public final class DebuggingHandler implements ISuspendable {
 					int referenceEnd   = getReferenceAST().getLocation().getOffset() + getReferenceAST().getLocation().getLength();
 					int currentStart   = currentAST.getLocation().getOffset();
 					
-					if (! (referenceStart <= currentStart && currentStart <= referenceEnd)) {
+					if (! (referenceStart <= currentStart && currentStart < referenceEnd)) {
 						updateSuspensionState(evaluator, currentAST);
 						debugger.notifySuspend(DebugSuspendMode.STEP_END);
 					}
@@ -118,7 +119,7 @@ public final class DebuggingHandler implements ISuspendable {
 			updateSuspensionState(evaluator, currentAST);
 			debugger.notifySuspend(DebugSuspendMode.BREAKPOINT);
 		}
-		
+	
 	}	
 	
 	/** 
