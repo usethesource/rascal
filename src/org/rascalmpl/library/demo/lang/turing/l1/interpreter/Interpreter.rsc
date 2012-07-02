@@ -23,8 +23,8 @@ public TuringState interpreterStep(TuringState state) {
 		case moveBackward(): state.pos -= 1;
 		default: throw "Unknown case";
 	}
-	if (state.pos >= size(state.tape)) state.pos = size(state.tape) -1;
-	if (state.pos < 0) state.pos = 0;
+	if (state.pos >= size(state.tape)) throw "moving beyond the tape";
+	if (state.pos < 0) throw "moving beyond the tape";
 	return state;
 }
  
