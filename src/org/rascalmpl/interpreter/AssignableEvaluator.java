@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Assignment;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -35,7 +34,7 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-public class AssignableEvaluator extends NullASTVisitor<Result<IValue>>{
+public class AssignableEvaluator {
 	public enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined}
 	private AssignmentOperator operator;
     private Result<IValue> value;
