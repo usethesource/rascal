@@ -14,10 +14,9 @@ package org.rascalmpl.interpreter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.interpreter.env.Environment;
 
-public class BasicTypeEvaluator extends NullASTVisitor<Type> {
+public class BasicTypeEvaluator {
 	private final static TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
 	private final Type typeArgument;
 	private final IValue[] valueArguments; // for adt, constructor and
