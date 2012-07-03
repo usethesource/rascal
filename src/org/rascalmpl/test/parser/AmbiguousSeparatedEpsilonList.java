@@ -4,19 +4,21 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
-import org.rascalmpl.parser.uptr.NodeToUPTR;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest{
+public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_SEP = VF.constructor(Factory.Symbol_Sort, VF.string("Sep"));
@@ -85,11 +87,11 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF implements IParserTest
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "a".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
-		String expectedInput = "appl(prod(sort(\"S\"),[\\iter-seps(sort(\"A\"),[sort(\"Sep\")])],{}),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)})])})])";
+		String expectedInput = "appl(prod(sort(\"S\"),[\\iter-seps(sort(\"A\"),[sort(\"Sep\")])],{}),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"Sep\"),[empty()],{}),[]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)}),appl(prod(sort(\"Sep\"),[empty()],{}),[])]),appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])])])}),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[]),amb({appl(regular(\\iter-seps(sort(\"A\"),[sort(\"Sep\")])),[appl(prod(sort(\"A\"),[empty()],{}),[]),appl(prod(sort(\"Sep\"),[empty()],{}),[]),appl(prod(sort(\"A\"),[empty()],{}),[])]),cycle(\\iter-seps(sort(\"A\"),[sort(\"Sep\")]),1)})])})])";
 		return new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), Factory.uptr, Factory.Tree, new StringReader(expectedInput));
 	}
 	

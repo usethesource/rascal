@@ -9,41 +9,36 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.uptr;
+package org.rascalmpl.parser.gtd.result.out;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 /**
  * A converter for character result nodes.
  */
-public class CharNodeConverter{
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+@SuppressWarnings("unchecked")
+public class CharNodeFlattener<T, P>{
+	private final T[] cache = (T[]) new Object[128];
 	
-	private final static IConstructor[] cache = new IConstructor[128];
-	
-	private CharNodeConverter(){
+	public CharNodeFlattener(){
 		super();
 	}
 	
 	/**
 	 * Converts the given character result node to the UPTR format.
 	 */
-	public static IConstructor convertToUPTR(CharNode node){
+	public T convertToUPTR(INodeConstructorFactory<T, P> nodeConstructorFactory, CharNode node){
 		int charNumber = node.getCharacter();
 		
 		// Cache 7-bit ASCII character results.
 		if(charNumber < 128){
-			IConstructor result = cache[charNumber];
+			T result = cache[charNumber];
 			if(result != null) return result;
 			
-			result = VF.constructor(Factory.Tree_Char, VF.integer(charNumber));
+			result = nodeConstructorFactory.createCharNode(charNumber);
 			cache[charNumber] = result;
 		}
 		
-		return VF.constructor(Factory.Tree_Char, VF.integer(charNumber));
+		return nodeConstructorFactory.createCharNode(charNumber);
 	}
 }

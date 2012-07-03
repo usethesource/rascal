@@ -49,7 +49,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Note that RascalFunctionActionExecutors use functions visible from the call site of the parse
  * function.
  */
-public class RascalFunctionActionExecutor implements IActionExecutor {
+public class RascalFunctionActionExecutor implements IActionExecutor<IConstructor> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final IEvaluatorContext ctx;
 
@@ -65,37 +65,30 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		return ctx.getCurrentEnvt();
 	}
 
-	public Object enteringListNode(IConstructor production, int index,
-			Object environment) {
+	public Object enteringListNode(Object production, int index, Object environment) {
 		return environment;
 	}
 
-	public Object enteringListProduction(IConstructor production,
-			Object env) {
+	public Object enteringListProduction(Object production, Object env) {
 		return env;
 	}
 
-	public Object enteringNode(IConstructor production, int index,
-			Object environment) {
+	public Object enteringNode(Object production, int index, Object environment) {
 		return environment;
 	}
 
-	public Object enteringProduction(IConstructor production,
-			Object env) {
+	public Object enteringProduction(Object production, Object env) {
 		return env;
 	}
 
-	public void exitedListProduction(IConstructor production, boolean filtered,
-			Object environment) {
+	public void exitedListProduction(Object production, boolean filtered, Object environment) {
 
 	}
 
-	public void exitedProduction(IConstructor production, boolean filtered,
-			Object environment) {
+	public void exitedProduction(Object production, boolean filtered, Object environment) {
 	}
 
-	public IConstructor filterAmbiguity(IConstructor ambCluster,
-			Object environment) {
+	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment) {
 		ISet alts = (ISet) ambCluster.get("alternatives");
 		
 		if (alts.size() == 0) {
@@ -132,18 +125,15 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		return cycle;
 	}
 
-	public IConstructor filterListAmbiguity(IConstructor ambCluster,
-			Object environment) {
+	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment) {
 		return filterAmbiguity(ambCluster, environment);
 	}
 
-	public IConstructor filterListCycle(IConstructor cycle,
-			Object environment) {
+	public IConstructor filterListCycle(IConstructor cycle, Object environment) {
 		return cycle;
 	}
 
-	public IConstructor filterListProduction(IConstructor tree,
-			Object environment) {
+	public IConstructor filterListProduction(IConstructor tree, Object environment) {
 		return tree;
 	}
 
@@ -215,7 +205,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor {
 		}
 	}
 
-	public boolean isImpure(IConstructor rhs) {
+	public boolean isImpure(Object rhs) {
 		return true;
 	}
 

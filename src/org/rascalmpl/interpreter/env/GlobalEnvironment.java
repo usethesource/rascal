@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -146,11 +148,11 @@ public class GlobalEnvironment {
 		return current;
 	}
 	
-	public Class<IGTD> getObjectParser(String module, IMap productions) {
+	public Class<IGTD<IConstructor, ISourceLocation>> getObjectParser(String module, IMap productions) {
 		return getParser(objectParsersForModules, module, productions);
 	}
 	
-	public Class<IGTD> getRascalParser(String module, IMap productions) {
+	public Class<IGTD<IConstructor, ISourceLocation>> getRascalParser(String module, IMap productions) {
 		return getParser(rascalParsersForModules, module, productions);
 	}
 	
@@ -160,7 +162,7 @@ public class GlobalEnvironment {
 	 * @param module
 	 * @param productions
 	 */
-	private Class<IGTD> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
+	private Class<IGTD<IConstructor, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
 		ParserTuple parser = store.get(module);
 		if(parser != null && parser.getProductions().isEqual(productions)) {
 			return parser.getParser();
@@ -169,15 +171,15 @@ public class GlobalEnvironment {
 		return null;
 	}
 	
-	public void storeObjectParser(String module, IMap productions, Class<IGTD> parser) {
+	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, ISourceLocation>> parser) {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
-	public void storeRascalParser(String module, IMap productions, Class<IGTD> parser) {
+	public void storeRascalParser(String module, IMap productions, Class<IGTD<IConstructor, ISourceLocation>> parser) {
 		storeParser(rascalParsersForModules, module, productions, parser);
 	}
 	
-	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD> parser) {
+	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ISourceLocation>> parser) {
 		ParserTuple newT = new ParserTuple(productions, parser);
 		store.put(module, newT);
 	}
@@ -220,9 +222,9 @@ public class GlobalEnvironment {
 	
 	private static class ParserTuple {
 		private final IMap production;
-		private final Class<IGTD> parser;
+		private final Class<IGTD<IConstructor, ISourceLocation>> parser;
 
-		public ParserTuple(IMap productions, Class<IGTD> parser) {
+		public ParserTuple(IMap productions, Class<IGTD<IConstructor, ISourceLocation>> parser) {
 			this.production = productions;
 			this.parser = parser;
 		}
@@ -231,7 +233,7 @@ public class GlobalEnvironment {
 			return production;
 		}
 		
-		public Class<IGTD> getParser() {
+		public Class<IGTD<IConstructor, ISourceLocation>> getParser() {
 			return parser;
 		}
 	}
