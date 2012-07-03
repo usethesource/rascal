@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -83,7 +84,7 @@ public class ParserGenerator {
 	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
 	 * @return
 	 */
-	public Class<IGTD> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
+	public Class<IGTD<IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, URI loc, String name, IMap definition) {
 		monitor.startJob("Generating parser:" + name, 100, 90);
 		
 		try {
@@ -112,7 +113,7 @@ public class ParserGenerator {
 	 * Note that this method works under the assumption that a normal parser was generated before!
 	 * The class that this parser generates will inherit from that previously generated parser.
 	 */
-	public Class<IGTD> getRascalParser(IRascalMonitor monitor, URI loc, String name, IMap definition, IGTD objectParser) {
+	public Class<IGTD<IConstructor, ISourceLocation>> getRascalParser(IRascalMonitor monitor, URI loc, String name, IMap definition, IGTD<IConstructor, ISourceLocation> objectParser) {
 		try {
 			monitor.event("Importing and normalizing grammar: " + name, 10);
 			IConstructor grammar = getGrammar(monitor, name, definition);

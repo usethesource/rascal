@@ -11,12 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.action;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 
 /**
  * A dummy action executor.
  */
-public class VoidActionExecutor implements IActionExecutor{
+public class VoidActionExecutor<T> implements IActionExecutor<T>{
 	
 	public VoidActionExecutor(){
 		super();
@@ -30,55 +29,55 @@ public class VoidActionExecutor implements IActionExecutor{
 		// Don't do anything.
 	}
 	
-	public Object enteringProduction(IConstructor production, Object environment){
+	public Object enteringProduction(Object production, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public Object enteringListProduction(IConstructor production, Object environment){
+	public Object enteringListProduction(Object production, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public Object enteringNode(IConstructor production, int index, Object environment){
+	public Object enteringNode(Object production, int index, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public Object enteringListNode(IConstructor production, int index, Object environment){
+	public Object enteringListNode(Object production, int index, Object environment){
 		return VoidEnvironment.ROOT_VOID_ENVIRONMENT; // Don't bother with environments.
 	}
 	
-	public void exitedProduction(IConstructor production, boolean filtered, Object environment){
+	public void exitedProduction(Object production, boolean filtered, Object environment){
 		// Don't do anything.
 	}
 	
-	public void exitedListProduction(IConstructor production, boolean filtered, Object environment){
+	public void exitedListProduction(Object production, boolean filtered, Object environment){
 		// Don't do anything.
 	}
 	
-	public IConstructor filterProduction(IConstructor tree, Object environment){
+	public T filterProduction(T tree, Object environment){
 		return tree;
 	}
 	
-	public IConstructor filterListProduction(IConstructor tree, Object environment){
+	public T filterListProduction(T tree, Object environment){
 		return tree;
 	}
 	
-	public IConstructor filterAmbiguity(IConstructor ambCluster, Object environment){
+	public T filterAmbiguity(T ambCluster, Object environment){
 		return ambCluster;
 	}
 	
-	public IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment){
+	public T filterListAmbiguity(T ambCluster, Object environment){
 		return ambCluster;
 	}
 	
-	public IConstructor filterCycle(IConstructor cycle, Object environment){
+	public T filterCycle(T cycle, Object environment){
 		return cycle;
 	}
 	
-	public IConstructor filterListCycle(IConstructor cycle, Object environment){
+	public T filterListCycle(T cycle, Object environment){
 		return cycle;
 	}
 	
-	public boolean isImpure(IConstructor rhs){
+	public boolean isImpure(Object rhs){
 		return false;
 	}
 }

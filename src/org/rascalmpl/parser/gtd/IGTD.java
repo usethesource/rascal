@@ -15,19 +15,20 @@ import java.net.URI;
 
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.out.INodeConverter;
+import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 
 /**
  * Parser interface.
  */
-public interface IGTD{
+public interface IGTD<T, P>{
 	/**
 	 * Parse the input string, using the given non-terminal as start node. If
 	 * the parse process successfully completes a result will be constructed
 	 * using the supplied node converter. This parse method does not perform
 	 * semantic actions during result construction.
 	 */
-	Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter);
+	Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory);
 	
 	/**
 	 * Parse the input string, using the given non-terminal as start node. If
@@ -35,9 +36,9 @@ public interface IGTD{
 	 * using the supplied node converter. During result construction the action
 	 * executor will be used to execute semantic actions.
 	 */
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter);
+	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory);
 
-	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, IRecoverer recoverer);
+	Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer);
 	
 	boolean parseErrorHasOccurred();
 }

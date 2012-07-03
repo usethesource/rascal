@@ -26,7 +26,8 @@ import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
-import org.rascalmpl.parser.gtd.result.out.INodeConverter;
+import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -48,7 +49,7 @@ import org.rascalmpl.parser.gtd.util.Stack;
 /**
  * This is the core of the parser; it drives the parse process.
  */
-public abstract class SGTDBF implements IGTD{
+public abstract class SGTDBF<T, P> implements IGTD<T, P>{
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
 	private URI inputURI;
@@ -1036,80 +1037,80 @@ public abstract class SGTDBF implements IGTD{
 		return result;
 	}
 
-	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, actionExecutor, converter, null);
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory) {
+		return parse(nonterminal, inputURI, input, actionExecutor, converter, nodeConstructorFactory, null);
 	}
 
 	/**
 	 * Parses with post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor actionExecutor, INodeConverter converter, IRecoverer recoverer){
-		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, recoverer);
+	public Object parse(String nonterminal, URI inputURI, char[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
+		return parse(nonterminal, inputURI, charsToInts(input), actionExecutor, converter, nodeConstructorFactory, recoverer);
 	}
 	
 	/**
 	 * Parses with post parse filtering.
 	 */
-	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor actionExecutor, INodeConverter converter, IRecoverer recoverer){
+	private Object parse(String nonterminal, URI inputURI, int[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer);
-		return buildResult(result, converter, actionExecutor);
+		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	
-	public Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, converter, null);
+	public Object parse(String nonterminal, URI inputURI, int[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory) {
+		return parse(nonterminal, inputURI, input, converter, nodeConstructorFactory, null);
 	}
 	
-	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter) {
-		return parse(nonterminal, inputURI, input, converter, null);
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory) {
+		return parse(nonterminal, inputURI, input, converter, nodeConstructorFactory, null);
 	}
 
 	/**
 	 * Parses without post parse filtering.
 	 */
-	public Object parse(String nonterminal, URI inputURI, char[] input, INodeConverter converter, IRecoverer recoverer){
-		return parse(nonterminal, inputURI, charsToInts(input), converter, recoverer);
+	public Object parse(String nonterminal, URI inputURI, char[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
+		return parse(nonterminal, inputURI, charsToInts(input), converter, nodeConstructorFactory, recoverer);
 	}
 	
-	private Object parse(String nonterminal, URI inputURI, int[] input, INodeConverter converter, IRecoverer recoverer){
+	private Object parse(String nonterminal, URI inputURI, int[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
 		AbstractNode result = parse(new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer);
-		return buildResult(result, converter, new VoidActionExecutor());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
-	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter) {
-		return parse(startNode, inputURI, input, converter, null);
-	}
-	
-	/**
-	 * Parses without post parse filtering.
-	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeConverter converter, IRecoverer recoverer){
-		return parse(startNode, inputURI, charsToInts(input), converter, recoverer);
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory) {
+		return parse(startNode, inputURI, input, converter, nodeConstructorFactory, null);
 	}
 	
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter){
-		return parse(startNode, inputURI, input, converter, null);
+	protected Object parse(AbstractStackNode startNode, URI inputURI, char[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
+		return parse(startNode, inputURI, charsToInts(input), converter, nodeConstructorFactory, recoverer);
+	}
+	
+	/**
+	 * Parses without post parse filtering.
+	 */
+	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory){
+		return parse(startNode, inputURI, input, converter, nodeConstructorFactory, null);
 	}
 	/**
 	 * Parses without post parse filtering.
 	 */
-	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeConverter converter, IRecoverer recoverer){
+	protected Object parse(AbstractStackNode startNode, URI inputURI, int[] input, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IRecoverer recoverer){
 		AbstractNode result = parse(startNode, inputURI, input, recoverer);
-		return buildResult(result, converter, new VoidActionExecutor());
+		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
 	/**
 	 * Constructed the final parse result using the given converter.
 	 */
-	protected Object buildResult(AbstractNode result, INodeConverter converter, IActionExecutor actionExecutor){
+	protected Object buildResult(AbstractNode result, INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, IActionExecutor<T> actionExecutor){
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
 		Object rootEnvironment = actionExecutor.createRootEnvironment();
 		Object parseResult = null;
 		try {
-			parseResult = converter.convert(result, positionStore, actionExecutor, rootEnvironment, filteringTracker);
+			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker, actionExecutor, rootEnvironment);
 		}
 		finally {
 			actionExecutor.completed(rootEnvironment, (parseResult == null));

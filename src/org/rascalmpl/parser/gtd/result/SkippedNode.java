@@ -20,11 +20,11 @@ package org.rascalmpl.parser.gtd.result;
 public class SkippedNode extends AbstractNode {
 	public final static int ID = 9;
 	
-	private final CharNode[] skippedChars;
+	private final int[] skippedChars;
 	
 	private final int offset;
 
-	public SkippedNode(CharNode[] skippedChars, int offset){
+	public SkippedNode(int[] skippedChars, int offset){
 		super();
 		
 		this.skippedChars = skippedChars;
@@ -35,7 +35,7 @@ public class SkippedNode extends AbstractNode {
 		return ID;
 	}
 	
-	public CharNode[] getSkippedChars(){
+	public int[] getSkippedChars(){
 		return skippedChars;
 	}
 	

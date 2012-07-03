@@ -31,7 +31,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Caveat: the implementation in this class co-evolves with the Rascal syntax definition
  * in a very fine grained manner.
  */
-public class BootRascalActionExecutor extends VoidActionExecutor {
+public class BootRascalActionExecutor extends VoidActionExecutor<IConstructor> {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private static final IConstructor EXP = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Expression"));
 	private static final IConstructor COM = (IConstructor) Factory.Symbol_Sort.make(VF, VF.string("Command"));
@@ -44,8 +44,9 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	private boolean inConcreteSyntax = false;
 
 	@Override
-	public IConstructor filterProduction(IConstructor tree,
-			Object environment) {
+	public IConstructor filterProduction(IConstructor treeObject, Object environment) {
+		IConstructor tree = (IConstructor) treeObject;
+		
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		IConstructor sym = ProductionAdapter.getType(prod);
 		
@@ -197,7 +198,7 @@ public class BootRascalActionExecutor extends VoidActionExecutor {
 	}
 	
 	@Override
-	public boolean isImpure(IConstructor rhs) {
+	public boolean isImpure(Object rhs) {
 		return false;
 	}
 }

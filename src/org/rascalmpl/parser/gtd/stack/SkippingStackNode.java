@@ -12,7 +12,6 @@
 package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
 public final class SkippingStackNode extends AbstractMatchableStackNode{
@@ -69,10 +68,8 @@ public final class SkippingStackNode extends AbstractMatchableStackNode{
 	}
 	
 	private SkippedNode buildResult(int[] input, int from, int to) {
-		CharNode[] chars = new CharNode[to - from + 1];
-		for (int i = from, j = 0; i <= to; i++, j++) {
-			chars[j] = new CharNode(input[i]);
-		}
+		int[] chars = new int[to - from + 1];
+		System.arraycopy(input, from, chars, 0, to - from);
 		
 		return new SkippedNode(chars, from);
 	}

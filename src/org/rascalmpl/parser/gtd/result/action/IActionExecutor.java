@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.action;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 
 /**
  * This interface is intended to enable the execution of semantic actions on
@@ -31,7 +30,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
  * 
  * @author Arnold Lankamp
  */
-public interface IActionExecutor{
+public interface IActionExecutor<T>{
 	
 	/**
 	 * Called before invoking the flattener to enable the user to supply a root
@@ -61,7 +60,7 @@ public interface IActionExecutor{
 	 * @param parent The parent environment.
 	 * @return The environment the flattener should use for this production.
 	 */
-	Object enteringProduction(IConstructor production, Object parent);
+	Object enteringProduction(Object production, Object parent);
 	
 	/**
 	 * Called before entering a list production. The callee can decide whether
@@ -72,7 +71,7 @@ public interface IActionExecutor{
 	 * @param parent The parent environment.
 	 * @return The environment the flattener should use for this production.
 	 */
-	Object enteringListProduction(IConstructor production, Object parent);
+	Object enteringListProduction(Object production, Object parent);
 	
 	/**
 	 * Called before entering each node in the given production. Hereby we
@@ -85,7 +84,7 @@ public interface IActionExecutor{
 	 * @param environment The parent environment.
 	 * @return The environment the flattener should use for the indicated node.
 	 */
-	Object enteringNode(IConstructor production, int index, Object environment);
+	Object enteringNode(Object production, int index, Object environment);
 	
 	/**
 	 * Called before entering a list node in the given production. Hereby we
@@ -98,7 +97,7 @@ public interface IActionExecutor{
 	 * @param environment The parent environment.
 	 * @return The environment the flattener should use for the indicated node.
 	 */
-	Object enteringListNode(IConstructor production, int index, Object environment);
+	Object enteringListNode(Object production, int index, Object environment);
 	
 	/**
 	 * Called after exiting a production; enabling the user to execute
@@ -109,7 +108,7 @@ public interface IActionExecutor{
 	 * filtered; false otherwise.
 	 * @param environment The environment at the point of exiting.
 	 */
-	void exitedProduction(IConstructor production, boolean filtered, Object environment);
+	void exitedProduction(Object production, boolean filtered, Object environment);
 	
 	/**
 	 * Called after exiting a list production; enabling the user to execute
@@ -120,7 +119,7 @@ public interface IActionExecutor{
 	 * got filtered; false otherwise.
 	 * @param environment The environment at the point of exiting.
 	 */
-	void exitedListProduction(IConstructor production, boolean filtered, Object environment);
+	void exitedListProduction(Object production, boolean filtered, Object environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter alternatives and / or
@@ -132,7 +131,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given tree with. May be null to indicate
 	 * the tree should be removed from the forest.
 	 */
-	IConstructor filterProduction(IConstructor tree, Object environment);
+	T filterProduction(T tree, Object environment);
 
 	/**
 	 * Supplies the user with the opportunity to filter alternatives and / or
@@ -144,7 +143,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given tree with. May be null to indicate
 	 * the tree should be removed from the forest.
 	 */
-	IConstructor filterListProduction(IConstructor tree, Object environment);
+	T filterListProduction(T tree, Object environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute
@@ -156,7 +155,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given ambiguity cluster with. May be
 	 * null to indicate the cluster should be removed from the tree.
 	 */
-	IConstructor filterAmbiguity(IConstructor ambCluster, Object environment);
+	T filterAmbiguity(T ambCluster, Object environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute
@@ -168,7 +167,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given list ambiguity cluster with. May
 	 * be null to indicate the cluster should be removed from the tree.
 	 */
-	IConstructor filterListAmbiguity(IConstructor ambCluster, Object environment);
+	T filterListAmbiguity(T ambCluster, Object environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute
@@ -180,7 +179,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given cycle tree with. May be null to
 	 * indicate the cycle should be removed from the forest.
 	 */
-	IConstructor filterCycle(IConstructor cycle, Object environment);
+	T filterCycle(T cycle, Object environment);
 	
 	/**
 	 * Supplies the user with the opportunity to filter and / or execute
@@ -192,7 +191,7 @@ public interface IActionExecutor{
 	 * @return The tree to replace the given list cycle tree with. May be null
 	 * to indicate the list cycle should be removed from the forest.
 	 */
-	IConstructor filterListCycle(IConstructor cycle, Object environment);
+	T filterListCycle(T cycle, Object environment);
 	
 	/**
 	 * Checks whether or not any of the productions associated with the given
@@ -209,5 +208,5 @@ public interface IActionExecutor{
 	 * productions, associated with the given right-hand-side has actions that
 	 * can potentially have a side effect on the environment; false otherwise.
 	 */
-	boolean isImpure(IConstructor rhs);
+	boolean isImpure(Object rhs);
 }

@@ -59,7 +59,6 @@ Export-Package:
  org.rascalmpl.parser.gtd.stack.filter.follow,
  org.rascalmpl.parser.gtd.stack.filter.match,
  org.rascalmpl.parser.gtd.stack.filter.precede,
- org.rascalmpl.parser.uptr,
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
  org.rascalmpl.tasks.facts,

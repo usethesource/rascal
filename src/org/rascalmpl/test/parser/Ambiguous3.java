@@ -16,13 +16,15 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.uptr.NodeToUPTR;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
@@ -30,7 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 S ::= AA
 A ::= aa | a
 */
-public class Ambiguous3 extends SGTDBF implements IParserTest{
+public class Ambiguous3 extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
@@ -85,7 +87,7 @@ public class Ambiguous3 extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

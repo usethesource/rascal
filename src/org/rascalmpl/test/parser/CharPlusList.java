@@ -16,21 +16,23 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CharStackNode;
 import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.uptr.NodeToUPTR;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
 /*
 S ::= [a-z]+
 */
-public class CharPlusList extends SGTDBF implements IParserTest{
+public class CharPlusList extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Range, VF.integer(97), VF.integer(122))));
 	private final static IConstructor SYMBOL_PLUS_LIST_a_z = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a_z);
@@ -58,7 +60,7 @@ public class CharPlusList extends SGTDBF implements IParserTest{
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new NodeToUPTR());
+		return (IConstructor) parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{
