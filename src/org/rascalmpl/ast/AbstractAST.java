@@ -186,13 +186,14 @@ public abstract class AbstractAST implements IVisitable {
 	}
 
 	/**
-	 * Notifying the <code>evaluator</code> to suspend interpretation of <code>currentAST</code>.
+	 * Notifying the observers that registered with <code>evaluator</code> 
+	 * about the suspension of interpretation of <code>currentAST</code>.
 	 * 
 	 * @param evaluator the evaluator used in {@link #interpret(Evaluator)}
 	 * @param currentAST the AST requesting suspection (should normally equal <code>this</code>);
 	 */
 	protected void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		evaluator.suspend(currentAST);
+		evaluator.notifyAboutSuspension(evaluator, currentAST);
 	}
 	
 }

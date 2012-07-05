@@ -1721,13 +1721,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		this.curStderr = null;
 		this.curStdout = null;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.IEvaluator#suspend(org.rascalmpl.ast.AbstractAST)
-	 */
+
 	@Override
-	public void suspend(AbstractAST currentAST) {
+	public void notifyAboutSuspension(IEvaluator<?> evaluator,
+			AbstractAST currentAST) {
 		// emtpy, because {@link Evaluator) does not support debugging.
+		
 	}
-	
+		
 }
