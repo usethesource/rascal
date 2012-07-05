@@ -80,7 +80,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			Accumulator target = null;
 			if (__eval.__getAccumulators().empty()) {
@@ -120,7 +120,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
@@ -153,7 +153,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> r = this.getExpression().interpret(__eval);
 			if (!r.getType().equals(
@@ -189,7 +189,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> right = this.getStatement().interpret(__eval);
 			return this.getAssignable().assignment(
@@ -210,7 +210,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			if (getTarget().isEmpty()) {
 				throw new BreakException();
@@ -233,7 +233,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			if (getTarget().isEmpty()) {
 				throw new ContinueException();
@@ -258,7 +258,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			org.rascalmpl.ast.Statement body = this.getBody();
 			org.rascalmpl.ast.Expression generator = this.getCondition();
@@ -316,7 +316,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
@@ -335,7 +335,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			Environment old = __eval.getCurrentEnvt();
 
@@ -360,7 +360,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			if (!this.getTarget().isEmpty()) {
 				throw new Failure(Names.name(this.getTarget().getName()));
@@ -381,7 +381,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			throw new Filtered();
 		
@@ -401,7 +401,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this
@@ -521,7 +521,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			return this.getFunctionDeclaration().interpret(__eval);
 
@@ -556,7 +556,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 			
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this
@@ -631,7 +631,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			org.rascalmpl.ast.Statement body = this.getThenStatement();
 			List<org.rascalmpl.ast.Expression> generators = this
@@ -706,7 +706,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			throw new org.rascalmpl.interpreter.control_exceptions.Insert(this
 					.getStatement().interpret(__eval));
@@ -727,7 +727,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
 					.nothing();
@@ -758,7 +758,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
 					.getStatement().interpret(__eval), this.getStatement()
@@ -779,7 +779,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			int size = this.getVariables().size();
 			QualifiedName vars[] = new QualifiedName[size];
@@ -873,7 +873,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 			
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			Result<IValue> subject = this.getExpression().interpret(__eval);
 
@@ -962,7 +962,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 			
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			return org.rascalmpl.semantics.dynamic.Statement.Try.evalStatementTry(__eval, this.getBody(), this.getHandlers(),
 					this.getFinallyBody());
@@ -982,7 +982,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			return this.getDeclaration().interpret(__eval);
 
@@ -1001,7 +1001,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 			
 			return this.getVisit().interpret(__eval);
 
@@ -1021,7 +1021,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(Evaluator __eval) {
 
 			__eval.setCurrentAST(this);
-			suspend(__eval, this);
+			__eval.notifyAboutSuspension(this);
 
 			org.rascalmpl.ast.Statement body = this.getBody();
 			List<org.rascalmpl.ast.Expression> generators = this

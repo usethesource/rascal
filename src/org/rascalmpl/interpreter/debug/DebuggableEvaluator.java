@@ -28,7 +28,6 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -133,13 +132,13 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	}
 	
 	@Override
-	public void notifyAboutSuspension(IEvaluator<?> evaluator, AbstractAST currentAST) {
+	public void notifyAboutSuspension(AbstractAST currentAST) {
 		 /* 
 		  * NOTE: book-keeping of the listeners and notification takes place here,
 		  * delegated from the individual AST nodes.
 		  */
 		for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-			listener.suspended(evaluator, currentAST);
+			listener.suspended(this, currentAST);
 		}
 	}
 }

@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
@@ -183,17 +182,6 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
 		return buildBacktracker(ctx);
-	}
-
-	/**
-	 * Notifying the observers that registered with <code>evaluator</code> 
-	 * about the suspension of interpretation of <code>currentAST</code>.
-	 * 
-	 * @param evaluator the evaluator used in {@link #interpret(Evaluator)}
-	 * @param currentAST the AST requesting suspection (should normally equal <code>this</code>);
-	 */
-	protected void suspend(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		evaluator.notifyAboutSuspension(evaluator, currentAST);
 	}
 	
 }
