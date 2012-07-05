@@ -15,12 +15,14 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Rest;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.Names;
 
 public abstract class PreModule extends org.rascalmpl.ast.PreModule {
@@ -32,7 +34,7 @@ public abstract class PreModule extends org.rascalmpl.ast.PreModule {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			String name = eval.getModuleName(this);
 
 			GlobalEnvironment heap = eval.__getHeap();

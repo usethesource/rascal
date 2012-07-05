@@ -1,13 +1,15 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Start;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Visibility;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.uptr.Factory;
 
 /**
@@ -36,7 +38,7 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
@@ -64,7 +66,7 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
@@ -93,7 +95,7 @@ public abstract class SyntaxDefinition extends
 		}
 		
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			
@@ -121,7 +123,7 @@ public abstract class SyntaxDefinition extends
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			Sym type = getDefined();
 			IValueFactory vf = eval.getValueFactory();
 			

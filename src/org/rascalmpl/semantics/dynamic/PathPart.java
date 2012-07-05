@@ -18,7 +18,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PathChars;
 import org.rascalmpl.ast.PathTail;
 import org.rascalmpl.ast.PrePathChars;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class PathPart extends org.rascalmpl.ast.PathPart {
@@ -32,7 +32,7 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> pre = this.getPre().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
@@ -51,7 +51,7 @@ public abstract class PathPart extends org.rascalmpl.ast.PathPart {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return this.getPathChars().interpret(__eval);
 

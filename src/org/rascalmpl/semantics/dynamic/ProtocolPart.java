@@ -18,7 +18,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PreProtocolChars;
 import org.rascalmpl.ast.ProtocolChars;
 import org.rascalmpl.ast.ProtocolTail;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
@@ -32,7 +32,7 @@ public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> pre = this.getPre().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> tail = this.getTail().interpret(__eval);
@@ -50,7 +50,7 @@ public abstract class ProtocolPart extends org.rascalmpl.ast.ProtocolPart {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getProtocolChars().interpret(__eval);
 		}
 

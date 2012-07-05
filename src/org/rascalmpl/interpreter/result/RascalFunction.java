@@ -44,7 +44,7 @@ import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.interpreter.Accumulator;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
@@ -76,7 +76,7 @@ public class RascalFunction extends NamedFunction {
 	private final IConstructor firstOutermostProduction;
 	private static final String RESOURCE_TAG = "resource";
 
-	public RascalFunction(Evaluator eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
+	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
@@ -85,7 +85,7 @@ public class RascalFunction extends NamedFunction {
 				func.getBody().getStatements(), env, accumulators);
 	}
 
-	public RascalFunction(Evaluator eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
+	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Expression func, boolean varargs, Environment env,
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
@@ -96,7 +96,7 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	@SuppressWarnings("unchecked")
-	public RascalFunction(AbstractAST ast, Evaluator eval, String name, FunctionType functionType,
+	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
 			boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
 		super(ast, eval, functionType, name, varargs, env);
 		this.body = body;

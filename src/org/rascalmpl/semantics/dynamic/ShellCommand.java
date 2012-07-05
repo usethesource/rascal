@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
@@ -31,7 +31,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}
@@ -43,7 +43,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.printHelpMessage(__eval.getStdOut());
@@ -69,7 +69,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 
@@ -82,7 +82,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			throw new QuitException();
 		}
 
@@ -97,7 +97,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			String name = "rascal." + ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) this.getName()).fullName();
 			String value = this.getExpression().interpret(__eval).getValue()
@@ -120,7 +120,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return org.rascalmpl.interpreter.result.ResultFactory.bool(__eval.runTests(__eval.getMonitor()), __eval);
 		}
 	}
@@ -133,7 +133,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			((ModuleEnvironment) __eval.getCurrentEnvt().getRoot()).unImport(Names.fullName(this.getName()));
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}

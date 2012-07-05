@@ -55,10 +55,10 @@ public class TraversalEvaluator {
 	public enum FIXEDPOINT {Yes, No}
 	public enum PROGRESS   {Continuing, Breaking}
 	
-	private final Evaluator eval;
+	private final IEvaluator<Result<IValue>> eval;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	public TraversalEvaluator(Evaluator eval) {
+	public TraversalEvaluator(IEvaluator<Result<IValue>> eval) {
 		this.eval = eval;
 	}
 	

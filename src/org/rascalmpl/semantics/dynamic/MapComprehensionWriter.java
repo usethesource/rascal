@@ -3,14 +3,15 @@ package org.rascalmpl.semantics.dynamic;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 
 public class MapComprehensionWriter extends ComprehensionWriter {
 
 	public MapComprehensionWriter(java.util.List<Expression> resultExprs,
-			org.rascalmpl.interpreter.Evaluator ev) {
-		super(resultExprs, ev);
+			IEvaluator<Result<IValue>> eval) {
+		super(resultExprs, eval);
 		if (resultExprs.size() != 2)
 			throw new ImplementationError(
 					"Map comprehensions needs two result expressions");

@@ -232,47 +232,56 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return old;
 	}
 	
+	@Override	
 	public int endJob(boolean succeeded) {
 		if (monitor != null)
 			return monitor.endJob(succeeded);
 		return 0;
 	}
 
+	@Override	
 	public void event(int inc) {
 		if (monitor != null)
 			monitor.event(inc);
 	}
 
+	@Override	
 	public void event(String name, int inc) {
 		if (monitor != null)
 			monitor.event(name, inc);
 	}
 
+	@Override	
 	public void event(String name) {
 		if (monitor != null)
 			monitor.event(name);
 	}
 
+	@Override	
 	public void startJob(String name, int workShare, int totalWork) {
 		if (monitor != null)
 			monitor.startJob(name, workShare, totalWork);
 	}
 
+	@Override	
 	public void startJob(String name, int totalWork) {
 		if (monitor != null)
 			monitor.startJob(name, totalWork);
 	}
 	
+	@Override	
 	public void startJob(String name) {
 		if (monitor != null)
 			monitor.startJob(name);
 	}
 	
+	@Override	
 	public void todo(int work) {
 		if (monitor != null)
 			monitor.todo(work);
 	}
 	
+	@Override	
 	public boolean isCanceled() {
 		if(monitor == null)
 			return false;
@@ -284,6 +293,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		constructorDeclaredListeners.put(iml,dummy);
 	}
 	
+	@Override	
 	public void notifyConstructorDeclaredListeners() {
 		for (IConstructorDeclared iml : constructorDeclaredListeners.keySet()) {
 			if (iml != null) {
@@ -297,38 +307,47 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return Collections.unmodifiableList(classLoaders);
 	}
 
+	@Override	
 	public ModuleEnvironment __getRootScope() {
 		return rootScope;
 	}
 
+	@Override	
 	public PrintWriter getStdOut() {
 		return curStdout == null ? defStdout : curStdout;
 	}
 
+	@Override	
 	public TypeDeclarationEvaluator __getTypeDeclarator() {
 		return typeDeclarator;
 	}
 
+	@Override	
 	public GlobalEnvironment __getHeap() {
 		return heap;
 	}
 
+	@Override	
 	public boolean __getConcreteListsShouldBeSpliced() {
 		return concreteListsShouldBeSpliced;
 	}
 
+	@Override	
 	public void __setInterrupt(boolean interrupt) {
 		this.interrupt = interrupt;
 	}
 
+	@Override	
 	public boolean __getInterrupt() {
 		return interrupt;
 	}
 
+	@Override	
 	public Stack<Accumulator> __getAccumulators() {
 		return accumulators;
 	}
 
+	@Override	
 	public IValueFactory __getVf() {
 		return vf;
 	}
@@ -337,18 +356,22 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return tf;
 	}
 
+	@Override	
 	public JavaBridge __getJavaBridge() {
 		return javaBridge;
 	}
 
+	@Override	
 	public void interrupt() {
 		__setInterrupt(true);
 	}
 
+	@Override	
 	public boolean isInterrupted() {
 		return interrupt;
 	}
 
+	@Override	
 	public PrintWriter getStdErr() {
 		return curStderr == null ? defStderr : curStderr;
 	}
@@ -361,6 +384,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return javaBridge;
 	}
 
+	@Override	
 	public URIResolverRegistry getResolverRegistry() {
 		return resolverRegistry;
 	}
@@ -369,14 +393,17 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return rascalPathResolver;
 	}
 	
+	@Override	
 	public void indent(String n) {
 		indentStack.push(n);
 	}
 	
+	@Override	
 	public void unindent() {
 		indentStack.pop();
 	}
 	
+	@Override	
 	public String getCurrentIndent() {
 		return indentStack.peek();
 	}
@@ -436,6 +463,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return func.call(getMonitor(), types, args).getValue();
 	}
 	
+	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree){
 		IGTD<IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
@@ -657,10 +685,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return parserGenerator;
 	}
 
+	@Override	
 	public void setCurrentAST(AbstractAST currentAST) {
 		this.currentAST = currentAST;
 	}
 
+	@Override	
 	public AbstractAST getCurrentAST() {
 		return currentAST;
 	}
@@ -678,6 +708,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		classLoaders.add(0, loader);
 	}
 
+	@Override	
 	public String getStackTrace() {
 		StringBuilder b = new StringBuilder(1024*1024);
 		Environment env = currentEnvt;
@@ -705,6 +736,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * @param stat
 	 * @return
 	 */
+	@Override	
 	public Result<IValue> eval(Statement stat) {
 		__setInterrupt(false);
 		try {
@@ -1125,15 +1157,18 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return found;
 	}
 	
+	@Override	
 	public void unwind(Environment old) {
 		setCurrentEnvt(old);
 	}
 
+	@Override	
 	public void pushEnv() {
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 	}
 
+	@Override	
 	public Environment pushEnv(Statement s) {
 		/* use the same name as the current envt */
 		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), getCurrentEnvt().getName());
@@ -1142,6 +1177,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	}
 
 	
+	@Override	
 	public void printHelpMessage(PrintWriter out) {
 		out.println("Welcome to the Rascal command shell.");
 		out.println();
@@ -1173,6 +1209,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 
 	// Modules -------------------------------------------------------------
 
+	@Override	
 	public void addImportToCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment module = heap.getModule(name);
 		if (module == null) {
@@ -1181,6 +1218,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		getCurrentModuleEnvironment().addImport(name, module);
 	}
 
+	@Override	
 	public ModuleEnvironment getCurrentModuleEnvironment() {
 		if (!(currentEnvt instanceof ModuleEnvironment)) {
 			throw new ImplementationError("Current env should be a module environment");
@@ -1188,6 +1226,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return ((ModuleEnvironment) currentEnvt);
 	}
 
+	@Override	
 	public Module preParseModule(URI location, ISourceLocation cause) {
 		char[] data;
 		try{
@@ -1335,6 +1374,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return false;
 	}
 	
+	@Override	
 	public boolean needBootstrapParser(Module preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
@@ -1345,6 +1385,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return false;
 	}
 	
+	@Override	
 	public boolean needBootstrapParser(PreModule preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("bootstrapParser")) {
@@ -1355,6 +1396,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return false;
 	}
 	
+	@Override	
 	public String getCachedParser(Module preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
@@ -1365,6 +1407,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return null;
 	}
 	
+	@Override	
 	public String getCachedParser(PreModule preModule) {
 		for (Tag tag : preModule.getHeader().getTags().getTags()) {
 			if (((Name.Lexical) tag.getName()).getString().equals("cachedParser")) {
@@ -1414,10 +1457,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override	
 	public ASTBuilder getBuilder() {
 		return new ASTBuilder();
 	}
 	
+	@Override	
 	public void extendCurrentModule(AbstractAST x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
 		
@@ -1455,6 +1500,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override	
 	public Module evalRascalModule(AbstractAST x, String name) {
 		ModuleEnvironment env = heap.getModule(name);
 		if (env == null) {
@@ -1494,10 +1540,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x.getLocation());
 	}
 
+	@Override	
 	public String getModuleName(Module module) {
 		return Names.fullName(module.getHeader().getName());
 	}
 	
+	@Override	
 	public String getModuleName(PreModule module) {
 		String name = Names.fullName(module.getHeader().getName());
 		if (name.startsWith("\\")) {
@@ -1506,6 +1554,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return name;
 	}
 	
+	@Override	
 	public boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat) {
 		boolean debug = false;
 		Environment old = getCurrentEnvt();
@@ -1548,6 +1597,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return false;
 	}
 
+	@Override	
 	public boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr) {
 		Environment old = getCurrentEnvt();
 		try {
@@ -1611,6 +1661,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 
 	public static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	
+	@Override	
 	public void updateProperties() {
 		Evaluator.doProfiling = Configuration.getProfilingProperty();
 
@@ -1627,22 +1678,27 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return stack;
 	}
 
+	@Override	
 	public Environment getCurrentEnvt() {
 		return currentEnvt;
 	}
 
+	@Override	
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
 	}
 
+	@Override	
 	public Evaluator getEvaluator() {
 		return this;
 	}
 
+	@Override	
 	public GlobalEnvironment getHeap() {
 		return __getHeap();
 	}
 
+	@Override	
 	public boolean runTests(IRascalMonitor monitor) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -1677,18 +1733,22 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 
+	@Override	
 	public IValueFactory getValueFactory() {
 		return __getVf();
 	}
 
+	@Override	
 	public IStrategyContext getStrategyContext() {
 		return strategyContextStack.getCurrentContext();
 	}
 
+	@Override	
 	public void pushStrategyContext(IStrategyContext strategyContext) {
 		strategyContextStack.pushContext(strategyContext);
 	}
 
+	@Override	
 	public void popStrategyContext() {
 		strategyContextStack.popContext();
 	}
@@ -1697,14 +1757,17 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		__getAccumulators().push(accu);
 	}
 
+	@Override	
 	public Stack<Accumulator> getAccumulators() {
 		return __getAccumulators();
 	}
 
+	@Override
 	public void setAccumulators(Stack<Accumulator> accumulators) {
 		this.accumulators = accumulators;
 	}
 
+	@Override
 	public IRascalMonitor getMonitor() {
 		if (monitor != null)
 			return monitor;

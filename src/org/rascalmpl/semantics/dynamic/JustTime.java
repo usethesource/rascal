@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -33,13 +33,13 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			// Time is of the form $T<time>
 			String timePart = this.getString().substring(2);
 			return createVisitedTime(__eval, timePart, this);
 		}
 		
-		private Result<IValue> createVisitedTime(Evaluator eval, String timePart, org.rascalmpl.ast.JustTime.Lexical x) {
+		private Result<IValue> createVisitedTime(IEvaluator<Result<IValue>> eval, String timePart, org.rascalmpl.ast.JustTime.Lexical x) {
 			try {
 				timePart.replaceAll(":","");
 

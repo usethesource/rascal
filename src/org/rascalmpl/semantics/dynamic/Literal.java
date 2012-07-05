@@ -28,7 +28,7 @@ import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.RegExpLiteral;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringLiteral;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StringTemplateConverter;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -55,7 +55,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			java.lang.String str = ((BooleanLiteral.Lexical) this.getBooleanLiteral()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
@@ -78,7 +78,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return this.getDateTimeLiteral().interpret(__eval);
 
@@ -103,7 +103,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getIntegerLiteral().interpret(__eval);
 		}
 
@@ -121,7 +121,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return this.getLocationLiteral().interpret(__eval);
 
@@ -146,7 +146,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			java.lang.String str = ((RealLiteral.Lexical) this.getRealLiteral()).getString();
 			if (str.toLowerCase().endsWith("d")) {
@@ -176,7 +176,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			java.lang.String str = ((RationalLiteral.Lexical) this.getRationalLiteral()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					org.rascalmpl.interpreter.Evaluator.__getTf().rationalType(),
@@ -203,7 +203,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			throw new SyntaxError(
 					"regular expression. They are only allowed in a pattern (left of <- and := or in a case statement).",
@@ -230,7 +230,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			StringLiteral lit = this.getStringLiteral();
 
 			Statement stat = new StringTemplateConverter().convert(lit);

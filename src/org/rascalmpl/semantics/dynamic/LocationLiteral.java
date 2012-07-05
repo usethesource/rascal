@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.PathPart;
 import org.rascalmpl.ast.ProtocolPart;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral {
@@ -35,7 +35,7 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> protocolPart = this.getProtocolPart().interpret(
 					__eval);

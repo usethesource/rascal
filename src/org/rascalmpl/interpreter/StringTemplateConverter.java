@@ -103,7 +103,7 @@ public class StringTemplateConverter {
 			} 
 			
 			@Override
-			public Result<IValue> interpret(Evaluator __eval) {
+			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				Accumulator target = getTarget(__eval);
 				
 				// TODO refactor this: pull up to Append
@@ -176,7 +176,7 @@ public class StringTemplateConverter {
 			}
 			
 			@Override
-			public Result<IValue> interpret(Evaluator __eval) {
+			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				Result<IValue> result = ResultFactory.makeResult(str.getType(), str, __eval);
 				getTarget(__eval).append(result);
 				return result;
@@ -224,7 +224,7 @@ public class StringTemplateConverter {
 			}
 			
 			@Override
-			public Result<IValue> interpret(Evaluator __eval) {
+			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				__eval.indent(getIndent());
 				return super.interpret(__eval);
 			}
@@ -238,7 +238,7 @@ public class StringTemplateConverter {
 			}
 			
 			@Override
-			public Result<IValue> interpret(Evaluator __eval) {
+			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				__eval.unindent();
 				__eval.indent(getIndent());
 				return super.interpret(__eval);
@@ -252,7 +252,7 @@ public class StringTemplateConverter {
 			}
 			
 			@Override
-			public Result<IValue> interpret(Evaluator __eval) {
+			public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 				__eval.unindent();
 				return super.interpret(__eval);
 			}

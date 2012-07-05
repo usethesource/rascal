@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
@@ -27,7 +27,7 @@ public abstract class MidPathChars extends org.rascalmpl.ast.MidPathChars {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			String s = this.getString();
 			s = s.substring(1, s.length() - 1);
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(

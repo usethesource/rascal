@@ -26,7 +26,7 @@ import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.Visibility;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.JavaMethod;
@@ -48,7 +48,7 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -80,7 +80,7 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -121,7 +121,7 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -154,7 +154,7 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 

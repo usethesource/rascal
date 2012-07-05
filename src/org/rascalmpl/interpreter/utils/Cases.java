@@ -16,7 +16,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
@@ -112,7 +112,7 @@ public class Cases  {
 	public static abstract class CaseBlock {
 		public boolean hasRegExp = false;
 		public boolean allConcrete = false;
-		public abstract boolean matchAndEval(Evaluator eval, Result<IValue> subject);
+		public abstract boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject);
 		
 		protected void computePredicates(Case c) {
 			if (c.hasPatternWithAction()) {
@@ -149,7 +149,7 @@ public class Cases  {
 		}
 
 		@Override
-		public boolean matchAndEval(Evaluator eval, Result<IValue> subject) {
+		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
 			org.eclipse.imp.pdb.facts.type.Type subjectType = value
 					.getType();
@@ -187,7 +187,7 @@ public class Cases  {
 		}
 
 		@Override
-		public boolean matchAndEval(Evaluator __eval, Result<IValue> subject) {
+		public boolean matchAndEval(IEvaluator<Result<IValue>> __eval, Result<IValue> subject) {
 			if (theCase.isDefault()) {
 				theCase.getStatement().interpret(__eval);
 				return true;
@@ -238,7 +238,7 @@ public class Cases  {
 		}
 
 		@Override
-		public boolean matchAndEval(Evaluator eval, Result<IValue> subject) {
+		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
 			org.eclipse.imp.pdb.facts.type.Type subjectType = value
 					.getType();

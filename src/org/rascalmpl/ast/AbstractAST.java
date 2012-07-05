@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.AssignableEvaluator;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
@@ -139,7 +139,7 @@ public abstract class AbstractAST implements IVisitable {
 		return src + ":" + getClass();
 	}
 
-	public Result<IValue> interpret(Evaluator eval) {
+	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		throw new NotYetImplemented(this);
 	}
 
@@ -147,7 +147,7 @@ public abstract class AbstractAST implements IVisitable {
 		throw new NotYetImplemented(this);
 	}
 	
-	public String declareSyntax(Evaluator eval, boolean withImports) {
+	public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 		throw new NotYetImplemented(this);
 	}
 

@@ -26,7 +26,7 @@ import org.rascalmpl.ast.Tags;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Visibility;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -41,7 +41,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.__getTypeDeclarator().declareAlias(this,
 					__eval.getCurrentEnvt());
@@ -61,7 +61,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Type annoType = getAnnoType().typeOf(__eval.getCurrentEnvt());
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
@@ -86,7 +86,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.__getTypeDeclarator().declareConstructor(this,
 					__eval.getCurrentEnvt());
@@ -105,7 +105,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.__getTypeDeclarator().declareAbstractADT(this,
 					__eval.getCurrentEnvt());
@@ -122,7 +122,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return this.getFunctionDeclaration().interpret(__eval);
 
@@ -139,7 +139,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> r = org.rascalmpl.interpreter.result.ResultFactory
 					.nothing();

@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidProtocolChars;
 import org.rascalmpl.ast.PostProtocolChars;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
@@ -30,7 +30,7 @@ public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> pre = this.getMid().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> tail = this.getTail().interpret(__eval);
@@ -47,7 +47,7 @@ public abstract class ProtocolTail extends org.rascalmpl.ast.ProtocolTail {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getPost().interpret(__eval);
 		}
 

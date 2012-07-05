@@ -31,6 +31,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
@@ -88,7 +89,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = Names.name(this.getAnnotation());
@@ -211,7 +212,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			throw new ImplementationError(
 					"Constructor assignable does not represent a value");
@@ -317,7 +318,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = org.rascalmpl.interpreter.utils.Names.name(this
@@ -405,7 +406,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			throw new ImplementationError(
 					"ifdefined assignable does not represent a value");
@@ -547,7 +548,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		 * Return an evaluation result that is already in normal form, i.e., all
 		 * potential rules have already been applied to it.
 		 */
-		private Result<IValue> normalizedResult(Evaluator __eval, Type t, IValue v) {
+		private Result<IValue> normalizedResult(IEvaluator<Result<IValue>> __eval, Type t, IValue v) {
 			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
 			Type instance;
 
@@ -573,7 +574,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			Result<IValue> subscript = this.getSubscript().interpret(__eval);
@@ -664,7 +665,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			throw new ImplementationError(
 					"Tuple in assignable does not represent a value:" + this);
@@ -707,7 +708,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
 

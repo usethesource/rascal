@@ -22,6 +22,7 @@ import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -37,7 +38,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			String name = eval.getModuleName(this);
 
 			GlobalEnvironment heap = eval.__getHeap();
@@ -105,7 +106,7 @@ public abstract class Module extends org.rascalmpl.ast.Module {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			String name = __eval.getModuleName(this);
 

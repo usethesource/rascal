@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.DateAndTime;
 import org.rascalmpl.ast.JustDate;
 import org.rascalmpl.ast.JustTime;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral {
@@ -31,7 +31,7 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getDateAndTime().interpret(__eval);
 		}
 
@@ -45,7 +45,7 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getDate().interpret(__eval);
 		}
 
@@ -59,7 +59,7 @@ public abstract class DateTimeLiteral extends org.rascalmpl.ast.DateTimeLiteral 
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getTime().interpret(__eval);
 		}
 

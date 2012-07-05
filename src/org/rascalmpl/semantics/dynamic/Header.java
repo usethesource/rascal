@@ -21,7 +21,7 @@ import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.ModuleParameters;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Tags;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Header extends org.rascalmpl.ast.Header {
@@ -34,7 +34,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			for (Import i : getImports()) {
 				if (i.isSyntax()) {
 					i.declareSyntax(eval, withImports);
@@ -50,12 +50,12 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			visitImports(__eval, this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 		
-		public static void visitImports(Evaluator eval, List<Import> imports) {
+		public static void visitImports(IEvaluator<Result<IValue>> eval, List<Import> imports) {
 			for (Import i : imports) {
 				i.interpret(eval);
 			}
@@ -72,7 +72,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			for (Import i : getImports()) {
 				if (i.isSyntax()) {
 					i.declareSyntax(eval, withImports);
@@ -88,7 +88,7 @@ public abstract class Header extends org.rascalmpl.ast.Header {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			org.rascalmpl.semantics.dynamic.Header.Default.visitImports(__eval, this.getImports());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
