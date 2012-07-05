@@ -1723,8 +1723,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	}
 
 	@Override
-	public void notifyAboutSuspension(IEvaluator<?> evaluator,
-			AbstractAST currentAST) {
+	public void notifyAboutSuspension(AbstractAST currentAST) {
 		// emtpy, because {@link Evaluator) does not support debugging.
 		
 	}

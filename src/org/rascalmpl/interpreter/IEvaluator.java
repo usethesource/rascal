@@ -25,10 +25,8 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	/**
 	 * Notify subscribers about a suspension caused while interpreting the program.
-	 * 
-	 * @param evaluator the evaluator in charge of interpreting @param context.
 	 * @param currentAST the AST that is causes the suspension.
 	 */
-	public void notifyAboutSuspension(IEvaluator<?> evaluator, AbstractAST currentAST);
+	public void notifyAboutSuspension(AbstractAST currentAST);
 	
 }
