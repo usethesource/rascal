@@ -169,7 +169,7 @@ public class AssignableEvaluator {
 		return this.__getEval().getCurrentEnvt();
 	}
 
-	public Evaluator getEvaluator() {
+	public IEvaluator<Result<IValue>> getEvaluator() {
 		return this.__getEval().getEvaluator();
 	}
 

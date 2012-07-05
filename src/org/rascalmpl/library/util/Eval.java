@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -68,8 +69,8 @@ public class Eval {
 		duration = values.integer(1000*100); // default duration for eval
 	}
 
-	private ModuleEnvironment getUniqueModuleEnvironment(Evaluator eval) {
-		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount++ , eval.getHeap());
+	private ModuleEnvironment getUniqueModuleEnvironment(IEvaluatorContext ctx) {
+		ModuleEnvironment mod = new ModuleEnvironment("___EVAL_INSTANCE___" + evalCount++ , ctx.getHeap());
 		return mod;
 	}
 
@@ -139,7 +140,7 @@ public class Eval {
 	}
 	
 	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx, boolean forRascal) {
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 
 		Result<IValue> result = null;
@@ -242,9 +243,9 @@ public class Eval {
 	}
 
 	public static class EvalTimer extends Timer {
-		private Evaluator eval;
+		private IEvaluator<Result<IValue>> eval;
 
-		public EvalTimer(Evaluator eval, int timeout) {
+		public EvalTimer(IEvaluator<Result<IValue>> eval, int timeout) {
 			super(timeout);
 			this.eval = eval;
 		}

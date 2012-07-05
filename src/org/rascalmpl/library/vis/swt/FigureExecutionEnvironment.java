@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -134,7 +134,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	public IConstructor executeRascalFigureCallBack(IValue callback,
 			Type[] argTypes, IValue[] argVals) {
 		IConstructor c = (IConstructor)executeRascalCallBack(callback, argTypes, argVals).getValue();
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 		return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);
 	}
 

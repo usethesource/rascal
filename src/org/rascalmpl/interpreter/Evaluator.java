@@ -221,6 +221,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		resolverRegistry.registerInputOutput(new TempURIResolver());
 	}
 
+	@Override
 	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
 		if (monitor == this) {
 			return monitor;
@@ -289,6 +290,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			return monitor.isCanceled();
 	}
 	
+	@Override
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml) {
 		constructorDeclaredListeners.put(iml,dummy);
 	}
@@ -303,6 +305,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		constructorDeclaredListeners.clear();
 	}
 	
+	@Override
 	public List<ClassLoader> getClassLoaders() {
 		return Collections.unmodifiableList(classLoaders);
 	}
@@ -389,6 +392,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return resolverRegistry;
 	}
 
+	@Override
 	public RascalURIResolver getRascalResolver() {
 		return rascalPathResolver;
 	}
@@ -414,6 +418,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * @return either null if its a void function, or the return value of the
 	 *         function.
 	 */
+	@Override
 	public IValue call(IRascalMonitor monitor, String name, IValue... args) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -430,6 +435,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * @return either null if its a void function, or the return value of the
 	 *         function.
 	 */
+	@Override
 	public IValue call(IRascalMonitor monitor, String module, String name, IValue... args) {
 		IRascalMonitor old = setMonitor(monitor);
 		Environment oldEnv = getCurrentEnvt();
@@ -445,6 +451,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override
 	public IValue call(String name, IValue... args) {
 		QualifiedName qualifiedName = Names.toQualifiedName(name);
 		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
@@ -516,6 +523,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 
+	@Override
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, URI location){
 		IRascalMonitor old = setMonitor(monitor);
 		
@@ -529,7 +537,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
-	
+	@Override
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
@@ -539,6 +547,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
@@ -621,11 +630,13 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 
+	@Override
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
 		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
 	}
 	
+	@Override
 	public IConstructor getGrammar(IRascalMonitor monitor, URI uri) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -771,6 +782,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * @param command
 	 * @return
 	 */
+	@Override
 	public Result<IValue> eval(IRascalMonitor monitor, String command, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -787,6 +799,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * @param command
 	 * @return
 	 */
+	@Override
 	public Result<IValue> evalMore(IRascalMonitor monitor, String commands, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -864,6 +877,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return true;
 	}
 
+	@Override
 	public IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -887,6 +901,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 
+	@Override
 	public IConstructor parseCommands(IRascalMonitor monitor, String commands, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -906,6 +921,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
@@ -1269,6 +1285,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 * use Rascal to implement Rascal. Parsing a module currently has the side
 	 * effect of declaring non-terminal types in the given environment.
 	 */
+	@Override
 	public IConstructor parseModule(IRascalMonitor monitor, URI location, ModuleEnvironment env) throws IOException{
 		URI resolved = rascalPathResolver.resolve(location);
 		if(resolved != null){
@@ -1297,6 +1314,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
+	@Override
 	public IConstructor parseModuleWithoutIncludingExtends(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
@@ -1689,7 +1707,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	}
 
 	@Override	
-	public Evaluator getEvaluator() {
+	public IEvaluator<Result<IValue>> getEvaluator() {
 		return this;
 	}
 

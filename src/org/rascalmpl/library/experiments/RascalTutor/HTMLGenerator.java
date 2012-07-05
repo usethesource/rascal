@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
@@ -170,7 +171,7 @@ public class HTMLGenerator {
 	
 	
 	private Result<IValue> eval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 
 		Result<IValue> result = null;

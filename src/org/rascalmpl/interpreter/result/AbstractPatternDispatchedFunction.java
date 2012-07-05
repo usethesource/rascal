@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -22,7 +22,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final Type type;
 	private final int arity;
 
-	public AbstractPatternDispatchedFunction(Evaluator eval, Type type, Map<String, List<AbstractFunction>> alternatives) {
+	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, Type type, Map<String, List<AbstractFunction>> alternatives) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null); // ?? I don't know if this will work..
 		this.type = type;
 		this.alternatives = alternatives;

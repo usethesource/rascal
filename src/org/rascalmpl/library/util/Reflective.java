@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -46,22 +46,22 @@ public class Reflective {
 	
 	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
 		URI uri = loc.getURI();
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.getGrammar(evaluator.getMonitor(), uri);
 	}
 	
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.parseCommand(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 
 	public IValue parseCommands(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
-		Evaluator evaluator = ctx.getEvaluator();
+		IEvaluator<?> evaluator = ctx.getEvaluator();
 		return evaluator.parseModuleWithoutIncludingExtends(evaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), new ModuleEnvironment("___parseModule___", ctx.getHeap()));
 	}
 }
