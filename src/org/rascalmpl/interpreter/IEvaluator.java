@@ -23,9 +23,12 @@ import org.rascalmpl.ast.AbstractAST;
  */
 public interface IEvaluator<T> extends IEvaluatorContext {
 
-	/* (non-Javadoc)
-	 * Event handling callback, managing the current debugging state.
+	/**
+	 * Notify subscribers about a suspension caused while interpreting the program.
+	 * 
+	 * @param evaluator the evaluator in charge of interpreting @param context.
+	 * @param currentAST the AST that is causes the suspension.
 	 */
-	public void suspend(AbstractAST currentAST);
+	public void notifyAboutSuspension(IEvaluator<?> evaluator, AbstractAST currentAST);
 	
 }

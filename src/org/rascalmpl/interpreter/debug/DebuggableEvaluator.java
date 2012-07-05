@@ -18,6 +18,8 @@ package org.rascalmpl.interpreter.debug;
 
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -26,6 +28,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -37,24 +40,19 @@ import org.rascalmpl.interpreter.result.Result;
  * TODO: remove this class an; capture debugging state in a separate class that
  * becomes a field in {@link Evaluator};
  */
-public class DebuggableEvaluator extends Evaluator {
+public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrigger {
 	
 	protected final DebuggingHandler debuggingHandler;
+	
+	protected final List<IRascalSuspendTriggerListener> suspendTriggerListeners;
 	
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
 			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
-		this.debuggingHandler = new DebuggingHandler(debugger);
-	}
 
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.IEvaluator#suspend(org.rascalmpl.ast.AbstractAST)
-	 * 
-	 * TODO: Remove indirection and delegation.
-	 */
-	@Override
-	public void suspend(AbstractAST currentAST) {		
-		debuggingHandler.suspended(this, currentAST);
+		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
+		this.debuggingHandler = new DebuggingHandler(debugger);
+		addSuspendTriggerListener(debuggingHandler);
 	}
 
 	/* 
@@ -122,5 +120,26 @@ public class DebuggableEvaluator extends Evaluator {
 		
 		return result;	
 	}
+	
+	@Override
+	public void addSuspendTriggerListener(IRascalSuspendTriggerListener listener) {
+		suspendTriggerListeners.add(listener);
+	}
 
+	@Override
+	public void removeSuspendTriggerListener(
+			IRascalSuspendTriggerListener listener) {
+		suspendTriggerListeners.remove(listener);
+	}
+	
+	@Override
+	public void notifyAboutSuspension(IEvaluator<?> evaluator, AbstractAST currentAST) {
+		 /* 
+		  * NOTE: book-keeping of the listeners and notification takes place here,
+		  * delegated from the individual AST nodes.
+		  */
+		for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+			listener.suspended(evaluator, currentAST);
+		}
+	}
 }
