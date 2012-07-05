@@ -19,10 +19,12 @@ package org.rascalmpl.interpreter;
 import java.io.PrintWriter;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.strategy.IStrategyContext;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -41,7 +43,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public PrintWriter getStdErr();
 	
 	/** for "internal use" */
-	public Evaluator getEvaluator();
+	public IEvaluator<Result<IValue>> getEvaluator();
 	public ASTBuilder getBuilder();
 	public boolean isInterrupted();
 	public void interrupt();
