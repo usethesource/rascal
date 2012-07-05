@@ -16,7 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.DecimalIntegerLiteral.Lexical;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
@@ -30,7 +30,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			String str = ((Lexical) this.getDecimal()).getString();
 			return org.rascalmpl.interpreter.result.ResultFactory
 					.makeResult(org.rascalmpl.interpreter.Evaluator.__getTf()
@@ -49,7 +49,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getHex().interpret(__eval);
 		}
 
@@ -64,7 +64,7 @@ public abstract class IntegerLiteral extends org.rascalmpl.ast.IntegerLiteral {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return this.getOctal().interpret(__eval);
 		}
 

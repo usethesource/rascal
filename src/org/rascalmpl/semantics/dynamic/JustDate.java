@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -33,13 +33,13 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			// Date is of the form $<date>
 			String datePart = this.getString().substring(1);
 			return createVisitedDate(__eval, datePart, this);
 		}
 		
-		private Result<IValue> createVisitedDate(Evaluator eval, String datePart, org.rascalmpl.ast.JustDate.Lexical x) {
+		private Result<IValue> createVisitedDate(IEvaluator<Result<IValue>> eval, String datePart, org.rascalmpl.ast.JustDate.Lexical x) {
 			try {
 				datePart.replaceAll("-", "");
 

@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
@@ -71,7 +71,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Result<IValue> interpret(Evaluator eval) {
+	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		Result<IValue> variable = eval.getCurrentEnvt().getVariable(name);
 
 		if (variable == null) {
@@ -123,7 +123,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Result<IValue> interpret(Evaluator eval) {
+	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		if (constant) {
 			return makeResult(type, node, eval);
 		}
@@ -212,7 +212,7 @@ public abstract class Tree {
 		return new ConcreteListPattern(eval, this,  kids);
 	}
 	
-	public Result<IValue> interpret(Evaluator eval) {
+	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		if (constant) {
 			return makeResult(type, node, eval);
 		}
@@ -289,7 +289,7 @@ public abstract class Tree {
 	}
 	
 	@Override
-	public Result<IValue> interpret(Evaluator eval) {
+	public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		if (constant) {
 			return makeResult(type, node, eval);
 		}
@@ -341,7 +341,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Result<IValue> interpret(Evaluator eval) {
+	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  // TODO allow override
 		  return makeResult(Factory.Tree, node, eval);
 	  }
@@ -368,7 +368,7 @@ public abstract class Tree {
 	  }
 
 	  @Override
-	  public Result<IValue> interpret(Evaluator eval) {
+	  public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 		  return makeResult(Factory.Tree, Factory.Tree_Cycle.make(VF, node, VF.integer(length)), eval);
 	  }
 

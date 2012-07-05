@@ -33,7 +33,7 @@ import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.BreakException;
 import org.rascalmpl.interpreter.control_exceptions.ContinueException;
@@ -60,7 +60,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(node, __param2, __param3);
 		}
 		
-		protected Accumulator getTarget(Evaluator __eval) {
+		protected Accumulator getTarget(IEvaluator<Result<IValue>> __eval) {
 			if (__eval.__getAccumulators().empty()) { 
 				throw new AppendWithoutLoop(this);
 			}
@@ -77,7 +77,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -117,7 +117,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -150,7 +150,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -186,7 +186,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -207,7 +207,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -230,7 +230,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -255,7 +255,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -313,7 +313,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -332,7 +332,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -357,7 +357,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -378,7 +378,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			super(__param1);
 		}
 		
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -398,7 +398,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -518,7 +518,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -538,7 +538,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			throw new NotYetImplemented(this); // TODO
 		}
 
@@ -553,7 +553,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -628,7 +628,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -703,7 +703,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -724,7 +724,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -755,7 +755,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -776,7 +776,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -870,7 +870,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -895,7 +895,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
 					.getCurrentAST(), __eval.getStackTrace());
@@ -911,11 +911,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return evalStatementTry(__eval, this.getBody(), this.getHandlers(), null);
 		}
 		
-		static public Result<IValue> evalStatementTry(Evaluator eval, org.rascalmpl.ast.Statement body, java.util.List<Catch> handlers, org.rascalmpl.ast.Statement finallyBody) {
+		static public Result<IValue> evalStatementTry(IEvaluator<Result<IValue>> eval, org.rascalmpl.ast.Statement body, java.util.List<Catch> handlers, org.rascalmpl.ast.Statement finallyBody) {
 			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 			try {
@@ -959,7 +959,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -979,7 +979,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -998,7 +998,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
@@ -1018,7 +1018,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);

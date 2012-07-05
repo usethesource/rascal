@@ -22,7 +22,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -32,7 +32,7 @@ import org.rascalmpl.values.uptr.Factory;
 public class ConstructorFunction extends NamedFunction {
 	private Type constructorType;
 
-	public ConstructorFunction(AbstractAST ast, Evaluator eval, Environment env, Type constructorType) {
+	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType) {
 		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes()), constructorType.getName(), false, env);
 		this.constructorType = constructorType;
 	}

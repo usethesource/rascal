@@ -29,7 +29,7 @@ import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -51,7 +51,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		
 	
 		@Override
-		public Result<IValue> interpret(Evaluator eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			// Compute the URI location, which contains the scheme (and other info we need later)
 			ISourceLocation sl = (ISourceLocation)getAt().interpret(eval).getValue();
 			
@@ -137,7 +137,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 		
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			// TODO: this means that external imports do not support syntax definition for now
 			return Names.fullName(getName());
 		}
@@ -155,7 +155,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
 			eval.extendCurrentModule(this, name);
 			
@@ -167,7 +167,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 		
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			String name = Names.fullName(this.getModule().getName());
 
 			GlobalEnvironment heap = eval.__getHeap();
@@ -202,7 +202,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			String name = Names.fullName(this.getModule().getName());
 
 			GlobalEnvironment heap = eval.__getHeap();
@@ -235,7 +235,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			// TODO support for full complexity of import declarations
 			String name = Names.fullName(this.getModule().getName());
 			GlobalEnvironment heap = __eval.__getHeap();
@@ -274,12 +274,12 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		}
 
 		@Override
-		public String declareSyntax(Evaluator eval, boolean withImports) {
+		public String declareSyntax(IEvaluator<Result<IValue>> eval, boolean withImports) {
 			return getSyntax().declareSyntax(eval, withImports);
 		}
 		
 		@Override
-		public Result<IValue> interpret(Evaluator eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String parseTreeModName = "ParseTree";
 			if (!eval.__getHeap().existsModule(parseTreeModName)) {
 				eval.evalRascalModule(this, parseTreeModName);

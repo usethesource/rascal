@@ -13,7 +13,7 @@ package org.rascalmpl.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 
 public interface ICallableValue extends IValue {
@@ -23,5 +23,5 @@ public interface ICallableValue extends IValue {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues);
 	public boolean isStatic();
 	
-	public Evaluator getEval();
+	public IEvaluator<Result<IValue>> getEval();
 }

@@ -65,10 +65,11 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaCompilationError;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingTagError;
@@ -335,7 +336,7 @@ public class JavaBridge {
 		throw new JavaMethodLinkError(className, "class not found", func, null);
 	}
 
-	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
+	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){
 		if(!func.isAbstract()){
 			throw new NonAbstractJavaFunctionError(func);
 		}

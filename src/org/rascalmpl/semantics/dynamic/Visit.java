@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Strategy;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator;
 import org.rascalmpl.interpreter.TraversalEvaluator.CaseBlockList;
 import org.rascalmpl.interpreter.TraversalEvaluator.DIRECTION;
@@ -44,7 +44,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 			TraversalEvaluator te = new TraversalEvaluator(__eval);
 
@@ -70,7 +70,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> subject = this.getSubject().interpret(__eval);
 

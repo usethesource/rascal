@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
@@ -17,12 +18,12 @@ public abstract class ComprehensionWriter {
 	protected org.eclipse.imp.pdb.facts.type.Type resultType;
 	protected final java.util.List<Expression> resultExprs;
 	protected IWriter writer;
-	protected final org.rascalmpl.interpreter.Evaluator ev;
+	protected final org.rascalmpl.interpreter.IEvaluator<Result<IValue>> ev;
 	protected final TypeFactory TF;
 	protected final IValueFactory VF;
 
 	ComprehensionWriter(java.util.List<Expression> resultExprs,
-			org.rascalmpl.interpreter.Evaluator ev) {
+			IEvaluator<Result<IValue>> ev) {
 		this.ev = ev;
 		this.resultExprs = resultExprs;
 		this.writer = null;

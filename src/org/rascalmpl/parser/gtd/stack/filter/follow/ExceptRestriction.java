@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter.follow;
 
-import java.util.LinkedList;
-
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;

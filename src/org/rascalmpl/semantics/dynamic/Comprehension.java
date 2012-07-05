@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
@@ -34,7 +34,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return evalComprehension(__eval, this.getGenerators(),
 					new ListComprehensionWriter(this.getResults(), __eval));
 		}
@@ -49,7 +49,7 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			java.util.List<Expression> resultExprs = new ArrayList<Expression>();
 			resultExprs.add(this.getFrom());
 			resultExprs.add(this.getTo());
@@ -66,13 +66,13 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			return evalComprehension(__eval, this.getGenerators(),
 					new SetComprehensionWriter(this.getResults(), __eval));
 		}
 	}
 
-	public static Result<IValue> evalComprehension(Evaluator eval,
+	public static Result<IValue> evalComprehension(IEvaluator<Result<IValue>> eval,
 			java.util.List<Expression> generators, ComprehensionWriter w) {
 		int size = generators.size();
 		IBooleanResult[] gens = new IBooleanResult[size];

@@ -16,7 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Declaration;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class Toplevel extends org.rascalmpl.ast.Toplevel {
@@ -29,7 +29,7 @@ public abstract class Toplevel extends org.rascalmpl.ast.Toplevel {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			return this.getDeclaration().interpret(__eval);
 

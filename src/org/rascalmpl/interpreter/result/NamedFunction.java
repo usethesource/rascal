@@ -12,15 +12,16 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
 
 abstract public class NamedFunction extends AbstractFunction {
 	protected final String name;
 	
-	public NamedFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, String name,
+	public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, String name,
 			boolean varargs, Environment env) {
 		super(ast, eval, functionType, varargs, env);
 		this.name = name;

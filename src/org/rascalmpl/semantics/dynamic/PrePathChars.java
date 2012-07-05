@@ -15,7 +15,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class PrePathChars extends org.rascalmpl.ast.PrePathChars {
@@ -27,7 +27,7 @@ public abstract class PrePathChars extends org.rascalmpl.ast.PrePathChars {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			String str = this.getString();
 			return org.rascalmpl.interpreter.result.ResultFactory

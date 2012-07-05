@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -43,7 +43,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
-    protected final Evaluator eval;
+    protected final IEvaluator<Result<IValue>> eval;
     
     protected final FunctionType functionType;
 	protected final boolean hasVarArgs;
@@ -57,7 +57,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, Evaluator eval, FunctionType functionType, boolean varargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
 		this.functionType = functionType;
@@ -400,7 +400,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return functionType.getReturnType();
 	}
 
-	public Evaluator getEval() {
+	public IEvaluator<Result<IValue>> getEval() {
 		return eval;
 	}
 	

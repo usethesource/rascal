@@ -3,14 +3,15 @@ package org.rascalmpl.semantics.dynamic;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public class ListComprehensionWriter extends ComprehensionWriter {
 
 
 	public ListComprehensionWriter(java.util.List<Expression> resultExprs,
-			org.rascalmpl.interpreter.Evaluator ev) {
-		super(resultExprs, ev);
+			IEvaluator<Result<IValue>> __eval) {
+		super(resultExprs, __eval);
 		this.writer = VF.listWriter();
 		this.elementType1 = TF.voidType();
 	}

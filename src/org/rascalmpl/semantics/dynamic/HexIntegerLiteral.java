@@ -17,7 +17,7 @@ import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class HexIntegerLiteral extends
@@ -31,7 +31,7 @@ public abstract class HexIntegerLiteral extends
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			String chars = this.getString();
 			String hex = chars.substring(2, chars.length());

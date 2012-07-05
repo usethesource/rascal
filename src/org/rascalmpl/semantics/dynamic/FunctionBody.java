@@ -18,7 +18,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
@@ -30,7 +30,7 @@ public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Result<IValue> result = org.rascalmpl.interpreter.result.ResultFactory
 					.nothing();

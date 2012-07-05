@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
@@ -35,7 +35,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			// Split into date and time components; of the form $<date>T<time>
 			String dtPart = this.getString().substring(1);
 			String datePart = dtPart.substring(0, dtPart.indexOf("T"));
@@ -49,7 +49,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 			return TF.dateTimeType();
 		}
 		
-		public Result<IValue> createVisitedDateTime(Evaluator eval, String datePart, String timePart, Lexical x) {
+		public Result<IValue> createVisitedDateTime(IEvaluator<Result<IValue>> eval, String datePart, String timePart, Lexical x) {
 			try {
 				StandardTextReader parser = new StandardTextReader();
 				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));

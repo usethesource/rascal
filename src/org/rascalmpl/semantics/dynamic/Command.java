@@ -16,7 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.ShellCommand;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -31,7 +31,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			return this.getDeclaration().interpret(__eval);
@@ -47,7 +47,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			Environment old = __eval.getCurrentEnvt();
 
@@ -70,7 +70,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
 			Result<IValue> res = this.getImported().interpret(__eval);
 
@@ -93,7 +93,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
 			return this.getCommand().interpret(__eval);
@@ -109,7 +109,7 @@ public abstract class Command extends org.rascalmpl.ast.Command {
 		}
 
 		@Override
-		public Result<IValue> interpret(Evaluator __eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this.getStatement());
 			return __eval.eval(this.getStatement());
