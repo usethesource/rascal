@@ -35,6 +35,7 @@ import lang::csv::syntax::Parse;
 import lang::csv::ast::CSV;
 import lang::csv::ast::Implode;
 import Type;
+import Map;
 
 @doc{
 Synopsis: Read a relation from a CSV (Comma Separated Values) file.
@@ -160,3 +161,31 @@ public java void writeCSV(&T relation, loc location, map[str,str] options);
 public Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 
 public Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
+
+@doc{Generator for CSV resources}
+@resource{csv}
+public str generate(str moduleName, loc uri) {
+    map[str,str] options = uri.params;
+
+    // We can pass the name of the function to generate. If we did, grab it then remove
+    // it from the params, which should just contain those needed by the JDBC driver.
+    str funname = "resourceValue";
+    if ("funname" in options) {
+        funname = options["funname"];
+        options = domainX(options,{"funname"});
+    }
+        
+    type[value] csvType = getCSVType(uri, options);
+    
+    mbody = "module <moduleName>
+            'import lang::csv::IO;
+            '
+            'alias <funname>Type = <csvType>;
+            '
+            'public <funname>Type <funname>() {
+            '   return readCSV(#<csvType>, <uri>, <options>);
+            '}
+            '";
+            
+    return mbody;
+}
