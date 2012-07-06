@@ -168,7 +168,7 @@ public str generate(str moduleName, loc uri) {
     map[str,str] options = uri.params;
 
     // We can pass the name of the function to generate. If we did, grab it then remove
-    // it from the params, which should just contain those needed by the JDBC driver.
+    // it from the params.
     str funname = "resourceValue";
     if ("funname" in options) {
         funname = options["funname"];
