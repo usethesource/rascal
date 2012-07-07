@@ -89,6 +89,7 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
 	}
 	
+	@Override
 	public void reset() {
 		super.reset();
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
@@ -308,6 +309,7 @@ public class ModuleEnvironment extends Environment {
 		extended.remove(moduleName);
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -379,6 +381,7 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
+	@Override
 	public org.rascalmpl.interpreter.result.Result<IValue> getSimpleVariable(String name) {
 		Result<IValue> var = super.getSimpleVariable(name);
 		
@@ -401,6 +404,7 @@ public class ModuleEnvironment extends Environment {
 	/**
 	 * Search for the environment that declared a variable.
 	 */
+	@Override
 	protected Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
 		if (variableEnvironment != null) {
 			Result<IValue> r = variableEnvironment.get(name);
@@ -443,6 +447,9 @@ public class ModuleEnvironment extends Environment {
 			mod.getLocalPublicFunctions(returnType, name, collection);
 		}
 	}
+	
+
+	
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
 		Result<IValue> var = null;
@@ -490,6 +497,7 @@ public class ModuleEnvironment extends Environment {
 		return TF.abstractDataType(typeStore, name, parameters);
 	}
 	
+	@Override
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		NonTerminalType sort = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(symbol);
 		concreteSyntaxTypes.put(name, sort);
