@@ -337,6 +337,7 @@ public class IO {
 	
 	/**
 	 * Normalize a label in the header for use in the relation type.
+	 * The name is escaped to avoid conflicts with Rascal keywords.
 	 * @param label	The string found in the header
 	 * @param pos	Position in the header
 	 * @return		The label (with non-fieldname characters removed) or "field<pos>" when empty
@@ -345,7 +346,8 @@ public class IO {
 		label = label.replaceAll("[^a-zA-Z0-9]+", "");
 		if(label.isEmpty())
 			return "field" + pos;
-		return label;
+		else 
+		  return "\\" + label;
 	}
 	
 	/**
