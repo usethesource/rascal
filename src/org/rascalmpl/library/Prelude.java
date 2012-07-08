@@ -74,6 +74,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
 import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
@@ -2459,6 +2460,28 @@ public class Prelude {
 			return (IString) value;
 		}
 		return values.string(value.toString());
+	}
+	
+	/*
+	 *  !!EXPERIMENTAL!!
+	 * Tuple
+	 */
+	
+	public IList fieldsOf(IValue v){
+		if(!v.getType().isTupleType())
+			throw RuntimeExceptionFactory.illegalArgument(v, null, null, "argument of type tuple is required");
+		ITuple tp = (ITuple) v;
+		Type tt = tp.getType();
+		int a = tt.getArity();
+		Type listType = types.listType(types.stringType());
+		IListWriter w = listType.writer(values);
+		for(int i = 0; i < a; i++){
+			String fname = tt.getFieldName(i);
+			if(fname == null)
+				fname = "";
+			w.append(values.string(fname));
+		}
+		return w.done();
 	}
 	
 	/*
