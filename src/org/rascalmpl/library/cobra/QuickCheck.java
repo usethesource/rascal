@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -100,7 +99,7 @@ public class QuickCheck {
 				} else if (verbose) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
-			} catch (Throw e) {
+			} catch (Throwable e) {
 				out.println("FAILED with " + Arrays.toString(values));
 				out.println(e.getMessage());
 				return false;
