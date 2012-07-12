@@ -13,6 +13,13 @@ test bool failureShouldBeReported(){
 	return /^FAILED with \[-*\d+\]$/ := getLog();
 }
 
+test bool successShouldBeReported(){
+	startLog();
+	quickcheck(bool (int a){return true;}, 5, 10 );
+	return /^Not refuted after 10 tries with maximum depth 5$/ := getLog();
+}
+
+
 test bool failureWithExceptionShouldBeReported(){
 	startLog();
 	quickcheck(bool (int a){throw IllegalArgument("My exception");}, 10, 10 );

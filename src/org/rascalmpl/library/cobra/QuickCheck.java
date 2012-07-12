@@ -107,9 +107,8 @@ public class QuickCheck {
 
 		}
 
-		if (verbose) {
-			out.println("Not refuted after " + tries + " tries with maximum depth " + maxDepth);
-		}
+		out.println("Not refuted after " + tries + " tries with maximum depth " + maxDepth);
+
 		return true;
 
 	}
