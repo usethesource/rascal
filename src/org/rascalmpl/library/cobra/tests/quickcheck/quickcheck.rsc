@@ -10,11 +10,11 @@ test bool testQCShouldFailWithIncorrectProperty(){
 }
 
 test bool testQCShouldFailWithCorrectProperty(){
-	return silentQuickcheck(bool (int a){return true;}, 10 );
+	return silentQuickcheck(bool (int a){return true;}, 10, 10 );
 }
 
 test bool testQCShouldFailWhenThrownException(){
-	return silentQuickcheck(bool (int a){throw IllegalArgument();}, 10 ) == false;
+	return silentQuickcheck(bool (int a){throw IllegalArgument();}, 10, 10 ) == false;
 }
 
 test bool withZeroArgsShouldEvaluateOnce(){
@@ -26,33 +26,33 @@ test bool withZeroArgsShouldEvaluateOnce(){
 }
 
 test bool testQCWithZeroArgs(){
-	return silentQuickcheck(bool (){return true;}, 10 );
+	return silentQuickcheck(bool (){return true;}, 10, 10 );
 }
 
 test bool testQCWithOneArg(){
-	return silentQuickcheck(bool (int a){return true;}, 10 );
+	return silentQuickcheck(bool (int a){return true;}, 10, 10 );
 }
 
 test bool testQCWithTwoArgs(){
-	return silentQuickcheck(bool (int a, str b){return false;}, 10 ) == false;
+	return silentQuickcheck(bool (int a, str b){return false;}, 10, 10 ) == false;
 }
 
 test bool testQCWithThreeArgs(){
-	return silentQuickcheck(bool (map[int, bool] a, rel[real, str] b, real c){return true;}, 10 );
+	return silentQuickcheck(bool (map[int, bool] a, rel[real, str] b, real c){return true;}, 10, 10);
 }
 
 test bool testQCWithFourArgs(){
-	return silentQuickcheck(bool (list[set[int]] a, str b, real c, list[int] d){return true;}, 10 );
+	return silentQuickcheck(bool (list[set[int]] a, str b, real c, list[int] d){return true;}, 10, 10 );
 }
 
 test bool testQCWithFiveArgs(){
-	return silentQuickcheck(bool (int a, str b, real c, list[int] d, set[str] e){return true;}, 10 );
+	return silentQuickcheck(bool (int a, str b, real c, list[int] d, set[str] e){return true;}, 10, 10 );
 }
 
 data myData = myData(int n);
 test bool quickcheckShouldThrowIllegalArgument(){
 	bool(myData) heightProp = bool(myData d) { return true; };
-	try quickcheck(heightProp, 0);
+	try quickcheck(heightProp, 0, 10);
 	catch IllegalArgument(0, _): return true;
 	return false;  
 }
@@ -93,7 +93,7 @@ test bool shouldThrowExceptionWhenReturnTypeNotBool(){
 
 data MyData = myData(int n);
 test bool shouldThrowExceptionWhenNoDepth(){
-	try quickcheck(bool(MyData d){ return true;}, 0);
+	try quickcheck(bool(MyData d){ return true;}, 0, 10);
 	catch IllegalArgument( int d, str e): {
 		return (d == 0 && e == "No construction possible at this depth or less.");
 	}
