@@ -119,10 +119,10 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>> {
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	protected Environment currentEnvt;
-	private StrategyContextStack strategyContextStack;
+	private final StrategyContextStack strategyContextStack;
 
 	private final GlobalEnvironment heap;
 	private boolean interrupt = false;
@@ -153,12 +153,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	private IRascalMonitor monitor;
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
-	private Stack<String> indentStack = new Stack<String>();
+	private final Stack<String> indentStack = new Stack<String>();
 	private final RascalURIResolver rascalPathResolver;
 
 	private final URIResolverRegistry resolverRegistry;
 
-	private Map<IConstructorDeclared,Object> constructorDeclaredListeners;
+	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners;
 	private static final Object dummy = new Object();
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
@@ -1725,22 +1725,33 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getStdOut());
 
 			new TestEvaluator(this, new ITestResultListener() {
+				@Override
 				public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
 					if (!successful)
 						allOk[0] = false;
 					l.report(successful, test, loc, t);
 				}
 
+				@Override
+				public void report(boolean successful, String test, ISourceLocation loc, String message) {
+					if (!successful)
+						allOk[0] = false;
+					l.report(successful, test, loc, message);
+				}
+
+				@Override
 				public void report(boolean successful, String test, ISourceLocation loc) {
 					if (!successful)
 						allOk[0] = false;
 					l.report(successful, test, loc);
 				}
 
+				@Override
 				public void done() {
 					l.done();
 				}
 
+				@Override
 				public void start(int count) {
 					l.start(count);
 				}

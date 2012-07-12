@@ -79,20 +79,21 @@ public class TestEvaluator {
 					boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
 					if (!result) {
 						out.flush();
-						testResultListener.report(false, test.getName(), test.getAst().getLocation(), new Exception(sw
-								.getBuffer().toString()));
+						testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+								.toString());
 					} else {
-						testResultListener.report(true, test.getName(), test.getAst().getLocation());
+						testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
+								.toString());
 					}
 				}
 				catch(StaticError e) {
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
 				}
 				catch(Throw e){
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
 				}
 				catch(Throwable e){
-					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e);
+					testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage());
 				}
 			}
 		}
