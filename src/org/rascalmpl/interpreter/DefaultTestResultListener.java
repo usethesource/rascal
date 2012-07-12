@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;
 	private int successes;
-	private int failures;
+	private final int failures;
 	private int errors;
 	private int count;
 	
@@ -37,39 +37,21 @@ public class DefaultTestResultListener implements ITestResultListener{
 		this.err = errorStream;
 	}
 	
+	@Override
 	public void start(int count) {
 		this.count = count;
 	}
 	
+	@Override
 	public void done() {
 		err.print(successes + " of " + count + " tests succeeded\n");
 		err.println(failures + " of " + count + " tests failed\n");
 	}
 	
-	public void report(boolean successful, String test, ISourceLocation loc){
-		err.print(loc.getURI());
-		err.print(":");
-		err.print(loc.getBeginLine());
-		err.print(",");
-		err.print(loc.getBeginColumn());
-		err.print(":");
-		err.print(successful ? "success : " : "failed  : ");
-		if(successful)
-			successes++;
-		else
-			failures++;
-	    
-		if(test.length() <= 50){
-			err.println(test);
-		}else{
-			err.print(test.substring(0, 47));
-			err.println("...");
-		}
-		
-		err.flush();
-	}
 	
-	public void report(boolean successful, String test, ISourceLocation loc, Throwable t){
+
+	@Override
+	public void report(boolean successful, String test, ISourceLocation loc, String message) {
 		err.print(loc.getURI());
 		err.print(":");
 		err.print(loc.getBeginLine());
@@ -77,21 +59,21 @@ public class DefaultTestResultListener implements ITestResultListener{
 		err.print(loc.getBeginColumn());
 		err.print(":");
 		err.print(successful ? "success : " : "failed  : ");
-		if(successful)
+		if (successful)
 			successes++;
 		else
 			errors++;
-		if(test.length() <= 50){
+		if (test.length() <= 50) {
 			err.println(test);
-		}else{
+		} else {
 			err.print(test.substring(0, 47));
 			err.println("...");
 		}
-		err.print("\t" + t.getMessage() + "\n");
-//			t.printStackTrace(err);
+		err.print("\t" + message + "\n");
 		err.flush();
 	}
-	
+
+
 	public int getNumberOfTests(){
 		return successes + failures + errors;
 	}
