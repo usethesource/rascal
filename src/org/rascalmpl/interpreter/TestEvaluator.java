@@ -23,11 +23,11 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.library.cobra.Cobra;
 import org.rascalmpl.library.cobra.QuickCheck;
 
 public class TestEvaluator {
-	private static final String TRIES = "tries";
-	private static final String MAXDEPTH = "maxDepth";
+
 	private final Evaluator eval;
 	private final ITestResultListener testResultListener;
 
@@ -73,8 +73,8 @@ public class TestEvaluator {
 					QuickCheck qc = QuickCheck.getInstance();
 					StringWriter sw = new StringWriter();
 					PrintWriter out = new PrintWriter(sw);
-					int maxDepth = readIntTag(test, MAXDEPTH, 5);
-					int tries = readIntTag(test, TRIES, 100);
+					int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
+					int tries = Cobra.readIntTag(test, Cobra.TRIES, 100);
 
 					boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
 					if (!result) {
@@ -102,17 +102,7 @@ public class TestEvaluator {
 		}
 	}
 
-	private int readIntTag(AbstractFunction test, String key, int defaultVal) {
-		if (test.hasTag(key)) {
-			int result = Integer.parseInt(test.getTag(key));
-			if(result<1){
-				throw new IllegalArgumentException(key + " smaller than 1");
-			}
-			return result;
-		} else {
-			return defaultVal;
-		}
-	}
+
 
 
 }
