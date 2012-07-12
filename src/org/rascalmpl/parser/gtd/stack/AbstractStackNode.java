@@ -20,17 +20,17 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
-public abstract class AbstractStackNode{
+public abstract class AbstractStackNode<P>{
 	public final static int START_SYMBOL_ID = -1;
 	public final static int DEFAULT_START_LOCATION = -1;
 	
-	protected AbstractStackNode[] production;
-	protected AbstractStackNode[][] alternateProductions;
+	protected AbstractStackNode<P>[] production;
+	protected AbstractStackNode<P>[][] alternateProductions;
 	
-	protected IntegerObjectList<EdgesSet> edgesMap;
+	protected IntegerObjectList<EdgesSet<P>> edgesMap;
 	protected ArrayList<Link>[] prefixesMap;
 	
-	protected EdgesSet incomingEdges;
+	protected EdgesSet<P> incomingEdges;
 	
 	protected final int id;
 	protected final int dot;
@@ -48,7 +48,7 @@ public abstract class AbstractStackNode{
 	private final ICompletionFilter[] completionFilters;
 	
 	// The production (specific to end nodes only)
-	private Object alternativeProduction;
+	private P alternativeProduction;
 	
 	protected AbstractStackNode(int id, int dot){
 		super();
@@ -74,11 +74,11 @@ public abstract class AbstractStackNode{
 		this.completionFilters = completionFilters;
 	}
 	
-	protected AbstractStackNode(AbstractStackNode original, int startLocation){
+	protected AbstractStackNode(AbstractStackNode<P> original, int startLocation){
 		this(original.id, original, startLocation);
 	}
 	
-	protected AbstractStackNode(int id, AbstractStackNode original, int startLocation){
+	protected AbstractStackNode(int id, AbstractStackNode<P> original, int startLocation){
 		super();
 		
 		this.id = id;
@@ -185,14 +185,14 @@ public abstract class AbstractStackNode{
 	/**
 	 * Check whether of this this node is equal to the given node.
 	 */
-	public abstract boolean isEqual(AbstractStackNode stackNode);
+	public abstract boolean isEqual(AbstractStackNode<P> stackNode);
 	
 	// Last node specific stuff.
 	/**
 	 * Associates a production with this node, indicating that this is the last node in the production.
 	 * This production will be used in result construction during reduction.
 	 */
-	public void setAlternativeProduction(Object parentProduction){
+	public void setAlternativeProduction(P parentProduction){
 		this.alternativeProduction = parentProduction;
 		isEndNode = true;
 	}
@@ -201,7 +201,7 @@ public abstract class AbstractStackNode{
 	 * Retrieves the production associated with the alternative this node is a part of.
 	 * Only the last node in the alternative will have this production on it.
 	 */
-	public Object getParentProduction(){
+	public P getParentProduction(){
 		return alternativeProduction;
 	}
 	
@@ -224,7 +224,7 @@ public abstract class AbstractStackNode{
 	/**
 	 * Checks whether or not the filters that are associated with this nodes symbol are equal to those of the given node.
 	 */
-	public boolean hasEqualFilters(AbstractStackNode otherNode){
+	public boolean hasEqualFilters(AbstractStackNode<P> otherNode){
 		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
 		if(otherEnterFilters != null){
 			if(enterFilters == null) return false;
@@ -266,9 +266,10 @@ public abstract class AbstractStackNode{
 	/**
 	 * Checks equality.
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean equals(Object o){
 		if(o instanceof AbstractStackNode){
-			return isEqual((AbstractStackNode) o);
+			return isEqual((AbstractStackNode<P>) o);
 		}
 		return false;
 	}
@@ -277,20 +278,20 @@ public abstract class AbstractStackNode{
 	/**
 	 * Creates a new copy of this node for the indicated position.
 	 */
-	public abstract AbstractStackNode getCleanCopy(int startLocation);
+	public abstract AbstractStackNode<P> getCleanCopy(int startLocation);
 	
 	/**
 	 * Creates a new copy of this node for the indicated position and associated the given result with it.
 	 * This method has the same effect as the one above, but is exclusively used for matchable nodes;
 	 * as their results are constructed before the node is created.
 	 */
-	public abstract AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result);
+	public abstract AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result);
 	
 	/**
 	 * Checks whether or not this node has the same id as the given one.
 	 * This method is used when determining whether or not stacks should to be merged.
 	 */
-	public boolean isSimilar(AbstractStackNode node){
+	public boolean isSimilar(AbstractStackNode<P> node){
 		return (node.id == id);
 	}
 	
@@ -305,7 +306,7 @@ public abstract class AbstractStackNode{
 	/**
 	 * Sets the main alternative this node is a part of.
 	 */
-	public void setProduction(AbstractStackNode[] production){
+	public void setProduction(AbstractStackNode<P>[] production){
 		this.production = production;
 	}
 	
@@ -313,15 +314,16 @@ public abstract class AbstractStackNode{
 	 * Adds an additional alternative this node is a part of.
 	 * This can be the case if the symbol this node is associated with is located in a shared prefix of more then one alternative.
 	 */
-	public void addProduction(AbstractStackNode[] production){
+	@SuppressWarnings("unchecked")
+	public void addProduction(AbstractStackNode<P>[] production){
 		if(this.production == null){
 			this.production = production;
 		}else{
 			if(alternateProductions == null){
-				alternateProductions = new AbstractStackNode[][]{production};
+				alternateProductions = (AbstractStackNode<P>[][]) new AbstractStackNode[][]{production};
 			}else{
 				int nrOfAlternateProductions = alternateProductions.length;
-				AbstractStackNode[][] newAlternateProductions = new AbstractStackNode[nrOfAlternateProductions + 1][];
+				AbstractStackNode<P>[][] newAlternateProductions = (AbstractStackNode<P>[][]) new AbstractStackNode[nrOfAlternateProductions + 1][];
 				System.arraycopy(alternateProductions, 0, newAlternateProductions, 0, nrOfAlternateProductions);
 				newAlternateProductions[nrOfAlternateProductions] = production;
 				alternateProductions = newAlternateProductions;
@@ -339,14 +341,14 @@ public abstract class AbstractStackNode{
 	/**
 	 * Retrieves the main alternative the symbol this node is associated with is a part of.
 	 */
-	public AbstractStackNode[] getProduction(){
+	public AbstractStackNode<P>[] getProduction(){
 		return production;
 	}
 	
 	/**
 	 * Retrieves the alternative continuations the symbols this node is associated with is a part of.
 	 */
-	public AbstractStackNode[][] getAlternateProductions(){
+	public AbstractStackNode<P>[][] getAlternateProductions(){
 		return alternateProductions;
 	}
 	
@@ -355,23 +357,23 @@ public abstract class AbstractStackNode{
 	 * Initializes the set of edges of this node.
 	 */
 	public void initEdges(){
-		edgesMap = new IntegerObjectList<EdgesSet>();
+		edgesMap = new IntegerObjectList<EdgesSet<P>>();
 	}
 	
 	/**
 	 * Assigns the set of incoming edges to this stack node. Because of sharing there will always be only one of these sets.
 	 */
-	public void setIncomingEdges(EdgesSet incomingEdges){
+	public void setIncomingEdges(EdgesSet<P> incomingEdges){
 		this.incomingEdges = incomingEdges;
 	}
 	
 	/**
 	 * Adds the given edge to the set of edges for the indicated location.
 	 */
-	public EdgesSet addEdge(AbstractStackNode edge, int startLocation){
-		EdgesSet edges = edgesMap.findValue(startLocation);
+	public EdgesSet<P> addEdge(AbstractStackNode<P> edge, int startLocation){
+		EdgesSet<P> edges = edgesMap.findValue(startLocation);
 		if(edges == null){
-			edges = new EdgesSet(1);
+			edges = new EdgesSet<P>(1);
 			edgesMap.add(startLocation, edges);
 		}
 		
@@ -383,7 +385,7 @@ public abstract class AbstractStackNode{
 	/**
 	 * Adds the given set of edges to the edge map for the indicated location.
 	 */
-	public void addEdges(EdgesSet edges, int startLocation){
+	public void addEdges(EdgesSet<P> edges, int startLocation){
 		edgesMap.add(startLocation, edges);
 	}
 	
@@ -396,7 +398,7 @@ public abstract class AbstractStackNode{
 	 * This may be required in case a stack merges occur at the point where one of these alternatives starts.
 	 */
 	@SuppressWarnings("unchecked")
-	public void setEdgesSetWithPrefix(EdgesSet edges, Link prefix, int startLocation){
+	public void setEdgesSetWithPrefix(EdgesSet<P> edges, Link prefix, int startLocation){
 		int edgesMapSize = edgesMap.size();
 		if(prefixesMap == null){
 			prefixesMap = (ArrayList<Link>[]) new ArrayList[(edgesMapSize + 1) << 1];
@@ -443,13 +445,13 @@ public abstract class AbstractStackNode{
 	 * This method also takes care of stack merges in the process of doing this.
 	 */
 	@SuppressWarnings("unchecked")
-	public void updateNode(AbstractStackNode predecessor, AbstractNode predecessorResult){
-		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
+	public void updateNode(AbstractStackNode<P> predecessor, AbstractNode predecessorResult){
+		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		if(edgesMap == null){ // Clean node, no stack merge occurred.
 			// Initialize the edges map by cloning the one of the predecessor, as we need to transfer all these edges to this node.
-			edgesMap = new IntegerObjectList<EdgesSet>(edgesMapToAdd);
+			edgesMap = new IntegerObjectList<EdgesSet<P>>(edgesMapToAdd);
 			
 			// Initialize the prefixes map.
 			prefixesMap = new ArrayList[edgesMap.size()];
@@ -530,7 +532,7 @@ public abstract class AbstractStackNode{
 	 * in a production it is save to use this assumption to improve efficiency.
 	 */
 	@SuppressWarnings("unchecked")
-	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode predecessor, AbstractNode result){
+	public void updateNodeAfterNonEmptyMatchable(AbstractStackNode<P> predecessor, AbstractNode result){
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		// Set the edges map.
@@ -563,8 +565,8 @@ public abstract class AbstractStackNode{
 	 * of the parser's implementation.
 	 */
 	@SuppressWarnings("unchecked")
-	public int updateOvertakenNode(AbstractStackNode predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
-		IntegerObjectList<EdgesSet> edgesMapToAdd = predecessor.edgesMap;
+	public int updateOvertakenNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
+		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
 		// Initialize the prefixes map.
@@ -625,7 +627,7 @@ public abstract class AbstractStackNode{
 	 * 
 	 * When alternatives have a shared prefix, their successors can shared the same edges and prefixes maps.
 	 */
-	public void updatePrefixSharedNode(IntegerObjectList<EdgesSet> edgesMap, ArrayList<Link>[] prefixesMap){
+	public void updatePrefixSharedNode(IntegerObjectList<EdgesSet<P>> edgesMap, ArrayList<Link>[] prefixesMap){
 		this.edgesMap = edgesMap;
 		this.prefixesMap = prefixesMap;
 	}
@@ -633,14 +635,14 @@ public abstract class AbstractStackNode{
 	/**
 	 * Returns the edges map.
 	 */
-	public IntegerObjectList<EdgesSet> getEdges(){
+	public IntegerObjectList<EdgesSet<P>> getEdges(){
 		return edgesMap;
 	}
 	
 	/**
 	 * Returns the incoming edges set.
 	 */
-	public EdgesSet getIncomingEdges(){
+	public EdgesSet<P> getIncomingEdges(){
 		return incomingEdges;
 	}
 	
@@ -672,7 +674,7 @@ public abstract class AbstractStackNode{
 	/**
 	 * Returns the set of children of this node (only applies to expandables).
 	 */
-	public abstract AbstractStackNode[] getChildren();
+	public abstract AbstractStackNode<P>[] getChildren();
 	
 	/**
 	 * Returns whether or not this node can be nullable (only applies to expandables).
@@ -682,5 +684,5 @@ public abstract class AbstractStackNode{
 	/**
 	 * Returns the empty child of this node (only applies to expandables that are nullable).
 	 */
-	public abstract AbstractStackNode getEmptyChild();
+	public abstract AbstractStackNode<P> getEmptyChild();
 }

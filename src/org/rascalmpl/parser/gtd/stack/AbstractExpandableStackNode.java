@@ -8,9 +8,9 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * Indicates that the stack node is expandable.
  * Lists and optionals are examples of expandable nodes.
  */
-public abstract class AbstractExpandableStackNode extends AbstractStackNode{
+public abstract class AbstractExpandableStackNode<P> extends AbstractStackNode<P>{
 	public final static int DEFAULT_LIST_EPSILON_ID = -2; // (0xeffffffe | 0x80000000)
-	public final static EpsilonStackNode EMPTY = new EpsilonStackNode(DEFAULT_LIST_EPSILON_ID, 0);
+	public final static EpsilonStackNode<?> EMPTY = new EpsilonStackNode<Object>(DEFAULT_LIST_EPSILON_ID, 0);
 	
 	protected AbstractExpandableStackNode(int id, int dot){
 		super(id, dot);
@@ -20,14 +20,14 @@ public abstract class AbstractExpandableStackNode extends AbstractStackNode{
 		super(id, dot, enterFilters, completionFilters);
 	}
 	
-	protected AbstractExpandableStackNode(AbstractExpandableStackNode original, int startLocation){
+	protected AbstractExpandableStackNode(AbstractExpandableStackNode<P> original, int startLocation){
 		super(original, startLocation);
 	}
 	
 	/**
 	 * Retrieves all the alternatives of the expandable.
 	 */
-	public abstract AbstractStackNode[] getChildren();
+	public abstract AbstractStackNode<P>[] getChildren();
 	
 	/**
 	 * Check whether or not this node is nullable.
@@ -37,7 +37,7 @@ public abstract class AbstractExpandableStackNode extends AbstractStackNode{
 	/**
 	 * Retrieves the empty child (in case this node is nullable).
 	 */
-	public abstract AbstractStackNode getEmptyChild();
+	public abstract AbstractStackNode<P> getEmptyChild();
 	
 	public boolean isEmptyLeafNode(){
 		return false;
@@ -47,7 +47,7 @@ public abstract class AbstractExpandableStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	

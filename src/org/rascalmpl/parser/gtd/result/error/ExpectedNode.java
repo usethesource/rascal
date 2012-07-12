@@ -20,11 +20,11 @@ import org.rascalmpl.parser.gtd.result.CharNode;
  * A expected result node.
  * Expected nodes represent possible futures in error parse trees.
  */
-public class ExpectedNode extends AbstractNode{
+public class ExpectedNode<N> extends AbstractNode{
 	public final static int ID = 8;
 	
 	private final CharNode[] mismatchedChildren;
-	private final Object symbol;
+	private final N symbol;
 	
 	private final URI input;
 	private final int offset;
@@ -33,7 +33,7 @@ public class ExpectedNode extends AbstractNode{
 	private final boolean isSeparator;
 	private final boolean isLayout;
 	
-	public ExpectedNode(CharNode[] mismatchedChildren, Object symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
+	public ExpectedNode(CharNode[] mismatchedChildren, N symbol, URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.mismatchedChildren = mismatchedChildren;
@@ -63,7 +63,7 @@ public class ExpectedNode extends AbstractNode{
 	/**
 	 * Returns the symbol associated with this possible future.
 	 */
-	public Object getSymbol(){
+	public N getSymbol(){
 		return symbol;
 	}
 	

@@ -19,14 +19,14 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * Empty is different from epsilon; it is the () symbol which is one of the 'regular' expressions.
  * it produces a tree!
  */
-public final class EmptyStackNode extends AbstractExpandableStackNode{
-	private final Object production;
+public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
+	private final P production;
 	private final String name;
 
-	private final AbstractStackNode emptyChild;
-	private static final AbstractStackNode[] children = new AbstractStackNode[0];
+	private final AbstractStackNode<P> emptyChild;
+	private static final AbstractStackNode<?>[] children = new AbstractStackNode[0];
 	
-	public EmptyStackNode(int id, int dot, Object production){
+	public EmptyStackNode(int id, int dot, P production){
 		super(id, dot);
 		
 		this.production = production;
@@ -35,7 +35,7 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = generateEmptyChild();
 	}
 	
-	public EmptyStackNode(int id, int dot, Object production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
+	public EmptyStackNode(int id, int dot, P production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -43,7 +43,7 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = generateEmptyChild(); 
 	}
 	
-	private EmptyStackNode(EmptyStackNode original, int startLocation){
+	private EmptyStackNode(EmptyStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		production = original.production;
@@ -52,8 +52,9 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 		emptyChild = original.emptyChild;
 	}
 	
-	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
@@ -62,19 +63,20 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 		return name;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new EmptyStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new EmptyStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode[] getChildren(){
-		return children;
+	@SuppressWarnings("unchecked")
+	public AbstractStackNode<P>[] getChildren(){
+		return (AbstractStackNode<P>[]) children;
 	}
 	
 	public boolean canBeEmpty(){
 		return true;
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
@@ -92,7 +94,7 @@ public final class EmptyStackNode extends AbstractExpandableStackNode{
 		return 1;
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof EmptyStackNode)) return false;
 		
 		return hasEqualFilters(stackNode);

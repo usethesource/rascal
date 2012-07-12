@@ -14,14 +14,14 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class OptionalStackNode extends AbstractExpandableStackNode{
-	private final Object production;
+public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
+	private final P production;
 	private final String name;
 	
-	private final AbstractStackNode[] children;
-	private final AbstractStackNode emptyChild;
+	private final AbstractStackNode<P>[] children;
+	private final AbstractStackNode<P> emptyChild;
 	
-	public OptionalStackNode(int id, int dot, Object production, AbstractStackNode optional){
+	public OptionalStackNode(int id, int dot, P production, AbstractStackNode<P> optional){
 		super(id, dot);
 		
 		this.production = production;
@@ -31,7 +31,7 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = generateEmptyChild();
 	}
 	
-	public OptionalStackNode(int id, int dot, Object production, AbstractStackNode optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public OptionalStackNode(int id, int dot, P production, AbstractStackNode<P> optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -41,7 +41,7 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = generateEmptyChild();
 	}
 	
-	private OptionalStackNode(OptionalStackNode original, int startLocation){
+	private OptionalStackNode(OptionalStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		production = original.production;
@@ -54,17 +54,19 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 	/**
 	 * Generates and initializes the alternative for this optional.
 	 */
-	private AbstractStackNode[] generateChildren(AbstractStackNode optional){
-		AbstractStackNode child = optional.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P>[] generateChildren(AbstractStackNode<P> optional){
+		AbstractStackNode<P> child = (AbstractStackNode<P>) optional.getCleanCopy(DEFAULT_START_LOCATION);
 		child.setAlternativeProduction(production);
-		return new AbstractStackNode[]{child};
+		return (AbstractStackNode<P>[]) new AbstractStackNode[]{child};
 	}
 	
 	/**
 	 * Generates and initializes the empty child for this optional.
 	 */
-	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
@@ -73,11 +75,11 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 		return name;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new OptionalStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new OptionalStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
 	
@@ -85,7 +87,7 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 		return true;
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
@@ -103,10 +105,10 @@ public final class OptionalStackNode extends AbstractExpandableStackNode{
 		return production.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof OptionalStackNode)) return false;
 		
-		OptionalStackNode otherNode = (OptionalStackNode) stackNode;
+		OptionalStackNode<P> otherNode = (OptionalStackNode<P>) stackNode;
 		
 		if(!production.equals(otherNode.production)) return false;
 		

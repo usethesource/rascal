@@ -24,21 +24,22 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
 /**
  * Converter for parse trees that produces trees in UPTR format.
  */
-public class DefaultNodeFlattener<T, P> implements INodeFlattener<T, P>{
-	private final CharNodeFlattener<T, P> charNodeConverter;
-	private final LiteralNodeFlattener<T, P> literalNodeConverter;
-	private final SortContainerNodeFlattener<T, P> sortContainerNodeConverter;
-	private final ListContainerNodeFlattener<T, P> listContainerNodeConverter;
-	private final RecoveryNodeFlattener<T, P> recoveryNodeConverter;
+@SuppressWarnings("unchecked")
+public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
+	private final CharNodeFlattener<T, S> charNodeConverter;
+	private final LiteralNodeFlattener<T, S> literalNodeConverter;
+	private final SortContainerNodeFlattener<P, T, S> sortContainerNodeConverter;
+	private final ListContainerNodeFlattener<P, T, S> listContainerNodeConverter;
+	private final RecoveryNodeFlattener<T, S> recoveryNodeConverter;
 	
 	public DefaultNodeFlattener(){
 		super();
 		
-		charNodeConverter = new CharNodeFlattener<T, P>();
-		literalNodeConverter = new LiteralNodeFlattener<T, P>();
-		sortContainerNodeConverter = new SortContainerNodeFlattener<T, P>();
-		listContainerNodeConverter = new ListContainerNodeFlattener<T, P>();
-		recoveryNodeConverter = new RecoveryNodeFlattener<T, P>();
+		charNodeConverter = new CharNodeFlattener<T, S>();
+		literalNodeConverter = new LiteralNodeFlattener<T, S>();
+		sortContainerNodeConverter = new SortContainerNodeFlattener<P, T, S>();
+		listContainerNodeConverter = new ListContainerNodeFlattener<P, T, S>();
+		recoveryNodeConverter = new RecoveryNodeFlattener<T, S>();
 	}
 	
 	/**
@@ -51,16 +52,16 @@ public class DefaultNodeFlattener<T, P> implements INodeFlattener<T, P>{
 	/**
 	 * Convert the given node.
 	 */
-	public T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
 				return charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
 			case LiteralNode.ID:
 				return literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
 			case SortContainerNode.ID:
-				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case ExpandableContainerNode.ID:
-				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case SkippedNode.ID:
 				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node);
 			default:
@@ -71,7 +72,7 @@ public class DefaultNodeFlattener<T, P> implements INodeFlattener<T, P>{
 	/**
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
-	public T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
 		return convert(nodeConstructorFactory, parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
 	}
 }

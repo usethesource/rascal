@@ -32,7 +32,8 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= [a-z]+
 */
-public class CharPlusList extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class CharPlusList extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_char_a_z = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Range, VF.integer(97), VF.integer(122))));
 	private final static IConstructor SYMBOL_PLUS_LIST_a_z = VF.constructor(Factory.Symbol_IterPlus, SYMBOL_char_a_z);
@@ -40,11 +41,11 @@ public class CharPlusList extends SGTDBF<IConstructor, ISourceLocation> implemen
 	private final static IConstructor PROD_S_PLUSLISTa_z = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_PLUS_LIST_a_z), VF.set());
 	private final static IConstructor PROD_PLUSLISTa_z = VF.constructor(Factory.Production_Regular, SYMBOL_PLUS_LIST_a_z);
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode CHAR0 = new CharStackNode(0, 0, new int[][]{{'a', 'z'}});
-	private final static AbstractStackNode LIST1 = new ListStackNode(1, 0, PROD_PLUSLISTa_z, CHAR0, true);
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> CHAR0 = new CharStackNode<IConstructor>(0, 0, new int[][]{{'a', 'z'}});
+	private final static AbstractStackNode<IConstructor> LIST1 = new ListStackNode<IConstructor>(1, 0, PROD_PLUSLISTa_z, CHAR0, true);
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_1[0] = LIST1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
@@ -55,12 +56,12 @@ public class CharPlusList extends SGTDBF<IConstructor, ISourceLocation> implemen
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

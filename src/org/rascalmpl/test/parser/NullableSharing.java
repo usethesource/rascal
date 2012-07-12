@@ -33,7 +33,8 @@ import org.rascalmpl.values.uptr.Factory;
 * N ::= A
 * A ::= epsilon
 */
-public class NullableSharing extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class NullableSharing extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_N = VF.constructor(Factory.Symbol_Sort, VF.string("N"));
@@ -43,13 +44,13 @@ public class NullableSharing extends SGTDBF<IConstructor, ISourceLocation> imple
 	private final static IConstructor PROD_N_A = VF.constructor(Factory.Production_Default,  SYMBOL_N, VF.list(SYMBOL_A), VF.set());
 	private final static IConstructor PROD_A_empty = VF.constructor(Factory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_empty), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_N1 = new NonTerminalStackNode(1, 0, "N");
-	private final static AbstractStackNode NONTERMINAL_N2 = new NonTerminalStackNode(2, 1, "N");
-	private final static AbstractStackNode EPSILON3 = new EpsilonStackNode(3, 0);
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_N1 = new NonTerminalStackNode<IConstructor>(1, 0, "N");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_N2 = new NonTerminalStackNode<IConstructor>(2, 1, "N");
+	private final static AbstractStackNode<IConstructor> EPSILON3 = new EpsilonStackNode<IConstructor>(3, 0);
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_N1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
@@ -58,14 +59,14 @@ public class NullableSharing extends SGTDBF<IConstructor, ISourceLocation> imple
 		S_EXPECT_1[1].setAlternativeProduction(PROD_S_NN);
 	}
 	
-	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] A_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		A_EXPECT_1[0] = EPSILON3;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
 		A_EXPECT_1[0].setAlternativeProduction(PROD_A_empty);
 	}
 	
-	private final static AbstractStackNode[] N_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] N_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		N_EXPECT_1[0] = NONTERMINAL_A0;
 		N_EXPECT_1[0].setProduction(N_EXPECT_1);
@@ -76,20 +77,20 @@ public class NullableSharing extends SGTDBF<IConstructor, ISourceLocation> imple
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
-	public AbstractStackNode[] A(){
-		return new AbstractStackNode[]{A_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] A(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0]};
 	}
 	
-	public AbstractStackNode[] N(){
-		return new AbstractStackNode[]{N_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] N(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{N_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

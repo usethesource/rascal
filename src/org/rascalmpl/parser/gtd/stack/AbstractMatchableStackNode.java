@@ -8,7 +8,7 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
  * Indicates that the stack node is matchable.
  * Literals and characters are examples of matchable nodes.
  */
-public abstract class AbstractMatchableStackNode extends AbstractStackNode{
+public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>{
 	
 	protected AbstractMatchableStackNode(int id, int dot){
 		super(id, dot);
@@ -18,7 +18,7 @@ public abstract class AbstractMatchableStackNode extends AbstractStackNode{
 		super(id, dot, enterFilters, completionFilters);
 	}
 	
-	protected AbstractMatchableStackNode(AbstractMatchableStackNode original, int startLocation){
+	protected AbstractMatchableStackNode(AbstractMatchableStackNode<P> original, int startLocation){
 		super(original, startLocation);
 	}
 	
@@ -38,7 +38,7 @@ public abstract class AbstractMatchableStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -46,7 +46,7 @@ public abstract class AbstractMatchableStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
 }

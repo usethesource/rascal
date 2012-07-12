@@ -21,7 +21,8 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= SSS | SS | a
 */
-public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
@@ -32,18 +33,18 @@ public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, ISource
 	private final static IConstructor PROD_S_a = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_a), VF.set());
 	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S0 = new NonTerminalStackNode(0, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_S1 = new NonTerminalStackNode(1, 1, "S");
-	private final static AbstractStackNode NONTERMINAL_S2 = new NonTerminalStackNode(2, 2, "S");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_S0 = new NonTerminalStackNode<IConstructor>(0, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_S1 = new NonTerminalStackNode<IConstructor>(1, 1, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_S2 = new NonTerminalStackNode<IConstructor>(2, 2, "S");
+	private final static AbstractStackNode<IConstructor> LITERAL_a5 = new LiteralStackNode<IConstructor>(5, 0, PROD_a_a, new int[]{'a'});
 	
-	private final static AbstractStackNode[] S_EXPECTS;
+	private final static AbstractStackNode<IConstructor>[] S_EXPECTS;
 	static{
-		ExpectBuilder sExpectBuilder = new ExpectBuilder(new IntegerMap());
-		sExpectBuilder.addAlternative(PROD_S_SSS, new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2});
-		sExpectBuilder.addAlternative(PROD_S_SS, new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1});
-		sExpectBuilder.addAlternative(PROD_S_a, new AbstractStackNode[]{LITERAL_a5});
+		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		sExpectBuilder.addAlternative(PROD_S_SSS, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1, NONTERMINAL_S2});
+		sExpectBuilder.addAlternative(PROD_S_SS, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_S0, NONTERMINAL_S1});
+		sExpectBuilder.addAlternative(PROD_S_a, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_a5});
 		S_EXPECTS = sExpectBuilder.buildExpectArray();
 	}
 	
@@ -51,12 +52,12 @@ public class AmbiguousRecursivePrefixShared extends SGTDBF<IConstructor, ISource
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
+	public AbstractStackNode<IConstructor>[] S(){
 		return S_EXPECTS;
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

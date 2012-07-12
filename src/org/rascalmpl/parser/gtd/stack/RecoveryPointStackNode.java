@@ -12,14 +12,12 @@
 package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class RecoveryPointStackNode extends AbstractStackNode{
+public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 	private final String name;
-	private final Object parent;
+	private final P parent;
 
-	public RecoveryPointStackNode(int id, Object parent, AbstractStackNode robustNode){
+	public RecoveryPointStackNode(int id, P parent, AbstractStackNode<P> robustNode){
 		super(id, robustNode, robustNode.startLocation);
 		this.prefixesMap = robustNode.prefixesMap;
 		this.alternateProductions = robustNode.alternateProductions;
@@ -31,7 +29,7 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 	}
 	
 	@Override
-	public Object getParentProduction() {
+	public P getParentProduction() {
 		return parent;
 	}
 	
@@ -49,16 +47,6 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 	public boolean isEndNode() {
 		return true;
 	}
-	
-	@Override
-	public ICompletionFilter[] getCompletionFilters() {
-		return new ICompletionFilter[] {};
-	};
-	
-	@Override
-	public IEnterFilter[] getEnterFilters() {
-		return new IEnterFilter[] {};
-	};
 
 	@Override
 	public String getName(){
@@ -69,11 +57,11 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -81,7 +69,7 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -89,7 +77,7 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -113,10 +101,10 @@ public class RecoveryPointStackNode extends AbstractStackNode{
 		return getName().hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof RecoveryPointStackNode)) return false;
 		
-		RecoveryPointStackNode otherNode = (RecoveryPointStackNode) stackNode;
+		RecoveryPointStackNode<P> otherNode = (RecoveryPointStackNode<P>) stackNode;
 
 		return otherNode.name.equals(name) && otherNode.startLocation == startLocation;
 	}

@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class CharStackNode extends AbstractMatchableStackNode{
+public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[][] ranges;
 	
 	private final AbstractNode result;
@@ -37,7 +37,7 @@ public final class CharStackNode extends AbstractMatchableStackNode{
 		result = null;
 	}
 	
-	private CharStackNode(CharStackNode original, int startLocation){
+	private CharStackNode(CharStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		ranges = original.ranges;
@@ -45,7 +45,7 @@ public final class CharStackNode extends AbstractMatchableStackNode{
 		result = null;
 	}
 	
-	private CharStackNode(CharStackNode original, int startLocation, AbstractNode result){
+	private CharStackNode(CharStackNode<P> original, int startLocation, AbstractNode result){
 		super(original, startLocation);
 		
 		this.ranges = original.ranges;
@@ -70,12 +70,12 @@ public final class CharStackNode extends AbstractMatchableStackNode{
 		return null;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new CharStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new CharStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CharStackNode(this, startLocation, result);
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
+		return new CharStackNode<P>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -123,10 +123,10 @@ public final class CharStackNode extends AbstractMatchableStackNode{
 		return hash;
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CharStackNode)) return false;
 		
-		CharStackNode otherNode = (CharStackNode) stackNode;
+		CharStackNode<P> otherNode = (CharStackNode<P>) stackNode;
 		
 		int[][] otherRanges = otherNode.ranges;
 		if(ranges.length != otherRanges.length) return false;

@@ -1,23 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2009-2011 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
-public class IntegerKeyedHashMap<V>{
+public class IntegerKeyedDoubleValueHashMap<V1, V2> {
 	private final static int DEFAULT_BIT_SIZE = 2;
 	
-	private Entry<V>[] entries;
+	private Entry<V1, V2>[] entries;
 
 	private int hashMask;
 	private int bitSize;
@@ -25,14 +14,14 @@ public class IntegerKeyedHashMap<V>{
 	private int threshold;
 	private int load;
 	
-	public IntegerKeyedHashMap(){
+	public IntegerKeyedDoubleValueHashMap(){
 		super();
 		
 		int nrOfEntries = 1 << (bitSize = DEFAULT_BIT_SIZE);
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<V>[]) new Entry[nrOfEntries];
+		entries = (Entry<V1, V2>[]) new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;
@@ -42,18 +31,18 @@ public class IntegerKeyedHashMap<V>{
 		int nrOfEntries = 1 << (++bitSize);
 		int newHashMask = nrOfEntries - 1;
 		
-		Entry<V>[] oldEntries = entries;
-		Entry<V>[] newEntries = (Entry<V>[]) new Entry[nrOfEntries];
+		Entry<V1, V2>[] oldEntries = entries;
+		Entry<V1, V2>[] newEntries = (Entry<V1, V2>[]) new Entry[nrOfEntries];
 		
-		Entry<V> currentEntryRoot = new Entry<V>(-1, null, null);
-		Entry<V> shiftedEntryRoot = new Entry<V>(-1, null, null);
+		Entry<V1, V2> currentEntryRoot = new Entry<V1, V2>(-1, null, null, null);
+		Entry<V1, V2> shiftedEntryRoot = new Entry<V1, V2>(-1, null, null, null);
 		
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
-			Entry<V> e = oldEntries[i];
+			Entry<V1, V2> e = oldEntries[i];
 			if(e != null){
-				Entry<V> lastCurrentEntry = currentEntryRoot;
-				Entry<V> lastShiftedEntry = shiftedEntryRoot;
+				Entry<V1, V2> lastCurrentEntry = currentEntryRoot;
+				Entry<V1, V2> lastShiftedEntry = shiftedEntryRoot;
 				int lastPosition = -1;
 				do{
 					int position = e.key & newHashMask;
@@ -88,51 +77,43 @@ public class IntegerKeyedHashMap<V>{
 		}
 	}
 	
-	public V put(int key, V value){
+	public boolean put(int key, V1 value1, V2 value2){
 		ensureCapacity();
 		
 		int position = key & hashMask;
 		
-		Entry<V> currentStartEntry = entries[position];
+		Entry<V1, V2> currentStartEntry = entries[position];
 		if(currentStartEntry != null){
-			Entry<V> entry = currentStartEntry;
+			Entry<V1, V2> entry = currentStartEntry;
 			do{
 				if(entry.key == key){
-					V oldValue = entry.value;
-					entry.value = value;
-					return oldValue;
+					entry.value1 = value1;
+					entry.value2 = value2;
+					return false;
 				}
 			}while((entry = entry.next) != null);
 		}
 		
-		entries[position] = new Entry<V>(key, value, currentStartEntry);
+		entries[position] = new Entry<V1, V2>(key, value1, value2, currentStartEntry);
 		++load;
 		
-		return null;
+		return true;
 	}
 	
-	public void putAll(IntegerKeyedHashMap<V> all) {
-		for (Entry<V> e : all.entries) {
-			if (e != null) {
-				put(e.key, e.value);
-			}
-		}
-	}
-	
-	public void putUnsafe(int key, V value){
+	public void putUnsafe(int key, V1 value1, V2 value2){
 		ensureCapacity();
 		
 		int position = key & hashMask;
-		entries[position] = new Entry<V>(key, value, entries[position]);
+		entries[position] = new Entry<V1, V2>(key, value1, value2, entries[position]);
 		++load;
 	}
 	
-	public V get(int key){
+	public Entry<V1, V2> get(int key){
 		int position = key & hashMask;
 		
-		Entry<V> entry = entries[position];
+		Entry<V1, V2> entry = entries[position];
 		while(entry != null){
-			if(entry.key == key) return entry.value;
+			if(entry.key == key) return entry;
 			
 			entry = entry.next;
 		}
@@ -140,13 +121,13 @@ public class IntegerKeyedHashMap<V>{
 		return null;
 	}
 	
-	public V remove(int key){
+	public Entry<V1, V2> remove(int key){
 		int position = key & hashMask;
 		
-		Entry<V> previous = null;
-		Entry<V> currentStartEntry = entries[position];
+		Entry<V1, V2> previous = null;
+		Entry<V1, V2> currentStartEntry = entries[position];
 		if(currentStartEntry != null){
-			Entry<V> entry = currentStartEntry;
+			Entry<V1, V2> entry = currentStartEntry;
 			do{
 				if(entry.key == key){
 					if(previous == null){
@@ -155,7 +136,7 @@ public class IntegerKeyedHashMap<V>{
 						previous.next = entry.next;
 					}
 					--load;
-					return entry.value;
+					return entry;
 				}
 				
 				previous = entry;
@@ -174,41 +155,41 @@ public class IntegerKeyedHashMap<V>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = (Entry<V>[]) new Entry[nrOfEntries];
+		entries = (Entry<V1, V2>[]) new Entry[nrOfEntries];
 		
 		threshold = nrOfEntries;
 		load = 0;
 	}
 	
-	public Iterator<Entry<V>> entryIterator(){
-		return new EntryIterator<V>(this);
+	public Iterator<Entry<V1, V2>> entryIterator(){
+		return new EntryIterator<V1, V2>(this);
 	}
 	
-	private static class EntryIterator<V> implements Iterator<Entry<V>>{
-		private final Entry<V>[] data;
+	private static class EntryIterator<V1, V2> implements Iterator<Entry<V1, V2>>{
+		private final Entry<V1, V2>[] data;
 		
-		private Entry<V> current;
+		private Entry<V1, V2> current;
 		private int index;
 		
-		public EntryIterator(IntegerKeyedHashMap<V> integerKeyedHashMap){
+		public EntryIterator(IntegerKeyedDoubleValueHashMap<V1, V2> integerKeyedDoubleValueHashMap){
 			super();
 			
-			data = integerKeyedHashMap.entries;
+			data = integerKeyedDoubleValueHashMap.entries;
 
 			index = data.length - 1;
-			current = new Entry<V>(-1, null, data[index]);
+			current = new Entry<V1, V2>(-1, null, null, data[index]);
 			locateNext();
 		}
 		
 		private void locateNext(){
-			Entry<V> next = current.next;
+			Entry<V1, V2> next = current.next;
 			if(next != null){
 				current = next;
 				return;
 			}
 			
 			for(int i = index - 1; i >= 0 ; i--){
-				Entry<V> entry = data[i];
+				Entry<V1, V2> entry = data[i];
 				if(entry != null){
 					current = entry;
 					index = i;
@@ -224,10 +205,10 @@ public class IntegerKeyedHashMap<V>{
 			return (current != null);
 		}
 		
-		public Entry<V> next(){
+		public Entry<V1, V2> next(){
 			if(!hasNext()) throw new UnsupportedOperationException("There are no more elements in this iterator.");
 			
-			Entry<V> entry = current;
+			Entry<V1, V2> entry = current;
 			locateNext();
 			
 			return entry;
@@ -238,16 +219,18 @@ public class IntegerKeyedHashMap<V>{
 		}
 	}
 	
-	public static class Entry<V>{
+	public static class Entry<V1, V2>{
 		public final int key;
-		public V value;
-		public Entry<V> next;
+		public V1 value1;
+		public V2 value2;
+		public Entry<V1, V2> next;
 		
-		public Entry(int key, V value, Entry<V> next){
+		public Entry(int key, V1 value1, V2 value2, Entry<V1, V2> next){
 			super();
 			
 			this.key = key;
-			this.value = value;
+			this.value1 = value1;
+			this.value2 = value2;
 			this.next = next;
 		}
 	}

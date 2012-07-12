@@ -18,7 +18,7 @@ import java.net.URI;
  * Expandables, like sorts, are a types of containers.
  * With expandables we refer to lists, optional and sequences and such.
  */
-public class ExpandableContainerNode extends AbstractContainerNode{
+public class ExpandableContainerNode<P> extends AbstractContainerNode<P>{
 	public final static int ID = 5;
 	
 	public ExpandableContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){

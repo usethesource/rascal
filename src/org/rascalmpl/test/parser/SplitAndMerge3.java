@@ -34,7 +34,8 @@ A ::= Ba | a
 B ::= Aa | a
 C ::= B
 */
-public class SplitAndMerge3 extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class SplitAndMerge3 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_B = VF.constructor(Factory.Symbol_Sort, VF.string("B"));
@@ -51,32 +52,32 @@ public class SplitAndMerge3 extends SGTDBF<IConstructor, ISourceLocation> implem
 	private final static IConstructor PROD_C_B = VF.constructor(Factory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_B), VF.set());
 	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_B2 = new NonTerminalStackNode(2, 0, "B");
-	private final static AbstractStackNode NONTERMINAL_B3 = new NonTerminalStackNode(3, 0, "B");
-	private final static AbstractStackNode NONTERMINAL_C4 = new NonTerminalStackNode(4, 0, "C");
-	private final static AbstractStackNode LITERAL_a5 = new LiteralStackNode(5, 1, PROD_a_a, new int[]{'a'});
-	private final static AbstractStackNode LITERAL_a6 = new LiteralStackNode(6, 0, PROD_a_a, new int[]{'a'});
-	private final static AbstractStackNode LITERAL_a7 = new LiteralStackNode(7, 1, PROD_a_a, new int[]{'a'});
-	private final static AbstractStackNode LITERAL_a8 = new LiteralStackNode(8, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A1 = new NonTerminalStackNode<IConstructor>(1, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_B2 = new NonTerminalStackNode<IConstructor>(2, 0, "B");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_B3 = new NonTerminalStackNode<IConstructor>(3, 0, "B");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_C4 = new NonTerminalStackNode<IConstructor>(4, 0, "C");
+	private final static AbstractStackNode<IConstructor> LITERAL_a5 = new LiteralStackNode<IConstructor>(5, 1, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> LITERAL_a6 = new LiteralStackNode<IConstructor>(6, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> LITERAL_a7 = new LiteralStackNode<IConstructor>(7, 1, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> LITERAL_a8 = new LiteralStackNode<IConstructor>(8, 0, PROD_a_a, new int[]{'a'});
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_A0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
 		S_EXPECT_1[0].setAlternativeProduction(PROD_S_A);
 	}
 	
-	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_2[0] = NONTERMINAL_C4;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
 		S_EXPECT_2[0].setAlternativeProduction(PROD_S_C);
 	}
 	
-	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] A_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		A_EXPECT_1[0] = NONTERMINAL_B2;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
@@ -85,14 +86,14 @@ public class SplitAndMerge3 extends SGTDBF<IConstructor, ISourceLocation> implem
 		A_EXPECT_1[1].setAlternativeProduction(PROD_A_Ba);
 	}
 	
-	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] A_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		A_EXPECT_2[0] = LITERAL_a6;
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
 		A_EXPECT_2[0].setAlternativeProduction(PROD_A_a);
 	}
 	
-	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] B_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		B_EXPECT_1[0] = NONTERMINAL_A1;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
@@ -101,14 +102,14 @@ public class SplitAndMerge3 extends SGTDBF<IConstructor, ISourceLocation> implem
 		B_EXPECT_1[1].setAlternativeProduction(PROD_B_Aa);
 	}
 	
-	private final static AbstractStackNode[] B_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] B_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		B_EXPECT_2[0] = LITERAL_a8;
 		B_EXPECT_2[0].setProduction(B_EXPECT_2);
 		B_EXPECT_2[0].setAlternativeProduction(PROD_B_a);
 	}
 	
-	private final static AbstractStackNode[] C_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] C_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		C_EXPECT_1[0] = NONTERMINAL_B3;
 		C_EXPECT_1[0].setProduction(C_EXPECT_1);
@@ -118,24 +119,24 @@ public class SplitAndMerge3 extends SGTDBF<IConstructor, ISourceLocation> implem
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0], S_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0], S_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] A(){
-		return new AbstractStackNode[]{A_EXPECT_1[0], A_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] A(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0], A_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] B(){
-		return new AbstractStackNode[]{B_EXPECT_1[0], B_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] B(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{B_EXPECT_1[0], B_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] C(){
-		return new AbstractStackNode[]{C_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] C(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{C_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

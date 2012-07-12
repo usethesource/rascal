@@ -20,7 +20,7 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
  * This node is equivalent to the regular list result node, but (directly or
  * indirectly) contains incomplete parse results.
  */
-public class ErrorListContainerNode extends AbstractContainerNode{
+public class ErrorListContainerNode<P> extends AbstractContainerNode<P>{
 	public final static int ID = 7;
 	
 	public ErrorListContainerNode(URI input, int offset, int endOffset, boolean isSeparator, boolean isLayout){

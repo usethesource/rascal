@@ -472,7 +472,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	
 	@Override	
 	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree){
-		IGTD<IConstructor, ISourceLocation> parser = getObjectParser(location);
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
@@ -490,7 +490,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		__setInterrupt(false);
 		IActionExecutor<IConstructor> exec = new RascalFunctionActionExecutor(this);
 		
-		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer(robustProds, lookaheads));
+		return (IConstructor) parser.parse(name, location, input, exec, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory(), robustProds.length == 0 ? null : new Recoverer<IConstructor>(robustProds, lookaheads));
 	}
 	
 	/**
@@ -557,11 +557,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 	
-	private IGTD<IConstructor, ISourceLocation> getObjectParser(URI loc){
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(URI loc){
 		return getObjectParser((ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
 	}
 
-	private IGTD<IConstructor, ISourceLocation> getObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
+	@SuppressWarnings("unchecked")
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getObjectParser(ModuleEnvironment currentModule, URI loc, boolean force) {
 		if (currentModule.getBootstrap()) {
 			return new ObjectRascalRascal();
 		}
@@ -572,7 +573,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			for (ClassLoader cl: classLoaders) {
 				try {
 					clazz = cl.loadClass(className);
-					return (IGTD<IConstructor, ISourceLocation>) clazz.newInstance();
+					return (IGTD<IConstructor, IConstructor, ISourceLocation>) clazz.newInstance();
 				} catch (ClassNotFoundException e) {
 					continue;
 				} catch (InstantiationException e) {
@@ -587,7 +588,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		ParserGenerator pg = getParserGenerator();
 		IMap definitions = currentModule.getSyntaxDefinition();
 		
-		Class<IGTD<IConstructor, ISourceLocation>> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
+		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getHeap().getObjectParser(currentModule.getName(), definitions);
 
 		if (parser == null || force) {
 			String parserName = currentModule.getName(); // .replaceAll("::", ".");
@@ -607,16 +608,16 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 	}
 
-	private IGTD<IConstructor, ISourceLocation> getRascalParser(ModuleEnvironment env, URI input) {
+	private IGTD<IConstructor, IConstructor, ISourceLocation> getRascalParser(ModuleEnvironment env, URI input) {
 		ParserGenerator pg = getParserGenerator();
 		IMap productions = env.getSyntaxDefinition();
-		Class<IGTD<IConstructor, ISourceLocation>> parser = getHeap().getRascalParser(env.getName(), productions);
+		Class<IGTD<IConstructor, IConstructor, ISourceLocation>> parser = getHeap().getRascalParser(env.getName(), productions);
 
 		if (parser == null) {
 			String parserName = env.getName(); 
 
 			// force regeneration of object parser such that super class name aligns... (a workaround)
-			IGTD<IConstructor, ISourceLocation> objectParser = getObjectParser(env, input, true);
+			IGTD<IConstructor, IConstructor, ISourceLocation> objectParser = getObjectParser(env, input, true);
 			parser = pg.getRascalParser(this, input, parserName, productions, objectParser);
 			getHeap().storeRascalParser(env.getName(), productions, parser);
 		}
@@ -817,11 +818,11 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		
 		if (noBacktickOutsideStringConstant(command)) {
 			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
-			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		} else {
 			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
-			IGTD<IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			tree = (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
 
 		Command stat = getBuilder().buildCommand(tree);
@@ -840,11 +841,11 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		
 		if (noBacktickOutsideStringConstant(command)) {
 			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
-			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		} else {
 			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
-			IGTD<IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			tree = (IConstructor) rp.parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			tree = (IConstructor) rp.parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
 
 		Commands stat = getBuilder().buildCommands(tree);
@@ -893,12 +894,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		
 		if (!command.contains("`")) {
 			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
-			return (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			return (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
 		
 		IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
-		IGTD<IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
+		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 
 	@Override
@@ -909,12 +910,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			
 			if (!commands.contains("`")) {
 				IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
-				return (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+				return (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 			}
 
 			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
-			IGTD<IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
-			return (IConstructor) rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
+			return (IConstructor) rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
 		finally {
 			setMonitor(old);
@@ -1259,7 +1260,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		__setInterrupt(false);
 		IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
 
-		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
 	}
 	
@@ -1331,7 +1332,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 
 		startJob("Parsing", 10);
 		event("Pre-parsing: " + location);
-		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 
 		if (TreeAdapter.isAmb(prefix)) {
 			throw new Ambiguous(prefix);
@@ -1360,21 +1361,21 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			event("Declaring syntax for module " + name);
 			preModule.declareSyntax(this, true);
 		}
-		IGTD<IConstructor, ISourceLocation> parser = null;
+		IGTD<IConstructor, IConstructor, ISourceLocation> parser = null;
 		IConstructor result = null;
 		event("Parsing: " + name);
 		try {
 			if (needBootstrapParser(preModule)) {
 				parser = new MetaRascalRascal();
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 			} 
 			else if (env.definesSyntax() && containsBackTick(data, preModule.getBody().getLocation().getOffset())) {
 				parser = getRascalParser(env, location);
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 			}
 			else {
 				parser = new RascalRascal();
-				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+				result = (IConstructor) parser.parse(Parser.START_MODULE, location, data, actions, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 			} 
 		}
 		finally {

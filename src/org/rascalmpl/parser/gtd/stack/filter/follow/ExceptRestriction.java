@@ -14,25 +14,26 @@ package org.rascalmpl.parser.gtd.stack.filter.follow;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
- * A filter that make sure that at this position we do not have
- * this particular child.
+ * A filter that makes sure that at this position we do not have this
+ * particular child.
  */
-public class ExceptRestriction implements ICompletionFilter{
-	private final Object child;
+@SuppressWarnings("unchecked")
+public class ExceptRestriction<P> implements ICompletionFilter{
+	private final P production;
 	
-	public ExceptRestriction(Object child){
+	public ExceptRestriction(P production){
 		super();
-		this.child = child;
+		
+		this.production = production;
 	}
 	
 	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
 		if (result instanceof AbstractContainerNode) {
-			return ((AbstractContainerNode) result).getFirstProduction().equals(child);
+			P production = ((AbstractContainerNode<P>) result).getFirstProduction();
+			return this.production.equals(production);
 		}
 		
 		return false;
@@ -43,7 +44,7 @@ public class ExceptRestriction implements ICompletionFilter{
 			return false;
 		}
 		
-		ExceptRestriction other = (ExceptRestriction) otherCompletionFilter;
-		return child.equals(other.child); 
+		ExceptRestriction<P> other = (ExceptRestriction<P>) otherCompletionFilter;
+		return production.equals(other.production); 
 	}
 }
