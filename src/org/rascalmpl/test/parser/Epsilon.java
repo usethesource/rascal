@@ -31,16 +31,17 @@ import org.rascalmpl.values.uptr.Factory;
 /*
 S ::= epsilon
 */
-public class Epsilon extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class Epsilon extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_epsilon = VF.constructor(Factory.Symbol_Empty);
 	
 	private final static IConstructor PROD_S_epsilon = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_epsilon), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode EPSILON_1 = new EpsilonStackNode(1, 0);
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> EPSILON_1 = new EpsilonStackNode<IConstructor>(1, 0);
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_1[0] = EPSILON_1;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
@@ -51,12 +52,12 @@ public class Epsilon extends SGTDBF<IConstructor, ISourceLocation> implements IP
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, new int[]{}, new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, new int[]{}, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	

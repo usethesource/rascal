@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-
-
-
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */

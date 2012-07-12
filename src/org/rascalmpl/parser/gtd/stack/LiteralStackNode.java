@@ -16,13 +16,13 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class LiteralStackNode extends AbstractMatchableStackNode{
+public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[] literal;
-	private final Object production;
+	private final P production;
 	
 	private final LiteralNode result;
 	
-	public LiteralStackNode(int id, int dot, Object production, int[] literal){
+	public LiteralStackNode(int id, int dot, P production, int[] literal){
 		super(id, dot);
 		
 		this.literal = literal;
@@ -31,7 +31,7 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		result = new LiteralNode(production, literal);
 	}
 	
-	public LiteralStackNode(int id, int dot, Object production, int[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public LiteralStackNode(int id, int dot, P production, int[] literal, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.literal = literal;
@@ -40,7 +40,7 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		result = new LiteralNode(production, literal);
 	}
 	
-	private LiteralStackNode(LiteralStackNode original, int startLocation){
+	private LiteralStackNode(LiteralStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		literal = original.literal;
@@ -61,12 +61,12 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		return result;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new LiteralStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new LiteralStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new LiteralStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
+		return new LiteralStackNode<P>(this, startLocation);
 	}
 	
 	public int getLength(){
@@ -94,10 +94,10 @@ public final class LiteralStackNode extends AbstractMatchableStackNode{
 		return production.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof LiteralStackNode)) return false;
 		
-		LiteralStackNode otherNode = (LiteralStackNode) stackNode;
+		LiteralStackNode<P> otherNode = (LiteralStackNode<P>) stackNode;
 		
 		if(!production.equals(otherNode.production)) return false;
 		

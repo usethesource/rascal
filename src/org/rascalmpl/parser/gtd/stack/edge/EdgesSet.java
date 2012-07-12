@@ -5,41 +5,44 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
-public class EdgesSet{
+public class EdgesSet<P>{
 	public final static int DEFAULT_RESULT_STORE_ID = -1;
 	
 	private final static int DEFAULT_SIZE = 4;
 	
-	private AbstractStackNode[] edges;
+	private AbstractStackNode<P>[] edges;
 	private int size;
 	
 	private int lastVisitedLevel = -1;
 	private IntegerMap lastVisitedFilteredLevel;
 	
-	private AbstractContainerNode lastResults;
-	private IntegerObjectList<AbstractContainerNode> lastFilteredResults;
+	private AbstractContainerNode<P> lastResults;
+	private IntegerObjectList<AbstractContainerNode<P>> lastFilteredResults;
 	
+	@SuppressWarnings("unchecked")
 	public EdgesSet(){
 		super();
 		
-		edges = new AbstractStackNode[DEFAULT_SIZE];
+		edges = (AbstractStackNode<P>[]) new AbstractStackNode[DEFAULT_SIZE];
 		size = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public EdgesSet(int initialSize){
 		super();
 		
-		edges = new AbstractStackNode[initialSize];
+		edges = (AbstractStackNode<P>[]) new AbstractStackNode[initialSize];
 		size = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void enlarge(){
-		AbstractStackNode[] oldEdges = edges;
-		edges = new AbstractStackNode[size << 1];
+		AbstractStackNode<P>[] oldEdges = edges;
+		edges = (AbstractStackNode<P>[]) new AbstractStackNode[size << 1];
 		System.arraycopy(oldEdges, 0, edges, 0, size);
 	}
 	
-	public void add(AbstractStackNode edge){
+	public void add(AbstractStackNode<P> edge){
 		while(size >= edges.length){
 			enlarge();
 		}
@@ -47,21 +50,21 @@ public class EdgesSet{
 		edges[size++] = edge;
 	}
 	
-	public boolean contains(AbstractStackNode node){
+	public boolean contains(AbstractStackNode<P> node){
 		for(int i = size - 1; i >= 0; --i){
 			if(edges[i] == node) return true;
 		}
 		return false;
 	}
 	
-	public boolean containsBefore(AbstractStackNode node, int limit){
+	public boolean containsBefore(AbstractStackNode<P> node, int limit){
 		for(int i = limit - 1; i >= 0; --i){
 			if(edges[i] == node) return true;
 		}
 		return false;
 	}
 	
-	public boolean containsAfter(AbstractStackNode node, int limit){
+	public boolean containsAfter(AbstractStackNode<P> node, int limit){
 		if(limit >= 0){ // Bounds check elimination helper.
 			for(int i = size - 1; i >= limit; --i){
 				if(edges[i] == node) return true;
@@ -70,7 +73,7 @@ public class EdgesSet{
 		return false;
 	}
 	
-	public AbstractStackNode get(int index){
+	public AbstractStackNode<P> get(int index){
 		return edges[index];
 	}
 	
@@ -96,23 +99,23 @@ public class EdgesSet{
 		return lastVisitedFilteredLevel.get(resultStoreId);
 	}
 	
-	public void setLastResult(AbstractContainerNode lastResult, int resultStoreId){
+	public void setLastResult(AbstractContainerNode<P> lastResult, int resultStoreId){
 		if(resultStoreId == DEFAULT_RESULT_STORE_ID){
 			lastResults = lastResult;
 		}else{
 			if(lastFilteredResults == null){
-				lastFilteredResults = new IntegerObjectList<AbstractContainerNode>(DEFAULT_SIZE);
+				lastFilteredResults = new IntegerObjectList<AbstractContainerNode<P>>(DEFAULT_SIZE);
 			}
 			
 			lastFilteredResults.add(resultStoreId, lastResult);
 		}
 	}
 	
-	public AbstractContainerNode getLastResult(int resultStoreId){
+	public AbstractContainerNode<P> getLastResult(int resultStoreId){
 		if(resultStoreId == DEFAULT_RESULT_STORE_ID) return lastResults;
 		
 		if(lastFilteredResults == null){
-			lastFilteredResults = new IntegerObjectList<AbstractContainerNode>(DEFAULT_SIZE);
+			lastFilteredResults = new IntegerObjectList<AbstractContainerNode<P>>(DEFAULT_SIZE);
 			return null;
 		}
 		return lastFilteredResults.findValue(resultStoreId);

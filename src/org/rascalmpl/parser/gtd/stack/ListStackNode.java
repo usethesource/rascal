@@ -14,14 +14,14 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class ListStackNode extends AbstractExpandableStackNode{
-	private final Object production;
+public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
+	private final P production;
 	private final String name;
 
-	private final AbstractStackNode[] children;
-	private final AbstractStackNode emptyChild;
+	private final AbstractStackNode<P>[] children;
+	private final AbstractStackNode<P> emptyChild;
 	
-	public ListStackNode(int id, int dot, Object production, AbstractStackNode child, boolean isPlusList){
+	public ListStackNode(int id, int dot, P production, AbstractStackNode<P> child, boolean isPlusList){
 		super(id, dot);
 		
 		this.production = production;
@@ -31,7 +31,7 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	public ListStackNode(int id, int dot, Object production, AbstractStackNode child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public ListStackNode(int id, int dot, P production, AbstractStackNode<P> child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -41,7 +41,7 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	private ListStackNode(ListStackNode original, int startLocation){
+	private ListStackNode(ListStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		production = original.production;
@@ -54,18 +54,20 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 	/**
 	 * Generates and initializes the alternative for this list.
 	 */
-	private AbstractStackNode[] generateChildren(AbstractStackNode child){
-		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P>[] generateChildren(AbstractStackNode<P> child){
+		AbstractStackNode<P> listNode = (AbstractStackNode<P>) child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setAlternativeProduction(production);
-		listNode.setProduction(new AbstractStackNode[]{listNode, listNode});
-		return new AbstractStackNode[]{listNode};
+		listNode.setProduction((AbstractStackNode<P>[]) new AbstractStackNode[]{listNode, listNode});
+		return (AbstractStackNode<P>[]) new AbstractStackNode[]{listNode};
 	}
 	
 	/**
 	 * Generates and initializes the empty child for this list (in case this is a star list).
 	 */
-	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
@@ -74,11 +76,11 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		return name;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new ListStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new ListStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
 	
@@ -86,7 +88,7 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		return emptyChild != null;
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
@@ -104,10 +106,10 @@ public final class ListStackNode extends AbstractExpandableStackNode{
 		return production.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof ListStackNode)) return false;
 		
-		ListStackNode otherNode = (ListStackNode) stackNode;
+		ListStackNode<P> otherNode = (ListStackNode<P>) stackNode;
 		
 		if(!production.equals(otherNode.production)) return false;
 		

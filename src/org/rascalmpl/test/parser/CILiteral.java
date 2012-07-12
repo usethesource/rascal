@@ -33,7 +33,8 @@ S ::= ci(bla)
 
 NOTE: ci(*) means whatever * represents is Case Insensitive.
 */
-public class CILiteral extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class CILiteral extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_bla = VF.constructor(Factory.Symbol_CiLit, VF.string("bla"));
@@ -44,10 +45,10 @@ public class CILiteral extends SGTDBF<IConstructor, ISourceLocation> implements 
 	private final static IConstructor PROD_S_A = VF.constructor(Factory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A), VF.set());
 	private final static IConstructor PROD_bla_bla = VF.constructor(Factory.Production_Default,  SYMBOL_bla, VF.list(SYMBOL_char_b, SYMBOL_char_l, SYMBOL_char_a), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode LITERAL_bla0 = new CaseInsensitiveLiteralStackNode(0, 0, PROD_bla_bla, new int[]{'b','l','a'});
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> LITERAL_bla0 = new CaseInsensitiveLiteralStackNode<IConstructor>(0, 0, PROD_bla_bla, new int[]{'b','l','a'});
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_1[0] = LITERAL_bla0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
@@ -58,12 +59,12 @@ public class CILiteral extends SGTDBF<IConstructor, ISourceLocation> implements 
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "Bla".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

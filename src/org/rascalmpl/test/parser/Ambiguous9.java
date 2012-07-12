@@ -35,7 +35,8 @@ import org.rascalmpl.values.uptr.Factory;
 * 
 * NOTE: This test, tests prefix sharing.
 */
-public class Ambiguous9 extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class Ambiguous9 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_E = VF.constructor(Factory.Symbol_Sort, VF.string("E"));
 	private final static IConstructor SYMBOL_plus = VF.constructor(Factory.Symbol_Lit, VF.string("+"));
@@ -53,28 +54,28 @@ public class Ambiguous9 extends SGTDBF<IConstructor, ISourceLocation> implements
 	private final static IConstructor PROD_star_star = VF.constructor(Factory.Production_Default,  SYMBOL_star, VF.list(SYMBOL_char_star), VF.set());
 	private final static IConstructor PROD_1_1 = VF.constructor(Factory.Production_Default,  SYMBOL_1, VF.list(SYMBOL_char_1), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_E0 = new NonTerminalStackNode(0, 0, "E");
-	private final static AbstractStackNode NONTERMINAL_E1 = new NonTerminalStackNode(1, 0, "E");
-	private final static AbstractStackNode NONTERMINAL_E2 = new NonTerminalStackNode(2, 2, "E");
-	private final static AbstractStackNode NONTERMINAL_E3 = new NonTerminalStackNode(3, 2, "E");
-	private final static AbstractStackNode LITERAL_4 = new LiteralStackNode(4, 1, PROD_plus_plus, new int[] {'+'});
-	private final static AbstractStackNode LITERAL_5 = new LiteralStackNode(5, 1, PROD_star_star, new int[] {'*'});
-	private final static AbstractStackNode LITERAL_6 = new LiteralStackNode(6, 0, PROD_1_1, new int[] {'1'});
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_E0 = new NonTerminalStackNode<IConstructor>(0, 0, "E");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_E1 = new NonTerminalStackNode<IConstructor>(1, 0, "E");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_E2 = new NonTerminalStackNode<IConstructor>(2, 2, "E");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_E3 = new NonTerminalStackNode<IConstructor>(3, 2, "E");
+	private final static AbstractStackNode<IConstructor> LITERAL_4 = new LiteralStackNode<IConstructor>(4, 1, PROD_plus_plus, new int[] {'+'});
+	private final static AbstractStackNode<IConstructor> LITERAL_5 = new LiteralStackNode<IConstructor>(5, 1, PROD_star_star, new int[] {'*'});
+	private final static AbstractStackNode<IConstructor> LITERAL_6 = new LiteralStackNode<IConstructor>(6, 0, PROD_1_1, new int[] {'1'});
 	
-	private final static AbstractStackNode[] S_EXPECTS;
+	private final static AbstractStackNode<IConstructor>[] S_EXPECTS;
 	static{
-		ExpectBuilder sExpectBuilder = new ExpectBuilder(new IntegerMap());
-		sExpectBuilder.addAlternative(PROD_S_E, new AbstractStackNode[]{NONTERMINAL_E0});
+		ExpectBuilder<IConstructor> sExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		sExpectBuilder.addAlternative(PROD_S_E, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E0});
 		S_EXPECTS = sExpectBuilder.buildExpectArray();
 	}
 	
-	private final static AbstractStackNode[] E_EXPECTS;
+	private final static AbstractStackNode<IConstructor>[] E_EXPECTS;
 	static{
-		ExpectBuilder eExpectBuilder = new ExpectBuilder(new IntegerMap());
-		eExpectBuilder.addAlternative(PROD_E_EplusE, new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_4, NONTERMINAL_E2});
-		eExpectBuilder.addAlternative(PROD_E_EstarE, new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_5, NONTERMINAL_E3});
-		eExpectBuilder.addAlternative(PROD_E_1, new AbstractStackNode[]{LITERAL_6});
+		ExpectBuilder<IConstructor> eExpectBuilder = new ExpectBuilder<IConstructor>(new IntegerMap());
+		eExpectBuilder.addAlternative(PROD_E_EplusE, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_4, NONTERMINAL_E2});
+		eExpectBuilder.addAlternative(PROD_E_EstarE, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{NONTERMINAL_E1, LITERAL_5, NONTERMINAL_E3});
+		eExpectBuilder.addAlternative(PROD_E_1, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{LITERAL_6});
 		E_EXPECTS = eExpectBuilder.buildExpectArray();
 	}
 	
@@ -82,16 +83,16 @@ public class Ambiguous9 extends SGTDBF<IConstructor, ISourceLocation> implements
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
+	public AbstractStackNode<IConstructor>[] S(){
 		return S_EXPECTS;
 	}
 	
-	public AbstractStackNode[] E(){
+	public AbstractStackNode<IConstructor>[] E(){
 		return E_EXPECTS;
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

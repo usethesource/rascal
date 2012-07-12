@@ -19,12 +19,12 @@ public class ParseError extends RuntimeException{
 	private final int beginColumn;
 	private final int endColumn;
 	
-	private final Stack<AbstractStackNode> unexpandableNodes;
-	private final Stack<AbstractStackNode> unmatchableLeafNodes;
-	private final DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes;
-	private final DoubleStack<AbstractStackNode, AbstractNode> filteredNodes;
+	private final Stack<AbstractStackNode<?>> unexpandableNodes;
+	private final Stack<AbstractStackNode<?>> unmatchableLeafNodes;
+	private final DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>> unmatchableMidProductionNodes;
+	private final DoubleStack<AbstractStackNode<?>, AbstractNode> filteredNodes;
 	
-	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn, Stack<AbstractStackNode> unexpandableNodes, Stack<AbstractStackNode> unmatchableLeafNodes, DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> unmatchableMidProductionNodes, DoubleStack<AbstractStackNode, AbstractNode> filteredNodes){
+	public ParseError(String message, URI location, int offset, int length, int beginLine, int endLine, int beginColumn, int endColumn, Stack<AbstractStackNode<?>> unexpandableNodes, Stack<AbstractStackNode<?>> unmatchableLeafNodes, DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>> unmatchableMidProductionNodes, DoubleStack<AbstractStackNode<?>, AbstractNode> filteredNodes){
 		super(message);
 		
 		this.location = location;
@@ -86,19 +86,19 @@ public class ParseError extends RuntimeException{
 		return endColumn;
 	}
 	
-	public Stack<AbstractStackNode> getUnexpandableNodes(){
+	public Stack<AbstractStackNode<?>> getUnexpandableNodes(){
 		return unexpandableNodes;
 	}
 	
-	public Stack<AbstractStackNode> getUnmatchableLeafNodes(){
+	public Stack<AbstractStackNode<?>> getUnmatchableLeafNodes(){
 		return unmatchableLeafNodes;
 	}
 	
-	public DoubleStack<ArrayList<AbstractStackNode>, AbstractStackNode> getUnmatchableMidProductionNodes(){
+	public DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>> getUnmatchableMidProductionNodes(){
 		return unmatchableMidProductionNodes;
 	}
 	
-	public DoubleStack<AbstractStackNode, AbstractNode> getFilteredNodes(){
+	public DoubleStack<AbstractStackNode<?>, AbstractNode> getFilteredNodes(){
 		return filteredNodes;
 	}
 	

@@ -34,7 +34,8 @@ A ::= CC | a
 B ::= AA | CC
 C ::= AA | a
 */
-public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class NotAUselessSelfLoop extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(Factory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_B = VF.constructor(Factory.Symbol_Sort, VF.string("B"));
@@ -52,22 +53,22 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 	private final static IConstructor PROD_C_a = VF.constructor(Factory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_a), VF.set());
 	private final static IConstructor PROD_a_a = VF.constructor(Factory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode NONTERMINAL_A0 = new NonTerminalStackNode(0, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_A1 = new NonTerminalStackNode(1, 1, "A");
-	private final static AbstractStackNode NONTERMINAL_A2 = new NonTerminalStackNode(2, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_A3 = new NonTerminalStackNode(3, 1, "A");
-	private final static AbstractStackNode NONTERMINAL_A4 = new NonTerminalStackNode(4, 0, "A");
-	private final static AbstractStackNode NONTERMINAL_A5 = new NonTerminalStackNode(5, 1, "A");
-	private final static AbstractStackNode NONTERMINAL_B6 = new NonTerminalStackNode(6, 0, "B");
-	private final static AbstractStackNode NONTERMINAL_C7 = new NonTerminalStackNode(7, 0, "C");
-	private final static AbstractStackNode NONTERMINAL_C8 = new NonTerminalStackNode(8, 1, "C");
-	private final static AbstractStackNode NONTERMINAL_C9 = new NonTerminalStackNode(9, 0, "C");
-	private final static AbstractStackNode NONTERMINAL_C10 = new NonTerminalStackNode(10, 1, "C");
-	private final static AbstractStackNode LITERAL_a11 = new LiteralStackNode(11, 0, PROD_a_a, new int[]{'a'});
-	private final static AbstractStackNode LITERAL_a12 = new LiteralStackNode(12, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A0 = new NonTerminalStackNode<IConstructor>(0, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A1 = new NonTerminalStackNode<IConstructor>(1, 1, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A2 = new NonTerminalStackNode<IConstructor>(2, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A3 = new NonTerminalStackNode<IConstructor>(3, 1, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A4 = new NonTerminalStackNode<IConstructor>(4, 0, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_A5 = new NonTerminalStackNode<IConstructor>(5, 1, "A");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_B6 = new NonTerminalStackNode<IConstructor>(6, 0, "B");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_C7 = new NonTerminalStackNode<IConstructor>(7, 0, "C");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_C8 = new NonTerminalStackNode<IConstructor>(8, 1, "C");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_C9 = new NonTerminalStackNode<IConstructor>(9, 0, "C");
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_C10 = new NonTerminalStackNode<IConstructor>(10, 1, "C");
+	private final static AbstractStackNode<IConstructor> LITERAL_a11 = new LiteralStackNode<IConstructor>(11, 0, PROD_a_a, new int[]{'a'});
+	private final static AbstractStackNode<IConstructor> LITERAL_a12 = new LiteralStackNode<IConstructor>(12, 0, PROD_a_a, new int[]{'a'});
 	
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		S_EXPECT_1[0] = NONTERMINAL_A0;
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
@@ -76,14 +77,14 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		S_EXPECT_1[1].setAlternativeProduction(PROD_S_AA);
 	}
 	
-	private final static AbstractStackNode[] S_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		S_EXPECT_2[0] = NONTERMINAL_B6;
 		S_EXPECT_2[0].setProduction(S_EXPECT_2);
 		S_EXPECT_2[0].setAlternativeProduction(PROD_S_B);
 	}
 	
-	private final static AbstractStackNode[] A_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] A_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		A_EXPECT_1[0] = NONTERMINAL_C7;
 		A_EXPECT_1[0].setProduction(A_EXPECT_1);
@@ -92,14 +93,14 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		A_EXPECT_1[1].setAlternativeProduction(PROD_A_CC);
 	}
 	
-	private final static AbstractStackNode[] A_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] A_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		A_EXPECT_2[0] = LITERAL_a11;
 		A_EXPECT_2[0].setProduction(A_EXPECT_2);
 		A_EXPECT_2[0].setAlternativeProduction(PROD_A_a);
 	}
 	
-	private final static AbstractStackNode[] B_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] B_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		B_EXPECT_1[0] = NONTERMINAL_A2;
 		B_EXPECT_1[0].setProduction(B_EXPECT_1);
@@ -108,7 +109,7 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		B_EXPECT_1[1].setAlternativeProduction(PROD_B_AA);
 	}
 	
-	private final static AbstractStackNode[] B_EXPECT_2 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] B_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		B_EXPECT_2[0] = NONTERMINAL_C9;
 		B_EXPECT_2[0].setProduction(B_EXPECT_2);
@@ -117,7 +118,7 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		B_EXPECT_2[1].setAlternativeProduction(PROD_B_CC);
 	}
 	
-	private final static AbstractStackNode[] C_EXPECT_1 = new AbstractStackNode[2];
+	private final static AbstractStackNode<IConstructor>[] C_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
 	static{
 		C_EXPECT_1[0] = NONTERMINAL_A4;
 		C_EXPECT_1[0].setProduction(C_EXPECT_1);
@@ -126,7 +127,7 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		C_EXPECT_1[1].setAlternativeProduction(PROD_C_AA);
 	}
 	
-	private final static AbstractStackNode[] C_EXPECT_2 = new AbstractStackNode[1];
+	private final static AbstractStackNode<IConstructor>[] C_EXPECT_2 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
 	static{
 		C_EXPECT_2[0] = LITERAL_a12;
 		C_EXPECT_2[0].setProduction(C_EXPECT_2);
@@ -136,24 +137,24 @@ public class NotAUselessSelfLoop extends SGTDBF<IConstructor, ISourceLocation> i
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
-		return new AbstractStackNode[]{S_EXPECT_1[0], S_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] S(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{S_EXPECT_1[0], S_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] A(){
-		return new AbstractStackNode[]{A_EXPECT_1[0], A_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] A(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{A_EXPECT_1[0], A_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] B(){
-		return new AbstractStackNode[]{B_EXPECT_1[0], B_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] B(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{B_EXPECT_1[0], B_EXPECT_2[0]};
 	}
 	
-	public AbstractStackNode[] C(){
-		return new AbstractStackNode[]{C_EXPECT_1[0], C_EXPECT_2[0]};
+	public AbstractStackNode<IConstructor>[] C(){
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{C_EXPECT_1[0], C_EXPECT_2[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "aaa".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

@@ -51,7 +51,7 @@ public str generateRootParser(str package, str name, Grammar gr) {
   int newItem() { uniqueItem -= 1; return uniqueItem; };
   // make sure the ` sign is expected for expressions and every non-terminal which' first set is governed by Pattern or Expression, even though ` not in the language yet
   rel[Symbol,Symbol] quotes = { <x, \char-class([range(40,40),range(96,96)])> | x <- [meta(sort("Expression")),meta(sort("Pattern")),meta(sort("Command")),meta(sort("Statement")),meta(layouts("LAYOUTLIST"))]}; 
-  return generate(package, name, "org.rascalmpl.parser.gtd.SGTDBF", newItem, false, true, quotes, gr);
+  return generate(package, name, "org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, IConstructor, ISourceLocation\>", newItem, false, true, quotes, gr);
 }
 
 @doc{Used to generate parser that parse object language only}
@@ -128,6 +128,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '
            'import org.eclipse.imp.pdb.facts.type.TypeFactory;
            'import org.eclipse.imp.pdb.facts.IConstructor;
+           'import org.eclipse.imp.pdb.facts.ISourceLocation;
            'import org.eclipse.imp.pdb.facts.IValue;
            'import org.eclipse.imp.pdb.facts.IValueFactory;
            'import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -144,6 +145,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            'import org.rascalmpl.values.ValueFactoryFactory;
            'import org.rascalmpl.values.uptr.Factory;
            '
+           '@SuppressWarnings(\"all\")
            'public class <name> extends <super> {
            '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
            '  <if (isRoot) {>
@@ -245,20 +247,20 @@ public str generate(str package, str name, str super, int () newItem, bool callS
 	         }>
            '	
            '  protected static class <value2id(s)> {
-           '    public final static AbstractStackNode[] EXPECTS;
+           '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
            '    static{
-           '      ExpectBuilder builder = new ExpectBuilder(_resultStoreIdMappings);
+           '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_resultStoreIdMappings);
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
            '    <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
-           '    protected static final void _init_<id>(ExpectBuilder builder) {
-           '      AbstractStackNode[] tmp = new AbstractStackNode[<size(lhses)>];
+           '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
+           '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
            '      tmp[<ii>] = <items[i].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
-           '    public static void init(ExpectBuilder builder){
+           '    public static void init(ExpectBuilder\<IConstructor\> builder){
            '      <if (callSuper) {><super>.<value2id(s)>.init(builder);
            '      <}>
            '      <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
@@ -309,7 +311,7 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
   visit (g) {
     case Production p:prod(Symbol s,[],_) : {
        int counter = newItem();
-       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
+       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<counter>, 0)", counter>);
     }
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       for (int i <- index(lhs)) 
@@ -345,7 +347,7 @@ private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Gramma
         }
         case \empty() : {
            counter = newItem();
-           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode(<counter>, 0)", counter>);
+           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<counter>, 0)", counter>);
         }
      }
   }
@@ -378,7 +380,7 @@ private bool isNonterminal(Symbol s) {
 }
 
 public str generateParseMethod(Items items, Production p) {
-  return "public AbstractStackNode[] <sym2name(p.def)>() {
+  return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
          '  return <sym2name(p.def)>.EXPECTS;
          '}";
 }
@@ -468,7 +470,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
-      exits += ["new ExceptRestriction(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
+      exits += ["new ExceptRestriction\<IConstructor\>(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
@@ -496,54 +498,54 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
     
     switch ((meta(_) := sym) ? sym.wrapped : sym) {
         case \sort(n) : 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
-            return <"new EmptyStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
+            return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
         case \lex(n) : 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \keywords(n) : 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \layouts(_) :
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameterized-sort(n,args): 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \parameter(n) :
             throw "All parameters should have been instantiated by now: <sym>";
         case \start(s) : 
-            return <"new NonTerminalStackNode(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
+            return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
             if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
-                return <"new LiteralStackNode(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
+                return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
             if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
-                return <"new CaseInsensitiveLiteralStackNode(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
+                return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
-            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
+            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
         case \iter-star(s) :
-            return <"new ListStackNode(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, false, <filters>)", itemId>;
+            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, false, <filters>)", itemId>;
         case \iter-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
-            return <"new SeparatedListStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true, <filters>)",itemId>;
+            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true, <filters>)",itemId>;
         }
         case \iter-star-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
-            return <"new SeparatedListStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false, <filters>)",itemId>;
+            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false, <filters>)",itemId>;
         }
         case \opt(s) : {
             reg =  regular(sym);
-            return <"new OptionalStackNode(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, <filters>)", itemId>;
+            return <"new OptionalStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, <filters>)", itemId>;
         }
         case \alt(as) : {
             alts = [a | a <- as];
-            return <"new AlternativeStackNode(<itemId>, <dot>, <value2id(regular(sym))>, new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
+            return <"new AlternativeStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
         }
         case \seq(ss) : {
-            return <"new SequenceStackNode(<itemId>, <dot>, <value2id(regular(sym))>, new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
+            return <"new SequenceStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
-            return <"new CharStackNode(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
+            return <"new CharStackNode\<IConstructor\>(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
         default: 
             throw "unexpected symbol <sym> while generating parser code";
     }

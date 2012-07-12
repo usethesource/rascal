@@ -15,7 +15,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class NonTerminalStackNode extends AbstractStackNode{
+public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 	private final String expectIdentifier;
 	
 	public NonTerminalStackNode(int id, int dot, String expectIdentifier){
@@ -30,7 +30,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		this.expectIdentifier = expectIdentifier;
 	}
 	
-	private NonTerminalStackNode(NonTerminalStackNode original, int startLocation){
+	private NonTerminalStackNode(NonTerminalStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		expectIdentifier = original.expectIdentifier;
@@ -48,11 +48,11 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new NonTerminalStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new NonTerminalStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -60,7 +60,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -68,7 +68,7 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		throw new UnsupportedOperationException();
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
 	
@@ -91,10 +91,10 @@ public final class NonTerminalStackNode extends AbstractStackNode{
 		return expectIdentifier.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof NonTerminalStackNode)) return false;
 		
-		NonTerminalStackNode otherNode = (NonTerminalStackNode) stackNode;
+		NonTerminalStackNode<P> otherNode = (NonTerminalStackNode<P>) stackNode;
 
 		if(!expectIdentifier.equals(otherNode.expectIdentifier)) return false;
 		

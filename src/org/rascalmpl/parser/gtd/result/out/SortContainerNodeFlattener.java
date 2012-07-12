@@ -29,7 +29,7 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 /**
  * A converter for sort container result nodes.
  */
-public class SortContainerNodeFlattener<T, P>{
+public class SortContainerNodeFlattener<P, T, S>{
 	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
 	
@@ -46,7 +46,7 @@ public class SortContainerNodeFlattener<T, P>{
 	/**
 	 * Gather all the alternatives ending with the given child.
 	 */
-	private void gatherAlternatives(INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, P sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	private void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
@@ -59,7 +59,7 @@ public class SortContainerNodeFlattener<T, P>{
 	/**
 	 * Gathers all alternatives for the given production related to the given child and postfix.
 	 */
-	private void gatherProduction(INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, Link child, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, P sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	private void gatherProduction(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){ // Reached the start of the production.
 			buildAlternative(converter, nodeConstructorFactory, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
@@ -76,7 +76,7 @@ public class SortContainerNodeFlattener<T, P>{
 	 * Construct the UPTR representation for the given production.
 	 * Additionally, it handles all semantic actions related 'events' associated with it.
 	 */
-	private void buildAlternative(INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, P sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	private void buildAlternative(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		Object newEnvironment = actionExecutor.enteringProduction(production, environment); // Fire a 'entering production' event to enable environment handling.
 		
 		int postFixLength = postFix.length;
@@ -112,7 +112,7 @@ public class SortContainerNodeFlattener<T, P>{
 	/**
 	 * Converts the given sort container result node to the UPTR format.
 	 */
-	public T convertToUPTR(INodeFlattener<T, P> converter, INodeConstructorFactory<T, P> nodeConstructorFactory, SortContainerNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	public T convertToUPTR(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, SortContainerNode<P> node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 
@@ -134,7 +134,7 @@ public class SortContainerNodeFlattener<T, P>{
 			cycleMark.reset();
 		}
 		
-		P sourceLocation = null;
+		S sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){ // Construct a source location annotation if this sort container does not represent a layout non-terminal and if it's available.
 			sourceLocation = nodeConstructorFactory.createPositionInformation(input, offset, endOffset, positionStore);
@@ -158,7 +158,7 @@ public class SortContainerNodeFlattener<T, P>{
 		ArrayList<T> gatheredAlternatives = new ArrayList<T>();
 		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
-		ArrayList<?> productions = node.getAdditionalProductions();
+		ArrayList<P> productions = node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
 				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, filteringTracker, actionExecutor, environment);

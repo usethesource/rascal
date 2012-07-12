@@ -28,7 +28,8 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
-public class Alternative1 extends SGTDBF<IConstructor, ISourceLocation> implements IParserTest{
+@SuppressWarnings("unchecked")
+public class Alternative1 extends SGTDBF<IConstructor, IConstructor, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(Factory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_a = VF.constructor(Factory.Symbol_Lit, VF.string("a"));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(Factory.Symbol_CharClass, VF.list(VF.constructor(Factory.CharRange_Single, VF.integer(97))));
@@ -47,14 +48,14 @@ public class Alternative1 extends SGTDBF<IConstructor, ISourceLocation> implemen
 	private final static IConstructor PROD_c_c = VF.constructor(Factory.Production_Default,  SYMBOL_c, VF.list(SYMBOL_char_c), VF.set());
 	private final static IConstructor PROD_d_d = VF.constructor(Factory.Production_Default,  SYMBOL_d, VF.list(SYMBOL_char_d), VF.set());
 	
-	private final static AbstractStackNode NONTERMINAL_START_S = new NonTerminalStackNode(AbstractStackNode.START_SYMBOL_ID, 0, "S");
-	private final static AbstractStackNode[] S_EXPECT_1 = new AbstractStackNode[3];
+	private final static AbstractStackNode<IConstructor> NONTERMINAL_START_S = new NonTerminalStackNode<IConstructor>(AbstractStackNode.START_SYMBOL_ID, 0, "S");
+	private final static AbstractStackNode<IConstructor>[] S_EXPECT_1 = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
 	static{
-		S_EXPECT_1[0] = new LiteralStackNode(1, 0, PROD_a_a, new int[]{'a'});
+		S_EXPECT_1[0] = new LiteralStackNode<IConstructor>(1, 0, PROD_a_a, new int[]{'a'});
 		S_EXPECT_1[0].setProduction(S_EXPECT_1);
-		S_EXPECT_1[1] = new AlternativeStackNode(4, 1, PROD_ALTbc, new AbstractStackNode[]{new LiteralStackNode(2, 0, PROD_b_b, new int[]{'b'}), new LiteralStackNode(3, 1, PROD_c_c, new int[]{'c'})});
+		S_EXPECT_1[1] = new AlternativeStackNode<IConstructor>(4, 1, PROD_ALTbc, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new LiteralStackNode<IConstructor>(2, 0, PROD_b_b, new int[]{'b'}), new LiteralStackNode<IConstructor>(3, 1, PROD_c_c, new int[]{'c'})});
 		S_EXPECT_1[1].setProduction(S_EXPECT_1);
-		S_EXPECT_1[2] = new LiteralStackNode(5, 2, PROD_d_d, new int[]{'d'});
+		S_EXPECT_1[2] = new LiteralStackNode<IConstructor>(5, 2, PROD_d_d, new int[]{'d'});
 		S_EXPECT_1[2].setProduction(S_EXPECT_1);
 		S_EXPECT_1[2].setAlternativeProduction(PROD_S_a_ALTbc_d);
 	}
@@ -63,12 +64,12 @@ public class Alternative1 extends SGTDBF<IConstructor, ISourceLocation> implemen
 		super();
 	}
 	
-	public AbstractStackNode[] S(){
+	public AbstractStackNode<IConstructor>[] S(){
 		return new AbstractStackNode[]{S_EXPECT_1[0]};
 	}
 	
 	public IConstructor executeParser(){
-		return (IConstructor) parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new DefaultNodeFlattener<IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	public IValue getExpectedResult() throws IOException{

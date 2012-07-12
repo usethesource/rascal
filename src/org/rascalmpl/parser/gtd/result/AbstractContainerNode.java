@@ -20,7 +20,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
  * All nodes in the resulting tree that can contain other nodes are a subtype
  * of this class.
  */
-public abstract class AbstractContainerNode extends AbstractNode{
+public abstract class AbstractContainerNode<P> extends AbstractNode{
 	// Location related.
 	protected final URI input;
 	protected final int offset;
@@ -33,9 +33,9 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	
 	// Children.
 	protected Link firstAlternative;
-	protected Object firstProduction;
+	protected P firstProduction;
 	protected ArrayList<Link> alternatives;
-	protected ArrayList<Object> productions;
+	protected ArrayList<P> productions;
 	
 	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super();
@@ -56,14 +56,14 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * additional alternatives are added later on, the lists will be
 	 * initialized and used for storage.
 	 */
-	public void addAlternative(Object production, Link children){
+	public void addAlternative(P production, Link children){
 		if(firstAlternative == null){
 			firstAlternative = children;
 			firstProduction = production;
 		}else{
 			if(alternatives == null){
 				alternatives = new ArrayList<Link>(1);
-				productions = new ArrayList<Object>(1);
+				productions = new ArrayList<P>(1);
 			}
 			alternatives.add(children);
 			productions.add(production);
@@ -116,7 +116,7 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * Returns the production associated with the first result alternative in
 	 * this container node.
 	 */
-	public Object getFirstProduction(){
+	public P getFirstProduction(){
 		return firstProduction;
 	}
 	
@@ -134,7 +134,7 @@ public abstract class AbstractContainerNode extends AbstractNode{
 	 * the accompanied alternatives list. In case this node does not contain
 	 * ambiguous results, 'null' will be returned.
 	 */
-	public ArrayList<?> getAdditionalProductions(){
+	public ArrayList<P> getAdditionalProductions(){
 		return productions;
 	}
 	

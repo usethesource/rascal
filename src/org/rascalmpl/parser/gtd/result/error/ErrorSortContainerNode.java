@@ -21,7 +21,7 @@ import org.rascalmpl.parser.gtd.result.CharNode;
  * This node is equivalent to the regular sort result node, but (directly or
  * indirectly) contains incomplete parse results.
  */
-public class ErrorSortContainerNode extends AbstractContainerNode{
+public class ErrorSortContainerNode<P> extends AbstractContainerNode<P>{
 	public final static int ID = 6;
 	
 	private CharNode[] unmatchedInput;

@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class EpsilonStackNode extends AbstractMatchableStackNode{
+public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 	public final static EpsilonNode EPSILON_RESULT = new EpsilonNode();
 	
 	private final AbstractNode result;
@@ -33,13 +33,13 @@ public final class EpsilonStackNode extends AbstractMatchableStackNode{
 		result = null;
 	}
 	
-	private EpsilonStackNode(EpsilonStackNode original, int startLocation){
+	private EpsilonStackNode(EpsilonStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		result = null;
 	}
 	
-	private EpsilonStackNode(EpsilonStackNode original, int startLocation, AbstractNode result){
+	private EpsilonStackNode(EpsilonStackNode<P> original, int startLocation, AbstractNode result){
 		super(original, startLocation);
 		
 		this.result = result;
@@ -53,12 +53,12 @@ public final class EpsilonStackNode extends AbstractMatchableStackNode{
 		return EPSILON_RESULT;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new EpsilonStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new EpsilonStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new EpsilonStackNode(this, startLocation, result);
+	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
+		return new EpsilonStackNode<P>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -82,7 +82,7 @@ public final class EpsilonStackNode extends AbstractMatchableStackNode{
 		return 0;
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof EpsilonStackNode)) return false;
 		
 		return hasEqualFilters(stackNode);

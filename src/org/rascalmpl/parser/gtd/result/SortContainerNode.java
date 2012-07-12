@@ -17,7 +17,7 @@ import java.net.URI;
  * A sort result node.
  * Sorts are a type of containers.
  */
-public class SortContainerNode extends AbstractContainerNode{
+public class SortContainerNode<P> extends AbstractContainerNode<P>{
 	public final static int ID = 4;
 	
 	public SortContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){

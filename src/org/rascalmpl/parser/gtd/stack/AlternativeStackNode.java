@@ -14,13 +14,13 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public class AlternativeStackNode extends AbstractExpandableStackNode{
-	private final Object production;
+public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
+	private final P production;
 	private final String name;
 	
-	private final AbstractStackNode[] children;
+	private final AbstractStackNode<P>[] children;
 	
-	public AlternativeStackNode(int id, int dot, Object production, AbstractStackNode[] alternatives){
+	public AlternativeStackNode(int id, int dot, P production, AbstractStackNode<P>[] alternatives){
 		super(id, dot);
 		
 		this.production = production;
@@ -29,7 +29,7 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	public AlternativeStackNode(int id, int dot, Object production, AbstractStackNode[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public AlternativeStackNode(int id, int dot, P production, AbstractStackNode<P>[] alternatives, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -38,7 +38,7 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		this.children = generateAlternatives(alternatives);
 	}
 	
-	private AlternativeStackNode(AlternativeStackNode original, int startLocation){
+	private AlternativeStackNode(AlternativeStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		production = original.production;
@@ -50,13 +50,14 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 	/**
 	 * Generates and initializes the alternatives for this alternative.
 	 */
-	private AbstractStackNode[] generateAlternatives(AbstractStackNode[] alternatives){
-		AbstractStackNode[] children = new AbstractStackNode[alternatives.length];
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P>[] generateAlternatives(AbstractStackNode<P>[] alternatives){
+		AbstractStackNode<P>[] children = (AbstractStackNode<P>[]) new AbstractStackNode[alternatives.length];
 		
 		for(int i = alternatives.length - 1; i >= 0; --i){
-			AbstractStackNode child = alternatives[i].getCleanCopy(DEFAULT_START_LOCATION);
+			AbstractStackNode<P> child = alternatives[i].getCleanCopy(DEFAULT_START_LOCATION);
 
-			AbstractStackNode[] prod = new AbstractStackNode[]{child};
+			AbstractStackNode<P>[] prod = (AbstractStackNode<P>[]) new AbstractStackNode[]{child};
 			child.setProduction(prod);
 			child.setAlternativeProduction(production);
 			
@@ -70,11 +71,11 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		return name;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new AlternativeStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new AlternativeStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
 	
@@ -82,7 +83,7 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		return false;
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
 
@@ -101,10 +102,10 @@ public class AlternativeStackNode extends AbstractExpandableStackNode{
 		return production.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof AlternativeStackNode)) return false;
 		
-		AlternativeStackNode otherNode = (AlternativeStackNode) stackNode;
+		AlternativeStackNode<P> otherNode = (AlternativeStackNode<P>) stackNode;
 
 		if(!production.equals(otherNode.production)) return false;
 		

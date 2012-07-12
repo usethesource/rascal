@@ -14,14 +14,14 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
-public final class SeparatedListStackNode extends AbstractExpandableStackNode{
-	private final Object production;
+public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode<P>{
+	private final P production;
 	private final String name;
 
-	private final AbstractStackNode[] children;
-	private final AbstractStackNode emptyChild;
+	private final AbstractStackNode<P>[] children;
+	private final AbstractStackNode<P> emptyChild;
 	
-	public SeparatedListStackNode(int id, int dot, Object production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList){
+	public SeparatedListStackNode(int id, int dot, P production, AbstractStackNode<P> child, AbstractStackNode<P>[] separators, boolean isPlusList){
 		super(id, dot);
 		
 		this.production = production;
@@ -32,7 +32,7 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 	}
 	
 
-	public SeparatedListStackNode(int id, int dot, Object production, AbstractStackNode child, AbstractStackNode[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
+	public SeparatedListStackNode(int id, int dot, P production, AbstractStackNode<P> child, AbstractStackNode<P>[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		
 		this.production = production;
@@ -42,7 +42,7 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
 	
-	private SeparatedListStackNode(SeparatedListStackNode original, int startLocation){
+	private SeparatedListStackNode(SeparatedListStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
 		production = original.production;
@@ -55,31 +55,33 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 	/**
 	 * Generates and initializes the alternative for this separated list.
 	 */
-	private AbstractStackNode[] generateChildren(AbstractStackNode child, AbstractStackNode[] separators){
-		AbstractStackNode listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P>[] generateChildren(AbstractStackNode<P> child, AbstractStackNode<P>[] separators){
+		AbstractStackNode<P> listNode = child.getCleanCopy(DEFAULT_START_LOCATION);
 		listNode.setAlternativeProduction(production);
 		
 		int numberOfSeparators = separators.length;
-		AbstractStackNode[] prod = new AbstractStackNode[numberOfSeparators + 2];
+		AbstractStackNode<P>[] prod = (AbstractStackNode<P>[]) new AbstractStackNode[numberOfSeparators + 2];
 		
 		listNode.setProduction(prod);
 		prod[0] = listNode; // Start
 		for(int i = numberOfSeparators - 1; i >= 0; --i){
-			AbstractStackNode separator = separators[i];
+			AbstractStackNode<P> separator = separators[i];
 			separator.setProduction(prod);
 			separator.markAsSeparator();
 			prod[i + 1] = separator;
 		}
 		prod[numberOfSeparators + 1] = listNode; // End
 		
-		return new AbstractStackNode[]{listNode};
+		return (AbstractStackNode<P>[]) new AbstractStackNode[]{listNode};
 	}
 	
 	/**
 	 * Generates and initializes the empty child for this separated list (if it's a star list).
 	 */
-	private AbstractStackNode generateEmptyChild(){
-		AbstractStackNode empty = EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
+	@SuppressWarnings("unchecked")
+	private AbstractStackNode<P> generateEmptyChild(){
+		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
@@ -88,11 +90,11 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 		return name;
 	}
 	
-	public AbstractStackNode getCleanCopy(int startLocation){
-		return new SeparatedListStackNode(this, startLocation);
+	public AbstractStackNode<P> getCleanCopy(int startLocation){
+		return new SeparatedListStackNode<P>(this, startLocation);
 	}
 	
-	public AbstractStackNode[] getChildren(){
+	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
 	
@@ -100,7 +102,7 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 		return emptyChild != null;
 	}
 	
-	public AbstractStackNode getEmptyChild(){
+	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
@@ -118,10 +120,10 @@ public final class SeparatedListStackNode extends AbstractExpandableStackNode{
 		return production.hashCode();
 	}
 	
-	public boolean isEqual(AbstractStackNode stackNode){
+	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof SeparatedListStackNode)) return false;
 		
-		SeparatedListStackNode otherNode = (SeparatedListStackNode) stackNode;
+		SeparatedListStackNode<P> otherNode = (SeparatedListStackNode<P>) stackNode;
 		
 		if(!production.equals(otherNode.production)) return false;
 		
