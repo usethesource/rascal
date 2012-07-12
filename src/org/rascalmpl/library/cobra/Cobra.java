@@ -29,6 +29,9 @@ import org.rascalmpl.library.cobra.util.NullOutputStream;
 
 public class Cobra {
 
+	public static final String TRIES = "tries";
+	public static final String MAXDEPTH = "maxDepth";
+
 	public static Type reifyType(IValue type) {
 		Type reified = type.getType();
 		if (!(reified instanceof ReifiedType)) {
@@ -48,8 +51,24 @@ public class Cobra {
 		this.quickcheck = QuickCheck.getInstance();
 	}
 
-	public IValue _quickcheck(IValue function, IInteger maxDepth, IBool verbose,
-			IBool maxVerbose, IInteger tries, IEvaluatorContext eval) {
+	public static int readIntTag(AbstractFunction test, String key, int defaultVal) {
+		if (test.hasTag(key)) {
+			int result = Integer.parseInt(test.getTag(key));
+			if (result < 1) {
+				throw new IllegalArgumentException(key + " smaller than 1");
+			}
+			return result;
+		} else {
+			return defaultVal;
+		}
+	}
+
+	public IValue _quickcheck(IValue function, IBool verbose, IBool maxVerbose, IEvaluatorContext eval) {
+		return _quickcheck(function, verbose, maxVerbose, null, null, eval);
+	}
+
+	public IValue _quickcheck(IValue function, IBool verbose, IBool maxVerbose, IInteger maxDepth, IInteger tries,
+			IEvaluatorContext eval) {
 
 		PrintWriter out = (verbose.getValue()) ? eval.getStdOut()
 				: new PrintWriter(new NullOutputStream());
@@ -60,13 +79,20 @@ public class Cobra {
 			throw RuntimeExceptionFactory.illegalArgument(function,
 					eval.getCurrentAST(), null, "Return type should be bool.");
 		}
-
+		
+		
 		try {
 			boolean result = true;
 			for (AbstractFunction f : functions) {
+				
+				int _maxDepth, _tries;
+
+				_maxDepth = getAnnotation(eval, f, Cobra.MAXDEPTH, maxDepth, 5);
+				_tries = getAnnotation(eval, f, Cobra.TRIES, tries, 5);
+
 				result = result
-						&& quickcheck.quickcheck(f, maxDepth.intValue(),
-								tries.intValue(), maxVerbose.getValue(), out);
+ && quickcheck.quickcheck(f, _maxDepth, _tries, maxVerbose.getValue(), out);
+
 			}
 			return eval.getValueFactory().bool(result);
 
@@ -76,6 +102,16 @@ public class Cobra {
 					e.getMessage());
 		} finally {
 			out.flush();
+		}
+
+	}
+
+	private int getAnnotation(IEvaluatorContext eval, AbstractFunction f, String tag, IInteger override, int defaultVal) {
+		try {
+			return (override == null) ? readIntTag(f, tag, defaultVal) : override.intValue();
+		} catch (IllegalArgumentException e) {
+			throw RuntimeExceptionFactory.illegalArgument(vf.string(tag), eval.getCurrentAST(), null,
+					"Annotation: " + e.getMessage());
 		}
 
 	}

@@ -1,40 +1,36 @@
 module cobra::quickcheck
 
 public bool quickcheck( value func ){
-	return _quickcheck( func, 5, true, false, 100);
-}
-
-public bool quickcheck( value func, int maxDepth ){
-	return _quickcheck( func, maxDepth, true, false, 100);
+	return _quickcheck( func, true, false );
 }
 
 public bool quickcheck( value func, int maxDepth, int maxTries ){
-	return _quickcheck( func, maxDepth, true, false, maxTries);
-}
-
-public bool silentQuickcheck( value func, int maxDepth ){
-	return _quickcheck( func, maxDepth, false, false, 100);
+	return _quickcheck( func, true, false, maxDepth, maxTries);
 }
 
 public bool silentQuickcheck( value func, int maxDepth, int maxTries ){
-	return _quickcheck( func, maxDepth, false, false, maxTries);
+	return _quickcheck( func, false, false );
+}
+
+public bool silentQuickcheck( value func, int maxDepth, int maxTries ){
+	return _quickcheck( func, false, false, maxDepth, maxTries);
 }
 
 public bool verboseQuickcheck( value func ){
-	return _quickcheck( func, 5, true, true, 100);
-}  
-
-public bool verboseQuickcheck( value func, int maxDepth ){
-	return _quickcheck( func, maxDepth, true, true, 100);
+	return _quickcheck( func, true, true );
 }  
  
 public bool verboseQuickcheck( value func, int maxDepth, int maxTries ){
-	return _quickcheck( func, maxDepth, true, true, maxTries);
+	return _quickcheck( func, true, true, maxDepth, maxTries);
 } 
 
 @javaClass{org.rascalmpl.library.cobra.Cobra}
 @reflect
-private java bool _quickcheck( value func, int maxDepth, bool verbose, bool maxVerbose, int tries);
+private java bool _quickcheck( value func, bool verbose, bool maxVerbose, int maxDepth, int tries);
+
+@javaClass{org.rascalmpl.library.cobra.Cobra}
+@reflect
+private java bool _quickcheck( value func, bool verbose, bool maxVerbose );
 
 @javaClass{org.rascalmpl.library.cobra.Cobra}
 @reflect
