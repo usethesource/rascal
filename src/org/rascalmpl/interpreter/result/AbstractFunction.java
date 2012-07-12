@@ -97,6 +97,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return ast;
 	}
 	
+	public boolean hasTag(String key) {
+		return false;
+	}
+
+	public String getTag(String key) {
+		return null;
+	}
+
 	public String getFirstOutermostConstructorLabel() {
 		return null;
 	}
@@ -126,10 +134,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return false;
 	}
 	
+	@Override
 	public boolean hasVarArgs() {
 		return hasVarArgs;
 	}
 	
+	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
@@ -313,10 +323,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return TF.tupleType(types);
 	}
 
+	@Override
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitExternal(this);
 	}
 
+	@Override
 	public boolean isEqual(IValue other) throws FactTypeUseException {
 		return other == this;
 	}
@@ -400,6 +412,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return functionType.getReturnType();
 	}
 
+	@Override
 	public IEvaluator<Result<IValue>> getEval() {
 		return eval;
 	}

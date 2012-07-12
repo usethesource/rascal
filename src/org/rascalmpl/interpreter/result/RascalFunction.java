@@ -13,14 +13,17 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -74,6 +77,7 @@ public class RascalFunction extends NamedFunction {
 	private final List<Expression> formals;
 	private final String firstOutermostLabel;
 	private final IConstructor firstOutermostProduction;
+	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
 
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
@@ -110,6 +114,7 @@ public class RascalFunction extends NamedFunction {
 		this.isTest = isTest;
 		
 		if (ast instanceof FunctionDeclaration) {
+			tags = parseTags((FunctionDeclaration) ast);
 			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
 			if (resourceScheme.equals("")) {
 					this.resourceScheme = null;
@@ -117,10 +122,37 @@ public class RascalFunction extends NamedFunction {
 				this.resourceScheme = resourceScheme;
 			}
 		} else {
+			tags = new HashMap<String, String>();
 			this.resourceScheme = null;
 		}
 	}
 	
+	private Map<String, String> parseTags(FunctionDeclaration declaration) {
+		Map<String, String> result = new HashMap<String, String>();
+		Tags tags = declaration.getTags();
+		if (tags.hasTags()) {
+			for (Tag tag : tags.getTags()) {
+				String key = Names.name(tag.getName());
+				String value = ((TagString.Lexical) tag.getContents()).getString();
+				if (value.length() > 2 && value.startsWith("{")) {
+					value = value.substring(1, value.length() - 1);
+				}
+				result.put(key, value);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public String getTag(String key) {
+		return tags.get(key);
+	}
+
+	@Override
+	public boolean hasTag(String key) {
+		return tags.containsKey(key);
+	}
+
 	private static String getResourceScheme(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
