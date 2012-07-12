@@ -26,6 +26,8 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.library.cobra.QuickCheck;
 
 public class TestEvaluator {
+	private static final String TRIES = "tries";
+	private static final String MAXDEPTH = "maxDepth";
 	private final Evaluator eval;
 	private final ITestResultListener testResultListener;
 
@@ -71,7 +73,10 @@ public class TestEvaluator {
 					QuickCheck qc = QuickCheck.getInstance();
 					StringWriter sw = new StringWriter();
 					PrintWriter out = new PrintWriter(sw);
-					boolean result = qc.quickcheck(test, 5, 100, false, out);
+					int maxDepth = readIntTag(test, MAXDEPTH, 5);
+					int tries = readIntTag(test, TRIES, 100);
+
+					boolean result = qc.quickcheck(test, maxDepth, tries, false, out);
 					if (!result) {
 						out.flush();
 						testResultListener.report(false, test.getName(), test.getAst().getLocation(), new Exception(sw
@@ -95,4 +100,18 @@ public class TestEvaluator {
 			testResultListener.done();
 		}
 	}
+
+	private int readIntTag(AbstractFunction test, String key, int defaultVal) {
+		if (test.hasTag(key)) {
+			int result = Integer.parseInt(test.getTag(key));
+			if(result<1){
+				throw new IllegalArgumentException(key + " smaller than 1");
+			}
+			return result;
+		} else {
+			return defaultVal;
+		}
+	}
+
+
 }
