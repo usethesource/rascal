@@ -17,7 +17,7 @@ test bool silentQuickcheckShouldBeSilent(){
 test bool failureShouldBeReported(){
 	startLog();
 	quickcheck(bool (int a){return false;}, 10, 10 );
-	return /^FAILED with \[-*\d+\]$/ := getLog();
+	return /^failed with \[-*\d+\]$/ := getLog();
 }
 
 test bool successShouldBeReported(){
@@ -33,7 +33,7 @@ test bool failureWithExceptionShouldBeReported(){
 	list[str] lines = split("\n", getLog());
 	return
 		(size(lines) == 2) && 
-		(/^FAILED with \[-*\d+\]$/ := lines[0]) &&
+		(/^failed with \[-*\d+\]$/ := lines[0]) &&
 		(/\/output.rsc:\d+,\d+: IllegalArgument\(\"My exception\"\)/ := lines[1])
 	; 
 }
