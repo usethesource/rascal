@@ -19,10 +19,9 @@ test bool testQCShouldFailWhenThrownException(){
 
 test bool withZeroArgsShouldEvaluateOnce(){
 	startLog();
-	verboseQuickcheck( bool(){ return true; }, 5, 10);
+	silentQuickcheck( bool(){ println("1"); return true; }, 5, 10);
 	list[str] lines = split("\n", getLog());
-	return (lines[0] == "1: Checked with []: true" &&
-	lines[1] == "Not refuted after 1 tries with maximum depth 5");
+	return size(lines) == 1;
 }
 
 test bool testQCWithZeroArgs(){

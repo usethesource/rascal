@@ -39,6 +39,43 @@ test bool failureWithExceptionShouldBeReported(){
 }
 
 
+test bool failureWithNoArguments(){
+	startLog();
+	quickcheck(bool (){ return false;} );
+	return /^failed$/ := getLog(); 
+}
+
+test bool failureWithExceptionAndNoException(){
+	startLog();
+	quickcheck(bool () {throw IllegalArgument("My exception");}, 10, 10 );
+	list[str] lines = split("\n", getLog());
+	return
+		(size(lines) == 2) && 
+		(/^failed$/ := lines[0]) &&
+		(/\/output.rsc:\d+,\d+: IllegalArgument\(\"My exception\"\)/ := lines[1])
+	; 
+}
+
+
+test bool verboseFailureWithNoArguments(){
+	startLog();
+	verboseQuickcheck(bool (){ return false;} );
+	return /^failed$/ := getLog();  
+}
+
+test bool successWithNoArguments(){
+	startLog();
+	quickcheck(bool (){ return true;} );
+	return /^succeeded$/ := getLog(); 
+}
+
+test bool verboseSuccessWithNoArguments(){
+	startLog();
+	verboseQuickcheck(bool (){ return true;} );
+	return /^succeeded$/ := getLog(); 
+}
+
+
 test bool verboseShouldReportAll(){
 	startLog();
 	verboseQuickcheck(bool (int a){return true;}, 10, 10 );
