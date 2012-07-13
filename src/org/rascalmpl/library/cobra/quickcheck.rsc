@@ -8,7 +8,7 @@ public bool quickcheck( value func, int maxDepth, int maxTries ){
 	return _quickcheck( func, true, false, maxDepth, maxTries);
 }
 
-public bool silentQuickcheck( value func, int maxDepth, int maxTries ){
+public bool silentQuickcheck( value func ){
 	return _quickcheck( func, false, false );
 }
 
