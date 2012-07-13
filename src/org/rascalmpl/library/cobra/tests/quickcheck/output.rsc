@@ -7,6 +7,13 @@ test bool silentQuickcheckShouldBeSilent(){
 	return getLog() == "";
 }
 
+
+test bool silentQuickcheckShouldBeSilent(){
+	startLog();
+	silentQuickcheck(bool (){return true;} );
+	return getLog() == "";
+}
+
 test bool failureShouldBeReported(){
 	startLog();
 	quickcheck(bool (int a){return false;}, 10, 10 );
