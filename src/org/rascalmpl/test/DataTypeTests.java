@@ -487,9 +487,11 @@ public class DataTypeTests extends TestFramework {
 		assertFalse(runTest("|file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>) != |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);"));
 		assertTrue(runTest("|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) != |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,7>);"));
 		
-		assertTrue(runTest("|file:///home/paulk/pico1.trm|(2,1,<2,3>,<4,5>) < |file:///home/paulk/pico2.trm|(2,1,<2,3>,<4,5>);"));
 		assertFalse(runTest("|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) < |file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>);"));
 		assertTrue(runTest("|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) < |file:///home/paulk/pico.trm|(2,2,<2,3>,<4,5>);"));
+		assertFalse(runTest("|file:///home/paulk/pico.trm|(1,1,<2,3>,<4,5>) < |file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>);"));
+		assertFalse(runTest("|file:///home/paulk/pico.trm|(1,2,<2,3>,<4,5>) < |file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>);"));
+		
 		
 		assertTrue(runTest("|file:///home/paulk/pico1.trm|(2,1,<2,3>,<4,5>) <= |file:///home/paulk/pico2.trm|(2,1,<2,3>,<4,5>);"));
 		assertFalse(runTest("|file:///home/paulk/pico2.trm|(2,1,<2,3>,<4,5>) <= |file:///home/paulk/pico1.trm|(2,1,<2,3>,<4,5>);"));
@@ -510,7 +512,8 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("|file:///home/paulk/pico.trm|(2,2,<2,3>,<4,5>) >= |file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>);"));
 		assertFalse(runTest("|file:///home/paulk/pico.trm|(2,1,<2,3>,<4,5>) >= |file:///home/paulk/pico.trm|(2,2,<2,3>,<4,5>);"));
 		
-		
+		assertTrue(runTest("|file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,6,<1,40>,<1,46>);"));
+		assertTrue(runTest("|file:///xxx|(45,1,<1,45>,<1,46>) <= |file:///xxx|(40,7,<1,40>,<1,47>);"));
 	
 	}
 	
