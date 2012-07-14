@@ -612,9 +612,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 
 	protected int compareSourceLocationInt(SourceLocationResult that) {
-		// Note reverse of args
-		ISourceLocation left = that.getValue();
-		ISourceLocation right = this.getValue();
+		// Note args have already been reversed.
+		
+		ISourceLocation left = this.getValue();
+		ISourceLocation right = that.getValue();
 		if (left.isEqual(right)) {
 			return 0;
 		}
@@ -622,7 +623,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		// they are not the same
 		int compare = left.getURI().toString().compareTo(right.getURI().toString());
 		if (compare != 0) {
-			return -compare;
+			return compare;
 		}
 		
 		// but the uri's are the same
@@ -632,22 +633,17 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			if (!right.hasOffsetLength()) {
 				return 1;
 			}
-			else if (right.getOffset() != left.getOffset()) {
-				if (right.getOffset() < left.getOffset()) {
-					return -1;
-				}
-				else {
-					return 1;
-				}
+			int roffset = right.getOffset();
+			int rlen = right.getLength();
+			int loffset = left.getOffset();
+			int llen = left.getLength();
+			if(loffset == roffset){
+				return (llen < rlen) ? -1 : ((llen == rlen) ? 0 : 1);
 			}
-			else { // lengths must be different
-				if (right.getLength() < left.getLength()) {
-					return -1;
-				}
-				else {
-					return 1;
-				}
-			}
+			if(roffset < loffset && roffset + rlen >= loffset + llen)
+				return -1;
+			else
+				return 1;
 		}
 		
 		if (!right.hasOffsetLength()) {
