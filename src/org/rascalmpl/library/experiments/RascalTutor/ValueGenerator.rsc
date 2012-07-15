@@ -183,9 +183,9 @@ public RascalType generateType(RascalType t){
 public RascalType generateType(RascalType t, VarEnv env){
      //println("generateType(<t>, <env>)");
      switch(t){
-       case \list(et, int f, int t): 		return \list(generateType(et, env), f, t);
-       case \set(et,  int f, int t):		return \set(generateType(et, env), f, t);
-       case \map(kt, vt):  					return \map(generateType(kt, env), generateType(vt, env));
+       case \list(RascalType et, int f, int t): 	return \list(generateType(et, env), f, t);
+       case \set(RascalType et,  int f, int t):		return \set(generateType(et, env), f, t);
+       case \map(RascalType kt, RascalType vt):  	return \map(generateType(kt, env), generateType(vt, env));
        case \tuple(list[RascalType] ets):	return generateTupleType(ets, env);
        case \rel(list[RascalType] ets):		return generateRelType(ets, env);
        case \arb(int d, list[RascalType] tps):
@@ -474,7 +474,7 @@ public list[tuple[str,RascalType]] autoDeclare(str expr){
       case/^\<<tp:[A-Za-z0-9\-,\[\]]+>\>/: {
         throw "nameless type \<<tp>\> not allowed";
       }
-    };
+    }
     return d;
 }
 
@@ -501,15 +501,26 @@ public str toString(tuple[RascalType rtype, str rval] v){
 // ---- Used variables in a text
 
 public set[str] uses(str txt){
-  //println("uses(<txt>)");
+  println("uses(<txt>)");
   set[str] u = {};
   visit(txt){
      case /^\<@?<name:[A-Z][A-Za-z0-9]*>\>/: {
-        //println("name = <name>");
+        println("name = <name>");
         u += name;
       }
-  };
+  }
   return u;
 }
+/*
+public set[str] uses(str txt){
+  println("uses(<txt>)");
+  set[str] u = {};
+  for(/\<@?<name:[A-Z][A-Za-z0-9]*>\>/ := txt){
+    println("name = <name>");
+    u += name;
+  }
+  return u;
+}
+*/
 
 public bool equalType(str t1, str t2) = parseType(t1) == parseType(t2);

@@ -242,25 +242,31 @@ public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Cours
 public str readConceptFile(ConceptName cn){
    println("readConceptFile: <cn>");
    cfile = conceptFile(cn);
- 
+   //println("cfile = <cfile>");
    if(exists(cfile))
       return readFile(cfile);
    remoteloc = courseDir + cn + remoteLoc;
+   //println("remoteloc = <remoteloc>");
    if(exists(remoteloc)){
       rmap = remoteContentMap[rootname(cn)] ? ();
+      //println("rmap = <rmap>");
       if(!(rmap[cn]?)){
          remote = readTextValueFile(#loc,  remoteloc);
+         //println("remote = <remote>");
+         //println("localRoot: <getLocalRoot(cn)>");
          extractAndCacheRemoteConcepts(remote, getLocalRoot(cn));
          rmap = remoteContentMap[rootname(cn)] ? ();
       }
+      println("rmap[<cn>] = <rmap[cn]>");
       if(rmap[cn]?){
          rdoc = rmap[cn];
          if(rdoc != ""){
-            //("readConceptFile, found in cache: <cn>");
+            //println("readConceptFile, found in cache: <cn>");
          	return rdoc;
          }
       } 
    }
+   println("<cn> NOT FOUND");
    throw "readConceptFile: <cn> not found";
 }
 
@@ -281,7 +287,10 @@ public void saveConceptFile(ConceptName cn, str text){
 }     
 
 public map[str,list[str]] getSections(ConceptName cn){
-  return getSections(splitLines(readConceptFile(cn)));
+  println("getSections: <cn>");
+  f = readConceptFile(cn);
+  //println("file = <f>");
+  return getSections(splitLines(f));
 }
 
 
@@ -425,6 +434,7 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
 // find the root under which it is included in the concept hierarchy.
 
 str getLocalRoot(str cn){
+   println("getLocalRoot: <cn>");
    remote = courseDir + rootname(cn) + remoteConcepts;
    if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
@@ -445,6 +455,7 @@ str getLocalRoot(str cn){
              return root;
       }
    }
+   println("No local root found for <cn>");
    throw "No local root found for <cn>";
 }
 
@@ -504,7 +515,7 @@ public list[loc] crawlFiles(loc dir, str suffix){
           res += crawlFiles(sub, suffix);
       }
     }
-  };
+  }
   return res;
 }
 
@@ -519,7 +530,7 @@ public list[ConceptName] crawlConcepts(ConceptName root){
           res += crawlConcepts("<root>/<entry>");
       }
     }
-  };
+  }
   return res;
 }
 

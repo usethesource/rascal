@@ -232,7 +232,7 @@ public Concept compileConcept(ConceptName conceptName){
       
    name = sections["Name"][0];
   
-   //println("<conceptName>: getSections done.");
+   println("<conceptName>: getSections done.");
    
    try {
 	   local_warnings = [];
@@ -248,7 +248,7 @@ public Concept compileConcept(ConceptName conceptName){
 	         remove_details += [detailName];
 	       }
 	   }
-	         
+	        
 	   for(detailName <- remove_details){
 	       optDetails -= detailName;
 	       local_warnings += "non-existing detail <detailName>";
@@ -265,9 +265,15 @@ public Concept compileConcept(ConceptName conceptName){
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
 	   usageSection     = sections["Usage"] ? [];
+	   
+	   println("************** HERE *************");
+	 
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
+	   
+	   	       
 	   questions 		= getAllQuestions(conceptName, sections["Questions"] ? []);
 	   
+
 	   html_synopsis    = "<section("Synopsis", markup(synopsisSection, conceptName))>
 	                       <section("Syntax", markup(syntaxSection, conceptName))>
                            <section("Types", markup(typesSection, conceptName))>
@@ -279,7 +285,9 @@ public Concept compileConcept(ConceptName conceptName){
   	                       <section("Pitfalls", markup(sections["Pitfalls"] ? [], conceptName))>
   	                       <showQuestionsSection(conceptName, questions)>";
 	   warnings         = getAndClearWarnings() + local_warnings;
-	      
+	   
+	  
+	       
 	   C =  concept(conceptName, warnings, optDetails, searchTs, questions);
 	   println("<conceptName>: creating concept done: <C>");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
@@ -935,7 +943,7 @@ public str trim (str txt){
 	return
 	  visit(txt){
 	    case /[\ \t\n\r]/ => ""
-	  };
+	  }
 }
 
 public Question getQuestion(ConceptName cid, QuestionName qid){
