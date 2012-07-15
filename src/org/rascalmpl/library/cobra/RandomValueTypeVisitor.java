@@ -55,6 +55,9 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	}
 
 	private IValue callGenerator(Type type, int depthLimit) {
+		if (depthLimit < 0) {
+			return null;
+		}
 		TypeFactory tf = TypeFactory.getInstance();
 
 		ICallableValue generator = generators.get(type);
