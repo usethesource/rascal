@@ -1725,25 +1725,12 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 			final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getStdOut());
 
 			new TestEvaluator(this, new ITestResultListener() {
-				@Override
-				public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
-					if (!successful)
-						allOk[0] = false;
-					l.report(successful, test, loc, t);
-				}
 
 				@Override
 				public void report(boolean successful, String test, ISourceLocation loc, String message) {
 					if (!successful)
 						allOk[0] = false;
 					l.report(successful, test, loc, message);
-				}
-
-				@Override
-				public void report(boolean successful, String test, ISourceLocation loc) {
-					if (!successful)
-						allOk[0] = false;
-					l.report(successful, test, loc);
 				}
 
 				@Override
