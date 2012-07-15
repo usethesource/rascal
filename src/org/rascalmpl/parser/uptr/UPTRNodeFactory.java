@@ -113,7 +113,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 	public ArrayList<IConstructor> getChildren(IConstructor node){
 		IList args = TreeAdapter.getArgs(node);
 		ArrayList<IConstructor> children = new ArrayList<IConstructor>(args.length());
-		for(int i = args.length() - 1; i >= 0; --i){
+		for(int i = 0; i < args.length(); ++i){
 			children.add((IConstructor) args.get(i));
 		}
 		return children;
