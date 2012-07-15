@@ -1,5 +1,25 @@
 module cobra::tests::quickcheck::generators
 
+import cobra::quickcheck;
+import cobra::monadicgenerators;
+import cobra::arbitrary;
+
+public str(int) genStringAlphanumeric = bind( iszero, Gen[str] (bool a) {
+		if(a){
+			return unit("");
+		} else {
+			return arbStringAlphanumeric;
+		}
+	}
+); 
+
+//Test for regression (below zero exception with custom generator)
+test bool belowZeroWithCustomGenerator(){
+	setGenerator(genStringAlphanumeric);
+	return quickcheck( bool( rel[str, int] a) { return true; });	
+}
+
+
 private bool checkArbitraryAndTeardown(type[&T] reified, &T expected){
 	&T val = arbitrary(reified, 999);
 	resetGenerator(reified);
