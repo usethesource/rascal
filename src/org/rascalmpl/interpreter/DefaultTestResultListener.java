@@ -48,27 +48,6 @@ public class DefaultTestResultListener implements ITestResultListener{
 		err.println(failures + " of " + count + " tests failed\n");
 	}
 	
-	@Override
-	public void report(boolean successful, String test, ISourceLocation loc) {
-		err.print(loc.getURI());
-		err.print(":");
-		err.print(loc.getBeginLine());
-		err.print(",");
-		err.print(loc.getBeginColumn());
-		err.print(":");
-		err.print(successful ? "success : " : "failed  : ");
-		if (successful)
-			successes++;
-		else
-			errors++;
-		if (test.length() <= 50) {
-			err.println(test);
-		} else {
-			err.print(test.substring(0, 47));
-			err.println("...");
-		}
-		err.flush();
-	}
 
 	@Override
 	public void report(boolean successful, String test, ISourceLocation loc, String message) {
@@ -93,28 +72,6 @@ public class DefaultTestResultListener implements ITestResultListener{
 		err.flush();
 	}
 
-	@Override
-	public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
-		err.print(loc.getURI());
-		err.print(":");
-		err.print(loc.getBeginLine());
-		err.print(",");
-		err.print(loc.getBeginColumn());
-		err.print(":");
-		err.print(successful ? "success : " : "failed  : ");
-		if (successful)
-			successes++;
-		else
-			errors++;
-		if (test.length() <= 50) {
-			err.println(test);
-		} else {
-			err.print(test.substring(0, 47));
-			err.println("...");
-		}
-		t.printStackTrace(err);
-		err.flush();
-	}
 
 	public int getNumberOfTests(){
 		return successes + failures + errors;
