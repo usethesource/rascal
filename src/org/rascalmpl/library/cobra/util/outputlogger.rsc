@@ -10,29 +10,29 @@ public java void startLog();
 @reflect
 public java str getLog();
 
-test bool startLogShouldResetLogger(){
+test bool startLogShouldResetLogger(str a, str b){
 	startLog();
-	print("test1");
+	print(a);
 	startLog();
-	print("test2");
-	return getLog() == "test2";
+	print(b);
+	return getLog() == b;
 }
 
 
-test bool testOutputLogger(){
+test bool testOutputLogger( str a, str b){
 	startLog();
-	print("test1");
+	print(a);
 	str log1 = getLog();
 	startLog();
-	print("test2");
+	print(b);
 	str log2 = getLog();
-	return log1+log2 == "test1test2";
+	return log1+log2 == "<a><b>";
 }
 
-test bool testFailsWhenGetLogCalledTwice(){
+test bool testFailsWhenGetLogCalledTwice( str a){
 	try {
 	startLog();
-	print("test1");
+	print(a);
 	getLog();
 	getLog();
 	} catch PermissionDenied( "getLog called before startLog" ): return true;
@@ -55,10 +55,10 @@ public test bool shouldReportPrintedChars( str a ){
 }
 
 
-test bool testPrintln(){
+test bool testPrintln(str a, str b){
 	startLog();
-	println("test1");
-	println("test2");
+	println(a);
+	println(b);
 	str result = getLog();
-	return "test1\ntest2\n" == result;
+	return "<a>\n<b>\n" == result;
 }
