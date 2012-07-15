@@ -374,7 +374,7 @@ private str markupCode(str text){
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
     case /^\/\*<dig:[0-9][0-9]?>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
-  };
+  }
 }
 
 /*
@@ -553,18 +553,21 @@ private set[str] searchTermsCode(str line){
 // Collect search terms from the Synopsis-related entries in concept description
 
 public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){
+  println("************** searchTermsSynopsis 1, syn = <syn> *************");
   
-  return (searchTerms(syn) - {"...", "...,"}) + 
-         {t | str t <- searchTerms(tp), /\{\}\[\]\(\)[,]?/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
+ return (searchTerms(syn) - {"...", "...,"}); // + 
+        {t | str t <- searchTerms(tp), /\{\}\[\]\(\)[,]?/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
          // TODO what do we do with searchTerms(fn), searchTerms(synop)?
 }
 
-private set[str]  searchTerms(list[str] lines){
+public set[str]  searchTerms(list[str] lines){
+ //println("************** searchTerms: <lines> *************");
    set[str] terms = {};
    n = size(lines);
    if(n == 0)
      return terms;
    k = 0;
+   println("************** searchTerms 2 *************");
    while(k < n){
        if(/\<listing\>/ := lines[k]){
            k += 1;
@@ -575,10 +578,10 @@ private set[str]  searchTerms(list[str] lines){
        } else {
          visit(lines[k]){
            case /`<syn:[^`]*>`/: {terms += searchTermsCode(syn); insert ""; }
-         };
+         }
        }
        k += 1;
-    };
+    }
     return terms;
 }
 
@@ -618,7 +621,7 @@ public list[ConceptName] resolveConcept(ConceptName course, str toConcept){
       return resolveCache[<course, toConcept>];
    } catch: ;
    
- // println("resolveConcept: <course>, <toConcept>");
+  println("resolveConcept: <course>, <toConcept>");
   if(!exists(courseDir + course))
   	 return [];
   if(course == toConcept)
@@ -632,7 +635,7 @@ public list[ConceptName] resolveConcept(ConceptName course, str toConcept){
    options = for(cn <- courseConcepts){
                  if(endsWith(toLowerCase(cn), lcToConcept))
                     append cn;
-             };
+             }
    resolveCache[<course, toConcept>] = options;
    return options;
 }
