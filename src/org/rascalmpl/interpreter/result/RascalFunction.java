@@ -114,7 +114,8 @@ public class RascalFunction extends NamedFunction {
 		this.isTest = isTest;
 		
 		if (ast instanceof FunctionDeclaration) {
-			tags = parseTags((FunctionDeclaration) ast);
+			// tags = parseTags((FunctionDeclaration) ast); FIXME
+			tags = new HashMap<String, String>();
 			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
 			if (resourceScheme.equals("")) {
 					this.resourceScheme = null;
