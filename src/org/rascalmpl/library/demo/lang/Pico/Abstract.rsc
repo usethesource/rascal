@@ -31,4 +31,4 @@ anno loc DECL@location;
 anno loc EXP@location;
 anno loc STATEMENT@location;
 
-public alias Occurrence[&T] = tuple[loc location, &T item];  /*5*/
+public alias Occurrence = tuple[loc location, PicoId name, STATEMENT stat];  /*5*/
