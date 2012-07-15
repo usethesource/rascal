@@ -9,6 +9,11 @@ test bool annotationsHaveEffect(){
 	return /^Not refuted after 12 tries with maximum depth 3$/ := getLog();
 }
 
+test bool noAnnotationMeansDefault(){
+	startLog();
+	quickcheck( bool(int a){ return true; } );
+	return /^Not refuted after 100 tries with maximum depth 5$/ := getLog();
+}
 
 test bool canOverrideAnnotation(){
 	startLog();
