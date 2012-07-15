@@ -1,6 +1,7 @@
 module demo::lang::Pico::ControlFlow
 
 import Prelude;
+import Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
@@ -10,7 +11,7 @@ public data CFNode                                                              
 	| choice(loc location, EXP exp)
 	| statement(loc location, STATEMENT stat);
 
-alias CFGraph = tuple[set[CFNode] entry, graph[CFNode] graph, set[CFNode] exit];  /*2*/
+alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit];  /*2*/
 
 CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) {                                /*3*/
    S = statement(s@location, s);
