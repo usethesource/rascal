@@ -400,8 +400,8 @@ private str markupFigure(list[str] lines, int width, int height, str file){
 	  lines[n-1] = (width > 0 && height > 0) ? "renderSave(<arg>, <width>, <height>, <path>);"
 	                                         : "renderSave(<arg>, <path>);";
 	  
-	    println("shell input: <for (line <- lines) {><line>
-	            '<}>");
+	    //println("shell input: <for (line <- lines) {><line>
+	    //        '<}>");
 
     try {
 	     eval(["import vis::Figure;","import vis::Render;"] + ["<for (line <- lines) {><line> <}>"], 100000);
@@ -433,7 +433,7 @@ private str markupRascalPrompt(list[str] lines){
 
 private str printShellInput(str input) = printShellInput(split("\n",input));
   
-private str printShellInput(list[str] input) = { println("input was: <input>");
+private str printShellInput(list[str] input) = { //println("input was: <input>");
   "\<span class=\"prompt\"\>rascal\>\</span\><escapeForHtml(head(input))>
   '<for (cont <- tail(input)) {>\<span class=\"continuation\"\>\>\>\>\>\>\>\>\</span\><markupCode(cont)>
   '<}>"; };
@@ -492,7 +492,7 @@ private str markupScreen(list[str] lines, bool generatesError){
        codeLines += markupCode(res);
      }
      catch parseError(str msg, loc x) : {
-     println("error: <msg>, <x>");
+        //println("error: <msg>, <x>");
         if (x.offset >= size(first) && todo != []) {
           <next,todo> = headTail(todo);
           if (next == "") {
@@ -552,22 +552,18 @@ private set[str] searchTermsCode(str line){
 
 // Collect search terms from the Synopsis-related entries in concept description
 
-public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){
-  println("************** searchTermsSynopsis 1, syn = <syn> *************");
-  
+public set[str] searchTermsSynopsis(list[str] syn, list[str] tp, list[str] fn, list[str] synop){  
  return (searchTerms(syn) - {"...", "...,"}); // + 
         {t | str t <- searchTerms(tp), /\{\}\[\]\(\)[,]?/ !:= t, t notin {"...", "...,", ",...", ",...,"}};
          // TODO what do we do with searchTerms(fn), searchTerms(synop)?
 }
 
 public set[str]  searchTerms(list[str] lines){
- //println("************** searchTerms: <lines> *************");
    set[str] terms = {};
    n = size(lines);
    if(n == 0)
      return terms;
    k = 0;
-   println("************** searchTerms 2 *************");
    while(k < n){
        if(/\<listing\>/ := lines[k]){
            k += 1;
@@ -621,7 +617,7 @@ public list[ConceptName] resolveConcept(ConceptName course, str toConcept){
       return resolveCache[<course, toConcept>];
    } catch: ;
    
-  println("resolveConcept: <course>, <toConcept>");
+  //println("resolveConcept: <course>, <toConcept>");
   if(!exists(courseDir + course))
   	 return [];
   if(course == toConcept)
