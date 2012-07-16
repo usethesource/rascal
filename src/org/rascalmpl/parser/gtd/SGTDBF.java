@@ -92,7 +92,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	private boolean parseErrorOccured;
 	
 	private IRecoverer<P> recoverer;
-	private boolean recovering;
 	
 	public SGTDBF(){
 		super();
@@ -529,7 +528,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		if(edgeSet.getLastVisitedLevel(resultStoreId) != location){
 			AbstractStackNode<P> edge = edgeSet.get(0);
 			
-			if (recovering && edge.isRecovered()) {
+			if (edge.isRecovered()) {
 				resultStore = new RecoveredNode<P>(inputURI, startLocation, location);
 			}
 			else if (edge.isExpandable()) {
@@ -582,7 +581,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						resultStore = edgeSet.getLastResult(resultStoreId);
 					}
 					if(resultStore == null){
-						resultStore = (!edge.isExpandable()) ? new SortContainerNode<P>(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout()) : new ExpandableContainerNode<P>(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						if (edge.isRecovered()) {
+							resultStore = new RecoveredNode<P>(inputURI, startLocation, location);
+						}else if (edge.isExpandable()) {
+							resultStore = new ExpandableContainerNode<P>(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						}else {
+							resultStore = new SortContainerNode<P>(inputURI, startLocation, location, startLocation == location, edge.isSeparator(), edge.isLayout());
+						}
+						
 						edgeSet.setLastVisitedLevel(location, resultStoreId);
 						edgeSet.setLastResult(resultStore, resultStoreId);
 						
@@ -720,14 +726,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 		}
 		
-		if (recovering) {
-			parseErrorOccured = true;
-			
+		if (recoverer != null) {
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
 			recoverer.reviveStacks(recoveredNodes, input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (recoveredNodes.size() > 0) {
 				return findStacksToReduce();
 			}
+			
+			parseErrorOccured = true;
 		}
 		
 		return false;
@@ -987,7 +993,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		if (recoverer != null) {
 			this.recoverer = recoverer;
-			recovering = true;
 		}
 		
 		// Initialzed the position store.
