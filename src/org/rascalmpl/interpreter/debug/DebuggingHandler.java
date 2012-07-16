@@ -23,6 +23,8 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
+
 public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 
 	private final IDebugger debugger;
@@ -88,9 +90,9 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		
 		if(isSuspendRequested()) {
 			
-			updateSuspensionState(evaluator, currentAST);			
-			debugger.notifySuspend(DebugSuspendMode.CLIENT_REQUEST);
-			
+			updateSuspensionState(evaluator, currentAST);
+			debugger.sendMessage(suspendedByClientRequest());
+		
 			setSuspendRequested(false);
 			
 		} else if (debugger.isStepping()) {
@@ -98,7 +100,7 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 			
 			case STEP_INTO:
 				updateSuspensionState(evaluator, currentAST);
-				debugger.notifySuspend(DebugSuspendMode.STEP_END);
+				debugger.sendMessage(suspendedByStepEnd());
 				break;
 				
 			case STEP_OVER:
@@ -124,7 +126,7 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 					
 					if (! (referenceStart <= currentStart && currentStart < referenceEnd)) {
 						updateSuspensionState(evaluator, currentAST);
-						debugger.notifySuspend(DebugSuspendMode.STEP_END);
+						debugger.sendMessage(suspendedByStepEnd());
 					}
 				}
 				break;
@@ -135,7 +137,7 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 			}
 		} else if (hasBreakpoint(currentAST.getLocation())) {
 			updateSuspensionState(evaluator, currentAST);
-			debugger.notifyBreakpointHit(currentAST.getLocation());
+			debugger.sendMessage(suspendedByBreakpoint(currentAST.getLocation()));
 		}
 	
 		/*

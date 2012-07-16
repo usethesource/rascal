@@ -17,9 +17,67 @@ package org.rascalmpl.interpreter.debug;
  */
 public interface IDebugMessage {
 	
-	int getKind();
+	/**
+	 * Verb describing the action to take after receiving a message.
+	 */
+	enum Action {
+		UNKNOWN,
+		NOTIFY,
+		REQEUST
+	}
 	
-	int getDetail();
+	/**
+	 * Noun describing the subject of the messages.
+	 */
+	enum Subject {
+		UNKNOWN,
+		START,
+		TERMINATION,
+		SUSPENSION,
+		RESUMPTION
+	}
+
+	/**
+	 * Additional information to the subject.
+	 */
+	enum Detail {
+		UNKNOWN,
+		
+		/**
+		 * Indicates the debugger was suspended due to the completion of a step
+		 * action.
+		 */
+		STEP_END,
+
+		/**
+		 * Indicates a thread was suspended by a breakpoint.
+		 */
+		BREAKPOINT,
+
+		/**
+		 * Indicates the debugger was suspended / resumed due to a client
+		 * request.
+		 */
+		CLIENT_REQUEST,
+		
+		/**
+		 * Indicates a continuation of the execution, caused by a step into
+		 * request.
+		 */
+		STEP_INTO,
+		
+		/**
+		 * Indicates a continuation of the execution, caused by a step over
+		 * request.
+		 */
+		STEP_OVER
+	}
+	
+	Action getAction();
+	
+	Subject getSubject();
+	
+	Detail getDetail();
 	
 	Object getPayload();
 	

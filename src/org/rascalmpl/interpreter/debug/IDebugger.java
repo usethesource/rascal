@@ -13,9 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.interpreter.control_exceptions.QuitException;
-
 public interface IDebugger {
 
 	/**
@@ -27,13 +24,7 @@ public interface IDebugger {
 	public void sendMessage(IDebugMessage message);
 	
 	@Deprecated
-	public void notifySuspend(DebugSuspendMode mode) throws QuitException;
-
-	@Deprecated
 	public void notifyResume(DebugResumeMode mode);
-	
-	@Deprecated
-	public void notifyBreakpointHit(ISourceLocation sourceLocation);
 	
 	@Deprecated
 	public boolean isStepping();
