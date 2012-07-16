@@ -8,149 +8,175 @@
  * Contributors:
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.interpreter;
 
 import java.util.Collection;
+import java.util.EventObject;
 
+/**
+ * Interpreter event trigger template that does not 
+ * specify yet how an event is fired.
+ */
 public abstract class AbstractInterpreterEventTrigger {
-	
+
 	private Object source;
-		
+
+	/**
+	 * Creates a new event trigger with a given source.
+	 * 
+	 * @param source
+	 *            origin of events, see {@link EventObject#getSource()}
+	 */
 	public AbstractInterpreterEventTrigger(Object source) {
 		this.source = source;
 	}
-	
-	public abstract void addInterpreterEventListener(IInterpreterEventListener listener);
 
-	public abstract void removeInterpreterEventListener(IInterpreterEventListener listener);
-	
+	public abstract void addInterpreterEventListener(
+			IInterpreterEventListener listener);
+
+	public abstract void removeInterpreterEventListener(
+			IInterpreterEventListener listener);
+
 	/**
 	 * Fires a interpreter event.
 	 * 
-	 * @param event interpreter event to fire
+	 * @param event
+	 *            interpreter event to fire
 	 */
-	protected abstract void fireEvent(InterpreterEvent event);	
-	
+	protected abstract void fireEvent(InterpreterEvent event);
+
 	/**
 	 * Fires a creation event for this interpreter.
 	 */
-    public void fireCreationEvent() {
+	public void fireCreationEvent() {
 		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.CREATE));
-	}		
-	
+	}
+
 	/**
 	 * Fires a terminate event for this interpreter.
 	 */
-    public void fireTerminateEvent() {
+	public void fireTerminateEvent() {
 		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.TERMINATE));
-	}		
-	
-	/**
-	 * Fires a resume for this debug element with
-	 * the specified detail code.
-	 * 
-	 * @param detail detail code for the resume event, such 
-	 *  as <code>InterpreterEvent.Detail.STEP_OVER</code>
-	 */
-    public void fireResumeEvent(InterpreterEvent.Detail detail) {
-		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.RESUME, detail));
 	}
 
 	/**
-	 * Fires a resume event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.STEP_INTO</code>.
+	 * Fires a resume for this debug element with the specified detail code.
+	 * 
+	 * @param detail
+	 *            detail code for the resume event, such as
+	 *            <code>InterpreterEvent.Detail.STEP_OVER</code>
 	 */
-    public void fireResumeByStepIntoEvent() {
+	public void fireResumeEvent(InterpreterEvent.Detail detail) {
+		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.RESUME,
+				detail));
+	}
+
+	/**
+	 * Fires a resume event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.STEP_INTO</code>.
+	 */
+	public void fireResumeByStepIntoEvent() {
 		fireResumeEvent(InterpreterEvent.Detail.STEP_INTO);
 	}
 
-    /**
-	 * Fires a resume event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.STEP_OVER</code>.
-	 */
-    public void fireResumeByStepOverEvent() {
-		fireResumeEvent(InterpreterEvent.Detail.STEP_OVER);
-	}
-    
-    /**
-	 * Fires a resume event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.CLIENT_REQUEST</code>.
-	 */
-    public void fireResumeByClientRequestEvent() {
-		fireResumeEvent(InterpreterEvent.Detail.CLIENT_REQUEST);
-	}
-        
 	/**
-	 * Fires a suspend event for this debug element with
-	 * the specified detail code.
-	 * 
-	 * @param detail detail code for the suspend event, such
-	 *  as <code>InterpreterEvent.Detail.BREAKPOINT</code>
+	 * Fires a resume event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.STEP_OVER</code>.
 	 */
-    public void fireSuspendEvent(InterpreterEvent.Detail detail) {
-		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.SUSPEND, detail));
+	public void fireResumeByStepOverEvent() {
+		fireResumeEvent(InterpreterEvent.Detail.STEP_OVER);
 	}
 
 	/**
-	 * Fires a suspend event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.CLIENT_REQUEST</code>.
+	 * Fires a resume event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.CLIENT_REQUEST</code>.
 	 */
-    public void fireSuspendByClientRequestEvent() {
+	public void fireResumeByClientRequestEvent() {
+		fireResumeEvent(InterpreterEvent.Detail.CLIENT_REQUEST);
+	}
+
+	/**
+	 * Fires a suspend event for this debug element with the specified detail
+	 * code.
+	 * 
+	 * @param detail
+	 *            detail code for the suspend event, such as
+	 *            <code>InterpreterEvent.Detail.BREAKPOINT</code>
+	 */
+	public void fireSuspendEvent(InterpreterEvent.Detail detail) {
+		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.SUSPEND,
+				detail));
+	}
+
+	/**
+	 * Fires a suspend event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.CLIENT_REQUEST</code>.
+	 */
+	public void fireSuspendByClientRequestEvent() {
 		fireSuspendEvent(InterpreterEvent.Detail.CLIENT_REQUEST);
 	}
-    
+
 	/**
-	 * Fires a suspend event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.STEP_END</code>.
+	 * Fires a suspend event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.STEP_END</code>.
 	 */
-    public void fireSuspendByStepEndEvent() {
+	public void fireSuspendByStepEndEvent() {
 		fireSuspendEvent(InterpreterEvent.Detail.STEP_END);
 	}
 
 	/**
-	 * Fires a suspend event for this debug element with
-	 * detail <code>InterpreterEvent.Detail.STEP_END</code>.
+	 * Fires a suspend event for this debug element with detail
+	 * <code>InterpreterEvent.Detail.STEP_END</code>.
 	 * 
-     * @param data information about the breakpoint's location
+	 * @param data
+	 *            information about the breakpoint's location
 	 */
-    public void fireSuspendByBreakpointEvent(Object data) {
+	public void fireSuspendByBreakpointEvent(Object data) {
 		InterpreterEvent event = new InterpreterEvent(source,
 				InterpreterEvent.Kind.SUSPEND,
 				InterpreterEvent.Detail.BREAKPOINT);
 		event.setData(data);
 
-    	fireEvent(event);
-    }
-        
+		fireEvent(event);
+	}
+
 	/**
 	 * Fires a idle event for this interpreter. E.g. this happens when the REPL
 	 * is waiting for another command input.
 	 */
-    public void fireIdleEvent() {
-    	fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.IDLE));
+	public void fireIdleEvent() {
+		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.IDLE));
 	}
-    
-    
-    /* 
-     * Static parts.
-     */
-    
+
+	/**
+	 * Creates an "null" event trigger that does not react upon "fire" actions.
+	 * 
+	 * @return new trigger instance
+	 */
 	public static AbstractInterpreterEventTrigger newNullEventTrigger() {
 		return new NullEventTrigger();
 	}
 
+	/**
+	 * Creates an "null" event trigger that does not react upon "fire" actions.
+	 * 
+	 * @param source
+	 *            a fixed event source of the trigger, i.e. event sender
+	 * @param eventListeners
+	 *            collection of listeners to be notified upon "fire" actions
+	 * @return new trigger instance
+	 */
 	public static AbstractInterpreterEventTrigger newInterpreterEventTrigger(
-			Object source,
-			Collection<IInterpreterEventListener> eventListeners) {
+			Object source, Collection<IInterpreterEventListener> eventListeners) {
 		return new InterpreterEventTrigger(source, eventListeners);
 	}
-	
+
 	protected static class NullEventTrigger extends
 			AbstractInterpreterEventTrigger {
 
 		public NullEventTrigger() {
-			super(null);
+			super(new Object()); // with anonymous new source object
 		}
 
 		@Override
@@ -204,5 +230,5 @@ public abstract class AbstractInterpreterEventTrigger {
 		}
 
 	}
-	
+
 }
