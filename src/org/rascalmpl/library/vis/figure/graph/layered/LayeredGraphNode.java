@@ -566,6 +566,8 @@ public class LayeredGraphNode extends Figure /*implements Comparable<LayeredGrap
 	
 	@Override
 	public void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements){
-	  System.err.println("Drawing node " + name);
+	  System.err.println("Drawing node " + name + ": " + figure);
+	  if(figure != null)
+		  figure.drawElement(gc, visibleSWTElements);
 	}
 }
