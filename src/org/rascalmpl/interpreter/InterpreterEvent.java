@@ -8,46 +8,46 @@
  * Contributors:
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.interpreter;
 
 import java.util.EventObject;
 
 public class InterpreterEvent extends EventObject {
 
+	/**
+	 * Generated serialization version ID.
+	 */
+	private static final long serialVersionUID = -1987882505896598749L;
+	
+	/**
+	 * Type of event. 
+	 */
 	public enum Kind {
-		CREATE,
-		TERMINATE,
-		RESUME,
-		SUSPEND,
-		IDLE
+		CREATE, TERMINATE, RESUME, SUSPEND, IDLE
 	}
 
+	/**
+	 * Details additional to {@link Kind}.
+	 */
 	public enum Detail {
-		UNSPECIFIED,
-		CLIENT_REQUEST,
-		STEP_INTO,
-		STEP_OVER,
-		STEP_END,
-		BREAKPOINT
+		UNSPECIFIED, CLIENT_REQUEST, STEP_INTO, STEP_OVER, STEP_END, BREAKPOINT
 	}
-	
+
 	private final Kind kind;
-	
 	private final Detail detail;
-	
 	private Object data = null;
 
 	public InterpreterEvent(Object eventSource, Kind kind) {
 		this(eventSource, kind, Detail.UNSPECIFIED);
-	}	
-	
+	}
+
 	public InterpreterEvent(Object eventSource, Kind kind, Detail detail) {
 		super(eventSource);
 		this.kind = kind;
 		this.detail = detail;
 	}
-	
+
 	public Kind getKind() {
 		return kind;
 	}
@@ -59,19 +59,21 @@ public class InterpreterEvent extends EventObject {
 	/**
 	 * Sets this event's application defined data.
 	 * 
-	 * @param data application defined data
+	 * @param data
+	 *            application defined data
 	 */
 	public void setData(Object data) {
 		this.data = data;
 	}
-	
+
 	/**
-	 * Returns this event's application defined data, or <code>null</code> if none
+	 * Returns this event's application defined data, or <code>null</code> if
+	 * none
 	 * 
 	 * @return application defined data, or <code>null</code> if none
 	 */
 	public Object getData() {
 		return data;
-	}	
-	
+	}
+
 }
