@@ -47,7 +47,7 @@ default str getId(CFNode n) = "<n.location>";
 public Figure visCFG(rel[CFNode, CFNode] CFGGraph){
        nodeSet = {};
        edges = [];
-       for(< CFNode cf1, CFNode cf2> <- CFGGRaph){
+       for(< CFNode cf1, CFNode cf2> <- CFGGraph){
            nodeSet += {cf1, cf2};
            edges += edge(getId(cf1), getId(cf2), toArrow(triangle(5, fillColor("black"))));
        }

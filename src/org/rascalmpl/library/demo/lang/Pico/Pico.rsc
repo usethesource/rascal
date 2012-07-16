@@ -15,16 +15,18 @@ import demo::lang::Pico::ControlFlow;
 import demo::lang::Pico::Uninit;
 import demo::lang::Pico::Visualize;
 
+// /*1*/ define the language name and extension
 
 private str Pico_NAME = "Pico";
 private str Pico_EXT = "pico";
 
-// Parsing
+// /*2*/ Define the connection with the Pico parser
 Tree parser(str x, loc l) {
     return parse(#Program, x, l);
 }
 
-// Type checking
+// /*3*/ Define connection with the Pico checkers
+// (includes type checking and uninitialized variables check)
 
 public Program checkPicoProgram(Program x) {
 	p = implode(#PROGRAM, x);
@@ -37,7 +39,14 @@ public Program checkPicoProgram(Program x) {
 	return x[@messages = warnings];
 }
 
-// Compiling
+// /*4*/ Define the connection with the Pico evaluator
+
+public void evalPicoProgram(Program x, loc selection) {
+	m = implode(#PROGRAM, x); 
+	text(evalProgram(m));
+}
+
+// /*5*/ Define connection with the Pico compiler
 
 public void compilePicoProgram(Program x, loc l){
     p = implode(#PROGRAM, x);
@@ -45,14 +54,7 @@ public void compilePicoProgram(Program x, loc l){
 	text(asm);
 }
 
-// Evaluating
-
-public void evalPicoProgram(Program x, loc selection) {
-	m = implode(#PROGRAM, x); 
-	text(evalProgram(m));
-}
-
-// Visualize control flow graph
+// /*6*/ Define connection with CFG visualization
 
 public void visualizePicoProgram(Program x, loc selection) {
 	m = implode(#PROGRAM, x); 
@@ -60,7 +62,7 @@ public void visualizePicoProgram(Program x, loc selection) {
 	render(visCFG(CFG.graph));
 }
 	
-// Contributions to IDE
+// /*7*/ Define all contributions to the Pico IDE
 
 public set[Contribution] Pico_CONTRIBS = {
 	popup(
@@ -72,18 +74,12 @@ public set[Contribution] Pico_CONTRIBS = {
   	)
 };
 
-// Register the Pico tools
+// /*8*/ Register the Pico tools
 
 public void registerPico() {
   registerLanguage(Pico_NAME, Pico_EXT, parser);
   registerAnnotator(Pico_NAME, checkPicoProgram);
-  
   registerContributions(Pico_NAME, Pico_CONTRIBS);
-}   
-
-
-
-
-
+}
 
 

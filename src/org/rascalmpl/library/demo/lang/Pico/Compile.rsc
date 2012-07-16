@@ -56,7 +56,7 @@ Instrs compileStat(ifElseStat(EXP Exp,              /*5*/
 Instrs compileStat(whileStat(EXP Exp, 
                              list[STATEMENT] Stats1)) {
   entryLab = nextLabel();
-  eendLab = nextLabel();
+  endLab = nextLabel();
   return [label(entryLab), 
           *compileExp(Exp), 
           gofalse(endLab), 
