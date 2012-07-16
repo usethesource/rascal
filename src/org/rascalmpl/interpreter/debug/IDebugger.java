@@ -18,10 +18,21 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 
 public interface IDebugger {
 
+	/**
+	 * Notification channel to inform the debugger about events in that happened
+	 * in the runtime.
+	 * 
+	 * @param message containing notification details
+	 */
+	public void sendMessage(IDebugMessage message);
+	
+	@Deprecated
 	public void notifySuspend(DebugSuspendMode mode) throws QuitException;
 
+	@Deprecated
 	public void notifyResume(DebugResumeMode mode);
 	
+	@Deprecated
 	public void notifyBreakpointHit(ISourceLocation sourceLocation);
 	
 	@Deprecated
