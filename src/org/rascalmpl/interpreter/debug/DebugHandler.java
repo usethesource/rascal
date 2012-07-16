@@ -62,6 +62,12 @@ public final class DebugHandler implements IDebugHandler {
 	 * {@see #suspend(IEvaluator, AbstractAST)}
 	 */	
 	private Integer referenceEnvironmentStackSize = null;
+
+	
+	/**
+	 * Action to execute on termination request, or <code>null</code> if none.
+	 */
+	private Runnable terminateAction = null;
 	
 	public DebugHandler() {
 		eventTrigger = newInterpreterEventTrigger(this,
@@ -279,8 +285,11 @@ public final class DebugHandler implements IDebugHandler {
 			}
 			break;
 						
-//		case TERMINATION:
-//			throw new QuitException();
+		case TERMINATION:
+			if (terminateAction != null) {
+				terminateAction.run();
+			}
+			break;
 		
 		}
 	}
@@ -288,6 +297,10 @@ public final class DebugHandler implements IDebugHandler {
 	@Override
 	public AbstractInterpreterEventTrigger getEventTrigger() {
 		return eventTrigger;
+	}
+
+	public void setTerminateAction(Runnable terminateAction) {
+		this.terminateAction = terminateAction;
 	}
 	
 }
