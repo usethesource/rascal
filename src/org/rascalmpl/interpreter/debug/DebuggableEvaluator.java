@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -72,6 +73,27 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 		debuggingHandler.setStepMode(mode);
 	}
 
+	/*
+	 * TODO: Remove indirection and delegation.
+	 */
+	public boolean hasBreakpoint(ISourceLocation breakpointLocation) {
+		return debuggingHandler.hasBreakpoint(breakpointLocation);
+	}
+	
+	/*
+	 * TODO: Remove indirection and delegation.
+	 */
+	public void addBreakpoint(ISourceLocation breakpointLocation) {
+		debuggingHandler.addBreakpoint(breakpointLocation);
+	}
+
+	/*
+	 * TODO: Remove indirection and delegation.
+	 */
+	public void removeBreakpoint(ISourceLocation breakpointLocation) {
+		debuggingHandler.removeBreakpoint(breakpointLocation);
+	}
+	
 	/*
 	 * TODO: Remove indirection and delegation.
 	 */
