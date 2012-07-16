@@ -56,7 +56,31 @@ public abstract class AbstractInterpreterEventTrigger {
     public void fireResumeEvent(InterpreterEvent.Detail detail) {
 		fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.RESUME, detail));
 	}
-	
+
+	/**
+	 * Fires a resume event for this debug element with
+	 * detail <code>InterpreterEvent.Detail.STEP_INTO</code>.
+	 */
+    public void fireResumeByStepIntoEvent() {
+		fireResumeEvent(InterpreterEvent.Detail.STEP_INTO);
+	}
+
+    /**
+	 * Fires a resume event for this debug element with
+	 * detail <code>InterpreterEvent.Detail.STEP_OVER</code>.
+	 */
+    public void fireResumeByStepOverEvent() {
+		fireResumeEvent(InterpreterEvent.Detail.STEP_OVER);
+	}
+    
+    /**
+	 * Fires a resume event for this debug element with
+	 * detail <code>InterpreterEvent.Detail.CLIENT_REQUEST</code>.
+	 */
+    public void fireResumeByClientRequestEvent() {
+		fireResumeEvent(InterpreterEvent.Detail.CLIENT_REQUEST);
+	}
+        
 	/**
 	 * Fires a suspend event for this debug element with
 	 * the specified detail code.
@@ -99,6 +123,14 @@ public abstract class AbstractInterpreterEventTrigger {
     	fireEvent(event);
     }
         
+	/**
+	 * Fires a idle event for this interpreter. E.g. this happens when the REPL
+	 * is waiting for another command input.
+	 */
+    public void fireIdleEvent() {
+    	fireEvent(new InterpreterEvent(source, InterpreterEvent.Kind.IDLE));
+	}
+    
     
     /* 
      * Static parts.

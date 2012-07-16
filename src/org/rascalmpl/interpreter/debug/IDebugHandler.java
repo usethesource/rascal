@@ -18,7 +18,4 @@ public interface IDebugHandler extends IDebugSupport,
 
 	AbstractInterpreterEventTrigger getEventTrigger();
 	
-	@Deprecated
-	void stopStepping();
-
 }
