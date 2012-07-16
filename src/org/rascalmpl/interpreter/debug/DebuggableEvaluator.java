@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
@@ -42,65 +41,20 @@ import org.rascalmpl.interpreter.result.Result;
  */
 public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrigger {
 	
-	protected final DebuggingHandler debuggingHandler;
+	protected final IDebugHandler debugHandler;
 	
 	protected final List<IRascalSuspendTriggerListener> suspendTriggerListeners;
 	
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
-			ModuleEnvironment moduleEnvironment, IDebugger debugger, GlobalEnvironment heap) {
+			ModuleEnvironment moduleEnvironment, IDebugHandler debugHandler, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
 
 		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
-		this.debuggingHandler = new DebuggingHandler(debugger);
-		addSuspendTriggerListener(debuggingHandler);
-	}
-
-	/* 
-	 * this method is called when the debugger send a suspend request 
-	 * correspond to a suspend event from the client
-	 * 
-	 * TODO: Remove indirection and delegation.
-	 */
-	public void suspendRequest() {
-		// the evaluator will suspend itself at the next call of suspend or suspend Expression
-		debuggingHandler.requestSuspend();
-	}
-
-	/*
-	 * TODO: Remove indirection and delegation.
-	 */
-	public void setStepMode(DebugStepMode mode) {
-		debuggingHandler.setStepMode(mode);
-	}
-
-	/*
-	 * TODO: Remove indirection and delegation.
-	 */
-	public boolean hasBreakpoint(ISourceLocation breakpointLocation) {
-		return debuggingHandler.hasBreakpoint(breakpointLocation);
-	}
-	
-	/*
-	 * TODO: Remove indirection and delegation.
-	 */
-	public void addBreakpoint(ISourceLocation breakpointLocation) {
-		debuggingHandler.addBreakpoint(breakpointLocation);
-	}
-
-	/*
-	 * TODO: Remove indirection and delegation.
-	 */
-	public void removeBreakpoint(ISourceLocation breakpointLocation) {
-		debuggingHandler.removeBreakpoint(breakpointLocation);
-	}
-	
-	/*
-	 * TODO: Remove indirection and delegation.
-	 */
-	public IDebugger getDebugger() {
-		return debuggingHandler.getDebugger();
-	}
+		this.debugHandler = debugHandler;
 		
+		addSuspendTriggerListener(debugHandler);
+	}
+			
 	public IConstructor parseCommand(IRascalMonitor monitor, String command){
 		return parseCommand(monitor, command, URI.create("debug:///"));
 	}
@@ -112,7 +66,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(Statement stat) {
 		Result<IValue> result = super.eval(stat);
 		
-		debuggingHandler.stopStepping();
+		debugHandler.stopStepping();
 		
 		return result;
 	}
@@ -125,7 +79,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 			URI location) {
 		Result<IValue> result = super.eval(monitor, command, location);
 		
-		debuggingHandler.stopStepping();
+		debugHandler.stopStepping();
 		
 		return result;
 	}
@@ -137,7 +91,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		Result<IValue> result = super.eval(monitor, command);
 
-		debuggingHandler.stopStepping();
+		debugHandler.stopStepping();
 		
 		return result;	
 	}

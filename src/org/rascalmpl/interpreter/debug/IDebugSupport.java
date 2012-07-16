@@ -10,26 +10,22 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-public interface IDebugger {
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+
+public interface IDebugSupport {
+
+	public void addInterpreterEventListener(IInterpreterEventListener listener);
+
+	public void removeInterpreterEventListener(IInterpreterEventListener listener);
 
 	/**
-	 * Notification channel to inform the debugger about events in that happened
-	 * in the runtime.
+	 * Message exchange channel between the debugger and the runtime.
 	 * 
-	 * @param message containing notification details
+	 * @param message the message to be transmitted
 	 */
-	public void sendMessage(IDebugMessage message);
-	
-	@Deprecated
-	public boolean isStepping();
-
-	@Deprecated
-	public void stopStepping();
-
-	@Deprecated
-	public void destroy();
+	public void processMessage(IDebugMessage message);
 
 }
