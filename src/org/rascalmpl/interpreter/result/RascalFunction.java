@@ -133,7 +133,7 @@ public class RascalFunction extends NamedFunction {
 		Tags tags = declaration.getTags();
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
-				if (tag.hasContents()) {
+				if(tag.hasContents()){
 					String key = Names.name(tag.getName());
 					String value = ((TagString.Lexical) tag.getContents()).getString();
 					if (value.length() > 2 && value.startsWith("{")) {
