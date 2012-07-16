@@ -24,9 +24,6 @@ public interface IDebugger {
 	public void sendMessage(IDebugMessage message);
 	
 	@Deprecated
-	public void notifyResume(DebugResumeMode mode);
-	
-	@Deprecated
 	public boolean isStepping();
 
 	@Deprecated
