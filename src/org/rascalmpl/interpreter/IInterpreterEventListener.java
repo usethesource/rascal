@@ -15,6 +15,11 @@ import java.util.EventListener;
 
 public interface IInterpreterEventListener extends EventListener {
 
-	void handleInterpreterEvent(InterpreterEvent e);
+	/**
+	 * Notification about a runtime-specific event.
+	 * 
+	 * @param event the notification
+	 */
+	void handleInterpreterEvent(InterpreterEvent event);
 	
 }
