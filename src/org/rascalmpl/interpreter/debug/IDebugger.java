@@ -20,6 +20,8 @@ public interface IDebugger {
 	public boolean isTerminated();
 
 	public void notifySuspend(DebugSuspendMode mode) throws QuitException;
+
+	public void notifyResume(DebugResumeMode mode);
 	
 	public boolean hasEnabledBreakpoint(ISourceLocation sourceLocation);
 	
