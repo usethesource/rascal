@@ -66,7 +66,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(Statement stat) {
 		Result<IValue> result = super.eval(stat);
 		
-		debugHandler.stopStepping();
+		debugHandler.getEventTrigger().fireIdleEvent();
 		
 		return result;
 	}
@@ -79,7 +79,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 			URI location) {
 		Result<IValue> result = super.eval(monitor, command, location);
 		
-		debugHandler.stopStepping();
+		debugHandler.getEventTrigger().fireIdleEvent();
 		
 		return result;
 	}
@@ -91,7 +91,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		Result<IValue> result = super.eval(monitor, command);
 
-		debugHandler.stopStepping();
+		debugHandler.getEventTrigger().fireIdleEvent();
 		
 		return result;	
 	}

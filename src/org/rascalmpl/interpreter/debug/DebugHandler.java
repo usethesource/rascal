@@ -25,14 +25,15 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
+import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
 
 public final class DebugHandler implements IDebugHandler {
 
-	private AbstractInterpreterEventTrigger eventTrigger;
+	private final AbstractInterpreterEventTrigger eventTrigger;
 
-	private Set<String> breakpoints = new java.util.HashSet<String>();
+	private final Set<String> breakpoints = new java.util.HashSet<String>();
 			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
@@ -63,8 +64,8 @@ public final class DebugHandler implements IDebugHandler {
 	private Integer referenceEnvironmentStackSize = null;
 	
 	public DebugHandler() {
-		setEventTrigger(newInterpreterEventTrigger(this,
-				new CopyOnWriteArrayList<IInterpreterEventListener>()));
+		eventTrigger = newInterpreterEventTrigger(this,
+				new CopyOnWriteArrayList<IInterpreterEventListener>());
 	}
 	
 	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
@@ -103,7 +104,6 @@ public final class DebugHandler implements IDebugHandler {
 		
 			setSuspendRequested(false);
 			
-//		} else if (debugger.isStepping()) {
 		} else if (stepMode != DebugStepMode.NO_STEP) {
 
 			switch (stepMode) {
@@ -168,7 +168,7 @@ public final class DebugHandler implements IDebugHandler {
 	 * correspond to a suspend event from the client
 	 * */
 	@Deprecated
-	public void requestSuspend() {
+	private void requestSuspend() {
 		// the evaluator will suspend itself at the next call of suspend or suspend Expression
 		setSuspendRequested(true);
 		
@@ -176,17 +176,8 @@ public final class DebugHandler implements IDebugHandler {
 		suspended = false;
 	}
 
-	/*
-	 * TODO: No direct API to say debugger to stop stepping. Message?
-	 */
-	@Override
-	public void stopStepping() {
-		setStepMode(DebugStepMode.NO_STEP);
-		// debugger.stopStepping();
-	}
-	
 	@Deprecated
-	public void setStepMode(DebugStepMode mode) {
+	private void setStepMode(DebugStepMode mode) {
 		stepMode = mode;
 
 		// TODO: not the right place. used to stop suspension loop.		
@@ -248,22 +239,55 @@ public final class DebugHandler implements IDebugHandler {
 
 	@Override
 	public void processMessage(IDebugMessage message) {
-		// TODO Auto-generated method stub
+		switch (message.getSubject()) {
 		
+		case BREAKPOINT:
+			ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
+			switch (message.getAction()) {
+			case SET:
+				addBreakpoint(breakpointLocation);
+				break;
+				
+			case DELETE:
+				removeBreakpoint(breakpointLocation);
+				break;
+			}
+			break;
+
+		case SUSPENSION:
+			if (message.getDetail() == Detail.CLIENT_REQUEST) {
+				requestSuspend();
+			}
+			break;
+
+		case RESUMPTION:
+			switch (message.getDetail()) {
+			case STEP_INTO:
+				setStepMode(DebugStepMode.STEP_INTO);
+				getEventTrigger().fireResumeByStepIntoEvent();
+				break;
+
+			case STEP_OVER:
+				setStepMode(DebugStepMode.STEP_OVER);
+				getEventTrigger().fireResumeByStepOverEvent();
+				break;
+
+			case CLIENT_REQUEST:
+				setStepMode(DebugStepMode.NO_STEP);
+				getEventTrigger().fireResumeByClientRequestEvent();
+				break;
+			}
+			break;
+						
+//		case TERMINATION:
+//			throw new QuitException();
+		
+		}
 	}
 		
-	/**
-	 * @return the eventTrigger
-	 */
+	@Override
 	public AbstractInterpreterEventTrigger getEventTrigger() {
 		return eventTrigger;
-	}
-
-	/**
-	 * @param eventTrigger the eventTrigger to set
-	 */
-	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
-		this.eventTrigger = eventTrigger;
 	}
 	
 }

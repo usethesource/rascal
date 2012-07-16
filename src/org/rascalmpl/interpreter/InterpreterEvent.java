@@ -19,7 +19,8 @@ public class InterpreterEvent extends EventObject {
 		CREATE,
 		TERMINATE,
 		RESUME,
-		SUSPEND
+		SUSPEND,
+		IDLE
 	}
 
 	public enum Detail {
