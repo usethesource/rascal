@@ -43,13 +43,13 @@ public final class DebugHandler implements IDebugHandler {
 	/**
 	 * Indicates that the evalutor is suspended. Also used for suspending / blocking the evaluator.
 	 */
-	private volatile boolean suspended;
+	private boolean suspended;
 	
 	private enum DebugStepMode {
-		STEP_INTO, STEP_OVER, STEP_RETURN, NO_STEP
+		NO_STEP, STEP_INTO, STEP_OVER 
 	};
 	
-	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
+	private DebugStepMode stepMode;
 	
 	/**
 	 * Referring to {@link AbstractAST} responsible for last suspension.
@@ -63,16 +63,22 @@ public final class DebugHandler implements IDebugHandler {
 	 */	
 	private Integer referenceEnvironmentStackSize = null;
 
-	
 	/**
 	 * Action to execute on termination request, or <code>null</code> if none.
 	 */
 	private Runnable terminateAction = null;
 	
+
+	
+	/**
+	 * Create a new debug handler with its own interpreter event trigger.
+	 */
 	public DebugHandler() {
 		eventTrigger = newInterpreterEventTrigger(this,
 				new CopyOnWriteArrayList<IInterpreterEventListener>());
 	}
+	
+	
 	
 	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
 		return breakpoints.contains(breakpointLocation.toString());
@@ -89,7 +95,7 @@ public final class DebugHandler implements IDebugHandler {
 	protected void clearSuspensionState() {
 		setReferenceAST(null);
 		setReferenceEnvironmentStackSize(null);
-		suspended = false;
+		setSuspended(false);
 	}	
 	
 	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
@@ -97,7 +103,7 @@ public final class DebugHandler implements IDebugHandler {
 		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
 		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
-		suspended = true;
+		setSuspended(true);
 	}
 	
 	@Override
@@ -110,9 +116,9 @@ public final class DebugHandler implements IDebugHandler {
 		
 			setSuspendRequested(false);
 			
-		} else if (stepMode != DebugStepMode.NO_STEP) {
+		} else {
 
-			switch (stepMode) {
+			switch (getStepMode()) {
 			
 			case STEP_INTO:
 				updateSuspensionState(evaluator, currentAST);
@@ -146,20 +152,21 @@ public final class DebugHandler implements IDebugHandler {
 					}
 				}
 				break;
-				
-			default:
+
+			case NO_STEP:
+				if (hasBreakpoint(currentAST.getLocation())) {
+					updateSuspensionState(evaluator, currentAST);
+					getEventTrigger().fireSuspendByBreakpointEvent(currentAST.getLocation());
+				}
 				break;
-			
+				
 			}
-		} else if (hasBreakpoint(currentAST.getLocation())) {
-			updateSuspensionState(evaluator, currentAST);
-			getEventTrigger().fireSuspendByBreakpointEvent(currentAST.getLocation());
 		}
 	
 		/*
 		 * Waiting until GUI triggers end of suspension.
 		 */
-		while (suspended) {
+		while (isSuspended()) {
 			try {
 				evaluator.wait(50);
 			} catch (InterruptedException e) {
@@ -168,66 +175,27 @@ public final class DebugHandler implements IDebugHandler {
 		}		
 		
 	}
-
-	/** 
-	 * this method is called when the debugger send a suspend request 
-	 * correspond to a suspend event from the client
-	 * */
-	@Deprecated
-	private void requestSuspend() {
-		// the evaluator will suspend itself at the next call of suspend or suspend Expression
-		setSuspendRequested(true);
-		
-		// TODO: not the right place. used to stop suspension loop.
-		suspended = false;
-	}
-
-	@Deprecated
-	private void setStepMode(DebugStepMode mode) {
-		stepMode = mode;
-
-		// TODO: not the right place. used to stop suspension loop.		
-		suspended = false;
-	}
 	
-	/**
-	 * @return the referenceAST
-	 */
 	protected AbstractAST getReferenceAST() {
 		return referenceAST;
 	}
 
-	/**
-	 * @param referenceAST the referenceAST to set
-	 */
 	protected void setReferenceAST(AbstractAST referenceAST) {
 		this.referenceAST = referenceAST;
 	}
 
-	/**
-	 * @return the referenceEnvironmentStackSize
-	 */
 	protected Integer getReferenceEnvironmentStackSize() {
 		return referenceEnvironmentStackSize;
 	}
 
-	/**
-	 * @param referenceEnvironmentStackSize the referenceEnvironmentStackSize to set
-	 */
 	protected void setReferenceEnvironmentStackSize(Integer referenceEnvironmentStackSize) {
 		this.referenceEnvironmentStackSize = referenceEnvironmentStackSize;
 	}
 
-	/**
-	 * @return the suspendRequested
-	 */
 	protected boolean isSuspendRequested() {
 		return suspendRequested;
 	}
 
-	/**
-	 * @param suspendRequested the suspendRequested to set
-	 */
 	protected void setSuspendRequested(boolean suspendRequested) {
 		this.suspendRequested = suspendRequested;
 	}
@@ -249,6 +217,7 @@ public final class DebugHandler implements IDebugHandler {
 		
 		case BREAKPOINT:
 			ISourceLocation breakpointLocation = (ISourceLocation) message.getPayload();
+			
 			switch (message.getAction()) {
 			case SET:
 				addBreakpoint(breakpointLocation);
@@ -262,11 +231,13 @@ public final class DebugHandler implements IDebugHandler {
 
 		case SUSPENSION:
 			if (message.getDetail() == Detail.CLIENT_REQUEST) {
-				requestSuspend();
+				setSuspendRequested(true);
 			}
 			break;
 
 		case RESUMPTION:
+			setSuspended(false);
+			
 			switch (message.getDetail()) {
 			case STEP_INTO:
 				setStepMode(DebugStepMode.STEP_INTO);
@@ -302,5 +273,21 @@ public final class DebugHandler implements IDebugHandler {
 	public void setTerminateAction(Runnable terminateAction) {
 		this.terminateAction = terminateAction;
 	}
+
+	protected synchronized boolean isSuspended() {
+		return suspended;
+	}
+
+	protected synchronized void setSuspended(boolean suspended) {
+		this.suspended = suspended;
+	}
+
+	protected DebugStepMode getStepMode() {
+		return stepMode;
+	}
+
+	protected void setStepMode(DebugStepMode stepMode) {
+		this.stepMode = stepMode;
+	}	
 	
 }
