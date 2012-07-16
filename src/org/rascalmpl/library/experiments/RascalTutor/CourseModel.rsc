@@ -257,7 +257,7 @@ public str readConceptFile(ConceptName cn){
          extractAndCacheRemoteConcepts(remote, getLocalRoot(cn));
          rmap = remoteContentMap[rootname(cn)] ? ();
       }
-      println("rmap[<cn>] = <rmap[cn]>");
+      //println("rmap[<cn>] = <rmap[cn]>");
       if(rmap[cn]?){
          rdoc = rmap[cn];
          if(rdoc != ""){
@@ -287,7 +287,7 @@ public void saveConceptFile(ConceptName cn, str text){
 }     
 
 public map[str,list[str]] getSections(ConceptName cn){
-  println("getSections: <cn>");
+  //println("getSections: <cn>");
   f = readConceptFile(cn);
   //println("file = <f>");
   return getSections(splitLines(f));
@@ -434,7 +434,7 @@ public list[ConceptName] getCourseConcepts(ConceptName rootConcept){
 // find the root under which it is included in the concept hierarchy.
 
 str getLocalRoot(str cn){
-   println("getLocalRoot: <cn>");
+   //println("getLocalRoot: <cn>");
    remote = courseDir + rootname(cn) + remoteConcepts;
    if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
@@ -464,10 +464,10 @@ map[str,map[str,str]] remoteContentMap = ();
 void extractAndCacheRemoteConcepts(loc file, str root){
      //file = file[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
      file1 = file.top;
-     println("extractAndCacheRemoteConcepts: <file1>, <root>");
+     //println("extractAndCacheRemoteConcepts: <file1>, <root>");
      rmap =  remoteContentMap[rootname(root)] ? ();
      cmap = extractRemoteConcepts(file1, root);
-     println("Extracted extracted <size(cmap)> concepts from <file1>: <domain(cmap)>");
+     println("Extracted <size(cmap)> concepts from <file1>: <domain(cmap)>");
      for(cn <- cmap)
          println("-- Add to remoteContentMap, <cn>:\n<cmap[cn]>");
      for(cn <- cmap)
@@ -476,14 +476,14 @@ void extractAndCacheRemoteConcepts(loc file, str root){
 }
 
 public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
-    println("getUncachedCourseConcepts: read all concepts");
+    //println("getUncachedCourseConcepts: read all concepts");
     remoteContentMap[rootConcept] = ();
     rmap = ();
     remote = courseDir + rootConcept + remoteConcepts;
     if(exists(remote)){
       remoteMap = readTextValueFile(#list[tuple[ConceptName, loc]], remote);
       for(<root, dir> <- remoteMap){
-          println("root = <root>, dir = <dir>");
+          //println("root = <root>, dir = <dir>");
           remoteFiles =  crawlFiles(dir, rascalExtension);
           for(file <- remoteFiles){
               extractAndCacheRemoteConcepts(file, root);
@@ -492,7 +492,7 @@ public list[ConceptName] getUncachedCourseConcepts(ConceptName rootConcept){
     }
     remoteContentMap[rootConcept] = rmap;
     concepts = crawlConcepts(rootConcept);
-    println("concepts = <concepts>");
+    //println("concepts = <concepts>");
     courseConcepts[rootConcept] = concepts;
     return concepts;
 }

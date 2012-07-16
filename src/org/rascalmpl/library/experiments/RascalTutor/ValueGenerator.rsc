@@ -501,26 +501,15 @@ public str toString(tuple[RascalType rtype, str rval] v){
 // ---- Used variables in a text
 
 public set[str] uses(str txt){
-  println("uses(<txt>)");
+  //println("uses(<txt>)");
   set[str] u = {};
   visit(txt){
      case /^\<@?<name:[A-Z][A-Za-z0-9]*>\>/: {
-        println("name = <name>");
+        //println("name = <name>");
         u += name;
       }
   }
   return u;
 }
-/*
-public set[str] uses(str txt){
-  println("uses(<txt>)");
-  set[str] u = {};
-  for(/\<@?<name:[A-Z][A-Za-z0-9]*>\>/ := txt){
-    println("name = <name>");
-    u += name;
-  }
-  return u;
-}
-*/
 
 public bool equalType(str t1, str t2) = parseType(t1) == parseType(t2);

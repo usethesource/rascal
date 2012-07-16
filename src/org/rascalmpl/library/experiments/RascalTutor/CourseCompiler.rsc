@@ -225,14 +225,14 @@ public Concept compileConcept(ConceptName conceptName){
    
    println("compileConcept: <conceptName>");
    sections = getSections(conceptName);
-   println("<conceptName>: sections = <sections>");
+   //println("<conceptName>: sections = <sections>");
 
    if(!(sections["Name"]?))
       throw ConceptError(conceptName, "Missing section \"Name\"");
       
    name = sections["Name"][0];
   
-   println("<conceptName>: getSections done.");
+   //println("<conceptName>: getSections done.");
    
    try {
 	   local_warnings = [];
@@ -265,8 +265,6 @@ public Concept compileConcept(ConceptName conceptName){
 	   functionSection 	= sections["Function"] ? [];
 	   synopsisSection 	= sections["Synopsis"] ? [];
 	   usageSection     = sections["Usage"] ? [];
-	   
-	   println("************** HERE *************");
 	 
 	   searchTs  		= searchTermsSynopsis(syntaxSection, typesSection, functionSection, synopsisSection);
 	   
@@ -285,13 +283,11 @@ public Concept compileConcept(ConceptName conceptName){
   	                       <section("Pitfalls", markup(sections["Pitfalls"] ? [], conceptName))>
   	                       <showQuestionsSection(conceptName, questions)>";
 	   warnings         = getAndClearWarnings() + local_warnings;
-	   
-	  
 	       
 	   C =  concept(conceptName, warnings, optDetails, searchTs, questions);
-	   println("<conceptName>: creating concept done: <C>");
+	   //println("<conceptName>: creating concept done: <C>");
 	   generate(C, escapeForHtml("<for(line <- synopsisSection){> <line><}>"),  html_synopsis, html_body);
-	   println("<conceptName>: generating HTML done.");
+	   //println("<conceptName>: generating HTML done.");
 	   return C;
 
 	} catch NoSuchKey(e):
@@ -862,12 +858,12 @@ public str showQuestion(ConceptName cpid, Question q){
 
 	  for(<str name, str exp> <- auxVars){
          exp1 = subst(exp, env);
-         println("exp1 = <exp1>");
+         //println("exp1 = <exp1>");
          try {
            tp = parseType("<evalType(setup + (exp1 + ";"))>");
            r = eval(setup + (exp1 + ";")).val;
            env[name] = <tp, "<r>">;
-           println("env[<name>] = <env[name]>");
+           //println("env[<name>] = <env[name]>");
          }
          catch ParseError(loc l):
 	           throw "Parse error while computing <name> = <exp1> at line <l.begin.line>, column <l.begin.column>";
