@@ -2,20 +2,14 @@ Name: Union
 
 Synopsis: Union of two set values.
 
-Syntax:
-`$Exp_1$ + $Exp_2$`
+Syntax: `$Exp_1$ + $Exp_2$`
 
 Types:
 | `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ + $Exp_2$`      |
 |:-------------|:--------------|:-------------------------|
 | `set[$T_1$]` |  `set[$T_2$]` | `set[lub($T_1$,$T_2$)]`  |
 
-Function:
-
-Details:
-
 Description:
-
 The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as [Set/Insert] instead.
 
 Examples:
@@ -25,10 +19,6 @@ Examples:
 {1, 2, 3} + {3};
 {2} + { 2, 3, 4};
 </screen>
-
-Benefits:
-
-Pitfalls:
 
 Questions:
 

@@ -73,13 +73,13 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import DateTime;
 ok
 <span class="prompt">rascal></span>B = now();
-datetime: $2012-06-20T16:34:11.656+0200
+datetime: $2012-07-16T09:57:48.882+0200
 <span class="prompt">rascal></span>E = incrementDays(B, 2);
-datetime: $2012-06-22T16:34:11.656+0200
+datetime: $2012-07-18T09:57:48.882+0200
 <span class="prompt">rascal></span>I = createInterval(B, E);
-interval: Interval($2012-06-20T16:34:11.656+0200,$2012-06-22T16:34:11.656+0200)
+interval: Interval($2012-07-16T09:57:48.882+0200,$2012-07-18T09:57:48.882+0200)
 <span class="prompt">rascal></span>dateRangeByDay(I);
-list[datetime]: [$2012-06-22]
+list[datetime]: [$2012-07-18]
 </pre>
 </div>
 

@@ -125,7 +125,7 @@ rel[int position, str artist, str title, int year]: {
 set[str]: {"Eagles","Boudewijn de Groot","Queen"}
 </pre> It is also possible to infer the type:
 <pre class="screen"><span class="prompt">rascal></span>R1 = readCSV(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, (&quot;separator&quot; : &quot;;&quot;));
-readCSV inferred the relation type: rel[int position, str artist, str title, int year]
+readCSV inferred the relation type: rel[int \position, str \artist, str \title, int \year]
 value: {
   &lt;1,"Eagles","Hotel California",1977>,
   &lt;2,"Queen","Bohemian rhapsody",1975>,
