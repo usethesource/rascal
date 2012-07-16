@@ -80,6 +80,7 @@ public class RascalFunction extends NamedFunction {
 	private final Map<String, String> tags;
 	private static final String RESOURCE_TAG = "resource";
 
+
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
 				Stack<Accumulator> accumulators) {
 		this(func, eval,
@@ -114,8 +115,7 @@ public class RascalFunction extends NamedFunction {
 		this.isTest = isTest;
 		
 		if (ast instanceof FunctionDeclaration) {
-			// tags = parseTags((FunctionDeclaration) ast); FIXME
-			tags = new HashMap<String, String>();
+			tags = parseTags((FunctionDeclaration) ast);
 			String resourceScheme = RascalFunction.getResourceScheme((FunctionDeclaration)ast);
 			if (resourceScheme.equals("")) {
 					this.resourceScheme = null;
@@ -133,12 +133,14 @@ public class RascalFunction extends NamedFunction {
 		Tags tags = declaration.getTags();
 		if (tags.hasTags()) {
 			for (Tag tag : tags.getTags()) {
-				String key = Names.name(tag.getName());
-				String value = ((TagString.Lexical) tag.getContents()).getString();
-				if (value.length() > 2 && value.startsWith("{")) {
-					value = value.substring(1, value.length() - 1);
+				if (tag.hasContents()) {
+					String key = Names.name(tag.getName());
+					String value = ((TagString.Lexical) tag.getContents()).getString();
+					if (value.length() > 2 && value.startsWith("{")) {
+						value = value.substring(1, value.length() - 1);
+					}
+					result.put(key, value);
 				}
-				result.put(key, value);
 			}
 		}
 		return result;
