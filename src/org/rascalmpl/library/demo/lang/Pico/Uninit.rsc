@@ -1,4 +1,4 @@
-module demo::lang::Pico::Uninit
+module demo::lang::Pico::Visualize
 
 import Prelude;
 import demo::lang::Pico::Abstract;
