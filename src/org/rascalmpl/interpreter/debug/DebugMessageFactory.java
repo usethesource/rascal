@@ -19,31 +19,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 public class DebugMessageFactory {
 	
 	/*
-	 * Notifications.
-	 */
-	
-	public static IDebugMessage suspendedByBreakpoint(ISourceLocation location) {
-		return new NotificationMessage(IDebugMessage.Subject.SUSPENSION, IDebugMessage.Detail.BREAKPOINT, location);
-	}
-
-	public static IDebugMessage suspendedByStepEnd() {
-		return new NotificationMessage(IDebugMessage.Subject.SUSPENSION, IDebugMessage.Detail.STEP_END);
-	}	
-
-	public static IDebugMessage suspendedByClientRequest() {
-		return new NotificationMessage(IDebugMessage.Subject.SUSPENSION, IDebugMessage.Detail.CLIENT_REQUEST);
-	}
-
-	public static IDebugMessage started() {
-		return new NotificationMessage(IDebugMessage.Subject.START, IDebugMessage.Detail.UNKNOWN);
-	}	
-	
-	public static IDebugMessage terminated() {
-		return new NotificationMessage(IDebugMessage.Subject.TERMINATION, IDebugMessage.Detail.UNKNOWN);
-	}
-		
-		
-	/*
 	 * Requests.
 	 */
 	
@@ -67,6 +42,17 @@ public class DebugMessageFactory {
 		return new RequestMessage(IDebugMessage.Subject.TERMINATION, IDebugMessage.Detail.UNKNOWN);
 	}
 	
+	/*
+	 * Breakpoints.
+	 */
+	
+	public static IDebugMessage requestSetBreakpoint(ISourceLocation location) {
+		return new DebugMessage(IDebugMessage.Action.SET, IDebugMessage.Subject.BREAKPOINT, IDebugMessage.Detail.UNKNOWN, location);
+	}
+
+	public static IDebugMessage requestDeleteBreakpoint(ISourceLocation location) {
+		return new DebugMessage(IDebugMessage.Action.DELETE, IDebugMessage.Subject.BREAKPOINT, IDebugMessage.Detail.UNKNOWN, location);
+	}
 	
 	/*
 	 * Simple message implementation.
@@ -110,18 +96,6 @@ public class DebugMessageFactory {
 			return payload;
 		}
 		
-	}
-	
-	private static class NotificationMessage extends DebugMessage {
-		
-		public NotificationMessage(Subject subject, Detail detail) {
-			super(IDebugMessage.Action.NOTIFY, subject, detail);
-		}
-		
-		public NotificationMessage(Subject subject, Detail detail, Object payload) {
-			super(IDebugMessage.Action.NOTIFY, subject, detail, payload);
-		}
-
 	}
 	
 	private static class RequestMessage extends DebugMessage {

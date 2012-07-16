@@ -7,14 +7,18 @@
  *
  * Contributors:
  *
- *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-public enum DebugResumeMode {
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 
-	STEP_INTO,
-	STEP_OVER,
-	CLIENT_REQUEST
+public interface IDebugHandler extends IDebugSupport,
+		IRascalSuspendTriggerListener {
+
+	AbstractInterpreterEventTrigger getEventTrigger();
 	
+	@Deprecated
+	void stopStepping();
+
 }

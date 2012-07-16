@@ -23,7 +23,9 @@ public interface IDebugMessage {
 	enum Action {
 		UNKNOWN,
 		NOTIFY,
-		REQEUST
+		REQEUST,
+		SET,
+		DELETE
 	}
 	
 	/**
@@ -34,7 +36,8 @@ public interface IDebugMessage {
 		START,
 		TERMINATION,
 		SUSPENSION,
-		RESUMPTION
+		RESUMPTION,
+		BREAKPOINT
 	}
 
 	/**

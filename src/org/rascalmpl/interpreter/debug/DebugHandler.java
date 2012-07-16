@@ -17,20 +17,23 @@
 package org.rascalmpl.interpreter.debug;
 
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
 
-public final class DebuggingHandler implements IRascalSuspendTriggerListener {
+public final class DebugHandler implements IDebugHandler {
 
-	private final IDebugger debugger;
+	private AbstractInterpreterEventTrigger eventTrigger;
 
 	private Set<String> breakpoints = new java.util.HashSet<String>();
-	
+			
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
 	 */
@@ -40,6 +43,10 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 	 * Indicates that the evalutor is suspended. Also used for suspending / blocking the evaluator.
 	 */
 	private volatile boolean suspended;
+	
+	private enum DebugStepMode {
+		STEP_INTO, STEP_OVER, STEP_RETURN, NO_STEP
+	};
 	
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
@@ -54,20 +61,21 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 	 * {@see #suspend(IEvaluator, AbstractAST)}
 	 */	
 	private Integer referenceEnvironmentStackSize = null;
-
-	public DebuggingHandler(IDebugger debugger) {
-		this.debugger = debugger;
+	
+	public DebugHandler() {
+		setEventTrigger(newInterpreterEventTrigger(this,
+				new CopyOnWriteArrayList<IInterpreterEventListener>()));
 	}
 	
-	public boolean hasBreakpoint(ISourceLocation breakpointLocation) {
+	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
 		return breakpoints.contains(breakpointLocation.toString());
 	}
 	
-	public void addBreakpoint(ISourceLocation breakpointLocation) {
+	private void addBreakpoint(ISourceLocation breakpointLocation) {
 		breakpoints.add(breakpointLocation.toString());
 	}
 
-	public void removeBreakpoint(ISourceLocation breakpointLocation) {
+	private void removeBreakpoint(ISourceLocation breakpointLocation) {
 		breakpoints.remove(breakpointLocation.toString());
 	}
 	
@@ -91,16 +99,18 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		if(isSuspendRequested()) {
 			
 			updateSuspensionState(evaluator, currentAST);
-			debugger.sendMessage(suspendedByClientRequest());
+			getEventTrigger().fireSuspendByClientRequestEvent();			
 		
 			setSuspendRequested(false);
 			
-		} else if (debugger.isStepping()) {
+//		} else if (debugger.isStepping()) {
+		} else if (stepMode != DebugStepMode.NO_STEP) {
+
 			switch (stepMode) {
 			
 			case STEP_INTO:
 				updateSuspensionState(evaluator, currentAST);
-				debugger.sendMessage(suspendedByStepEnd());
+				getEventTrigger().fireSuspendByStepEndEvent();
 				break;
 				
 			case STEP_OVER:
@@ -126,7 +136,7 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 					
 					if (! (referenceStart <= currentStart && currentStart < referenceEnd)) {
 						updateSuspensionState(evaluator, currentAST);
-						debugger.sendMessage(suspendedByStepEnd());
+						getEventTrigger().fireSuspendByStepEndEvent();
 					}
 				}
 				break;
@@ -137,7 +147,7 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 			}
 		} else if (hasBreakpoint(currentAST.getLocation())) {
 			updateSuspensionState(evaluator, currentAST);
-			debugger.sendMessage(suspendedByBreakpoint(currentAST.getLocation()));
+			getEventTrigger().fireSuspendByBreakpointEvent(currentAST.getLocation());
 		}
 	
 		/*
@@ -166,10 +176,13 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		suspended = false;
 	}
 
-	@Deprecated
+	/*
+	 * TODO: No direct API to say debugger to stop stepping. Message?
+	 */
+	@Override
 	public void stopStepping() {
 		setStepMode(DebugStepMode.NO_STEP);
-		debugger.stopStepping();
+		// debugger.stopStepping();
 	}
 	
 	@Deprecated
@@ -180,13 +193,6 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		suspended = false;
 	}
 	
-	/**
-	 * @return the debugger associated with this handler object
-	 */
-	public IDebugger getDebugger() {
-		return debugger;
-	}
-
 	/**
 	 * @return the referenceAST
 	 */
@@ -228,5 +234,36 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 	protected void setSuspendRequested(boolean suspendRequested) {
 		this.suspendRequested = suspendRequested;
 	}
+
+	@Override
+	public void addInterpreterEventListener(IInterpreterEventListener listener) {
+		getEventTrigger().addInterpreterEventListener(listener);
+	}
+
+	@Override
+	public void removeInterpreterEventListener(
+			IInterpreterEventListener listener) {
+		getEventTrigger().removeInterpreterEventListener(listener);
+	}
+
+	@Override
+	public void processMessage(IDebugMessage message) {
+		// TODO Auto-generated method stub
 		
+	}
+		
+	/**
+	 * @return the eventTrigger
+	 */
+	public AbstractInterpreterEventTrigger getEventTrigger() {
+		return eventTrigger;
+	}
+
+	/**
+	 * @param eventTrigger the eventTrigger to set
+	 */
+	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
+		this.eventTrigger = eventTrigger;
+	}
+	
 }
