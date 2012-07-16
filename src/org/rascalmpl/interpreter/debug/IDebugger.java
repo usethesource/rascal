@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,17 +18,11 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 
 public interface IDebugger {
 
-	@Deprecated
-	public boolean isTerminated();
-
 	public void notifySuspend(DebugSuspendMode mode) throws QuitException;
 
 	public void notifyResume(DebugResumeMode mode);
 	
 	public void notifyBreakpointHit(ISourceLocation sourceLocation);
-	
-	@Deprecated
-	public boolean hasEnabledBreakpoint(ISourceLocation sourceLocation);
 	
 	@Deprecated
 	public boolean isStepping();

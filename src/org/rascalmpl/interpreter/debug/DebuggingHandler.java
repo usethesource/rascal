@@ -16,20 +16,29 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
+import java.util.Set;
+
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.control_exceptions.QuitException;
 
 public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 
 	private final IDebugger debugger;
 
+	private Set<String> breakpoints = new java.util.HashSet<String>();
+	
 	/**
 	 * Indicates a manual suspend request from the debugger, e.g. caused by a pause action in the GUI.
 	 */
 	private boolean suspendRequested;
 
+	/**
+	 * Indicates that the evalutor is suspended. Also used for suspending / blocking the evaluator.
+	 */
+	private volatile boolean suspended;
+	
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
 	/**
@@ -48,9 +57,22 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		this.debugger = debugger;
 	}
 	
+	public boolean hasBreakpoint(ISourceLocation breakpointLocation) {
+		return breakpoints.contains(breakpointLocation.toString());
+	}
+	
+	public void addBreakpoint(ISourceLocation breakpointLocation) {
+		breakpoints.add(breakpointLocation.toString());
+	}
+
+	public void removeBreakpoint(ISourceLocation breakpointLocation) {
+		breakpoints.remove(breakpointLocation.toString());
+	}
+	
 	protected void clearSuspensionState() {
 		setReferenceAST(null);
 		setReferenceEnvironmentStackSize(null);
+		suspended = false;
 	}	
 	
 	protected void updateSuspensionState(IEvaluator<?> evaluator, AbstractAST currentAST) {
@@ -58,15 +80,11 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 		
 		// TODO: remove cast to {@link Evaluator} and rework {@link IEvaluator}.
 		setReferenceEnvironmentStackSize(((Evaluator) evaluator).getCallStack().size());
+		suspended = true;
 	}
 	
 	@Override
 	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		// TODO: Remove exception throwing herein.
-		if (debugger.isTerminated()) {
-			//can happen when we evaluating a loop for example and the debugger is stopped
-			throw new QuitException();
-		}
 		
 		if(isSuspendRequested()) {
 			
@@ -115,29 +133,49 @@ public final class DebuggingHandler implements IRascalSuspendTriggerListener {
 				break;
 			
 			}
-		} else if (debugger.hasEnabledBreakpoint(currentAST.getLocation())) {
+		} else if (hasBreakpoint(currentAST.getLocation())) {
 			updateSuspensionState(evaluator, currentAST);
-			debugger.notifySuspend(DebugSuspendMode.BREAKPOINT);
+			debugger.notifyBreakpointHit(currentAST.getLocation());
 		}
 	
-	}	
-	
+		/*
+		 * Waiting until GUI triggers end of suspension.
+		 */
+		while (suspended) {
+			try {
+				evaluator.wait(50);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}		
+		
+	}
+
 	/** 
 	 * this method is called when the debugger send a suspend request 
 	 * correspond to a suspend event from the client
 	 * */
+	@Deprecated
 	public void requestSuspend() {
 		// the evaluator will suspend itself at the next call of suspend or suspend Expression
 		setSuspendRequested(true);
+		
+		// TODO: not the right place. used to stop suspension loop.
+		suspended = false;
 	}
 
+	@Deprecated
 	public void stopStepping() {
 		setStepMode(DebugStepMode.NO_STEP);
 		debugger.stopStepping();
 	}
 	
+	@Deprecated
 	public void setStepMode(DebugStepMode mode) {
 		stepMode = mode;
+
+		// TODO: not the right place. used to stop suspension loop.		
+		suspended = false;
 	}
 	
 	/**
