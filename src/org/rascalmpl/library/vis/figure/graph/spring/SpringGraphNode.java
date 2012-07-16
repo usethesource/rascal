@@ -30,8 +30,8 @@ public class SpringGraphNode extends Figure {
 	private final SpringGraph G;
 	protected final String name;
 	protected final Figure figure;
-	private double x;	// Coordinates of center of node
-	private double y;
+	double x;	// Coordinates of center of node
+	double y;
 
 	double temperature;
 	double skew;
@@ -139,11 +139,19 @@ public class SpringGraphNode extends Figure {
 	}
 	
 	public double distance(SpringGraphNode other){
-		return getCenter().distance(other.getCenter());
+		return getCenter().distance(other.getCenter()); //  - (radius() + other.radius()));// - Math.max(width(), height())/2 - Math.max(other.width(), other.height())/2;
 	}
 	
 	public double distance2(SpringGraphNode other){
-		return getCenter().distance2(other.getCenter());
+		double d = distance(other);
+		return d * d;
+		//return getCenter().distance2(other.getCenter());
+	}
+	
+	public double radius(){
+		double w = width();
+		double h = height();
+		return Math.sqrt(w * w + h * h);
 	}
 	
 	// Mass of this node: surface * number of connections.

@@ -90,7 +90,8 @@ public class SpringGraph extends Figure {
 		this.edges = new ArrayList<SpringGraphEdge>();
 		for (IValue v : edges) {
 			IConstructor c = (IConstructor) v;
-			SpringGraphEdge e = FigureFactory.makeSpringGraphEdge(this, fpa, c, properties);
+			PropertyManager pm = c.arity() > 2 ? new PropertyManager(fpa, properties, (IList) c.get(2)) : properties;
+			SpringGraphEdge e = FigureFactory.makeSpringGraphEdge(this, fpa, c, pm);
 			this.edges.add(e);
 			e.getFrom().addOut(e.getTo());
 			e.getTo().addIn(e.getFrom());
@@ -117,9 +118,9 @@ public class SpringGraph extends Figure {
 		return registered.get(name);
 	}
 	
-	public double EDGE_LENGTH;       		 // Set on Graph creation
-	public double EDGE_LENGTH_2;             // Set on Graph creation
-	public double RAND_DISTURB;              // Set on Graph creation.
+	public double EDGE_LENGTH;       		 // Set in computeMinSize.
+	public double EDGE_LENGTH_2;             // Set in computeMinSize.
+	public double RAND_DISTURB;              // Set in computeMinSize.
 	public double MIN_GLOBAL_TEMPERATURE;    // Set in computeMinSize.
 	
 	public double MAX_LOCAL_TEMPERATURE = 256.0;
@@ -129,8 +130,8 @@ public class SpringGraph extends Figure {
 	public double OSCILLATION = 1.0;
 	public double SKEW = 1.0;
 	public double ROTATION = 1.0;
-	public double GRAVITY = 0.20;
-	public static int MAX_ROUNDS = 1000;
+	public double GRAVITY = 0.20;				// Set in computeMinSize.
+	public static int MAX_ROUNDS = 400;
 
 	public void printValues() {
 		System.err.println("-----------------------------------------");
@@ -176,15 +177,22 @@ public class SpringGraph extends Figure {
 		 double hgap = prop.getReal(Properties.HGAP);
 		 double vgap = prop.getReal(Properties.VGAP);
 
-		 long n = Math.round(1.5 * Math.sqrt(size.getX() * size.getY()) / nodes.size());
-		 EDGE_LENGTH = Math.max(Math.round(Math.sqrt(hgap * hgap + vgap * vgap)), n);
+		 double mass = 0;
+		 double radius = 0;
+		 for (SpringGraphNode nd : nodes){
+			 nd.init();
+			 mass += nd.getMass();
+			 radius += nd.radius();
+		 }
+		 GRAVITY = 10 * nodes.size()/mass;
+		 
+		 EDGE_LENGTH = Math.max(Math.max(2 * radius / nodes.size(), 
+				                         Math.sqrt(size.getX() * size.getY()) / nodes.size()),
+		                                 Math.sqrt(hgap * hgap + vgap * vgap));
 		 EDGE_LENGTH_2 = EDGE_LENGTH * EDGE_LENGTH;
 		 RAND_DISTURB = EDGE_LENGTH/4;
 		 MIN_GLOBAL_TEMPERATURE = 0.005 * MAX_LOCAL_TEMPERATURE/ (1 +nodes.size());
-
-		 for (SpringGraphNode nd : nodes){
-			 nd.init();
-		 }
+		 
 		 currentAnimation = new AnimateForces();
 	 }
 
@@ -198,6 +206,7 @@ public class SpringGraph extends Figure {
 	
 	@Override
 	public void resizeElement(Rectangle view) {
+		localLocation.set(0,0);
 	}
 	
 	 @Override

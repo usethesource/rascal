@@ -12,6 +12,7 @@
 package org.rascalmpl.library.vis.figure.graph.spring;
 
 import static org.rascalmpl.library.vis.properties.Properties.FROM_ARROW;
+import static org.rascalmpl.library.vis.properties.Properties.LABEL;
 import static org.rascalmpl.library.vis.properties.Properties.TO_ARROW;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.graphics.GraphicsContext;
+import org.rascalmpl.library.vis.properties.Properties;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
@@ -39,6 +41,7 @@ public class SpringGraphEdge extends Figure {
 	private Figure toArrow;
 	private Figure fromArrow;
 	private boolean visible = true;
+	private Figure label;
 	private static boolean debug = false;
 	
 	public SpringGraphEdge(SpringGraph G, IFigureConstructionEnv fpa, PropertyManager properties, 
@@ -57,8 +60,13 @@ public class SpringGraphEdge extends Figure {
 		
 		toArrow = prop.getFig(TO_ARROW);
 		fromArrow = prop.getFig(FROM_ARROW);
-		
-		this.children = childless;
+		label = prop.getFig(LABEL);
+
+		if(label != null){
+			this.children = new Figure[1];
+			this.children[0] = label;
+		} else
+			this.children = childless;
 		
 		if(debug)System.err.println("edge: " + fromName.getValue() + " -> " + toName.getValue());
 	}
@@ -80,7 +88,7 @@ public class SpringGraphEdge extends Figure {
 	void drawElement(GraphicsContext gc, List<IHasSWTElement> visibleSWTElements) {
 		if(!visible)
 			return;
-		applyProperties(gc);
+		
 		if(debug) System.err.println("edge: (" + getFrom().name + ": " + getFrom().getCenterX() + "," + getFrom().getCenterY() + ") -> (" + 
 				to.name + ": " + to.getCenterX() + "," + to.getCenterY() + ")");
 
@@ -89,6 +97,7 @@ public class SpringGraphEdge extends Figure {
 		Coordinate centerFrom = getFrom().figure.getGlobalCenter();
 		Coordinate centerTo = getTo().figure.getGlobalCenter();
 		
+		applyProperties(gc);
 		gc.line(centerFrom.getX(), centerFrom.getY(), centerTo.getX(), centerTo.getY());
 		
 		if(toArrow != null){
@@ -110,11 +119,34 @@ public class SpringGraphEdge extends Figure {
 	@Override
 	public void computeMinSize() {
 		localLocation.set(0,0);
+		if(label != null){
+			int dirX = getFrom().getCenterX() < getTo().getCenterX() ? 1 : -1;
+			int dirY = getFrom().getCenterY() < getTo().getCenterY()? 1 : -1;
+
+			double labelX = 5 + getFrom().getCenterX() + dirX*(Math.abs(getTo().getCenterX() - getFrom().getCenterY()));
+			double labelY = getFrom().getCenterY() + dirY*(Math.abs(getTo().getCenterY() - getFrom().getCenterY()));
+
+			label.localLocation.set(labelX, labelY);
+		}
 	}
 
 	@Override
 	public void resizeElement(Rectangle view) {
 		//localLocation.set(0,0);
+		if(fromArrow!=null){
+			fromArrow.localLocation.set(0,0);
+			fromArrow.globalLocation.set(0,0);
+			fromArrow.size.set(minSize);
+			//fromArrow.resize(view,transform);
+		}
+		if(toArrow!=null){
+			toArrow.localLocation.set(0,0);
+			toArrow.globalLocation.set(0,0);
+			toArrow.size.set(minSize);
+			//toArrow.resize(view,transform);
+		}
+		
+		
 	}
 
 }
