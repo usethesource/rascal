@@ -17,7 +17,6 @@
 package org.rascalmpl.interpreter.debug;
 
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
@@ -31,7 +30,7 @@ import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
 
 public final class DebugHandler implements IDebugHandler {
 
-	private final AbstractInterpreterEventTrigger eventTrigger;
+	private AbstractInterpreterEventTrigger eventTrigger;
 
 	private final Set<String> breakpoints = new java.util.HashSet<String>();
 			
@@ -74,11 +73,8 @@ public final class DebugHandler implements IDebugHandler {
 	 * Create a new debug handler with its own interpreter event trigger.
 	 */
 	public DebugHandler() {
-		eventTrigger = newInterpreterEventTrigger(this,
-				new CopyOnWriteArrayList<IInterpreterEventListener>());
+		setEventTrigger(newNullEventTrigger());
 	}
-	
-	
 	
 	private boolean hasBreakpoint(ISourceLocation breakpointLocation) {
 		return breakpoints.contains(breakpointLocation.toString());
@@ -265,11 +261,6 @@ public final class DebugHandler implements IDebugHandler {
 		}
 	}
 		
-	@Override
-	public AbstractInterpreterEventTrigger getEventTrigger() {
-		return eventTrigger;
-	}
-
 	public void setTerminateAction(Runnable terminateAction) {
 		this.terminateAction = terminateAction;
 	}
@@ -288,6 +279,14 @@ public final class DebugHandler implements IDebugHandler {
 
 	protected void setStepMode(DebugStepMode stepMode) {
 		this.stepMode = stepMode;
+	}
+
+	public AbstractInterpreterEventTrigger getEventTrigger() {
+		return eventTrigger;
+	}
+	
+	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
+		this.eventTrigger = eventTrigger;
 	}	
 	
 }

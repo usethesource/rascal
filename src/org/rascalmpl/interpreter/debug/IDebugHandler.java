@@ -11,14 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
-
 /**
  * Internal debugging support interface to be used within the interpreter.
  */
 public interface IDebugHandler extends IDebugSupport,
 		IRascalSuspendTriggerListener {
-
-	AbstractInterpreterEventTrigger getEventTrigger();
 	
 }
