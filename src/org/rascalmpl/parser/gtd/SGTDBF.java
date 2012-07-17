@@ -45,7 +45,6 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.Stack;
 
-// TODO Factor out the recovery code.
 /**
  * This is the core of the parser; it drives the parse process.
  */
