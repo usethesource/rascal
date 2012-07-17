@@ -86,6 +86,21 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		}
 	}
 
+	public URI getRootForModule(URI uri) {
+		try {
+			for (URI dir : collect()) {
+				URI full = getFullURI(getPath(uri), dir);
+				if (reg.exists(full)) {
+					return dir;
+				}
+			}
+
+			return null;
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+	
 	private List<URI> collect() {
 		// collect should run the contributors in reverse order
 		List<URI> paths = new LinkedList<URI>();
