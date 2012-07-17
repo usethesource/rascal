@@ -16,6 +16,7 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,10 +36,14 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class Import extends org.rascalmpl.ast.Import {
 	
@@ -62,6 +67,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			// a resource scheme of sdf and a URI scheme of sdf.
 			URI uri = sl.getURI();
 			String resourceScheme = uri.getScheme();
+			
 			if (resourceScheme.contains("+")) {
 				String uriScheme = resourceScheme.substring(resourceScheme.indexOf("+")+1); 
 				resourceScheme = resourceScheme.substring(0,resourceScheme.indexOf("+"));
@@ -85,55 +91,43 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				// Invoke the importer, which should generate the text of the module that we need
 				// to actually import.
-				IString moduleText = (IString) importer.call(argTypes, argValues).getValue();
+				IValue module = importer.call(argTypes, argValues).getValue();
+				String moduleText = module.getType().isStringType() ? ((IString) module).getValue() : TreeAdapter.yield((IConstructor) module);
 				
-				// For now, stick this in cdw just to get it working; later we need to put this
-				// somewhere more reasonable
+				moduleText = "@generated\n" + moduleText;
+				
 				try {
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(eval.getResolverRegistry().getOutputStream(new URI("cwd:///"+mn.getValue()+".rsc"), false)));
-					writer.write(moduleText.getValue());
+					URIResolverRegistry reg = eval.getResolverRegistry();
+					URI ur = eval.getRascalResolver().getRootForModule((URI.create("rascal://" + eval.getCurrentModuleEnvironment().getName())));
+					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
+					String modulePath = moduleName.replaceAll("::", "/");
+					loc = loc.add(ResultFactory.makeResult(TF.stringType(), VF.string(modulePath), eval));
+					loc = loc.fieldUpdate("extension", ResultFactory.makeResult(TF.stringType(), VF.string(".rsc"), eval), eval.getCurrentEnvt().getStore());
+					
+					OutputStream outputStream;
+					try {
+						outputStream = reg.getOutputStream(((ISourceLocation) loc.getValue()).getURI(), false);
+					}
+					catch (IOException e) {
+						outputStream = reg.getOutputStream(URI.create("cwd:///"), false);
+					}
+					
+					if (outputStream == null) {
+						outputStream = reg.getOutputStream(URI.create("cwd:///"), false);
+					}
+					
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+					writer.write(moduleText);
 					writer.close();
-
-					// TODO: Copied from the code for Default; see if there is a good way to
-					// factor this out (maybe put into Import?)
-					GlobalEnvironment heap = eval.__getHeap();
-					if (!heap.existsModule(moduleName)) {
-						// deal with a fresh module that needs initialization
-						heap.addModule(new ModuleEnvironment(moduleName, heap));
-						eval.evalRascalModule(this, moduleName);
-						eval.addImportToCurrentModule(this, moduleName);
-					} else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
-						// in the root scope we treat an import as a "reload"
-						heap.resetModule(moduleName);
-						eval.evalRascalModule(this, moduleName);
-						eval.addImportToCurrentModule(this, moduleName);
-					} else {
-						// otherwise simply add the current imported name to the imports
-						// of the current module
-						if (!heap.getModule(moduleName).isInitialized()) {
-							eval.evalRascalModule(this, moduleName);
-						}
-						eval.addImportToCurrentModule(this, moduleName);
-					}
-
-					if (heap.getModule(moduleName).isDeprecated()) {
-						eval.getStdErr().println(getLocation() + ":" + moduleName + " is deprecated, " + heap.getModule(moduleName).getDeprecatedMessage());
-					}
-					// End of copied code
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					throw RuntimeExceptionFactory.io(this.VF.string("Cannot open cwd:///" + mn.getValue() + ".rsc for writing"), eval.getCurrentAST(), e.getMessage());
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					throw RuntimeExceptionFactory.malformedURI("cwd:///"+mn.getValue()+".rsc", null, e.getMessage());
+				}
+				catch (IOException e) {
+					throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), eval.getStackTrace());
 				}
 				
+				return importModule(this.getName(), eval);
 			} else {
-				throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), null);
+				throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), eval.getStackTrace());
 			}
-			
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
-			
 		}
 		
 		@Override
@@ -174,6 +168,12 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 			if (!heap.existsModule(name)) {
 				// deal with a fresh module that needs initialization
 				heap.addModule(new ModuleEnvironment(name, heap));
+			}
+			
+			ModuleEnvironment env = eval.getCurrentModuleEnvironment();
+			
+			if (env.getExtends().contains(name)) {
+				return name;
 			}
 
 			try {
@@ -237,31 +237,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			// TODO support for full complexity of import declarations
-			String name = Names.fullName(this.getModule().getName());
-			GlobalEnvironment heap = __eval.__getHeap();
-			if (!heap.existsModule(name)) {
-				// deal with a fresh module that needs initialization
-				heap.addModule(new ModuleEnvironment(name, heap));
-				__eval.evalRascalModule(this, name);
-				__eval.addImportToCurrentModule(this, name);
-			} else if (__eval.getCurrentEnvt() == __eval.__getRootScope()) {
-				// in the root scope we treat an import as a "reload"
-				heap.resetModule(name);
-				__eval.evalRascalModule(this, name);
-				__eval.addImportToCurrentModule(this, name);
-			} else {
-				// otherwise simply add the current imported name to the imports
-				// of the current module
-				if (!heap.getModule(name).isInitialized()) {
-					__eval.evalRascalModule(this, name);
-				}
-				__eval.addImportToCurrentModule(this, name);
-			}
-
-			if (heap.getModule(name).isDeprecated()) {
-				__eval.getStdErr().println(getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
-			}
-			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+			return importModule(this.getModule().getName(), __eval);
 
 		}
 
@@ -294,5 +270,33 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 
 	public Import(IConstructor __param1) {
 		super(__param1);
+	}
+
+	protected static Result<IValue> importModule(QualifiedName imported, IEvaluator<Result<IValue>> __eval) {
+		String name = Names.fullName(imported);
+		GlobalEnvironment heap = __eval.__getHeap();
+		if (!heap.existsModule(name)) {
+			// deal with a fresh module that needs initialization
+			heap.addModule(new ModuleEnvironment(name, heap));
+			__eval.evalRascalModule(imported, name);
+			__eval.addImportToCurrentModule(imported, name);
+		} else if (__eval.getCurrentEnvt() == __eval.__getRootScope()) {
+			// in the root scope we treat an import as a "reload"
+			heap.resetModule(name);
+			__eval.evalRascalModule(imported, name);
+			__eval.addImportToCurrentModule(imported, name);
+		} else {
+			// otherwise simply add the current imported name to the imports
+			// of the current module
+			if (!heap.getModule(name).isInitialized()) {
+				__eval.evalRascalModule(imported, name);
+			}
+			__eval.addImportToCurrentModule(imported, name);
+		}
+	
+		if (heap.getModule(name).isDeprecated()) {
+			__eval.getStdErr().println(imported.getLocation() + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+		}
+		return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 	}
 }
