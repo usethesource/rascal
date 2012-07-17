@@ -84,7 +84,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	// Error reporting
 	private final Stack<AbstractStackNode<P>> unexpandableNodes;
 	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes;
-	private final DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>> unmatchableMidProductionNodes; // TODO Optimize, we now need to do a linear search for every failing node in here.
+	private final DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>> unmatchableMidProductionNodes;
 	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
