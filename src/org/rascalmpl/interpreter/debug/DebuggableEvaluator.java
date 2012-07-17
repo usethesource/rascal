@@ -41,18 +41,13 @@ import org.rascalmpl.interpreter.result.Result;
  */
 public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrigger {
 	
-	protected final IDebugHandler debugHandler;
-	
 	protected final List<IRascalSuspendTriggerListener> suspendTriggerListeners;
 	
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout,
-			ModuleEnvironment moduleEnvironment, IDebugHandler debugHandler, GlobalEnvironment heap) {
+			ModuleEnvironment moduleEnvironment, GlobalEnvironment heap) {
 		super(vf, stderr, stdout, moduleEnvironment, heap);
 
 		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
-		this.debugHandler = debugHandler;
-		
-		addSuspendTriggerListener(debugHandler);
 	}
 			
 	public IConstructor parseCommand(IRascalMonitor monitor, String command){
@@ -66,7 +61,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(Statement stat) {
 		Result<IValue> result = super.eval(stat);
 		
-		debugHandler.getEventTrigger().fireIdleEvent();
+		getEventTrigger().fireIdleEvent();
 		
 		return result;
 	}
@@ -79,7 +74,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 			URI location) {
 		Result<IValue> result = super.eval(monitor, command, location);
 		
-		debugHandler.getEventTrigger().fireIdleEvent();
+		getEventTrigger().fireIdleEvent();
 		
 		return result;
 	}
@@ -91,7 +86,7 @@ public class DebuggableEvaluator extends Evaluator implements IRascalSuspendTrig
 	public Result<IValue> eval(IRascalMonitor monitor, Command command) {
 		Result<IValue> result = super.eval(monitor, command);
 
-		debugHandler.getEventTrigger().fireIdleEvent();
+		getEventTrigger().fireIdleEvent();
 		
 		return result;	
 	}

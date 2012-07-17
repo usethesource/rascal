@@ -152,6 +152,8 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	 */
 	private IRascalMonitor monitor;
 	
+	private AbstractInterpreterEventTrigger eventTrigger;	
+	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private final Stack<String> indentStack = new Stack<String>();
 	private final RascalURIResolver rascalPathResolver;
@@ -159,7 +161,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	private final URIResolverRegistry resolverRegistry;
 
 	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners;
-	private static final Object dummy = new Object();
+	private static final Object dummy = new Object();	
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalURIResolver(new URIResolverRegistry()));
@@ -219,6 +221,9 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 
 		resolverRegistry.registerInputOutput(new HomeURIResolver());
 		resolverRegistry.registerInputOutput(new TempURIResolver());
+		
+		// default event trigger to swallow events
+		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
 	@Override
@@ -1806,6 +1811,14 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	public void notifyAboutSuspension(AbstractAST currentAST) {
 		// emtpy, because {@link Evaluator) does not support debugging.
 		
+	}
+
+	public AbstractInterpreterEventTrigger getEventTrigger() {
+		return eventTrigger;
+	}
+
+	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
+		this.eventTrigger = eventTrigger;
 	}
 		
 }
