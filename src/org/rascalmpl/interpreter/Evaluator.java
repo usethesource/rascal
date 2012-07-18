@@ -1644,10 +1644,10 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 
 					int i = 0;
 					try {
-						gens[0] = conditions.get(0).getBacktracker(this);
-						gens[0].init();
 						olds[0] = getCurrentEnvt();
 						pushEnv();
+						gens[0] = conditions.get(0).getBacktracker(this);
+						gens[0].init();
 
 						while (i >= 0 && i < size) {
 

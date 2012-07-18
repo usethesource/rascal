@@ -81,10 +81,10 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 		int i = 0;
 
 		try {
-			gens[0] = generators.get(0).getBacktracker(eval);
-			gens[0].init();
 			olds[0] = eval.getCurrentEnvt();
 			eval.pushEnv();
+			gens[0] = generators.get(0).getBacktracker(eval);
+			gens[0].init();
 
 			while (i >= 0 && i < size) {
 				if (eval.__getInterrupt())
@@ -96,10 +96,10 @@ public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 						eval.pushEnv();
 					} else {
 						i++;
-						gens[i] = generators.get(i).getBacktracker(eval);
-						gens[i].init();
 						olds[i] = eval.getCurrentEnvt();
 						eval.pushEnv();
+						gens[i] = generators.get(i).getBacktracker(eval);
+						gens[i].init();
 					}
 				} else {
 					eval.unwind(olds[i]);

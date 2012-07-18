@@ -429,10 +429,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			int i = 0;
 			boolean normalCflow = false;
 			try {
-				gens[0] = generators.get(0).getBacktracker(__eval);
 				olds[0] = __eval.getCurrentEnvt();
-				gens[0].init();
 				__eval.pushEnv();
+				gens[0] = generators.get(0).getBacktracker(__eval);
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
 					if (__eval.__getInterrupt()) {
@@ -568,10 +568,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			
 			int i = 0;
 			try {
-				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
+				gens[0] = generators.get(0).getBacktracker(__eval);
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
 
@@ -643,10 +643,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			int i = 0;
 			try {
-				gens[0] = generators.get(0).getBacktracker(__eval);
-				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
+				gens[0] = generators.get(0).getBacktracker(__eval);
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
 
@@ -1054,9 +1054,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					
+					olds[0] = __eval.getCurrentEnvt();
 					gens[0] = generators.get(0).getBacktracker(__eval);
 					gens[0].init();
-					olds[0] = __eval.getCurrentEnvt();
 
 					conditions:while (i >= 0 && i < size) {
 						__eval.unwind(olds[i]);
