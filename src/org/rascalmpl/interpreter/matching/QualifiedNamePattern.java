@@ -29,10 +29,10 @@ import org.rascalmpl.interpreter.utils.Names;
 
 public class QualifiedNamePattern extends AbstractMatchingResult implements IVarPattern {
 	protected org.rascalmpl.ast.QualifiedName name;
-	private Type declaredType;
+	protected Type declaredType;
 	protected boolean anonymous = false;
-	private boolean debug = false;
-	private boolean iWroteItMySelf;
+	protected boolean debug = false;
+	protected boolean iWroteItMySelf;
 	
 	public QualifiedNamePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.ast.QualifiedName name){
 		

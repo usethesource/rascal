@@ -182,16 +182,36 @@ public class ListPattern extends AbstractMatchingResult  {
 			else if(child instanceof MultiVariablePattern){
 				MultiVariablePattern multiVar = (MultiVariablePattern) child;
 				String name = multiVar.getName();
-				if(!multiVar.isAnonymous() && allVars.contains(name)){
-					throw new RedeclaredVariableError(name, getAST());
-				}
 				varName[i] = name;
 				isListVar[i] = true;
-				if(!multiVar.isAnonymous())
+		    	nListVar++;
+
+		    	if(!multiVar.isAnonymous() && allVars.contains(name)){
+					isBindingVar[i] = false;
+				} else if(multiVar.isAnonymous()){
+					isBindingVar[i] = true;
+				} else {
 					allVars.add(name);
-				isBindingVar[i] = true;
-				listVarOccurrences[i] = 1;
-				nListVar++;
+					Result<IValue> varRes = env.getVariable(name);
+
+					if (varRes == null) {
+						isBindingVar[i] = true;
+					} else {
+						isBindingVar[i] = false;
+				        Type varType = varRes.getType();
+				        if (isAnyListType(varType)){  
+				        	if (!varType.comparable(listSubjectType)) {     
+				        		hasNext = false;
+				        		return;
+				        	}
+				        } else {
+				        	if(!(varType instanceof NonTerminalType) && !(varType.comparable(staticListSubjectElementType))) {
+				        		hasNext = false;
+				        		return;
+				        	}
+				        }
+					}
+				}
 			} else if (child instanceof ConcreteListVariablePattern) {
 				ConcreteListVariablePattern listVar = (ConcreteListVariablePattern) child;
 				String name = listVar.getName();

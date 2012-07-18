@@ -150,10 +150,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			int i = 0;
 
 			try {
-				gens[0] = producers.get(0).getBacktracker(__eval);
-				gens[0].init();
 				olds[0] = __eval.getCurrentEnvt();
 				__eval.pushEnv();
+				gens[0] = producers.get(0).getBacktracker(__eval);
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
 					if (__eval.__getInterrupt()) {
@@ -633,9 +633,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Environment old = __eval.getCurrentEnvt();
 			try {
+				__eval.pushEnv();
 				IBooleanResult gen = this.getBacktracker(__eval);
 				gen.init();
-				__eval.pushEnv();
 				if (gen.hasNext() && gen.next()) {
 					return org.rascalmpl.interpreter.result.ResultFactory.bool(
 							true, __eval);
@@ -1951,10 +1951,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> it = init.interpret(eval);
 
 			try {
-				gens[0] = generators.get(0).getBacktracker(eval);
-				gens[0].init();
 				olds[0] = eval.getCurrentEnvt();
 				eval.pushEnv();
+				gens[0] = generators.get(0).getBacktracker(eval);
+				gens[0].init();
 
 				while (i >= 0 && i < size) {
 					if (eval.__getInterrupt())
