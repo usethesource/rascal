@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.debug.IDebugMessage.Detail;
 
@@ -194,17 +193,6 @@ public final class DebugHandler implements IDebugHandler {
 
 	protected void setSuspendRequested(boolean suspendRequested) {
 		this.suspendRequested = suspendRequested;
-	}
-
-	@Override
-	public void addInterpreterEventListener(IInterpreterEventListener listener) {
-		getEventTrigger().addInterpreterEventListener(listener);
-	}
-
-	@Override
-	public void removeInterpreterEventListener(
-			IInterpreterEventListener listener) {
-		getEventTrigger().removeInterpreterEventListener(listener);
 	}
 
 	@Override

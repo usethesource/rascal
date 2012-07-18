@@ -18,7 +18,7 @@ import java.util.EventObject;
  * Interpreter event trigger template that does not 
  * specify yet how an event is fired.
  */
-public abstract class AbstractInterpreterEventTrigger {
+public abstract class AbstractInterpreterEventTrigger implements IInterpreterEventTrigger {
 
 	private Object source;
 
@@ -31,12 +31,6 @@ public abstract class AbstractInterpreterEventTrigger {
 	public AbstractInterpreterEventTrigger(Object source) {
 		this.source = source;
 	}
-
-	public abstract void addInterpreterEventListener(
-			IInterpreterEventListener listener);
-
-	public abstract void removeInterpreterEventListener(
-			IInterpreterEventListener listener);
 
 	/**
 	 * Fires a interpreter event.

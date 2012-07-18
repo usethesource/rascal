@@ -13,32 +13,12 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-
 /**
  * External debugging support interface to be in an front-end / UI.
+ * I.e. how front-end / UI can communicate with the runtime.
  */
 public interface IDebugSupport {
 
-	/*
-	 * Events.
-	 * 
-	 * Front-ends / UIs may register for interpreter events,
-	 * like e.g. started, terminated, suspended, resumed.
-	 */
-	
-	public void addInterpreterEventListener(IInterpreterEventListener listener);
-
-	public void removeInterpreterEventListener(IInterpreterEventListener listener);
-
-	
-	/*
-	 * Commands / messages.
-	 * 
-	 * Front-end's / UI's communication means to interact with 
-	 * the runtime.
-	 */
-	
 	/**
 	 * Message exchange channel between the debugger and the runtime.
 	 * 
