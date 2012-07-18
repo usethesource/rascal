@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -67,6 +68,8 @@ import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
+import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -118,7 +121,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class Evaluator implements IEvaluator<Result<IValue>> {
+public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger {
 	private final IValueFactory vf;
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	protected Environment currentEnvt;
@@ -153,6 +156,8 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	private IRascalMonitor monitor;
 	
 	private AbstractInterpreterEventTrigger eventTrigger;	
+
+	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	
 	
 	private Stack<Accumulator> accumulators = new Stack<Accumulator>();
 	private final Stack<String> indentStack = new Stack<String>();
@@ -184,6 +189,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		this.defStderr = stderr;
 		this.defStdout = stdout;
 		this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
+		this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
 		
 		updateProperties();
 
@@ -750,6 +756,10 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	/**
 	 * Evaluate a statement
 	 * 
+	 * Note, this method is not supposed to be called within another overriden
+	 * eval(...) method, because it triggers and idle event after evaluation is
+	 * done.
+	 * 
 	 * @param stat
 	 * @return
 	 */
@@ -772,6 +782,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 						profiler.report();
 					}
 				}
+				getEventTrigger().fireIdleEvent();
 			}
 		} catch (Return e) {
 			throw new UnguardedReturnError(stat);
@@ -785,6 +796,10 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	/**
 	 * Parse and evaluate a command in the current execution environment
 	 * 
+	 * Note, this method is not supposed to be called within another overriden
+	 * eval(...) method, because it triggers and idle event after evaluation is
+	 * done.
+	 * 
 	 * @param command
 	 * @return
 	 */
@@ -796,11 +811,16 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 		finally {
 			setMonitor(old);
+			getEventTrigger().fireIdleEvent();
 		}
 	}
 	
 	/**
 	 * Parse and evaluate a command in the current execution environment
+	 * 
+	 * Note, this method is not supposed to be called within another overriden
+	 * eval(...) method, because it triggers and idle event after evaluation is
+	 * done.	 
 	 * 
 	 * @param command
 	 * @return
@@ -813,6 +833,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 		finally {
 			setMonitor(old);
+			getEventTrigger().fireIdleEvent();
 		}
 	}
 
@@ -882,7 +903,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		
 		return true;
 	}
-
+	
 	@Override
 	public IConstructor parseCommand(IRascalMonitor monitor, String command, URI location) {
 		IRascalMonitor old = setMonitor(monitor);
@@ -892,7 +913,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		finally {
 			setMonitor(old);
 		}
-	}
+	}	
 	
 	private IConstructor parseCommand(String command, URI location) {
 		__setInterrupt(false);
@@ -935,6 +956,7 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 		}
 		finally {
 			setMonitor(old);
+			getEventTrigger().fireIdleEvent();
 		}
 	}
 	
@@ -1808,9 +1830,25 @@ public class Evaluator implements IEvaluator<Result<IValue>> {
 	}
 
 	@Override
+	public void addSuspendTriggerListener(IRascalSuspendTriggerListener listener) {
+		suspendTriggerListeners.add(listener);
+	}
+
+	@Override
+	public void removeSuspendTriggerListener(
+			IRascalSuspendTriggerListener listener) {
+		suspendTriggerListeners.remove(listener);
+	}
+	
+	@Override
 	public void notifyAboutSuspension(AbstractAST currentAST) {
-		// emtpy, because {@link Evaluator) does not support debugging.
-		
+		 /* 
+		  * NOTE: book-keeping of the listeners and notification takes place here,
+		  * delegated from the individual AST nodes.
+		  */
+		for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+			listener.suspended(this, currentAST);
+		}
 	}
 
 	public AbstractInterpreterEventTrigger getEventTrigger() {
