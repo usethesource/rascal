@@ -213,39 +213,42 @@ public final class DebugHandler implements IDebugHandler {
 			}
 			break;
 
-		case SUSPENSION:
-			if (message.getDetail() == Detail.CLIENT_REQUEST) {
-				setSuspendRequested(true);
-			}
-			break;
-
-		case RESUMPTION:
-			setSuspended(false);
-			
-			switch (message.getDetail()) {
-			case STEP_INTO:
-				setStepMode(DebugStepMode.STEP_INTO);
-				getEventTrigger().fireResumeByStepIntoEvent();
+		case INTERPRETER:	
+			switch (message.getAction()) {
+			case SUSPEND:
+				if (message.getDetail() == Detail.CLIENT_REQUEST) {
+					setSuspendRequested(true);
+				}
 				break;
 
-			case STEP_OVER:
-				setStepMode(DebugStepMode.STEP_OVER);
-				getEventTrigger().fireResumeByStepOverEvent();
+			case RESUME:
+				setSuspended(false);
+
+				switch (message.getDetail()) {
+				case STEP_INTO:
+					setStepMode(DebugStepMode.STEP_INTO);
+					getEventTrigger().fireResumeByStepIntoEvent();
+					break;
+
+				case STEP_OVER:
+					setStepMode(DebugStepMode.STEP_OVER);
+					getEventTrigger().fireResumeByStepOverEvent();
+					break;
+
+				case CLIENT_REQUEST:
+					setStepMode(DebugStepMode.NO_STEP);
+					getEventTrigger().fireResumeByClientRequestEvent();
+					break;
+				}
 				break;
 
-			case CLIENT_REQUEST:
-				setStepMode(DebugStepMode.NO_STEP);
-				getEventTrigger().fireResumeByClientRequestEvent();
+			case TERMINATE:
+				if (terminateAction != null) {
+					terminateAction.run();
+				}
 				break;
 			}
 			break;
-						
-		case TERMINATION:
-			if (terminateAction != null) {
-				terminateAction.run();
-			}
-			break;
-		
 		}
 	}
 		
