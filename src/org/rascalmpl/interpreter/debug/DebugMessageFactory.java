@@ -19,31 +19,31 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 public class DebugMessageFactory {
 	
 	/*
-	 * Requests.
+	 * Interpreter requests.
 	 */
 	
 	public static IDebugMessage requestSuspension() {
-		return new RequestMessage(IDebugMessage.Subject.SUSPENSION, IDebugMessage.Detail.CLIENT_REQUEST);
+		return new DebugMessage(IDebugMessage.Action.SUSPEND, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.CLIENT_REQUEST);
 	}
 	
 	public static IDebugMessage requestResumption() {
-		return new RequestMessage(IDebugMessage.Subject.RESUMPTION, IDebugMessage.Detail.CLIENT_REQUEST);
+		return new DebugMessage(IDebugMessage.Action.RESUME, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.CLIENT_REQUEST);
 	}
 	
 	public static IDebugMessage requestStepInto() {
-		return new RequestMessage(IDebugMessage.Subject.RESUMPTION, IDebugMessage.Detail.STEP_INTO);
+		return new DebugMessage(IDebugMessage.Action.RESUME, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.STEP_INTO);
 	}	
 	
 	public static IDebugMessage requestStepOver() {
-		return new RequestMessage(IDebugMessage.Subject.RESUMPTION, IDebugMessage.Detail.STEP_OVER);
+		return new DebugMessage(IDebugMessage.Action.RESUME, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.STEP_OVER);
 	}
 	
 	public static IDebugMessage requestTermination() {
-		return new RequestMessage(IDebugMessage.Subject.TERMINATION, IDebugMessage.Detail.UNKNOWN);
+		return new DebugMessage(IDebugMessage.Action.TERMINATE, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.UNKNOWN);
 	}
 	
 	/*
-	 * Breakpoints.
+	 * Breakpoint requests.
 	 */
 	
 	public static IDebugMessage requestSetBreakpoint(ISourceLocation location) {
@@ -96,18 +96,6 @@ public class DebugMessageFactory {
 			return payload;
 		}
 		
-	}
-	
-	private static class RequestMessage extends DebugMessage {
-		
-		public RequestMessage(Subject subject, Detail detail) {
-			super(IDebugMessage.Action.REQEUST, subject, detail);
-		}
-		
-		public RequestMessage(Subject subject, Detail detail, Object payload) {
-			super(IDebugMessage.Action.REQEUST, subject, detail, payload);
-		}
-
 	}	
 	
 }
