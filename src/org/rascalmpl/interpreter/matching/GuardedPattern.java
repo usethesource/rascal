@@ -53,6 +53,11 @@ public class GuardedPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
+	public boolean mayMatch(Type subjectType, Environment env) {
+		return super.mayMatch(subjectType, env) && pat.mayMatch(subjectType, env);
+	}
+	
+	@Override
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
 		
