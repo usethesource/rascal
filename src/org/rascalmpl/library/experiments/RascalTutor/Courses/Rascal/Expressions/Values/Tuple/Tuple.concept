@@ -43,11 +43,11 @@ Pitfalls:
 
 Questions:
 
-QChoice: In a tuple:
+QChoice: For a tuple:
 g: All elements may have different types.
 b: All elements should have the same type.
-g: The number of elements is not fixed.
-b: The number of elements is fixed.
+g: It's type changes with the number of elements.
+b: It's type does not change with the number of elements.
 g: The order of the elements is relevant.
 b: The order of the elements is not relevant.
 
