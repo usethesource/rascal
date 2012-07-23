@@ -1,0 +1,25 @@
+Name: createAstsFromProject
+
+Synopsis: The Rascal function that generates the ASTs from a Java project.
+
+Syntax:
+
+Types:
+
+Function: `set[AstNode] createAstsFromProject(loc project)`
+       
+Usage:
+
+Details:
+
+Description:
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
