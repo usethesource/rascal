@@ -1,0 +1,17 @@
+<AUTOINSERTED>
+Name: DOM
+Usage: `import lang::xml::DOM;`
+</AUTOINSERTED>
+
+Synopsis: Functions for reading and writing XML files.
+Description:
+[XML](http://en.wikipedia.org/wiki/XML) is a widely used markup language for encoding and exchanging documents.
+
+The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
+way of representing and manipulating HTML, XHTML and XML documents.
+
+* An optional header line consisting of field names separated by comma's.
+* One or more lines consisting of values separated by comma's.
+
+The following functions are provided:
+//<toc Rascal/Library/lang/xml 1>

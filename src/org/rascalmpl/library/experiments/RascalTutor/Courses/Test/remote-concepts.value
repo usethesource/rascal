@@ -1,1 +1,2 @@
-[<"Test/Libraries",|std:///lang/csv/IO.rsc|>]
+[<"Test/Libraries",|std:///lang/csv/IO.rsc|>,
+<"Test/Libraries",|std:///List.rsc|>]
