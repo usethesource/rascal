@@ -5,6 +5,12 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+
+//
+// TODO:
+//
+// 1. Verify that parameterized types are being converted correctly
+//
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascal::types::ConvertType
