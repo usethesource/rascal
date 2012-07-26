@@ -53,6 +53,18 @@ import XMLIO;
 import vis::Figure;
 */
 
+/*
+ * fac -- function definition for factorial
+ */
+
+public int fac(int N)
+{
+	if(N <= 0)
+		return 1;
+	else
+		return N * fac(N - 1);
+}
+
 
 data DA = A();
 data DB = B();
@@ -91,18 +103,6 @@ public int fac(DJ N) = 0;
 
 
 
-
-/*
- * fac -- function definition for factorial
- */
-
-public int fac(int N)
-{
-	if(N <= 0)
-		return 1;
-	else
-		return N * fac(N - 1);
-}
 
 
 
