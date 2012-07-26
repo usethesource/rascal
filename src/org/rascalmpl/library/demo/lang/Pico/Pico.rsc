@@ -2,6 +2,7 @@ module demo::lang::Pico::Pico
 
 import Prelude;
 import util::IDE;
+import util::ValueUI;
 
 import vis::Figure;
 import vis::Render;
