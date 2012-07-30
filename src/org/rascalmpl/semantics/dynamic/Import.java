@@ -98,7 +98,13 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				try {
 					URIResolverRegistry reg = eval.getResolverRegistry();
-					URI ur = eval.getRascalResolver().getRootForModule((URI.create("rascal://" + eval.getCurrentModuleEnvironment().getName())));
+					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
+					URI ur = null;
+					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
+						ur = URI.create("cwd:///");
+					} else {
+						ur = eval.getRascalResolver().getRootForModule((URI.create("rascal://" + moduleEnvName)));
+					}
 					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
 					String modulePath = moduleName.replaceAll("::", "/");
 					loc = loc.add(ResultFactory.makeResult(TF.stringType(), VF.string(modulePath), eval));

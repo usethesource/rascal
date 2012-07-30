@@ -34,7 +34,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JavaToRascal {
 
-	private final static String SHELL_MODULE = "$shell$";
 	private GlobalEnvironment heap = new GlobalEnvironment();
 
 	final private Evaluator evaluator;
@@ -62,7 +61,7 @@ public class JavaToRascal {
 
 	public JavaToRascal(PrintWriter stdout, PrintWriter stderr) {
 		this.evaluator = new Evaluator(vf, stderr, stdout,
-				new ModuleEnvironment(SHELL_MODULE, heap), heap);
+				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap);
 	}
 
 	public JavaToRascal(Evaluator evaluator) {
