@@ -32,8 +32,8 @@ public list[str] ascii =
 /* 009 */    "\\t", // HT    (Horizontal Tab)
 /* 010 */    "\\n", // LF    (Line Feed)
 /* 011 */  "\\a0B", // VT    (Vertical Tab)
-/* 012 */    "\\a0C", // FF    (Form Feed)
-/* 013 */    "\\a0D", // CR    (Carriage Return)
+/* 012 */  "\\a0C", // FF    (Form Feed)
+/* 013 *   "\\a0D", // CR    (Carriage Return)
 /* 014 */  "\\a0E", // SO    (Shift Out)
 /* 015 */  "\\a0F", // SI    (Shift In)
 /* 016 */  "\\a10", // DLE   (Data Link Escape)
@@ -52,7 +52,7 @@ public list[str] ascii =
 /* 029 */  "\\a1C", // GS    (Group Separator)
 /* 030 */  "\\a1D", // RS    (Reqst to Send)(Rec. Sep.)
 /* 031 */  "\\a1E", // US    (Unit Separator)
-/* 032 */     " ", // SP    (Space)
+/* 032 */      " ", // SP    (Space)
 /* 033 */      "!", //  !    (exclamation mark)
 /* 034 */   "\\\"", //  "    (double quote)
 /* 035 */      "#", //  #    (number sign)
@@ -147,7 +147,7 @@ public list[str] ascii =
 /* 124 */      "|", //  |    (vertical bar)
 /* 125 */      "}", //  }    (right/closing brace)
 /* 126 */      "~", //  ~    (tilde)
-/* 127 */  "\\a7F"  //DEL    (delete)
+/* 127 */  "\\a7F"  // DEL   (delete)
 ];
 
 @doc{
@@ -171,15 +171,13 @@ private list[str] hex = ["<i>" | i <- [0..9]] + ["A","B","C","D","E","F"];
   Creates a Rascal escaped string character from a given decimal index into the UTF8 table.
 } 
 public str makeStringChar(int ch) {
-  if(ch < 128) {
+  if(ch < 128)
      return ascii[ch];
-  }
-  
-  if (ch >= 128 && ch <= 0xFFFF) {
-    d1 = ch % 16; r1 = ch / 16;
-    d2 = r1 % 16; r2 = r1 / 16;
-    d3 = r2 % 16; r3 = r2 / 16;
-    d3 = r3;
+  elseif (ch >= 128 && ch <= 0xFFF) {
+    d1 = ch % 8; r1 = ch / 8;
+    d2 = r1 % 8; r2 = r1 / 8;
+    d3 = r2 % 8; r3 = r2 / 8;
+    d4 = r3;
     return "\\u<d4><d3><d2><d1>";
   }
        
@@ -187,7 +185,7 @@ public str makeStringChar(int ch) {
   d2 = r1 % 16; r2 = r1 / 16;
   d3 = r2 % 16; r3 = r2 / 16;
   d4 = r3 % 16; r4 = r3 / 16;
-  d5 = r4 % 15; r5 = r4 / 16;
+  d5 = r4 % 16; r5 = r4 / 16;
   d6 = r5;
   return "\\U<hex[d6]><hex[d5]><hex[d4]><hex[d3]><hex[d2]><hex[d1]>";
 }
@@ -195,7 +193,8 @@ public str makeStringChar(int ch) {
 test bool testA() = makeStringChar(97) 	== "a";
 test bool testNl() = makeStringChar(10) 	== "\\n";
 test bool testQuote() = makeStringChar(34) 	== "\\\"";
-test bool testEOF() = makeStringChar(255) == "\\377";
+test bool testEOF() = makeStringChar(255) == "\\u0377";
+test bool testHex() = makeStringChar(0xABCDEF) == "\\UABCDEF";
 
 @doc{
   Escapes the characters of the given string using the Rascal escaping conventions.
