@@ -84,6 +84,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -1685,20 +1686,61 @@ public class Prelude {
 		return values.string(TreeAdapter.yield(tree));
 	}
 	
-	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing) {
+	private IConstructor makeConstructor(String name, IEvaluatorContext ctx,  IValue ...args) {
+		IValue value = ctx.getEvaluator().call(name, args);
+		Type type = value.getType();
+		if (type.isAbstractDataType()) {
+			return (IConstructor)value;
+		}
+		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", 
+				ctx.getCurrentAST(), ctx.getStackTrace());
+	}
+	
+	private java.lang.String unescapedConsName(IConstructor tree) {
+		java.lang.String x = TreeAdapter.getConstructorName(tree);
+		if (x != null) {
+			x = x.replaceAll("\\\\", "");
+		}
+		return x;
+	}
+	
+	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+		for (Type candidate: store.lookupConstructor(type, constructorName)) {
+			// It finds the first with suitable arity, so this is inaccurate
+			// if there are overloaded constructors with the same arity
+			if (arity == candidate.getArity()) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private IValue[] implodeArgs(TypeStore store, Type type, IList args, IEvaluatorContext ctx) {
+		int length = args.length();
+		IValue implodedArgs[] = new IValue[length];
+		for (int i = 0; i < length; i++) {
+			implodedArgs[i] = implode(store, type.getFieldType(i), (IConstructor)args.get(i), false, ctx);
+		}
+		return implodedArgs;
+	}
+	
+	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
+		TypeStore store = new TypeStore();
+		Type type = tr.valueToType((IConstructor) reifiedType, store);
+		return implode(store, type, tree, false, ctx);
+	}
+
+
+	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
-			if (type.isAbstractDataType() && constructorName != null) {
+			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
-				Type cons = findConstructor(type, constructorName, 1, store);
-				if (cons != null && cons.getFieldType(0).isStringType()) {
-					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IConstructor ast = values.constructor(cons, values.string(yield));
-					return ast.setAnnotation("location", loc);
-				}
-				
+				ISourceLocation loc = TreeAdapter.getLocation(tree);
+				IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
+				return ast.setAnnotation("location", loc);
 			}
 			if (type.isIntegerType()) {
 				return values.integer(yield);
@@ -1729,7 +1771,7 @@ public class Prelude {
 			Type elementType = splicing ? type : type.getElementType();
 			IListWriter w = values.listWriter(elementType);
 			for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-				w.append(implode(store, elementType, (IConstructor) arg, false));
+				w.append(implode(store, elementType, (IConstructor) arg, false, ctx));
 			}
 			return w.done();
 		}
@@ -1749,7 +1791,7 @@ public class Prelude {
 			Type elementType = type.getElementType();
 			IListWriter w = values.listWriter(elementType);
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
-				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true);
+				IValue implodedArg = implode(store, elementType, (IConstructor) arg, true, ctx);
 				if (implodedArg instanceof IList) {
 					// splicing
 					for (IValue nextArg: (IList)implodedArg) {
@@ -1772,13 +1814,13 @@ public class Prelude {
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter(elementType);
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
-				w.insert(implode(store, elementType, (IConstructor) arg, false));
+				w.insert(implode(store, elementType, (IConstructor) arg, false, ctx));
 			}
 			return w.done();
 		}
 		
 		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), Factory.Attribute_Bracket)) {
-			return implode(store, type, (IConstructor) TreeAdapter.getASTArgs(tree).get(0), false);
+			return implode(store, type, (IConstructor) TreeAdapter.getASTArgs(tree).get(0), false, ctx);
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -1802,7 +1844,7 @@ public class Prelude {
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
-					return implode(store, type, (IConstructor) args.get(0), splicing);
+					return implode(store, type, (IConstructor) args.get(0), splicing, ctx);
 				}
 				
 				// make a tuple
@@ -1814,7 +1856,7 @@ public class Prelude {
 					throw RuntimeExceptionFactory.arityMismatch(type.getArity(), length, null, null);
 				}
 
-				return values.tuple(implodeArgs(store, type, args));
+				return values.tuple(implodeArgs(store, type, args, ctx));
 			}
 			
 			
@@ -1826,7 +1868,7 @@ public class Prelude {
 			Type cons = findConstructor(type, constructorName, length, store);
 			if (cons != null) {
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				IConstructor ast = values.constructor(cons, implodeArgs(store, cons, args));
+				IConstructor ast = makeConstructor(constructorName, ctx, implodeArgs(store, cons, args, ctx));
 				return ast.setAnnotation("location", loc);
 			}
 			
@@ -1834,40 +1876,9 @@ public class Prelude {
 		
 		throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type);
 	}
-
-	private java.lang.String unescapedConsName(IConstructor tree) {
-		java.lang.String x = TreeAdapter.getConstructorName(tree);
-		if (x != null) {
-			x = x.replaceAll("\\\\", "");
-		}
-		return x;
-	}
 	
-	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
-		for (Type candidate: store.lookupConstructor(type, constructorName)) {
-			// It finds the first with suitable arity, so this is inaccurate
-			// if there are overloaded constructors with the same arity
-			if (arity == candidate.getArity()) {
-				return candidate;
-			}
-		}
-		return null;
-	}
-
-	private IValue[] implodeArgs(TypeStore store, Type type, IList args) {
-		int length = args.length();
-		IValue implodedArgs[] = new IValue[length];
-		for (int i = 0; i < length; i++) {
-			implodedArgs[i] = implode(store, type.getFieldType(i), (IConstructor)args.get(i), false);
-		}
-		return implodedArgs;
-	}
 	
-	public IValue implode(IValue reifiedType, IConstructor tree) {
-		TypeStore store = new TypeStore();
-		Type type = tr.valueToType((IConstructor) reifiedType, store);
-		return implode(store, type, tree, false);
-	}
+	
 	
 	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
