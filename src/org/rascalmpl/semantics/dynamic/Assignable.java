@@ -324,7 +324,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			String label = org.rascalmpl.interpreter.utils.Names.name(this
 					.getField());
 
-			if (receiver == null) {
+			if (receiver == null || receiver.getValue() == null) {
 				// TODO: can this ever happen?
 				throw new UndeclaredVariableError(
 						this.getReceiver().toString(), this.getReceiver());
@@ -579,6 +579,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			Result<IValue> subscript = this.getSubscript().interpret(__eval);
 
+			if (receiver == null || receiver.getValue() == null) {
+				// TODO:can this ever happen?
+				throw new UninitializedVariableError(this.getReceiver()
+						.toString(), this.getReceiver());
+			}
+			
 			if (receiver.getType().isListType()) {
 				if (subscript.getType().isIntegerType()) {
 					IList list = (IList) receiver.getValue();
