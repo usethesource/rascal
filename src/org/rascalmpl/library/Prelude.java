@@ -1722,17 +1722,29 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
 		}
 		
+		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
-			if (!type.isListType() && !splicing) {
+			Type elementType = splicing ? type : type.getElementType();
+			
+			if (type.isListType() || splicing) {
+				IListWriter w = values.listWriter(elementType);
+				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
+					w.append(implode(store, elementType, (IConstructor) arg, false));
+				}
+				return w.done();
+			}
+			else if (type.isSetType()) {
+				ISetWriter w = values.setWriter(elementType);
+				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
+					w.insert(implode(store, elementType, (IConstructor) arg, false));
+				}
+				return w.done();
+			}
+			else {
 				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type);
 			}
-			Type elementType = splicing ? type : type.getElementType();
-			IListWriter w = values.listWriter(elementType);
-			for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-				w.append(implode(store, elementType, (IConstructor) arg, false));
-			}
-			return w.done();
 		}
+		//Changes end here
 		
 		if (TreeAdapter.isOpt(tree) && type.isBoolType()) {
 			IList args = TreeAdapter.getArgs(tree);
