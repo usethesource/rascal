@@ -75,6 +75,8 @@ public class ModuleEnvironment extends Environment {
 	protected Map<String, AbstractFunction> resourceImporters;
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
+
+	public final static String SHELL_MODULE = "$shell$";
 	
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(name);
