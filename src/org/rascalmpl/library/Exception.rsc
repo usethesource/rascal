@@ -75,4 +75,5 @@ data RuntimeException =
      | Subversion(str message)
      | StackOverflow()
      | Timeout()
+     | ImplodeError(str message)
 	 ;

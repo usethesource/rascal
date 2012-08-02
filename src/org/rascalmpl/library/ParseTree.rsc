@@ -427,6 +427,7 @@ data Exp = add(Exp, Exp);
 </listing>
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
 public java &T<:node implode(type[&T<:node] t, Tree tree);
 
 @doc{
