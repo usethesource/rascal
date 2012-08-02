@@ -21,6 +21,7 @@ import Type;
 import Relation;
 import util::Reflective;
 import DateTime;
+import String;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::checker::TreeUtils;
@@ -137,6 +138,7 @@ import lang::rascal::syntax::RascalRascal;
 // 30. Make sure we don't allow changes to the types of variables bound in pattern matches.
 //     These do not follow the same rules as other inferred vars.
 //
+// 31. addition on functions
 
 @doc{The source of a label (visit, block, etc).}
 data LabelSource = visitLabel() | blockLabel() | forLabel() | whileLabel() | doWhileLabel() | ifLabel() | switchLabel() | caseLabel() ;
@@ -1673,8 +1675,29 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
             return markLocationType(c, exp@\loc, \rel([lflds[0],rflds[1]])); 
     }
 
-    if (isFunctionType(t1) && isFunctionType(t2))
-        throw "Not yet implemented";
+    if (isFunctionType(t1) && isFunctionType(t2)) {
+        compositeArgs = getFunctionArgumentTypes(t2);
+        compositeRet = getFunctionReturnType(t1);
+        linkingArgs = getFunctionArgumentTypes(t1);
+        
+        // For f o g, f should have exactly one formal parameter
+        if (size(linkingArgs) != 1) {
+        	ft = makeFailType("In a composition of two functions the leftmost function must have exactly one formal parameter.", exp@\loc);
+        	return markLocationFailed(c, exp@\loc, ft);
+        }
+        
+        // and, that parameter must be of a type that a call with the return type of g would succeed
+        linkingArg = linkingArgs[0];
+        rightReturn = getFunctionReturnType(t2);
+        if (!subtype(rightReturn, linkingArg)) {
+        	ft = makeFailType("The return type of the right-hand function, <prettyPrintType(rightReturn)>, cannot be passed to the left-hand function, which expects type <prettyPrintType(linkingArg)>", exp@\loc);
+			return markLocationFailed(c, exp@\loc, ft);        	 
+        }
+        
+        // If both of those pass, the result type is a function with the args of t2 and the return type of t1
+		rt = Symbol::\func(compositeRet, compositeArgs);
+		return markLocationType(c, exp@\loc, rt);         
+    }
 
     return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
@@ -1705,8 +1728,40 @@ Symbol computeProductType(Symbol t1, Symbol t2, loc l) {
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> join <Expression e2>`, Configuration c) {
     < c, t1 > = checkExp(e1, c);
     < c, t2 > = checkExp(e2, c);
+
     if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
-    throw "Not yet implemented";
+
+	Symbol stripLabel(Symbol t) = (\label(s,lt) := t) ? stripLabel(lt) : t;
+	
+    if (isRelType(t1) && isRelType(t2)) {
+        list[Symbol] lflds = getRelFields(t1);
+        list[Symbol] rflds = getRelFields(t2);
+        
+        // If possible, we want to maintain the field names; check here to see if that
+        // is possible. We can when 1) both relations use field names, and 2) the names
+        // used are distinct.
+        list[str] llabels = [ s | \label(s,_) <- lflds ];
+        list[str] rlabels = [ s | \label(s,_) <- rflds ];
+        set[str] labelSet = toSet(llabels) + toSet(rlabels);
+        if (size(llabels) == size(lflds) && size(rlabels) == size(rflds) && size(labelSet) == size(llabels) + size(rlabels)) {
+        	rt = \rel(lflds+rflds);
+        	return markLocationType(c, exp@\loc, rt);
+        } else {
+        	rt = \rel([ stripLabel(t) | t <- (lflds+rflds) ]); 
+        	return markLocationType(c, exp@\loc, rt);
+        }
+    }
+
+	if (isRelType(t1) && isSetType(t2))
+		return markLocationType(c, exp@\loc, \rel( [ stripLabel(t) | t <- getRelFields(t1) ] + getSetElementType(t2) ));
+	
+	if (isSetType(t1) && isRelType(t2))
+		return markLocationType(c, exp@\loc, \rel( getSetElementType(t1) + [ stripLabel(t) | t <- getRelFields(t2) ] ));
+	
+	if (isSetType(t1) && isSetType(t2))
+		return markLocationType(c, exp@\loc, \rel([ getSetElementType(t1), getSetElementType(t2) ]));
+	
+    return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Remainder (DONE)}
