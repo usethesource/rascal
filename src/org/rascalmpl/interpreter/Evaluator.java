@@ -80,6 +80,7 @@ import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -780,6 +781,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 					if (profiler != null) {
 						profiler.pleaseStop();
 						profiler.report();
+						profiler = null;
 					}
 				}
 				getEventTrigger().fireIdleEvent();
@@ -978,6 +980,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
+					profiler = null;
 				}
 			}
 		}
@@ -997,6 +1000,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 				if (profiler != null) {
 					profiler.pleaseStop();
 					profiler.report();
+					profiler = null;
 				}
 			}
 		}
@@ -1829,6 +1833,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.curStdout = null;
 	}
 
+	public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues) {
+		if (Evaluator.doProfiling && profiler == null) {
+			profiler = new Profiler(this);
+			profiler.start();
+			try {
+				return fun.call(monitor, argTypes, argValues);
+			} finally {
+				if (profiler != null) {
+					profiler.pleaseStop();
+					profiler.report();
+					profiler = null;
+				}
+			}
+		}
+		else {
+			return fun.call(monitor, argTypes, argValues);
+		}
+	}
+	
 	@Override
 	public void addSuspendTriggerListener(IRascalSuspendTriggerListener listener) {
 		suspendTriggerListeners.add(listener);
@@ -1859,4 +1882,5 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		this.eventTrigger = eventTrigger;
 	}
 		
+
 }
