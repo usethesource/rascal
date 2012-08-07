@@ -272,39 +272,42 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.__getAccumulators().push(
 					new Accumulator(__eval.__getVf(), label));
 			IValue value = null;
-			while (true) {
-				try {
+			try {
+				while (true) {
 					try {
-						body.interpret(__eval);
-					}
-					catch (BreakException e) {
-						value = __eval.__getAccumulators().pop().done();
-						return org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(value.getType(), value, __eval);
-					}
-					catch (ContinueException e) {
-						// just continue;
-					}
-
-					gen = generator.getBacktracker(__eval);
-					gen.init();
-					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
-					}
-					if (!(gen.hasNext() && gen.next())) {
-						value = __eval.__getAccumulators().pop().done();
-						return org.rascalmpl.interpreter.result.ResultFactory
-								.makeResult(value.getType(), value, __eval);
-					}
-				} finally {
-					__eval.unwind(old);
-					if (value == null) {
-						// make sure to pop the accumulators even in the case of exceptions
-						__eval.__getAccumulators().pop().done();
+						try {
+							body.interpret(__eval);
+						}
+						catch (BreakException e) {
+							value = __eval.__getAccumulators().pop().done();
+							return org.rascalmpl.interpreter.result.ResultFactory
+									.makeResult(value.getType(), value, __eval);
+						}
+						catch (ContinueException e) {
+							// just continue;
+						}
+	
+						gen = generator.getBacktracker(__eval);
+						gen.init();
+						if (__eval.__getInterrupt()) {
+							throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
+						}
+						if (!(gen.hasNext() && gen.next())) {
+							value = __eval.__getAccumulators().pop().done();
+							return org.rascalmpl.interpreter.result.ResultFactory
+									.makeResult(value.getType(), value, __eval);
+						}
+					} finally {
+						__eval.unwind(old);
 					}
 				}
 			}
-
+			finally {
+				if (value == null) {
+					// make sure to pop the accumulators even in the case of exceptions
+					__eval.__getAccumulators().pop().done();
+				}
+			}
 		}
 
 	}
@@ -1044,97 +1047,101 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			__eval.__getAccumulators().push(
 					new Accumulator(__eval.__getVf(), label));
-
-			// a while statement is different from a for statement, the body of
-			// the while can influence the
-			// variables that are used to test the condition of the loop
-			// while does not iterate over all possible matches, rather it
-			// produces every time the first match
-			// that makes the condition true
-			loop: while (true) {
-				int i = 0;
-				try {
-					if (__eval.__getInterrupt()) {
-						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
-					}
-					
-					olds[0] = __eval.getCurrentEnvt();
-					gens[0] = generators.get(0).getBacktracker(__eval);
-					gens[0].init();
-
-					conditions:while (i >= 0 && i < size) {
-						__eval.unwind(olds[i]);
-						__eval.pushEnv();
-
+			try {
+				// a while statement is different from a for statement, the body of
+				// the while can influence the
+				// variables that are used to test the condition of the loop
+				// while does not iterate over all possible matches, rather it
+				// produces every time the first match
+				// that makes the condition true
+				loop: while (true) {
+					int i = 0;
+					try {
 						if (__eval.__getInterrupt()) {
 							throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 						}
-						if (gens[i].hasNext() && gens[i].next()) {
-							if (i == size - 1) {
-								__eval.setCurrentAST(body);
-								
-								try {
-									body.interpret(__eval);
-									continue loop;
-								}
-								catch (Failure e) {
-									// try next assignment of generators!
-									// TODO: failure should undo assignment
-									if (!e.hasLabel() && getLabel().isEmpty()) { 
-										continue conditions;
-									}
-									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
-										continue conditions;
-									}
-
-									throw e;
-								}
-								catch (ContinueException e) {
-									// try next assignment of generators!
-									if (!e.hasLabel() && getLabel().isEmpty()) { 
+						
+						olds[0] = __eval.getCurrentEnvt();
+						gens[0] = generators.get(0).getBacktracker(__eval);
+						gens[0].init();
+	
+						conditions:while (i >= 0 && i < size) {
+							__eval.unwind(olds[i]);
+							__eval.pushEnv();
+	
+							if (__eval.__getInterrupt()) {
+								throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
+							}
+							if (gens[i].hasNext() && gens[i].next()) {
+								if (i == size - 1) {
+									__eval.setCurrentAST(body);
+									
+									try {
+										body.interpret(__eval);
 										continue loop;
 									}
-									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
-										continue loop;
+									catch (Failure e) {
+										// try next assignment of generators!
+										// TODO: failure should undo assignment
+										if (!e.hasLabel() && getLabel().isEmpty()) { 
+											continue conditions;
+										}
+										else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+											continue conditions;
+										}
+	
+										throw e;
 									}
-
-									throw e;
+									catch (ContinueException e) {
+										// try next assignment of generators!
+										if (!e.hasLabel() && getLabel().isEmpty()) { 
+											continue loop;
+										}
+										else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+											continue loop;
+										}
+	
+										throw e;
+									}
+									catch (BreakException e) {
+										if (!e.hasLabel() && getLabel().isEmpty()) { 
+											value = __eval.__getAccumulators().pop().done();
+											return org.rascalmpl.interpreter.result.ResultFactory
+													.makeResult(value.getType(), value, __eval);
+										}
+										else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
+											value = __eval.__getAccumulators().pop().done();
+											return org.rascalmpl.interpreter.result.ResultFactory
+													.makeResult(value.getType(), value, __eval);
+										}
+	
+										throw e;
+									}
 								}
-								catch (BreakException e) {
-									if (!e.hasLabel() && getLabel().isEmpty()) { 
-										value = __eval.__getAccumulators().pop().done();
-										return org.rascalmpl.interpreter.result.ResultFactory
-												.makeResult(value.getType(), value, __eval);
-									}
-									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
-										value = __eval.__getAccumulators().pop().done();
-										return org.rascalmpl.interpreter.result.ResultFactory
-												.makeResult(value.getType(), value, __eval);
-									}
-
-									throw e;
+								else {
+									i++;
+									gens[i] = generators
+											.get(i).getBacktracker(__eval);
+									gens[i].init();
+									olds[i] = __eval.getCurrentEnvt();
 								}
+							} else {
+								i--;
 							}
-							else {
-								i++;
-								gens[i] = generators
-										.get(i).getBacktracker(__eval);
-								gens[i].init();
-								olds[i] = __eval.getCurrentEnvt();
-							}
-						} else {
-							i--;
 						}
+					} finally {
+						__eval.unwind(old);
 					}
-				} finally {
-					__eval.unwind(old);
-					if (value == null) {
-						// make sure to always pop the accumulator when not popped yet
-						value = __eval.__getAccumulators().pop().done();
-					}
+					value = __eval.__getAccumulators().pop().done();
+					return org.rascalmpl.interpreter.result.ResultFactory
+							.makeResult(value.getType(), value, __eval);
 				}
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(value.getType(), value, __eval);
+			}
+			finally	 {
+				if (value == null) {
+					// make sure to always pop the accumulator when it hasn't been popped yet
+					__eval.__getAccumulators().pop().done();
+				}
 			}
 
 		}
