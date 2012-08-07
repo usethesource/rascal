@@ -28,6 +28,8 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.junit.After;
+import static org.junit.Assert.assertTrue;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -131,6 +133,15 @@ public class TestFramework {
 		root.reset();
 		
 		modules.reset();
+		
+		evaluator.getAccumulators().clear();
+	}
+	
+	@After
+	public void assureEvaluatorIsSane() {
+		assertTrue(evaluator.getCurrentEnvt().isRootScope());
+		assertTrue(evaluator.getCurrentEnvt().isRootStackFrame());
+		assertTrue("When we are at the root scope and stack frame, the accumulators should be empty as well", evaluator.getAccumulators().empty());
 	}
 
 	public boolean runTest(String command) {
