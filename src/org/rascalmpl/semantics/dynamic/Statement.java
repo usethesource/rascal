@@ -271,14 +271,14 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			__eval.__getAccumulators().push(
 					new Accumulator(__eval.__getVf(), label));
-
+			IValue value = null;
 			while (true) {
 				try {
 					try {
 						body.interpret(__eval);
 					}
 					catch (BreakException e) {
-						IValue value = __eval.__getAccumulators().pop().done();
+						value = __eval.__getAccumulators().pop().done();
 						return org.rascalmpl.interpreter.result.ResultFactory
 								.makeResult(value.getType(), value, __eval);
 					}
@@ -292,12 +292,16 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					}
 					if (!(gen.hasNext() && gen.next())) {
-						IValue value = __eval.__getAccumulators().pop().done();
+						value = __eval.__getAccumulators().pop().done();
 						return org.rascalmpl.interpreter.result.ResultFactory
 								.makeResult(value.getType(), value, __eval);
 					}
 				} finally {
 					__eval.unwind(old);
+					if (value == null) {
+						// make sure to pop the accumulators even in the case of exceptions
+						__eval.__getAccumulators().pop().done();
+					}
 				}
 			}
 
@@ -1019,7 +1023,8 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
+			IValue value = null;
+			
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 
@@ -1046,7 +1051,6 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			// while does not iterate over all possible matches, rather it
 			// produces every time the first match
 			// that makes the condition true
-
 			loop: while (true) {
 				int i = 0;
 				try {
@@ -1098,12 +1102,12 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 								}
 								catch (BreakException e) {
 									if (!e.hasLabel() && getLabel().isEmpty()) { 
-										IValue value = __eval.__getAccumulators().pop().done();
+										value = __eval.__getAccumulators().pop().done();
 										return org.rascalmpl.interpreter.result.ResultFactory
 												.makeResult(value.getType(), value, __eval);
 									}
 									else if (!getLabel().isEmpty() && e.getLabel().equals(Names.name(getLabel().getName()))) {
-										IValue value = __eval.__getAccumulators().pop().done();
+										value = __eval.__getAccumulators().pop().done();
 										return org.rascalmpl.interpreter.result.ResultFactory
 												.makeResult(value.getType(), value, __eval);
 									}
@@ -1124,8 +1128,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					}
 				} finally {
 					__eval.unwind(old);
+					if (value == null) {
+						// make sure to always pop the accumulator when not popped yet
+						value = __eval.__getAccumulators().pop().done();
+					}
 				}
-				IValue value = __eval.__getAccumulators().pop().done();
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(value.getType(), value, __eval);
 			}
