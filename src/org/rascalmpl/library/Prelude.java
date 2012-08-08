@@ -1738,9 +1738,16 @@ public class Prelude {
 			if (constructorName != null) {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
-				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
-				return ast.setAnnotation("location", loc);
+				if (!type.isAbstractDataType()) {
+					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor should match with abstract data type and not with " + type);
+				}
+				Type cons = findConstructor(type, constructorName, 1, store);
+				if (cons != null) {
+					ISourceLocation loc = TreeAdapter.getLocation(tree);
+					IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
+					return ast.setAnnotation("location", loc);
+				}
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type);
 			}
 			if (type.isIntegerType()) {
 				return values.integer(yield);
@@ -1755,7 +1762,7 @@ public class Prelude {
 				if (yield.equals("false")) {
 					return values.bool(false);
 				}
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "bool type does not match with " + yield);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield);
 			}
 			if (type.isStringType()) {
 				return values.string(yield);
