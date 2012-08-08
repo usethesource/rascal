@@ -14,7 +14,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.test;
+package org.rascalmpl.test.infrastructure;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

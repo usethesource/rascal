@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 
 import org.junit.Test;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class MathTests extends TestFramework {

@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ImportTests extends TestFramework {
 	
