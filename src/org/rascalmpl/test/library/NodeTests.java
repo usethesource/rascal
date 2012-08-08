@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import org.junit.Test;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class NodeTests extends TestFramework {
