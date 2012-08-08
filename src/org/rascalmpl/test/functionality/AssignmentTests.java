@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class AssignmentTests extends TestFramework {

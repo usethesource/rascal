@@ -19,7 +19,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class AnnotationTests extends TestFramework{

@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class TryCatchTests extends TestFramework {
 	

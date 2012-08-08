@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class ScopeTests extends TestFramework {
 	

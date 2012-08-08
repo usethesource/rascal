@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
-import org.rascalmpl.test.TestFramework;
+import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class DeclarationTests extends TestFramework {
 	@Test
