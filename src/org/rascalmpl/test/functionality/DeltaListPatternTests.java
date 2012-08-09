@@ -15,16 +15,14 @@ package org.rascalmpl.test.functionality;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 public class DeltaListPatternTests extends TestFramework {
 	
-	/*
-	 * Warning: these tests only work with a fixed delta=2 in AbstractPatternList
-	 */
-	
 	@Test
+	@Ignore("Set delta=2 in ListPattern to actually run these tests")
 	public void matchListDelta2() {
 		
 
