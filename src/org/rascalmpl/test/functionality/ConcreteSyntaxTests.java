@@ -337,6 +337,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Evar1Typed(){
 		prepare("import GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := ({E \",\"}+) `e, e` && Xs == ({E \",\"}+)  `e, e`;}"));
@@ -349,12 +350,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void NoStarSubjectToPlusVar(){
 		prepare("import GrammarABCDE;");
 		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := ({E \",\"}*) ``;"));
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void plusListShouldNotMatchEmptyList() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -362,6 +365,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void starListPatternShouldMatchPlusListSubject() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -369,6 +373,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void plusListPatternShouldMatchPStarListSubjectIfNotEmpty() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -376,6 +381,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void plusListPatternShouldNotMatchPStarListSubjectIfEmpty() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -390,6 +396,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparatorsAndBindToEmptyList() {
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -397,6 +404,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void emptySepListShouldSpliceCorrectly(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -404,6 +412,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Evars2Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -419,6 +428,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Evars3Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -434,6 +444,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void EvarsTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -441,6 +452,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void EvarsTypedInsert1(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -448,6 +460,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void EvarsTypedInsert1Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -455,6 +468,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void EvarsTypedInsert2(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -484,6 +498,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorDs1Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -491,6 +506,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorDsUnyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -498,6 +514,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorDsTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -512,6 +529,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorEs1Typed(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -519,6 +537,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorEsUntyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -526,6 +545,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorEsTyped(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -533,6 +553,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void EvarsTypedInsert3Empty(){
 		prepare("import GrammarABCDE;");
 		prepareMore("import ParseTree;");
@@ -561,6 +582,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico4(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -568,6 +590,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico5(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -575,6 +598,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico6(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -582,6 +606,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico7a(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -590,6 +615,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico7b(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -598,6 +624,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico7c(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -606,6 +633,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void Pico8(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -646,6 +674,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted3(){
 		prepareModule("M", QmoduleM + "public bool match3() { return `begin <decls> <stats> end` := t1; }\n");
 		prepareMore("import ParseTree;");
@@ -654,6 +683,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted4(){
 		prepareModule("M", QmoduleM + "public bool match4() { return `begin <Decls decls> <stats> end` := t1; }");
 		prepareMore("import ParseTree;");
@@ -670,6 +700,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted6(){
 		prepareModule("M", QmoduleM + "public bool match6() { return `begin <Decls decls> <{Statement \";\"}* stats> end` := t1; }");
 		prepareMore("import ParseTree;");
@@ -678,6 +709,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted7(){
 		prepareModule("M", QmoduleM + "public bool match7() { return ` begin declare <{IdType \",\" }* decls>; <{Statement \";\"}* Stats> end ` := t1; }");
 		prepareMore("import ParseTree;");
@@ -686,6 +718,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoQuoted8(){
 		prepareModule("M", QmoduleM + "public bool match8() { return ` declare <{IdType \",\" }* decls>; ` := t2; }");
 		prepareMore("import ParseTree;");
@@ -699,6 +732,7 @@ public class ConcreteSyntaxTests extends TestFramework {
     "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 
 	@Test(expected=StaticError.class) // Directly antiquoting without quotes not allowed.
+	@Ignore("Functionality subject to future/current change")
 	public void PicoUnQuoted1(){
 		prepareModule("M", UQmoduleM + "public bool match1() { return <Program program> := t1; }\n");
 		prepareMore("import ParseTree;");
@@ -707,6 +741,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void PicoUnQuoted2(){
 		prepareModule("M", UQmoduleM + "public bool match2() { return Program program := t1; }\n");
 		prepareMore("import ParseTree;");
@@ -747,6 +782,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatement1Untyped(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -754,6 +790,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatement1Typed(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -761,6 +798,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsUntyped(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -768,6 +806,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsTyped(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -775,6 +814,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern1(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -782,6 +822,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern2(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -789,6 +830,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern3(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -796,6 +838,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void enumeratorPicoStatementsConcretePattern4(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -803,6 +846,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void forPicoStatementsTyped1(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
@@ -817,6 +861,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
+	@Ignore("Functionality subject to future/current change")
 	public void forPicoStatementsTyped3(){
 		prepare("import lang::pico::syntax::Main;");
 		prepareMore("import ParseTree;");
