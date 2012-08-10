@@ -256,7 +256,7 @@ public class SymbolAdapter {
 		}
 		
 		if (isMap(symbol)) {
-			return symbol.getName() + "[" + toString((IConstructor) symbol.get("key")) + "," + toString((IConstructor) symbol.get("value")) + "]";
+			return symbol.getName() + "[" + toString((IConstructor) symbol.get("from")) + "," + toString((IConstructor) symbol.get("to")) + "]";
 		}
 		
 		
