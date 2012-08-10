@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -132,7 +133,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				return importModule(this.getName(), eval);
 			} else {
-				throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), eval.getStackTrace());
+				throw new UndeclaredModuleProvider(resourceScheme, eval.getCurrentAST());
 			}
 		}
 		
