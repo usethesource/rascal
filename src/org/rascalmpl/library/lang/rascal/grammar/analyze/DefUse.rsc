@@ -1,6 +1,6 @@
 module lang::rascal::grammar::analyze::DefUse
 
-import Grammar;
+import analysis::grammars::Grammar;
 import ParseTree;
 
 private bool definable(Symbol s) {

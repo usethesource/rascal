@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl}
 
-module util::Dot
+module lang::dot::Dot
 import IO;
 import String;
 import Set;

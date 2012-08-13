@@ -224,19 +224,6 @@ public rel[&T0, &T1, &T2, &T3, &T4] complement(rel[&T0, &T1, &T2, &T3, &T4] R)
                                  &T4 V4 <- R<4>, <V0, V1, V2, V3, V4> notin R};
 }
 
-
-@doc{
-Synopsis: Compute a distribution: count how many times events are mapped to which bucket.
-}
-public map[&T, int] distribution(rel[&U event, &T bucket] input) {
-  map[&T,int] result = ();
-  for (<&U event, &T bucket> <- input) {
-    result[bucket]?0 += 1;
-  }
-  
-  return result;
-}
-
 @doc{
 Synopsis: Domain of a  relation: a set consisting of the first element of each tuple.
 

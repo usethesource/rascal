@@ -11,7 +11,7 @@ module Mrange
 
 import Set;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 
 set[int] R = range({<1,10>,<2,20>});
 

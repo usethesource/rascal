@@ -6,7 +6,7 @@ import Relation;
 import IO;
 import Node;
 import Set;
-import util::Dot;
+import lang::dot::Dot;
 
 public DotGraph toDot(loc input) {
       str a = readFile(input);

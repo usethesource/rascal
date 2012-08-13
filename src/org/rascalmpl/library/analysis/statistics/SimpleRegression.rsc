@@ -9,7 +9,7 @@ Returns the [intercept](http://en.wikipedia.org/wiki/Root_of_a_function) of the 
 The least squares estimate of the intercept is computed using these [normal equations](http://www.xycoon.com/estimation4.htm).
 }
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num intercept(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -17,7 +17,7 @@ Synopsis: Standard error of intercept estimate.
 Description:
 Returns the [standard error of the intercept estimate](http://www.xycoon.com/standarderrorb0.htm), usually denoted s(b0).
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num interceptStdErr(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -27,7 +27,7 @@ Description:
 
 Returns the sum of squared errors divided by the degrees of freedom, usually abbreviated MSE.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num meanSquareError(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -37,7 +37,7 @@ Description:
 Computes Pearson's product-moment correlation coefficient.
 More functions related to this coefficient can be found in [Correlation].
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num R(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -48,7 +48,7 @@ Description:
 Returns the sum of squared deviations of the predicted y values about their mean (which equals the mean of y).
 This is usually abbreviated SSR or [SSM](http://www.xycoon.com/SumOfSquares.htm).
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionSumSquares(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -58,7 +58,7 @@ Description:
 Returns the [coefficient of determination](http://en.wikipedia.org/wiki/Coefficient_of_determination) usually denoted r$^2$.
 It provides a measure of how well future outcomes are likely to be predicted by the regression model.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num RSquare(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -72,7 +72,7 @@ Pitfalls:
 The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
 [Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution).
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num significance(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -82,7 +82,7 @@ Returns the slope of the estimated regression line.
 The least squares estimate of the slope is computed using the [normal equations](http://www.xycoon.com/estimation4.htm).
 The slope is sometimes denoted b1.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num slope(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -101,7 +101,7 @@ The validity of this statistic depends on the assumption that the observations i
 [Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution).
 
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num slopeConfidenceInterval(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -110,7 +110,7 @@ Description:
 
 Returns the [standard error of the slope estimate](http://www.xycoon.com/standarderrorb0.htm), usually denoted s(b1).
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num slopeStdErr(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -119,7 +119,7 @@ Description:
 
 Returns the sum of crossproducts, x$_i$*y$_i$.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num sumOfCrossProducts(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -135,7 +135,7 @@ where SYY is the sum of the squared deviations of the y values about their mean,
 
 The return value is constrained to be non-negative, i.e., if due to rounding errors the computational formula returns a negative result, 0 is returned.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num sumSquaredErrors(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -146,7 +146,7 @@ Returns the sum of squared deviations of the y values about their mean.
 This is defined as [SSTO](http://www.xycoon.com/SumOfSquares.htm).
 
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num totalSumSquares(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -156,7 +156,7 @@ Description:
 
 Returns the sum of squared deviations of the x values about their mean.
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num XSumSquares(list[tuple[num,num]] values) throws IllegalArgument(value v, str message);
 
 @doc{
@@ -167,7 +167,7 @@ Returns the "predicted" `y` value associated with the supplied `x` value, based 
 
 `predict(x) = intercept + slope * x`
 }
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num predict(list[tuple[num,num]] values, num x) throws IllegalArgument(value v, str message);
 
 
@@ -175,43 +175,43 @@ public java num predict(list[tuple[num,num]] values, num x) throws IllegalArgume
 -- regression only in V3.0
 
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionAdjustedRSquared(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionCoVarianceOfParameters(list[tuple[num,num]] values, int i, j);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionErrorSumSquares(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionMeanSquareError(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionN(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionNumberOfParameters(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionParameterEstimate(list[tuple[num,num]] values, int i);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java list[num] regressionParameterEstimates(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionSumSquares(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionRSquared(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionStdErrorOfEstimate(list[tuple[num,num]] values, int index);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java list[num] regressionStdErrorOfEstimates(list[tuple[num,num]] values);
 
-@javaClass{org.rascalmpl.library.stat.SimpleRegressions}
+@javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionTotalSumSquares(list[tuple[num,num]] values);
 
 */

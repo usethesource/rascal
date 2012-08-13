@@ -1,4 +1,4 @@
-package org.rascalmpl.library.stat;
+package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.regression.SimpleRegression;

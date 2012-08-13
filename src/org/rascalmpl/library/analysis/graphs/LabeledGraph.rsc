@@ -8,9 +8,9 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-module util::LabeledGraph
+module analysis::graphs::LabeledGraph
 
-import Graph;
+import analysis::graphs::Graph;
 import Set;
 import Relation;
 import IO;

@@ -12,19 +12,19 @@ Pitfalls: Pearson's correlation can only be applied when there is a __linear dep
 Use [SpearmansCorrelation] when there is a __monotonous dependence__ between the two variables.
 
 }
-@javaClass{org.rascalmpl.library.stat.Correlations}
+@javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num PearsonsCorrelation(list[tuple[num x,num y]] values);
 
 @doc{
 Synopsis: Standard errors associated with Pearson correlation. 
 }
-@javaClass{org.rascalmpl.library.stat.Correlations}
+@javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java list[real] PearsonsCorrelationStandardErrors(list[tuple[num x,num y]] values);
 
 @doc{
 Synopsis: P-values (significance) associated with Pearson correlation.
 }
-@javaClass{org.rascalmpl.library.stat.Correlations}
+@javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java list[real] PearsonsCorrelationPValues(list[tuple[num x,num y]] values);
 
 @doc{
@@ -39,7 +39,7 @@ on the data values using a natural ranking and then computing [PearsonsCorrelati
 Pitfalls: Spearman's correlation can only be applied when there is a __monotonous dependence__ between the two variables.
 Use [PearsonsCorrelation] when there is a __linear dependence__ between the variables.
 }
-@javaClass{org.rascalmpl.library.stat.Correlations}
+@javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num SpearmansCorrelation(list[tuple[num x,num y]] values);
 
 @doc{
@@ -55,5 +55,5 @@ import stat::Correlation;
 covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
 </screen>
 }
-@javaClass{org.rascalmpl.library.stat.Correlations}
+@javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num covariance(list[tuple[num x,num y]] values);

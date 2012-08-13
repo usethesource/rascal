@@ -1,4 +1,4 @@
-package org.rascalmpl.library.stat;
+package org.rascalmpl.library.analysis.statistics;
 
 import java.util.ArrayList;
 import java.util.Collection;

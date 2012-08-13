@@ -23,7 +23,7 @@ import DateTime;
 import Exception;
 import FileSystem;
 import Grammar;
-import Graph;
+import  analysis::graphs::Graph;
 import HTMLIO;
 import Integer;
 import Javac;
