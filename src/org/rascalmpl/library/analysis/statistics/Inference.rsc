@@ -18,7 +18,7 @@ chiSquare([<50, 44>, <50, 56>])
 </screen>
 
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num chiSquare(list[tuple[num expected, int observed]] values);
 
 @doc{
@@ -35,10 +35,10 @@ comparing observed frequency counts to expected counts.
 #  Performs a Chi-square goodness of fit test evaluating the null hypothesis that the observed counts conform to the frequency distribution described by the expected counts, with significance level `alpha` (0 < `alpha` < 0.5). Returns true iff the null hypothesis
 can be rejected with confidence 1 - `alpha`.
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num chiSquareTest(list[tuple[num expected, int observed]] values);
 
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool chiSquareTest(list[tuple[num expected, int observed]] values, real alpha);
 
 @doc{
@@ -86,13 +86,13 @@ tTest(s1,s2,0.50);
 </screen>
 
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num tTest(list[num] sample1, list[num] sample2);
 
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool tTest(list[num] sample1, list[num] sample2, num alpha);
 
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool tTest(num mu, list[num] sample, num alpha);
 
 
@@ -114,7 +114,7 @@ where
 
 are as defined [here](http://faculty.vassar.edu/lowry/ch13pt1.html).
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaFValue(list[list[num]] categoryData);
 
 @doc{
@@ -128,7 +128,7 @@ also described [here](http://www.statsoft.com/textbook/anova-manova/).
 Computes the exact p-value using the formula `p = 1 - cumulativeProbability(F)`
 where `F` is the [anovaFValue].
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaPValue(list[list[num]] categoryData);
 
 @doc{
@@ -144,7 +144,7 @@ Returns true iff the estimated p-value is less than `alpha` (0 < `alpha` <= 0.5)
 The exact p-value is computed using the formula `p = 1 - cumulativeProbability(F)`
 where `F` is the [anovaFValue].
 }
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool anovaTest(list[list[num]] categoryData, num alpha);
 
 
@@ -170,6 +170,6 @@ gini([<998000, 1>, <20000, 3>, <117500, 1>, <70000, 2>, <23500, 5>, <45200,1>]);
 </screen>
 }
 
-@javaClass{org.rascalmpl.library.stat.Inferences}
+@javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java real gini(list[tuple[num observation,int frequency]] values);
 

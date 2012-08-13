@@ -18,7 +18,7 @@ import Set;
 import List;
 import Relation;
 import Map;
-import Graph;
+import  analysis::graphs::Graph;
 import IO;
 import ValueIO;
 import DateTime;

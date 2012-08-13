@@ -21,7 +21,7 @@ on [$Values/Relation] are also defined on Graph.
 The `Graph` library provides the following functions:
 <toc Rascal/Libraries/Prelude/Graph 1>
 }
-module Graph
+module analysis::graphs::Graph
 
 import Set;
 import Relation;
@@ -34,7 +34,7 @@ Synopsis: Compute topological order of the nodes in a graph.
 
 Examples:
 <screen>
-import Graph;
+import  analysis::graphs::Graph;
 order({<3,4>, <1,2>, <2,4>, <1,3>});
 </screen>
 }
@@ -57,7 +57,7 @@ Returns the bottom nodes of Graph `G`, i.e., the leaf nodes that don't have any 
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 bottom({<1,2>, <1,3>, <2,4>, <3,4>});
 </screen>
 }
@@ -74,7 +74,7 @@ Returns the direct predecessors of node `From` in Graph `G`.
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4);
 </screen>
 }
@@ -111,7 +111,7 @@ in set `Start` using path that only use nodes in the set `Restr`.
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {1, 2, 3});
 </screen>
 }
@@ -129,7 +129,7 @@ in `Start` via path that exclude nodes in `Excl`.
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2});
 </screen>
 }
@@ -226,7 +226,7 @@ Returns the direct successors of node `From` in Graph `G`.
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1);
 </screen>
 }
@@ -243,7 +243,7 @@ Returns the top nodes of Graph `G`, i.e., the root nodes that do not have any pr
 
 Examples:
 <screen>
-import Graph;
+import analysis::graphs::Graph
 top({<1,2>, <1,3>, <2,4>, <3,4>});
 </screen>
 }

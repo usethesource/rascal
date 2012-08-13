@@ -13,7 +13,7 @@ module RSF::RSFCalls
 import Relation;
 import util::Math;
 import Set;
-import Graph;
+import  analysis::graphs::Graph;
 import lang::rsf::IO;
 import IO;
 import util::Benchmark;

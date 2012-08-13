@@ -16,7 +16,7 @@ import Message;
 import List;
 import Set;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 import Grammar;
 import lang::rascal::format::Grammar;
 import lang::rascal::format::Escape;

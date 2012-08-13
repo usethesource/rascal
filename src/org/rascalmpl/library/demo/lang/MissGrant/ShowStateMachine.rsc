@@ -12,7 +12,7 @@ import IO;
 import util::Resources;
 import vis::Render;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 import Set;
 
 public Figure stateMachineGraph(TransRel trans,str init,str state){

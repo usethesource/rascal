@@ -10,7 +10,7 @@
 @bootstrapParser
 module experiments::RascalTutor::CourseModel
 
-import Graph;
+import  analysis::graphs::Graph;
 import List;
 import Map;
 import Set;

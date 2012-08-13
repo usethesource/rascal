@@ -50,7 +50,7 @@ normalize(LLConstraints constraints, LLObjectiveFun f){
 	return <constraints, f>;
 }
 
-@javaClass{org.rascalmpl.library.util.LinearProgramming}
+@javaClass{org.rascalmpl.library.analysis.linearprogramming.LinearProgramming}
 public java Maybe[LLSolution] 
 llOptimize(bool minimize, bool nonZero, 
 		   LLConstraints constraints, LLObjectiveFun f);

@@ -6,9 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 // High level linear programming interface
-module util::LinearProgramming
+module analysis::linearprogramming::LinearProgramming
 
-import util::LLLinearProgramming;
+import analysis::linearprogramming::LLLinearProgramming;
 import List;
 import util::Maybe;
 import Set;

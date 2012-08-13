@@ -16,7 +16,7 @@ import List;
 import Set;
 import Map;
 import IO;
-import Graph;
+import  analysis::graphs::Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
 import experiments::RascalTutor::CourseManager;

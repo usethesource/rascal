@@ -11,7 +11,7 @@ module demo::Dominators
 
 import Set;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 
 /*
  *  A dominator tree describes the dominance relationship between nodes in a control flow graph
