@@ -386,7 +386,7 @@ Synopsis: Return the remainder of dividing the numerator by the denominator.
 public java int remainder(rat n);
 
 @doc{
-Synopsis: Round a number to the nearest integer.
+Synopsis: Round a number to the nearest multiple of a given number (default 1).
 
 Examples:
 <screen>
@@ -397,10 +397,32 @@ round(3.6);
 round(-3.4);
 round(-3.5);
 round(-3.6);
+round(13, 5);
+round(1.5,0.2);
+round(3r2,1r4);
 </screen>
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java int round(num d);
+
+public int round(int i, int nearest) = round(i / (nearest * 1.0)) * nearest;
+
+public real round(real r, real nearest) = round(r / nearest) * nearest;
+
+public rat round(rat r, rat nearest) = round(r / nearest) * nearest;
+
+@doc{
+Synopsis: Compute the ratio between two numbers as a percentage.
+
+Examples:
+<screen>
+import util::Math;
+percent(1r4, 1);
+percent(13,250);
+percent(80.0,160.0);
+</screen>
+}
+public int percent(num part, num whole) = round((part / (whole * 1.0)) * 100);
 
 @doc{
 Synopsis: Calculate the sine of a numeric value.
