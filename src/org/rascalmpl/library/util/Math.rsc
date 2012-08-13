@@ -404,12 +404,7 @@ round(3r2,1r4);
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java int round(num d);
-
-public int round(int i, int nearest) = round(i / (nearest * 1.0)) * nearest;
-
-public real round(real r, real nearest) = round(r / nearest) * nearest;
-
-public rat round(rat r, rat nearest) = round(r / nearest) * nearest;
+public (&T <: num) round(&T <: num r, &T <: num nearest) = round(r / (nearest * 1.0)) * nearest;
 
 @doc{
 Synopsis: Compute the ratio between two numbers as a percentage.
