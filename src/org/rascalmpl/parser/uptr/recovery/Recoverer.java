@@ -69,15 +69,16 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 	
-	private void collectUnmatchableMidProductionNodes(int location, DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>> unmatchableMidProductionNodes, ArrayList<AbstractStackNode<P>> failedNodes){
+	private void collectUnmatchableMidProductionNodes(int location, DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes, ArrayList<AbstractStackNode<P>> failedNodes){
 		for(int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i){
-			ArrayList<AbstractStackNode<P>> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
 			AbstractStackNode<P> failedNode = unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 			
 			// Merge the information on the predecessors into the failed node.
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j){
-				AbstractStackNode<P> predecessor = failedNodePredecessors.get(j);
-				failedNode.updateNode(predecessor, predecessor.getResult());
+				AbstractStackNode<P> predecessor = failedNodePredecessors.getFirst(j);
+				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
+				failedNode.updateNode(predecessor, predecessorResult);
 			}
 			
 			failedNodes.add(failedNode);
@@ -137,7 +138,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 			int location,
 			Stack<AbstractStackNode<P>> unexpandableNodes,
 			Stack<AbstractStackNode<P>> unmatchableLeafNodes,
-			DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>> unmatchableMidProductionNodes,
+			DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes) {
 		ArrayList<AbstractStackNode<P>> failedNodes = new ArrayList<AbstractStackNode<P>>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
