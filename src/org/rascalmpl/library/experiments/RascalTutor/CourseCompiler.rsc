@@ -12,7 +12,7 @@
 module experiments::RascalTutor::CourseCompiler
 
 import experiments::RascalTutor::CourseModel;
-import Integer;
+import util::Math;
 import String;
 import Set;
 import List;
