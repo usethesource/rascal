@@ -31,6 +31,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -152,6 +153,9 @@ public class JavaMethod extends NamedFunction {
 				((Throw) targetException).setLocation(eval.getCurrentAST().getLocation());
 				((Throw) targetException).setTrace(trace + eval.getStackTrace());
 				throw th;
+			}
+			else if (targetException instanceof StaticError) {
+				throw (StaticError) targetException;
 			}
 			else if (targetException instanceof ImplementationError) {
 				ImplementationError ex = (ImplementationError) targetException;
