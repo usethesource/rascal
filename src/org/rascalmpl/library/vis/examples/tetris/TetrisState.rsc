@@ -13,7 +13,7 @@ import vis::examples::tetris::PlayField;
 import vis::examples::tetris::PlacedTetromino;
 import vis::examples::tetris::Tetromino;
 import util::Maybe;
-import Integer;
+import util::Math;
 import List;
 import Number;
 
