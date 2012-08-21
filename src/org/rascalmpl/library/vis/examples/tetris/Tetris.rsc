@@ -16,7 +16,7 @@ import vis::Render;
 import vis::KeySym;
 import util::Maybe;
 import List;
-import Integer;
+import util::Math;
 import ToString;
 import IO;
 import ValueIO;

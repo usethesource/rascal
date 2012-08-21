@@ -14,7 +14,7 @@ import util::Maybe;
 import Set;
 import Number;
 import Map;
-import Integer;
+import util::Math;
 import Real;
 
 alias Coefficients = map[str var,num coef];

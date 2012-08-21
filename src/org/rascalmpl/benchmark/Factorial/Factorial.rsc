@@ -25,7 +25,7 @@ import FileSystem;
 import Grammar;
 import  analysis::graphs::Graph;
 import HTMLIO;
-import Integer;
+import util::Math;
 import Javac;
 import LabeledGraph;
 import List;
