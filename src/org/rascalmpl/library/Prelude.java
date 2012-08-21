@@ -1738,7 +1738,7 @@ public class Prelude {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
 				if (!type.isAbstractDataType()) {
-					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor should match with abstract data type and not with " + type);
+					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
 				Type cons = findConstructor(type, constructorName, 1, store);
 				if (cons != null) {
@@ -1880,7 +1880,7 @@ public class Prelude {
 			
 			// make a constructor
 			if (!type.isAbstractDataType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor should match with abstract data type and not with " + type);
+				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 			}
 
 			Type cons = findConstructor(type, constructorName, length, store);

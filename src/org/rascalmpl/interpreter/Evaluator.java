@@ -87,6 +87,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
@@ -470,13 +471,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		Type[] types = new Type[args.length];
 
-		if (func == null) {
-			throw new ImplementationError("Function " + name + " is unknown");
-		}
-
 		int i = 0;
 		for (IValue v : args) {
 			types[i++] = v.getType();
+		}
+		
+		if (func == null) {
+			throw new UndeclaredFunctionError(name, types, this, getCurrentAST());
 		}
 
 		return func.call(getMonitor(), types, args).getValue();
