@@ -23,22 +23,22 @@ public class Return extends ControlException {
     private final Result<IValue> value;
 	private ISourceLocation loc;
 	
-    public Return(ISourceLocation loc){
-    	super();
+    public Return(ISourceLocation loc) {
+    	  super();
     	
-    	this.loc = loc;
-    	this.value = null;
+    	  this.loc = loc;
+    	  this.value = null;
     }
     
-    public Return(Result<IValue> value, ISourceLocation loc){
-    	super();
-    	
-    	this.loc = loc;
-    	this.value = value;
+    public Return(Result<IValue> value, ISourceLocation loc) {
+    	  super();
+
+    	  this.loc = loc;
+    	  this.value = value;
     }
 	
 	public Result<IValue> getValue() {
-		return value;
+	  return value;
 	}
 	
 	/**
