@@ -599,7 +599,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public String toString() {
-		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
+		return "Environment [ " + getName() + ", imports: " + ((importedModules != null) ? importedModules.keySet() : "") + ", extends: " + ((extended != null) ? extended : "") + "]"; 
 	}
 
 	@Override
