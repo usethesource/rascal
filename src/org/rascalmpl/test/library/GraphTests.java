@@ -23,21 +23,21 @@ public class GraphTests extends TestFramework {
 	@Test
 	public void bottom() {
 
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 		assertTrue(runTestInSameEvaluator("bottom({}) == {};"));
 		assertTrue(runTestInSameEvaluator("bottom({<1,2>, <1,3>, <2,4>, <3,4>}) == {4};"));
 	}
 
 	@Test
 	public void predecessors(){
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 		assertTrue(runTestInSameEvaluator("predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4) =={2, 3};"));
 	}
 
 	@Test
 	public void reachR() {
 
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 
 		assertTrue(runTestInSameEvaluator("reachR({}, {}, {}) == {};"));
 		assertTrue(runTestInSameEvaluator("reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={};"));
@@ -49,7 +49,7 @@ public class GraphTests extends TestFramework {
 	@Test
 	public void reachX() {
 
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 
 		assertTrue(runTestInSameEvaluator("reachX({}, {}, {}) == {};"));
 		// assertTrue(runTestInSameEvaluator("reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={2, 3, 4};"));
@@ -61,7 +61,7 @@ public class GraphTests extends TestFramework {
 	@Test 
 	public void reach(){
 		
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 		
 //		assertTrue(runTestInSameEvaluator("reach({}, {}, {}) == {};"));
 		assertTrue(runTestInSameEvaluator("reach({<1,2>, <1,3>, <2,4>, <3,4>}, {1}) =={1,2, 3, 4};"));
@@ -74,14 +74,14 @@ public class GraphTests extends TestFramework {
 	
 	@Test
 	public void successors(){
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 		assertTrue(runTestInSameEvaluator("successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1) =={2, 3};"));
 	}
 
 	@Test
 	public void top() {
 
-		prepare("import Graph;");
+		prepare("import analysis::graphs::Graph;");
 		assertTrue(runTestInSameEvaluator("top({}) == {};"));
 		assertTrue(runTestInSameEvaluator("top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};"));
 	}
