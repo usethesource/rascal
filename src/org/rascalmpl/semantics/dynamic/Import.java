@@ -158,7 +158,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-			eval.extendCurrentModule(this, name);
+			eval.extendCurrentModule(this.getLocation(), name);
 			
 			GlobalEnvironment heap = eval.getHeap();
 			if (heap.getModule(name).isDeprecated()) {

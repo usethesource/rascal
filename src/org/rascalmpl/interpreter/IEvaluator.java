@@ -80,7 +80,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 * Module stuff.
 	 */
 	public void addImportToCurrentModule(AbstractAST x, String name);
-	public void extendCurrentModule(AbstractAST x, String name);
+	public void extendCurrentModule(ISourceLocation src, String name);
 	public ModuleEnvironment getCurrentModuleEnvironment();
 
 	public String getModuleName(Module module);

@@ -1088,7 +1088,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			Set<String> dependingExtends = new HashSet<String>();
 			dependingImports.addAll(getImportingModules(names));
 			dependingExtends.addAll(getExtendingModules(names));
-			
+
 			try {
 				monitor.startJob("Reconnecting importers of affected modules", dependingImports.size());
 				for (String mod : dependingImports) {
@@ -1143,7 +1143,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			setMonitor(old);
 		}
 	}
-	
+
 	private void reloadModule(String name, URI errorLocation) {	
 		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
 		heap.addModule(env);
@@ -1514,9 +1514,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override	
-	public void extendCurrentModule(AbstractAST x, String name) {
+	public void extendCurrentModule(ISourceLocation x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
 		
+		if (env == rootScope) {
+			throw new NotYetImplemented("extend is currently not support by the root scope (shell)");
+		}
 		if (env.hasExtended(name)) {
 			getStdErr().println("Extending again?? " + name);
 			return;
