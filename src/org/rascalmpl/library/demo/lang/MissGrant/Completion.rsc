@@ -16,12 +16,26 @@ str symbol_attr_token = "Token";
 
 public list[CompletionProposal] makeProposals(demo::lang::MissGrant::MissGrant::Controller input, str prefix, int requestOffset) {
 	Controller AST = implode(input);
-	SymbolTree symbols = makeSymbolTree(AST);
+	SymbolTree symbolTree = makeSymbolTree(AST);
+	
+	list[str] filterTypes = getFilterTypes(input, requestOffset);
+	list[SymbolTree] symbols = flattenTree(symbolTree);
+	symbols = filterSymbolsByType(symbols, filterTypes);
 	
 	list[CompletionProposal] proposals = createProposalsFromLabels(symbols);
 	proposals = sort(proposals, lessThanOrEqual);
 	proposals = filterPrefix(proposals, prefix);
 	return proposals;
+}
+
+list[str] getFilterTypes(demo::lang::MissGrant::MissGrant::Controller input, int offset) {	
+	bottom-up-break visit(input) {
+		case ResetEvents events: if (isWithin(events, offset)) return [symbol_type_event];
+		case Actions actions: if (isWithin(actions, offset)) return [symbol_type_command];
+		case demo::lang::MissGrant::MissGrant::State state: if (isWithin(state, offset)) return [symbol_type_event, symbol_type_state];
+	}
+	
+	return [];
 }
 
 SymbolTree makeSymbolTree(Controller ast) {
@@ -35,4 +49,3 @@ SymbolTree makeSymbolTree(Controller ast) {
 }
 
 public Contribution proposerContrib = proposer(makeProposals, alphaNumeric + "_");
-
