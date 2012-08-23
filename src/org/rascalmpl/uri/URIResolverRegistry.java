@@ -128,6 +128,10 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		
+		if (uri.getPath() != null && uri.getPath().startsWith("/..")) {
+			throw new IllegalArgumentException("Can not navigate beyond the root of a URI: " + uri);
+		}
+		
 		mkParentDir(uri);
 		
 		return resolver.getOutputStream(uri, append);
