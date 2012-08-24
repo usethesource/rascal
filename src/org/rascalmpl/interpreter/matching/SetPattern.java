@@ -353,7 +353,9 @@ public class SetPattern extends AbstractMatchingResult {
 				IValue lit = ((LiteralPattern) child).toIValue(env);
 				Type childType = child.getType(env, null);
 				if(!childType.comparable(staticSubjectElementType)){
-					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+//					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					hasNext = false;
+					return;
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 				if(debug)System.err.println("fixedSetElements => " + fixedSetElements);
