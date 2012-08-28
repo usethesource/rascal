@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
@@ -84,6 +85,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -1702,18 +1704,46 @@ public class Prelude {
 		}
 		return x;
 	}
-	
-	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
-		for (Type candidate: store.lookupConstructor(type, constructorName)) {
-			// It finds the first with suitable arity, so this is inaccurate
-			// if there are overloaded constructors with the same arity
-			if (arity == candidate.getArity()) {
-				return candidate;
-			}
-		}
-		return null;
+
+	private Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+		return store.lookupConstructor(type, constructorName);
 	}
 
+	
+//	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
+//		for (Type candidate: store.lookupConstructor(type, constructorName)) {
+//			// It finds the first with suitable arity, so this is inaccurate
+//			// if there are overloaded constructors with the same arity
+//			if (arity == candidate.getArity()) {
+//				return candidate;
+//			}
+//		}
+//		return null;
+//	}
+
+	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
+		TypeStore store = new TypeStore();
+		Type type = tr.valueToType((IConstructor) reifiedType, store);
+		try {
+			return implode(store, type, tree, false, ctx);
+		}
+		catch (Backtrack b) {
+			throw b.exception;
+		}
+	}
+
+	@SuppressWarnings("serial")
+	private static class Backtrack extends RuntimeException {
+		Throw exception;
+		public Backtrack(Throw exception) {
+			this.exception = exception;
+		}
+		@Override
+		public synchronized Throwable fillInStackTrace() {
+			return this;
+		}
+	}
+	
 	private IValue[] implodeArgs(TypeStore store, Type type, IList args, IEvaluatorContext ctx) {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
@@ -1723,13 +1753,7 @@ public class Prelude {
 		return implodedArgs;
 	}
 	
-	public IValue implode(IValue reifiedType, IConstructor tree, IEvaluatorContext ctx) {
-		TypeStore store = new TypeStore();
-		Type type = tr.valueToType((IConstructor) reifiedType, store);
-		return implode(store, type, tree, false, ctx);
-	}
-
-
+	
 	private IValue implode(TypeStore store, Type type, IConstructor tree, boolean splicing, IEvaluatorContext ctx) {
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
@@ -1740,13 +1764,21 @@ public class Prelude {
 				if (!type.isAbstractDataType()) {
 					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
-				Type cons = findConstructor(type, constructorName, 1, store);
-				if (cons != null) {
-					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
-					return ast.setAnnotation("location", loc);
+				Set<Type> conses = findConstructors(type, constructorName, 1, store);
+				Iterator<Type> iter = conses.iterator();
+				while (iter.hasNext()) {
+					try {
+						@SuppressWarnings("unused")
+						Type cons = iter.next();
+						ISourceLocation loc = TreeAdapter.getLocation(tree);
+						IConstructor ast = makeConstructor(constructorName, ctx, values.string(yield));
+						return ast.setAnnotation("location", loc);
+					}
+					catch (Backtrack b) {
+						continue;
+					}
 				}
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
 			}
 			if (type.isIntegerType()) {
 				return values.integer(yield);
@@ -1761,7 +1793,7 @@ public class Prelude {
 				if (yield.equals("false")) {
 					return values.bool(false);
 				}
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
 			}
 			if (type.isStringType()) {
 				return values.string(yield);
@@ -1789,7 +1821,7 @@ public class Prelude {
 				return w.done();
 			}
 			else {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type));
 			}
 		}
 		//Changes end here
@@ -1804,7 +1836,7 @@ public class Prelude {
 		
 		if (TreeAdapter.isOpt(tree)) {
 			if (!type.isListType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
 			}
 			Type elementType = type.getElementType();
 			IListWriter w = values.listWriter(elementType);
@@ -1827,7 +1859,7 @@ public class Prelude {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSetType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type));
 			}
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter(elementType);
@@ -1867,11 +1899,11 @@ public class Prelude {
 				
 				// make a tuple
 				if (!type.isTupleType()) {
-					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type);
+					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
 				}
 				
 				if (length != type.getArity()) {
-					throw RuntimeExceptionFactory.arityMismatch(type.getArity(), length, null, null);
+					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length, null, null));
 				}
 
 				return values.tuple(implodeArgs(store, type, args, ctx));
@@ -1880,19 +1912,27 @@ public class Prelude {
 			
 			// make a constructor
 			if (!type.isAbstractDataType()) {
-				throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
 
-			Type cons = findConstructor(type, constructorName, length, store);
-			if (cons != null) {
-				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				IConstructor ast = makeConstructor(constructorName, ctx, implodeArgs(store, cons, args, ctx));
-				return ast.setAnnotation("location", loc);
+			Set<Type> conses = findConstructors(type, constructorName, length, store);
+			Iterator<Type> iter = conses.iterator();
+			while (iter.hasNext()) {
+				try {
+					Type cons = iter.next();
+					ISourceLocation loc = TreeAdapter.getLocation(tree);
+					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
+					IConstructor ast = makeConstructor(constructorName, ctx, implodedArgs);
+					return ast.setAnnotation("location", loc);
+				}
+				catch (Backtrack b) {
+					continue;
+				}
 			}
 			
 		}
 		
-		throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type);
+		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
 	}
 	
 	
