@@ -36,7 +36,6 @@ module Prelude
 extend Boolean;
 extend DateTime;
 extend Exception;
-extend Graph;
 extend IO;
 extend List;
 extend Map;
