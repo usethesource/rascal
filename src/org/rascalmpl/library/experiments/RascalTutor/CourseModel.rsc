@@ -391,7 +391,7 @@ public list[str] getDetails(loc file){
    } catch: return [];
 }
 */
-set[str] exclude = {".svn"};
+set[str] exclude = {".svn", ".git"};
 
 map[str,Course] courseCache = ();
 
