@@ -23,9 +23,7 @@ tools".
 import List;
 import String;
 import IO;
-import ValueIO;
 import Node;
-import SystemAPI;
 import lang::box::util::Box;
 
 int maxWidth = 80;

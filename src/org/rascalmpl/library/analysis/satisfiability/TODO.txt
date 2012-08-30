@@ -1,0 +1,1 @@
+Here we want connections to SAT and SMT solvers, i.e. via the lang::logic abstract syntax for logical formulas. 

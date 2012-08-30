@@ -1,0 +1,31 @@
+Name: formalconcepts
+
+Synopsis: Library for Formal Concept Analysis
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Formal Concept Analysis is a somewhat ubiquitous tool in software analysis projects. It can be used to find latent groups of objects
+that share the same attributes in a dataset. Typically, we apply `FCA` to a relation `rel[&O objects, &A attributes]`, which represents
+extracted source code artifacts and their attributes.
+
+<toc Rascal/Libraries/analysis/formalconcepts>
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

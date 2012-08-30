@@ -385,6 +385,8 @@ unparse(parse(#Exp, "2+3"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java str unparse(Tree tree);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
 @doc{
 Synopsis: Implode a parse tree according to a given ADT.
 
@@ -505,7 +507,6 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 &lt;/listing>
 }
-@javaClass{org.rascalmpl.library.Prelude}
 public java &amp;T&lt;:node implode(type[&amp;T&lt;:node] t, Tree tree);
 
 @doc{
