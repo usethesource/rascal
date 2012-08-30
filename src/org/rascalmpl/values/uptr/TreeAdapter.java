@@ -99,6 +99,9 @@ public class TreeAdapter {
 		return ProductionAdapter.getSortName(getProduction(tree));
 	}
 
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.values.uptr.ProductionAdapter#getConstructorName(IConstructor tree)
+	 */
 	public static String getConstructorName(IConstructor tree) {
 		return ProductionAdapter.getConstructorName(getProduction(tree));
 	}

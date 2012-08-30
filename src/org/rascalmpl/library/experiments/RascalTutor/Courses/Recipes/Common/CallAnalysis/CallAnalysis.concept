@@ -41,7 +41,7 @@ alias Proc = str;
 // As preparation, we also import the libraries [$Rascal:Prelude/Set], [$Rascal:Prelude/Relation] and [$Rascal:Prelude/Graph] that will come in handy.
 import Set;
 import Relation;
-import Graph;
+import analysis::graphs::Graph;
 rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
                          <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 // Now we are in a good position to start asking some questions.

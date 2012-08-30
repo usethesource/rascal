@@ -11,7 +11,7 @@
 module experiments::RascalTutor::ValueGenerator
 
 import Boolean;
-import Integer;
+import util::Math;
 import String;
 import Real;
 import List;

@@ -1,7 +1,7 @@
 module demo::lang::Pico::ControlFlow
 
 import Prelude;
-import Graph;
+import  analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 

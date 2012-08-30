@@ -8,5 +8,5 @@
 // enableQuestions | true     | true    | false    |
 
 
-var enableEditing = true;
+var enableEditing = false;
 var enableQuestions = true;

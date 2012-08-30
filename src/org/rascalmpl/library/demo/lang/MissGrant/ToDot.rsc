@@ -1,7 +1,7 @@
 module demo::lang::MissGrant::ToDot
 import demo::lang::MissGrant::ToRelation;
 import demo::lang::MissGrant::AST;
-import util::Dot;
+import lang::dot::Dot;
 import IO;
 import Set;
 

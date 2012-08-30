@@ -20,8 +20,8 @@ module experiments::RascalTutor::CourseManager
 
 import List;
 import String;
-import Integer;
-import Graph;
+import util::Math;
+import  analysis::graphs::Graph;
 import Set;
 import Map;
 import experiments::RascalTutor::CourseModel;

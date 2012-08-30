@@ -8,7 +8,7 @@
 module experiments::Concept::FcaLattices
 import vis::Figure;
 import vis::Render; 
-import util::Dot;
+import lang::dot::Dot;
 import experiments::Concept::DotVis;
 
 public void renderLegacy() {

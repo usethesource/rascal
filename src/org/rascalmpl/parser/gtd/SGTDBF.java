@@ -65,7 +65,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	private final HashMap<String, EdgesSet<P>> cachedEdgesForExpect;
 	
-	private final IntegerKeyedDoubleValueHashMap<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> sharedNextNodes;
+	private final IntegerKeyedDoubleValueHashMap<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> sharedNextNodes;
 	
 	private int location;
 	
@@ -84,7 +84,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	// Error reporting
 	private final Stack<AbstractStackNode<P>> unexpandableNodes;
 	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes;
-	private final DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>> unmatchableMidProductionNodes;
+	private final DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes;
 	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
@@ -102,7 +102,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		cachedEdgesForExpect = new HashMap<String, EdgesSet<P>>();
 		
-		sharedNextNodes = new IntegerKeyedDoubleValueHashMap<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>>();
+		sharedNextNodes = new IntegerKeyedDoubleValueHashMap<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>>();
 		
 		location = 0;
 		
@@ -115,7 +115,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		unexpandableNodes = new Stack<AbstractStackNode<P>>();
 		unmatchableLeafNodes = new Stack<AbstractStackNode<P>>();
-		unmatchableMidProductionNodes = new DoubleStack<ArrayList<AbstractStackNode<P>>, AbstractStackNode<P>>();
+		unmatchableMidProductionNodes = new DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>>();
 		filteredNodes = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
 	}
 	
@@ -153,11 +153,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Moves to the next symbol in the production.
 	 */
 	private AbstractStackNode<P> updateNextNode(AbstractStackNode<P> next, AbstractStackNode<P> node, AbstractNode result){
-		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> alternativeEntry = sharedNextNodes.get(next.getId());
+		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> alternativeEntry = sharedNextNodes.get(next.getId());
 		if(alternativeEntry != null){ // Sharing check.
-			ArrayList<AbstractStackNode<P>> predecessors = alternativeEntry.value2;
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = alternativeEntry.value2;
 			if(predecessors != null){
-				predecessors.add(node);
+				predecessors.add(node, result);
 				return null;
 			}
 			
@@ -193,8 +193,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
 				// Push the node including it's predecessor to the appropriate error tracking collection (and take care of merging when necessary).
-				ArrayList<AbstractStackNode<P>> predecessors = new ArrayList<AbstractStackNode<P>>();
-				predecessors.add(node);
+				DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
+				predecessors.add(node, result);
 				unmatchableMidProductionNodes.push(predecessors, next);
 				
 				sharedNextNodes.putUnsafe(next.getId(), next, predecessors);
@@ -224,11 +224,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 */
 	private boolean updateAlternativeNextNode(AbstractStackNode<P> next, AbstractStackNode<P> node, AbstractNode result, IntegerObjectList<EdgesSet<P>> edgesMap, ArrayList<Link>[] prefixesMap){
 		int id = next.getId();
-		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> alternativeEntry = sharedNextNodes.get(id);
+		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> alternativeEntry = sharedNextNodes.get(id);
 		if(alternativeEntry != null){ // Sharing check.
-			ArrayList<AbstractStackNode<P>> predecessors = alternativeEntry.value2;
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = alternativeEntry.value2;
 			if(predecessors != null){
-				predecessors.add(node);
+				predecessors.add(node, result);
 				return false;
 			}
 			
@@ -263,8 +263,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			AbstractNode nextResult = next.match(input, location);
 			if(nextResult == null){
 				// Push the node including it's predecessor to the appropriate error tracking collection (and take care of merging when necessary).
-				ArrayList<AbstractStackNode<P>> predecessors = new ArrayList<AbstractStackNode<P>>();
-				predecessors.add(node);
+				DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
+				predecessors.add(node, result);
 				unmatchableMidProductionNodes.push(predecessors, next);
 				
 				sharedNextNodes.putUnsafe(id, next, predecessors);
@@ -338,10 +338,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		int nextDot = next.getDot() + 1;
 		AbstractStackNode<P>[] prod = next.getProduction();
 		AbstractStackNode<P> nextNext = prod[nextDot];
-		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> nextNextAlternativeEntry = sharedNextNodes.get(nextNext.getId());
+		IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> nextNextAlternativeEntry = sharedNextNodes.get(nextNext.getId());
 		AbstractStackNode<P> nextNextAlternative = null;
 		if(nextNextAlternativeEntry != null){ // Valid continuation.
-			ArrayList<AbstractStackNode<P>> predecessors = nextNextAlternativeEntry.value2;
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = nextNextAlternativeEntry.value2;
 			if(predecessors == null){
 				nextNextAlternative = nextNextAlternativeEntry.value1;
 				if(nextNextAlternative.isMatchable()){
@@ -360,7 +360,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					}
 				}
 			}else{
-				predecessors.add(next);
+				predecessors.add(next, nextResult);
 			}
 		}
 		
@@ -381,10 +381,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				if(nextDot == prod.length) continue;
 				AbstractStackNode<P> alternativeNextNext = prod[nextDot];
 				
-				IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> nextNextAltAlternativeEntry = sharedNextNodes.get(alternativeNextNext.getId());
+				IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> nextNextAltAlternativeEntry = sharedNextNodes.get(alternativeNextNext.getId());
 				AbstractStackNode<P> nextNextAltAlternative = null;
 				if(nextNextAltAlternativeEntry != null){
-					ArrayList<AbstractStackNode<P>> predecessors = nextNextAltAlternativeEntry.value2;
+					DoubleArrayList<AbstractStackNode<P>, AbstractNode> predecessors = nextNextAltAlternativeEntry.value2;
 					if(predecessors == null){
 						nextNextAltAlternative = nextNextAltAlternativeEntry.value1;
 						if(nextNextAltAlternative.isMatchable()){
@@ -403,7 +403,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 							}
 						}
 					}else{
-						predecessors.add(next);
+						predecessors.add(next, nextResult);
 					}
 				}
 			}
@@ -894,7 +894,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					AbstractStackNode<P> child = listChildren[i];
 					int childId = child.getId();
 					
-					IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, ArrayList<AbstractStackNode<P>>> sharedChildEntry = sharedNextNodes.get(childId);
+					IntegerKeyedDoubleValueHashMap.Entry<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> sharedChildEntry = sharedNextNodes.get(childId);
 					if(sharedChildEntry != null && sharedChildEntry.value2 == null){
 						AbstractStackNode<P> sharedChild = sharedChildEntry.value1;
 						sharedChild.setEdgesSetWithPrefix(cachedEdges, null, location);

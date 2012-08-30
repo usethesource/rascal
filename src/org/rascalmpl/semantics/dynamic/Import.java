@@ -39,6 +39,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -132,7 +133,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				
 				return importModule(this.getName(), eval);
 			} else {
-				throw RuntimeExceptionFactory.moduleNotFound(mn, eval.getCurrentAST(), eval.getStackTrace());
+				throw new UndeclaredModuleProvider(resourceScheme, eval.getCurrentAST());
 			}
 		}
 		
@@ -157,7 +158,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			String name = Names.fullName(this.getModule().getName());
-			eval.extendCurrentModule(this, name);
+			eval.extendCurrentModule(this.getLocation(), name);
 			
 			GlobalEnvironment heap = eval.getHeap();
 			if (heap.getModule(name).isDeprecated()) {

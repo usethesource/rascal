@@ -1,7 +1,7 @@
 module demo::lang::MissGrant::AST
 
 import List;
-import Graph;
+import  analysis::graphs::Graph;
 import Map;
 
 data Controller = controller(list[Event] events, 
