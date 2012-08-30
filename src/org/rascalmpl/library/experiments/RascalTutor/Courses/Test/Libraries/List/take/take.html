@@ -108,17 +108,14 @@ list[str]: ["zebra","elephant"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Libraries_List_take_1:answer" id="Test/Libraries/List/take_1_0" value="0">
+<label for="Test/Libraries/List/take_1_0">M elements.</label><br/>
+
 <input type="radio" name="Test_Libraries_List_take_1:answer" id="Test/Libraries/List/take_1_2" value="2">
 <label for="Test/Libraries/List/take_1_2">N elements.</label><br/>
 
-<input type="radio" name="Test_Libraries_List_take_1:answer" id="Test/Libraries/List/take_1_3" value="3">
-<label for="Test/Libraries/List/take_1_3">N * M elements.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_take_1:answer" id="Test/Libraries/List/take_1_1" value="1">
 <label for="Test/Libraries/List/take_1_1">N-M elements.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_take_1:answer" id="Test/Libraries/List/take_1_0" value="0">
-<label for="Test/Libraries/List/take_1_0">M elements.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -142,9 +139,9 @@ list[str]: ["zebra","elephant"]
 <span id="answerFeedback_Test_Libraries_List_take_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_take_2:L" value="[false, false, true, false, false]">
-<input type="hidden" name="Test_Libraries_List_take_2:N" value="2">
-The type of <tt>take(2, [false, false, true, false, false])</tt> is <input type="text" size="30" name="Test_Libraries_List_take_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_take_2:L" value="[&quot;Isolder&quot;, &quot;E&quot;, &quot;Ginger&quot;, &quot;Cookie Monster&quot;]">
+<input type="hidden" name="Test_Libraries_List_take_2:N" value="0">
+The type of <tt>take(0, [&quot;Isolder&quot;, &quot;E&quot;, &quot;Ginger&quot;, &quot;Cookie Monster&quot;])</tt> is <input type="text" size="30" name="Test_Libraries_List_take_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -168,9 +165,9 @@ The type of <tt>take(2, [false, false, true, false, false])</tt> is <input type=
 <span id="answerFeedback_Test_Libraries_List_take_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_take_3:L" value="[&quot;Y&quot;, &quot;Big Bird&quot;, &quot;Prince Charming&quot;, &quot;Admiral Sarn&quot;, &quot;Jar Jar Binks&quot;]">
-<input type="hidden" name="Test_Libraries_List_take_3:N" value="1">
-<pre class="prequestion">take(1, [&quot;Y&quot;, &quot;Big Bird&quot;, &quot;Prince Charming&quot;, &quot;Admiral Sarn&quot;, &quot;Jar Jar Binks&quot;]) == <input type="text" size="30" name="Test_Libraries_List_take_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_take_3:L" value="[&quot;Lime&quot;, &quot;Peppermint&quot;, &quot;Darth Sidious&quot;, &quot;E&quot;, &quot;Y&quot;, &quot;Curry&quot;]">
+<input type="hidden" name="Test_Libraries_List_take_3:N" value="0">
+<pre class="prequestion">take(0, [&quot;Lime&quot;, &quot;Peppermint&quot;, &quot;Darth Sidious&quot;, &quot;E&quot;, &quot;Y&quot;, &quot;Curry&quot;]) == <input type="text" size="30" name="Test_Libraries_List_take_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_take_3:another" value="yes">
