@@ -281,11 +281,7 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 
   try {
     Module M = parseModule(readFile(L1), L1).top;
-  }
-  catch FileNotFound(_): {
-    println("Referred module has disappeared: <L>, as referred to in <root>");
-    return ();
-  }
+  
  
   declarations = [];
   contentMap = ();
@@ -315,7 +311,13 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
       i += 1;
   	}
   }
-return contentMap;
+  return contentMap;
+
+  }
+  catch FileNotFound(_): {
+    println("Referred module has disappeared: <L>, as referred to in <root>");
+    return ();
+  }
 }
 
 // ---- Functions for editing individual concepts in a library file ----
