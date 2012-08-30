@@ -18,7 +18,6 @@ It combines the following modules:
 * `Boolean`,
 * `DateTime`,
 * `Exception`,
-* `Graph`,
 * `IO`,
 * `List`,
 * `Map`,
