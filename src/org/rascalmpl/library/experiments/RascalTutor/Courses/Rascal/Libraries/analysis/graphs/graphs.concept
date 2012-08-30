@@ -1,0 +1,31 @@
+Name: graphs
+
+Synopsis: Analyzing relations as graphs
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+
+Graphs are represented as relations in Rascal. So in general the idea is to use the `Relation` module to manipulate graphs.
+At the same time there are algorithms and analyses which make particular sense when we view a relation as a graph, hence the
+existence of the `Graph` and `LabeledGraph` libraries.
+
+<toc Rascal/Libraries/analysis/graphs>
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       
