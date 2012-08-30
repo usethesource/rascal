@@ -69,7 +69,7 @@ Here is an example function that extracts the sub-type relation from a given pro
 <screen>
 import lang::java::jdt::Java;
 import lang::java::jdt::JDT;
-import Graph;
+import analysis::graphs::Graph;
 public EntityRel getSubTypeInformation(loc project){
 fm = extractProject(project);
 return fm@extends + fm@implements;
