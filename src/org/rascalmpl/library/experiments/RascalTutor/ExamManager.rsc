@@ -9,18 +9,20 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::ExamMaintainer
+module experiments::RascalTutor::ExamManager
 
 import String;
 import List;
 import Set;
 import Map;
 import IO;
+import util::Math;
+import lang::csv::IO;
 import  analysis::graphs::Graph;
 import experiments::RascalTutor::CourseModel;
 import experiments::RascalTutor::CourseCompiler;
 import experiments::RascalTutor::CourseManager;
-
+                             
 
 // Compile one concept as an exam
 
@@ -78,15 +80,39 @@ bool leq(str a, str b){
     return size(a) < size(b);
 }
 
-str round(num n){
-    s = "<n>";
-    if(/<before:[0-9]+>\.<after:[0-9]+>/ := s)
-       return "<before>.<after[0]>";
-    return s;
-}
+str round(num n) = "<round(n, 0.1)>";
+
+private list[str] sortedqs = [];
+private map[str,set[str]] goodAnswers = ();
+private map[str,set[str]] badAnswers = ();
 
 public void validateExams(){
   scores = processExams(resultDir);
+  collectAnswers(scores);
+  createStatistics(scores);
+  createReview(scores);
+  //createResults(scores);
+  //createMailing(scores);
+  println("ValidateExams ... done!");
+}
+
+public void collectAnswers(set[examResult] scores){
+  goodAnswers = ();
+  badAnswers = ();
+  
+  for(sc <- scores){
+      for(q <- sc.evaluation)
+          if(sc.evaluation[q] == "pass")
+            goodAnswers[q] = (goodAnswers[q] ? {}) + {sc.answers[q]};
+          else
+            badAnswers[q] = (badAnswers[q] ? {}) + {sc.answers[q]};
+  }
+  
+  println("goodAnswers: <goodAnswers>
+          'badAnswers: <badAnswers>");
+}
+  
+public void createStatistics(set[examResult] scores){
   allscores = [sc.score | sc <- scores];
   nstudents = size(allscores);
   npassed =  (0 | it + 1 | sc <- scores, sc.score >= 6.0);
@@ -101,20 +127,6 @@ public void validateExams(){
       qavg[q] = (100 * qavg[q]) / nstudents;
   }
   sortedqs = sort(toList(domain(qavg)), leq);
-  
-  goodAnswers = ();
-  badAnswers = ();
-  
-  for(sc <- scores){
-      for(q <- sc.evaluation)
-          if(sc.evaluation[q] == "pass")
-            goodAnswers[q] = (goodAnswers[q] ? {}) + {sc.answers[q]};
-          else
-            badAnswers[q] = (badAnswers[q] ? {}) + {sc.answers[q]};
-  }
-  
-  println("goodAnswers: <goodAnswers>
-          'badAnswers: <badAnswers>");
   
   writeFile(resultDir + "Statistics.txt",
   		  "Number of students: <nstudents>
@@ -131,27 +143,38 @@ public void validateExams(){
           '<for(q <- sortedqs){><q>:\n\tgood:<goodAnswers[q]?"{}">\n\tbad:<badAnswers[q]?"{}">\n<}>
           ");
   println("Written Statistics.txt");
-          
-  writeFile(resultDir + "Results.csv",
+}
+
+void createReview(set[examResult] scores){
+  rel[str Question, num Score, str Wrong, str Expected, str Comment] reviews = {};
+ 
+  println("*** createReview ***");
+  seen = {};
+  for(sc <- scores){
+	  for(q <- sortedqs){
+	      ans = (sc.answers[q])?"none";
+	      if(!sc.evaluation[q]? || sc.evaluation[q] == "fail"){
+	         if(<q, ans> notin seen){
+	          ga = goodAnswers[q]? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
+	          reviews += {<q, 0, (sc.answers[q])?"none", ga, "">};
+	          seen += {<q, ans>};
+	        }
+	      }
+	  }   
+  }
+  writeCSV(reviews, resultDir + "Review.csv", ("separator" : ";"));
+}
+
+void createResults(set[examResult] scores){
+ writeFile(resultDir + "Results.csv",
           "<for(sc <- scores){>
           '<sc.studentName>;<round(sc.score)><for(q <- sortedqs){>;<sc.evaluation[q]?"fail"><}><}>"
           );
-  println("Written Results.csv");     
- /* 
-  for(sc <- scores){
-     println(sc.studentName);
-	  for(q <- sortedqs){
-	      if(!sc.evaluation[q]? || sc.evaluation[q] == "fail"){
-	        println("question <q>"); 
-	        println("Incorrect answer = <(sc.answers[q])?"none">");
-	        println("goodAnswers: " + (goodAnswers[q] ? "unknown"));
-	      }
-	      println("question <q> ... done");
-	  }   
-  }
-  println("Start writing Mailing.sh");
-  */
-  writeFile(resultDir + "Mailing.sh",
+  println("Written Results.csv");    
+}
+
+void createMailing(set[examResult] scores){
+writeFile(resultDir + "Mailing.sh",
           "<for(sc <- scores){>
           'mail -s \"Exam Results\" <sc.studentMail> \<\<==eod==
           'Dear <sc.studentName>,
@@ -171,7 +194,6 @@ public void validateExams(){
           <}>
           ");
    println("Written Mailing.sh");
-   println("ValidateExams ... done!");
 }
 
 str suggestGoodAnswer(examResult sc, str q, map[str,set[str]] goodAnswers){
@@ -186,4 +208,3 @@ str suggestGoodAnswer(examResult sc, str q, map[str,set[str]] goodAnswers){
      return "<ans>Set of possible good answers: <goodAnswers[q]>\n";
   return "<ans>No correct answers available";
 }
-
