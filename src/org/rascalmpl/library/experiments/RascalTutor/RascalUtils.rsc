@@ -11,6 +11,7 @@
 module experiments::RascalTutor::RascalUtils
 
 import experiments::RascalTutor::CourseModel;
+import Exception;
 
 import IO;
 import String;
@@ -315,6 +316,10 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
 
   }
   catch FileNotFound(_): {
+    println("Referred module has disappeared: <L>, as referred to in <root>");
+    return ();
+  }
+  catch PathNotFound(_): {
     println("Referred module has disappeared: <L>, as referred to in <root>");
     return ();
   }
