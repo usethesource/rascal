@@ -11,7 +11,7 @@ module demo::common::Calls
 
 import Set;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 
 // Exploring a Call graph, see description in Rascal user manual
 

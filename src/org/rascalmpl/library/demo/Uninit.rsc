@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module demo::Uninit
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 
 // Find the unitialized variables in a program
 

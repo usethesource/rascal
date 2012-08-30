@@ -87,6 +87,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatchError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredFunctionError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedInsertError;
@@ -470,13 +471,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		Type[] types = new Type[args.length];
 
-		if (func == null) {
-			throw new ImplementationError("Function " + name + " is unknown");
-		}
-
 		int i = 0;
 		for (IValue v : args) {
 			types[i++] = v.getType();
+		}
+		
+		if (func == null) {
+			throw new UndeclaredFunctionError(name, types, this, getCurrentAST());
 		}
 
 		return func.call(getMonitor(), types, args).getValue();
@@ -1087,7 +1088,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			Set<String> dependingExtends = new HashSet<String>();
 			dependingImports.addAll(getImportingModules(names));
 			dependingExtends.addAll(getExtendingModules(names));
-			
+
 			try {
 				monitor.startJob("Reconnecting importers of affected modules", dependingImports.size());
 				for (String mod : dependingImports) {
@@ -1142,7 +1143,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			setMonitor(old);
 		}
 	}
-	
+
 	private void reloadModule(String name, URI errorLocation) {	
 		ModuleEnvironment env = new ModuleEnvironment(name, getHeap());
 		heap.addModule(env);
@@ -1513,9 +1514,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override	
-	public void extendCurrentModule(AbstractAST x, String name) {
+	public void extendCurrentModule(ISourceLocation x, String name) {
 		ModuleEnvironment env = getCurrentModuleEnvironment();
 		
+		if (env == rootScope) {
+			throw new NotYetImplemented("extend is currently not support by the root scope (shell)");
+		}
 		if (env.hasExtended(name)) {
 			getStdErr().println("Extending again?? " + name);
 			return;

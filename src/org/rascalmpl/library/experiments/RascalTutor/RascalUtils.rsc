@@ -11,6 +11,7 @@
 module experiments::RascalTutor::RascalUtils
 
 import experiments::RascalTutor::CourseModel;
+import Exception;
 
 import IO;
 import String;
@@ -279,7 +280,9 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
   L1 = L.top;
   //println("extractRemoteConcepts: <L>, <L1>, <root>");
 
-  Module M = parseModule(readFile(L1), L1).top;
+  try {
+    Module M = parseModule(readFile(L1), L1).top;
+  
  
   declarations = [];
   contentMap = ();
@@ -309,7 +312,17 @@ public map[str,str] extractRemoteConcepts(loc L, str /*ConceptName*/ root){
       i += 1;
   	}
   }
-return contentMap;
+  return contentMap;
+
+  }
+  catch FileNotFound(_): {
+    println("Referred module has disappeared: <L>, as referred to in <root>");
+    return ();
+  }
+  catch PathNotFound(_): {
+    println("Referred module has disappeared: <L>, as referred to in <root>");
+    return ();
+  }
 }
 
 // ---- Functions for editing individual concepts in a library file ----

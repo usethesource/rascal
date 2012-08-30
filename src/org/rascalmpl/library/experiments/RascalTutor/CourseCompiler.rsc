@@ -12,13 +12,13 @@
 module experiments::RascalTutor::CourseCompiler
 
 import experiments::RascalTutor::CourseModel;
-import Integer;
+import util::Math;
 import String;
 import Set;
 import List;
 import Relation;
 import Map;
-import Graph;
+import  analysis::graphs::Graph;
 import IO;
 import ValueIO;
 import DateTime;

@@ -7,12 +7,12 @@ import demo::lang::MissGrant::ToRelation;
 import vis::Figure;
 import List;
 import Real;
-import Integer;
+import util::Math;
 import IO;
 import util::Resources;
 import vis::Render;
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 import Set;
 
 public Figure stateMachineGraph(TransRel trans,str init,str state){

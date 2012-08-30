@@ -10,7 +10,7 @@
 module demo::ReachingDefs
 
 import Relation;
-import Graph;
+import  analysis::graphs::Graph;
 import IO;
 
 /*

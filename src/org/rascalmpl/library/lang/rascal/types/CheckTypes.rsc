@@ -10,7 +10,7 @@
 module lang::rascal::types::CheckTypes
 
 import List;
-import Graph;
+import  analysis::graphs::Graph;
 import IO;
 import Set;
 import Map;

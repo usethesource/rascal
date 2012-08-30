@@ -10,7 +10,7 @@
 @bootstrapParser
 module experiments::RascalTutor::CourseModel
 
-import Graph;
+import  analysis::graphs::Graph;
 import List;
 import Map;
 import Set;
@@ -110,11 +110,12 @@ data Choice = good(str description)
             
 data Exception = ConceptError(ConceptName cname, str cause);
 
+            
+alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
+
 data examResult = examResult(str studentName, str studentMail, str StudentNumber, str timestamp, 
                              map[str,str] answers, map[str,str] expectedAnswers,
                              map[str, str] evaluation, num score);
-            
-alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
             
 // Common utilities
 
