@@ -102,14 +102,14 @@ list[str]: ["zebra","elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_1" value="1">
+<label for="Test/Libraries/List/prefix_1_1">N elements.</label><br/>
+
 <input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_2" value="2">
 <label for="Test/Libraries/List/prefix_1_2">N+1 elements.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_3" value="3">
 <label for="Test/Libraries/List/prefix_1_3">N * (N-1) elements.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_1" value="1">
-<label for="Test/Libraries/List/prefix_1_1">N elements.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_0" value="0">
 <label for="Test/Libraries/List/prefix_1_0">N-1 elements.</label><br/>
@@ -136,8 +136,8 @@ list[str]: ["zebra","elephant","snake"]
 <span id="answerFeedback_Test_Libraries_List_prefix_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_2:L" value="[&quot;Telly Monster&quot;, &quot;Joh Yowza&quot;, &quot;Han Solo&quot;, &quot;E&quot;, &quot;Grapefruit&quot;]">
-The type of <tt>prefix([&quot;Telly Monster&quot;, &quot;Joh Yowza&quot;, &quot;Han Solo&quot;, &quot;E&quot;, &quot;Grapefruit&quot;])</tt> is <input type="text" size="30" name="Test_Libraries_List_prefix_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_2:L" value="[8, 9, 15, 15]">
+The type of <tt>prefix([8, 9, 15, 15])</tt> is <input type="text" size="30" name="Test_Libraries_List_prefix_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -161,8 +161,8 @@ The type of <tt>prefix([&quot;Telly Monster&quot;, &quot;Joh Yowza&quot;, &quot;
 <span id="answerFeedback_Test_Libraries_List_prefix_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_3:L" value="[true, true, true, true, false, false]">
-<pre class="prequestion">prefix([true, true, true, true, false, false]) == <input type="text" size="30" name="Test_Libraries_List_prefix_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_3:L" value="[10, -19, -14, -2, 12, 18]">
+<pre class="prequestion">prefix([10, -19, -14, -2, 12, 18]) == <input type="text" size="30" name="Test_Libraries_List_prefix_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_prefix_3:another" value="yes">

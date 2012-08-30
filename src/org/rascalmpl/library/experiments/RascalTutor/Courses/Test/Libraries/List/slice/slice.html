@@ -105,12 +105,6 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_4" value="4">
-<label for="Test/Libraries/List/slice_1_4">B - 1 elements.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_1" value="1">
-<label for="Test/Libraries/List/slice_1_1">B elements.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_3" value="3">
 <label for="Test/Libraries/List/slice_1_3">N - 1 elements.</label><br/>
 
@@ -142,10 +136,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Test_Libraries_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_2:L" value="[2, -19, 17, -19]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_2:L" value="[12, 15, -7, -9]">
 <input type="hidden" name="Test_Libraries_List_slice_2:B" value="0">
 <input type="hidden" name="Test_Libraries_List_slice_2:E" value="4">
-The type of <tt>slice([2, -19, 17, -19],0,4)</tt> is <input type="text" size="30" name="Test_Libraries_List_slice_2:answer" class="answerText"><br/>
+The type of <tt>slice([12, 15, -7, -9],0,4)</tt> is <input type="text" size="30" name="Test_Libraries_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -169,10 +163,10 @@ The type of <tt>slice([2, -19, 17, -19],0,4)</tt> is <input type="text" size="30
 <span id="answerFeedback_Test_Libraries_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_3:L" value="[-17, 9, 12, 0]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_3:L" value="[&quot;Watermelon&quot;, &quot;Jar Jar Binks&quot;, &quot;Prune&quot;, &quot;Anakin Skywalker&quot;, &quot;Forgetful Jones&quot;]">
 <input type="hidden" name="Test_Libraries_List_slice_3:B" value="0">
 <input type="hidden" name="Test_Libraries_List_slice_3:E" value="2">
-<pre class="prequestion">slice([-17, 9, 12, 0],0,2) == <input type="text" size="30" name="Test_Libraries_List_slice_3:answer" class="answerText"></pre>
+<pre class="prequestion">slice([&quot;Watermelon&quot;, &quot;Jar Jar Binks&quot;, &quot;Prune&quot;, &quot;Anakin Skywalker&quot;, &quot;Forgetful Jones&quot;],0,2) == <input type="text" size="30" name="Test_Libraries_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_slice_3:another" value="yes">

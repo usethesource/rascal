@@ -44,6 +44,8 @@ public class Compile extends TutorHttpServlet {
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));
 			e.printStackTrace(out);
+			out.println("Rascal stacktrace:");
+			out.println(escapeForHtml(evaluator.getStackTrace()));
 		}
 		finally {
 			out.close();

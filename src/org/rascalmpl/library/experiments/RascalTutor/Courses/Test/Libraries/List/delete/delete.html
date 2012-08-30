@@ -106,14 +106,14 @@ list[str]: ["zebra","elephant","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_1" value="1">
-<label for="Test/Libraries/List/delete_1_1">Decreases with the number of occurrences of the deleted element.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_2" value="2">
 <label for="Test/Libraries/List/delete_1_2">Stays the same.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_0" value="0">
 <label for="Test/Libraries/List/delete_1_0">Decreases by one.</label><br/>
+
+<input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_1" value="1">
+<label for="Test/Libraries/List/delete_1_1">Decreases with the number of occurrences of the deleted element.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -137,9 +137,9 @@ list[str]: ["zebra","elephant","owl"]
 <span id="answerFeedback_Test_Libraries_List_delete_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_2:L" value="[false, false, true, false, false]">
-<input type="hidden" name="Test_Libraries_List_delete_2:I" value="0">
-The type of <tt>delete([false, false, true, false, false], 0)</tt> is <input type="text" size="30" name="Test_Libraries_List_delete_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_2:L" value="[&quot;Jar Jar Binks&quot;, &quot;Grover&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Saffron&quot;, &quot;Dill&quot;, &quot;Emperor Palpatine&quot;]">
+<input type="hidden" name="Test_Libraries_List_delete_2:I" value="2">
+The type of <tt>delete([&quot;Jar Jar Binks&quot;, &quot;Grover&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Saffron&quot;, &quot;Dill&quot;, &quot;Emperor Palpatine&quot;], 2)</tt> is <input type="text" size="30" name="Test_Libraries_List_delete_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,9 +163,9 @@ The type of <tt>delete([false, false, true, false, false], 0)</tt> is <input typ
 <span id="answerFeedback_Test_Libraries_List_delete_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_3:L" value="[5, -15, 17, 7, -18, 2]">
-<input type="hidden" name="Test_Libraries_List_delete_3:I" value="0">
-<pre class="prequestion">delete([5, -15, 17, 7, -18, 2], 0) == <input type="text" size="30" name="Test_Libraries_List_delete_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_3:L" value="[false, true, true, true, true, false]">
+<input type="hidden" name="Test_Libraries_List_delete_3:I" value="2">
+<pre class="prequestion">delete([false, true, true, true, true, false], 2) == <input type="text" size="30" name="Test_Libraries_List_delete_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_delete_3:another" value="yes">
