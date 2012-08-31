@@ -740,10 +740,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		while (env != null) {
 			ISourceLocation loc = env.getLocation();
 			String name = env.getName();
-			if (name != null && loc != null) {
+			if (loc != null) {
 				URI uri = loc.getURI();
 				b.append('\t');
-				b.append(uri.getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
+				b.append(uri.getRawPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn());
+				if(name != null)
+					b.append(": " + name);
 				b.append('\n');
 			} else if (name != null) {
 				b.append('\t');
