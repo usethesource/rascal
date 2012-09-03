@@ -1706,7 +1706,14 @@ public class Prelude {
 	}
 
 	private Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
-		return store.lookupConstructor(type, constructorName);
+		Set<Type> constructors = new HashSet<Type>();
+		
+		for (Type constructor : store.lookupConstructor(type, constructorName)) {
+			if (constructor.getArity() == arity)
+				constructors.add(constructor);
+		}
+		
+		return constructors;
 	}
 
 	
