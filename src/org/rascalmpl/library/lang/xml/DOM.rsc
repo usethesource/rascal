@@ -68,7 +68,7 @@ Read the sample note file, parse it, and construct a DOM instance.
 <screen>
 import IO;
 import lang::xml::DOM;
-N = readFile(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/xml/note.xml|);
+N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 parseXMLDOM(N);
 </screen>
 The DOM instance contains every single character (including spaces and newlines)
@@ -87,7 +87,7 @@ Read the sample note file, parse it, and construct a DOM instance (using `parseX
 <screen>
 import IO;
 import lang::xml::DOM;
-N = readFile(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/xml/note.xml|);
+N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 parseXMLDOMTrim(N);
 </screen>
 All whitespace characters have been removed and do not occur in the trimmed DOM instance.
@@ -104,7 +104,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 <screen>
 import IO;
 import lang::xml::DOM;
-F = readFile(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlRaw(parseXMLDOM(F));
 println(S);
@@ -122,7 +122,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 <screen>
 import IO;
 import lang::xml::DOM;
-F = readFile(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlCompact(parseXMLDOM(F));
 println(S);
@@ -140,7 +140,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 <screen>
 import IO;
 import lang::xml::DOM;
-F = readFile(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlPretty(parseXMLDOM(F));
 println(S);

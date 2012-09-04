@@ -57,7 +57,7 @@ Returns the bottom nodes of Graph `G`, i.e., the leaf nodes that don't have any 
 
 Examples:
 <screen>
-import analysis::graphs::Graph
+import analysis::graphs::Graph;
 bottom({<1,2>, <1,3>, <2,4>, <3,4>});
 </screen>
 }

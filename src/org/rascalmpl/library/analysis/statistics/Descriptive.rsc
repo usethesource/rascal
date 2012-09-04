@@ -1,4 +1,4 @@
-module stat::Descriptive
+module analysis::statistics::Descriptive
 
 @doc{
 Synopsis: Geometric mean of data values.
@@ -47,7 +47,7 @@ This is the same as the 50th [percentile].
 
 Examples:
 <screen>
-import stat::Descriptive;
+import analysis::statistics::Descriptive;
 median([1,2,5,7,8]);
 median([1,2,2,6,7,8]);
 </screen>
