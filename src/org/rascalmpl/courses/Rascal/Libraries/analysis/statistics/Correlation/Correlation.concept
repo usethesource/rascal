@@ -5,4 +5,4 @@ Compute the [correlation](http://en.wikipedia.org/wiki/Correlation) between pair
 Correlation measures the statistical relationship between two sets of data.
 
 The following functions are provided:
-<toc Rascal/Libraries/stat/Correlation>
+<toc Rascal/Libraries/analysis/statistics/Correlation>

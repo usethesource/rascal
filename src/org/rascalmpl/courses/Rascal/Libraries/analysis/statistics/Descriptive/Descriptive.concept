@@ -9,7 +9,7 @@ Provides the following univariate (single variable) statistics functions:
 Examples:
 
 <screen>
-import stat::Descriptive;
+import analysis::statistics::Descriptive;
 D = [67, 88, 55, 92.5, 102, 51];
 mn = min(D);
 mx = max(D);

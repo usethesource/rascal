@@ -105,55 +105,17 @@
 ok
 <span class="prompt">rascal></span>import lang::xml::DOM;
 ok
-<span class="prompt">rascal></span>D = parseXMLDOM(readFile(|std:///experiments/RascalTutor/Rascal/Libraries/lang/xml/note.xml|));
-Node: document(element(
-    none(),
-    "note",
-    [
-      charData("\n"),
-      element(
-        none(),
-        "to",
-        [charData("Jurgen")]),
-      charData("\n"),
-      element(
-        none(),
-        "to",
-        [charData("Tijs")]),
-      charData("\n"),
-      element(
-        none(),
-        "from",
-        [charData("Paul")]),
-      charData("\n"),
-      element(
-        none(),
-        "date",
-        [charData("2012-04-01")]),
-      charData("\n"),
-      element(
-        none(),
-        "heading",
-        [
-          attribute(
-            none(),
-            "font",
-            "bold"),
-          charData("Reminder")
-        ]),
-      charData("\n"),
-      element(
-        none(),
-        "body",
-        [charData("Don\'\\t forget to run the Rascal tests!")]),
-      charData("\n")
-    ]))
+<span class="prompt">rascal></span>D = parseXMLDOM(readFile(|tutor:///Rascal/Libraries/lang/xml/note.xml|));
+|stdin:///|(16,55,&lt;1,16>,&lt;1,71>): PathNotFound(|tutor:///Rascal/Libraries/lang/xml/note.xml|)
+	somewhere in: public org.eclipse.imp.pdb.facts.IValue org.rascalmpl.library.Prelude.readFile(org.eclipse.imp.pdb.facts.ISourceLocation,org.rascalmpl.interpreter.IEvaluatorContext)
+	somewhere in: ___SCREEN_INSTANCE___
+
+
 </pre> With the DOM instance <code>D</code> available we can extract the strings from all <code>to</code> elements:
 <pre class="screen"><span class="prompt">rascal></span>for(/element(_,&quot;to&quot;,/str N) := D) 
 <span class="continuation">>>>>>>></span>    println(N);
-Jurgen
-Tijs
-list[void]: []
+|stdin:///|(31,1,&lt;1,31>,&lt;1,32>): Undeclared variable, function or constructor: D
+
 </pre> This can be read as follows:
  <ul><li> Create the DOM instance <code>D</code> for the note file.</li>
 <li> Match the D for elements that have <code>"to"</code> as second field. Such an element looks like: <code>element(none(),"to",[charData("Jurgen")])</code>.   We use a <a href="/Rascal/Patterns/Abstract/Descendant/Descendant.html">Descendant</a> pattern <code>/</code> to achieve this: first to find the nested <code>element</code> with a <code>"to"</code> field, and then to find the embedded string in that element.
@@ -169,7 +131,7 @@ list[void]: []
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/lang/xml/DOM&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/lang/xml/DOM&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 2 warnings in this concept</span></div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

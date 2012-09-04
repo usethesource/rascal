@@ -48,7 +48,7 @@
                            
                            
 <div id="Usage">
-<span class="sectionHead">Usage</span>  <code>import stat::SimpleRegression;</code>
+<span class="sectionHead">Usage</span>  <code>import analysis::statistics::SimpleRegression;</code>
  </AUTOINSERTED>
 
 </div>
@@ -99,9 +99,8 @@
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import stat::SimpleRegression;
-|stdin:///|(7,22,&lt;1,7>,&lt;1,29>): Could not load module stat::SimpleRegression: File rascal://stat::SimpleRegression not found.
-
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import analysis::statistics::SimpleRegression;
+ok
 </pre> Take data that are roughly related to the line: <code>y = 2 + 3 * x</code>.
 <pre class="screen"><span class="prompt">rascal></span>list[tuple[num,num]] D = [&lt;1.0,4.7&gt;, &lt;2.0,8.3&gt;, &lt;3.0,10.1&gt;,&lt;4.0,14.5&gt;];
 list[tuple[num,num]]: [
@@ -111,22 +110,17 @@ list[tuple[num,num]]: [
   &lt;4.0,14.5>
 ]
 <span class="prompt">rascal></span>intercept(D);
-|stdin:///|(0,9,&lt;1,0>,&lt;1,9>): Undeclared variable, function or constructor: intercept
-
+num: 1.5999999999999996
 <span class="prompt">rascal></span>slope(D);
-|stdin:///|(0,5,&lt;1,0>,&lt;1,5>): Undeclared variable, function or constructor: slope
-
+num: 3.12
 </pre>  So we infer from the data that the line is actually: <code>y = 1.6 + 3.1 * x</code>.
   We use this to predict the value of <code>y</code> for <code>x</code> = 5:
 <pre class="screen"><span class="prompt">rascal></span>predict(D, 5);
-|stdin:///|(0,7,&lt;1,0>,&lt;1,7>): Undeclared variable, function or constructor: predict
-
+num: 17.200000000000003
 <span class="prompt">rascal></span>meanSquareError(D);
-|stdin:///|(0,15,&lt;1,0>,&lt;1,15>): Undeclared variable, function or constructor: meanSquareError
-
+num: 0.5640000000000001
 <span class="prompt">rascal></span>R(D);
-|stdin:///|(0,1,&lt;1,0>,&lt;1,1>): Undeclared variable, function or constructor: R
-
+num: 0.9886098308181855
 </pre>
 </div>
 
@@ -136,7 +130,7 @@ list[tuple[num,num]]: [
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Libraries/analysis/statistics/SimpleRegression&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Libraries/analysis/statistics/SimpleRegression&new=true"><b>New Subconcept</b></a>] |
                [<a id="compileAction" href="/compile?name=Rascal"><b>Recompile Course</b></a>] |
-               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]<span class="inlineError"> 6 warnings in this concept</span></div>
+               [<a id="warnAction" href="/Rascal/warnings.html"><b>Warnings</b></a>]</div>
 <span class="editMenuFooter">Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. For all other questions and remarks, visit <a href="http://ask.rascal-mpl.org">ask.rascal-mpl.org</a>. </span>
 </div>
 </td></tr></table>

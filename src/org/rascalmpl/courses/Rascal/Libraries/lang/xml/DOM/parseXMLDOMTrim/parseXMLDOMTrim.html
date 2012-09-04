@@ -70,7 +70,7 @@
 ok
 <span class="prompt">rascal></span>import lang::xml::DOM;
 ok
-<span class="prompt">rascal></span>N = readFile(|std:///experiments/RascalTutor/Rascal/Libraries/lang/xml/note.xml|);
+<span class="prompt">rascal></span>N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 str: "\&lt;note\>\n\&lt;to\>Jurgen\&lt;/to\>\n\&lt;to\>Tijs\&lt;/to\>\n\&lt;from\>Paul\&lt;/from\>\n\&lt;date\>2012-04-01\&lt;/date\>\n\&lt;heading font=\"bold\"\>Reminder\&lt;/heading\>\n\&lt;body\>Don\'\\t forget to run the Rascal tests!\&lt;/body\>\n\&lt;/note\>"
 <span class="prompt">rascal></span>parseXMLDOMTrim(N);
 Node: document(element(

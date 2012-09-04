@@ -1,6 +1,6 @@
 <AUTOINSERTED>
 Name: SimpleRegression
-Usage: `import stat::SimpleRegression;`
+Usage: `import analysis::statistics::SimpleRegression;`
 </AUTOINSERTED>
 
 Description:
@@ -25,7 +25,7 @@ The following functions are provided:
 
 Examples:
 <screen>
-import stat::SimpleRegression;
+import analysis::statistics::SimpleRegression;
 //Take data that are roughly related to the line: `y = 2 + 3 * x`.
 list[tuple[num,num]] D = [<1.0,4.7>, <2.0,8.3>, <3.0,10.1>,<4.0,14.5>];
 intercept(D);
