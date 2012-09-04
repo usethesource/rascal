@@ -1,4 +1,4 @@
-module stat::Correlation
+module analysis::statistics::Correlation
 
 @doc{
 Synopsis: Pearson product-moment correlation coefficient.
@@ -51,7 +51,7 @@ Computes the [covariance](http://en.wikipedia.org/wiki/Covariance) between the `
 
 Examples:
 <screen>
-import stat::Correlation;
+import analysis::statistics::Correlation;
 covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
 </screen>
 }

@@ -1,4 +1,4 @@
-module stat::Inference
+module analysis::statistics::Inference
 
 @doc{
 Synopsis: Chi-square coefficient of data values.
@@ -13,7 +13,7 @@ Consider an example from the web page mentioned above.
 To test the hypothesis that a random sample of 100 people has been drawn from a population in which men and women are equal in frequency, the observed number of men and women would be compared to the theoretical frequencies of 50 men and 50 women. If there were 44 men in the sample and 56 women, then we have the following:
 
 <screen>
-import stat::Inference;
+import analysis::statistics::Inference;
 chiSquare([<50, 44>, <50, 56>])
 </screen>
 
@@ -69,14 +69,14 @@ We use the data from the following [example](http://web.mst.edu/~psyworld/texamp
 First, we compute the t-statistic using the formula given above.
 <screen>
 import util::Math;
-import stat::Descriptive;
+import analysis::statistics::Descriptive;
 import List;
 s1 = [5,7,5,3,5,3,3,9];
 s2 = [8,1,4,6,6,4,1,2];
 (mean(s1) - mean(s2))/sqrt(variance(s1)/size(s1) + variance(s2)/size(s2));
 //This is the same result as obtained in the cited example.
 //We can also compute it directly using the `tTest` functions:
-import stat::Inference;
+import analysis::statistics::Inference;
 tTest(s1, s2);
 // Observe that this is a smaller value than comes out directly of the formula.
 // Recall that: _The number returned is the smallest significance level at which one can reject the null hypothesis that the two means are equal in favor of the two-sided alternative that they are different._
@@ -162,7 +162,7 @@ value between 0 (completely equal distribution) and
 
 Examples:
 <screen>
-import stat::Inference;
+import analysis::statistics::Inference;
 // A completely equal distribution:
 gini([<10000, 1>, <10000, 1>, <10000, 1>]);
 // A rather unequal distribution:
