@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::CourseManager
+module CourseManager
 
 // The CourseManager handles all requests from the web server:
 // - compile: compile a course
@@ -24,11 +24,11 @@ import util::Math;
 import  analysis::graphs::Graph;
 import Set;
 import Map;
-import experiments::RascalTutor::CourseModel;
-import experiments::RascalTutor::HTMLUtils;
-import experiments::RascalTutor::RascalUtils;
-import experiments::RascalTutor::ValueGenerator;
-import experiments::RascalTutor::CourseCompiler;
+import CourseModel;
+import HTMLUtils;
+import RascalUtils;
+import ValueGenerator;
+import CourseCompiler;
 import ValueIO;
 
 import IO;
@@ -72,7 +72,7 @@ public str edit(ConceptName cn, bool newConcept){
                     \<input type=\"hidden\" name=\"new\" value=\"<newConcept>\"\> \<br /\>
                     \<div id=\"editErrors\"\>errors\</div\>\n
                     \<input type=\"submit\" id=\"saveButton\" value=\"Save\"\>
-                    \<div id=\"pleaseWaitMessage\"\>\<img src=\"/Courses/images/loader-light.gif\" width=\"16\" height=\"16\" /\> Processing the changes in concept <i(basename(cn))> and regenerating index and warnings for course <i(rootname(cn))>.\</div\>
+                    \<div id=\"pleaseWaitMessage\"\>\<img src=\"/images/loader-light.gif\" width=\"16\" height=\"16\" /\> Processing the changes in concept <i(basename(cn))> and regenerating index and warnings for course <i(rootname(cn))>.\</div\>
                     \</form\>"
                   ))
              ));

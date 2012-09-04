@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.ambiguousMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.interruptedExceptionMessage;

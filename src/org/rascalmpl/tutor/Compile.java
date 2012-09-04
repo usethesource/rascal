@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,31 +24,31 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
-public class Edit extends TutorHttpServlet {
+public class Compile extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		if(debug)System.err.println("Edit, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
-		String concept = getStringParameter(request, "concept");
-		boolean newConcept = getStringParameter(request, "new").equals("true");
 		
-		response.setContentType("text/html");
-		response.setStatus(HttpServletResponse.SC_OK);
+		if(debug) System.err.println("Compile, doGet: " + request.getRequestURI());
+		String name = getStringParameter(request, "name");
 		PrintWriter out = response.getWriter();
 		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("edit", vf.string(concept), vf.bool(newConcept));
-			String resp = ((IString) result).getValue();
-			out.println(resp);
+			//IRascalMonitor monitor = evaluator.getMonitor();
+			//monitor.startJob("Compiling course");
+			IValue result = evaluator.call("compile", vf.string(name));
+			//monitor.endJob(true);
+			out.println(((IString) result).getValue());
 		}
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));
 			e.printStackTrace(out);
+			out.println("Rascal stacktrace:");
+			out.println(escapeForHtml(evaluator.getStackTrace()));
 		}
 		finally {
 			out.close();
 		}
 	}
-
 }

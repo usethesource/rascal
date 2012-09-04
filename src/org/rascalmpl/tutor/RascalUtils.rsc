@@ -8,9 +8,9 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::RascalUtils
+module RascalUtils
 
-import experiments::RascalTutor::CourseModel;
+import CourseModel;
 import Exception;
 
 import IO;

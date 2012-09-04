@@ -9,10 +9,10 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::HTMLGenerator
+module HTMLGenerator
 
-import experiments::RascalTutor::HTMLUtils;
-import experiments::RascalTutor::CourseModel;
+import HTMLUtils;
+import CourseModel;
 
 import String;
 import ToString;
@@ -310,9 +310,9 @@ private str markupRestLine(str line){
     
     case /^\</ => "&lt;"
     
-    case /^\/\*<dig:[0-9][0-9]?>\*\//  => "\<img src=\"/Courses/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9][0-9]?>\*\//  => "\<img src=\"/images/<dig>.png\"\>"
     
-    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"/Courses/<conceptPath>/<file>\"\>"
+    case /^!\[<alt:[^\]]*>\]\(<file:[A-Za-z0-9\-\_\.\/]+\.png><opts:[^\)]*>\)/ => "\<img class=\"TutorImg\" <getImgOpts(opts,alt)> alt=\"<alt>\" src=\"/<conceptPath>/<file>\"\>"
     
    };
 }
@@ -373,7 +373,7 @@ private str markupCode(str text){
     case /^&/    => "&amp;"
     case /^\$\$/ => "$"
     case /^\$<var:[A-Za-z]*><ext:[_\^\+\-A-Za-z0-9]*>\$/ => i(var) + markupSubs(ext)
-    case /^\/\*<dig:[0-9][0-9]?>\*\// => "\<img src=\"/Courses/images/<dig>.png\"\>"
+    case /^\/\*<dig:[0-9][0-9]?>\*\// => "\<img src=\"/images/<dig>.png\"\>"
   }
 }
 
@@ -440,16 +440,16 @@ private str printShellInput(list[str] input) = { //println("input was: <input>")
 
 data ShellException = parseError(str message, loc location) | error(str message);
 
-@javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
+@javaClass{org.rascalmpl.tutor.HTMLGenerator}
 @reflect{to access the evaluator}
 public java str shell(str command, int duration) throws Timeout, ShellException, ShellException;
 
 @reflect{to access the evaluator}
-@javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
+@javaClass{org.rascalmpl.tutor.HTMLGenerator}
 public java str startShell();
 
 @reflect{to access the evaluator}
-@javaClass{org.rascalmpl.library.experiments.RascalTutor.HTMLGenerator}
+@javaClass{org.rascalmpl.tutor.HTMLGenerator}
 public java str endShell();
 
 private str markupScreen(list[str] lines, bool generatesError){
@@ -647,7 +647,7 @@ public str refToUnresolvedConcept(ConceptName fromCourse, ConceptName toCourse, 
      courseTxt = (fromCourse == toCourse) ? "" : ((toConcept == toCourse) ? "" : "<toCourse>:");
      conceptTxt = short ? "<basename(toConcept)>" : "<toConcept>";
      //println("txt = <courseTxt><conceptTxt>");
-     return  "\<a href=\"/Courses/<cn>/<basename(cn)>.html\"\><courseTxt><conceptTxt>\</a\>";  
+     return  "\<a href=\"/<cn>/<basename(cn)>.html\"\><courseTxt><conceptTxt>\</a\>";  
   }     
   if(size(options) == 0){
      addWarning("Reference to unknown course or concept: <toCourse>:<toConcept>");
@@ -668,13 +668,13 @@ public str refToResolvedConcept(ConceptName toConcept){
 
 public str refToResolvedConcept(ConceptName toConcept, bool short){
   name = short ? basename(toConcept) : toConcept;
-  return "\<a href=\"/Courses/<toConcept>/<basename(toConcept)>.html\"\><name>\</a\>";
+  return "\<a href=\"/<toConcept>/<basename(toConcept)>.html\"\><name>\</a\>";
 }
 
 // Refer to an external link
 
 public str link(str url, str text){
   //println("link: <link>, <text>");
-  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/Courses/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
+  return "\<a href=\"<url>\"\><(text=="")?url:text>\<img src=\"/images/www-icon.png\" with=\"20\" height=\"20\"\>\</a\>";
 }
 

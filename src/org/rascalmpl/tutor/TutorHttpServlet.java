@@ -9,7 +9,7 @@
 
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;

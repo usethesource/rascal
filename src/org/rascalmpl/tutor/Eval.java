@@ -10,45 +10,49 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.interpreter.result.Result;
 
 @SuppressWarnings("serial")
-public class Compile extends TutorHttpServlet {
+public class Eval extends TutorHttpServlet {
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		if(debug)System.err.println("EvalExpr, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		
-		if(debug) System.err.println("Compile, doGet: " + request.getRequestURI());
-		String name = getStringParameter(request, "name");
+		String expr = getStringParameter(request,"expr");
 		PrintWriter out = response.getWriter();
-		
+
 		try {
-			IValueFactory vf = evaluator.getValueFactory();
-			//IRascalMonitor monitor = evaluator.getMonitor();
-			//monitor.startJob("Compiling course");
-			IValue result = evaluator.call("compile", vf.string(name));
-			//monitor.endJob(true);
-			out.println(((IString) result).getValue());
+			Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
+			String resp = "<tt>" + result.getValue().toString() + "</tt>";
+			out.println(resp);
 		}
 		catch (Throwable e) {
 			out.println(escapeForHtml(e.getMessage()));
 			e.printStackTrace(out);
-			out.println("Rascal stacktrace:");
-			out.println(escapeForHtml(evaluator.getStackTrace()));
 		}
 		finally {
 			out.close();
 		}
 	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("text/plain");
+		PrintWriter out = response.getWriter();		                
+		out.println("EvalExpr: Unexpected post request" + request.getRemoteUser());
+		out.close();
+	}
+
 }

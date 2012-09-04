@@ -10,7 +10,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,13 +49,13 @@ public class TutorDefaultHttpServlet extends DefaultServlet{
 //		System.err.println("TutorDefaultHttpServlet, doGet: " + request.getRequestURI());
 		String rname = request.getRequestURI();
 		if(rname.equals("/"))
-			rname = "/Courses/index.html";
+			rname = "/index.html";
 		
 		// Send correct MIME Type to browser
 		String mime = getServletContext().getMimeType(rname);
 		response.setContentType(mime);
 		
-		String fname = "std:///experiments/RascalTutor" + rname;
+		String fname = "courses:///" + rname;
 		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fname));
 		ServletOutputStream out = response.getOutputStream();
 		byte buf[] = new byte[10000];

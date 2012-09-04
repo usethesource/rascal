@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ public class Show extends TutorHttpServlet {
 		String baseName = i > 0 ? concept.substring(i) : concept;
 		if(!baseName.endsWith(".html"))
 			baseName += ".html";
-		String fileName = resourceBase + "/" + "Courses/" + concept + "/" + baseName;
+		String fileName = resourceBase + concept + "/" + baseName;
 		if(debug) System.err.println("ShowConcept, fileName: " + fileName);
 		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fileName));
 		ServletOutputStream out = response.getOutputStream();

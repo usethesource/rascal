@@ -9,9 +9,9 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::CourseCompiler
+module CourseCompiler
 
-import experiments::RascalTutor::CourseModel;
+import CourseModel;
 import util::Math;
 import String;
 import Set;
@@ -23,12 +23,12 @@ import IO;
 import ValueIO;
 import DateTime;
 import Exception;
-import experiments::RascalTutor::HTMLUtils;
-import experiments::RascalTutor::HTMLGenerator;
-import experiments::RascalTutor::ValueGenerator;
+import HTMLUtils;
+import HTMLGenerator;
+import ValueGenerator;
 import util::Eval;
 import util::Reflective;
-import experiments::RascalTutor::RascalUtils;
+import RascalUtils;
 import util::Benchmark;
 import util::Math;
 import util::Monitor;
@@ -167,7 +167,7 @@ public str makeNavigationPanel1(ConceptName rootConcept, map[ConceptName,Concept
   try {
     panel = "";
     base = basename(rootConcept);
-    dirConcept = "\<a id=\"<rootConcept>\" href=\"/Courses/<rootConcept>/<base>.html\"\><base>\</a\>";
+    dirConcept = "\<a id=\"<rootConcept>\" href=\"/<rootConcept>/<base>.html\"\><base>\</a\>";
     
     if(concepts[rootConcept]?){
        for(child <- children(concepts[rootConcept])){
@@ -181,7 +181,7 @@ public str makeNavigationPanel1(ConceptName rootConcept, map[ConceptName,Concept
 }
 
 public str getNavigationPanel(ConceptName rootConcept){
-  return ahref("navPanePlaceHolder", "/Courses/<rootname(rootConcept)>/navigate.html", "Navigation" ) +"\<script type=\"text/javascript\"\> var navigationPaneSource=\"/Courses/<rootname(rootConcept)>/navigate.html\"; \</script\>";// panelCache[rootConcept];
+  return ahref("navPanePlaceHolder", "/<rootname(rootConcept)>/navigate.html", "Navigation" ) +"\<script type=\"text/javascript\"\> var navigationPaneSource=\"/<rootname(rootConcept)>/navigate.html\"; \</script\>";// panelCache[rootConcept];
 }
 
 
@@ -312,7 +312,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
   	  isExam ?  h1("Online Exam <basename(cn)>") + html_body
   	  
   	         :  table("container",
-		  	        tr(tdid("tdlogo", "\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>") +
+		  	        tr(tdid("tdlogo", "\<a id=\"tutorAction\" href=\"/index.html\"\><logo>\</a\>") +
 		  	           tdid("tdsearch", searchBox(cn))) +
 		  	        
 		  	        tr(tdid("tdnav", getNavigationPanel(rootname(cn))) +
@@ -353,17 +353,17 @@ public str prelude(str courseName){
 	  		 '\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>
 	  		 '\<script type=\"text/javascript\" src=\"exam.js\"\>\</script\>";
   else
-	  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/prelude.css\"/\>
-	  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/Courses/jquery.autocomplete.css\"/\>
-	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery-1.4.2.min.js\"\>\</script\>
-	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.colorbox-min.js\"\>\</script\>
-	  		 '\<script type=\"text/javascript\" src=\"/Courses/jquery.cookie.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.jstree.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.autocomplete.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/jquery.history.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/globals.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/prelude.js\"\>\</script\>
-	         '\<script type=\"text/javascript\" src=\"/Courses/<courseName>/course.js\"\>\</script\>\n"
+	  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/prelude.css\"/\>
+	  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/jquery.autocomplete.css\"/\>
+	  		 '\<script type=\"text/javascript\" src=\"/jquery-1.4.2.min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/jquery.colorbox-min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/jquery.cookie.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/jquery.jstree.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/jquery.autocomplete.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/jquery.history.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/globals.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/prelude.js\"\>\</script\>
+	         '\<script type=\"text/javascript\" src=\"/<courseName>/course.js\"\>\</script\>\n"
 	         ;
 }
 
@@ -405,7 +405,7 @@ public str searchBox(ConceptName cn){
   return "
          '\<div id=\"searchBox\"\>
          '  \<form method=\"GET\" id=\"searchForm\" action=\"/search\"\> 
-         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"/Courses/images/magnify.png\"\>
+         '    \<img id=\"searchIcon\" height=\"20\" width=\"20\" src=\"/images/magnify.png\"\>
          '    \<input type=\"hidden\" name=\"concept\" value=\"<cn>\"\>
          '    \<input type=\"text\" id=\"searchField\" name=\"term\" autocomplete=\"off\"\>\<br /\>
          '    \<div id=\"popups\"\>\</div\>
@@ -416,7 +416,7 @@ public str searchBox(ConceptName cn){
 
 public str editMenu(Concept C){
   cn = C.fullName;
-  warnings = "/Courses/<rootname(cn)>/warnings.html";
+  warnings = "/<rootname(cn)>/warnings.html";
   n = size(C.warnings);
   msg = "";
   if(n == 1)
@@ -424,7 +424,7 @@ public str editMenu(Concept C){
   if(n > 1)
      msg = inlineError(" <n> warnings in this concept");
  
-  return "\n\<a id=\"tutorAction\" href=\"/Courses/index.html\"\><logo>\</a\>" +
+  return "\n\<a id=\"tutorAction\" href=\"/index.html\"\><logo>\</a\>" +
          "\<div id=\"editMenu\"\>" +
               "[\<a id=\"editAction\" href=\"/edit?concept=<cn>&new=false\"\>\<b\>Edit\</b\>\</a\>] | 
                [\<a id=\"newAction\" href=\"/edit?concept=<cn>&new=true\"\>\<b\>New Subconcept\</b\>\</a\>] |
@@ -760,11 +760,11 @@ public str status(str id, str txt){
 }
 
 public str good(){
-  return "\<img height=\"25\" width=\"25\" src=\"/Courses/images/good.png\"/\>";
+  return "\<img height=\"25\" width=\"25\" src=\"/images/good.png\"/\>";
 }
 
 public str bad(){
-   return "\<img height=\"25\" width=\"25\" src=\"/Courses/images/bad.png\"/\>";
+   return "\<img height=\"25\" width=\"25\" src=\"/images/bad.png\"/\>";
 }
 
 public str status(QuestionName qid){

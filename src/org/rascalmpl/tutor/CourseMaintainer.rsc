@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::CourseMaintainer
+module CourseMaintainer
 
 import String;
 import List;
@@ -17,9 +17,9 @@ import Set;
 import Map;
 import IO;
 import  analysis::graphs::Graph;
-import experiments::RascalTutor::CourseModel;
-import experiments::RascalTutor::CourseCompiler;
-import experiments::RascalTutor::CourseManager;
+import CourseModel;
+import CourseCompiler;
+import CourseManager;
 
 
 // Compile a complete course

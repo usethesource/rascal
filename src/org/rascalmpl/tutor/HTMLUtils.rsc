@@ -8,12 +8,12 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::HTMLUtils
+module HTMLUtils
 
 // HTML utilities
 
 import List;
-import experiments::RascalTutor::CourseModel;
+import CourseModel;
 import DateTime;
 
 public str html(str head, str body) {
@@ -213,7 +213,7 @@ public str escapeForJavascript(str txt){
 
 public str showConceptURL(ConceptName cn){
    bn = basename(cn);
-   return "\<a href=\"/Courses/<cn>/<bn>.html\"\><bn>\</a\>";
+   return "\<a href=\"/<cn>/<bn>.html\"\><bn>\</a\>";
 }
 
 // Show a concept as a a path name with clickable parts
