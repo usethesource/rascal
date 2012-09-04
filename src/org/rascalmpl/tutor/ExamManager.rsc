@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::ExamManager
+module ExamManager
 
 import String;
 import List;
@@ -19,9 +19,9 @@ import IO;
 import util::Math;
 import lang::csv::IO;
 import  analysis::graphs::Graph;
-import experiments::RascalTutor::CourseModel;
-import experiments::RascalTutor::CourseCompiler;
-import experiments::RascalTutor::CourseManager;
+import CourseModel;
+import CourseCompiler;
+import CourseManager;
                              
 
 // Compile one concept as an exam

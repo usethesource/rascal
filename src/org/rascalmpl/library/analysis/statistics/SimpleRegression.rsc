@@ -1,4 +1,4 @@
-module stat::SimpleRegression
+module analysis::statistics::SimpleRegression
 
 
 @doc{

@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,39 +20,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
 
 @SuppressWarnings("serial")
-public class Eval extends TutorHttpServlet {
-
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		if(debug)System.err.println("EvalExpr, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
-		
-		String expr = getStringParameter(request,"expr");
-		PrintWriter out = response.getWriter();
-
-		try {
-			Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
-			String resp = "<tt>" + result.getValue().toString() + "</tt>";
-			out.println(resp);
-		}
-		catch (Throwable e) {
-			out.println(escapeForHtml(e.getMessage()));
-			e.printStackTrace(out);
-		}
-		finally {
-			out.close();
-		}
-	}
+public class ValidateExam extends TutorHttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		response.setContentType("text/plain");
-		PrintWriter out = response.getWriter();		                
-		out.println("EvalExpr: Unexpected post request" + request.getRemoteUser());
+		if(debug)System.err.println("ValidateExam, doGet: " + request);
+
+		String pmap = getParametersAsMap(request);
+		response.setContentType("text/html");
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		Result<IValue> result = evaluator.eval(null, "validateExam(" + pmap + ")", URI.create("stdin:///"));
+
+		if(debug) System.err.println("ValidateExam gets back: " + ((IString)result.getValue()).getValue());
+		out.println(((IString)result.getValue()).getValue());
 		out.close();
 	}
-
 }

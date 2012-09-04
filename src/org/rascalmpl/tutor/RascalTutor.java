@@ -11,7 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,12 +29,13 @@ import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
 	private final Evaluator eval;
-	final static String BASE = "std:///experiments/RascalTutor/";
+	final static String BASE = "courses:///";
 	private Server server;
 	
 	public RascalTutor() {
@@ -43,6 +44,15 @@ public class RascalTutor {
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
+		
+		URIResolverRegistry resolver = eval.getResolverRegistry();
+		ClassResourceInputOutput courses = new ClassResourceInputOutput(resolver, "courses", getClass(), "/org/rascalmpl/courses");
+		resolver.registerInputOutput(courses);
+		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolver, "tutor", getClass(), "/org/rascalmpl/tutor");
+		resolver.registerInputOutput(tutor);
+		
+		eval.addRascalSearchPath(URI.create("tutor:///"));
+		eval.addRascalSearchPath(URI.create("courses:///"));
 	}
 	
 	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
@@ -51,7 +61,7 @@ public class RascalTutor {
 	
 	public void start(final int port, IRascalMonitor monitor) throws Exception {
 		monitor.startJob("Loading Course Manager");
-		eval.eval(monitor, "import " + "experiments::RascalTutor::CourseManager" + ";", URI.create("stdin:///"));
+		eval.eval(monitor, "import " + "CourseManager" + ";", URI.create("stdin:///"));
 		monitor.endJob(true);
 		
 		Log.setLog(new Logger() {
@@ -172,7 +182,7 @@ public class RascalTutor {
 		context.setResourceBase(resourceBase); 
 		context.setAttribute("ResourceBase", resourceBase);
      
-		String welcome[] = { BASE + "Courses/index.html"};
+		String welcome[] = { BASE + "index.html"};
 		context.setWelcomeFiles(welcome);
 		
 		return context;

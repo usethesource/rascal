@@ -10,7 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.library.experiments.RascalTutor;
+package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,43 +24,31 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 @SuppressWarnings("serial")
-public class Save extends TutorHttpServlet {
+public class Edit extends TutorHttpServlet {
 
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		if(debug) System.err.println("Save, doGet: " + request.getRequestURI());
-		
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		if(debug)System.err.println("Edit, doGet: " + request.getRequestURI() + "?" + request.getQueryString());
 		String concept = getStringParameter(request, "concept");
-		String newContent = getStringParameter(request, "newcontent");
 		boolean newConcept = getStringParameter(request, "new").equals("true");
-		String resp;
-
+		
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
-
+		
 		try {
 			IValueFactory vf = evaluator.getValueFactory();
-			IValue result = evaluator.call("save", vf.string(concept), vf.string(newContent), vf.bool(newConcept));
-		    resp = ((IString) result).getValue();
-		    
-		    if (resp.startsWith("<!DOCTYPE")) {
-				out.println("<responses><response id=\"replacement\">" + escapeForHtml(resp) + "</response></responses>");
-		    }
-		    else {
-				out.println("<responses><response id=\"error\">" + escapeForHtml(resp) + "</response></responses>");
-		    }
-			
+			IValue result = evaluator.call("edit", vf.string(concept), vf.bool(newConcept));
+			String resp = ((IString) result).getValue();
+			out.println(resp);
 		}
 		catch (Throwable e) {
-			out.println("<responses><response id=\"error\">" + escapeForHtml(e.getMessage()));
+			out.println(escapeForHtml(e.getMessage()));
 			e.printStackTrace(out);
-			out.println("</response></responses>");
 		}
 		finally {
 			out.close();
 		}
 	}
+
 }

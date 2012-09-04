@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::CourseModel
+module CourseModel
 
 import  analysis::graphs::Graph;
 import List;
@@ -19,10 +19,10 @@ import ValueIO;
 import String;
 import Exception;
 import ParseTree;
-import experiments::RascalTutor::RascalUtils;
+import RascalUtils;
 
-public loc courseDir    = |std:///experiments/RascalTutor/Courses/|;
-public loc courseDirSVN = |std:///experiments/RascalTutor/Courses/.svn|;
+public loc courseDir    = |courses:///|;
+public loc courseDirSVN = |courses:///.svn|;
 public str remoteLoc = "remote-loc.value";
 public str remoteConcepts = "remote-concepts.value";
 
@@ -234,7 +234,7 @@ return "Name: <cn>
 public list[str] sectionKeywords = ["Name",  "Options", "Synopsis", "Syntax", "Types", "Function", "Usage", "Details", "Description",
                                    "Examples", "Benefits", "Pitfalls", "Questions"];
 
-public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/Courses/images/rascal-tutor-small.png\"\>";
+public str logo = "\<img id=\"leftIcon\" height=\"40\" width=\"40\" src=\"/images/rascal-tutor-small.png\"\>";
 
 // Read a concept file cn
 // - if a remote location is defined AND the extracted doc is non-empty, return it.

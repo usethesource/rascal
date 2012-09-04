@@ -8,7 +8,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::RascalTutor::ValueGenerator
+module ValueGenerator
 
 import Boolean;
 import util::Math;
@@ -20,7 +20,7 @@ import Map;
 import Relation;
 import IO;
 import DateTime;
-import experiments::RascalTutor::CourseModel;
+import CourseModel;
      
 // ---- Parsing types
 

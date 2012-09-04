@@ -4,7 +4,7 @@ Synopsis: Frequency distributions.
 }
 
 
-module stat::Frequency
+module analysis::statistics::Frequency
 
 import util::Math;
 
@@ -13,7 +13,7 @@ Synopsis: Compute a distribution: count how many times events are mapped to whic
 
 Examples:
 <screen>
-import stat::Frequency;
+import analysis::statistics::Frequency;
 distribution({<"chicken","animal">,<"bear","animal">,<"oak","plant">,<"tulip","plant">});
 distribution({<"alice",2>,<"bob",3>,<"claire",5>},5);
 </screen>
@@ -63,7 +63,7 @@ Returns 0 if the value is not comparable to the values set.
 Examples:
 
 <screen>
-import stat::Frequency;
+import analysis::statistics::Frequency;
 
 D = [1, 2, 1, 1, 3, 5];
 cumFreq(D, 1);
@@ -84,7 +84,7 @@ Description:
 Returns the cumulative percentage of values less than or equal to v (as a proportion between 0 and 1).
 
 <screen>
-import stat::Frequency;
+import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
 cumPct(D, 1);
 cumPct(D, 2);
@@ -105,7 +105,7 @@ Description:
 Returns the percentage of values that are equal to v (as a proportion between 0 and 1).
 Examples:
 <screen>
-import stat::Frequency;
+import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
 pct(D, 1);
 pct(D, 2);
