@@ -762,6 +762,21 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				return true;
 			}
 		}
+		
+		if (recoverer != null) {
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
+			recoverer.reviveStacks(recoveredNodes, input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			if (recoveredNodes.size() > 0) { // TODO Do something with the revived node. Is this the right location to do this?
+				for (int i = 0; i < recoveredNodes.size(); i++) {
+					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
+					addTodo(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
+				}
+				return findStacksToReduce();
+			}
+			
+			parseErrorOccured = true;
+		}
+		
 		return false;
 	}
 	
@@ -1073,7 +1088,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 */
 	@SuppressWarnings("unchecked")
 	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer, IDebugListener<P> debugListener){
-		
 		if(invoked){
 			throw new RuntimeException("Can only invoke 'parse' once.");
 		}
