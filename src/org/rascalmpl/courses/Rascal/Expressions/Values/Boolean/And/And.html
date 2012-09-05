@@ -64,6 +64,14 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  The <i>and</i> operator on Boolean values defined as follows:
   <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>1</sub> &amp;&amp; <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>true</code> </td></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>false</code> </td></tr></table> Boolean operators have <i>short circuit</i> semantics:  only those operands are evaluated that are needed to compute the result. In the case of the <code>&amp;&amp;</code> operator, the result is <code>false</code> if <code><i>Exp</i><sub>1</sub></code> evaluates to <code>false</code>, otherwise <code><i>Exp</i><sub>2</sub></code> is evaluated to determine the result.
+ <br/>
+<br/>
+
+ Note that <code>&amp;&amp;</code> backtracks over its argument expressions until it can find an evaluation that yields <code>true</code> unless there is none. This may happen if the left or right expression is a non-deterministic pattern match or a value generator.
+ <br/>
+<br/>
+
+ Variable assignments as a result of matching or generator expressions under a <code>&amp;&amp;</code> are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that if one of the argument expressions evaluates to false, then no binding is done either.
 
 </div>
 
@@ -71,11 +79,48 @@
 <div id="Examples">
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>true &amp;&amp; false;
 bool: false
+<span class="prompt">rascal></span>i &lt;- [1,2,3] &amp;&amp; (i % 2 == 0)
+bool: true
+<span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>if (i &lt;- [1,2,3] &amp;&amp; (i % 2 == 0))
+<span class="continuation">>>>>>>></span>  println("&lt;i> % 2 == 0");
+2 % 2 == 0
+ok
+<span class="prompt">rascal></span>for (i &lt;- [1,2,3,4] &amp;&amp; (i % 2 == 0)) 
+<span class="continuation">>>>>>>></span>  println("&lt;i> % 2 == 0");
+2 % 2 == 0
+4 % 2 == 0
+list[void]: []
 </pre>
 </div>
 
   	                       
+<div id="Benefits">
+<span class="sectionHead">Benefits</span>  <ul><li> the backtracking <code>&amp;&amp;</code> allows one to express searching for a computational solution in concise manner.</li>
+</ul>
+</div>
+
   	                       
+<div id="Pitfalls">
+<span class="sectionHead">Pitfalls</span>  <ul><li> side effects to global variables or IO in the context of a backtracking <code>&amp;&amp;</code> can lead to more effects than you bargained for.<br/>
+<br/>
+ <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>int i = 0;
+int: 0
+<span class="prompt">rascal></span>bool incr() { i += 1; return true; }
+bool (): bool incr();
+<span class="prompt">rascal></span>for (int j &lt;- [1,2,3] &amp;&amp; incr() &amp;&amp; (i % 2 == 0)) 
+<span class="continuation">>>>>>>></span>  println("once true for &lt;j>");
+once true for 2
+list[void]: []
+<span class="prompt">rascal></span>i;
+int: 3
+</pre></li>
+</ul>
+</div>
+
   	                       
 <a id="tutorAction" href="/index.html"><img id="leftIcon" height="40" width="40" src="/images/rascal-tutor-small.png"></a><div id="editMenu">[<a id="editAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/And&new=false"><b>Edit</b></a>] | 
                [<a id="newAction" href="/edit?concept=Rascal/Expressions/Values/Boolean/And&new=true"><b>New Subconcept</b></a>] |
