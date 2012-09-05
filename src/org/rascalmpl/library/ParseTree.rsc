@@ -120,15 +120,12 @@ data Tree
      | amb(set[Tree] alternatives)  
      | char(int character)
      ;
-data Tree
-     = error(Production prod, list[Tree] args, list[Tree] rest) /*2*/
-     | expected(Symbol symbol)
-     | erroramb(set[Tree] alternatives)
-     | errorcycle(Symbol symbol, int cycleLength)
-     ;
+
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) /*3*/
      | regular(Symbol def)
+     | error(Production prod, int dot)
+     | skipped()
      ;
      
 data Attr 

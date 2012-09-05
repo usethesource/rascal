@@ -97,7 +97,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<IConstructor, IS
 			listWriter.insert(VF.constructor(Factory.Tree_Char, VF.integer(characters[i])));
 		}
 		
-		return VF.constructor(Factory.Tree_Appl, VF.constructor(Factory.Production_Skipped), listWriter.done());
+		return VF.constructor(Factory.Tree_Appl, Factory.Production_Skipped.make(VF), listWriter.done());
 	}
 	
 	public ISourceLocation createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore){
