@@ -64,11 +64,15 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 			}
 		}
 		
-		return buildResult(input, from, input.length - 1);
+		return buildResult(input, from, input.length);
 	}
 	
 	private SkippedNode buildResult(int[] input, int from, int to) {
-		int[] chars = new int[to - from + 1];
+		if (from >= to) {
+			return new SkippedNode(new int[0], to);
+		}
+		
+		int[] chars = new int[to - from];
 		System.arraycopy(input, from, chars, 0, to - from);
 		
 		return new SkippedNode(chars, from);

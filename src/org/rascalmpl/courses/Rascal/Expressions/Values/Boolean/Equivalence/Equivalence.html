@@ -64,13 +64,26 @@
 <div id="Description">
 <span class="sectionHead">Description</span>   The <i>equivalence</i> operator on Boolean values defined as follows:
   <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>1</sub> &lt;==> <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>true</code> </td></tr><tr><td align="left"> <code>true</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>true</code>         </td><td align="left"> <code>false</code> </td></tr><tr><td align="left"> <code>false</code>       </td><td align="left"> <code>false</code>         </td><td align="left"> <code>true</code> </td></tr></table> Boolean operators have <i>short circuit</i> semantics:  only those operands are evaluated that are needed to compute the result. However, in the case of the <code>&lt;==></code> operator both operands have to be evaluated to determine the result.
+ <br/>
+<br/>
+
+ Note that the <code>&lt;==></code> operator backtracks over its arguments until it finds an evaluation that is <code>true</code>, unless there is none. Variable bindings that are the effect of matching  operators in its arguments are not visible outside the scope of the <code>&lt;==></code>.
 
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>false &lt;==&gt; false;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>false &lt;==&gt; false;
 bool: true
+<span class="prompt">rascal></span>(i &lt;- [1,2,3] &amp;&amp; (i % 2 == 0)) &lt;==&gt; (j &lt;- [1,2,3] &amp;&amp; (j % 3 == 0))
+bool: true
+<span class="prompt">rascal></span>for ((i &lt;- [1,2,3] &amp;&amp; (i % 2 == 0)) &lt;==&gt; (j &lt;- [1,2,3] &amp;&amp; (j % 3 == 0))) 
+<span class="continuation">>>>>>>></span>  println("true!");
+true!
+true!
+list[void]: []
 </pre>
 </div>
 

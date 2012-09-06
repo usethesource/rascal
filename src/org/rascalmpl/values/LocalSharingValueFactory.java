@@ -291,7 +291,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 			listWriter.insert(elems, start, length);
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			listWriter.insertAll(collection);
 		}
 
@@ -331,7 +331,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 			setWriter.insert(v);
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			setWriter.insertAll(collection);
 		}
 
@@ -363,7 +363,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 			relationWriter.insert(v);
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			relationWriter.insertAll(collection);
 		}
 
@@ -403,7 +403,7 @@ public class LocalSharingValueFactory implements IValueFactory{
 			mapWriter.insert(value);
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			mapWriter.insertAll(collection);
 		}
 	}

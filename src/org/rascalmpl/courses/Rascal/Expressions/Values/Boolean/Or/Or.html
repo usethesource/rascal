@@ -64,13 +64,30 @@
 <div id="Description">
 <span class="sectionHead">Description</span>  The <i>or</i> operator on Boolean values defined as follows:
   <table><col align="left" /><col align="left" /><col align="left" /><tr><th align="left"> <code><i>Exp</i><sub>1</sub></code> </th><th align="left"> <code><i>Exp</i><sub>2</sub></code>  </th><th align="left"> <code><i>Exp</i><sub>1</sub> || <i>Exp</i><sub>2</sub></code> </th></tr><tr><td align="left"> <code>true</code>    </td><td align="left"> <code>true</code>     </td><td align="left"> <code>true</code>               </td></tr><tr><td align="left"> <code>true</code>    </td><td align="left"> <code>false</code>    </td><td align="left"> <code>true</code>               </td></tr><tr><td align="left"> <code>false</code>   </td><td align="left"> <code>true</code>     </td><td align="left"> <code>true</code>               </td></tr><tr><td align="left"> <code>false</code>   </td><td align="left"> <code>false</code>    </td><td align="left"> <code>false</code>              </td></tr></table> Boolean operators have <i>short circuit</i> semantics:  only those operands are evaluated that are needed to compute the result. In the case of the <code>||</code> operator, the result is <code>true</code> if <code><i>Exp</i><sub>1</sub></code> evaluates to <code>true</code>, otherwise <code><i>Exp</i><sub>2</sub></code> is evaluated to determine the result.
+ <br/>
+<br/>
+
+ Note that <code>||</code> will backtrack over its argument expressions until it can find an evaluation that is <code>true</code>, unless there is none.
+ <br/>
+<br/>
+
+ Variable assignments as a result of matching or generator expressions under a <code>||</code> are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that it is statically required that both sides of an <code>||</code> introduce the same variable names of the same type.
 
 </div>
 
   	                       
 <div id="Examples">
-<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>false || true;
+<span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import IO;
+ok
+<span class="prompt">rascal></span>false || true;
 bool: true
+<span class="prompt">rascal></span>(i &lt;- [1,2,3,4] &amp;&amp; i % 2 == 0) || false
+bool: true
+<span class="prompt">rascal></span>for ((i &lt;- [1,2,3,4] &amp;&amp; i % 2 == 0) || false) 
+<span class="continuation">>>>>>>></span>  println("true for &lt;i>");
+true for 2
+true for 4
+list[void]: []
 </pre>
 </div>
 
