@@ -32,10 +32,13 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 	
-	private void reviveNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes, int[] input, int location, DoubleArrayList<AbstractStackNode<P>, P> recoveryNodes){
+	private void reviveNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes, int[] input, int location, DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes){
 		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
 			AbstractStackNode<P> recoveryNode = recoveryNodes.getFirst(i);
-			P prod = recoveryNodes.getSecond(i);
+			ArrayList<P> prods = recoveryNodes.getSecond(i);
+			
+			P prod = prods.get(0); // TODO Handle prefix sharing.
+			
 			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
 			int dot = recoveryNode.getDot();
 			
@@ -54,7 +57,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 	}
 	
 	private void reviveFailedNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes, int[] input, int location, ArrayList<AbstractStackNode<P>> failedNodes) {
-		DoubleArrayList<AbstractStackNode<P>, P> recoveryNodes = new DoubleArrayList<AbstractStackNode<P>, P>();
+		DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes = new DoubleArrayList<AbstractStackNode<P>, ArrayList<P>>();
 		
 		for(int i = failedNodes.size() - 1; i >= 0; --i){
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
@@ -94,7 +97,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 	 * The graph may split and merge, and even cycle, so we take care of knowing where
 	 * we have been and what we still need to do.
 	 */
-	private void findRecoveryNodes(AbstractStackNode<P> failer, DoubleArrayList<AbstractStackNode<P>, P> recoveryNodes) {
+	private void findRecoveryNodes(AbstractStackNode<P> failer, DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes) {
 		ObjectKeyedIntegerMap<AbstractStackNode<P>> visited = new ObjectKeyedIntegerMap<AbstractStackNode<P>>();
 		Stack<AbstractStackNode<P>> todo = new Stack<AbstractStackNode<P>>();
 		
@@ -113,12 +116,13 @@ public class Recoverer<P> implements IRecoverer<P>{
 				if (edges != null) {
 					for(int j = edges.size() - 1; j >= 0; --j){
 						AbstractStackNode<P> parent = edges.get(j);
-
-						P parentProd = findProduction(node.getProduction());
 						
-						if (isRecovering(parentProd)) {
-							recoveryNodes.add(node, parentProd);
-						}else if (!visited.contains(parent)) {
+						ArrayList<P> recoveryProductions = new ArrayList<P>();
+						collectProductions(node, recoveryProductions);
+						
+						if(recoveryProductions.size() > 0){
+							recoveryNodes.add(node, recoveryProductions);
+						}else{
 							todo.push(parent);
 						}
 					}
@@ -127,10 +131,24 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 	
-	// What if we are inside a prefix-shared production?
-	private P findProduction(AbstractStackNode<P>[] prod) {
-		AbstractStackNode<P> last = prod[prod.length - 1];
-		return last.getParentProduction();
+	// Gathers all productions that are marked for recovery (the given node can be part of a prefix shared production)
+	private void collectProductions(AbstractStackNode<P> node, ArrayList<P> productions) {
+		AbstractStackNode<P>[] production = node.getProduction();
+		int dot = node.getDot();
+		for(int i = dot; i < production.length; ++i){
+			AbstractStackNode<P> currentNode = production[i];
+			if(currentNode.isEndNode()){
+				P parentProduction = currentNode.getParentProduction();
+				if(isRecovering(parentProduction)){
+					productions.add(parentProduction);
+				}
+			}
+			
+			AbstractStackNode<P>[][] alternateProductions = currentNode.getAlternateProductions();
+			for(int j = alternateProductions.length - 1; j >= 0; --j){
+				collectProductions(alternateProductions[j][i], productions);
+			}
+		}
 	}
 	
 	public void reviveStacks(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes,

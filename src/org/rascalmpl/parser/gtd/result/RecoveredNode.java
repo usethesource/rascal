@@ -16,7 +16,7 @@ import java.net.URI;
 /**
  * A sort result node for partially recognized sorts.
  */
-public class RecoveredNode<P> extends AbstractContainerNode<P>{
+public class RecoveredNode<P> extends SortContainerNode<P>{
 	public final static int ID = 10;
 	
 	public RecoveredNode(URI input, int offset, int endOffset){
