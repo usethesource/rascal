@@ -149,8 +149,10 @@ public class Recoverer<P> implements IRecoverer<P>{
 			}
 			
 			AbstractStackNode<P>[][] alternateProductions = currentNode.getAlternateProductions();
-			for(int j = alternateProductions.length - 1; j >= 0; --j){
-				collectProductions(alternateProductions[j][i], productions);
+			if(alternateProductions != null){
+				for(int j = alternateProductions.length - 1; j >= 0; --j){
+					collectProductions(alternateProductions[j][i], productions);
+				}
 			}
 		}
 	}
