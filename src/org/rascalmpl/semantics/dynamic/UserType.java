@@ -101,10 +101,12 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 				// __eval has side-effects that we might need?
 				type.getTypeParameters().match(TF.tupleType(params), bindings);
 
-				// Note that instantiation use type variables from the current
-				// context, not the declaring context
-				Type outerInstance = type.instantiate(__eval.getTypeBindings());
-				return outerInstance.instantiate(bindings);
+				// Instantiate first using the type actually given in the parameter,
+				// e.g., for T[str], with data T[&U] = ..., instantate the binding
+				// of &U = str, and then instantate using bindings from the current
+				// environment (generally meaning we are inside a function with
+				// type parameters, and those parameters are now bound to real types)
+				return type.instantiate(bindings).instantiate(__eval.getTypeBindings());
 			}
 
 			throw new UndeclaredTypeError(name, this);
