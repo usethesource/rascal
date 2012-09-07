@@ -104,7 +104,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 
-	private boolean isRecovering(Object prod) {
+	private boolean isRobust(Object prod) {
 		return robust.contains(prod);
 	}
 	
@@ -155,7 +155,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 			AbstractStackNode<P> currentNode = production[i];
 			if(currentNode.isEndNode()){
 				P parentProduction = currentNode.getParentProduction();
-				if(isRecovering(parentProduction)){
+				if(isRobust(parentProduction)){
 					productions.add(parentProduction);
 				}
 			}
