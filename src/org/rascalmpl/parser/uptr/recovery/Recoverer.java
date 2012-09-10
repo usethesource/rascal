@@ -28,11 +28,11 @@ import org.rascalmpl.parser.gtd.util.Stack;
 // TODO Take care of prefix shared productions.
 // Currently when one of the productions in the shared 'graph' is marked for
 // recovery all of them, depending on when the parser error occurs, will be
-// 'continued', since one of the nodes in it's shared items will be requeued.
+// 'continued', since one of the nodes in it's shared items will be re-queued.
 public class Recoverer<P> implements IRecoverer<P>{
 	// TODO: its a magic constant, and it may clash with other generated constants
 	// should generate implementation of static int getLastId() in generated parser to fix this.
-	private  int recoveryId = 100000;
+	private int recoveryId = 100000;
 	
 	private final ObjectKeyedIntegerMap<Object> robust;
 	private final int[][] continuations;
@@ -104,7 +104,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 
-	private boolean isRecovering(Object prod) {
+	private boolean isRobust(Object prod) {
 		return robust.contains(prod);
 	}
 	
@@ -155,7 +155,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 			AbstractStackNode<P> currentNode = production[i];
 			if(currentNode.isEndNode()){
 				P parentProduction = currentNode.getParentProduction();
-				if(isRecovering(parentProduction)){
+				if(isRobust(parentProduction)){
 					productions.add(parentProduction);
 				}
 			}
