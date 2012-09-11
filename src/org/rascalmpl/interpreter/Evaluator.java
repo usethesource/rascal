@@ -497,7 +497,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 
 		int[][] lookaheads = new int[robust.size()][];
-		Object[] robustProds = new Object[robust.size()];
+		IConstructor[] robustProds = new IConstructor[robust.size()];
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		__setInterrupt(false);
@@ -510,11 +510,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * This converts a map from productions to character classes to
 	 * two pair-wise arrays, with char-classes unfolded as lists of ints.
 	 */
-	private void initializeRecovery(IMap robust, int[][] lookaheads, Object[] robustProds) {
+	private void initializeRecovery(IMap robust, int[][] lookaheads, IConstructor[] robustProds) {
 		int i = 0;
 		
 		for (IValue prod : robust) {
-			robustProds[i] = prod;
+			robustProds[i] = (IConstructor) prod;
 			List<Integer> chars = new LinkedList<Integer>();
 			IList ranges = (IList) robust.get(prod);
 			

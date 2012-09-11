@@ -57,7 +57,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 			
 			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
 			
-			SkippingStackNode<P> recoverLiteral = (SkippingStackNode<P>) new SkippingStackNode<P>(recoveryId++, continuations[robust.get(prod)], input, location, prod);
+			SkippingStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, continuations[robust.get(prod)], input, location, prod);
 			recoverLiteral = (SkippingStackNode<P>) recoverLiteral.getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet<P> edges = new EdgesSet<P>(1);
