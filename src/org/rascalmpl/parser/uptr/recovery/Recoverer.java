@@ -56,9 +56,8 @@ public class Recoverer<P> implements IRecoverer<P>{
 			P prod = prods.get(0); // TODO Currently we get the first one (the current node can have more then one 'continuation' because we shared the prefixes of overlapping productions).
 			
 			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
-			int dot = recoveryNode.getDot();
 			
-			SkippingStackNode<P> recoverLiteral = (SkippingStackNode<P>) new SkippingStackNode<P>(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, prod);
+			SkippingStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, continuations[robust.get(prod)], input, location, prod);
 			recoverLiteral = (SkippingStackNode<P>) recoverLiteral.getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet<P> edges = new EdgesSet<P>(1);
@@ -104,7 +103,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 
-	private boolean isRobust(Object prod) {
+	private boolean isRobust(P prod) {
 		return robust.contains(prod);
 	}
 	

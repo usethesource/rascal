@@ -11,35 +11,35 @@ import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
 /**
  * A preprocessor for building expect matrixes.
  * This preprocessor incorporates prefix-sharing into related alternatives,
- * where possible. It also intialized the 'static' versions of the stack nodes.
+ * where possible. It also initialized the 'static' versions of the stack nodes.
  */
-public class ExpectBuilder<T>{
+public class ExpectBuilder<P>{
 	private final IntegerMap resultStoreMappings;
 	
-	private final SortedIntegerObjectList<DoubleArrayList<T, AbstractStackNode<T>[]>> alternatives;
+	private final SortedIntegerObjectList<DoubleArrayList<P, AbstractStackNode<P>[]>> alternatives;
 	
 	public ExpectBuilder(IntegerMap resultStoreMappings){
 		super();
 		
 		this.resultStoreMappings = resultStoreMappings;
 		
-		alternatives = new SortedIntegerObjectList<DoubleArrayList<T, AbstractStackNode<T>[]>>();
+		alternatives = new SortedIntegerObjectList<DoubleArrayList<P, AbstractStackNode<P>[]>>();
 	}
 	
 	/**
 	 * Registers the given alternative with this builder.
 	 */
 	@SuppressWarnings("unchecked")
-	public void addAlternative(T production, AbstractStackNode<T>... alternative){
+	public void addAlternative(P production, AbstractStackNode<P>... alternative){
 		int alternativeLength = alternative.length;
-		DoubleArrayList<T, AbstractStackNode<T>[]> alternativesList = alternatives.findValue(alternativeLength);
+		DoubleArrayList<P, AbstractStackNode<P>[]> alternativesList = alternatives.findValue(alternativeLength);
 		if(alternativesList == null){
-			alternativesList = new DoubleArrayList<T, AbstractStackNode<T>[]>();
+			alternativesList = new DoubleArrayList<P, AbstractStackNode<P>[]>();
 			alternatives.add(alternativeLength, alternativesList);
 		}
 		
 		// Clone the alternative so we don't get entangled in 'by-reference' related issues.
-		AbstractStackNode<T>[] clonedAlternative = (AbstractStackNode<T>[]) new AbstractStackNode[alternativeLength];
+		AbstractStackNode<P>[] clonedAlternative = (AbstractStackNode<P>[]) new AbstractStackNode[alternativeLength];
 		for(int i = alternativeLength - 1; i >= 0; --i){
 			clonedAlternative[i] = alternative[i].getCleanCopy(AbstractStackNode.DEFAULT_START_LOCATION);
 		}
@@ -48,25 +48,36 @@ public class ExpectBuilder<T>{
 	}
 	
 	/**
+	 * This method is intended to be overwritten by subclasses. In offers the
+	 * possibility to prevent certain productions from being prefix shared.
+	 */
+	protected boolean isSharable(P production){
+		return true; // Default implementation
+	}
+	
+	/**
 	 * Constructs and initializes the expect array and calculates
 	 * prefix-sharing.
 	 */
 	@SuppressWarnings("unchecked")
-	public AbstractStackNode<T>[] buildExpectArray(){
-		ObjectIntegerKeyedHashMap<AbstractStackNode<T>, AbstractStackNode<T>[]> constructedExpects = new ObjectIntegerKeyedHashMap<AbstractStackNode<T>, AbstractStackNode<T>[]>();
+	public AbstractStackNode<P>[] buildExpectArray(){
+		ObjectIntegerKeyedHashMap<AbstractStackNode<P>, AbstractStackNode<P>[]> constructedExpects = new ObjectIntegerKeyedHashMap<AbstractStackNode<P>, AbstractStackNode<P>[]>();
 		
 		for(int i = alternatives.size() - 1; i >= 0; --i){ // Walk over the list of alternatives, starting at the longest ones (this reduces the complexity of the sharing calculation).
-			DoubleArrayList<T, AbstractStackNode<T>[]> alternativesList = alternatives.getValue(i);
+			DoubleArrayList<P, AbstractStackNode<P>[]> alternativesList = alternatives.getValue(i);
 			
 			for(int j = alternativesList.size() - 1; j >= 0; --j){
-				T production = alternativesList.getFirst(j);
-				AbstractStackNode<T>[] alternative = alternativesList.getSecond(j);
+				AbstractStackNode<P>[] sharedExpect = null;
 				
-				AbstractStackNode<T> first = alternative[0];
+				P production = alternativesList.getFirst(j);
+				AbstractStackNode<P>[] alternative = alternativesList.getSecond(j);
+				AbstractStackNode<P> first = alternative[0];
 				int firstItemResultStoreId = resultStoreMappings.get(first.getId());
 				
-				// Check if the first symbol in the alternative, with the same nesting restrictions, has been encountered before in another alternative.
-				AbstractStackNode<T>[] sharedExpect = constructedExpects.get(first, firstItemResultStoreId);
+				if(isSharable(production)){
+					// Check if the first symbol in the alternative, with the same nesting restrictions, has been encountered before in another alternative.
+					sharedExpect = constructedExpects.get(first, firstItemResultStoreId);
+				}
 				if(sharedExpect == null){ // Not shared.
 					// Initialize and register.
 					alternative[alternative.length - 1].setProduction(alternative);
@@ -81,18 +92,18 @@ public class ExpectBuilder<T>{
 					// Find the alternative with which the maximal amount of sharing is possible.
 					int k = 1;
 					CHAIN: for(; k < alternative.length; ++k){
-						AbstractStackNode<T> alternativeItem = alternative[k];
+						AbstractStackNode<P> alternativeItem = alternative[k];
 						int alternativeItemResultStoreId = resultStoreMappings.get(alternativeItem.getId());
 						
-						AbstractStackNode<T> sharedExpectItem = sharedExpect[k];
+						AbstractStackNode<P> sharedExpectItem = sharedExpect[k];
 						
 						// Can't share the current alternative's symbol with the shared alternative we are currently matching against; try all other possible continuations to find a potential match.
 						if(!alternativeItem.isEqual(sharedExpectItem) || alternativeItemResultStoreId != resultStoreMappings.get(sharedExpectItem.getId())){
-							AbstractStackNode<T>[][] otherSharedExpects = sharedExpectItem.getAlternateProductions();
+							AbstractStackNode<P>[][] otherSharedExpects = sharedExpectItem.getAlternateProductions();
 							if(otherSharedExpects != null){
 								for(int l = otherSharedExpects.length - 1; l >= 0; --l){
-									AbstractStackNode<T>[] otherSharedExpect = otherSharedExpects[l];
-									AbstractStackNode<T> otherSharedExpectItem = otherSharedExpect[k];
+									AbstractStackNode<P>[] otherSharedExpect = otherSharedExpects[l];
+									AbstractStackNode<P> otherSharedExpectItem = otherSharedExpect[k];
 									if(otherSharedExpectItem.isEqual(alternativeItem) && alternativeItemResultStoreId == resultStoreMappings.get(otherSharedExpectItem.getId())){
 										sharedExpect = otherSharedExpect;
 										continue CHAIN; // Found a alternative continuation that matched.
@@ -123,8 +134,8 @@ public class ExpectBuilder<T>{
 		
 		// Build the expect array. This array contains all unique 'first' nodes of the registered alternatives.
 		int nrOfConstructedExpects = constructedExpects.size();
-		AbstractStackNode<T>[] expectArray = (AbstractStackNode<T>[]) new AbstractStackNode[nrOfConstructedExpects];
-		Iterator<AbstractStackNode<T>[]> constructedExpectsIterator = constructedExpects.valueIterator();
+		AbstractStackNode<P>[] expectArray = (AbstractStackNode<P>[]) new AbstractStackNode[nrOfConstructedExpects];
+		Iterator<AbstractStackNode<P>[]> constructedExpectsIterator = constructedExpects.valueIterator();
 		int i = nrOfConstructedExpects;
 		while(constructedExpectsIterator.hasNext()){
 			expectArray[--i] = constructedExpectsIterator.next()[0];
