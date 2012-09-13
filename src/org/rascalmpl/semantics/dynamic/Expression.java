@@ -41,6 +41,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
@@ -72,6 +73,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.staticErrors.ItOutsideOfReducer;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -437,13 +439,24 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					types[i] = resultElem.getType();
 					actuals[i] = resultElem.getValue();
 				}
-
-			
-				Result<IValue> res = function.call(types, actuals);
-
+				Result<IValue> res = null;
+				try {
+					res = function.call(types, actuals);
+				}
+				catch(MatchFailed e) {
+					if(function instanceof AbstractFunction) {
+						AbstractFunction f = (AbstractFunction) function;
+						java.util.List<AbstractFunction> fs = new ArrayList<AbstractFunction>();
+						fs.add(f);
+						String name = (f.getName() != null) ? f.getName() : "(evaluated from the expression) ";
+						throw new ArgumentsMismatchError(name, fs, types, this);
+					} else {
+						throw e;
+					}
+				}
 				return res;
-
 			}
+			
 			catch (StackOverflowError e) {
 				throw RuntimeExceptionFactory.stackOverflow(this, __eval.getStackTrace());
 			}
@@ -904,8 +917,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			try {
 				IConstructor tree = __eval.parseObject(symbol, VF.mapWriter().done(),
 						this.getLocation().getURI(),
-						((IString) result.getValue()).getValue().toCharArray(),
-						false);
+						((IString) result.getValue()).getValue().toCharArray());
 
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(expected, tree, __eval);

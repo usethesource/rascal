@@ -19,9 +19,9 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 	private final int realStart;
 	
-	public SkippingStackNode(int id, int dot, int[] until, int[] input, int location, int start, P parentProduction) {
-		super(id, dot);
-		this.realStart = start;
+	public SkippingStackNode(int id, int[] until, int[] input, int location, int realStart, P parentProduction) {
+		super(id, 0);
+		this.realStart = realStart;
 		assert realStart <= startLocation;
 		this.until = until;
 		this.result = (SkippedNode) match(input, location);

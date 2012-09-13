@@ -484,7 +484,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree){
+	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input){
 		IGTD<IConstructor, IConstructor, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -497,7 +497,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 
 		int[][] lookaheads = new int[robust.size()][];
-		Object[] robustProds = new Object[robust.size()];
+		IConstructor[] robustProds = new IConstructor[robust.size()];
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		__setInterrupt(false);
@@ -510,11 +510,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * This converts a map from productions to character classes to
 	 * two pair-wise arrays, with char-classes unfolded as lists of ints.
 	 */
-	private void initializeRecovery(IMap robust, int[][] lookaheads, Object[] robustProds) {
+	private void initializeRecovery(IMap robust, int[][] lookaheads, IConstructor[] robustProds) {
 		int i = 0;
 		
 		for (IValue prod : robust) {
-			robustProds[i] = prod;
+			robustProds[i] = (IConstructor) prod;
 			List<Integer> chars = new LinkedList<Integer>();
 			IList ranges = (IList) robust.get(prod);
 			
@@ -542,7 +542,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		try{
 			char[] input = getResourceContent(location);
-			return parseObject(startSort, robust, location, input, false);
+			return parseObject(startSort, robust, location, input);
 		}catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
 		}finally{
@@ -554,7 +554,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, URI.create("file://-"), input.toCharArray(), false);
+			return parseObject(startSort, robust, URI.create("file://-"), input.toCharArray());
 		}finally{
 			setMonitor(old);
 		}
@@ -564,7 +564,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, loc.getURI(), input.toCharArray(), false);
+			return parseObject(startSort, robust, loc.getURI(), input.toCharArray());
 		}finally{
 			setMonitor(old);
 		}
@@ -1333,18 +1333,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseModule(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			return parseModule(data, location, env, false, true);
+			return parseModule(data, location, env, true);
 		}
 		finally{
-			setMonitor(old);
-		}
-	}
-	
-	public IConstructor parseModuleWithErrorTree(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
-		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseModule(data, location, env, true, true);
-		}finally{
 			setMonitor(old);
 		}
 	}
@@ -1353,14 +1344,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseModuleWithoutIncludingExtends(IRascalMonitor monitor, char[] data, URI location, ModuleEnvironment env){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseModule(data, location, env, true, false);
+			return parseModule(data, location, env, false);
 		}finally{
 			setMonitor(old);
 		}
 	}
 	
 	
-	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean withErrorTree, boolean declareImportsAndSyntax){
+	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
 		__setInterrupt(false);
 		IActionExecutor<IConstructor> actions = new BootRascalActionExecutor();
 
