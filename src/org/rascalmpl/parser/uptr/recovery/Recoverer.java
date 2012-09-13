@@ -36,10 +36,11 @@ public class Recoverer<P> implements IRecoverer<P>{
 		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
 			AbstractStackNode<P> recoveryNode = recoveryNodes.getFirst(i);
 			P prod = recoveryNodes.getSecond(i);
+			int start = recoveryNode.getStartLocation();
 			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
 			int dot = recoveryNode.getDot();
 			
-			SkippingStackNode<P> recoverLiteral = (SkippingStackNode<P>) new SkippingStackNode<P>(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, prod);
+			SkippingStackNode<P> recoverLiteral = (SkippingStackNode<P>) new SkippingStackNode<P>(recoveryId++, dot + 1, continuations[robust.get(prod)], input, location, start, prod);
 			recoverLiteral = (SkippingStackNode<P>) recoverLiteral.getCleanCopy(location);
 			recoverLiteral.initEdges();
 			EdgesSet<P> edges = new EdgesSet<P>(1);
