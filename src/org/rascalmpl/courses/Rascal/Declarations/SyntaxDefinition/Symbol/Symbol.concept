@@ -48,7 +48,7 @@ The following regular expressions can be constructed over [$SyntaxDefinition/Sym
 | `{$Symbol_1$ $Symbol_2$}*`         | Possibly empty list of $Symbol_1$ separated by $Symbol_2$.          |
 | `($Symbol_1$ $Symbol_2$ ... )`     | Embedded sequence of symbols                                        |
 | `($Symbol_1$ | $Symbol_2$ | ... )` | Embedded choice of alternative symbols                              |
-| `()`                               | Tthe anonymous non-terminal for the language with the empty string  |
+| `()`                               | The anonymous non-terminal for the language with the empty string  |
 
 
 
