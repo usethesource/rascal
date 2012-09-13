@@ -4,3 +4,5 @@ the standard library, the online documentation and the type checker.
 Rascal is used in practice, but we consider it to be alpha software because we are still improving the language.
 
 Please visit http://www.rascal-mpl.org
+
+And this experimental branch adds the 'overriding with an open and closed recursion' to the Rascal.
