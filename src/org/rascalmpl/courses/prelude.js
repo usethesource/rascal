@@ -8,8 +8,6 @@ else
 }
 
 $(document).ready(function () {
-	//alert("ready called");
-	// alert("1: navigation_initialized = " + ($('#navInitialized').val()));
 	// first retrieve navpane
 	if ($('#tdnav').length > 0) {
 		$('#tdnav').load(navigationPaneSource + ' #navPane', function () {
@@ -51,7 +49,6 @@ $(document).ready(function () {
 			}
 		});
 	}
-	// alert("2: navigation_initialized = " + ($('#navInitialized').val()));
 });
 
 var _gaq = _gaq || [];
@@ -94,7 +91,6 @@ var skipNextNodeClick = 0;
 
 function initNavigation() {
 
-    //alert("initNavigation");
 
     $("#navPane").bind("select_node.jstree", function (event, data) {
 		if (skipNextNodeClick > 0) {
