@@ -1,5 +1,7 @@
 module util::FileSystem
 
+import IO;
+
 public data FileSystem 
   = directory(loc l, set[FileSystem] children)
   | file(loc l)
