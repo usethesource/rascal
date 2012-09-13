@@ -520,7 +520,7 @@ public str convert2latex(str s) {
 	return visit (s) { 
 	  case /^\r\{/ => "\r{"
 	  case /^\r\}/ => "\r}"
-	  case /^<backquote>/ => "{\\textasciigrave}"
+	  case /^`/ => "{\\textasciigrave}"
 	  case /^\"/ => "{\\textacutedbl}"
 	  case /^\{/ => "\\{"
 	  case /^\}/ => "\\}"

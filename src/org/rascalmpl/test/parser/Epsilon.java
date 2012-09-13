@@ -57,7 +57,7 @@ public class Epsilon extends SGTDBF<IConstructor, IConstructor, ISourceLocation>
 	}
 	
 	public IConstructor executeParser(){
-		return parse(NONTERMINAL_START_S, null, new int[]{}, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, new char[]{}, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
 	
 	

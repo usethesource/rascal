@@ -5,6 +5,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
+@SuppressWarnings("unchecked")
 public class EdgesSet<P>{
 	public final static int DEFAULT_RESULT_STORE_ID = -1;
 	
@@ -19,7 +20,6 @@ public class EdgesSet<P>{
 	private AbstractContainerNode<P> lastResults;
 	private IntegerObjectList<AbstractContainerNode<P>> lastFilteredResults;
 	
-	@SuppressWarnings("unchecked")
 	public EdgesSet(){
 		super();
 		
@@ -27,7 +27,6 @@ public class EdgesSet<P>{
 		size = 0;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public EdgesSet(int initialSize){
 		super();
 		
@@ -35,7 +34,6 @@ public class EdgesSet<P>{
 		size = 0;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void enlarge(){
 		AbstractStackNode<P>[] oldEdges = edges;
 		edges = (AbstractStackNode<P>[]) new AbstractStackNode[size << 1];

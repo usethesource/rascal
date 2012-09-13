@@ -112,7 +112,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public void notifyConstructorDeclaredListeners();
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree);
+	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input);
 	
 	public Module preParseModule(URI location, ISourceLocation cause);
 		
