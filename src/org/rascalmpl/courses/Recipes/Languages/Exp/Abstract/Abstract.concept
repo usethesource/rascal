@@ -47,7 +47,7 @@ The big advantage of pattern-directed invocation is modularity and extensibility
 
 In this example we use this mechanism to define separate functions for each case in the abstract syntax.
 
-* /*1*/ defines the case for evaluating integer constants: they evaulaute to themselves.
+* /*1*/ defines the case for evaluating integer constants: they evaluate to themselves.
 * /*2*/ defines the case for evaluating multiplication: first evaluate the arguments `e1` and `e2`
         and return the multiplication of their values.
 * /*3*/ defines the case for evaluating addition: first evaluate the arguments `e1` and `e2`
