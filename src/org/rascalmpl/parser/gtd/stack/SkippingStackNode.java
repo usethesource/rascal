@@ -17,25 +17,32 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[] until;
 	private final SkippedNode result;
+	private final int realStart;
 	
-	public SkippingStackNode(int id, int dot, int[] until, int[] input, int location, P parentProduction) {
+	public SkippingStackNode(int id, int dot, int[] until, int[] input, int location, int start, P parentProduction) {
 		super(id, dot);
+		this.realStart = start;
+		assert realStart <= startLocation;
 		this.until = until;
 		this.result = (SkippedNode) match(input, location);
 		setAlternativeProduction(parentProduction);
 	}
 	
-	private SkippingStackNode(SkippingStackNode<P> original, int startLocation){
+	private SkippingStackNode(SkippingStackNode<P> original, int startLocation, int realStart){
 		super(original, startLocation);
 		this.until = original.until;
 		this.result = original.result;
+		this.realStart = realStart;
+		assert realStart <= startLocation;
 	}
 	
-	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation){
+	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation, int realStart){
 		super(original, startLocation);
 		this.until = original.until;
 		assert original.result == result;
 		this.result = result;
+		this.realStart = realStart;
+		assert realStart <= startLocation;
 	}
 	
 	@Override
@@ -53,18 +60,17 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public AbstractNode match(int[] input, int location) {
-		int from = location;
 		int to = location;
 		
 		for ( ; to < input.length; to++) {
 			for (int i = 0; i < until.length; i++) {
 				if (input[to] == until[i]) {
-					return buildResult(input, from, to - 1);
+					return buildResult(input, realStart, to - 1);
 				}
 			}
 		}
 		
-		return buildResult(input, from, input.length);
+		return buildResult(input, realStart, input.length);
 	}
 	
 	private SkippedNode buildResult(int[] input, int from, int to) {
@@ -79,11 +85,11 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new SkippingStackNode<P>(this, startLocation);
+		return new SkippingStackNode<P>(this, startLocation, realStart);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation);
+		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation, realStart);
 	}
 	
 	public int getLength(){

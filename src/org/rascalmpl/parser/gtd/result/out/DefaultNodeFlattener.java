@@ -64,7 +64,8 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 			case ExpandableContainerNode.ID:
 				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case RecoveredNode.ID:
-				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+//				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case SkippedNode.ID:
 				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node); 
 			default:
