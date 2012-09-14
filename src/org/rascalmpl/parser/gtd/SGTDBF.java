@@ -805,9 +805,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 					
-					if (recovered.getStartLocation() == location) {
-						addTodo(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
-					}
+					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
+					
+					addTodo(recovered, levelsFromHere, recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
 			}
