@@ -60,6 +60,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
 			
 			int startLocation = recoveryNode.getStartLocation();
+			
 			int[] until = continuationCharactersList[robust.get(prod)];
 			AbstractStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, until, input, startLocation, prod);
 			recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
