@@ -71,6 +71,58 @@ public abstract class FunctionModifier extends AbstractAST {
   
 
   
+  public boolean isOpenRecursion() {
+    return false;
+  }
+
+  static public class OpenRecursion extends FunctionModifier {
+    // Production: sig("OpenRecursion",[])
+  
+    
+  
+    public OpenRecursion(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isOpenRecursion() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFunctionModifierOpenRecursion(this);
+    }
+  
+    	
+  }
+  public boolean isOpen() {
+    return false;
+  }
+
+  static public class Open extends FunctionModifier {
+    // Production: sig("Open",[])
+  
+    
+  
+    public Open(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isOpen() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFunctionModifierOpen(this);
+    }
+  
+    	
+  }
   public boolean isDefault() {
     return false;
   }

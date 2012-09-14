@@ -2333,6 +2333,32 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isSelf() {
+    return false;
+  }
+
+  static public class Self extends Expression {
+    // Production: sig("Self",[])
+  
+    
+  
+    public Self(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isSelf() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionSelf(this);
+    }
+  
+    	
+  }
   public boolean isAddition() {
     return false;
   }
