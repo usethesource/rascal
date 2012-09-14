@@ -119,7 +119,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
   for (a <- asts) {
-     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.Evaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
+     class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.IEvaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
 }
@@ -212,7 +212,7 @@ public str ambiguityClass(str pkg, str name) {
          '  }
          '
          '  @Override
-         '  public Result\<IValue\> interpret(Evaluator __eval) {
+         '  public Result\<IValue\> interpret(IEvaluator\<Result\<IValue\>\> __eval) {
          '    throw new Ambiguous(src);
          '  }
          '    
