@@ -207,6 +207,7 @@ syntax Expression
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| QualifiedName  : QualifiedName qualifiedName 
+	| Self           : "self"
 	// removed >
 	| Subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess  : Expression expression "." Name field 
@@ -334,7 +335,10 @@ lexical DatePart
 syntax FunctionModifier
 	= Java: "java" 
 	| Test: "test" 
-	| Default: "default";
+	| Default: "default"
+	| OpenRecursion: "openrec"
+	| Open: "open"
+	;
 
 syntax Assignment
 	= IfDefined: "?=" 
@@ -663,6 +667,9 @@ keyword RascalKeywords
 	| "start"
 	| "datetime" 
 	| "value" 
+	| "openrec"
+	| "open"
+	| "self"
 	;
 
 syntax Type
