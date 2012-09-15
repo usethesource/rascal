@@ -59,6 +59,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 			
 			JarFile jarFile = new JarFile(jar);
 			JarEntry jarEntry = jarFile.getJarEntry(path);
+			jarFile.close();
 			return(jarEntry != null);
 		} catch (IOException e) {
 			return false;
@@ -76,7 +77,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 			
 			JarFile jarFile = new JarFile(jar);
 			JarEntry jarEntry = jarFile.getJarEntry(path);
-			
+			jarFile.close();
 			
 			return(jarEntry != null && jarEntry.isDirectory());
 		} catch (IOException e) {
@@ -91,6 +92,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 			
 			JarFile jarFile = new JarFile(jar);
 			JarEntry jarEntry = jarFile.getJarEntry(path);
+			jarFile.close();
 			return(jarEntry != null && !jarEntry.isDirectory());
 		} catch (IOException e) {
 			return false;
@@ -103,6 +105,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 		
 		JarFile jarFile = new JarFile(jar);
 		JarEntry jarEntry = jarFile.getJarEntry(path);
+		jarFile.close();
 		
 		if (jarEntry == null) {
 			throw new FileNotFoundException(uri.toString());
@@ -148,6 +151,7 @@ public class JarURIResolver implements IURIInputStreamResolver{
 				}
 			}
 		}
+		jarFile.close();
 		
 		String[] listedEntries = new String[matchedEntries.size()];
 		return matchedEntries.toArray(listedEntries);
