@@ -97,7 +97,7 @@ public class StaticChecker {
 		return res;
 	}
 
-	public void disableChecker() {
+	public synchronized void disableChecker() {
 		checkerEnabled = false;
 	}
 
