@@ -120,6 +120,8 @@ public class ReifiedType extends Type {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
 		if (obj.getClass() == getClass()) {
 			return arg.equals(((ReifiedType) obj).arg);
 		}
