@@ -101,7 +101,7 @@ public class StaticChecker {
 		checkerEnabled = false;
 	}
 
-	public void enableChecker(IRascalMonitor monitor) {
+	public synchronized void enableChecker(IRascalMonitor monitor) {
 		if (!loaded) {
 			load(monitor);
 		}
