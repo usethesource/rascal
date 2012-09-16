@@ -36,6 +36,7 @@ extend Boolean;
 extend DateTime;
 extend Exception;
 extend IO;
+extend FixPoint;
 extend List;
 extend Map;
 extend Node;
