@@ -28,13 +28,15 @@ public abstract class StaticError extends RuntimeException {
 	
 	public StaticError(String message, ISourceLocation loc) {
 		super(message);
-		addStackTraceElement(loc);
+		if(loc != null)
+			addStackTraceElement(loc);
 		this.loc = loc;
 	}
 	
 	public StaticError(String message, ISourceLocation loc, Throwable cause) {
 		super(message, cause);
-		addStackTraceElement(loc);
+		if(loc != null)
+			addStackTraceElement(loc);
 		this.loc = loc;
 	}
 

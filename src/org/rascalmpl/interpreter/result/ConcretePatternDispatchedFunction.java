@@ -98,6 +98,8 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	
 	@Override
 	public boolean equals(Object arg0) {
+		if(arg0 == null)
+			return false;
 		if (arg0.getClass() == getClass()) {
 			ConcretePatternDispatchedFunction other = (ConcretePatternDispatchedFunction) arg0;
 			return other.alternatives.equals(alternatives);

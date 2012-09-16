@@ -5,7 +5,7 @@ public class ObjectKeyedIntegerMap<K>{
 	private Entry<K>[] entries;
 
 	private int hashMask;
-	private int bitSize;
+	private int bitSize = 2;
 	
 	private int threshold;
 	private int load;

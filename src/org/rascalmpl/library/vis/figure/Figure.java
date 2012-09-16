@@ -561,16 +561,14 @@ public abstract class Figure implements Comparable<Figure> {
 			}
 		}
 		
-		if (toArrow != null) {
-			gc.pushMatrix();
-			gc.translate(IX , IY);
-			
-			gc.rotate(rotd);
-			gc.translate(-toArrow.size.getX()/2.0,0);
-			toArrow.applyProperties(gc);
-			toArrow.drawElement(gc,visibleSWTElements); 
-			gc.popMatrix();
-		}
+		gc.pushMatrix();
+		gc.translate(IX , IY);
+
+		gc.rotate(rotd);
+		gc.translate(-toArrow.size.getX()/2.0,0);
+		toArrow.applyProperties(gc);
+		toArrow.drawElement(gc,visibleSWTElements); 
+		gc.popMatrix();
 	}
 	
 	public Coordinate getGlobalCenter(){
