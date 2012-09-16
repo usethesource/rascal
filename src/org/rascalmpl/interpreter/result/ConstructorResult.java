@@ -19,6 +19,7 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Name;
@@ -26,6 +27,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.utils.Names;
@@ -59,8 +61,12 @@ public class ConstructorResult extends NodeResult {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		if (!getType().hasField(name, store)) {
-			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+		try {
+			if (!getType().hasField(name, store)) {
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+			}
+		} catch (UndeclaredAbstractDataTypeException e) {
+			throw new UndeclaredTypeError(getType().toString(), ctx.getCurrentAST());
 		}
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name)) {

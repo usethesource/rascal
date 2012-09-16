@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anya Helene Bagge - anya@ii.uib.no
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
@@ -18,12 +19,11 @@ public class HashMap<K, V>{
 	private Entry<K, V>[] entries;
 
 	private int hashMask;
-	private int bitSize;
+	private int bitSize = 2;
 	
 	private int threshold;
 	private int load;
-	
-	
+
 	public HashMap(){
 		super();
 		
@@ -31,7 +31,8 @@ public class HashMap<K, V>{
 		
 		hashMask = nrOfEntries - 1;
 		
-		entries = new Entry[nrOfEntries];
+		// Only 0.15% of uses actually have entries, so only allocate if needed (Anya, 2012-09-15)
+		entries =  null;
 		
 		threshold = nrOfEntries;
 		load = 0;
@@ -40,13 +41,13 @@ public class HashMap<K, V>{
 	private void rehash(){
 		int nrOfEntries = 1 << (++bitSize);
 		int newHashMask = nrOfEntries - 1;
-		
+
 		Entry<K, V>[] oldEntries = entries;
 		Entry<K, V>[] newEntries = new Entry[nrOfEntries];
-		
+
 		Entry<K, V> currentEntryRoot = new Entry<K, V>(null, null, 0, null);
 		Entry<K, V> shiftedEntryRoot = new Entry<K, V>(null, null, 0, null);
-		
+
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<K, V> e = oldEntries[i];
@@ -56,7 +57,7 @@ public class HashMap<K, V>{
 				int lastPosition = -1;
 				do{
 					int position = e.hash & newHashMask;
-					
+
 					if(position == i){
 						if(position != lastPosition) lastCurrentEntry.next = e;
 						lastCurrentEntry = e;
@@ -64,25 +65,28 @@ public class HashMap<K, V>{
 						if(position != lastPosition) lastShiftedEntry.next = e;
 						lastShiftedEntry = e;
 					}
-					
+
 					e = e.next;
 				}while(e != null);
-				
+
 				lastCurrentEntry.next = null;
 				lastShiftedEntry.next = null;
-				
+
 				newEntries[i] = currentEntryRoot.next;
 				newEntries[i | oldSize] = shiftedEntryRoot.next;
 			}
 		}
-		
+
 		threshold <<= 1;
 		entries = newEntries;
 		hashMask = newHashMask;
 	}
 	
 	private void ensureCapacity(){
-		if(load > threshold){
+		if(entries == null) {
+			entries = new Entry[1 << bitSize];
+		}
+		else if(load >= threshold){
 			rehash();
 		}
 	}
@@ -122,6 +126,8 @@ public class HashMap<K, V>{
 	}
 	
 	public V remove(K key){
+		if(entries == null)
+			return null;
 		int hash = key.hashCode();
 		int position = hash & hashMask;
 		
@@ -148,6 +154,8 @@ public class HashMap<K, V>{
 	}
 	
 	public V get(K key){
+		if(entries == null)
+			return null;
 		int hash = key.hashCode();
 		int position = hash & hashMask;
 		
@@ -166,7 +174,8 @@ public class HashMap<K, V>{
 	}
 	
 	public void clear(){
-		entries = new Entry[entries.length];
+		if(entries != null)
+			entries = new Entry[entries.length];
 		
 		load = 0;
 	}
@@ -191,7 +200,10 @@ public class HashMap<K, V>{
 			data = hashMap.entries;
 
 			index = data.length - 1;
-			current = new Entry<K, V>(null, null, -1, data[index]);
+			if(hashMap.entries != null)
+				current = new Entry<K, V>(null, null, -1, data[index]);
+			else
+				current = null;
 			locateNext();
 		}
 		
@@ -245,8 +257,12 @@ public class HashMap<K, V>{
 			data = hashMap.entries;
 
 			index = data.length - 1;
-			current = new Entry<K, V>(null, null, -1, data[index]);
-			locateNext();
+			if(data != null) {
+				current = new Entry<K, V>(null, null, -1, data[index]);
+				locateNext();
+			}
+			else
+				current = null;
 		}
 		
 		private void locateNext(){

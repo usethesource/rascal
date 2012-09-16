@@ -97,11 +97,11 @@ public class StaticChecker {
 		return res;
 	}
 
-	public void disableChecker() {
+	public synchronized void disableChecker() {
 		checkerEnabled = false;
 	}
 
-	public void enableChecker(IRascalMonitor monitor) {
+	public synchronized void enableChecker(IRascalMonitor monitor) {
 		if (!loaded) {
 			load(monitor);
 		}

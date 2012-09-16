@@ -154,6 +154,8 @@ public class NonTerminalType extends ExternalType {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
 			return symbol.equals(other.symbol);
