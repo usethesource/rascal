@@ -15,13 +15,11 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
-	private final int[] until;
 	private final SkippedNode result;
 	
-	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction) {
+	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction){
 		super(id, 0);
 		
-		this.until = until;
 		this.result = buildResult(input, until, startLocation);
 		setAlternativeProduction(parentProduction);
 	}
@@ -29,33 +27,13 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private SkippingStackNode(SkippingStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
-		this.until = original.until;
 		this.result = original.result;
 	}
 	
 	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation){
 		super(original, startLocation);
 		
-		this.until = original.until;
 		this.result = result;
-	}
-	
-	@Override
-	public String getName() {
-		return "***recovery***";
-	}
-	
-	@Override
-	public boolean isEndNode() {
-		return true;
-	}
-	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
-	public AbstractNode match(int[] input, int location) {
-		return result;
 	}
 	
 	private static SkippedNode buildResult(int[] input, int[] until, int startLocation){
@@ -74,6 +52,14 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		}
 		
 		return new SkippedNode(new int[0], to);
+	}
+	
+	public boolean isEmptyLeafNode(){
+		return result.isEmpty();
+	}
+	
+	public AbstractNode match(int[] input, int location){
+		return result;
 	}
 
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
@@ -103,7 +89,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public int hashCode(){
-		return until.hashCode();
+		return getParentProduction().hashCode();
 	}
 	
 	public boolean isEqual(AbstractStackNode<P> stackNode){

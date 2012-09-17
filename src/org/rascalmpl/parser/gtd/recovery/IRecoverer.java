@@ -7,8 +7,7 @@ import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.Stack;
 
 public interface IRecoverer<P>{
-	void reviveStacks(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes,
-			int[] input,
+	DoubleArrayList<AbstractStackNode<P>, AbstractNode> reviveStacks(int[] input,
 			int location,
 			Stack<AbstractStackNode<P>> unexpandableNodes,
 			Stack<AbstractStackNode<P>> unmatchableLeafNodes,
