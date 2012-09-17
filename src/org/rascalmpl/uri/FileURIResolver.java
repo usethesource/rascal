@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class FileURIResolver implements IURIInputOutputResolver {
 	
@@ -82,4 +83,19 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	public URI getResourceURI(URI uri) {
 		return new File(getPath(uri)).toURI();
 	}
+	
+	/**
+	 * Utility function to create a URI from an absolute path.
+	 * 
+	 * @param path a platform-dependent string representation of this path
+	 * @return a file schema URI
+	 */
+	public static URI constructFileURI(String path) {
+		try{
+			return new URI("file", null, path, null);
+		}catch(URISyntaxException usex){
+			throw new BadURIException(usex);
+		}
+	}
+	
 }
