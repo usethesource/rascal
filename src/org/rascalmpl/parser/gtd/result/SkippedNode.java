@@ -42,13 +42,11 @@ public class SkippedNode extends AbstractNode {
 	public int getOffset(){
 		return offset;
 	}
-
-	@Override
+	
 	public boolean isEmpty() {
-		return false;
+		return (skippedChars.length == 0);
 	}
-
-	@Override
+	
 	public boolean isNonterminalSeparator() {
 		return false;
 	}
