@@ -25,10 +25,6 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
-// TODO Take care of prefix shared productions.
-// Currently when one of the productions in the shared 'graph' is marked for
-// recovery all of them, depending on when the parser error occurs, will be
-// 'continued', since one of the nodes in it's shared items will be re-queued.
 public class Recoverer<P> implements IRecoverer<P>{
 	// TODO: its a magic constant, and it may clash with other generated constants
 	// should generate implementation of static int getLastId() in generated parser to fix this.
@@ -55,24 +51,27 @@ public class Recoverer<P> implements IRecoverer<P>{
 			AbstractStackNode<P> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<P> prods = recoveryNodes.getSecond(i);
 			
-			P prod = prods.get(0); // TODO Currently we get the first one (the current node can have more then one 'continuation' because we shared the prefixes of overlapping productions).
-			
-			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
-			
-			int startLocation = recoveryNode.getStartLocation();
-			
-			int[] until = continuationCharactersList[robust.get(prod)];
-			AbstractStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, until, input, startLocation, prod);
-			recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
-			recoverLiteral.initEdges();
-			EdgesSet<P> edges = new EdgesSet<P>(1);
-			edges.add(continuer);
-			
-			recoverLiteral.addEdges(edges, startLocation);
-			
-			continuer.setIncomingEdges(edges);
-			
-			recoveredNodes.add(recoverLiteral, recoverLiteral.getResult());
+			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
+			for(int j = prods.size() - 1; j >= 0; --j){
+				P prod = prods.get(j);
+				
+				AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
+				
+				int startLocation = recoveryNode.getStartLocation();
+				
+				int[] until = continuationCharactersList[robust.get(prod)];
+				AbstractStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, until, input, startLocation, prod);
+				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
+				recoverLiteral.initEdges();
+				EdgesSet<P> edges = new EdgesSet<P>(1);
+				edges.add(continuer);
+				
+				recoverLiteral.addEdges(edges, startLocation);
+				
+				continuer.setIncomingEdges(edges);
+				
+				recoveredNodes.add(recoverLiteral, recoverLiteral.getResult());
+			}
 		}
 	}
 	
