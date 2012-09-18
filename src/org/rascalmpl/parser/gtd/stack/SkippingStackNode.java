@@ -15,81 +15,59 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
-	private final int[] until;
 	private final SkippedNode result;
-	private final int realStart;
 	
-	public SkippingStackNode(int id, int[] until, int[] input, int location, int realStart, P parentProduction) {
+	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction){
 		super(id, 0);
-		this.realStart = realStart;
-		assert realStart <= startLocation;
-		this.until = until;
-		this.result = (SkippedNode) match(input, location);
+		
+		this.result = buildResult(input, until, startLocation);
 		setAlternativeProduction(parentProduction);
 	}
 	
-	private SkippingStackNode(SkippingStackNode<P> original, int startLocation, int realStart){
+	private SkippingStackNode(SkippingStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		this.until = original.until;
+		
 		this.result = original.result;
-		this.realStart = realStart;
-		assert realStart <= startLocation;
 	}
 	
-	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation, int realStart){
+	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation){
 		super(original, startLocation);
-		this.until = original.until;
-		assert original.result == result;
+		
 		this.result = result;
-		this.realStart = realStart;
-		assert realStart <= startLocation;
 	}
 	
-	@Override
-	public String getName() {
-		return "***recovery***";
-	}
-	
-	@Override
-	public boolean isEndNode() {
-		return true;
-	}
-	
-	public boolean isEmptyLeafNode(){
-		return false;
-	}
-	
-	public AbstractNode match(int[] input, int location) {
-		int to = location;
+	private static SkippedNode buildResult(int[] input, int[] until, int startLocation){
+		int to = startLocation;
 		
 		for ( ; to < input.length; to++) {
 			for (int i = 0; i < until.length; i++) {
 				if (input[to] == until[i]) {
-					return buildResult(input, realStart, to - 1);
+					int length = (to - 1) - startLocation;
+					int[] chars = new int[length];
+					System.arraycopy(input, startLocation, chars, 0, length);
+					
+					return new SkippedNode(chars, startLocation);
 				}
 			}
 		}
 		
-		return buildResult(input, realStart, input.length);
+		return new SkippedNode(new int[0], to);
 	}
 	
-	private SkippedNode buildResult(int[] input, int from, int to) {
-		if (from >= to) {
-			return new SkippedNode(new int[0], to);
-		}
-		
-		int[] chars = new int[to - from];
-		System.arraycopy(input, from, chars, 0, to - from);
-		
-		return new SkippedNode(chars, from);
+	public boolean isEmptyLeafNode(){
+		return result.isEmpty();
+	}
+	
+	public AbstractNode match(int[] input, int location){
+		return result;
 	}
 
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new SkippingStackNode<P>(this, startLocation, realStart);
+		return new SkippingStackNode<P>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation, realStart);
+		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation);
 	}
 	
 	public int getLength(){
@@ -111,7 +89,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public int hashCode(){
-		return until.hashCode();
+		return getParentProduction().hashCode();
 	}
 	
 	public boolean isEqual(AbstractStackNode<P> stackNode){

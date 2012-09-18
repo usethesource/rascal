@@ -110,6 +110,8 @@ public class OverloadedFunctionType extends ExternalType {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
 		if (obj.getClass().equals(getClass())) {
 			OverloadedFunctionType f = (OverloadedFunctionType) obj;
 			return alternatives.equals(f.alternatives);

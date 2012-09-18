@@ -402,11 +402,9 @@ public class JavaBridge {
 			boolean recursive) throws IOException {
 		JavaFileManager manager = fileManagerCache.get(clazz);
 		Iterable<JavaFileObject> list = null;
-		try {
-			list = manager.list(StandardLocation.CLASS_PATH, packageName,
-					Collections.singleton(JavaFileObject.Kind.CLASS), false);
-		} catch (IOException e) {
-		}
+		list = manager.list(StandardLocation.CLASS_PATH, packageName,
+			Collections.singleton(JavaFileObject.Kind.CLASS), false);
+
 		if (list.iterator().hasNext()) {
 			Manifest manifest = new Manifest();
 			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION,
@@ -414,20 +412,20 @@ public class JavaBridge {
 			JarOutputStream target = new JarOutputStream(new FileOutputStream(outPath), manifest);
 			JarEntry entry = new JarEntry("META-INF/");
 			target.putNextEntry(entry);
-			target.closeEntry();
 			Collection<String> dirs = new ArrayList<String>();
 
 			for (JavaFileObject o : list) {
 				String path = o.toUri().getPath().replace(".", "/");
 				String dir = path.substring(0, path.lastIndexOf('/'));
-				String tmp = "";
+				StringBuilder dirTmp = new StringBuilder(dir.length());
 				for (String d : dir.split("/")) {
-					tmp += d + "/";
+					dirTmp.append(d);
+					dirTmp.append("/");
+					String tmp = dirTmp.toString();
 					if (!dirs.contains(tmp)) {
 						dirs.add(tmp);
 						entry = new JarEntry(tmp);
 						target.putNextEntry(entry);
-						target.closeEntry();
 					}
 				}
 				entry = new JarEntry(path + ".class");

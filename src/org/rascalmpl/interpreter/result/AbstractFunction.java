@@ -424,6 +424,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
 		if (obj.getClass() == getClass()) {
 			AbstractFunction other = (AbstractFunction) obj;
 			return other.declarationEnvironment == declarationEnvironment && other.ast.equals(ast);

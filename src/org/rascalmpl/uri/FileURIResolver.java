@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.uri;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class FileURIResolver implements IURIInputOutputResolver {
 	
@@ -82,4 +84,19 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	public URI getResourceURI(URI uri) {
 		return new File(getPath(uri)).toURI();
 	}
+	
+	/**
+	 * Utility function to create a URI from an absolute path.
+	 * 
+	 * @param path a platform-dependent string representation of this path
+	 * @return a file schema URI
+	 */
+	public static URI constructFileURI(String path) {
+		try{
+			return new URI("file", null, path, null);
+		}catch(URISyntaxException usex){
+			throw new BadURIException(usex);
+		}
+	}
+	
 }
