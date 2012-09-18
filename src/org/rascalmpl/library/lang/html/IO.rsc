@@ -6,9 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module HTMLIO
+module lang::html::IO
 
 
-@javaClass{org.rascalmpl.library.lang.html.HTMLIO}
+@javaClass{org.rascalmpl.library.lang.html.IO}
 @reflect
 public java node readHTMLFile(loc file);
