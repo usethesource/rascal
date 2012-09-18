@@ -107,12 +107,14 @@ public class PropertyManager {
 			if(prop == null){
 				System.out.printf("Cannot find %s !\n", pname);
 			}
-			PropertyValue val = prop.producePropertyValue(c.get(0), this, env);
-			if(addIn.containsKey(prop)){
-				System.out.printf("Combining!\n");
-				addIn.put(prop, new CombinedProperty(addIn.get(prop),val,prop.combine));
-			} else {
-				addIn.put(prop, val);
+			else {
+				PropertyValue val = prop.producePropertyValue(c.get(0), this, env);
+				if(addIn.containsKey(prop)){
+					System.out.printf("Combining!\n");
+					addIn.put(prop, new CombinedProperty(addIn.get(prop),val,prop.combine));
+				} else {
+					addIn.put(prop, val);
+				}
 			}
 		}
 	}

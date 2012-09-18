@@ -764,8 +764,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		
 		if (recoverer != null) {
-			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
-			recoverer.reviveStacks(recoveredNodes, input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (recoveredNodes.size() > 0) { // TODO Do something with the revived node. Is this the right location to do this?
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
@@ -799,15 +798,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		
 		if (recoverer != null) {
-			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
-			recoverer.reviveStacks(recoveredNodes, input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (recoveredNodes.size() > 0) {
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 					
-					if (recovered.getStartLocation() == location) {
-						addTodo(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
-					}
+					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
+					
+					addTodo(recovered, levelsFromHere, recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
 			}

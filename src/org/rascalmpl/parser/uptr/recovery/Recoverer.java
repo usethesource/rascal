@@ -25,59 +25,68 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 
-// TODO Take care of prefix shared productions.
-// Currently when one of the productions in the shared 'graph' is marked for
-// recovery all of them, depending on when the parser error occurs, will be
-// 'continued', since one of the nodes in it's shared items will be re-queued.
 public class Recoverer<P> implements IRecoverer<P>{
 	// TODO: its a magic constant, and it may clash with other generated constants
 	// should generate implementation of static int getLastId() in generated parser to fix this.
 	private int recoveryId = 100000;
 	
-	private final ObjectKeyedIntegerMap<Object> robust;
-	private final int[][] continuations;
+	private final int[][] continuationCharactersList;
 	
-	public Recoverer(Object[] robustNodes, int[][] continuationCharacters){
+	private final ObjectKeyedIntegerMap<P> robust;
+	
+	public Recoverer(P[] robustProds, int[][] continuationCharactersList){
 		super();
 		
-		this.robust = new ObjectKeyedIntegerMap<Object>();
-		this.continuations = continuationCharacters;
+		this.continuationCharactersList = continuationCharactersList;
 		
-		for (int i = robustNodes.length - 1; i >= 0; --i) {
-			robust.put(robustNodes[i], i);
+		this.robust = new ObjectKeyedIntegerMap<P>();
+		
+		for (int i = robustProds.length - 1; i >= 0; --i) {
+			robust.put(robustProds[i], i);
 		}
 	}
 	
-	private void reviveNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes, int[] input, int location, DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes){
+	private DoubleArrayList<AbstractStackNode<P>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes){
+		DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<P>, AbstractNode>();
+		
 		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
 			AbstractStackNode<P> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<P> prods = recoveryNodes.getSecond(i);
-			P prod = prods.get(0); // TODO Currently we get the first one (the current node can have more then one 'continuation' because we shared the prefixes of overlapping productions).
-			int start = recoveryNode.getStartLocation();
-			AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
 			
-			SkippingStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, continuations[robust.get(prod)], input, location, start, prod);
-			recoverLiteral = (SkippingStackNode<P>) recoverLiteral.getCleanCopy(location);
-			recoverLiteral.initEdges();
-			EdgesSet<P> edges = new EdgesSet<P>(1);
-			edges.add(continuer);
-			
-			recoverLiteral.addEdges(edges, recoverLiteral.getStartLocation());
-			
-			continuer.setIncomingEdges(edges);
-			
-			recoveredNodes.add(recoverLiteral, recoverLiteral.getResult());
+			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
+			for(int j = prods.size() - 1; j >= 0; --j){
+				P prod = prods.get(j);
+				
+				AbstractStackNode<P> continuer = new RecoveryPointStackNode<P>(recoveryId++, prod, recoveryNode);
+				
+				int startLocation = recoveryNode.getStartLocation();
+				
+				int[] until = continuationCharactersList[robust.get(prod)];
+				AbstractStackNode<P> recoverLiteral = new SkippingStackNode<P>(recoveryId++, until, input, startLocation, prod);
+				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
+				recoverLiteral.initEdges();
+				EdgesSet<P> edges = new EdgesSet<P>(1);
+				edges.add(continuer);
+				
+				recoverLiteral.addEdges(edges, startLocation);
+				
+				continuer.setIncomingEdges(edges);
+				
+				recoveredNodes.add(recoverLiteral, recoverLiteral.getResult());
+			}
 		}
+		
+		return recoveredNodes;
 	}
 	
-	private void reviveFailedNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes, int[] input, int location, ArrayList<AbstractStackNode<P>> failedNodes) {
+	private DoubleArrayList<AbstractStackNode<P>, AbstractNode> reviveFailedNodes(int[] input, int location, ArrayList<AbstractStackNode<P>> failedNodes) {
 		DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes = new DoubleArrayList<AbstractStackNode<P>, ArrayList<P>>();
 		
 		for(int i = failedNodes.size() - 1; i >= 0; --i){
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
 		}
 		
-		reviveNodes(recoveredNodes, input, location, recoveryNodes);
+		return reviveNodes(input, location, recoveryNodes);
 	}
 	
 	private void collectUnexpandableNodes(Stack<AbstractStackNode<P>> unexpandableNodes, ArrayList<AbstractStackNode<P>> failedNodes) {
@@ -107,9 +116,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 	}
 	
 	/**
-	 * This method travels up the graph to find the first nodes that are recoverable.
-	 * The graph may split and merge, and even cycle, so we take care of knowing where
-	 * we have been and what we still need to do.
+	 * Travels up the parse graph in an attempt to find the closest recoverable parent nodes.
 	 */
 	private void findRecoveryNodes(AbstractStackNode<P> failer, DoubleArrayList<AbstractStackNode<P>, ArrayList<P>> recoveryNodes) {
 		ObjectKeyedIntegerMap<AbstractStackNode<P>> visited = new ObjectKeyedIntegerMap<AbstractStackNode<P>>();
@@ -119,26 +126,27 @@ public class Recoverer<P> implements IRecoverer<P>{
 		
 		while (!todo.isEmpty()) {
 			AbstractStackNode<P> node = todo.pop();
+			if(visited.contains(node)) continue; // Don't follow cycles
 			
 			visited.put(node, 0);
 			
-			IntegerObjectList<EdgesSet<P>> toParents = node.getEdges();
+			ArrayList<P> recoveryProductions = new ArrayList<P>();
+			collectProductions(node, recoveryProductions);
 			
-			for(int i = toParents.size() - 1; i >= 0; --i){
-				EdgesSet<P> edges = toParents.getValue(i);
+			if(recoveryProductions.size() > 0){
+				recoveryNodes.add(node, recoveryProductions);
+			}
+			
+			IntegerObjectList<EdgesSet<P>> edges = node.getEdges();
+			
+			for(int i = edges.size() - 1; i >= 0; --i){
+				EdgesSet<P> edgesList = edges.getValue(i);
 
-				if (edges != null) {
-					for(int j = edges.size() - 1; j >= 0; --j){
-						AbstractStackNode<P> parent = edges.get(j);
+				if (edgesList != null) {
+					for(int j = edgesList.size() - 1; j >= 0; --j){
+						AbstractStackNode<P> parent = edgesList.get(j);
 						
-						ArrayList<P> recoveryProductions = new ArrayList<P>();
-						collectProductions(node, recoveryProductions);
-						
-						if(recoveryProductions.size() > 0){
-							recoveryNodes.add(node, recoveryProductions);
-						}else{
-							todo.push(parent);
-						}
+						todo.push(parent);
 					}
 				}
 			}
@@ -148,8 +156,18 @@ public class Recoverer<P> implements IRecoverer<P>{
 	// Gathers all productions that are marked for recovery (the given node can be part of a prefix shared production)
 	private void collectProductions(AbstractStackNode<P> node, ArrayList<P> productions) {
 		AbstractStackNode<P>[] production = node.getProduction();
+		if(production == null) return; // The root node does not have a production, so ignore it.
+		
 		int dot = node.getDot();
-		for(int i = dot; i < production.length; ++i){
+		
+		if(node.isEndNode()){
+			P parentProduction = node.getParentProduction();
+			if(isRobust(parentProduction)){
+				productions.add(parentProduction);
+			}
+		}
+		 
+		for(int i = dot + 1; i < production.length; ++i){
 			AbstractStackNode<P> currentNode = production[i];
 			if(currentNode.isEndNode()){
 				P parentProduction = currentNode.getParentProduction();
@@ -167,8 +185,7 @@ public class Recoverer<P> implements IRecoverer<P>{
 		}
 	}
 	
-	public void reviveStacks(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes,
-			int[] input,
+	public DoubleArrayList<AbstractStackNode<P>, AbstractNode> reviveStacks(int[] input,
 			int location,
 			Stack<AbstractStackNode<P>> unexpandableNodes,
 			Stack<AbstractStackNode<P>> unmatchableLeafNodes,
@@ -176,9 +193,9 @@ public class Recoverer<P> implements IRecoverer<P>{
 			DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes) {
 		ArrayList<AbstractStackNode<P>> failedNodes = new ArrayList<AbstractStackNode<P>>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
-		//collectFilteredNodes(filteredNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
+		//collectFilteredNodes(filteredNodes, failedNodes);
 		
-		reviveFailedNodes(recoveredNodes, input, location, failedNodes);
+		return reviveFailedNodes(input, location, failedNodes);
 	}
 }

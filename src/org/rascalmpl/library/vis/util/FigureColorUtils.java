@@ -340,7 +340,7 @@ public class FigureColorUtils {
 		IInteger c = colorNames.get(colorName.getValue().toLowerCase());
 		if (c != null)
 			return c;
-		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
+		throw RuntimeExceptionFactory.illegalArgument(colorName, ctx.getCurrentAST(),
 				ctx.getStackTrace());
 	}
 
@@ -350,7 +350,7 @@ public class FigureColorUtils {
 			int ci = c.intValue();
 			return vf.integer(figureColor(ci, alpha.floatValue()));
 		}
-		throw RuntimeExceptionFactory.illegalArgument(c, ctx.getCurrentAST(),
+		throw RuntimeExceptionFactory.illegalArgument(colorName, ctx.getCurrentAST(),
 				ctx.getStackTrace());
 	}
 

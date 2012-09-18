@@ -141,13 +141,15 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		else {
 			String host = uri.getAuthority();
 			
-			if (host != null && host.endsWith("/")) {
-				host = host.substring(0, host.length() - 2);
+			if (host != null) {
+				if (host.endsWith("/")) {
+					host = host.substring(0, host.length() - 2);
+				}
+				if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
+					host = host.concat(Configuration.RASCAL_FILE_EXT);
+				}
+				host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
 			}
-			if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
-				host = host.concat(Configuration.RASCAL_FILE_EXT);
-			}
-			host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
 			return host;
 		}
 	}

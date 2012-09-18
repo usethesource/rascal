@@ -68,7 +68,9 @@ public class IO{
 		ATermReader atr = new ATermReader();
 		try {
 			FileInputStream stream = new FileInputStream(fileName.getValue());
-			return atr.read(values, stream);
+			IValue result = atr.read(values, stream);
+			stream.close();
+			return result;
 		} catch (FactTypeUseException e) {
 			e.printStackTrace();
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

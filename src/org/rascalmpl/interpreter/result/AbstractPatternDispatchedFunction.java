@@ -96,6 +96,8 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	
 	@Override
 	public boolean equals(Object arg0) {
+		if(arg0 == null)
+			return false;
 		if (arg0.getClass() == getClass()) {
 			AbstractPatternDispatchedFunction other = (AbstractPatternDispatchedFunction) arg0;
 			return other.alternatives.equals(alternatives);
