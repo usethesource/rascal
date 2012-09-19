@@ -223,16 +223,19 @@ public str validateAnswer1(map[str,str] params){
 	switch (q) {
     case choiceQuestion(cid,qid,descr,choices): {
       try {
-           int c = toInt(answer);
-           expected = [txt | good(str txt) <- choices];
-           return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : 
-                                            wrongAnswer(cpid, qid, "I expected \"<expected[0]>\"");
+           if(/<pres:[0-9]+>@<org:[0-9]+>@<opts:.*$>/ := answer){
+           	  int c = toInt(org);
+           	  expected = [txt | i <- index(choices), contains(opts, "<i>") && good(str txt) := choices[i] ];
+          	  return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : 
+                                          	   wrongAnswer(cpid, qid, "I expected: <intercalate("  OR ", expected)>");
+           }
+           return wrongAnswer(cpid, qid, "Your answer was garbled: <answer>, please try again.");
       } 
       catch: return wrongAnswer(cpid, qid, "");
     }
     
     case textQuestion(cid,qid,descr,replies):
-      return (toLowerCase(answer) in replies) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
+      return (toLowerCase(answer) in replies && !isExam) ? correctAnswer(cpid, qid) : wrongAnswer(cpid, qid, "");
       
     case tvQuestion(cid, qid, qkind, qdetails): {
         setup  = qdetails.setup;

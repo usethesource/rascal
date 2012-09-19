@@ -40,6 +40,7 @@ public Course compileCourse(ConceptName rootConcept){
    startJob("Compile <rootConcept>", 1000);
    begin = realTime();
    arbSeed(0); // Set the arb generation so that the same choices will be made for question generation.
+   isExam = false;
    concepts = ();
    warnings = [];
    conceptList = getUncachedCourseConcepts(rootConcept);
@@ -221,6 +222,17 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
             }
 }
 
+public Concept compileConceptAsExam(ConceptName conceptName){
+	prevIsExam = isExam;
+	isExam = true;
+	dir = courseDir;
+	courseDir = examDir;
+	c = compileConcept(conceptName);
+	isExam = prevIsExam;
+	courseDir = dir;
+	return c;
+}
+
 public Concept compileConcept(ConceptName conceptName){
    
    println("compileConcept: <conceptName>");
@@ -254,11 +266,11 @@ public Concept compileConcept(ConceptName conceptName){
 	       local_warnings += "non-existing detail <detailName>";
 	   }
 	   
-	   optionsSection    = sections["Options"] ? [];
+	   //optionsSection    = sections["Options"] ? [];
 	   
-	   isExam = false;
-	   if(size(optionsSection) > 0 && /exam/ := optionsSection[0])
-	      isExam = true;
+	   //isExam = false;
+	   //if(size(optionsSection) > 0 && /exam/ := optionsSection[0])
+	   //   isExam = true;
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
 	   typesSection 	= sections["Types"] ? [];
@@ -723,7 +735,6 @@ Type    +      +         +      0   ERROR
 
 bool isExam  = false;
 
-
 private str namePar(str q, str name) = "name=\"<escapeConcept(q)>:<name>\"";
 
 private str answerFormBegin(ConceptName cpid, QuestionName qid, str formClass){
@@ -823,9 +834,10 @@ public str showQuestion(ConceptName cpid, Question q){
       	}
       }
       
-      qform = "<for(int i <- idx){>
-              '\<input type=\"radio\" <namePar(cq,"answer")> id=\"<cq>_<i>\" value=\"<i>\"\>
-              '\<label for=\"<cq>_<i>\"\><choices[i].description>\</label\><br()><}>";
+      altcnt = 0;
+      qform = "<for(int i <- index(idx)){>
+              '\<input type=\"radio\" <namePar(cq,"answer")> id=\"<cq>_<idx[i]>\" value=\"<i>@<idx[i]>@<idx>\"\>
+              '\<label for=\"<cq>_<idx[i]>\"\><choices[idx[i]].description> \</label\><br()><}>";      
     }
     case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;

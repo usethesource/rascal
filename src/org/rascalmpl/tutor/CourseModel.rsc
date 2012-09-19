@@ -21,9 +21,10 @@ import Exception;
 import ParseTree;
 import RascalUtils;
 
-public loc courseDir    = |courses:///|;
-public loc courseDirSVN = |courses:///.svn|;
-public str remoteLoc = "remote-loc.value";
+public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
+//public loc courseDir    = |courses:///|;
+public loc examDir        = |file:///Users/paulklint/|; // Here are all exams and exam results located
+public str remoteLoc      = "remote-loc.value";
 public str remoteConcepts = "remote-concepts.value";
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
