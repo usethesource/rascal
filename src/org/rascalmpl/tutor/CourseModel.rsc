@@ -32,7 +32,8 @@ public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/sr
  * - The submitted results reside in ~user/Dropbox/RascalExams/AP2012/results/Test1/Test1.html
 */
 
-public loc examDir        = |home:///Dropbox/RascalExams/|; 
+public loc examsDir        = |home:///Dropbox/RascalExams/|; 
+public bool isExam  = false;
 
 public str remoteLoc      = "remote-loc.value";
 public str remoteConcepts = "remote-concepts.value";
@@ -201,7 +202,7 @@ public loc questFile(loc dir, ConceptName cn){
 }
 
 public loc lockFile(ConceptName cn){
-  return (examDir + "exams/" + cn + "/locked.htaccess").top;
+  return (examsDir + "exams/" + cn + "/locked.htaccess").top;
 }
 
 // Escape concept name for use as HTML id.
@@ -537,7 +538,7 @@ public list[loc] crawlFiles(loc dir, str suffix){
 
 public list[ConceptName] crawlConcepts(ConceptName root){ 
   dir = courseDir + root;
-  //println("crawlConcepts: <dir>, <listEntries(dir)>");
+  println("crawlConcepts: <dir>");
   list[ConceptName] res = [root];
  
   for( str entry <- listEntries(dir) ){
