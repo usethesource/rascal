@@ -105,11 +105,11 @@ list[str]: ["zebra","elephant","snake"]
 <input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_2" value="2">
 <label for="Test/Libraries/List/prefix_1_2">N+1 elements.</label><br/>
 
-<input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_1" value="1">
-<label for="Test/Libraries/List/prefix_1_1">N elements.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_0" value="0">
 <label for="Test/Libraries/List/prefix_1_0">N-1 elements.</label><br/>
+
+<input type="radio" name="Test_Libraries_List_prefix_1:answer" id="Test/Libraries/List/prefix_1_1" value="1">
+<label for="Test/Libraries/List/prefix_1_1">N elements.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -133,8 +133,8 @@ list[str]: ["zebra","elephant","snake"]
 <span id="answerFeedback_Test_Libraries_List_prefix_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_2:L" value="[false, false, false, false, true]">
-The type of <tt>prefix([false, false, false, false, true])</tt> is <input type="text" size="30" name="Test_Libraries_List_prefix_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_2:L" value="[&quot;Darth Vader&quot;, &quot;G&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Ailyn Vel&quot;, &quot;E&quot;, &quot;Bert&quot;]">
+The type of <tt>prefix([&quot;Darth Vader&quot;, &quot;G&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Ailyn Vel&quot;, &quot;E&quot;, &quot;Bert&quot;])</tt> is <input type="text" size="30" name="Test_Libraries_List_prefix_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -158,8 +158,8 @@ The type of <tt>prefix([false, false, false, false, true])</tt> is <input type="
 <span id="answerFeedback_Test_Libraries_List_prefix_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_3:L" value="[true, false, true, false]">
-<pre class="prequestion">prefix([true, false, true, false]) == <input type="text" size="30" name="Test_Libraries_List_prefix_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_prefix_3:L" value="[true, true, false, true]">
+<pre class="prequestion">prefix([true, true, false, true]) == <input type="text" size="30" name="Test_Libraries_List_prefix_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_prefix_3:another" value="yes">

@@ -18,17 +18,18 @@ import Map;
 import IO;
 import util::Math;
 import lang::csv::IO;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import CourseModel;
 import CourseCompiler;
 import CourseManager;
                              
-
 // Compile one concept as an exam
 
-public void compileConceptAsExam(ConceptName cn){
-  file = conceptFile(cn);
-  compileConceptAsExam(file);
+
+public void main(){
+   //println(courseDir.ls);
+   compileConceptAsExam("AP2012/Test1");
+   //processExams(|file:///Users/paulklint/exam-results|);
 }
 
 loc resultDir = |file:///Users/paulklint/exam-results|;

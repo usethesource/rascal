@@ -105,14 +105,14 @@ list[str]: ["elephant","snake"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_2" value="2">
+<label for="Test/Libraries/List/slice_1_2">B + N elements.</label><br/>
+
 <input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_3" value="3">
 <label for="Test/Libraries/List/slice_1_3">N - 1 elements.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_0" value="0">
 <label for="Test/Libraries/List/slice_1_0">N elements.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_slice_1:answer" id="Test/Libraries/List/slice_1_4" value="4">
-<label for="Test/Libraries/List/slice_1_4">B - 1 elements.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -136,10 +136,10 @@ list[str]: ["elephant","snake"]
 <span id="answerFeedback_Test_Libraries_List_slice_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_2:L" value="[1, 4, -17, 9]">
-<input type="hidden" name="Test_Libraries_List_slice_2:B" value="1">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_2:L" value="[15, -7, -9]">
+<input type="hidden" name="Test_Libraries_List_slice_2:B" value="0">
 <input type="hidden" name="Test_Libraries_List_slice_2:E" value="4">
-The type of <tt>slice([1, 4, -17, 9],1,4)</tt> is <input type="text" size="30" name="Test_Libraries_List_slice_2:answer" class="answerText"><br/>
+The type of <tt>slice([15, -7, -9],0,4)</tt> is <input type="text" size="30" name="Test_Libraries_List_slice_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,10 +163,10 @@ The type of <tt>slice([1, 4, -17, 9],1,4)</tt> is <input type="text" size="30" n
 <span id="answerFeedback_Test_Libraries_List_slice_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_3:L" value="[&quot;Obi-Wan Kenobi&quot;, &quot;Watermelon&quot;, &quot;Barkley the Dog&quot;, &quot;H&quot;]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_slice_3:L" value="[14, -6, -2, 15, 2]">
 <input type="hidden" name="Test_Libraries_List_slice_3:B" value="0">
-<input type="hidden" name="Test_Libraries_List_slice_3:E" value="3">
-<pre class="prequestion">slice([&quot;Obi-Wan Kenobi&quot;, &quot;Watermelon&quot;, &quot;Barkley the Dog&quot;, &quot;H&quot;],0,3) == <input type="text" size="30" name="Test_Libraries_List_slice_3:answer" class="answerText"></pre>
+<input type="hidden" name="Test_Libraries_List_slice_3:E" value="4">
+<pre class="prequestion">slice([14, -6, -2, 15, 2],0,4) == <input type="text" size="30" name="Test_Libraries_List_slice_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_slice_3:another" value="yes">
