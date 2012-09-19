@@ -143,6 +143,7 @@ private map[str,map[str,str]] questionParams(map[str,str] params){
          case "studentName": studentName = params[key];
          case "studentMail": studentMail = params[key];
          case "studentNumber" : studentNumber = params[key];
+         case "examName" : ;
          default:
               println("unrecognized key: <key>");
          }
@@ -155,9 +156,9 @@ private map[str,map[str,str]] questionParams(map[str,str] params){
 
 private bool isExam = false;
 
-// Validate an exam.
+// Validate one submission for an exam.
 
-public examResult validateExam(str timestamp, map[str,str] params){
+public examResult validateExamSubmission(str timestamp, map[str,str] params){
   isExam = true;
   pm = questionParams(params);
   //println("pm = <pm>");
@@ -223,11 +224,11 @@ public str validateAnswer1(map[str,str] params){
 	switch (q) {
     case choiceQuestion(cid,qid,descr,choices): {
       try {
-           if(/<pres:[0-9]+>@<org:[0-9]+>@<opts:.*$>/ := answer){
-           	  int c = toInt(org);
-           	  expected = [txt | i <- index(choices), contains(opts, "<i>") && good(str txt) := choices[i] ];
+           if(/<selected:[0-9]+>@<orgSelected:[0-9]+>@<orgChoices:.*$>/ := answer){
+           	  int c = toInt(orgSelected);
+           	  expected = [txt | int i <- index(choices), contains(orgChoices, "<i>") && good(str txt) := choices[i] ];
           	  return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : 
-                                          	   wrongAnswer(cpid, qid, "I expected: <intercalate("  OR ", expected)>");
+                                          	   wrongAnswer(cpid, qid, "Expected: <intercalate("  OR ", expected)>");
            }
            return wrongAnswer(cpid, qid, "Your answer was garbled: <answer>, please try again.");
       } 

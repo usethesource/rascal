@@ -222,11 +222,11 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
             }
 }
 
-public Concept compileConceptAsExam(ConceptName conceptName){
+public Concept compileExam(ConceptName conceptName){
 	prevIsExam = isExam;
 	isExam = true;
 	dir = courseDir;
-	courseDir = examDir + "exams";
+	courseDir = examsDir + "exams";
 	c = compileConcept(conceptName);
 	isExam = prevIsExam;
 	courseDir = dir;
@@ -349,7 +349,7 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 	 
    if(size(C.questions) > 0){
 	  qs = C.questions;
-	  quest_file = questFile(isExam ? examDir + "results" : courseDir, cn);
+	  quest_file = questFile(isExam ? examsDir + "results" : courseDir, cn);
       try {
 	       writeTextValueFile(quest_file, C.questions);
 	  }
@@ -748,7 +748,7 @@ Type    +      +         +      0   ERROR
 
 // Present a Question
 
-bool isExam  = false;
+
 
 private str namePar(str q, str name) = "name=\"<escapeConcept(q)>:<name>\"";
 
@@ -973,7 +973,7 @@ public Question getQuestion(ConceptName cid, QuestionName qid){
 
   cid = unescapeConcept(cid);
   try {
-  	quest_file = (courseDir + cid + basename(cid))[extension = questExtension];
+  	quest_file = ((isExam ? examsDir + "results/" : courseDir) + cid + basename(cid))[extension = questExtension];
   	questions = readTextValueFile(#Questions, quest_file);
   
  	 for(q <- questions)
