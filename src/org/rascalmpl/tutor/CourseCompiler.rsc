@@ -361,9 +361,9 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 
 public str prelude(str courseName){
   if(isExam)
-	   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"exam.css\"/\>
-	  		 '\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>
-	  		 '\<script type=\"text/javascript\" src=\"exam.js\"\>\</script\>";
+	   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/exam.css\"/\>
+	  		 '\<script type=\"text/javascript\" src=\"/jquery-1.4.2.min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/exam.js\"\>\</script\>";
   else
 	  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/prelude.css\"/\>
 	  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/jquery.autocomplete.css\"/\>
