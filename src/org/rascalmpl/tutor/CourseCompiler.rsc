@@ -226,7 +226,7 @@ public Concept compileConceptAsExam(ConceptName conceptName){
 	prevIsExam = isExam;
 	isExam = true;
 	dir = courseDir;
-	courseDir = examDir;
+	courseDir = examDir + "exams";
 	c = compileConcept(conceptName);
 	isExam = prevIsExam;
 	courseDir = dir;
@@ -349,11 +349,19 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 	 
    if(size(C.questions) > 0){
 	  qs = C.questions;
-	  quest_file = questFile(cn);
+	  quest_file = questFile(isExam ? examDir + "results" : courseDir, cn);
       try {
 	       writeTextValueFile(quest_file, C.questions);
 	  }
 	  catch e: println("can not save file <quest_file>"); // do nothing
+   }
+   
+   if(isExam){
+      lock_file = lockFile(cn);
+      try {
+          writeFile(lock_file, restrictAccess());
+      }
+      catch e: println("can not write file <lock_file>"); // do nothing
    }
 }
 
@@ -447,6 +455,13 @@ public str editMenu(Concept C){
           + "\<span class=\"editMenuFooter\"\>Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. "
           + "For all other questions and remarks, visit \<a href=\"http://ask.rascal-mpl.org\"\>ask.rascal-mpl.org\</a\>. \</span\>";
 }
+
+
+public str restrictAccess() =
+  "AuthType Basic
+  'AuthName \"Unpublisched exam\"
+  'AuthUserFile /srv/www/vhosts/exam.rascal-mpl.org/exampass
+  'Require user rascal";
 
 // --------------------- compile questions ---------------------------------
 

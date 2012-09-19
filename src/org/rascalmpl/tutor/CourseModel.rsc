@@ -23,7 +23,17 @@ import RascalUtils;
 
 public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
 //public loc courseDir    = |courses:///|;
-public loc examDir        = |file:///Users/paulklint/|; // Here are all exams and exam results located
+/* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
+ * Assumptions:
+ * - Standard installation of Dropbox at ~user/Dropbox
+ * - Exams for each course reside in a separate subdirectory,e.g., ~user/Dropbox/RascalExams/AP2012/exams
+ * - Each exam has name, e.g. Test1
+ * - The html for the exam reside in ~user/Dropbox/RascalExams/AP2012/exams/Test1/Test1.html
+ * - The submitted results reside in ~user/Dropbox/RascalExams/AP2012/results/Test1/Test1.html
+*/
+
+public loc examDir        = |home:///Dropbox/RascalExams/|; 
+
 public str remoteLoc      = "remote-loc.value";
 public str remoteConcepts = "remote-concepts.value";
 
@@ -186,8 +196,12 @@ public loc htmlFile(ConceptName cn){
   return (courseDir + cn + (basename(cn) + ".html")).top;
 }
 
-public loc questFile(ConceptName cn){
-  return (courseDir + cn + (basename(cn) + ".quest")).top;
+public loc questFile(loc dir, ConceptName cn){
+  return (dir + cn + (basename(cn) + ".quest")).top;
+}
+
+public loc lockFile(ConceptName cn){
+  return (examDir + "exams/" + cn + "/locked.htaccess").top;
 }
 
 // Escape concept name for use as HTML id.
