@@ -601,7 +601,6 @@ str markupToc1(ConceptName cn, int level){
        return "";
     res = "";
     for(ch <- children(cn)){
-        //chfile = conceptFile(ch);
         syn  = getSynopsis(ch);
         res += li("<refToResolvedConcept(ch, true)>: <markupRestLine(syn)>") + markupToc1(ch, level - 1);
     }
