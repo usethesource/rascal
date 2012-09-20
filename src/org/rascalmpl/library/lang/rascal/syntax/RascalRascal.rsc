@@ -544,34 +544,35 @@ syntax Start
 	| Present: "start" ;
 
 syntax Statement
-	= Assert: "assert" Expression expression ";" 
-	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| Expression: Expression expression ";" 
-	| Visit: Label label Visit visit 
-	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
-	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
-	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
-	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
-	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
-	| Fail: "fail" Target target ";" 
-	| Break: "break" Target target ";" 
-	| Continue: "continue" Target target ";" 
-    | Filter: "filter" ";"
-	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
-	| non-assoc Try: "try" Statement body Catch+ handlers 
-	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
-	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
+	= @breakable Assert: "assert" Expression expression ";" 
+	| @breakable AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
+	| @breakable Expression: Expression expression ";" 
+	| @breakable Visit: Label label Visit visit 
+	| @breakable While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
+	| @breakable DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
+	| @breakable For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| @breakable IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
+	| @breakable IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| @breakable Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
+	| @breakable Fail: "fail" Target target ";" 
+	| @breakable Break: "break" Target target ";" 
+	| @breakable Continue: "continue" Target target ";" 
+    | @breakable Filter: "filter" ";"
+	| @breakable Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| @breakable non-assoc Try: "try" Statement body Catch+ handlers 
+	| @breakable TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| @breakable NonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| EmptyStatement: ";" 
-	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| Assignment: Assignable assignable Assignment operator Statement statement
-	| non-assoc ( Return    : "return" Statement statement  
-		        | Throw     : "throw" Statement statement 
-		        | Insert    : "insert" DataTarget dataTarget Statement statement 
-		        | Append    : "append" DataTarget dataTarget Statement statement 
+	| @breakable GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
+	| @breakable Assignment: Assignable assignable Assignment operator Statement statement
+	| non-assoc  ( 
+			          @breakable Return    : "return" Statement statement  
+		        | @breakable Throw     : "throw" Statement statement 
+		        | @breakable Insert    : "insert" DataTarget dataTarget Statement statement 
+		        | @breakable Append    : "append" DataTarget dataTarget Statement statement 
 	            )
-    > FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| VariableDeclaration: LocalVariableDeclaration declaration ";"
+    > @breakable FunctionDeclaration: FunctionDeclaration functionDeclaration 
+	| @breakable VariableDeclaration: LocalVariableDeclaration declaration ";"
 	; 
 	
     
@@ -710,8 +711,8 @@ syntax Variant
 
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
-	| @Foldable Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| @Foldable Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
+	| @Foldable @breakable{expression} Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
+	| @Foldable @breakable{expression} Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 lexical PreProtocolChars
