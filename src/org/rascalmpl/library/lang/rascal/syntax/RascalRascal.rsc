@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2012 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 @bootstrapParser
 module lang::rascal::\syntax::RascalRascal
