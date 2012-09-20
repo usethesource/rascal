@@ -47,7 +47,7 @@ public final class DebugHandler implements IDebugHandler {
 		NO_STEP, STEP_INTO, STEP_OVER 
 	};
 	
-	private DebugStepMode stepMode;
+	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
 	/**
 	 * Referring to {@link AbstractAST} responsible for last suspension.
