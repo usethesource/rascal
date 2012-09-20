@@ -130,8 +130,10 @@ data Production
      
 data Attr 
      = \assoc(Associativity \assoc) /*4*/
-     | \bracket() 
+     | \bracket()
+     | \tag(value \tag) 
      ;
+     
 data Associativity 
      = \left() /*5*/
      | \right() 
