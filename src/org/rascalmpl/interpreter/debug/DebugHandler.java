@@ -39,7 +39,7 @@ public final class DebugHandler implements IDebugHandler {
 	private boolean suspendRequested;
 
 	/**
-	 * Indicates that the evalutor is suspended. Also used for suspending / blocking the evaluator.
+	 * Indicates that the evaluator is suspended. Also used for suspending / blocking the evaluator.
 	 */
 	private boolean suspended;
 	
@@ -47,7 +47,7 @@ public final class DebugHandler implements IDebugHandler {
 		NO_STEP, STEP_INTO, STEP_OVER 
 	};
 	
-	private DebugStepMode stepMode;
+	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
 	
 	/**
 	 * Referring to {@link AbstractAST} responsible for last suspension.
