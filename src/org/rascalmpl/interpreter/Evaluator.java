@@ -1862,12 +1862,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public void notifyAboutSuspension(AbstractAST currentAST) {
-		 /* 
-		  * NOTE: book-keeping of the listeners and notification takes place here,
-		  * delegated from the individual AST nodes.
-		  */
-		for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-			listener.suspended(this, currentAST);
+		if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
+			 /* 
+			  * NOTE: book-keeping of the listeners and notification takes place here,
+			  * delegated from the individual AST nodes.
+			  */
+			for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+				listener.suspended(this, currentAST);
+			}
 		}
 	}
 
