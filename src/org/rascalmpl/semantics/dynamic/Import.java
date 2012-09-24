@@ -73,7 +73,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				String uriScheme = resourceScheme.substring(resourceScheme.indexOf("+")+1); 
 				resourceScheme = resourceScheme.substring(0,resourceScheme.indexOf("+"));
 				try {
-					uri = new URI(uriScheme, uri.getUserInfo(), uri.getHost() == null ? "" : uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = new URI(uriScheme, uri.getAuthority() == null ? "" : uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
 				} catch (URISyntaxException e) {
 					throw RuntimeExceptionFactory.malformedURI(uri.toString().substring(uri.toString().indexOf("+")+1), null, null);
 				}

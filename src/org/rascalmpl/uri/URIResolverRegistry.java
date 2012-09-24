@@ -146,7 +146,7 @@ public class URIResolverRegistry {
 		
 		if (parent != null && !parent.getName().isEmpty()) {
 			try {
-				return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
+				return new URI(uri.getScheme(), uri.getAuthority(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
 			} catch (URISyntaxException e) {
 				// can not happen
 			}
