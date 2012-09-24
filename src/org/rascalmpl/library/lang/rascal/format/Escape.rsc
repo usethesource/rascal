@@ -33,7 +33,7 @@ public list[str] ascii =
 /* 010 */    "\\n", // LF    (Line Feed)
 /* 011 */  "\\a0B", // VT    (Vertical Tab)
 /* 012 */  "\\a0C", // FF    (Form Feed)
-/* 013 *   "\\a0D", // CR    (Carriage Return)
+/* 013 */  "\\a0D", // CR    (Carriage Return)
 /* 014 */  "\\a0E", // SO    (Shift Out)
 /* 015 */  "\\a0F", // SI    (Shift In)
 /* 016 */  "\\a10", // DLE   (Data Link Escape)
