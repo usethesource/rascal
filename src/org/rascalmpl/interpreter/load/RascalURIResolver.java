@@ -129,7 +129,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		if (!dirPath.endsWith("/")) {
 			path = "/" + path;
 		}
-		return new URI(dir.getScheme(), dir.getHost() != null ? dir.getHost() : "", dirPath + path, null);
+		return new URI(dir.getScheme(), dir.getAuthority() != null ? dir.getAuthority() : "", dirPath + path, null, null);
 	}
 
 	private String getPath(URI uri) {
