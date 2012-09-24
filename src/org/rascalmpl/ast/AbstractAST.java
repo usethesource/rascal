@@ -17,6 +17,7 @@
 package org.rascalmpl.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -34,9 +35,11 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
+	protected ISet attributes;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
@@ -67,6 +70,14 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public void setSourceLocation(ISourceLocation src) {
 		this.src = src;
+	}
+	
+	public void setAttributes(ISet attributes) {
+		this.attributes = attributes;
+	}
+	
+	public ISet getAttributes() {
+		return attributes;
 	}
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
@@ -185,5 +196,24 @@ public abstract class AbstractAST implements IVisitable {
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
 		return buildBacktracker(ctx);
 	}
+
+	public boolean isBreakable() {
+		if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable")))) {
+			return true;
+		} else{
+			return false;
+		}
+	}
+	
+	/*
+	 * TODO: Fix retrieval of StringValue node.
+	 */
+	public boolean isDeferredBreakable() {
+		if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable", VF.string("{expression}"))))) {
+			return true;
+		} else{
+			return false;
+		}
+	}	
 	
 }

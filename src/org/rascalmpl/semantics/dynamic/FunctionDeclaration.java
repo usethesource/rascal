@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -35,6 +37,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.uptr.Factory;
 
 public abstract class FunctionDeclaration extends
 		org.rascalmpl.ast.FunctionDeclaration {
@@ -122,6 +125,13 @@ public abstract class FunctionDeclaration extends
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			// msteindorfer: MOCK situation
+			if (getLocation().getURI().getScheme().equals("project") && isDeferredBreakable()) {
+				IValue breakable = VF.constructor(Factory.Attr_Tag, VF.node("breakable"));
+				ISet attributes = this.getExpression().getAttributes().insert(breakable);
+				this.getExpression().setAttributes(attributes);
+			}
+			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -155,6 +165,19 @@ public abstract class FunctionDeclaration extends
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			
+			// msteindorfer: MOCK situation
+			if (getLocation().getURI().getScheme().equals("project") && isDeferredBreakable()) {
+				IValue breakable = VF.constructor(Factory.Attr_Tag, VF.node("breakable"));
+				ISet attributes = this.getExpression().getAttributes().insert(breakable);
+				this.getExpression().setAttributes(attributes);
+
+				for (org.rascalmpl.ast.Expression exp : this.getConditions()) {
+					attributes = exp.getAttributes().insert(breakable);
+					exp.setAttributes(attributes);
+				}
+			}			
+			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 

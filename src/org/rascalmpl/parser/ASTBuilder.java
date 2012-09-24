@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.parser;
 
@@ -327,7 +328,8 @@ public class ASTBuilder {
 			i++;
 		}
 
-		AbstractAST ast = callMakerMethod(sort, cons, actuals);
+		ISet attributes = ProductionAdapter.getAttributes(TreeAdapter.getProduction(tree));
+		AbstractAST ast = callMakerMethod(sort, cons, attributes, actuals);
 		
 		// TODO: This is a horrible hack. The pattern Statement s : `whatever` should
 		// be a concrete syntax pattern, but is not recognized as such because of the
@@ -359,7 +361,8 @@ public class ASTBuilder {
 		}
 		Object actuals[] = new Object[] { tree, new String(TreeAdapter.yield(tree)) };
 
-		AbstractAST result = callMakerMethod(sort, "Lexical", actuals);
+		ISet attributes = ProductionAdapter.getAttributes(TreeAdapter.getProduction(tree));
+		AbstractAST result = callMakerMethod(sort, "Lexical", attributes, actuals);
 		lexCache.putUnsafe(tree, result);
 		return result;
 	}
@@ -414,7 +417,8 @@ public class ASTBuilder {
 
 		Object actuals[] = new Object[] {  tree, altsOut };
 
-		AbstractAST ast = callMakerMethod(sort, "Ambiguity", actuals);
+		ISet attributes = ProductionAdapter.getAttributes(TreeAdapter.getProduction(tree));
+		AbstractAST ast = callMakerMethod(sort, "Ambiguity", attributes, actuals);
 		
 		ast.setStats(ref != null ? ref : new ASTStatistics());
 		
@@ -857,15 +861,21 @@ public class ASTBuilder {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
-//	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[]) {
-//		return callMakerMethod(sort, cons, src, null, actuals);
-//	}
-	
-	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[]) {
-		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), actuals);
+	private static AbstractAST callMakerMethod(String sort, String cons, ISet attributes, Object actuals[]) {
+		return callMakerMethod(sort, cons, TreeAdapter.getLocation((IConstructor) actuals[0]), attributes, actuals);
 	}
 	
+	/**
+	 * @deprecated Does not propagate <code>attributes</code>. 
+	 *             Use the following instead:
+	 *             {@link ASTBuilder#callMakerMethod(String, String, ISourceLocation, ISet, Object[]).
+	 */
+	@Deprecated
 	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, Object actuals[]) {
+		return callMakerMethod(sort, cons, src, null, actuals);
+	}
+	
+	private static AbstractAST callMakerMethod(String sort, String cons, ISourceLocation src, ISet attributes, Object actuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
@@ -893,6 +903,9 @@ public class ASTBuilder {
 			if (src != null) {
 				result.setSourceLocation(src);
 			}
+			if (attributes != null) {
+				result.setAttributes(attributes);
+			}
 			return result;
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
@@ -908,5 +921,5 @@ public class ASTBuilder {
 			throw unexpectedError(e);
 		}
 	}
-
+		
 }
