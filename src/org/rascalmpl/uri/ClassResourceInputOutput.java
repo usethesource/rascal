@@ -165,7 +165,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			if (path == null) {
 				path = "/";
 			}
-			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), path + child, parentUri.getQuery(), parentUri.getFragment());
+			URI childUri = new URI(parentUri.getScheme(), parentUri.getAuthority(), path + child, parentUri.getQuery(), parentUri.getFragment());
 			
 			return registry.getOutputStream(childUri, append);
 		} catch (URISyntaxException e) {
@@ -182,13 +182,12 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			if(res == null)
 				throw new FileNotFoundException(parent);
 			URI parentUri = res.toURI();
-			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), parentUri.getPath() + child, parentUri.getQuery(), parentUri.getFragment());
+			URI childUri = new URI(parentUri.getScheme(), parentUri.getAuthority(), parentUri.getPath() + child, parentUri.getQuery(), parentUri.getFragment());
 
 			registry.mkDirectory(childUri);
 		} catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
 		} 
 	}
-
 	
 }
