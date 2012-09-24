@@ -16,6 +16,7 @@ package org.rascalmpl.library.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,7 +154,8 @@ public class Eval {
 			evaluator.setCurrentEnvt(env);
 			if(!timer.hasExpired() && commands.length() > 0){
 				for(IValue command : commands){
-					result = evaluator.evalMore(null, ((IString) command).getValue(), URI.create("eval:///?command=" + URLEncoder.encode(((IString) command).getValue(), "UTF8")));
+					URI commandLocation = new URI("eval", "", "/","command=" + ((IString)command).getValue(), null);
+					result = evaluator.evalMore(null, ((IString) command).getValue(), commandLocation);
 				}
 				timer.cancel();
 				if (timer.hasExpired()) {
@@ -178,8 +180,7 @@ public class Eval {
 			if (forRascal)
 				throw new Throw(Exception_StaticError.make(values, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, (String) null);
 			throw e;
-		}
-		catch (UnsupportedEncodingException e) {
+		} catch (URISyntaxException e) {
 			// this should never happen
 			if (forRascal)
 				throw RuntimeExceptionFactory.illegalArgument(commands, null, null);
