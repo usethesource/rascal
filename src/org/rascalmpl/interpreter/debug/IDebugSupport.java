@@ -25,5 +25,5 @@ public interface IDebugSupport {
 	 * @param message the message to be transmitted
 	 */
 	public void processMessage(IDebugMessage message);
-
+	
 }

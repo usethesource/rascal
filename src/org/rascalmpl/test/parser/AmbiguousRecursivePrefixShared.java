@@ -18,6 +18,14 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 
+// NOTE: This test only succeeds when the expect builder is used and it shares
+// all productions correctly. Otherwise graph node sharing breaks, since the
+// id's of the stack nodes do not end up being unique.
+// This test could be easily fixed to resolve this issue, but the nice thing
+// now is that it breaks when production prefixes are not shared. In any other
+// case, the test would likely succeed regardless whether or not this feature
+// works. I.e. this kind of stuff should not really be tested in an
+// 'acceptance test'. 
 /*
 S ::= SSS | SS | a
 */

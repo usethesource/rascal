@@ -12,7 +12,7 @@ module analysis::formalconcepts::FCA
 import Set;
 import Map;
 import Relation;
-import util::Dot;
+import lang::dot::Dot;
 import IO;
 
 @doc{Data Types belonging to Formal Concept Analysis }

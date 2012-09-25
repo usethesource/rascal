@@ -2,7 +2,7 @@ module lang::rascal::grammar::analyze::Dependency
 
 import Grammar;
 import ParseTree;
-import Graph;
+import analysis::graphs::Graph;
 
 @doc{
   Compute the symbol dependency graph. This graph does not report intermediate nodes

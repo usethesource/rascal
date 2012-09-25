@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.5.1.qualifier
+Bundle-Version: 0.5.2.qualifier
 Bundle-ClassPath: rascal.jar,
  src
 Export-Package: 
@@ -20,7 +20,7 @@ Export-Package:
  org.rascalmpl.interpreter.types,
  org.rascalmpl.interpreter.utils,
  org.rascalmpl.library,
- org.rascalmpl.library.experiments.RascalTutor,
+ org.rascalmpl.tutor,
  org.rascalmpl.library.experiments.resource,
  org.rascalmpl.library.experiments.resource.resources,
  org.rascalmpl.library.experiments.resource.resources.file,
@@ -63,6 +63,7 @@ Export-Package:
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
  org.rascalmpl.tasks.facts,
+ org.rascalmpl.tutor,
  org.rascalmpl.uri,
  org.rascalmpl.values,
  org.rascalmpl.values.errors,
@@ -89,7 +90,6 @@ Require-Bundle: org.eclipse.imp.pdb.values;bundle-version="0.2.5",
 Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.math.optimization;version="2.1.0",
- org.eclipse.jdt.core.jdom,
  org.eclipse.swt,
  org.objectweb.asm;version="3.3.1",
  org.rascalmpl.library.vis,

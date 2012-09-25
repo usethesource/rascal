@@ -41,7 +41,6 @@ public abstract class AbstractStackNode<P>{
 	private boolean isEndNode;
 	private boolean isSeparator;
 	private boolean isLayout;
-	private boolean isRecovering;
 	
 	// Filters
 	private final IEnterFilter[] enterFilters;
@@ -92,7 +91,6 @@ public abstract class AbstractStackNode<P>{
 		isEndNode = original.isEndNode;
 		isSeparator = original.isSeparator;
 		isLayout = original.isLayout;
-		isRecovering = original.isRecovering;
 		
 		alternativeProduction = original.alternativeProduction;
 		enterFilters = original.enterFilters;
@@ -145,10 +143,6 @@ public abstract class AbstractStackNode<P>{
 	 */
 	public void markAsLayout(){
 		isLayout = true;
-	}
-	
-	public void markAsRecovering() {
-		isRecovering = true;
 	}
 	
 	/**

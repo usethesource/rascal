@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 module experiments::Concept::DotVis
-import util::Dot;
+import lang::dot::Dot;
 import vis::Figure;
 import vis::Render; 
 import Set;

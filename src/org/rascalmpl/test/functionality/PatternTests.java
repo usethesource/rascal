@@ -740,6 +740,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
+	@Ignore("This can only be correctly checked by the type checker, the current implementation broke set matching in visits")
 	public void matchSetWrongElemError() {
 		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
 	}	

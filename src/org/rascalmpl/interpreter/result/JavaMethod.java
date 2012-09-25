@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anya Helene Bagge - anya@ii.uib.no (UiB)
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -31,6 +32,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
@@ -153,6 +155,9 @@ public class JavaMethod extends NamedFunction {
 				((Throw) targetException).setTrace(trace + eval.getStackTrace());
 				throw th;
 			}
+			else if (targetException instanceof StaticError) {
+				throw (StaticError) targetException;
+			}
 			else if (targetException instanceof ImplementationError) {
 				ImplementationError ex = (ImplementationError) targetException;
 			    throw ex;
@@ -169,11 +174,14 @@ public class JavaMethod extends NamedFunction {
 				String msg = targetException.getMessage() != null ? targetException.getMessage() : targetException.getClass().getName();
 				ByteArrayOutputStream trace = new ByteArrayOutputStream();
 			
-				for (StackTraceElement elem : targetException.getStackTrace()) {
-					if (elem.getMethodName().equals("invoke")) {
-						break;
+				StackTraceElement[] stackTrace = targetException.getStackTrace();
+				if(stackTrace != null) {
+					for (StackTraceElement elem : stackTrace) {
+						if (elem.getMethodName().equals("invoke")) {
+							break;
+						}
+						trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
 					}
-					trace.write(("\n\t" +  elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")").getBytes());
 				}
 				String traceStr = trace.toString() + "\n" + eval.getStackTrace();
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), traceStr);

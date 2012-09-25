@@ -29,6 +29,9 @@ public Figure visParsetree(Tree t){
   switch(t){
   
    case b:appl(Production prod, list[Tree] args) : {
+        if (skipped() == prod) {
+            return box(text("skipped"),size(5),popup(unparse(b)));
+        }
    		if(\lex(_) := prod.def){
    			return box(text(unparse(b)),size(5));
    		}

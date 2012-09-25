@@ -11,7 +11,7 @@
 module lang::rascal::scoping::ResolveNames
 
 import List;
-import Graph;
+import  analysis::graphs::Graph;
 import IO;
 import Set;
 import Map;

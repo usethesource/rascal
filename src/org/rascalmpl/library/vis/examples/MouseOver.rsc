@@ -12,7 +12,7 @@ import vis::Render;
 import Set;
 import List;
 import Real;
-import Integer;
+import util::Math;
 
 
 

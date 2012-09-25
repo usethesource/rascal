@@ -18,7 +18,7 @@ import List;
 
 import IO;
 import Real;
-import Integer;
+import util::Math;
 
 
 

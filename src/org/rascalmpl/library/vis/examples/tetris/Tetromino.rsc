@@ -11,7 +11,7 @@
 module vis::examples::tetris::Tetromino
 
 import List;
-import Integer;
+import util::Math;
 
 
 // we define tetromino shapes as a list of the (local) coordinates of its blocks 

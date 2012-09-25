@@ -28,11 +28,15 @@ public abstract class StaticError extends RuntimeException {
 	
 	public StaticError(String message, ISourceLocation loc) {
 		super(message);
+		if(loc != null)
+			addStackTraceElement(loc);
 		this.loc = loc;
 	}
 	
 	public StaticError(String message, ISourceLocation loc, Throwable cause) {
 		super(message, cause);
+		if(loc != null)
+			addStackTraceElement(loc);
 		this.loc = loc;
 	}
 
@@ -49,6 +53,22 @@ public abstract class StaticError extends RuntimeException {
 	}
 	
 	public void setLocation(ISourceLocation loc) {
+		String mod = loc.getURI().getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+		getStackTrace()[0] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());
+
 		this.loc = loc;
+	}
+
+	private void addStackTraceElement(ISourceLocation loc) {
+		StackTraceElement[] oldStackTrace = getStackTrace();
+		StackTraceElement[] stackTrace = new StackTraceElement[oldStackTrace.length+1];
+		int i = 0;
+		
+		String mod = loc.getURI().getPath().replaceAll("^.*/", "").replaceAll("\\..*$", "");
+		stackTrace[i++] = new StackTraceElement(mod, "?", loc.getURI().getPath(), loc.getBeginLine());
+
+		for(StackTraceElement elt : oldStackTrace)
+			stackTrace[i++] = elt;
+		setStackTrace(stackTrace);
 	}
 }

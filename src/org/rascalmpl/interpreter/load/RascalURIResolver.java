@@ -141,13 +141,15 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		else {
 			String host = uri.getAuthority();
 			
-			if (host != null && host.endsWith("/")) {
-				host = host.substring(0, host.length() - 2);
+			if (host != null) {
+				if (host.endsWith("/")) {
+					host = host.substring(0, host.length() - 2);
+				}
+				if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
+					host = host.concat(Configuration.RASCAL_FILE_EXT);
+				}
+				host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
 			}
-			if (!host.endsWith(Configuration.RASCAL_FILE_EXT)) {
-				host = host.concat(Configuration.RASCAL_FILE_EXT);
-			}
-			host = host.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
 			return host;
 		}
 	}
@@ -164,7 +166,13 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 					}
 				}
 			}
-			throw new IOException("Module " + uri.getPath() + " not found");
+			
+			if (uri.getPath() == null || uri.getPath().length() == 0) {
+				throw new IOException("File " + uri + " not found.");
+			}
+			else {
+				throw new IOException("Module " + uri + " not found.");
+			}
 		} 
 		catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
@@ -180,15 +188,28 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
+				URI parent = URIResolverRegistry.getParentURI(uri);
 
 				for (URI dir : collect()) {
-					URI full = getFullURI(path, dir);
-					if (reg.exists(full)) {
-						return reg.getOutputStream(full, append);
+					URI fullParent = parent != null ? getFullURI(getPath(parent), dir) : null;
+					if (fullParent == null || reg.exists(fullParent)) {
+						URI full = getFullURI(path, dir);
+						try {
+							return reg.getOutputStream(full, append);
+						}
+						catch (UnsupportedSchemeException e) {
+							// it happens
+						}
 					}
 				}
 			}
-			throw new IOException("Module " + uri.getPath() + " not found");
+			
+			if (uri.getPath() == null || uri.getPath().length() == 0) {
+				throw new IOException("Module " + uri.getPath() + " not found");
+			}
+			else {
+				throw new IOException("Could not write to file " + uri);
+			}
 		} 
 		catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
@@ -282,7 +303,13 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 				
 				for (URI dir : collect()) {
 					URI full = getFullURI(path, dir);
-					reg.mkDirectory(full);
+					try {
+						reg.mkDirectory(full);
+					}
+					catch (UnsupportedSchemeException e) {
+						// it happens
+						continue;
+					}
 					return;
 				}
 			}

@@ -125,17 +125,15 @@ public class Ellipse extends Container {
         double IY = Y + r * sint;
         
         double rotd = -90 + Math.toDegrees(theta);
-        if(toArrow != null){
-        	gc.pushMatrix();
-        	gc.translate(IX, IY);
-        	gc.rotate(rotd);
-			gc.translate(-toArrow.size.getX()/2.0,0);
+       	gc.pushMatrix();
+       	gc.translate(IX, IY);
+       	gc.rotate(rotd);
+		gc.translate(-toArrow.size.getX()/2.0,0);
         	
 			
-			toArrow.applyProperties(gc);
-			toArrow.drawElement(gc,visibleSWTElements); 
-        	gc.popMatrix();
-        }
+		toArrow.applyProperties(gc);
+		toArrow.drawElement(gc,visibleSWTElements); 
+		gc.popMatrix();
 	}
 	
 	

@@ -16,6 +16,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
+import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -62,8 +63,11 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case ExpandableContainerNode.ID:
 				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+			case RecoveredNode.ID:
+				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+//				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case SkippedNode.ID:
-				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node);
+				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node); 
 			default:
 				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}

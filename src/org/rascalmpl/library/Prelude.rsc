@@ -18,7 +18,6 @@ It combines the following modules:
 * `Boolean`,
 * `DateTime`,
 * `Exception`,
-* `Graph`,
 * `IO`,
 * `List`,
 * `Map`,
@@ -36,7 +35,6 @@ module Prelude
 extend Boolean;
 extend DateTime;
 extend Exception;
-extend Graph;
 extend IO;
 extend List;
 extend Map;

@@ -17,10 +17,12 @@ package org.rascalmpl.values.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProductionAdapter {
@@ -29,6 +31,9 @@ public class ProductionAdapter {
 		super();
 	}
 
+	/**
+	 * @return a constructor name if present or null otherwise
+	 */
 	public static String getConstructorName(IConstructor tree) {
 		IConstructor def = getDefined(tree);
 		
@@ -44,14 +49,46 @@ public class ProductionAdapter {
 	}
 	
 	public static IConstructor getDefined(IConstructor tree) {
+		if (isSkipped(tree)) {
+			return (IConstructor) Factory.Symbol_Empty.make(ValueFactoryFactory.getValueFactory());
+		}
 		return (IConstructor) tree.get("def");
 	}
 	
+	public static boolean isSkipped(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Production_Skipped;
+	}
+	
+	public static boolean isError(IConstructor tree) {
+		return tree.getConstructorType() == Factory.Production_Error;
+	}
+
 	public static IList getSymbols(IConstructor tree) {
 		if (isDefault(tree)) {
 			return (IList) tree.get("symbols");
 		}
 		return null;
+	}
+	
+	public static IList getASTSymbols(IConstructor tree) {
+		if (isLexical(tree)) {
+			throw new ImplementationError("This is not a context-free production: " + tree);
+		}
+
+		IList children = getSymbols(tree);
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory
+				.getValueFactory());
+
+		for (int i = 0; i < children.length(); i++) {
+			IConstructor kid = (IConstructor) children.get(i);
+			if (!SymbolAdapter.isLiteral(kid) && !SymbolAdapter.isCILiteral(kid)) {
+				writer.append(kid);
+			}
+			// skip layout
+			i++;
+		}
+		
+		return writer.done();
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
@@ -167,9 +204,5 @@ public class ProductionAdapter {
 			}
 		}
 		return false;
-	}
-
-	public static boolean isSkipped(IConstructor production) {
-		return production.getConstructorType() == Factory.Production_Skipped;
 	}
 }
