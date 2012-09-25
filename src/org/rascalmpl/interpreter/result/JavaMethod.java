@@ -60,6 +60,16 @@ public class JavaMethod extends NamedFunction {
 		return false;
 	}
 	
+	@Override 
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
+		return false;
+	}
+	
 	private boolean hasReflectiveAccess(FunctionDeclaration func) {
 		for (Tag tag : func.getTags().getTags()) {
 			if (Names.name(tag.getName()).equals("reflect")) {
@@ -120,6 +130,11 @@ public class JavaMethod extends NamedFunction {
 			}
 			ctx.unwind(old);
 		}
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+		return call(actualTypes, actuals);
 	}
 	
 	private Object[] addCtxActual(Object[] oActuals) {

@@ -57,6 +57,11 @@ public class DynamicGenerator extends AbstractFunction {
 		return makeResult(instantiatedReturnType, returnVal, eval);
 
 	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+		return call(actualTypes, actuals);
+	}
 
 	@Override
 	public boolean isDefault() {
@@ -65,6 +70,16 @@ public class DynamicGenerator extends AbstractFunction {
 
 	@Override
 	public boolean isStatic() {
+		return false;
+	}
+	
+	@Override
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
 		return false;
 	}
 

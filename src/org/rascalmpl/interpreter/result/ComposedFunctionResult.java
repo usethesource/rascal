@@ -48,9 +48,19 @@ public class ComposedFunctionResult extends AbstractFunction{
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
+		return false;
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
 		Result<IValue> rightResult = right.call(argTypes, argValues);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, self);
 	}
 
 	@Override

@@ -441,7 +441,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				Result<IValue> res = null;
 				try {
-					res = function.call(types, actuals);
+					if(this.getExpression().isPrev()) {
+						res = function.call(types, actuals, __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.Evaluator.IT).getValue());
+					} else {
+						res = function.call(types, actuals);
+					}
 				}
 				catch(MatchFailed e) {
 					if(function instanceof AbstractFunction) {
@@ -512,7 +516,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new RascalFunction(this, __eval, null,
 					(FunctionType) RTF
 					.functionType(returnType, formals), this.getParameters()
-					.isVarArgs(), false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}
@@ -1171,6 +1175,32 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
+	
+	static public class Prev extends org.rascalmpl.ast.Expression.Prev {
+
+		public Prev(IConstructor __param1) {
+			super(__param1);
+		}
+
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
+					org.rascalmpl.interpreter.Evaluator.PREV);
+			if (v == null) {
+				throw new ItOutsideOfReducer(this);
+			}
+			return v;
+
+		}
+		
+		@Override
+		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
+			return new BasicBooleanResult(eval, this);
+		}
+
+	}
+
 
 	static public class Join extends org.rascalmpl.ast.Expression.Join {
 
@@ -2545,7 +2575,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.getInstance();
 			return new RascalFunction(this, __eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals), this.getParameters()
-					.isVarArgs(), false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}

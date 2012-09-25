@@ -45,6 +45,7 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleError;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
@@ -450,8 +451,22 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-
+	@Override
+	public void getAllFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
+		super.getAllFunctions(functionType, name, collection);
+		
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			mod.getLocalPublicFunctions(name, functionType, collection);
+		}
+	}
 	
+	public void getAllImportedFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			mod.getLocalPublicFunctions(name, functionType, collection);
+		}
+	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
 		Result<IValue> var = null;
@@ -494,6 +509,22 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 
+	private void getLocalPublicFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
+		if (functionEnvironment != null) {
+			List<AbstractFunction> lst = functionEnvironment.get(name);
+			
+			if (lst != null) {
+				for (AbstractFunction func : lst) {
+					if (func.isPublic() 
+							&& func.getFunctionType().getReturnType().isSubtypeOf(functionType.getReturnType())
+							&& func.getFunctionType().getArgumentTypes().equivalent(functionType.getArgumentTypes())) {
+						collection.add(func);
+					}
+				}
+			}
+		}
+	}
+	
 	@Override
 	public Type abstractDataType(String name, Type... parameters) {
 		return TF.abstractDataType(typeStore, name, parameters);
