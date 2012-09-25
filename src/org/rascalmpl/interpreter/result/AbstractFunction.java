@@ -141,9 +141,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
+		return call(monitor, argTypes, argValues, null);
+	}
+	
+	@Override
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, IValue self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues);
+			return call(argTypes, argValues, self);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -176,6 +181,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public abstract boolean isDefault();
+	
+	public abstract boolean isOverrides();
+	
+	public abstract boolean isExtends();
 	
 	
 	private void printNesting(StringBuilder b) {

@@ -52,6 +52,11 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 
 		return makeResult(concreteType, newAppl, ctx);
 	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+		return call(actualTypes, actuals);
+	}
 
 	private IValue flatten(IConstructor prod, IList args) {
 		IListWriter result = Factory.Args.writer(vf);

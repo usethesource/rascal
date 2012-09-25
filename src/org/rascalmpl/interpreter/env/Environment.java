@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 
 /**
@@ -245,6 +246,25 @@ public class Environment {
 		
 		if (parent != null) {
 			parent.getAllFunctions(returnType, name, collection);
+		}
+	}
+	
+	public void getAllFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
+		if (functionEnvironment != null) {
+			List<AbstractFunction> locals = functionEnvironment.get(name);
+			
+			if (locals != null) {
+				for (AbstractFunction func : locals) {
+					if (func.getFunctionType().getReturnType().isSubtypeOf(functionType.getReturnType())
+							&& func.getFunctionType().getArgumentTypes().equivalent(functionType.getArgumentTypes())) {
+						collection.add(func);
+					}
+				}
+			}
+		}
+		
+		if (parent != null) {
+			parent.getAllFunctions(name, functionType, collection);
 		}
 	}
 

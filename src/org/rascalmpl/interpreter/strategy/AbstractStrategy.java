@@ -46,4 +46,14 @@ public abstract class AbstractStrategy extends AbstractFunction {
 	public boolean isDefault() {
 		return false;
 	}
+	
+	@Override
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
+		return false;
+	}
 }

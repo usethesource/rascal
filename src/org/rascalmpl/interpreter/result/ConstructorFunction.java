@@ -48,9 +48,19 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals) {
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
+		return false;
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
 		if (constructorType == Factory.Tree_Appl) {
-			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals);
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, self);
 		}
 
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
