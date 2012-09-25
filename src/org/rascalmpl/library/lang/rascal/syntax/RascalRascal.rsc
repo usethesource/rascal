@@ -207,7 +207,7 @@ syntax Expression
 	| Map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| It             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| QualifiedName  : QualifiedName qualifiedName 
-	| Self           : "self"
+	| Prev           : "prev"
 	// removed >
 	| Subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| FieldAccess  : Expression expression "." Name field 
@@ -336,8 +336,8 @@ syntax FunctionModifier
 	= Java: "java" 
 	| Test: "test" 
 	| Default: "default"
-	| OpenRecursion: "openrec"
-	| Open: "open"
+	| Overrides: "override"
+	| Extends: "extend"
 	;
 
 syntax Assignment
@@ -667,9 +667,8 @@ keyword RascalKeywords
 	| "start"
 	| "datetime" 
 	| "value" 
-	| "openrec"
-	| "open"
-	| "self"
+	| "override"
+	| "prev"
 	;
 
 syntax Type

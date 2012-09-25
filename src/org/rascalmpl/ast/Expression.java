@@ -2333,32 +2333,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isSelf() {
-    return false;
-  }
-
-  static public class Self extends Expression {
-    // Production: sig("Self",[])
-  
-    
-  
-    public Self(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isSelf() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionSelf(this);
-    }
-  
-    	
-  }
   public boolean isAddition() {
     return false;
   }
@@ -2949,6 +2923,32 @@ public abstract class Expression extends AbstractAST {
     public boolean hasQualifiedName() {
       return true;
     }	
+  }
+  public boolean isPrev() {
+    return false;
+  }
+
+  static public class Prev extends Expression {
+    // Production: sig("Prev",[])
+  
+    
+  
+    public Prev(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isPrev() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionPrev(this);
+    }
+  
+    	
   }
   public boolean isIs() {
     return false;
