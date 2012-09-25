@@ -453,7 +453,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void getAllFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
-		super.getAllFunctions(functionType, name, collection);
+		super.getAllFunctions(name, functionType, collection);
 		
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
