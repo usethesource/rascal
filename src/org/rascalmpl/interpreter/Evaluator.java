@@ -1707,6 +1707,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	public static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
+	public static final Name PREV = ASTBuilder.makeLex("Name", null, "<prev>");
 	
 	@Override	
 	public void updateProperties() {
