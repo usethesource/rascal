@@ -1,0 +1,27 @@
+Name: Libraries
+
+Synopsis: The available Rascal libraries.
+
+Syntax:
+
+Types:
+
+Function:
+
+Details: Prelude util lang Vis analysis
+
+Description:
+
+
+The libraries described here provide the following functionality:
+<toc Rascal/Libraries 1>
+
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+

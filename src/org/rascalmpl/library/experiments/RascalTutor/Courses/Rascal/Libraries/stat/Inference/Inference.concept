@@ -1,7 +1,0 @@
-Name: Inference
-Synopsis: Statistical inference methods.
-
-Description:
-
-The following functions are provided:
-<toc Rascal/Libraries/stat/Inference 1>

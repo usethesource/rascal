@@ -80,15 +80,15 @@ Reading the values in fields is straightforward, except for the case that the te
 Examples:
 
 Given is the follwing file `ex1.csv`:
-<listing experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv>
+<listing Rascal/Libraries/lang/csv/ex1.csv>
 We can read it in various ways:
 <screen>
 import lang::csv::IO;
-R1 = readCSV(#rel[int position, str artist, str title, int year],  |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
+R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
 //Now we can, for instance, select one of the fields of `R1`:
 R1.artist;
 //It is also possible to infer the type:
-R1 = readCSV(|std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
+R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, ("separator" : ";"));
 </screen>
 
 }
@@ -137,15 +137,15 @@ rel[int position, str artist, str title, int year] R1 = {
   <2,"Queen","Bohemian rhapsody",1975>,
   <3,"Boudewijn de Groot","Avond",1997>
 };
-writeCSV(R1, |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(R1, |std:///experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1b.csv|, ("header" : "false", "separator" : ";"));
+writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
+writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, ("header" : "false", "separator" : ";"));
 </screen>
 will produce the following files:
 
 `ex1a.csv` (with a header line and default separator `,`):
-<listing experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1a.csv>
+<listing Rascal/Libraries/lang/csv/ex1a.csv>
 `ex1b.csv` (without a header line with separator `;`):
-<listing experiments/RascalTutor/Courses/Rascal/Libraries/lang/csv/ex1b.csv>
+<listing Rascal/Libraries/lang/csv/ex1b.csv>
 
 
 }

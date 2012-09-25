@@ -1,8 +1,0 @@
-Name: Correlation
-Synopsis: Correlation between data values.
-Description:
-Compute the [correlation](http://en.wikipedia.org/wiki/Correlation) between pairs of data values.
-Correlation measures the statistical relationship between two sets of data.
-
-The following functions are provided:
-<toc Rascal/Libraries/stat/Correlation>

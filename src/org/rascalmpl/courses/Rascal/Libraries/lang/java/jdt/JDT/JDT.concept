@@ -1,0 +1,88 @@
+Name: JDT
+
+Synopsis: Datatypes for representing relations between parts of Java programs. See [jdt/Java] for the basic data model for Java artifacts. 
+
+Syntax: 
+
+Types:
+
+| Alias         | Type                                    | Description                                                          |
+|:--------------|:----------------------------------------|:---------------------------------------------------------------------|
+| `BindingRel`  | `rel[loc, Entity]`                      | Maps any artifact at a certain location to a (set of) qualified names represented by an Entity |
+| `EntityRel`   | `rel[Entity from, Entity to]`           | A shorthand for any relationship between two Entities                |
+| `EntitySet`   | `set[Entity]`                           | A short-hand for collections of entities                             |
+| `ModifierRel` | `rel[Entity entity, Modifier modifier]` | A short-hand for mappings from Entities to their declared Modifiers  |
+| `AstNodeRel`  | `rel[Entity method, AstNode body]`      | A short-hand for mapping method Entities to the AST's of their bodies |
+
+
+| Annotation         | Type          | Description                                      |
+|:-------------------|:--------------|:-------------------------------------------------|
+| `types`            | `BindingRel`  | Type declarations and uses                       |
+| `methods`          | `BindingRel`  | Method declarations and uses                     |
+| `methodDecls`      | `BindingRel`  | Method declarations                              |
+| `constructors`     | `BindingRel`  | Constructor declarations                         |
+| `fields`           | `BindingRel`  | Field declarations and uses                      |
+| `fieldDecls`       | `BindingRel`  | Field declarations                               |
+| `variables`        | `BindingRel`  | Local variable and method parameter declarations |
+| `packages`         | `BindingRel`  | Package declarations                             |
+| `classes`          | `BindingRel`  | Class declarations                               |
+| `modifiers`        | `ModifierRel` | The modifiers for each entity                    |
+| `implements`       | `EntityRel`   | Which types implement which interfaces           |
+| `extends`          | `EntityRel`   | Which class extend which other classes           |
+| `declaredTopTypes` | `EntitySet`   | Declarations of top-level (not inner) classes    |
+| `declaredSubTypes` | `EntitySet`   | Declarations of inner classes                    |
+| `declaredMethods`  | `EntityRel`   | Which classes define which methods               |
+| `calls`            | `EntityRel`   | Which methods calls which other methods and which static initializers call which methods |
+| `methodBodies`     | `AstNodeRel` | The bodies of methods as abstract syntax trees, see [jdt/JavaADT] |
+
+
+Function:
+
+Details:
+
+Description:
+Detailed information can be extracted from Java projects in the current Eclipse workspace. 
+The JDT library module depends heavily on the library modules
+* [Resources] for extracting projects and files from an Eclipse project.
+* [jdt/Java] for representing facts about Java source code.
+
+
+The access to facts about Java files proceeds in two steps:
+
+* First all facts are extracted from given projects or files. 
+  The result is a Resource (see [Resources]) that is annotated with all kinds of interesting information about that specific Resource, 
+  and usually also about Resources that are contained inside that resource. 
+  The project/file annotation declarations are shown above.
+
+* Next, specific facts about the Java source code can be retrieved from the annotations. 
+  These annotations all represent values of type `BindingRel`, `EntityRel` or `ModifierRel` that are summarized above.
+  A `BindingRel` is always used to map a source code location to a fully qualified Entity label of that part of the source code. 
+  `EntityRel` is simply a short hand for any kind of relation between entities.
+
+
+This information can be extracted by various functions defined in this module:
+<toc Rascal/Libraries/lang/java/jdt/JDT 1>
+
+Examples:
+Here is an example function that extracts the sub-type relation from a given project:
+
+<screen>
+import lang::java::jdt::Java;
+import lang::java::jdt::JDT;
+import analysis::graphs::Graph;
+public EntityRel getSubTypeInformation(loc project){
+fm = extractProject(project);
+return fm@extends + fm@implements;
+}
+</screen>
+
+Benefits:
+* JDT gives access to a wealth of (well tested) information as provided by the Eclipse JDT.
+
+Pitfalls:
+* This module is only available in the Eclipse version of Rascal.
+* Make sure the argument to getSubTypeInformation is a loc with scheme `project`, as in `|project://MyProject|`.
+* The `methodBodies` annotation does give access to valuable information, but it is a flat (non-hierarchical) representation of Java syntax trees (AstNode). As future work we will provide a full syntax definition for Java and a typed definition of the AST format.
+
+Questions:
+

@@ -1,0 +1,32 @@
+Name: Renaming
+
+Synopsis: How to rename a concept.
+
+Syntax:
+
+Types:
+
+Function:
+       
+Usage:
+
+Details:
+
+Description:
+There is no built-in mechanism for renaming a concept. The manual steps to be taken to rename a concept $C$ to $D$ 
+are therefore:
+* Goto to the relevant subdirectory of `org/rascalmpl/courses` and locate the concept directory $C$ to be renamed.
+* Rename $C$ to $D$ using the commands of the version control system.
+* Rename $D$`/`$C$`.concept` to $D$`/`$D$`.concept` using the version control system.
+* Open $D$`/`$D$`.concept` in a text editor and change the line `Name: $C$` to `Name: $D$`.
+* Recompile the course.
+
+Examples:
+
+Benefits:
+
+Pitfalls:
+
+Questions:
+
+       

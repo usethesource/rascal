@@ -7,7 +7,7 @@
  *
  * Contributors:
 
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
@@ -24,7 +24,7 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		// TODO: could modify production here to include recovery literal
 		this.production = robustNode.production;
 		this.parent = parent;
-		this.name = robustNode.getName();
+		this.name = "recovery " + id;
 		this.edgesMap = robustNode.edgesMap;
 	}
 	

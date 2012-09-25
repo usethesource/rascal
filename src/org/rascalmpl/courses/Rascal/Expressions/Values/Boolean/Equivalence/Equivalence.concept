@@ -1,0 +1,44 @@
+Name: Equivalence
+
+Synopsis: The _equivalence_ operator on Boolean values.
+
+Syntax:
+`$Exp_1$ <==> $Exp_2$`
+
+Types:
+| `$Exp_1$` | `$Exp_2$`  | `$Exp_1$ <==> $Exp_2$` |
+|:---------|:----------|:--------------------|
+| `bool`       | `bool`         | `bool` |
+
+Function:
+
+Details:
+
+Description:
+ The _equivalence_ operator on Boolean values defined as follows:
+
+| `$Exp_1$` | `$Exp_2$`  | `$Exp_1$ <==> $Exp_2$` |
+|:---------|:----------|:--------------------|
+| `true`       | `true`         | `true` |
+| `true`       | `false`         | `false` |
+| `false`       | `true`         | `false` |
+| `false`       | `false`         | `true` |
+
+Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. However, in the case of the `<==>` operator both operands have to be evaluated to determine the result.
+
+Note that the `<==>` operator backtracks over its arguments until it finds an evaluation that is `true`, unless there is none. Variable bindings that are the effect of matching  operators in its arguments are not visible outside the scope of the `<==>`.
+
+Examples:
+<screen>
+import IO;
+false <==> false;
+(i <- [1,2,3] && (i % 2 == 0)) <==> (j <- [1,2,3] && (j % 3 == 0))
+for ((i <- [1,2,3] && (i % 2 == 0)) <==> (j <- [1,2,3] && (j % 3 == 0))) 
+  println("true!");
+</screen>
+
+Benefits:
+
+Pitfalls:
+
+Questions:

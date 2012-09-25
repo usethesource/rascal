@@ -1,0 +1,26 @@
+<AUTOINSERTED>
+Name: Frequency
+Usage: `import analysis::statistics::Frequency;`
+</AUTOINSERTED>
+
+Name: Frequency
+Synopsis: Frequency distributions.
+
+Description:
+Provides operations on frequency distributions. The distribution may contain values of type number or string.
+When comparing values, the natural order on numbers and strings is used, and numbers are considered smaller than strings.
+
+The following functions are provided:
+<toc Rascal/Libraries/analysis/statistics/Frequency>
+
+Examples:
+<screen>
+import analysis::statistics::Frequency;
+D = [2, 1, 7, 1, 3, 2, 1, 2, 7, 2];
+cumFreq(D,1);
+cumFreq(D, 2);
+cumPct(D, 1);
+cumPct(D, 2);
+pct(D,1);
+pct(D,2);
+</screen>

@@ -120,7 +120,7 @@ public class Cases  {
 				hasRegExp |= pattern.isLiteral() && pattern.getLiteral().isRegExp();
 
 				Type type = pattern._getType();
-				allConcrete &= (type != null) && type instanceof NonTerminalType;
+				allConcrete &= type instanceof NonTerminalType;
 			}
 		}
 	}

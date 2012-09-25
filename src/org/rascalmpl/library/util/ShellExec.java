@@ -176,7 +176,7 @@ public class ShellExec {
 			}
 			return vf.string(line.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 	
@@ -194,7 +194,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
@@ -212,7 +212,7 @@ public class ShellExec {
 			if (br != null) br.close();
 			return vf.string(lines.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 
@@ -221,12 +221,17 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 		try {
 			Process runningProcess = runningProcesses.get(processId);
-			BufferedWriter buf = new BufferedWriter(new OutputStreamWriter(runningProcess.getOutputStream()));
-			buf.write(msg.getValue());
-			buf.flush();
-			buf.close();
+			OutputStreamWriter osw = null;
+			if (processOutputStreams.containsKey(processId)) {
+				osw = processOutputStreams.get(processId);
+			} else {
+				osw = new OutputStreamWriter(runningProcess.getOutputStream());
+				processOutputStreams.put(processId, osw);
+			}
+			osw.append(msg.getValue());
+			osw.flush();
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e.toString(), null, e.getStackTrace().toString());
+			throw RuntimeExceptionFactory.javaException(e.toString(), null, Arrays.toString(e.getStackTrace()));
 		}
 	}
 

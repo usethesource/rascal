@@ -14,7 +14,7 @@ import IO;
 import ParseTree;
 import List; 
 import String;    
-import Integer;
+import util::Math;
 
 import lang::rascal::syntax::RascalRascal;
 

@@ -31,7 +31,7 @@ module util::PriorityQueue
   * TODO: the value in each pair is now an int but should become &T.
  */
 
-import Integer;
+import util::Math;
 import List;
 import Set;
 import Map;

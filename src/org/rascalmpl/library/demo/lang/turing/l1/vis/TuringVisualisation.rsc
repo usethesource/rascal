@@ -1,7 +1,7 @@
 module demo::lang::turing::l1::vis::TuringVisualisation
 
 import List;
-import Integer;
+import util::Math;
 import vis::Render;
 import vis::Figure;
 import vis::KeySym;

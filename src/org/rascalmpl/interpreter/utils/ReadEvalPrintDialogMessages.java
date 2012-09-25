@@ -146,6 +146,16 @@ public class ReadEvalPrintDialogMessages {
 		w.flush();
 		return w.toString();
 	}
+	
+	public static String parseOrStaticOrThrowMessage(RuntimeException e) {
+		if (e instanceof ParseError)
+			return parseErrorMessage("unkown", "unkown", (ParseError)e);
+		if (e instanceof StaticError) 
+			return staticErrorMessage((StaticError)e);
+		if (e instanceof Throw)
+			return throwMessage((Throw)e);
+		return "Not a rascal exception: " + e.toString();
+	}
 
 	public static String throwMessage(Throw e) {
 		String content;

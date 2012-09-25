@@ -3,7 +3,7 @@ module vis::examples::New
 import vis::Figure;
 import vis::Render;
 import Real;
-import Integer;
+import util::Math;
 import List;
 
 

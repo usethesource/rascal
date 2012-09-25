@@ -1,0 +1,37 @@
+Name: statistics
+
+Synopsis: Statistical functions.
+
+Details: Frequency Descriptive
+
+Description:
+
+A collection of statistical functions based on the 
+[Apache statistics library](http://commons.apache.org/math/api-2.2/index.html).
+
+We do not provide a course on (or even an introduction to) statistics. Useful background information can be found here:
+
+* [Statistics](http://en.wikipedia.org/wiki/Statistics) on Wikipedia.
+
+* [An Introduction to Statistics](http://www.artofproblemsolving.com/LaTeX/Examples/statistics_firstfive.pdf) by Keone Hon.
+
+* [Think Stats: Probability and Statistics for Programmers](http://www.greenteapress.com/thinkstats/thinkstats.pdf) by Allan B. Downey gives a very readable overview of statistic techniques.
+
+* [Statistics Calculator](http://www.scatterchart.com/statistical_calculator/) allows entering data and get an overview of the values of various statistical indicators.
+
+* [Online Calculation on STATISTICS](http://easycalculation.com/statistics/statistics.php) gives calculators for individual measures.
+
+
+The following functionality is offered:
+
+<toc Rascal/Libraries/analysis/statistics>
+
+Pitfalls:
+
+* Be aware that in creating data for statistical analysis, repeated values may occur. This implies that you should avoid creating sets of observations. This also explains why the functions provided here take lists (with elements of various types) as argument.
+
+* The validity of several of the statistics depend on the assumption that the observations included in the model are drawn from a 
+[Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution). 
+This is explicitly stated for functions this is the case.
+
+* <warning>The stat library is still highly experimental. Interfaces may change and functions maybe added or deleted without notice.</warning>

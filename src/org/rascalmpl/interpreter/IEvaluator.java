@@ -80,7 +80,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 * Module stuff.
 	 */
 	public void addImportToCurrentModule(AbstractAST x, String name);
-	public void extendCurrentModule(AbstractAST x, String name);
+	public void extendCurrentModule(ISourceLocation src, String name);
 	public ModuleEnvironment getCurrentModuleEnvironment();
 
 	public String getModuleName(Module module);
@@ -112,7 +112,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public void notifyConstructorDeclaredListeners();
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input, boolean withErrorTree);
+	public IConstructor parseObject(IConstructor startSort, IMap robust, URI location, char[] input);
 	
 	public Module preParseModule(URI location, ISourceLocation cause);
 		

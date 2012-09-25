@@ -11,17 +11,7 @@
 module Map
 
 
-@doc{
-Synopsis: Compute a distribution: count how many times events are mapped to which bucket.
-}
-public map[&T, int] distribution(map[&U event, &T bucket] input) {
-  map[&T,int] result = ();
-  for (&U event <- input) {
-    result[input[event]]?0 += 1;
-  }
-  
-  return result;
-}
+
 
 @doc{
 Synopsis: Determine the domain (set of keys) of a map.

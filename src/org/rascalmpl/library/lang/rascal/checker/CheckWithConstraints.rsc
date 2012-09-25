@@ -21,7 +21,7 @@ import Reflective;
 import String;
 import DateTime;
 import Node;
-import Graph;
+import  analysis::graphs::Graph;
 
 import lang::rascal::checker::ListUtils;
 import lang::rascal::types::Types;

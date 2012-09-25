@@ -25,7 +25,7 @@ import Set;
 import List;
 import String;
 import ValueIO;
-import Graph;
+import  analysis::graphs::Graph;
 import Relation;
 
 public void definition2disk(loc prefix, GrammarDefinition def) {

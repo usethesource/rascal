@@ -12,7 +12,7 @@ module lang::rascal::checker::constraints::Constraints
 
 import ParseTree;
 import Message;
-import Graph;
+import  analysis::graphs::Graph;
 import Node;
 import Set;
 import List;

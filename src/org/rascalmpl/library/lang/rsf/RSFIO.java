@@ -12,9 +12,9 @@
 package org.rascalmpl.library.lang.rsf;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,18 +57,18 @@ public class RSFIO {
 	 * each relation name to the actual relation.
 	 */
 
-	public IValue readRSF(IString nameRSFFile)
+	public IValue readRSF(ISourceLocation nameRSFFile, IEvaluatorContext ctx)
 	//@doc{readRSF -- read an RSF file}
 	{
 		HashMap<java.lang.String, IRelationWriter> table = new HashMap<java.lang.String, IRelationWriter>();
 	
 		Type strType = types.stringType();
 		Type tupleType = types.tupleType(strType, strType);
-		java.lang.String fileName = nameRSFFile.getValue();
 
+		InputStream input = null;
 		try {
-			FileReader input = new FileReader(fileName);
-			BufferedReader bufRead = new BufferedReader(input);
+			input = ctx.getResolverRegistry().getInputStream(nameRSFFile.getURI());
+			BufferedReader bufRead = new BufferedReader(new InputStreamReader(input));
 			java.lang.String line = bufRead.readLine();
 
 			while (line != null) {

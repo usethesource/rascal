@@ -4,6 +4,7 @@ import static org.rascalmpl.library.vis.util.vector.Dimension.HOR_VER;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
@@ -404,7 +405,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		il.save(to, SWT.IMAGE_PNG);
 	}
 	
-	public void makeScreenShot(){
+	public void makeScreenShot() {
 		FileDialog f = new FileDialog(parent.getShell(), SWT.SAVE);
 		f.setText("Select where to save your screenshot.");
 		String filepath = f.open();
@@ -419,7 +420,11 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		try{
 			OutputStream to = new FileOutputStream(filepath);
 			writeScreenShot(to);
+			to.close();
 		} catch(FileNotFoundException e){
+			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getStdErr();
+			stdErr.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
+		} catch (IOException e) {
 			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getStdErr();
 			stdErr.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
 		}

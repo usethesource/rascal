@@ -30,7 +30,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariableError;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 
 public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern
@@ -353,7 +352,9 @@ public class SetPattern extends AbstractMatchingResult {
 				IValue lit = ((LiteralPattern) child).toIValue(env);
 				Type childType = child.getType(env, null);
 				if(!childType.comparable(staticSubjectElementType)){
-					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+//					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
+					hasNext = false;
+					return;
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 				if(debug)System.err.println("fixedSetElements => " + fixedSetElements);

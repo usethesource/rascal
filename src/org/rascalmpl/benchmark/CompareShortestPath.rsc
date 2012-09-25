@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module CompareShortestPath
 
-import Graph;/* currently contains a Java version of the algorithm below */
+import  analysis::graphs::Graph;/* currently contains a Java version of the algorithm below */
 import Relation;
 import PriorityQueue;
 import Benchmark;

@@ -44,16 +44,8 @@ public class TreeAdapter {
 		return tree.getConstructorType() == Factory.Tree_Appl;
 	}
 
-	public static boolean isError(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Error;
-	}
-
 	public static boolean isAmb(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Amb;
-	}
-
-	public static boolean isErrorAmb(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Error_Amb;
 	}
 
 	public static boolean isChar(IConstructor tree) {
@@ -62,10 +54,6 @@ public class TreeAdapter {
 
 	public static boolean isCycle(IConstructor tree) {
 		return tree.getConstructorType() == Factory.Tree_Cycle;
-	}
-
-	public static boolean isErrorCycle(IConstructor tree) {
-		return tree.getConstructorType() == Factory.Tree_Error_Cycle;
 	}
 
 	public static boolean isComment(IConstructor tree) {
@@ -99,6 +87,9 @@ public class TreeAdapter {
 		return ProductionAdapter.getSortName(getProduction(tree));
 	}
 
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.values.uptr.ProductionAdapter#getConstructorName(IConstructor tree)
+	 */
 	public static String getConstructorName(IConstructor tree) {
 		return ProductionAdapter.getConstructorName(getProduction(tree));
 	}
@@ -126,7 +117,7 @@ public class TreeAdapter {
 	}
 
 	public static IList getArgs(IConstructor tree) {
-		if (isAppl(tree) || isError(tree)) {
+		if (isAppl(tree)) {
 			return (IList) tree.get("args");
 		}
 
@@ -214,7 +205,7 @@ public class TreeAdapter {
 	}
 
 	public static ISet getAlternatives(IConstructor tree) {
-		if (isAmb(tree) || isErrorAmb(tree)) {
+		if (isAmb(tree)) {
 			return (ISet) tree.get("alternatives");
 		}
 		
@@ -241,16 +232,7 @@ public class TreeAdapter {
 			return arg;
 		}
 		
-		public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException {
-			((ISet) arg.get("alternatives")).iterator().next().accept(this);
-			return arg;
-		}
-		
 		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
-			return arg;
-		}
-		
-		public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException {
 			return arg;
 		}
 		
@@ -268,30 +250,6 @@ public class TreeAdapter {
 			for (IValue child : children) {
 				child.accept(this);
 			}
-			return arg;
-		}
-		
-		public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
-			IList children = (IList) arg.get("args");
-			for(IValue child : children){
-				child.accept(this);
-			}
-			
-			try {
-				IList rest = (IList) arg.get("rest");
-				for(IValue character : rest){
-					fStream.write(((IInteger) character).intValue());
-				}
-				
-				return arg;
-			}
-			catch (IOException e) {
-				throw new VisitorException(e);
-			}
-		}
-
-		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
-			// Don't do anything.
 			return arg;
 		}
 	}
@@ -618,9 +576,5 @@ public class TreeAdapter {
 
 	public static IConstructor getCycleType(IConstructor tree) {
 		return (IConstructor) tree.get("symbol");
-	}
-
-	public static boolean isSkipped(IConstructor arg) {
-		return ProductionAdapter.isSkipped(getProduction(arg));
 	}
 }

@@ -23,6 +23,11 @@ public class InterruptException extends ControlException {
 		this.loc = loc;
 	}
 
+	@Override
+	public String getMessage() {
+		return toString();
+	}
+	
 	public String getRascalStackTrace() {
 		return stackTrace;
 	}
