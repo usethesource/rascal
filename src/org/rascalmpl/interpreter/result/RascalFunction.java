@@ -364,7 +364,10 @@ public class RascalFunction extends NamedFunction {
 			 * Self reference is passed as an argument to a formal parameter 'it' (used in case of anonymous recursive functions)
 			 */
 			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
-			declarationEnvironment.getAllFunctions(name, functionType, functions);
+			if(!isAnonymous())
+				declarationEnvironment.getAllFunctions(name, functionType, functions);
+			else
+				functions.add(this);
 			IValue it = new OverloadedFunction(name, functions);
 			IMatchingResult matcher = new TypedVariablePattern(ctx, null, functionType, org.rascalmpl.interpreter.Evaluator.IT);
 			matcher.initMatch(makeResult(functionType, it, ctx));
