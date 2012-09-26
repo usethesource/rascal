@@ -372,17 +372,24 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this);
+		return right.composeFunction(this, false);
 	}
 	
 	@Override
-	public AbstractFunction composeFunction(AbstractFunction that) {
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
+		return right.composeFunction(this, true);
+	}
+	
+	@Override
+	public AbstractFunction composeFunction(AbstractFunction that, boolean isOpenRecursive) {
 		if (!getTypeFactory().tupleType(getReturnType()).isSubtypeOf(that.getFunctionType().getArgumentTypes())) {
 			undefinedError("composition");
 		}
-		return new ComposedFunctionResult(that, this, ctx);
+		ComposedFunctionResult func = new ComposedFunctionResult(that, this, ctx); 
+		func.setOpenRecursive(isOpenRecursive);
+		return func;
 	}
-	
+			
 	@Override
 	public String toString() {
 		return getHeader() + ";";

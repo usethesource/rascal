@@ -3,9 +3,9 @@ module openrecursion::B
 import openrecursion::A;
 import Prelude;
 
-public extend int fib(int n) { int res = prev(n); println("fib of <n> == <res>"); return res; }
+public int fib(int n) { int res = prev(n); println("fib of <n> == <res>"); return res; }
 
-public extend MyData mydata(str s) { println("<s>"); MyData res = prev(s); return res; }
+public MyData mydata(str s) { println("<s>"); MyData res = prev(s); return res; }
 
 public int anonymousFib(int n) {
 	return int (int n) { switch(n) { 
