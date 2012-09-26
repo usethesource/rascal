@@ -358,8 +358,7 @@ public class RascalFunction extends NamedFunction {
 				matcher.initMatch(makeResult(self.getType(), self, ctx));
 				matcher.next();
 				ctx.pushEnv();
-			}
-			
+			}	
 			/*
 			 * Self reference is passed as an argument to a formal parameter 'it' (used in case of anonymous recursive functions)
 			 */
@@ -373,7 +372,6 @@ public class RascalFunction extends NamedFunction {
 			matcher.initMatch(makeResult(functionType, it, ctx));
 			matcher.next();
 			ctx.pushEnv();
-			
 			/*
 			 * Imported modules are looked up to reference the overridden or extended function
 			 */

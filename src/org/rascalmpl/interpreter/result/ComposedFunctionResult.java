@@ -25,6 +25,8 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 public class ComposedFunctionResult extends AbstractFunction{
 	private final AbstractFunction left;
 	private final AbstractFunction right;
+	
+	private boolean isOpenRecursive = false; 
 
 	public ComposedFunctionResult(AbstractFunction left, AbstractFunction right, IEvaluatorContext ctx) {
 		super(ctx.getCurrentAST(), 
@@ -35,6 +37,10 @@ public class ComposedFunctionResult extends AbstractFunction{
 						ctx.getCurrentEnvt());
 		this.left = left;
 		this.right = right;
+	}
+	
+	public void setOpenRecursive(boolean isOpenRecursive) {
+		this.isOpenRecursive = isOpenRecursive;
 	}
 	
 	@Override
@@ -58,14 +64,25 @@ public class ComposedFunctionResult extends AbstractFunction{
 	}
 	
 	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		return call(argTypes, argValues, null);
+	}
+	
+	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
-		Result<IValue> rightResult = right.call(argTypes, argValues);
-		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, self);
+		Result<IValue> rightResult 
+			= (self == null && isOpenRecursive) ? right.call(argTypes, argValues, this) : right.call(argTypes, argValues, self);
+		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
 	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this);
+		return right.composeFunction(this, false);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
+		return right.composeFunction(this, true);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

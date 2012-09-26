@@ -556,14 +556,14 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that) {
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
+	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
-	
+		
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return that.undefinedError(COMPARE_STRING, this);
 	}

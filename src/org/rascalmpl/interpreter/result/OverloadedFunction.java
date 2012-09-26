@@ -449,19 +449,26 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeOverloadedFunction(this);
+		return right.composeOverloadedFunction(this, false);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
+		return right.composeOverloadedFunction(this, true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
+	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that, boolean isOpenRecursive) {
 		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
 
 
 		for (AbstractFunction f : primaryCandidates) {
 			for (AbstractFunction g : that.primaryCandidates) {
 				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+					ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
+					fg.setOpenRecursive(isOpenRecursive);
+					newAlternatives.add(fg);
 				}
 			}
 		}
@@ -471,7 +478,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		for (AbstractFunction f : defaultCandidates) {
 			for (AbstractFunction g : that.defaultCandidates) {
 				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					newDefaults.add(new ComposedFunctionResult(f, g, ctx));
+					ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
+					fg.setOpenRecursive(isOpenRecursive);
+					newDefaults.add(fg);
 				}
 			}
 		}
@@ -485,12 +494,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction g) {
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction g, boolean isOpenRecursive) {
 		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
 
 		for (AbstractFunction f : primaryCandidates) {
 			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+				ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
+				fg.setOpenRecursive(isOpenRecursive);
+				newAlternatives.add(fg);
 			}
 		}
 
@@ -498,7 +509,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 		for (AbstractFunction f : defaultCandidates) {
 			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
+				ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
+				fg.setOpenRecursive(isOpenRecursive);
+				newAlternatives.add(fg);
 			}
 		}
 
