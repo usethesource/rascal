@@ -17,7 +17,16 @@ Description:
 Priority declarations define a partial ordering between the productions _within a single non-terminal_. The feature is specifically designed to fit with the semantics of expression sub-languages embedded in programming languages. There exist other mechanisms for [Disambiguation], if [$Disambiguation/Priority] does not work for you.
 
 The semantics of a priority relation `A > B` is that B will not be nested under A in the left-most or right-most position.
-Any other position of A will allow B fine.
+Any other position of A will allow B fine. 
+
+A finer point is that Rascal restricts the filtering of priority such that it is guaranteed that no parse errors occur at the cause of a priority. The following table defines when and where Rascal forbids a direct nesting between two productions `parent > child`, depending on at which left-most or right-most positions the parent and the child are recursive. 
+
+| If `Parent > Child` | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`  
+---------------------------------------------------------------------------------------------------------------------------------------------
+| __Child None:__ `E = "{" E "}"` | No filter        | No filter                    | No filter                     | No filter              |
+| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | Filter under right            | Filter under right     |
+| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left      |
+| __Child Both:__ `E = E "+" E`   | No filter        | Filter under left            | Filter under right            | Filter under left and right |
 
 Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
 
@@ -32,6 +41,7 @@ syntax Exp
   > E: Exp "*" Exp 
   > F: Exp "+" Exp;
   | bracket G: "(" Exp ")"
+  ;
 </listing>
 A short explanation:
   * C and D share a group of equal priority. They are incomparable in the partial ordering. That's fine because `1![2]` is not ambiguous.
@@ -53,4 +63,3 @@ Pitfalls:
   * Please do not assume that Rascal's priorities have the same semantics as SDF's priorities.
 
 Questions:
-

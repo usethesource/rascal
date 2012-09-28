@@ -60,11 +60,12 @@
 <br/>
 
  The semantics of a priority relation <code>A > B</code> is that B will not be nested under A in the left-most or right-most position.
- Any other position of A will allow B fine.
+ Any other position of A will allow B fine. 
  <br/>
 <br/>
 
- Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
+ A finer point is that Rascal restricts the filtering of priority such that it is guaranteed that no parse errors occur at the cause of a priority. The following table defines when and where Rascal forbids a direct nesting between two productions <code>parent > child</code>, depending on at which left-most or right-most positions the parent and the child are recursive. 
+  <table><tr><th align="center"> If <code>Parent > Child</code> </th><th align="center"> Parent None: <code>E = "[" E "]"</code> </th><th align="center"> Parent Left-most: <code>E = E "*"</code> </th><th align="center">Parent  Right-most: <code>E = "*" E</code> </th><th align="center"> Parent Both: <code>E = E "*" E</code>  </th></tr><tr><td align="left"> <b>Child None:</b> <code>E = "{" E "}"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> No filter                     </td><td align="left"> No filter              </td></tr><tr><td align="left"> <b>Child Left-most:</b> <code>E = E "+"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> Filter under right            </td><td align="left"> Filter under right     </td></tr><tr><td align="left"> <b>Child Right-most:</b> <code>E = "+" E</code></td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> No filter                     </td><td align="left"> Filter under left      </td></tr><tr><td align="left"> <b>Child Both:</b> <code>E = E "+" E</code>   </td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> Filter under right            </td><td align="left"> Filter under left and right </td></tr></table> Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
 
 </div>
 
@@ -79,6 +80,7 @@
   > E: Exp "*" Exp 
   > F: Exp "+" Exp;
   | bracket G: "(" Exp ")"
+  ;
 </pre> A short explanation:
  <ul><li> C and D share a group of equal priority. They are incomparable in the partial ordering. That's fine because <code>1![2]</code> is not ambiguous.</li>
 <li> Similarly A and B share a group; yet they are not recursive and so do not play any role in the priority ordering.</li>
