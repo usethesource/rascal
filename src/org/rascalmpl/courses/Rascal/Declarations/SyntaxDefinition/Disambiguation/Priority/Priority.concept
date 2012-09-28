@@ -57,7 +57,9 @@ Here a number of strings for this language, with brackets to show how they will 
   * "1 + [2 * 3]" will be parsed as "1 + ([2 * 3])" because priority is only defined for outermost positions.
 
 Benefits:
-  * Short notation for common notation
+  * Short notation for common expression grammars
+  * Removes ambiguity but can not introduce parse errors
+  * Allows the use of less non-terminals for the same expression grammar (typically only one), which makes parse trees simpler as well as the mapping to an abstract syntax tree more direct.
 
 Pitfalls:
   * Please do not assume that Rascal's priorities have the same semantics as SDF's priorities.
