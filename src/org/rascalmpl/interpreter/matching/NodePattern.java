@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
@@ -34,6 +35,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
 import org.rascalmpl.interpreter.utils.Names;
 
 public class NodePattern extends AbstractMatchingResult {
@@ -155,6 +157,8 @@ public class NodePattern extends AbstractMatchingResult {
 	
 	@Override
 	public void initMatch(Result<IValue> subject) {
+		if(subject.isVoid()) 
+			throw new UninitializedPatternMatchError("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		if (!subject.getValue().getType().isNodeType()) {
 			hasNext = false;
 			return;

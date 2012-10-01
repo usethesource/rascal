@@ -853,4 +853,8 @@ public class ModuleEnvironment extends Environment {
 		else
 			return null; // TODO: May be better to throw an exception here
 	}
+
+	public void resetProductions() {
+		this.productions = new HashSet<IValue>(productions.size());
+	}
 }
