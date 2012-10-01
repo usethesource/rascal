@@ -11,6 +11,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -149,10 +150,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (!constructors.isEmpty()) {
-			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), type, constructors));
+			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), name, type, constructors));
 		}
 		if (!productions.isEmpty()) {
-			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), type, productions));
+			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), name, type, productions));
 		}
 		container.addAll(other);
 	}
