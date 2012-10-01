@@ -22,4 +22,7 @@ public class UndeclaredFieldError extends StaticError {
 	public UndeclaredFieldError(String name, Type forType, AbstractAST node) {
 		super("Undeclared field: " + name + " for " + forType, node);
 	}
+	public UndeclaredFieldError(String name, String message, Type forType, AbstractAST node) {
+		super("Undeclared field: " + name + " for " + forType + "\n" + message, node);
+	}
 }
