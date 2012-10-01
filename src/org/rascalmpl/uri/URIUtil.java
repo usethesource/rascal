@@ -7,11 +7,62 @@ public class URIUtil {
 	public static URI create(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
 		return fixUnicode(new URI(scheme, authority, path, query, fragment));
 	}
-	
+	public static URI create(String scheme, String authority, String path) throws URISyntaxException {
+		return create(scheme, authority, path, null, null);
+	}
 	public static URI create(String scheme, String userInformation, String host, int port, String path, String query, String fragment) throws URISyntaxException {
 		return fixUnicode(new URI(scheme, userInformation, host, port, path, query, fragment));
 	}
-	private static URI fixUnicode(URI uri) throws URISyntaxException {
+	public static URI createFile(String path) throws URISyntaxException {
+		return fixUnicode(new URI("file","", path, null));
+	}
+	
+	public static URI createRascalModule(String moduleName) {
+		return assumeCorrect("rascal", moduleName, "");
+	}
+	/**
+	 * Create a URI from a string which already contains an fully encoded URI
+	 */
+	public static URI createFromEncoded(String value) throws URISyntaxException {
+		return fixUnicode(new URI(value));
+	}	
+	
+	/**
+	 * The non throwing variant of <a>createFromEncoded</a> 
+	 */
+	public static URI assumeCorrect(String value) {
+		try {
+			return createFromEncoded(value);
+		} catch (URISyntaxException e) {
+			IllegalArgumentException y = new IllegalArgumentException();
+		    y.initCause(e);
+		    throw y;
+		}
+	}	
+	public static URI assumeCorrect(String scheme, String authority, String path) {
+		try {
+			return create(scheme, authority, path);
+		} catch (URISyntaxException e) {
+			IllegalArgumentException y = new IllegalArgumentException();
+		    y.initCause(e);
+		    throw y;
+		}
+	}
+	
+	private static final URI invalidURI = URI.create("file://-");
+	public static URI invalidURI() {
+		return invalidURI;
+	}
+	/**
+	 * Create a URI with only a scheme part set
+	 * @param scheme
+	 * @return
+	 */
+	public static URI rootScheme(String scheme) {
+		return URI.create(scheme + ":///");
+	}
+	
+	public static URI fixUnicode(URI uri) throws URISyntaxException {
 		return new URI(uri.toASCIIString());
 	}
 	
