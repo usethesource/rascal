@@ -37,12 +37,10 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	private static SkippedNode buildResult(int[] input, int[] until, int startLocation){
-		int to = startLocation;
-		
-		for ( ; to < input.length; to++) {
-			for (int i = 0; i < until.length; i++) {
+		for (int to = startLocation ; to < input.length; ++to) {
+			for (int i = 0; i < until.length; ++i) {
 				if (input[to] == until[i]) {
-					int length = (to - 1) - startLocation;
+					int length = to - startLocation;
 					int[] chars = new int[length];
 					System.arraycopy(input, startLocation, chars, 0, length);
 					
@@ -51,7 +49,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 			}
 		}
 		
-		return new SkippedNode(new int[0], to);
+		return new SkippedNode(new int[0], startLocation);
 	}
 	
 	public boolean isEmptyLeafNode(){
