@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
@@ -36,7 +37,7 @@ public class Reflective {
 	public IValue getModuleParseTree(IString modulePath, IEvaluatorContext ctx) {
 		try {
 			IConstructor tree = null;
-			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URI.create("rascal://" + modulePath.getValue()));
+			URI uri = ctx.getEvaluator().getRascalResolver().resolve(URIUtil.createRascalModule(modulePath.getValue()));
 			tree = ctx.getEvaluator().parseModule(ctx.getEvaluator(), uri, new ModuleEnvironment("___getModuleParseTree___", ctx.getHeap()));
 			return TreeAdapter.getArgs(tree).get(1);
 		} catch (IOException e) {

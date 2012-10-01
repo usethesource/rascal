@@ -143,14 +143,6 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		int n = path.lastIndexOf("/");
 		return (n  < 0) ? path : path.substring(n);
 	}
-	
-	private URI newURI(String scheme,
-            String userInfo, String host, int port,
-            String path, String query, String fragment)
-	throws URISyntaxException{
-		String h  = host == null ? "" : host;
-		return new URI(scheme, userInfo, h, port, path, query, fragment);
-	}
 
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
 		try {
@@ -165,7 +157,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			if (path == null) {
 				path = "/";
 			}
-			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), path + child, parentUri.getQuery(), parentUri.getFragment());
+			URI childUri = URIUtil.changePath(parentUri, path + child);
 			
 			return registry.getOutputStream(childUri, append);
 		} catch (URISyntaxException e) {
@@ -182,13 +174,15 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 			if(res == null)
 				throw new FileNotFoundException(parent);
 			URI parentUri = res.toURI();
-			URI childUri = newURI(parentUri.getScheme(), parentUri.getUserInfo(), parentUri.getHost(), parentUri.getPort(), parentUri.getPath() + child, parentUri.getQuery(), parentUri.getFragment());
+			URI childUri = URIUtil.changePath(parentUri, parentUri.getPath() + child);
 
 			registry.mkDirectory(childUri);
 		} catch (URISyntaxException e) {
 			throw new IOException(e.getMessage(), e);
 		} 
 	}
-
 	
+	public boolean supportsHost() {
+		return false;
+	}
 }

@@ -70,4 +70,7 @@ public class CWDURIResolver implements IURIInputOutputResolver {
 		getAbsolutePath(uri).mkdir();
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }
