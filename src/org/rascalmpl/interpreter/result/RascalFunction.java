@@ -14,6 +14,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -346,7 +347,7 @@ public class RascalFunction extends NamedFunction {
 				}
 			}
 			
-			matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
+			matchers[0].initMatch(makeResult(actualTypes[0], actuals[0], ctx));
 			olds[0] = ctx.getCurrentEnvt();
 			ctx.pushEnv();
 
@@ -378,7 +379,7 @@ public class RascalFunction extends NamedFunction {
 					}
 					else {
 						i++;
-						matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
+						matchers[i].initMatch(makeResult(actualTypes[i], actuals[i], ctx));
 						olds[i] = ctx.getCurrentEnvt();
 						ctx.pushEnv();
 					}

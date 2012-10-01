@@ -100,11 +100,13 @@ DoNotNest priority(list[Production] levels) {
     switch (father) {
       case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
         if (match(l,rhs) && match(r,rhs)) {
-          result += {<father, 0, child>, <father, size(lhs) - 1, child>};
+          if (prod(Symbol crhs,clhs:[_*,Symbol cl]) := child, match(cl,crhs)) 
+            result += {<father, 0, child>};
+          else if (prod(Symbol crhs,clhs:[Symbol cl,_*]) := child, match(cl,crhs))  
+            result += {<father, size(lhs) - 1, child>};
+          else fail;  
         }   
-        else {
-          fail;
-        }
+        else fail;
       }
       case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
         if (match(l,rhs)) {

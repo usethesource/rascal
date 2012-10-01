@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -317,6 +318,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public boolean isTrue() {
+		return false;
+	}
+	
+	public boolean isVoid() {
 		return false;
 	}
 	

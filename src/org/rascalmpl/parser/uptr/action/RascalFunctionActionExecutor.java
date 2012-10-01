@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -26,6 +27,7 @@ import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatchError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -51,6 +53,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class RascalFunctionActionExecutor implements IActionExecutor<IConstructor> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final IEvaluatorContext ctx;
 
 	public RascalFunctionActionExecutor(IEvaluatorContext ctx) {
@@ -158,6 +161,11 @@ public class RascalFunctionActionExecutor implements IActionExecutor<IConstructo
 					
 					if (result == null){
 						result = call(function, TreeAdapter.getArgs(tree));
+					}
+					
+					// TODO: Little experiment by Sebastian and Jurgen, don't ask.
+					if (result == null){
+						result = call(function, VF.list(tree));
 					}
 					
 					if (result == null) {

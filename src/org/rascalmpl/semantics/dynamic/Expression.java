@@ -11,6 +11,7 @@
  *   * Bas Basten - Bas.Basten@cwi.nl (CWI)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -79,6 +80,7 @@ import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
@@ -433,10 +435,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 				IValue[] actuals = new IValue[args.size()];
 				Type[] types = new Type[args.size()];
-
 				for (int i = 0; i < args.size(); i++) {
 					Result<IValue> resultElem = args.get(i).interpret(__eval);
 					types[i] = resultElem.getType();
+					if(types[i].isVoidType()) 
+						throw new UninitializedPatternMatchError("The argument is of the type 'void'", args.get(i));
 					actuals[i] = resultElem.getValue();
 				}
 				Result<IValue> res = null;
