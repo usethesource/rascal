@@ -52,7 +52,7 @@ public class Factory {
 	public static final Type Symbol = tf.abstractDataType(uptr, "Symbol");
 	public static final Type CharRange = tf.abstractDataType(uptr, "CharRange");
 	public static final Type Args = tf.listType(Tree);
-	public static final Type Attrs = tf.listType(Attr);
+	public static final Type Attrs = tf.setType(Attr);
 	public static final Type Symbols = tf.listType(Symbol);
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
