@@ -151,6 +151,7 @@ public class IteratorFactory {
 				subjectType.isRealType() ||
 				subjectType.isStringType() ||
 				subjectType.isSourceLocationType() ||
+				subjectType.isRationalType() ||
 				subjectType.isDateTimeType())
 		{
 			if (shallow) {
