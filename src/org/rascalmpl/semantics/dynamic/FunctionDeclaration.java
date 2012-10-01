@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -37,7 +36,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.JavaMethodLinkError;
 import org.rascalmpl.interpreter.staticErrors.MissingModifierError;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class FunctionDeclaration extends
 		org.rascalmpl.ast.FunctionDeclaration {
@@ -124,13 +122,10 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			// msteindorfer: MOCK situation
-			if (getLocation().getURI().getScheme().equals("project") && isDeferredBreakable()) {
-				IValue breakable = VF.constructor(Factory.Attr_Tag, VF.node("breakable"));
-				ISet attributes = this.getExpression().getAttributes().insert(breakable);
-				this.getExpression().setAttributes(attributes);
-			}
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
 			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
@@ -141,14 +136,14 @@ public abstract class FunctionDeclaration extends
 						null, this, null);
 			}
 
-			lambda = new RascalFunction(eval, this, varArgs, eval
-					.getCurrentEnvt(), eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, this, varArgs, __eval
+					.getCurrentEnvt(), __eval.__getAccumulators());
 			
 			lambda.setPublic(this.getVisibility().isPublic());
-			eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 			
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			
 			return lambda;
 		}
@@ -164,19 +159,10 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			
-			// msteindorfer: MOCK situation
-			if (getLocation().getURI().getScheme().equals("project") && isDeferredBreakable()) {
-				IValue breakable = VF.constructor(Factory.Attr_Tag, VF.node("breakable"));
-				ISet attributes = this.getExpression().getAttributes().insert(breakable);
-				this.getExpression().setAttributes(attributes);
-
-				for (org.rascalmpl.ast.Expression exp : this.getConditions()) {
-					attributes = exp.getAttributes().insert(breakable);
-					exp.setAttributes(attributes);
-				}
-			}			
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+					
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);	
 			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
@@ -195,12 +181,12 @@ public abstract class FunctionDeclaration extends
 			AbstractAST body = ASTBuilder.make("FunctionBody", "Default", src, sl);
 			FunctionDeclaration.Default func = ASTBuilder.make("FunctionDeclaration", "Default", src, getTags(), getVisibility(), getSignature(), body);
 			
-			lambda = new RascalFunction(eval, func, varArgs, eval
-					.getCurrentEnvt(), eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, func, varArgs, __eval
+					.getCurrentEnvt(), __eval.__getAccumulators());
 
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
 			lambda.setPublic(this.getVisibility().isPublic());
 			return lambda;

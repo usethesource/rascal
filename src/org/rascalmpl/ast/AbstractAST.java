@@ -197,23 +197,13 @@ public abstract class AbstractAST implements IVisitable {
 		return buildBacktracker(ctx);
 	}
 
-	public boolean isBreakable() {
-		if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable")))) {
-			return true;
-		} else{
-			return false;
-		}
-	}
-	
-	/*
-	 * TODO: Fix retrieval of StringValue node.
+	/**
+	 * If the debugger can suspend (i.e. break) before interpretation. 
+	 * @return <code>true</code> if suspension is supported, otherwise <code>false</code>
 	 */
-	public boolean isDeferredBreakable() {
-		if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable", VF.string("{expression}"))))) {
-			return true;
-		} else{
-			return false;
-		}
-	}	
+	public boolean isBreakable() {
+		return attributes != null
+				&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
+	}
 	
 }
