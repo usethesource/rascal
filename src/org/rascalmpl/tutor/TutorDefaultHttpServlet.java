@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.uri.URIUtil;
 
 public class TutorDefaultHttpServlet extends DefaultServlet{
 
@@ -55,8 +56,7 @@ public class TutorDefaultHttpServlet extends DefaultServlet{
 		String mime = getServletContext().getMimeType(rname);
 		response.setContentType(mime);
 		
-		String fname = "courses:///" + rname;
-		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fname));
+		InputStream in = evaluator.getResolverRegistry().getInputStream(URIUtil.assumeCorrect("courses", "", rname));
 		ServletOutputStream out = response.getOutputStream();
 		byte buf[] = new byte[10000];
 		while(in.available() > 0){

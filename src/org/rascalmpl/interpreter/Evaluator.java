@@ -120,6 +120,7 @@ import org.rascalmpl.uri.HttpURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.TempURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -554,7 +555,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, URI.create("file://-"), input.toCharArray());
+			return parseObject(startSort, robust, URIUtil.invalidURI(), input.toCharArray());
 		}finally{
 			setMonitor(old);
 		}
@@ -1036,7 +1037,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IRascalMonitor old = setMonitor(monitor);
 		interrupt = false;
 		try {
-			eval("import " + string + ";", java.net.URI.create("import:///"));
+			eval("import " + string + ";", URIUtil.rootScheme("import"));
 		}
 		finally {
 			setMonitor(old);
@@ -1484,7 +1485,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Module loadModule(String name, ModuleEnvironment env) throws IOException {
 		try {
 			event("Loading module " + name);
-			IConstructor tree = parseModule(this, java.net.URI.create("rascal://" + name), env);
+			IConstructor tree = parseModule(this, URIUtil.createRascalModule(name), env);
 			ASTBuilder astBuilder = getBuilder();
 			Module moduleAst = astBuilder.buildModule(tree);
 			
