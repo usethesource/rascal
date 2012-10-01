@@ -10,15 +10,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import java.util.Map;
+
+import org.eclipse.imp.pdb.facts.*;
+import org.eclipse.imp.pdb.facts.io.*;
+import org.eclipse.imp.pdb.facts.visitors.*;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -36,24 +32,24 @@ public class DebugUpdater {
 	 */
 	public static IConstructor pushDownAttributes(IConstructor tree) {
 		IConstructor result = tree;
-				
+
 		try {
 			result = ((IConstructor) tree.accept(new PushDownTreeVisitor(new String[]{})));
 		} catch (VisitorException e) {
 			// ignore
 		}
-		
+
 		return result;
 	}
-	
+		
 	private static class PushDownTreeVisitor extends TreeVisitor {
 		
 		final static private IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		
-		final private String[] _pushDownProductions;
+		final private String[] __pushDownProductionsNames;
 		
-		public PushDownTreeVisitor(final String[] pushDownProductions) {
-			_pushDownProductions = pushDownProductions; 
+		public PushDownTreeVisitor(final String[] pushDownProductionNames) {
+			__pushDownProductionsNames = pushDownProductionNames; 
 		}
 		
 		@Override
@@ -75,29 +71,21 @@ public class DebugUpdater {
 		@Override
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 			IConstructor prod = TreeAdapter.getProduction(arg);
-			String[] newPushDownProductions = {};
 			
-			// 1. check if current node is in old push-down production names
-			if (_pushDownProductions.length != 0) {
-				String sortName = ProductionAdapter.getSortName(prod);
+			// 1: does current production application need an annotation?
+			if (isBreakableDueTag(prod) || isBreakableDuePushdown(prod)) {
 				
-				boolean contains = false;
-				for (String pdpName : _pushDownProductions) {
-					contains = contains || ProductionAdapter.getSymbols(prod) != null && ProductionAdapter.getSymbols(prod).contains(VF.constructor(Factory.Symbol_Label, VF.string(pdpName), VF.constructor(Factory.Symbol_Sort, VF.string(sortName))));
-				}
+				final Map<String,IValue> annotations = arg.getAnnotations();
+				annotations.put("breakable", VF.bool(true));			
 				
-				if (contains) {				
-					// update current tree with 'breakable' annotation
-					prod = addBreakable(prod);
-					arg = arg.set("prod", prod);
-				}
+				arg = arg.setAnnotations(annotations);
 			}
 			
-			// 2. query push-down production names		
+			// 2: push-down deferred production names.
 			if (TreeAdapter.isAppl(arg)) {				
 				if (!ProductionAdapter.isLexical(prod)) {
 				
-					newPushDownProductions = getChildProductionsNamesForPushDown((IConstructor) prod);				
+					String[] newPushDownProductions = getChildProductionsNamesForPushDown(prod);				
 												
 					// update children by recursively applying this visitor.
 					IListWriter writer = Factory.Args.writer(VF);
@@ -113,49 +101,70 @@ public class DebugUpdater {
 					arg = TreeAdapter.setArgs(arg, children);
 				}
 			}
-			
+		
 			return arg;
 		}			
-	
-		// for production
-		private static IConstructor addBreakable(IConstructor tree) {
-			IValue attr = Factory.Attr_Tag.make(VF, VF.node("breakable"));
-
-			if (tree.has("attributes")) {
-				ISet oldSet = ProductionAdapter.getAttributes(tree);
-				ISet newSet = oldSet.insert(attr);
-
-				return tree.set("attributes", newSet);
-			} else {
-				return tree;
-			}
+		
+		/**
+		 * @return <code>true</code> if has breakable tag, otherwise <code>false</code>
+		 */
+		private boolean isBreakableDueTag(IConstructor production) {
+			ISet attributes = ProductionAdapter.getAttributes(production);
+			return attributes != null
+					&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
 		}		
+		
+		/**
+		 * @return <code>true</code> if is in pushed-down list, otherwise <code>false</code>
+		 */
+		private boolean isBreakableDuePushdown(IConstructor production) {
+			boolean result = false;
+			final IList symbols = ProductionAdapter.getSymbols(production);
+
+			if (__pushDownProductionsNames.length != 0 
+					&& symbols != null && !symbols.isEmpty()) {
+				String sortName = ProductionAdapter.getSortName(production);
 				
+				for (String productionName : __pushDownProductionsNames) {
+					final IValue deferredBreakable = VF.constructor(
+							Factory.Symbol_Label,
+							VF.string(productionName),
+							VF.constructor(Factory.Symbol_Sort,VF.string(sortName)));
+					
+					result = result || ProductionAdapter.getSymbols(production).contains(deferredBreakable);
+				}
+			}		
+			
+			return result;
+		}
+		
 		private String[] getChildProductionsNamesForPushDown(IConstructor production) {
 			ISet attributes = ProductionAdapter.getAttributes(production);
-			
-			String[] tagStrings = {}; 
-			for (IValue v : attributes) {
-				if (v.getType().isAbstractDataType() && !v.getType().isVoidType()) {
-					IConstructor vc = (IConstructor)v;
-					if (vc.getName().equals("tag")) {
-						for (IValue vcChild : vc.getChildren()) {
-							INode ncChild = (INode) vcChild;
-							
-							if (ncChild.getName().equals("breakable")) {
 
-								if (ncChild.getChildren().iterator().hasNext()) {
-									String rawTagString = ((IString) ncChild.get(0)).getValue();
-									String tagString = rawTagString.substring(1, rawTagString.length() - 1);
-									tagStrings = tagString.split(",");
-								}
+			String[] result = {};
+			for (IValue attributeValue : attributes) {
+				
+				if (attributeValue.getType().isAbstractDataType() && !attributeValue.getType().isVoidType()) {
+					IConstructor attributeConstructor = (IConstructor)attributeValue;
+
+					if (attributeConstructor.getName().equals("tag")) {
+				
+						for (IValue childValue : attributeConstructor.getChildren()) {
+							INode childNode = (INode)childValue;
+
+							// non-empty breakable tag?
+							if (childNode.getName().equals("breakable") 
+									&& childNode.getChildren().iterator().hasNext()) {
+
+								String c = ((IString)childNode.get(0)).getValue();
+								String s = c.substring(1,c.length()-1);
+								result = s.split(",");
 							}
 						}
 					}
 				}
 			}
-			
-			return tagStrings;
+			return result;
 		}
 		
 	}
