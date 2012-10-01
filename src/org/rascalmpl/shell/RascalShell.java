@@ -50,6 +50,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -160,7 +161,7 @@ public class RascalShell {
 	}
 	
 	private String handleInput(String statement){
-		Result<IValue> value = evaluator.eval(null, statement, URI.create("prompt:///"));
+		Result<IValue> value = evaluator.eval(null, statement, URIUtil.rootScheme("prompt"));
 
 		if (value.getValue() == null) {
 			return "ok";
@@ -178,7 +179,7 @@ public class RascalShell {
 
 	private boolean completeStatement(String command) throws FactTypeUseException {
 		try {
-			evaluator.parseCommand(null, command, URI.create("prompt:///"));
+			evaluator.parseCommand(null, command, URIUtil.rootScheme("prompt"));
 		}
 		catch (ParseError pe) {
 			String[] commandLines = command.split("\n");
