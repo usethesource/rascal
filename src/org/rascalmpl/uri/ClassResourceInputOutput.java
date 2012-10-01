@@ -190,4 +190,7 @@ public class ClassResourceInputOutput implements IURIInputOutputResolver {
 		} 
 	}
 	
+	public boolean supportsHost() {
+		return false;
+	}
 }

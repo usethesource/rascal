@@ -104,6 +104,10 @@ public class TestFramework {
 		public String[] listEntries(URI uri) {
 			return null;
 		}
+
+		public boolean supportsHost() {
+			return false;
+		}
 	}
 	
 	static{

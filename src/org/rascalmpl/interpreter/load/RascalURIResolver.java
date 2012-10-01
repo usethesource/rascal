@@ -336,4 +336,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		return reg;
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }
