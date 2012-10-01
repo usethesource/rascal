@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings("serial")
 public class Validate extends TutorHttpServlet {
@@ -39,7 +40,7 @@ public class Validate extends TutorHttpServlet {
 		response.setCharacterEncoding("utf-8");
 		PrintWriter out = response.getWriter();
 		
-		Result<IValue> result = evaluator.eval(null, "validateAnswer(" + pmap + ")", URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, "validateAnswer(" + pmap + ")", URIUtil.rootScheme("stdin"));
 		if(debug) {
 			System.err.println("Validate gets back: " + ((IString)result.getValue()).getValue());
 		}

@@ -93,7 +93,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 	 */
 	public static URI constructFileURI(String path) {
 		try{
-			return new URI("file", "", path, null);
+			return URIUtil.createFile(path);
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}

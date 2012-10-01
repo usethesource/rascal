@@ -275,14 +275,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
-	
-	private URI newURI(String scheme,
-            String userInfo, String host, int port,
-            String path, String query, String fragment)
-	throws URISyntaxException{
-		String h  = host == null ? "" : host;
-		return new URI(scheme, userInfo, h, port, path, query, fragment);
-	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
@@ -303,7 +295,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(((IString)repl.getValue()).getValue());
+				uri = URIUtil.createFromEncoded(((IString)repl.getValue()).getValue());
 			} 
 			else if (name.equals("scheme")) {
 				if (!replType.isStringType()) {
@@ -397,7 +389,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			else if (name.equals("top")) {
 				if (replType.isStringType()) {
-					uri = URI.create(((IString) repl.getValue()).getValue());
+					uri = URIUtil.assumeCorrect(((IString) repl.getValue()).getValue());
 				}
 				else if (replType.isSourceLocationType()) {
 					uri = ((ISourceLocation) repl.getValue()).getURI();

@@ -44,6 +44,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
@@ -154,7 +155,7 @@ public class Eval {
 			evaluator.setCurrentEnvt(env);
 			if(!timer.hasExpired() && commands.length() > 0){
 				for(IValue command : commands){
-					URI commandLocation = new URI("eval", "", "/","command=" + ((IString)command).getValue(), null);
+					URI commandLocation = URIUtil.create("eval", "", "/","command=" + ((IString)command).getValue(), null);
 					result = evaluator.evalMore(null, ((IString) command).getValue(), commandLocation);
 				}
 				timer.cancel();
