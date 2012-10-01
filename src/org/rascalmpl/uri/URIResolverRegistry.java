@@ -45,6 +45,18 @@ public class URIResolverRegistry {
 		registerOutput(resolver);
 	}
 	
+	public boolean supportsHost(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		if (resolver == null) {
+			IURIOutputStreamResolver resolverOther = outputResolvers.get(uri.getScheme());
+			if (resolverOther == null) {
+				return false;
+			}
+			return resolverOther.supportsHost();
+		}
+		return resolver.supportsHost();
+	}
+	
 	public boolean exists(URI uri) {
 		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
 		
