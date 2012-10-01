@@ -63,25 +63,29 @@
  The semantics are that an associativity modifier will instruct the parser to disallow certain productions to nest <i>at particular argument positions</i>:
  <ul><li> <code>left</code> and <code>assoc</code> will disallow productions to directly nest in their <i>right-most</i> position.</li>
 <li> <code>right</code> will disallow productions to directly nest in their <i>left-most</i> position.</li>
-<li> <code>non-assoc</code> will disallow productions to directly nest in either their left-most or their right-most position.</li>
-</ul> Note that associativity has no effect on any other position than the left-most and right-most position (see also <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a>).
- <br/>
+<li> <code>non-assoc</code> will disallow productions to directly nest in either their left-most or their right-most position.<br/>
 <br/>
-
  When associativity is declared for a group of productions, e.g. <code>left ( <i>Alt</i><sub>1</sub> | $Alt _2$ | <i>Alt</i><sub>3</sub>)</code>, then each alternative will be mutually associative to each other alternative <i>and itself</i>. If an alternative of a group defines its own local associativity, as in <code>left ( right <i>Alt</i><sub>1</sub> | <i>Alt</i><sub>2</sub> | <i>Alt</i><sub>3</sub>)</code>, then <code><i>Alt</i><sub>1</sub></code> is right associative with respect to itself and left associative with respect to all others in the group. 
-
+<br/>
+<br/>
+ A finer point is that associativity has no effect on any other position than the left-most and right-most position (see also <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a>). This is to guarantee that associativity does not introduce parse errors. The following tables explain when an assocativity declaration filters given two productions <code>father</code> and <code>child</code> that share an associativity group.
+ <table><tr><th align="center"> If <code>left (Parent | Child) </code>      </th><th align="center"> Parent None: <code>E = "[" E "]"</code> </th><th align="center"> Parent Left-most: <code>E = E "*"</code> </th><th align="center">Parent  Right-most: <code>E = "*" E</code> </th><th align="center"> Parent Both: <code>E = E "*" E</code>  </th></tr><tr><td align="left"> <b>Child None:</b> <code>E = "{" E "}"</code>  </td><td align="left"> No filter        </td><td align="left"> No filter            </td><td align="left"> No filter                     </td><td align="left"> No filter              </td></tr><tr><td align="left"> <b>Child Left-most:</b> <code>E = E "+"</code> </td><td align="left"> No filter        </td><td align="left"> No filter            </td><td align="left"> Filter under right            </td><td align="left"> Filter under right     </td></tr><tr><td align="left"> <b>Child Right-most:</b> <code>E = "+" E</code></td><td align="left"> No filter        </td><td align="left"> No filter            </td><td align="left"> No filter                     </td><td align="left"> No filter      </td></tr><tr><td align="left"> <b>Child Both:</b> <code>E = E "+" E</code>    </td><td align="left"> No filter        </td><td align="left"> No filter            </td><td align="left"> Filter under right            </td><td align="left"> Filter under right     </td></tr></table> <table><tr><th align="center"> If <code>right (Parent | Child)</code> </th><th align="center"> Parent None: <code>E = "[" E "]"</code> </th><th align="center"> Parent Left-most: <code>E = E "*"</code> </th><th align="center">Parent  Right-most: <code>E = "*" E</code> </th><th align="center"> Parent Both: <code>E = E "*" E</code>  </th></tr><tr><td align="left"> <b>Child None:</b> <code>E = "{" E "}"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> No filter                     </td><td align="left"> No filter              </td></tr><tr><td align="left"> <b>Child Left-most:</b> <code>E = E "+"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> No filter            </td><td align="left"> No filter     </td></tr><tr><td align="left"> <b>Child Right-most:</b> <code>E = "+" E</code></td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> No filter                     </td><td align="left"> Filter under left      </td></tr><tr><td align="left"> <b>Child Both:</b> <code>E = E "+" E</code>   </td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> No filter            </td><td align="left"> Filter under left  </td></tr></table></li>
+</ul>
 </div>
 
   	                       
   	                       
 <div id="Benefits">
 <span class="sectionHead">Benefits</span>  <ul><li> short notation for common constructs in programming languages</li>
+<li> removes ambiguity but can not introduce parse errors</li>
+<li> Allows the use of less non-terminals for the same expression grammar (typically only one), which makes parse trees simpler as well as the mapping to an abstract syntax tree more direct.</li>
 </ul>
 </div>
 
   	                       
 <div id="Pitfalls">
-<span class="sectionHead">Pitfalls</span>  <ul><li> different semantics than SDF's associativity</li>
+<span class="sectionHead">Pitfalls</span>  <ul><li> Please do not assume that Rascal's associativity declarations have the same semantics as SDF's associativity declarations.</li>
+<li> Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the <a href="/Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority/Priority.html">Priority</a> relation such a case. For example: <table><tr><th align="center"> Original associativity </th><th align="center"> Better written as priority </th></tr><tr><td align="left"><code>E = left ( "+" E | E "+" E );</code> </td><td align="left"> <code>E = E "+" E > "+" E;</code> </td></tr><tr><td align="left"><code>E = right ( "+" E | E "+" E );</code> </td><td align="left"> <code>E = "+" E > E "+" E;</code> </td></tr><tr><td align="left"><code>E = left ( E "+" | E "+" E);</code> </td><td align="left"> <code>E = E "+" > E "+" E;</code> </td></tr><tr><td align="left"><code>E = right ( E "+" | E "+" E);</code> </td><td align="left"> <code>E = E "+" E > E "+" ;</code></td></tr></table></li>
 </ul>
 </div>
 

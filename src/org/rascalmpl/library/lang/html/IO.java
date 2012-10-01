@@ -68,7 +68,7 @@ public class IO {
 		@Override
 		public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
 			stack.push(new ArrayList<IValue>(1));
-			attributes.push(new HashMap<java.lang.String, IValue>());
+//			attributes.push(new HashMap<java.lang.String, IValue>());
 			storeAttributes(a);
 		}
 		
