@@ -99,4 +99,7 @@ public class FileURIResolver implements IURIInputOutputResolver {
 		}
 	}
 	
+	public boolean supportsHost() {
+		return false;
+	}
 }

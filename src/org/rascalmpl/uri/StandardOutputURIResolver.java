@@ -36,4 +36,7 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 		return URI.create("file://-");
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }
