@@ -16,8 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.ast;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -35,11 +36,10 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
-	protected ISet attributes;
+	protected Map<String, IValue> annotations;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
@@ -72,12 +72,12 @@ public abstract class AbstractAST implements IVisitable {
 		this.src = src;
 	}
 	
-	public void setAttributes(ISet attributes) {
-		this.attributes = attributes;
+	public void setAnnotations(Map<String, IValue> annotations) {
+		this.annotations = annotations;
 	}
 	
-	public ISet getAttributes() {
-		return attributes;
+	public Map<String, IValue> getAnnotations() {
+		return annotations;
 	}
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
@@ -202,8 +202,9 @@ public abstract class AbstractAST implements IVisitable {
 	 * @return <code>true</code> if suspension is supported, otherwise <code>false</code>
 	 */
 	public boolean isBreakable() {
-		return attributes != null
-				&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
+		return annotations != null
+				&& annotations.containsKey("breakable") 
+				&& annotations.get("breakable").equals(VF.bool(true));
 	}
 	
 }
