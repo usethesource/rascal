@@ -5,19 +5,41 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class URIUtil {
+	/**
+	 * Create a new URI, non-encoded input is assumed.
+	 * @throws URISyntaxException
+	 */
 	public static URI create(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
 		return fixUnicode(new URI(scheme, authority, path, query, fragment));
 	}
+	/**
+	 * Create a new URI, non-encoded input is assumed.
+	 * This is a shorthand for common cases were the query and fragment part are empty.
+	 * @throws URISyntaxException
+	 */
 	public static URI create(String scheme, String authority, String path) throws URISyntaxException {
 		return create(scheme, authority, path, null, null);
 	}
+	/**
+	 * Create a new URI, non-encoded input is assumed.
+	 * This is a version in case of a scheme which has a server-based authority part.
+	 * And thus allows to set user information, host, and port.
+	 * @throws URISyntaxException
+	 */
 	public static URI create(String scheme, String userInformation, String host, int port, String path, String query, String fragment) throws URISyntaxException {
 		return fixUnicode(new URI(scheme, userInformation, host, port, path, query, fragment));
 	}
+	/**
+	 * Shorthand for creating a file:// URI, non-encoded input is assumed.
+	 * @throws URISyntaxException
+	 */
 	public static URI createFile(String path) throws URISyntaxException {
 		return fixUnicode(new URI("file","", path, null));
 	}
-	
+
+	/**
+	 * Create a rascal module URI, moduleName is assumed to be correct.
+	 */
 	public static URI createRascalModule(String moduleName) {
 		return assumeCorrect("rascal", moduleName, "");
 	}
@@ -40,6 +62,10 @@ public class URIUtil {
 		    throw y;
 		}
 	}	
+	
+	/**
+	 * Non throwing variant of <a>create</a>, in case of scenarios where input can be trusted.
+	 */
 	public static URI assumeCorrect(String scheme, String authority, String path) {
 		try {
 			return create(scheme, authority, path);
@@ -51,9 +77,14 @@ public class URIUtil {
 	}
 	
 	private static final URI invalidURI = URI.create("file://-");
+	/**
+	 * Returns an URI which cannot be read/write to.
+	 * @return
+	 */
 	public static URI invalidURI() {
 		return invalidURI;
 	}
+	
 	/**
 	 * Create a URI with only a scheme part set
 	 * @param scheme
@@ -63,6 +94,10 @@ public class URIUtil {
 		return URI.create(scheme + ":///");
 	}
 	
+	/**
+	 * In case you want to use an external URI not created by this class, call this method to ensure RFC compliant unicode support.
+	 * @throws URISyntaxException
+	 */
 	public static URI fixUnicode(URI uri) throws URISyntaxException {
 		return new URI(uri.toASCIIString());
 	}
@@ -93,6 +128,7 @@ public class URIUtil {
 	public static URI changePort(URI uri, int newPort) throws URISyntaxException {
 		return create(uri.getScheme(), uri.getUserInfo(), uri.getHost(), newPort, uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
+	
 	/**
 	 * @return a parent uri or null if there is none
 	 */
