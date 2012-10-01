@@ -189,7 +189,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
-				URI parent = URIResolverRegistry.getParentURI(uri);
+				URI parent = URIUtil.getParentURI(uri);
 
 				for (URI dir : collect()) {
 					URI fullParent = parent != null ? getFullURI(getPath(parent), dir) : null;

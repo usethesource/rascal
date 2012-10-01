@@ -1,5 +1,6 @@
 package org.rascalmpl.uri;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -91,5 +92,38 @@ public class URIUtil {
 	}
 	public static URI changePort(URI uri, int newPort) throws URISyntaxException {
 		return create(uri.getScheme(), uri.getUserInfo(), uri.getHost(), newPort, uri.getPath(), uri.getQuery(), uri.getFragment());
+	}
+	/**
+	 * @return a parent uri or null if there is none
+	 */
+	public static URI getParentURI(URI uri) {
+		File file = new File(uri.getPath());
+		File parent = file.getParentFile();
+		
+		if (parent != null && !parent.getName().isEmpty()) {
+			try {
+				return changePath(uri, parent.getAbsolutePath());
+			} catch (URISyntaxException e) {
+				// can not happen
+			}
+		}
+		
+		return null; // there is no parent;
+	}
+	public static URI getChildURI(URI uri, String child) {
+		File file = new File(uri.getPath());
+		File childFile = new File(file, child);
+		
+		try {
+			return changePath(uri, childFile.getAbsolutePath());
+		} catch (URISyntaxException e) {
+			// can not happen
+		}
+		
+		return null; // there is no child?;
+	}
+	public static String getURIName(URI uri) {
+		File file = new File(uri.getPath());
+		return file.getName();
 	}
 }
