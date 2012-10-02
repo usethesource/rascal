@@ -562,7 +562,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
