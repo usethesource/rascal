@@ -562,7 +562,7 @@ syntax Statement
 	| @breakable Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
 	| @breakable non-assoc Try: "try" Statement body Catch+ handlers 
 	| @breakable TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
-	| @breakable NonEmptyBlock: Label label "{" Statement+ statements "}" 
+	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| EmptyStatement: ";" 
 	| @breakable GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
 	| @breakable Assignment: Assignable assignable Assignment operator Statement statement
