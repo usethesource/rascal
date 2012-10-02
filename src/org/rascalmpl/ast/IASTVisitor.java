@@ -501,9 +501,9 @@ public interface IASTVisitor<T> {
 
   public T visitStatementInsert(Statement.Insert x);
 
-  public T visitStatementThrow(Statement.Throw x);
-
   public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x);
+
+  public T visitStatementThrow(Statement.Throw x);
 
   public T visitStatementTryFinally(Statement.TryFinally x);
 

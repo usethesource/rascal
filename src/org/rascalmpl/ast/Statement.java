@@ -1170,43 +1170,6 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isThrow() {
-    return false;
-  }
-
-  static public class Throw extends Statement {
-    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")])
-  
-    
-    private final org.rascalmpl.ast.Statement statement;
-  
-    public Throw(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
-      
-      this.statement = statement;
-    }
-  
-    @Override
-    public boolean isThrow() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementThrow(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Statement getStatement() {
-      return this.statement;
-    }
-  
-    @Override
-    public boolean hasStatement() {
-      return true;
-    }	
-  }
   public boolean isNonEmptyBlock() {
     return false;
   }
@@ -1252,6 +1215,43 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public boolean hasStatements() {
+      return true;
+    }	
+  }
+  public boolean isThrow() {
+    return false;
+  }
+
+  static public class Throw extends Statement {
+    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")])
+  
+    
+    private final org.rascalmpl.ast.Statement statement;
+  
+    public Throw(IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(node);
+      
+      this.statement = statement;
+    }
+  
+    @Override
+    public boolean isThrow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementThrow(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Statement getStatement() {
+      return this.statement;
+    }
+  
+    @Override
+    public boolean hasStatement() {
       return true;
     }	
   }

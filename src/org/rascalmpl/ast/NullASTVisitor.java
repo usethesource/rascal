@@ -985,11 +985,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStatementThrow(Statement.Throw x) { 
+  public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) { 
     return null; 
   }
 
-  public T visitStatementNonEmptyBlock(Statement.NonEmptyBlock x) { 
+  public T visitStatementThrow(Statement.Throw x) { 
     return null; 
   }
 
