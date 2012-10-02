@@ -1408,7 +1408,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			endJob(true);
 		}
 		
-		return DebugUpdater.pushDownAttributes(result);
+		if (!suspendTriggerListeners.isEmpty()) {
+			result = DebugUpdater.pushDownAttributes(result);
+		}
+		
+		return result;
 	}
 	
 	private static boolean containsBackTick(char[] data, int offset) {
