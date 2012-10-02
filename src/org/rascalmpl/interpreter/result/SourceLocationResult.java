@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
