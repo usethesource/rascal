@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.ast;
 
@@ -283,53 +284,53 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isSolve() {
+  public boolean isFor() {
     return false;
   }
 
-  static public class Solve extends Statement {
-    // Production: sig("Solve",[arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","variables"),arg("org.rascalmpl.ast.Bound","bound"),arg("org.rascalmpl.ast.Statement","body")])
+  static public class For extends Statement {
+    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")])
   
     
-    private final java.util.List<org.rascalmpl.ast.QualifiedName> variables;
-    private final org.rascalmpl.ast.Bound bound;
+    private final org.rascalmpl.ast.Label label;
+    private final java.util.List<org.rascalmpl.ast.Expression> generators;
     private final org.rascalmpl.ast.Statement body;
   
-    public Solve(IConstructor node , java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
+    public For(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
       super(node);
       
-      this.variables = variables;
-      this.bound = bound;
+      this.label = label;
+      this.generators = generators;
       this.body = body;
     }
   
     @Override
-    public boolean isSolve() { 
+    public boolean isFor() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementSolve(this);
+      return visitor.visitStatementFor(this);
     }
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.QualifiedName> getVariables() {
-      return this.variables;
+    public org.rascalmpl.ast.Label getLabel() {
+      return this.label;
     }
   
     @Override
-    public boolean hasVariables() {
+    public boolean hasLabel() {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Bound getBound() {
-      return this.bound;
+    public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
+      return this.generators;
     }
   
     @Override
-    public boolean hasBound() {
+    public boolean hasGenerators() {
       return true;
     }
     @Override
@@ -390,53 +391,53 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isFor() {
+  public boolean isSolve() {
     return false;
   }
 
-  static public class For extends Statement {
-    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")])
+  static public class Solve extends Statement {
+    // Production: sig("Solve",[arg("java.util.List\<org.rascalmpl.ast.QualifiedName\>","variables"),arg("org.rascalmpl.ast.Bound","bound"),arg("org.rascalmpl.ast.Statement","body")])
   
     
-    private final org.rascalmpl.ast.Label label;
-    private final java.util.List<org.rascalmpl.ast.Expression> generators;
+    private final java.util.List<org.rascalmpl.ast.QualifiedName> variables;
+    private final org.rascalmpl.ast.Bound bound;
     private final org.rascalmpl.ast.Statement body;
   
-    public For(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
+    public Solve(IConstructor node , java.util.List<org.rascalmpl.ast.QualifiedName> variables,  org.rascalmpl.ast.Bound bound,  org.rascalmpl.ast.Statement body) {
       super(node);
       
-      this.label = label;
-      this.generators = generators;
+      this.variables = variables;
+      this.bound = bound;
       this.body = body;
     }
   
     @Override
-    public boolean isFor() { 
+    public boolean isSolve() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementFor(this);
+      return visitor.visitStatementSolve(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Label getLabel() {
-      return this.label;
+    public java.util.List<org.rascalmpl.ast.QualifiedName> getVariables() {
+      return this.variables;
     }
   
     @Override
-    public boolean hasLabel() {
+    public boolean hasVariables() {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-      return this.generators;
+    public org.rascalmpl.ast.Bound getBound() {
+      return this.bound;
     }
   
     @Override
-    public boolean hasGenerators() {
+    public boolean hasBound() {
       return true;
     }
     @Override
@@ -556,32 +557,6 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isFilter() {
-    return false;
-  }
-
-  static public class Filter extends Statement {
-    // Production: sig("Filter",[])
-  
-    
-  
-    public Filter(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isFilter() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementFilter(this);
-    }
-  
-    	
-  }
   public boolean isExpression() {
     return false;
   }
@@ -616,6 +591,91 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public boolean hasExpression() {
+      return true;
+    }	
+  }
+  public boolean isFilter() {
+    return false;
+  }
+
+  static public class Filter extends Statement {
+    // Production: sig("Filter",[])
+  
+    
+  
+    public Filter(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isFilter() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementFilter(this);
+    }
+  
+    	
+  }
+  public boolean isIfThen() {
+    return false;
+  }
+
+  static public class IfThen extends Statement {
+    // Production: sig("IfThen",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement")])
+  
+    
+    private final org.rascalmpl.ast.Label label;
+    private final java.util.List<org.rascalmpl.ast.Expression> conditions;
+    private final org.rascalmpl.ast.Statement thenStatement;
+  
+    public IfThen(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement) {
+      super(node);
+      
+      this.label = label;
+      this.conditions = conditions;
+      this.thenStatement = thenStatement;
+    }
+  
+    @Override
+    public boolean isIfThen() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementIfThen(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Label getLabel() {
+      return this.label;
+    }
+  
+    @Override
+    public boolean hasLabel() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
+      return this.conditions;
+    }
+  
+    @Override
+    public boolean hasConditions() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Statement getThenStatement() {
+      return this.thenStatement;
+    }
+  
+    @Override
+    public boolean hasThenStatement() {
       return true;
     }	
   }
@@ -678,62 +738,62 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isIfThen() {
+  public boolean isAssignment() {
     return false;
   }
 
-  static public class IfThen extends Statement {
-    // Production: sig("IfThen",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("org.rascalmpl.ast.Statement","thenStatement")])
+  static public class Assignment extends Statement {
+    // Production: sig("Assignment",[arg("org.rascalmpl.ast.Assignable","assignable"),arg("org.rascalmpl.ast.Assignment","operator"),arg("org.rascalmpl.ast.Statement","statement")])
   
     
-    private final org.rascalmpl.ast.Label label;
-    private final java.util.List<org.rascalmpl.ast.Expression> conditions;
-    private final org.rascalmpl.ast.Statement thenStatement;
+    private final org.rascalmpl.ast.Assignable assignable;
+    private final org.rascalmpl.ast.Assignment operator;
+    private final org.rascalmpl.ast.Statement statement;
   
-    public IfThen(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> conditions,  org.rascalmpl.ast.Statement thenStatement) {
+    public Assignment(IConstructor node , org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
       super(node);
       
-      this.label = label;
-      this.conditions = conditions;
-      this.thenStatement = thenStatement;
+      this.assignable = assignable;
+      this.operator = operator;
+      this.statement = statement;
     }
   
     @Override
-    public boolean isIfThen() { 
+    public boolean isAssignment() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementIfThen(this);
+      return visitor.visitStatementAssignment(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Label getLabel() {
-      return this.label;
+    public org.rascalmpl.ast.Assignable getAssignable() {
+      return this.assignable;
     }
   
     @Override
-    public boolean hasLabel() {
+    public boolean hasAssignable() {
       return true;
     }
     @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getConditions() {
-      return this.conditions;
+    public org.rascalmpl.ast.Assignment getOperator() {
+      return this.operator;
     }
   
     @Override
-    public boolean hasConditions() {
+    public boolean hasOperator() {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Statement getThenStatement() {
-      return this.thenStatement;
+    public org.rascalmpl.ast.Statement getStatement() {
+      return this.statement;
     }
   
     @Override
-    public boolean hasThenStatement() {
+    public boolean hasStatement() {
       return true;
     }	
   }
@@ -801,65 +861,6 @@ public abstract class Statement extends AbstractAST {
     }
   
     
-    @Override
-    public org.rascalmpl.ast.Statement getStatement() {
-      return this.statement;
-    }
-  
-    @Override
-    public boolean hasStatement() {
-      return true;
-    }	
-  }
-  public boolean isAssignment() {
-    return false;
-  }
-
-  static public class Assignment extends Statement {
-    // Production: sig("Assignment",[arg("org.rascalmpl.ast.Assignable","assignable"),arg("org.rascalmpl.ast.Assignment","operator"),arg("org.rascalmpl.ast.Statement","statement")])
-  
-    
-    private final org.rascalmpl.ast.Assignable assignable;
-    private final org.rascalmpl.ast.Assignment operator;
-    private final org.rascalmpl.ast.Statement statement;
-  
-    public Assignment(IConstructor node , org.rascalmpl.ast.Assignable assignable,  org.rascalmpl.ast.Assignment operator,  org.rascalmpl.ast.Statement statement) {
-      super(node);
-      
-      this.assignable = assignable;
-      this.operator = operator;
-      this.statement = statement;
-    }
-  
-    @Override
-    public boolean isAssignment() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementAssignment(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Assignable getAssignable() {
-      return this.assignable;
-    }
-  
-    @Override
-    public boolean hasAssignable() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Assignment getOperator() {
-      return this.operator;
-    }
-  
-    @Override
-    public boolean hasOperator() {
-      return true;
-    }
     @Override
     public org.rascalmpl.ast.Statement getStatement() {
       return this.statement;
@@ -1169,6 +1170,43 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
+  public boolean isThrow() {
+    return false;
+  }
+
+  static public class Throw extends Statement {
+    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")])
+  
+    
+    private final org.rascalmpl.ast.Statement statement;
+  
+    public Throw(IConstructor node , org.rascalmpl.ast.Statement statement) {
+      super(node);
+      
+      this.statement = statement;
+    }
+  
+    @Override
+    public boolean isThrow() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementThrow(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Statement getStatement() {
+      return this.statement;
+    }
+  
+    @Override
+    public boolean hasStatement() {
+      return true;
+    }	
+  }
   public boolean isNonEmptyBlock() {
     return false;
   }
@@ -1214,43 +1252,6 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public boolean hasStatements() {
-      return true;
-    }	
-  }
-  public boolean isThrow() {
-    return false;
-  }
-
-  static public class Throw extends Statement {
-    // Production: sig("Throw",[arg("org.rascalmpl.ast.Statement","statement")])
-  
-    
-    private final org.rascalmpl.ast.Statement statement;
-  
-    public Throw(IConstructor node , org.rascalmpl.ast.Statement statement) {
-      super(node);
-      
-      this.statement = statement;
-    }
-  
-    @Override
-    public boolean isThrow() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementThrow(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Statement getStatement() {
-      return this.statement;
-    }
-  
-    @Override
-    public boolean hasStatement() {
       return true;
     }	
   }
@@ -1350,32 +1351,6 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isEmptyStatement() {
-    return false;
-  }
-
-  static public class EmptyStatement extends Statement {
-    // Production: sig("EmptyStatement",[])
-  
-    
-  
-    public EmptyStatement(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isEmptyStatement() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementEmptyStatement(this);
-    }
-  
-    	
-  }
   public boolean isTry() {
     return false;
   }
@@ -1424,42 +1399,31 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isContinue() {
+  public boolean isEmptyStatement() {
     return false;
   }
 
-  static public class Continue extends Statement {
-    // Production: sig("Continue",[arg("org.rascalmpl.ast.Target","target")])
+  static public class EmptyStatement extends Statement {
+    // Production: sig("EmptyStatement",[])
   
     
-    private final org.rascalmpl.ast.Target target;
   
-    public Continue(IConstructor node , org.rascalmpl.ast.Target target) {
+    public EmptyStatement(IConstructor node ) {
       super(node);
       
-      this.target = target;
     }
   
     @Override
-    public boolean isContinue() { 
+    public boolean isEmptyStatement() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementContinue(this);
+      return visitor.visitStatementEmptyStatement(this);
     }
   
-    
-    @Override
-    public org.rascalmpl.ast.Target getTarget() {
-      return this.target;
-    }
-  
-    @Override
-    public boolean hasTarget() {
-      return true;
-    }	
+    	
   }
   public boolean isVisit() {
     return false;
@@ -1506,6 +1470,43 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public boolean hasVisit() {
+      return true;
+    }	
+  }
+  public boolean isContinue() {
+    return false;
+  }
+
+  static public class Continue extends Statement {
+    // Production: sig("Continue",[arg("org.rascalmpl.ast.Target","target")])
+  
+    
+    private final org.rascalmpl.ast.Target target;
+  
+    public Continue(IConstructor node , org.rascalmpl.ast.Target target) {
+      super(node);
+      
+      this.target = target;
+    }
+  
+    @Override
+    public boolean isContinue() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementContinue(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Target getTarget() {
+      return this.target;
+    }
+  
+    @Override
+    public boolean hasTarget() {
       return true;
     }	
   }
