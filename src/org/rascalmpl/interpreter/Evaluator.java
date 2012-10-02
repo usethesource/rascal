@@ -68,6 +68,7 @@ import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTrigger;
 import org.rascalmpl.interpreter.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.env.Environment;
@@ -1408,6 +1409,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			endJob(true);
 		}
 		
+		if (!suspendTriggerListeners.isEmpty()) {
+			result = DebugUpdater.pushDownAttributes(result);
+		}
+		
 		return result;
 	}
 	
@@ -1863,12 +1868,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	@Override
 	public void notifyAboutSuspension(AbstractAST currentAST) {
-		 /* 
-		  * NOTE: book-keeping of the listeners and notification takes place here,
-		  * delegated from the individual AST nodes.
-		  */
-		for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
-			listener.suspended(this, currentAST);
+		if (!suspendTriggerListeners.isEmpty() && currentAST.isBreakable()) {
+			 /* 
+			  * NOTE: book-keeping of the listeners and notification takes place here,
+			  * delegated from the individual AST nodes.
+			  */
+			for (IRascalSuspendTriggerListener listener : suspendTriggerListeners) {
+				listener.suspended(this, currentAST);
+			}
 		}
 	}
 
