@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.ast;
 
@@ -464,29 +465,29 @@ public interface IASTVisitor<T> {
 
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
 
-  public T visitStatementSolve(Statement.Solve x);
+  public T visitStatementFor(Statement.For x);
 
   public T visitStatementGlobalDirective(Statement.GlobalDirective x);
 
-  public T visitStatementFor(Statement.For x);
+  public T visitStatementSolve(Statement.Solve x);
 
   public T visitStatementWhile(Statement.While x);
 
   public T visitStatementAssertWithMessage(Statement.AssertWithMessage x);
 
+  public T visitStatementExpression(Statement.Expression x);
+
   public T visitStatementFilter(Statement.Filter x);
 
-  public T visitStatementExpression(Statement.Expression x);
+  public T visitStatementIfThen(Statement.IfThen x);
 
   public T visitStatementDoWhile(Statement.DoWhile x);
 
-  public T visitStatementIfThen(Statement.IfThen x);
+  public T visitStatementAssignment(Statement.Assignment x);
 
   public T visitStatementFail(Statement.Fail x);
 
   public T visitStatementReturn(Statement.Return x);
-
-  public T visitStatementAssignment(Statement.Assignment x);
 
   public T visitStatementBreak(Statement.Break x);
 
@@ -508,13 +509,13 @@ public interface IASTVisitor<T> {
 
   public T visitStatementAssert(Statement.Assert x);
 
-  public T visitStatementEmptyStatement(Statement.EmptyStatement x);
-
   public T visitStatementTry(Statement.Try x);
 
-  public T visitStatementContinue(Statement.Continue x);
+  public T visitStatementEmptyStatement(Statement.EmptyStatement x);
 
   public T visitStatementVisit(Statement.Visit x);
+
+  public T visitStatementContinue(Statement.Continue x);
 
   public T visitModuleDefault(Module.Default x);
 
