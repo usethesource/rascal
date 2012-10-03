@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -367,10 +368,17 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public AbstractFunction composeFunction(AbstractFunction that) {
-		if (!getTypeFactory().tupleType(getReturnType()).isSubtypeOf(that.getFunctionType().getArgumentTypes())) {
-			undefinedError("composition");
-		}
+	public ComposedFunctionResult composeFunction(AbstractFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
 		return new ComposedFunctionResult(that, this, ctx);
 	}
 	

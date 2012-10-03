@@ -41,6 +41,8 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import org.rascalmpl.uri.URIUtil;
+
 /**
  * Compile a String or other {@link CharSequence}, returning a Java
  * {@link Class} instance that may be instantiated. This class is a Facade
@@ -292,7 +294,7 @@ public class JavaCompiler<T> {
     */
    static URI toURI(String name) {
       try {
-         return new URI(name);
+         return URIUtil.createFromEncoded(name);
       } catch (URISyntaxException e) {
          throw new RuntimeException(e);
       }

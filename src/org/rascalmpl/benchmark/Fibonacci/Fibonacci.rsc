@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module Fibonacci::Fibonacci
 
-import Benchmark;
+import util::Benchmark;
 import IO;
 
 public int fib(int n)

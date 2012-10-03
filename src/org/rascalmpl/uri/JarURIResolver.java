@@ -160,4 +160,8 @@ public class JarURIResolver implements IURIInputStreamResolver{
 	public String scheme(){
 		return "jar";
 	}
+
+	public boolean supportsHost() {
+		return false;
+	}
 }

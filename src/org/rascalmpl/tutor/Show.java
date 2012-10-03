@@ -21,6 +21,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.rascalmpl.uri.URIUtil;
+
 @SuppressWarnings("serial")
 public class Show extends TutorHttpServlet {
 
@@ -36,7 +38,8 @@ public class Show extends TutorHttpServlet {
 			baseName += ".html";
 		String fileName = resourceBase + concept + "/" + baseName;
 		if(debug) System.err.println("ShowConcept, fileName: " + fileName);
-		InputStream in = evaluator.getResolverRegistry().getInputStream(URI.create(fileName));
+		// this code should not be doing string concat, but using the correct URIUtil.create overload
+		InputStream in = evaluator.getResolverRegistry().getInputStream(URIUtil.assumeCorrect(fileName));
 		ServletOutputStream out = response.getOutputStream();
 		
 		try {

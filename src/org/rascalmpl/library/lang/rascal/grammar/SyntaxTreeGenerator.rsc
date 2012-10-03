@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2012 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl - CWI}
+@contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 module lang::rascal::grammar::SyntaxTreeGenerator
 
 import Grammar;
@@ -19,7 +20,7 @@ import List;
 import Set;
 
 private str header = "/*******************************************************************************
-                     ' * Copyright (c) 2009-2011 CWI
+                     ' * Copyright (c) 2009-2012 CWI
                      ' * All rights reserved. This program and the accompanying materials
                      ' * are made available under the terms of the Eclipse Public License v1.0
                      ' * which accompanies this distribution, and is available at
@@ -31,6 +32,7 @@ private str header = "/*********************************************************
                      ' *   * Paul Klint - Paul.Klint@cwi.nl - CWI
                      ' *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
                      ' *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+                     ' *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
                      ' *******************************************************************************/";
                      
 data AST 
