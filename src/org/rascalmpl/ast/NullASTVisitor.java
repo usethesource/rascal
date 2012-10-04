@@ -913,15 +913,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStatementFor(Statement.For x) { 
-    return null; 
-  }
-
   public T visitStatementGlobalDirective(Statement.GlobalDirective x) { 
     return null; 
   }
 
   public T visitStatementSolve(Statement.Solve x) { 
+    return null; 
+  }
+
+  public T visitStatementFor(Statement.For x) { 
     return null; 
   }
 
