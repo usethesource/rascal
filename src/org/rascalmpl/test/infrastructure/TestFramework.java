@@ -40,6 +40,7 @@ import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -104,6 +105,10 @@ public class TestFramework {
 		public String[] listEntries(URI uri) {
 			return null;
 		}
+
+		public boolean supportsHost() {
+			return false;
+		}
 	}
 	
 	static{
@@ -118,10 +123,10 @@ public class TestFramework {
 		
 		resolverRegistry.registerInput(new JarURIResolver(TestFramework.class));
 		
-		evaluator.addRascalSearchPath(URI.create("test-modules:///"));
+		evaluator.addRascalSearchPath(URIUtil.rootScheme("test-modules"));
 		resolverRegistry.registerInput(modules);
 		
-		evaluator.addRascalSearchPath(URI.create("benchmarks:///"));
+		evaluator.addRascalSearchPath(URIUtil.rootScheme("benchmarks"));
 		resolverRegistry.registerInput(new ClassResourceInputOutput(resolverRegistry, "benchmarks", Evaluator.class, "/org/rascalmpl/benchmark"));
 	}
 	
@@ -211,7 +216,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command){
-		Result<IValue> result = evaluator.eval(null, command, URI.create("stdin:///"));
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme("stdin"));
 
 		if (result.getType().isVoidType()) {
 			return true;

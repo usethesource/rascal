@@ -11,6 +11,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -149,10 +150,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (!constructors.isEmpty()) {
-			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), type, constructors));
+			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), name, type, constructors));
 		}
 		if (!productions.isEmpty()) {
-			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), type, productions));
+			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), name, type, productions));
 		}
 		container.addAll(other);
 	}
@@ -443,64 +444,22 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeOverloadedFunction(this);
+		return right.composeFunction(this);
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(AbstractFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
-
-
-		for (AbstractFunction f : primaryCandidates) {
-			for (AbstractFunction g : that.primaryCandidates) {
-				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
-				}
-			}
-		}
-
-		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
-
-		for (AbstractFunction f : defaultCandidates) {
-			for (AbstractFunction g : that.defaultCandidates) {
-				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					newDefaults.add(new ComposedFunctionResult(f, g, ctx));
-				}
-			}
-		}
-
-		if (newAlternatives.size() + newDefaults.size() == 0) {
-			return undefinedError("composition", that);
-		}
-
-		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
+	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction g) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
-
-		for (AbstractFunction f : primaryCandidates) {
-			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
-			}
-		}
-
-		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
-
-		for (AbstractFunction f : defaultCandidates) {
-			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				newAlternatives.add(new ComposedFunctionResult(f, g, ctx));
-			}
-		}
-
-		if (newAlternatives.size() == 0) {
-			return undefinedError("composition", g);
-		}
-
-		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
 	public List<AbstractFunction> getFunctions(){

@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -320,6 +321,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return false;
 	}
 	
+	public boolean isVoid() {
+		return false;
+	}
+	
 	///////
 	
 	protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
@@ -557,7 +562,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	

@@ -63,4 +63,7 @@ public class HttpURIResolver implements IURIInputStreamResolver {
 		return uri.getPath();
 	}
 
+	public boolean supportsHost() {
+		return true;
+	}
 }

@@ -33,7 +33,10 @@ public class StandardOutputURIResolver implements IURIOutputStreamResolver {
 	}
 
 	public URI getResourceURI(URI uri) {
-		return URI.create("file://-");
+		return URIUtil.invalidURI();
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }

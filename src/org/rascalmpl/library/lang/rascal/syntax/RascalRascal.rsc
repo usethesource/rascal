@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2011 CWI
+  Copyright (c) 2009-2012 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
 @bootstrapParser
 module lang::rascal::\syntax::RascalRascal
@@ -544,34 +545,35 @@ syntax Start
 	| Present: "start" ;
 
 syntax Statement
-	= Assert: "assert" Expression expression ";" 
-	| AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| Expression: Expression expression ";" 
-	| Visit: Label label Visit visit 
-	| While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
-	| DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
-	| IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
-	| IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
-	| Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
-	| Fail: "fail" Target target ";" 
-	| Break: "break" Target target ";" 
-	| Continue: "continue" Target target ";" 
-    | Filter: "filter" ";"
-	| Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
-	| non-assoc Try: "try" Statement body Catch+ handlers 
-	| TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	= @breakable Assert: "assert" Expression expression ";" 
+	| @breakable AssertWithMessage: "assert" Expression expression ":" Expression message ";" 
+	| @breakable Expression: Expression expression ";" 
+	| @breakable Visit: Label label Visit visit 
+	| @breakable While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
+	| @breakable DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
+	| @breakable @breakable{generators} For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| @breakable IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
+	| @breakable IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| @breakable Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
+	| @breakable Fail: "fail" Target target ";" 
+	| @breakable Break: "break" Target target ";" 
+	| @breakable Continue: "continue" Target target ";" 
+    | @breakable Filter: "filter" ";"
+	| @breakable Solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| @breakable non-assoc Try: "try" Statement body Catch+ handlers 
+	| @breakable TryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
 	| NonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| EmptyStatement: ";" 
-	| GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| Assignment: Assignable assignable Assignment operator Statement statement
-	| non-assoc ( Return    : "return" Statement statement  
-		        | Throw     : "throw" Statement statement 
-		        | Insert    : "insert" DataTarget dataTarget Statement statement 
-		        | Append    : "append" DataTarget dataTarget Statement statement 
+	| @breakable GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
+	| @breakable Assignment: Assignable assignable Assignment operator Statement statement
+	| non-assoc  ( 
+		          @breakable Return    : "return" Statement statement  
+		        | @breakable Throw     : "throw" Statement statement 
+		        | @breakable Insert    : "insert" DataTarget dataTarget Statement statement 
+		        | @breakable Append    : "append" DataTarget dataTarget Statement statement 
 	            )
-    > FunctionDeclaration: FunctionDeclaration functionDeclaration 
-	| VariableDeclaration: LocalVariableDeclaration declaration ";"
+    > @breakable FunctionDeclaration: FunctionDeclaration functionDeclaration 
+	| @breakable VariableDeclaration: LocalVariableDeclaration declaration ";"
 	; 
 	
     
@@ -701,17 +703,17 @@ syntax FunctionModifiers
 	= List: FunctionModifier* modifiers ;
 
 syntax Comprehension
-	= Set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
-	| Map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
-	| List: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
+	= @breakable{results,generators} Set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| @breakable{from,to,generators} Map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| @breakable{results,generators} List: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
 	= NAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;
 
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
-	| @Foldable Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| @Foldable Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
+	| @Foldable @breakable{expression} Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
+	| @Foldable @breakable{expression,conditions} Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 lexical PreProtocolChars
