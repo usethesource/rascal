@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
@@ -130,4 +131,28 @@ public class OverloadedFunctionType extends ExternalType {
 		return getReturnType() + " (...)";
 	}
 	
+	@Override
+	public Type compose(Type right) {
+		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		if(right instanceof FunctionType) {
+			for(FunctionType ftype : this.alternatives) {
+				if(TypeFactory.getInstance().tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
+					newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
+				}
+			}
+		}
+		if(right instanceof OverloadedFunctionType) {
+			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
+				for(FunctionType gtype : this.alternatives) {
+					if(TypeFactory.getInstance().tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
+						newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
+					}
+				}
+			}
+		}
+		if(!newAlternatives.isEmpty()) 
+			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
+		return RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType());
+	}
+
 }

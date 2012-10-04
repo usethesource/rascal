@@ -2,7 +2,10 @@ package org.rascalmpl.interpreter.load;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+
+import org.rascalmpl.uri.URIUtil;
 
 
 public class StandardLibraryContributor implements
@@ -19,16 +22,19 @@ public class StandardLibraryContributor implements
 	}
 	
 	public void contributePaths(List<URI> l) {
-		l.add(java.net.URI.create("cwd:///"));
-		l.add(java.net.URI.create("std:///"));
-		l.add(java.net.URI.create("testdata:///"));
-		l.add(java.net.URI.create("benchmarks:///"));
+		l.add(URIUtil.rootScheme("cwd"));
+		l.add(URIUtil.rootScheme("std"));
+		l.add(URIUtil.rootScheme("testdata"));
+		l.add(URIUtil.rootScheme("benchmarks"));
 		
 		String property = java.lang.System.getProperty("rascal.path");
 
 		if (property != null) {
 			for (String path : property.split(":")) {
-				l.add(new File(path).toURI());
+				try {
+					l.add(URIUtil.fixUnicode(new File(path).toURI()));
+				} catch (URISyntaxException e) {
+				}
 			}
 		}
 	}

@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
@@ -32,7 +33,7 @@ public class Reflective {
 	public Reflective(IValueFactory values){
 		super();
 	}
-	
+
 	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
 		URI uri = loc.getURI();
 		IEvaluator<?> evaluator = ctx.getEvaluator();

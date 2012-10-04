@@ -49,4 +49,8 @@ public class StandardInputURIResolver implements IURIInputStreamResolver {
 	public String absolutePath(URI uri) {
 		return "stdin";
 	}
+	
+	public boolean supportsHost() {
+		return false;
+	}
 }

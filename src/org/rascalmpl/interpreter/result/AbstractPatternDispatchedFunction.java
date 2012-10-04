@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2011 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Anya Helene Bagge - anya@ii.uib.no
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
+*******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
 import java.util.List;
@@ -21,12 +35,16 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final Map<String, List<AbstractFunction>> alternatives;
 	private final Type type;
 	private final int arity;
+	private final boolean isStatic;
+	private final String name;
 
-	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, Type type, Map<String, List<AbstractFunction>> alternatives) {
+	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<String, List<AbstractFunction>> alternatives) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType()), checkVarArgs(alternatives), null); // ?? I don't know if this will work..
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
+		this.isStatic = checkStatic(alternatives);
+		this.name = name;
 	}
 	
 	@Override
@@ -82,6 +100,15 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	/* 
+	 * The super getFunctionType() uses unsafe downcast in its body: (FunctionType) getType();
+	 * @see org.rascalmpl.interpreter.result.AbstractFunction#getFunctionType()
+	 */
+	@Override 
+	public FunctionType getFunctionType() {
+		return (FunctionType) super.getType();
 	}
 
 	@Override
@@ -155,11 +182,37 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 
 	@Override
 	public boolean isStatic() {
-		throw new UnsupportedOperationException();
+		return isStatic;
+	}
+	
+	private static boolean checkStatic(Map<String, List<AbstractFunction>> m) {
+		for(List<AbstractFunction> l : m.values()) {
+			for(AbstractFunction f : l)
+				if(!f.isStatic())
+					return false;
+		}
+		return true;
 	}
 
 	@Override
 	public boolean isDefault() {
 		return false;
 	}
+	
+	@Override
+	public String getName() {
+		return this.name;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		for (List<AbstractFunction> l : alternatives.values()) {
+			for(AbstractFunction f : l)
+				b.append(f.toString() + " (abstact pattern); ");
+				b.append(' ');
+		}
+		return b.toString();
+	}
+	
 }

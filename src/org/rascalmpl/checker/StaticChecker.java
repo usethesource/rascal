@@ -31,6 +31,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class StaticChecker {
@@ -52,7 +53,7 @@ public class StaticChecker {
 	
 	private IValue eval(IRascalMonitor monitor, String cmd) {
 		try {
-			return eval.eval(monitor, cmd, URI.create("checker:///")).getValue();
+			return eval.eval(monitor, cmd, URIUtil.rootScheme("checker")).getValue();
 		} catch (ParseError pe) {
 			throw new ImplementationError("syntax error in static checker modules", pe);
 		}
@@ -81,7 +82,7 @@ public class StaticChecker {
 		IMapWriter mw = VF.mapWriter(TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType());
 		
 		for (IValue i : imports) {
-			URI uri = URI.create("rascal://" + ((IString) i).getValue());
+			URI uri = URIUtil.createRascalModule(((IString) i).getValue());
 			mw.put(i, VF.sourceLocation(uri));
 		}
 		
