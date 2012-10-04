@@ -465,11 +465,11 @@ public interface IASTVisitor<T> {
 
   public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
 
-  public T visitStatementFor(Statement.For x);
-
   public T visitStatementGlobalDirective(Statement.GlobalDirective x);
 
   public T visitStatementSolve(Statement.Solve x);
+
+  public T visitStatementFor(Statement.For x);
 
   public T visitStatementWhile(Statement.While x);
 

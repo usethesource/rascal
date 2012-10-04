@@ -551,7 +551,7 @@ syntax Statement
 	| @breakable Visit: Label label Visit visit 
 	| @breakable While: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| @breakable DoWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| @breakable For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| @breakable @breakable{generators} For: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
 	| @breakable IfThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
 	| @breakable IfThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
 	| @breakable Switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
@@ -703,9 +703,9 @@ syntax FunctionModifiers
 	= List: FunctionModifier* modifiers ;
 
 syntax Comprehension
-	= Set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
-	| Map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
-	| List: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
+	= @breakable{results,generators} Set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| @breakable{from,to,generators} Map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| @breakable{results,generators} List: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
 	= NAryConstructor: Name name "(" {TypeArg ","}* arguments ")" ;

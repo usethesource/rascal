@@ -284,65 +284,6 @@ public abstract class Statement extends AbstractAST {
       return true;
     }	
   }
-  public boolean isFor() {
-    return false;
-  }
-
-  static public class For extends Statement {
-    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")])
-  
-    
-    private final org.rascalmpl.ast.Label label;
-    private final java.util.List<org.rascalmpl.ast.Expression> generators;
-    private final org.rascalmpl.ast.Statement body;
-  
-    public For(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
-      super(node);
-      
-      this.label = label;
-      this.generators = generators;
-      this.body = body;
-    }
-  
-    @Override
-    public boolean isFor() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStatementFor(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Label getLabel() {
-      return this.label;
-    }
-  
-    @Override
-    public boolean hasLabel() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
-      return this.generators;
-    }
-  
-    @Override
-    public boolean hasGenerators() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Statement getBody() {
-      return this.body;
-    }
-  
-    @Override
-    public boolean hasBody() {
-      return true;
-    }	
-  }
   public boolean isGlobalDirective() {
     return false;
   }
@@ -438,6 +379,65 @@ public abstract class Statement extends AbstractAST {
   
     @Override
     public boolean hasBound() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Statement getBody() {
+      return this.body;
+    }
+  
+    @Override
+    public boolean hasBody() {
+      return true;
+    }	
+  }
+  public boolean isFor() {
+    return false;
+  }
+
+  static public class For extends Statement {
+    // Production: sig("For",[arg("org.rascalmpl.ast.Label","label"),arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("org.rascalmpl.ast.Statement","body")])
+  
+    
+    private final org.rascalmpl.ast.Label label;
+    private final java.util.List<org.rascalmpl.ast.Expression> generators;
+    private final org.rascalmpl.ast.Statement body;
+  
+    public For(IConstructor node , org.rascalmpl.ast.Label label,  java.util.List<org.rascalmpl.ast.Expression> generators,  org.rascalmpl.ast.Statement body) {
+      super(node);
+      
+      this.label = label;
+      this.generators = generators;
+      this.body = body;
+    }
+  
+    @Override
+    public boolean isFor() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStatementFor(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Label getLabel() {
+      return this.label;
+    }
+  
+    @Override
+    public boolean hasLabel() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getGenerators() {
+      return this.generators;
+    }
+  
+    @Override
+    public boolean hasGenerators() {
       return true;
     }
     @Override
