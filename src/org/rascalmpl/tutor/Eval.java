@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 @SuppressWarnings("serial")
 public class Eval extends TutorHttpServlet {
@@ -34,7 +35,7 @@ public class Eval extends TutorHttpServlet {
 		PrintWriter out = response.getWriter();
 
 		try {
-			Result<IValue> result = evaluator.eval(null, expr, URI.create("stdin:///"));
+			Result<IValue> result = evaluator.eval(null, expr, URIUtil.rootScheme("stdin"));
 			String resp = "<tt>" + result.getValue().toString() + "</tt>";
 			out.println(resp);
 		}

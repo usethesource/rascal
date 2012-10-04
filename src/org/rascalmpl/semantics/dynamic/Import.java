@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -73,7 +74,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				String uriScheme = resourceScheme.substring(resourceScheme.indexOf("+")+1); 
 				resourceScheme = resourceScheme.substring(0,resourceScheme.indexOf("+"));
 				try {
-					uri = new URI(uriScheme, uri.getUserInfo(), uri.getHost() == null ? "" : uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changeScheme(uri, uriScheme);
 				} catch (URISyntaxException e) {
 					throw RuntimeExceptionFactory.malformedURI(uri.toString().substring(uri.toString().indexOf("+")+1), null, null);
 				}
@@ -102,9 +103,9 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 					String moduleEnvName = eval.getCurrentModuleEnvironment().getName();
 					URI ur = null;
 					if (moduleEnvName.equals(ModuleEnvironment.SHELL_MODULE)) {
-						ur = URI.create("cwd:///");
+						ur = URIUtil.rootScheme("cwd");
 					} else {
-						ur = eval.getRascalResolver().getRootForModule((URI.create("rascal://" + moduleEnvName)));
+						ur = eval.getRascalResolver().getRootForModule((URIUtil.createRascalModule(moduleEnvName)));
 					}
 					Result<?> loc = new SourceLocationResult(TF.sourceLocationType(), VF.sourceLocation(ur), eval);
 					String modulePath = moduleName.replaceAll("::", "/");
@@ -116,11 +117,11 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 						outputStream = reg.getOutputStream(((ISourceLocation) loc.getValue()).getURI(), false);
 					}
 					catch (IOException e) {
-						outputStream = reg.getOutputStream(URI.create("cwd:///"), false);
+						outputStream = reg.getOutputStream(URIUtil.rootScheme("cwd"), false);
 					}
 					
 					if (outputStream == null) {
-						outputStream = reg.getOutputStream(URI.create("cwd:///"), false);
+						outputStream = reg.getOutputStream(URIUtil.rootScheme("cwd"), false);
 					}
 					
 					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
@@ -187,7 +188,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				eval.getCurrentModuleEnvironment().addExtend(name);
 
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal://" + name), this.getLocation());
+					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
 					mod.declareSyntax(eval, true);
 				}
 				
@@ -222,7 +223,7 @@ public abstract class Import extends org.rascalmpl.ast.Import {
 				eval.addImportToCurrentModule(this, name);
 
 				if (withImports) {
-					org.rascalmpl.ast.Module mod = eval.preParseModule(java.net.URI.create("rascal://" + name), this.getLocation());
+					org.rascalmpl.ast.Module mod = eval.preParseModule(URIUtil.assumeCorrect("rascal", name, ""), this.getLocation());
 					Environment old = eval.getCurrentEnvt();
 					try {
 						eval.setCurrentEnvt(heap.getModule(name));

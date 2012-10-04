@@ -16,6 +16,8 @@
 *******************************************************************************/
 package org.rascalmpl.ast;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -37,6 +39,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation src;
+	protected Map<String, IValue> annotations;
 	protected ASTStatistics stats = new ASTStatistics();
 	protected Type _type = null;
 	protected final TypeFactory TF = TypeFactory.getInstance();
@@ -67,6 +70,14 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public void setSourceLocation(ISourceLocation src) {
 		this.src = src;
+	}
+	
+	public void setAnnotations(Map<String, IValue> annotations) {
+		this.annotations = annotations;
+	}
+	
+	public Map<String, IValue> getAnnotations() {
+		return annotations;
 	}
 	
 	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
@@ -184,6 +195,16 @@ public abstract class AbstractAST implements IVisitable {
 	
 	public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
 		return buildBacktracker(ctx);
+	}
+
+	/**
+	 * If the debugger can suspend (i.e. break) before interpretation. 
+	 * @return <code>true</code> if suspension is supported, otherwise <code>false</code>
+	 */
+	public boolean isBreakable() {
+		return annotations != null
+				&& annotations.containsKey("breakable") 
+				&& annotations.get("breakable").equals(VF.bool(true));
 	}
 	
 }

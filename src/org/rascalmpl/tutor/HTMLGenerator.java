@@ -41,6 +41,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Eval;
 import org.rascalmpl.library.util.Eval.EvalTimer;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
 
 public class HTMLGenerator {
 	private final TypeReifier tr;
@@ -180,7 +181,7 @@ public class HTMLGenerator {
 
 		if(!timer.hasExpired() && commands.length() > 0){
 			for(IValue command : commands){
-				result = evaluator.eval(null, ((IString) command).getValue(), URI.create("stdin:///"));
+				result = evaluator.eval(null, ((IString) command).getValue(), URIUtil.rootScheme("stdin"));
 			}
 			timer.cancel();
 			if (timer.hasExpired()) {
