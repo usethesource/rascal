@@ -33,7 +33,7 @@ searchTerms["&"] = new Array("Rascal/Expressions/Values/Map/Intersection","Rasca
 
 searchTerms["&&"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Boolean/And");
 
-searchTerms["\'\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/String");
+searchTerms["\'"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/String");
 
 searchTerms["("] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Statements/If","Rascal/Statements/For","Rascal/Declarations/SyntaxDefinition/Disambiguation/Priority","Rascal/Expressions/Values/String","Rascal/Expressions/Values/Constructor","Rascal/Expressions/Values/Boolean/All","Rascal/Declarations/SyntaxDefinition","Rascal/Expressions/Values/Map","Rascal/Patterns/Abstract/Node","Rascal/Declarations/Function","Rascal/Expressions/Values/Location","Rascal/Patterns/Abstract","Rascal/Statements/While","Rascal/Patterns/Concrete","Rascal/Statements/Do","Rascal/Expressions/Values/Boolean/Any","Rascal/Expressions/Visit","Rascal/Statements/Assignment","Rascal/Expressions/Reducer","Rascal/Expressions/Values/Node","Rascal/Libraries/Vis/Figure/Properties/ialign","Rascal/Expressions/Call","Rascal/Declarations/SyntaxDefinition/Disambiguation/Associativity","Rascal/Statements/Solve","Rascal/Statements/Switch","Rascal/Expressions/Values/Map/Comprehension");
 
@@ -304,5 +304,7 @@ searchTerms["|"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rasc
 searchTerms["||"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol","Rascal/Expressions/Values/Boolean/Or");
 
 searchTerms["}"] = new Array("Rascal/Expressions/Values/Relation","Rascal/Expressions/Visit","Rascal/Expressions/Values/Set/Comprehension","Rascal/Statements/Block","Rascal/Declarations/Function","Rascal/Patterns/Abstract","Rascal/Statements/Switch","Rascal/Patterns/Abstract/Set","Rascal/Expressions/Values/Set");
+
+searchTerms["}*"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol");
 
 searchTerms["}+"] = new Array("Rascal/Declarations/SyntaxDefinition/Symbol");
