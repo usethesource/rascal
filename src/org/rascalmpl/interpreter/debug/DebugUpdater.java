@@ -10,11 +10,21 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.debug;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.*;
-import org.eclipse.imp.pdb.facts.io.*;
-import org.eclipse.imp.pdb.facts.visitors.*;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -32,13 +42,13 @@ public class DebugUpdater {
 	 */
 	public static IConstructor pushDownAttributes(IConstructor tree) {
 		IConstructor result = tree;
-
+		
 		try {
-			result = ((IConstructor) tree.accept(new PushDownTreeVisitor(new String[]{})));
+			result = ((IConstructor) tree.accept(new PushDownTreeVisitor(false)));
 		} catch (VisitorException e) {
 			// ignore
 		}
-
+		
 		return result;
 	}
 		
@@ -46,10 +56,10 @@ public class DebugUpdater {
 		
 		final static private IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		
-		final private String[] __pushDownProductionsNames;
+		final private boolean addBreakable;
 		
-		public PushDownTreeVisitor(final String[] pushDownProductionNames) {
-			__pushDownProductionsNames = pushDownProductionNames; 
+		public PushDownTreeVisitor(final boolean addBreakable) {
+			this.addBreakable = addBreakable; 
 		}
 		
 		@Override
@@ -72,34 +82,44 @@ public class DebugUpdater {
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			
-			// 1: does current production application need an annotation?
-			if (isBreakableDueTag(prod) || isBreakableDuePushdown(prod)) {
+			if (TreeAdapter.isAppl(arg) 
+					&& !ProductionAdapter.isLayout(prod)
+					&& !ProductionAdapter.isLiteral(prod) 
+					&& !ProductionAdapter.isCILiteral(prod)
+					&& !ProductionAdapter.isLexical(prod)) {
 				
-				final Map<String,IValue> annotations = arg.getAnnotations();
-				annotations.put("breakable", VF.bool(true));			
-				
-				arg = arg.setAnnotations(annotations);
-			}
-			
-			// 2: push-down deferred production names.
-			if (TreeAdapter.isAppl(arg)) {				
-				if (!ProductionAdapter.isLexical(prod)) {
-				
-					String[] newPushDownProductions = getChildProductionsNamesForPushDown(prod);				
-												
-					// update children by recursively applying this visitor.
-					IListWriter writer = Factory.Args.writer(VF);
+				boolean isList = ProductionAdapter.isSeparatedList(prod) || ProductionAdapter.isList(prod);
+
+				// 1: does current production application need an annotation?
+				if (hasBreakableAttributeTag(prod) || addBreakable && !isList) {
+										
+					final Map<String,IValue> annotations = arg.getAnnotations();
+					annotations.put("breakable", VF.bool(true));			
 					
-					for (IValue kid : TreeAdapter.getArgs(arg)) {
-						IValue newKid = kid.accept(new PushDownTreeVisitor(newPushDownProductions));
-						writer.append(newKid);
-					}
-	
-					IList children = writer.done(); 
-	
-					// update current tree with processed children
-					arg = TreeAdapter.setArgs(arg, children);
+					arg = arg.setAnnotations(annotations);					
 				}
+				
+				// 2: push-down deferred production names.
+				Set<Integer> pushdownPositions = getChildProductionPositionsForPushdown(prod);				
+											
+				// update children by recursively applying this visitor.
+				IListWriter writer = Factory.Args.writer(VF);
+
+				Iterator<IValue> iter = TreeAdapter.getArgs(arg).iterator();
+				for (Integer pos = 0; iter.hasNext(); pos++) {
+					
+					boolean isDeferred = pushdownPositions.contains(pos) || addBreakable && isList;
+					
+					IValue oldKid = iter.next();
+					IValue newKid = oldKid.accept(new PushDownTreeVisitor(isDeferred));
+					
+					writer.append(newKid);
+				}
+
+				IList children = writer.done(); 
+
+				// update current tree with processed children
+				arg = TreeAdapter.setArgs(arg, children);
 			}
 		
 			return arg;
@@ -108,37 +128,13 @@ public class DebugUpdater {
 		/**
 		 * @return <code>true</code> if has breakable tag, otherwise <code>false</code>
 		 */
-		private boolean isBreakableDueTag(IConstructor production) {
+		private static boolean hasBreakableAttributeTag(IConstructor production) {
 			ISet attributes = ProductionAdapter.getAttributes(production);
 			return attributes != null
 					&& attributes.contains(VF.constructor(Factory.Attr_Tag,VF.node("breakable")));
 		}		
-		
-		/**
-		 * @return <code>true</code> if is in pushed-down list, otherwise <code>false</code>
-		 */
-		private boolean isBreakableDuePushdown(IConstructor production) {
-			boolean result = false;
-			final IList symbols = ProductionAdapter.getSymbols(production);
-
-			if (__pushDownProductionsNames.length != 0 
-					&& symbols != null && !symbols.isEmpty()) {
-				String sortName = ProductionAdapter.getSortName(production);
-				
-				for (String productionName : __pushDownProductionsNames) {
-					final IValue deferredBreakable = VF.constructor(
-							Factory.Symbol_Label,
-							VF.string(productionName),
-							VF.constructor(Factory.Symbol_Sort,VF.string(sortName)));
-					
-					result = result || ProductionAdapter.getSymbols(production).contains(deferredBreakable);
-				}
-			}		
 			
-			return result;
-		}
-		
-		private String[] getChildProductionsNamesForPushDown(IConstructor production) {
+		private static String[] getChildProductionNamesForPushDown(IConstructor production) {
 			ISet attributes = ProductionAdapter.getAttributes(production);
 
 			String[] result = {};
@@ -164,6 +160,36 @@ public class DebugUpdater {
 					}
 				}
 			}
+			return result;
+		}
+		
+		private static Set<Integer> getChildProductionPositionsForPushdown(IConstructor production) {
+			Set<Integer> result = new HashSet<Integer>();
+
+			Set<String> pushDownProductionNames = new HashSet<String>(
+					Arrays.asList(getChildProductionNamesForPushDown(production)));
+
+			if (!pushDownProductionNames.isEmpty()) {
+			
+				Iterator<IValue> iter = ProductionAdapter.getSymbols(production).iterator();
+				for (Integer pos = 0; iter.hasNext(); pos++) {
+	
+					IValue kidValue = iter.next();
+	
+					if (kidValue.getType().isAbstractDataType() && !kidValue.getType().isVoidType()) {
+						IConstructor kidConstructor = (IConstructor)kidValue;
+						
+						if (kidConstructor.getName().equals("label")) {
+							
+							String labelName = ((IString) kidConstructor.get(0)).getValue();
+							
+							if (pushDownProductionNames.contains(labelName)) {
+								result.add(pos);
+							}
+						}
+					}
+				}
+			}			
 			return result;
 		}
 		

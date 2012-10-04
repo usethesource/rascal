@@ -567,7 +567,7 @@ syntax Statement
 	| @breakable GlobalDirective: "global" Type type {QualifiedName ","}+ names ";" 
 	| @breakable Assignment: Assignable assignable Assignment operator Statement statement
 	| non-assoc  ( 
-			          @breakable Return    : "return" Statement statement  
+		          @breakable Return    : "return" Statement statement  
 		        | @breakable Throw     : "throw" Statement statement 
 		        | @breakable Insert    : "insert" DataTarget dataTarget Statement statement 
 		        | @breakable Append    : "append" DataTarget dataTarget Statement statement 
@@ -713,7 +713,7 @@ syntax Variant
 syntax FunctionDeclaration
 	= Abstract: Tags tags Visibility visibility Signature signature ";" 
 	| @Foldable @breakable{expression} Expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| @Foldable @breakable{expression} Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
+	| @Foldable @breakable{expression,conditions} Conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable Default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 lexical PreProtocolChars
