@@ -24,4 +24,5 @@ public interface IURIInputStreamResolver {
 	boolean isFile(URI uri) ;
     String[] listEntries(URI uri)  throws IOException;
 	String scheme();
+	boolean supportsHost();
 }

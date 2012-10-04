@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
@@ -192,5 +193,25 @@ public class FunctionType extends ExternalType {
 				return false;
 			}
 		}
+	}
+	
+	@Override
+	public Type compose(Type right) {
+		if(right instanceof FunctionType) {
+			if(TypeFactory.getInstance().tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
+				return RascalTypeFactory.getInstance().functionType(this.returnType, ((FunctionType) right).getArgumentTypes());
+			}
+		}
+		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		if(right instanceof OverloadedFunctionType) {
+			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
+				if(TypeFactory.getInstance().tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
+					newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(this.returnType, ftype.getArgumentTypes()));
+				}
+			}
+		}
+		if(!newAlternatives.isEmpty()) 
+			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
+		return RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType());
 	}
 }

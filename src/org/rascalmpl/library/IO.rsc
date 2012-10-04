@@ -434,3 +434,14 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg){
   appendToFile(file);
 }
 
+@doc{
+Synopsis: Read the contents of a location and return its MD5 hash.
+
+Description:
+MD5 hash the contents of a file location.
+}
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java str md5HashFile(loc file)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);

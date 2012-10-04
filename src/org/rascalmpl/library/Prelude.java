@@ -37,6 +37,9 @@ import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -895,6 +898,39 @@ public class Prelude {
 		}
 	}
 	
+	public IValue md5HashFile(ISourceLocation sloc, IEvaluatorContext ctx){
+		StringBuilder result = new StringBuilder(1024 * 1024);
+		
+		InputStream in = null;
+		try{
+			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			in = new DigestInputStream(in, md);
+			byte[] buf = new byte[4096];
+			int count;
+
+			while((count = in.read(buf)) != -1){
+				result.append(new java.lang.String(buf, 0, count));
+			}
+			
+			return values.string(new String(md.digest()));
+		}catch(FileNotFoundException fnfex){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}catch(IOException ioex){
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+		} catch (NoSuchAlgorithmException e) {
+			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+		}finally{
+			if(in != null){
+				try{
+					in.close();
+				}catch(IOException ioex){
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+				}
+			}
+		}
+	}
+
 	public void writeFile(ISourceLocation sloc, IList V, IEvaluatorContext ctx) {
 		writeFile(sloc, V, false, ctx);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *   * Bas Basten - Bas.Basten@cwi.nl (CWI)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -79,6 +81,7 @@ import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
+import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatchError;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariableError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPatternError;
@@ -117,7 +120,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.add(right);
@@ -143,6 +149,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public Result interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);	
+			
 			java.util.List<org.rascalmpl.ast.Expression> producers = this
 					.getGenerators();
 			int size = producers.size();
@@ -207,6 +217,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -246,6 +260,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			java.util.List<org.rascalmpl.ast.Expression> generators = this
 					.getGenerators();
 			int size = generators.size();
@@ -296,6 +313,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return this.getExpression().interpret(__eval);
 		}
 	}
@@ -401,6 +422,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			try {
 				if (__eval.__getInterrupt()) {
 					throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
@@ -433,10 +458,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 				IValue[] actuals = new IValue[args.size()];
 				Type[] types = new Type[args.size()];
-
 				for (int i = 0; i < args.size(); i++) {
 					Result<IValue> resultElem = args.get(i).interpret(__eval);
 					types[i] = resultElem.getType();
+					if(types[i].isVoidType()) 
+						throw new UninitializedPatternMatchError("The argument is of the type 'void'", args.get(i));
 					actuals[i] = resultElem.getValue();
 				}
 				Result<IValue> res = null;
@@ -505,6 +531,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
 			Type returnType = typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
@@ -547,6 +577,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);						
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.compose(right);
@@ -577,6 +610,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+						
 			return this.getComprehension().interpret(__eval);
 
 		}
@@ -619,6 +655,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);		
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.divide(right);
@@ -644,6 +683,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Environment old = __eval.getCurrentEnvt();
 			try {
 				__eval.pushEnv();
@@ -679,6 +721,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.equals(right);
@@ -704,6 +749,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -726,6 +775,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			String field = org.rascalmpl.interpreter.utils.Names.name(this
@@ -759,6 +811,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			java.util.List<Field> fields = this.getFields();
 			return base.fieldSelect(fields.toArray(new Field[0]));
@@ -789,6 +845,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> repl = this.getReplacement().interpret(__eval);
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
@@ -818,6 +877,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
@@ -846,6 +908,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.greaterThan(right);
@@ -873,6 +938,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.greaterThanOrEqual(right);
@@ -897,6 +965,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> result = this.getArgument().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt());
 
@@ -947,8 +1019,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			return getExpression().interpret(eval).has(getName());
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			return getExpression().interpret(__eval).has(getName());
 		}
 	}
 
@@ -964,6 +1040,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);	
+			
 			try {
 				return this.getLhs().interpret(__eval);
 			} catch (UninitializedVariableError e) {
@@ -996,6 +1075,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Environment old = __eval.getCurrentEnvt();
 			__eval.pushEnv();
 
@@ -1036,6 +1118,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -1058,6 +1144,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return right.in(left);
@@ -1089,6 +1178,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.intersect(right);
@@ -1109,8 +1201,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
-			return getExpression().interpret(eval).is(getName());
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
+			return getExpression().interpret(__eval).is(getName());
 		}
 	}
 
@@ -1129,6 +1225,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			try {
 				this.getArgument().interpret(__eval); // wait for exception
 				return org.rascalmpl.interpreter.result.ResultFactory
@@ -1156,6 +1255,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> v = __eval.getCurrentEnvt().getVariable(
 					org.rascalmpl.interpreter.Evaluator.IT);
 			if (v == null) {
@@ -1182,6 +1284,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.join(right);
@@ -1204,6 +1309,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.lessThan(right);
@@ -1229,6 +1338,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.lessThanOrEqual(right);
@@ -1260,6 +1372,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			java.util.List<org.rascalmpl.ast.Expression> elements = getElements();
 
 			Type elementType = TF.voidType();
@@ -1421,6 +1536,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return this.getLiteral().interpret(__eval);
 		}
 
@@ -1451,6 +1570,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
 			java.util.Map<IValue, IValue> result = new HashMap<IValue, IValue>();
 			Type keyType = TF.voidType();
@@ -1511,6 +1634,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -1533,6 +1660,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			
@@ -1561,6 +1691,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.remainder(right);
@@ -1584,6 +1717,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
@@ -1628,6 +1765,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
@@ -1666,6 +1807,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -1696,6 +1841,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> arg = this.getArgument().interpret(__eval);
 			return arg.negative();
 		}
@@ -1717,6 +1866,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -1730,6 +1883,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return ASTBuilder.make("Statement", "NonEmptyBlock", this.getLocation(),
 					ASTBuilder.make("Label", "Empty", this.getLocation()),
 					this.getStatements()).interpret(__eval);
@@ -1754,6 +1911,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.nonEquals(right);
@@ -1779,6 +1939,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return right.notIn(left);
@@ -1801,6 +1964,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			return evalBooleanExpression(this, __eval);
 		}
 	}
@@ -1825,6 +1992,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.multiply(right);
@@ -1885,6 +2056,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
@@ -1932,6 +2106,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			// IListWriter w = vf.listWriter(tf.integerType());
 			Result<IValue> from = this.getFirst().interpret(__eval);
 			Result<IValue> to = this.getLast().interpret(__eval);
@@ -1950,47 +2127,51 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			org.rascalmpl.ast.Expression init = getInit();
 			org.rascalmpl.ast.Expression result = getResult();
 			java.util.List<org.rascalmpl.ast.Expression> generators = getGenerators();
 			int size = generators.size();
 			IBooleanResult[] gens = new IBooleanResult[size];
 			Environment[] olds = new Environment[size];
-			Environment old = eval.getCurrentEnvt();
+			Environment old = __eval.getCurrentEnvt();
 			int i = 0;
 
-			Result<IValue> it = init.interpret(eval);
+			Result<IValue> it = init.interpret(__eval);
 
 			try {
-				olds[0] = eval.getCurrentEnvt();
-				eval.pushEnv();
-				gens[0] = generators.get(0).getBacktracker(eval);
+				olds[0] = __eval.getCurrentEnvt();
+				__eval.pushEnv();
+				gens[0] = generators.get(0).getBacktracker(__eval);
 				gens[0].init();
 
 				while (i >= 0 && i < size) {
-					if (eval.__getInterrupt())
-						throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+					if (__eval.__getInterrupt())
+						throw new InterruptException(__eval.getStackTrace(), __eval.getCurrentAST().getLocation());
 					if (gens[i].hasNext() && gens[i].next()) {
 						if (i == size - 1) {
-							eval.getCurrentEnvt().storeVariable(Evaluator.IT, it);
-							it = result.interpret(eval);
-							eval.unwind(olds[i]);
-							eval.pushEnv();
+							__eval.getCurrentEnvt().storeVariable(Evaluator.IT, it);
+							it = result.interpret(__eval);
+							__eval.unwind(olds[i]);
+							__eval.pushEnv();
 						} else {
 							i++;
-							gens[i] = generators.get(i).getBacktracker(eval);
+							gens[i] = generators.get(i).getBacktracker(__eval);
 							gens[i].init();
-							olds[i] = eval.getCurrentEnvt();
-							eval.pushEnv();
+							olds[i] = __eval.getCurrentEnvt();
+							__eval.pushEnv();
 						}
 					} else {
-						eval.unwind(olds[i]);
+						__eval.unwind(olds[i]);
 						i--;
 					}
 				}
 			} finally {
-				eval.unwind(old);
+				__eval.unwind(old);
 			}
 			return it;
 
@@ -2016,6 +2197,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> symbol = getSymbol().interpret(__eval);
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
 			
@@ -2055,6 +2240,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Type t = getType().typeOf(__eval.getCurrentEnvt());
 			return new TypeReifier(__eval.__getVf()).typeToValue(t, __eval);
 		}
@@ -2085,6 +2274,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			java.util.List<org.rascalmpl.ast.Expression> elements = this
 					.getElements();
 
@@ -2162,6 +2354,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
@@ -2194,6 +2390,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			Result<IValue> from = this.getFirst().interpret(__eval);
 			Result<IValue> to = this.getLast().interpret(__eval);
 			Result<IValue> second = this.getSecond().interpret(__eval);
@@ -2220,6 +2419,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			int nSubs = this.getSubscripts().size();
 			Result<?> subscripts[] = new Result<?>[nSubs];
@@ -2265,6 +2467,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.subtract(right);
@@ -2294,6 +2499,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return this.getArgument().interpret(__eval).transitiveClosure();
 
 		}
@@ -2322,6 +2530,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return this.getArgument().interpret(__eval)
 					.transitiveReflexiveClosure();
 
@@ -2350,6 +2561,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+
 			java.util.List<org.rascalmpl.ast.Expression> elements = this
 					.getElements();
 
@@ -2413,6 +2628,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			// TODO: should allow qualified names in TypeVariables?!?
 			Result<IValue> result = __eval.getCurrentEnvt().getVariable(
 					org.rascalmpl.interpreter.utils.Names.name(this.getName()));
@@ -2461,6 +2679,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return this.getPattern().interpret(__eval);
 
 		}
@@ -2492,6 +2713,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return this.getPattern().interpret(__eval);
 		}
 
@@ -2512,6 +2737,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			return this.getVisit().interpret(__eval);
 
 		}
@@ -2540,6 +2768,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			Type formals = getParameters().typeOf(__eval.getCurrentEnvt());
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();

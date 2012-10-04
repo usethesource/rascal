@@ -11,6 +11,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -26,5 +27,9 @@ public class VoidResult extends Result<VoidResult.Void> {
 		super(type, null, ctx);
 	}
 	
+	@Override
+	public boolean isVoid() {
+		return true;
+	}
 
 }

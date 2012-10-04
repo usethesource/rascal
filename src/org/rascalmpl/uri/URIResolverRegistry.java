@@ -14,12 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.uri;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +41,18 @@ public class URIResolverRegistry {
 	public void registerInputOutput(IURIInputOutputResolver resolver) {
 		registerInput(resolver);
 		registerOutput(resolver);
+	}
+	
+	public boolean supportsHost(URI uri) {
+		IURIInputStreamResolver resolver = inputResolvers.get(uri.getScheme());
+		if (resolver == null) {
+			IURIOutputStreamResolver resolverOther = outputResolvers.get(uri.getScheme());
+			if (resolverOther == null) {
+				return false;
+			}
+			return resolverOther.supportsHost();
+		}
+		return resolver.supportsHost();
 	}
 	
 	public boolean exists(URI uri) {
@@ -137,44 +147,8 @@ public class URIResolverRegistry {
 		return resolver.getOutputStream(uri, append);
 	}
 
-	/**
-	 * @return a parent uri or null if there is none
-	 */
-	public static URI getParentURI(URI uri) {
-		File file = new File(uri.getPath());
-		File parent = file.getParentFile();
-		
-		if (parent != null && !parent.getName().isEmpty()) {
-			try {
-				return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent.getAbsolutePath(), uri.getQuery(), uri.getFragment());
-			} catch (URISyntaxException e) {
-				// can not happen
-			}
-		}
-		
-		return null; // there is no parent;
-	}
-	
-	public static URI getChildURI(URI uri, String child) {
-		File file = new File(uri.getPath());
-		File childFile = new File(file, child);
-		
-		try {
-			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), childFile.getAbsolutePath(), uri.getQuery(), uri.getFragment());
-		} catch (URISyntaxException e) {
-			// can not happen
-		}
-		
-		return null; // there is no child?;
-	}
-	
-	public static String getURIName(URI uri) {
-		File file = new File(uri.getPath());
-		return file.getName();
-	}
-	
 	private void mkParentDir(URI uri) throws IOException {
-		URI parentURI = getParentURI(uri);
+		URI parentURI = URIUtil.getParentURI(uri);
 		
 		if (parentURI != null && !exists(parentURI)) {
 			mkDirectory(parentURI);
