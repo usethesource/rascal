@@ -901,7 +901,7 @@ public class ASTBuilder {
 			if (src != null) {
 				result.setSourceLocation(src);
 			}
-			if (annotations != null) {
+			if (annotations != null && !annotations.isEmpty()) {
 				result.setAnnotations(annotations);
 			}
 			return result;
