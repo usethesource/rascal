@@ -142,14 +142,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
-		return call(monitor, argTypes, argValues, null);
-	}
-	
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, IValue self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, self);
+			return call(argTypes, argValues);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -182,10 +177,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public abstract boolean isDefault();
-	
-	public abstract boolean isOverrides();
-	
-	public abstract boolean isExtends();
 	
 	
 	private void printNesting(StringBuilder b) {
@@ -377,11 +368,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> right) {
-		return right.composeFunction(this, true);
-	}
-	
-	@Override
 	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
 		return (new OverloadedFunction(this)).add(that);
 	}
@@ -398,29 +384,24 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, false);
-	}
-		
-	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+		return right.composeFunction(this);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult composeFunction(AbstractFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
-			
+	
+	@Override
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
+		return new ComposedFunctionResult(that, this, ctx);
+	}
+	
 	@Override
 	public String toString() {
 		return getHeader() + ";";
