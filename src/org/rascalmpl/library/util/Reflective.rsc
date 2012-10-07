@@ -14,10 +14,12 @@ module util::Reflective
 
 import ParseTree;
 import Grammar;
+import IO;
 
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the parse tree for the given path}
-public java Tree getModuleParseTree(str modulePath);
+public Tree getModuleParseTree(str modulePath) {
+    mloc = getModuleLocation(modulePath);
+    return parseModule(readFile(mloc), mloc);
+}
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the grammars imported by \mod}
@@ -34,3 +36,7 @@ public java Tree parseCommands(str commands, loc location);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given commands}
 public java Tree parseModule(str moduleContent, loc location);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to resolve a module name into a source location}
+public java loc getModuleLocation(str modulePath);

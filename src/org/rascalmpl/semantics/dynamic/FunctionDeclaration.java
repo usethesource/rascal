@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
@@ -121,7 +122,11 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);			
+			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -131,14 +136,14 @@ public abstract class FunctionDeclaration extends
 						null, this, null);
 			}
 
-			lambda = new RascalFunction(eval, this, varArgs, eval
-					.getCurrentEnvt(), eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, this, varArgs, __eval
+					.getCurrentEnvt(), __eval.__getAccumulators());
 			
 			lambda.setPublic(this.getVisibility().isPublic());
-			eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 			
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			
 			return lambda;
 		}
@@ -154,7 +159,11 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+					
+			__eval.setCurrentAST(this);
+			__eval.notifyAboutSuspension(this);	
+			
 			AbstractFunction lambda;
 			boolean varArgs = this.getSignature().getParameters().isVarArgs();
 
@@ -172,12 +181,12 @@ public abstract class FunctionDeclaration extends
 			AbstractAST body = ASTBuilder.make("FunctionBody", "Default", src, sl);
 			FunctionDeclaration.Default func = ASTBuilder.make("FunctionDeclaration", "Default", src, getTags(), getVisibility(), getSignature(), body);
 			
-			lambda = new RascalFunction(eval, func, varArgs, eval
-					.getCurrentEnvt(), eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, func, varArgs, __eval
+					.getCurrentEnvt(), __eval.__getAccumulators());
 
-			eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
-			eval.getCurrentEnvt().markNameFinal(lambda.getName());
-			eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
+			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
+			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
+			__eval.getCurrentEnvt().markNameOverloadable(lambda.getName());
 
 			lambda.setPublic(this.getVisibility().isPublic());
 			return lambda;

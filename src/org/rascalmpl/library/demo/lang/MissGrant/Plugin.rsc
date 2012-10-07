@@ -11,6 +11,7 @@ import demo::lang::MissGrant::ToMethods;
 import demo::lang::MissGrant::Rename;
 import demo::lang::MissGrant::ShowStateMachine;
 import demo::lang::MissGrant::ToRelation;
+import demo::lang::MissGrant::Completion;
 
 import util::IDE;
 import util::Prompt;
@@ -22,22 +23,19 @@ import IO;
 private str CONTROLLER_LANG = "Controller";
 private str CONTROLLER_EXT = "ctl";
 
-
 public void main() {
   registerLanguage(CONTROLLER_LANG, CONTROLLER_EXT, demo::lang::MissGrant::MissGrant::Controller(str input, loc org) {
     return parse(#demo::lang::MissGrant::MissGrant::Controller, input, org);
   });
   
-  registerOutliner(CONTROLLER_LANG, node (demo::lang::MissGrant::MissGrant::Controller input) {
-    return outlineController(implode(input));
-  });
-  
-  registerAnnotator(CONTROLLER_LANG, demo::lang::MissGrant::MissGrant::Controller (demo::lang::MissGrant::MissGrant::Controller input) {
-    msgs = toSet(checkController(implode(input)));
-    return input[@messages=msgs];
-  });
-  
   contribs = {
+  		outliner(node (demo::lang::MissGrant::MissGrant::Controller input) {
+    		return outlineController(implode(input));
+  		}),
+  		annotator(demo::lang::MissGrant::MissGrant::Controller (demo::lang::MissGrant::MissGrant::Controller input) {
+    		msgs = toSet(checkController(implode(input)));
+    		return input[@messages=msgs];
+  		}),
 		popup(
 			menu(CONTROLLER_LANG,[
 	    		action("Generate Switch", generateSwitch), 
@@ -45,7 +43,8 @@ public void main() {
 	    		action("Visualize", visualizeController),
 	    		edit("Rename...", rename) 
 		    ])
-	  	)
+	  	),
+	  	proposerContrib
   };
 	
   registerContributions(CONTROLLER_LANG, contribs);

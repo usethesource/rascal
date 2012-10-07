@@ -31,11 +31,12 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
 	private final Evaluator eval;
-	final static String BASE = "courses:///";
+	final static String BASE_SCHEME = "courses";
 	private Server server;
 	
 	public RascalTutor() {
@@ -51,8 +52,8 @@ public class RascalTutor {
 		ClassResourceInputOutput tutor = new ClassResourceInputOutput(resolver, "tutor", getClass(), "/org/rascalmpl/tutor");
 		resolver.registerInputOutput(tutor);
 		
-		eval.addRascalSearchPath(URI.create("tutor:///"));
-		eval.addRascalSearchPath(URI.create("courses:///"));
+		eval.addRascalSearchPath(URIUtil.rootScheme("tutor"));
+		eval.addRascalSearchPath(URIUtil.rootScheme("courses"));
 	}
 	
 	public org.rascalmpl.interpreter.Evaluator getRascalEvaluator() {
@@ -61,7 +62,7 @@ public class RascalTutor {
 	
 	public void start(final int port, IRascalMonitor monitor) throws Exception {
 		monitor.startJob("Loading Course Manager");
-		eval.eval(monitor, "import " + "CourseManager" + ";", URI.create("stdin:///"));
+		eval.eval(monitor, "import " + "CourseManager" + ";", URIUtil.rootScheme("stdin"));
 		monitor.endJob(true);
 		
 		Log.setLog(new Logger() {
@@ -175,14 +176,14 @@ public class RascalTutor {
 		context.addServlet(new ServletHolder(new Compile()), "/compile");
 
 
-		URI baseURI = getResolverRegistry().getResourceURI(URI.create(BASE));
+		URI baseURI = getResolverRegistry().getResourceURI(URIUtil.rootScheme(BASE_SCHEME));
 		
 		System.err.println("resourceBase = " + baseURI);
 		String resourceBase = baseURI.toASCIIString();
 		context.setResourceBase(resourceBase); 
 		context.setAttribute("ResourceBase", resourceBase);
      
-		String welcome[] = { BASE + "index.html"};
+		String welcome[] = { BASE_SCHEME + ":///index.html"};
 		context.setWelcomeFiles(welcome);
 		
 		return context;

@@ -49,4 +49,9 @@ public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>
 	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
+	
+	public final boolean isMatchable(){
+		return true;
+	}
+	
 }

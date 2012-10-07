@@ -12,6 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -41,6 +42,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredFieldError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	private final Type intTuple;
@@ -128,6 +130,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getTypeFactory().stringType(), vf.string(authority != null ? authority : ""), ctx);
 		}
 		else if (name.equals("host")) {
+			if (!ctx.getResolverRegistry().supportsHost(uri)) {
+				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+			}
 			String host = uri.getHost();
 			return makeResult(getTypeFactory().stringType(), vf.string(host != null ? host : ""), ctx);
 		}
@@ -214,10 +219,16 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(map.getType(), map, ctx);
 		}
 		else if (name.equals("user")) {
+			if (!ctx.getResolverRegistry().supportsHost(uri)) {
+				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+			}
 			String user = uri.getUserInfo();
 			return makeResult(getTypeFactory().stringType(), vf.string(user != null ? user : ""), ctx);
 		}
 		else if (name.equals("port")) {
+			if (!ctx.getResolverRegistry().supportsHost(uri)) {
+				throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+			}
 			return makeResult(getTypeFactory().integerType(), vf.integer(uri.getPort()), ctx);
 		}
 		else if (name.equals("length")) {
@@ -265,14 +276,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
-	
-	private URI newURI(String scheme,
-            String userInfo, String host, int port,
-            String path, String query, String fragment)
-	throws URISyntaxException{
-		String h  = host == null ? "" : host;
-		return new URI(scheme, userInfo, h, port, path, query, fragment);
-	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
@@ -293,26 +296,28 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(((IString)repl.getValue()).getValue());
+				uri = URIUtil.createFromEncoded(((IString)repl.getValue()).getValue());
 			} 
 			else if (name.equals("scheme")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-
-				uri = newURI(((IString) repl.getValue()).getValue(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				uri = URIUtil.changeScheme(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("authority")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = new URI(uri.getScheme(), ((IString) repl.getValue()).getValue(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				uri = URIUtil.changeAuthority(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("host")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = newURI(uri.getScheme(), uri.getUserInfo(), ((IString) repl.getValue()).getValue(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+				if (!ctx.getResolverRegistry().supportsHost(uri)) {
+					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the host field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				}
+				uri = URIUtil.changeHost(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("path")) {
 				if (!replType.isStringType()) {
@@ -321,7 +326,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				String path = ((IString) repl.getValue()).getValue();
 				if(!path.startsWith("/"))
 					path = "/" + path;
-				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
+				uri = URIUtil.changePath(uri, path);
 			}
 			else if (name.equals("file")) {
 				if (!replType.isStringType()) {
@@ -332,10 +337,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				int i = path.lastIndexOf("/");
 				
 				if (i != -1) {
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path.substring(0, i) + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changePath(uri, path.substring(0, i) + "/" + ((IString) repl.getValue()).getValue());
 				}
 				else {
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path + "/" + ((IString) repl.getValue()).getValue(), uri.getQuery(), uri.getFragment());	
+					uri = URIUtil.changePath(uri, path + "/" + ((IString) repl.getValue()).getValue());	
 				}
 			}
 			else if (name.equals("parent")) {
@@ -351,10 +356,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					parent = "/" + parent;
 				}
 				if (i != -1) {
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent + path.substring(i), uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changePath(uri, parent + path.substring(i));
 				}
 				else {
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), parent, uri.getQuery(), uri.getFragment());	
+					uri = URIUtil.changePath(uri, parent);	
 				}
 			}
 			else if (name.equals("ls")) {
@@ -380,12 +385,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 						path = path.substring(0, index);
 					}
 					
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), path, uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changePath(uri, path);
 				}
 			}
 			else if (name.equals("top")) {
 				if (replType.isStringType()) {
-					uri = URI.create(((IString) repl.getValue()).getValue());
+					uri = URIUtil.assumeCorrect(((IString) repl.getValue()).getValue());
 				}
 				else if (replType.isSourceLocationType()) {
 					uri = ((ISourceLocation) repl.getValue()).getURI();
@@ -398,21 +403,23 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), ((IString) repl.getValue()).getValue());
+				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("query")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), ((IString) repl.getValue()).getValue(), uri.getFragment());
+				uri = URIUtil.changeFragment(uri, ((IString) repl.getValue()).getValue());
 			}
 			else if (name.equals("user")) {
 				if (!replType.isStringType()) {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				
+				if (!ctx.getResolverRegistry().supportsHost(uri)) {
+					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the user field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				}
 				if (uri.getHost() != null) {
-					uri = newURI(uri.getScheme(), ((IString) repl.getValue()).getValue(),  uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changeUserInformation(uri, ((IString) repl.getValue()).getValue());
 				}
 			}
 			else if (name.equals("port")) {
@@ -420,9 +427,12 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
 				
+				if (!ctx.getResolverRegistry().supportsHost(uri)) {
+					throw new UndeclaredFieldError(name, "The scheme " + uri.getScheme() + " does not support the port field, use authority instead.", getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
+				}
 				if (uri.getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl.getValue()).getStringRepresentation());
-					uri = newURI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), port, uri.getPath(), uri.getQuery(), uri.getFragment());
+					uri = URIUtil.changePort(uri, port);
 				}
 			}
 			else if (name.equals("length")){

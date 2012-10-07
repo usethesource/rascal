@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
@@ -25,6 +26,10 @@ public class ArgumentsMismatchError extends StaticError {
 			List<AbstractFunction> candidates, Type[] argTypes,
 			AbstractAST ast) {
 		super(computeMessage(name, candidates, argTypes), ast);
+	}
+	
+	public ArgumentsMismatchError(String message, AbstractAST ast) {
+		super(message, ast);
 	}
 
 	private static String computeMessage(String name,

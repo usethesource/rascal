@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
 
 /**
@@ -129,7 +130,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		if (!dirPath.endsWith("/")) {
 			path = "/" + path;
 		}
-		return new URI(dir.getScheme(), dir.getHost() != null ? dir.getHost() : "", dirPath + path, null);
+		return URIUtil.changePath(dir, dirPath + path);
 	}
 
 	private String getPath(URI uri) {
@@ -188,7 +189,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		try {
 			if (uri.getScheme().equals(scheme())) {
 				String path = getPath(uri);
-				URI parent = URIResolverRegistry.getParentURI(uri);
+				URI parent = URIUtil.getParentURI(uri);
 
 				for (URI dir : collect()) {
 					URI fullParent = parent != null ? getFullURI(getPath(parent), dir) : null;
@@ -336,4 +337,7 @@ public class RascalURIResolver implements IURIInputOutputResolver {
 		return reg;
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }

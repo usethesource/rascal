@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -196,6 +197,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return undefinedError(ADDITION_STRING, that);
 	}
+	
+	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> that) {
+		return undefinedError(ADDITION_STRING, that);
+	}
 
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> that) {
 		return undefinedError(SUBTRACTION_STRING, that);
@@ -320,6 +325,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	public boolean isTrue() {
+		return false;
+	}
+	
+	public boolean isVoid() {
 		return false;
 	}
 	
@@ -556,11 +565,27 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
 	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
+		return that.undefinedError(COMPOSE_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 		

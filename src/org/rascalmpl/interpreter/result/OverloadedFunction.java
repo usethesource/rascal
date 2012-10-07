@@ -11,6 +11,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -149,10 +150,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		if (!constructors.isEmpty()) {
-			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), type, constructors));
+			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), name, type, constructors));
 		}
 		if (!productions.isEmpty()) {
-			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), type, productions));
+			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), name, type, productions));
 		}
 		container.addAll(other);
 	}
@@ -324,7 +325,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			}
 		}
 
-		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction("(" + name + "+" + other.getName() + ")", lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
 	public OverloadedFunction add(AbstractFunction candidate) {
@@ -340,7 +341,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			joined.add(candidate);
 		}
 
-		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction("(" + name + "+" + candidate.getName() + ")" , lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
 	@Override
@@ -446,80 +447,50 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 		return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
 	}
-
+	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeOverloadedFunction(this, false);
+		return right.composeFunction(this, false);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addFunctionNonDeterministic(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
-		return right.composeOverloadedFunction(this, true);
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
+		return this.add(that);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeOverloadedFunction(OverloadedFunction that, boolean isOpenRecursive) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
-
-
-		for (AbstractFunction f : primaryCandidates) {
-			for (AbstractFunction g : that.primaryCandidates) {
-				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
-					fg.setOpenRecursive(isOpenRecursive);
-					newAlternatives.add(fg);
-				}
-			}
-		}
-
-		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
-
-		for (AbstractFunction f : defaultCandidates) {
-			for (AbstractFunction g : that.defaultCandidates) {
-				if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-					ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
-					fg.setOpenRecursive(isOpenRecursive);
-					newDefaults.add(fg);
-				}
-			}
-		}
-
-		if (newAlternatives.size() + newDefaults.size() == 0) {
-			return undefinedError("composition", that);
-		}
-
-		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
+		return this.join(that);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction g, boolean isOpenRecursive) {
-		List<AbstractFunction> newAlternatives = new ArrayList<AbstractFunction>(primaryCandidates.size());
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
+	}
 
-		for (AbstractFunction f : primaryCandidates) {
-			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
-				fg.setOpenRecursive(isOpenRecursive);
-				newAlternatives.add(fg);
-			}
-		}
+	@Override
+	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
+	}
 
-		List<AbstractFunction> newDefaults = new ArrayList<AbstractFunction>(defaultCandidates.size());
-
-		for (AbstractFunction f : defaultCandidates) {
-			if (getTypeFactory().tupleType(f.getReturnType()).isSubtypeOf(g.getFunctionType().getArgumentTypes())) {
-				ComposedFunctionResult fg = new ComposedFunctionResult(f, g, ctx);
-				fg.setOpenRecursive(isOpenRecursive);
-				newAlternatives.add(fg);
-			}
-		}
-
-		if (newAlternatives.size() == 0) {
-			return undefinedError("composition", g);
-		}
-
-		return (Result<U>) new OverloadedFunction(name, getType(), newAlternatives, newDefaults, ctx);
+	@Override
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	public List<AbstractFunction> getFunctions(){

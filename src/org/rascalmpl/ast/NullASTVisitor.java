@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.ast;
 
@@ -916,11 +917,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStatementSolve(Statement.Solve x) { 
+  public T visitStatementGlobalDirective(Statement.GlobalDirective x) { 
     return null; 
   }
 
-  public T visitStatementGlobalDirective(Statement.GlobalDirective x) { 
+  public T visitStatementSolve(Statement.Solve x) { 
     return null; 
   }
 
@@ -936,11 +937,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStatementExpression(Statement.Expression x) { 
+    return null; 
+  }
+
   public T visitStatementFilter(Statement.Filter x) { 
     return null; 
   }
 
-  public T visitStatementExpression(Statement.Expression x) { 
+  public T visitStatementIfThen(Statement.IfThen x) { 
     return null; 
   }
 
@@ -948,7 +953,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStatementIfThen(Statement.IfThen x) { 
+  public T visitStatementAssignment(Statement.Assignment x) { 
     return null; 
   }
 
@@ -957,10 +962,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitStatementReturn(Statement.Return x) { 
-    return null; 
-  }
-
-  public T visitStatementAssignment(Statement.Assignment x) { 
     return null; 
   }
 
@@ -1004,19 +1005,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStatementEmptyStatement(Statement.EmptyStatement x) { 
-    return null; 
-  }
-
   public T visitStatementTry(Statement.Try x) { 
     return null; 
   }
 
-  public T visitStatementContinue(Statement.Continue x) { 
+  public T visitStatementEmptyStatement(Statement.EmptyStatement x) { 
     return null; 
   }
 
   public T visitStatementVisit(Statement.Visit x) { 
+    return null; 
+  }
+
+  public T visitStatementContinue(Statement.Continue x) { 
     return null; 
   }
 
