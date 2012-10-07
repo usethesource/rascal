@@ -38,4 +38,9 @@ public class EpsilonNode extends AbstractNode{
 	public boolean isNonterminalSeparator(){
 		return false;
 	}
+	
+	public boolean isEpsilon(){
+		return true;
+	}
+
 }

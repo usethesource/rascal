@@ -9,7 +9,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 public class EdgesSet<P>{
 	public final static int DEFAULT_RESULT_STORE_ID = -1;
 	
-	private final static int DEFAULT_SIZE = 4;
+	private final static int DEFAULT_SIZE = 8;
 	
 	private AbstractStackNode<P>[] edges;
 	private int size;

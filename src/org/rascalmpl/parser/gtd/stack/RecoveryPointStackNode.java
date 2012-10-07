@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd.stack;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 
+@SuppressWarnings("unchecked")
 public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 	private final String name;
 	private final P parent;
@@ -20,9 +21,16 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 	public RecoveryPointStackNode(int id, P parent, AbstractStackNode<P> robustNode){
 		super(id, robustNode, robustNode.startLocation);
 		this.prefixesMap = robustNode.prefixesMap;
-		this.alternateProductions = robustNode.alternateProductions;
-		// TODO: could modify production here to include recovery literal
-		this.production = robustNode.production;
+		
+		// Modify the production, so it ends 'here'.
+		int productionLength = robustNode.dot + 1;
+		if(productionLength == robustNode.production.length){
+			this.production = robustNode.production;
+		}else{
+			this.production = (AbstractStackNode<P>[]) new AbstractStackNode[productionLength];
+			System.arraycopy(robustNode.production, 0, this.production, 0, productionLength);
+		}
+		
 		this.parent = parent;
 		this.name = "recovery " + id;
 		this.edgesMap = robustNode.edgesMap;

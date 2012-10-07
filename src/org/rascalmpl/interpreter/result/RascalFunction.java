@@ -14,6 +14,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Wietse Venema - wietsevenema@gmail.com - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -391,8 +392,10 @@ public class RascalFunction extends NamedFunction {
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
 
+			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {
 				actuals = computeVarArgsActuals(actuals, getFormals());
+				actualTypesTuple = computeVarArgsActualTypes(actualTypes, getFormals());
 			}
 
 			int size = actuals.length;
@@ -409,7 +412,7 @@ public class RascalFunction extends NamedFunction {
 				}
 			}
 			
-			matchers[0].initMatch(makeResult(actuals[0].getType(), actuals[0], ctx));
+			matchers[0].initMatch(makeResult(actualTypesTuple.getFieldType(0), actuals[0], ctx));
 			olds[0] = ctx.getCurrentEnvt();
 			ctx.pushEnv();
 
@@ -441,7 +444,7 @@ public class RascalFunction extends NamedFunction {
 					}
 					else {
 						i++;
-						matchers[i].initMatch(makeResult(actuals[i].getType(), actuals[i], ctx));
+						matchers[i].initMatch(makeResult(actualTypesTuple.getFieldType(i), actuals[i], ctx));
 						olds[i] = ctx.getCurrentEnvt();
 						ctx.pushEnv();
 					}
@@ -581,6 +584,32 @@ public class RascalFunction extends NamedFunction {
 				return null;
 			}
 		});
+	}
+	
+	@Override
+	protected Type computeVarArgsActualTypes(Type[] actualTypes, Type formals) {
+		if (formals.getArity() == actualTypes.length 
+				&& actualTypes[actualTypes.length - 1].isSubtypeOf(formals.getFieldType(formals.getArity() - 1))) {
+			// variable length argument is provided as a list
+			return TF.tupleType(actualTypes);
+		}
+		
+		int arity = formals.getArity();
+		Type[] types = new Type[arity];
+		int i;
+		
+		for (i = 0; i < arity - 1; i++) {
+			types[i] = actualTypes[i];
+		}
+		
+		Type lub = TF.voidType();
+		for (int j = i; j < actualTypes.length; j++) {
+			lub = lub.lub(actualTypes[j]);
+		}
+		
+		types[i] = TF.listType(lub);
+		
+		return TF.tupleType(types);
 	}
 	
 	@Override

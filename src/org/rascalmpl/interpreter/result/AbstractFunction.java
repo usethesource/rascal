@@ -13,6 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
@@ -371,23 +372,53 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, false);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addFunctionNonDeterministic(this);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
+	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> right) {
 		return right.composeFunction(this, true);
 	}
 	
 	@Override
-	public AbstractFunction composeFunction(AbstractFunction that, boolean isOpenRecursive) {
-		if (!getTypeFactory().tupleType(getReturnType()).isSubtypeOf(that.getFunctionType().getArgumentTypes())) {
-			undefinedError("composition");
-		}
-		ComposedFunctionResult func = new ComposedFunctionResult(that, this, ctx); 
-		func.setOpenRecursive(isOpenRecursive);
-		return func;
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
+		return (new OverloadedFunction(this)).add(that);
+	}
+
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
+		return (new OverloadedFunction(this)).join(that);
+	}
+
+	@Override
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		return right.composeFunction(this, false);
+	}
+		
+	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
+	}
+	
+	@Override
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 			
 	@Override

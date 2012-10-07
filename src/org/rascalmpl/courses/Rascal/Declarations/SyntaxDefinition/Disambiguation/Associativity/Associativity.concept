@@ -24,18 +24,41 @@ The semantics are that an associativity modifier will instruct the parser to dis
   * `right` will disallow productions to directly nest in their _left-most_ position.
   * `non-assoc` will disallow productions to directly nest in either their left-most or their right-most position.
 
-
-Note that associativity has no effect on any other position than the left-most and right-most position (see also [$Disambiguation/Priority]).
-
 When associativity is declared for a group of productions, e.g. `left ( $Alt_1$ | $Alt _2$ | $Alt_3$)`, then each alternative will be mutually associative to each other alternative _and itself_. If an alternative of a group defines its own local associativity, as in `left ( right $Alt_1$ | $Alt_2$ | $Alt_3$)`, then $Alt_1$ is right associative with respect to itself and left associative with respect to all others in the group. 
+
+A finer point is that associativity has no effect on any other position than the left-most and right-most position (see also [$Disambiguation/Priority]). This is to guarantee that associativity does not introduce parse errors. The following tables explain when an assocativity declaration filters given two productions `father` and `child` that share an associativity group.
+| If `left (Parent | Child) `      | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`  
+---------------------------------------------------------------------------------------------------------------------------------------------
+| __Child None:__ `E = "{" E "}"`  | No filter        | No filter            | No filter                     | No filter              |
+| __Child Left-most:__ `E = E "+"` | No filter        | No filter            | Filter under right            | Filter under right     |
+| __Child Right-most:__ `E = "+" E`| No filter        | No filter            | No filter                     | No filter      |
+| __Child Both:__ `E = E "+" E`    | No filter        | No filter            | Filter under right            | Filter under right     |
+
+| If `right (Parent | Child)` | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`  
+---------------------------------------------------------------------------------------------------------------------------------------------
+| __Child None:__ `E = "{" E "}"` | No filter        | No filter                    | No filter                     | No filter              |
+| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | No filter            | No filter     |
+| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left      |
+| __Child Both:__ `E = E "+" E`   | No filter        | Filter under left            | No filter            | Filter under left  |
+
+
 
 Examples:
 
 Benefits:
   * short notation for common constructs in programming languages
+  * removes ambiguity but can not introduce parse errors
+  * Allows the use of less non-terminals for the same expression grammar (typically only one), which makes parse trees simpler as well as the mapping to an abstract syntax tree more direct.
 
 Pitfalls:
-  * different semantics than SDF's associativity
+  * Please do not assume that Rascal's associativity declarations have the same semantics as SDF's associativity declarations.
+  * Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the [$Disambiguation/Priority] relation such a case. For example:
+| Original associativity | Better written as priority |
+-------------------------------------------------------
+|`E = left ( "+" E | E "+" E );` | `E = E "+" E > "+" E;` |
+|`E = right ( "+" E | E "+" E );` | `E = "+" E > E "+" E;` |
+|`E = left ( E "+" | E "+" E);` | `E = E "+" > E "+" E;` |
+|`E = right ( E "+" | E "+" E);` | `E = E "+" E > E "+" ;`|
+
 
 Questions:
-

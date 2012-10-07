@@ -24,6 +24,7 @@ import org.rascalmpl.ast.PathPart;
 import org.rascalmpl.ast.ProtocolPart;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 
 public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral {
 
@@ -45,7 +46,7 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 					+ ((IString) pathPart.getValue()).getValue();
 
 			try {
-				URI url = new URI(uri);
+				URI url = URIUtil.createFromEncoded(uri);
 				ISourceLocation r = __eval.__getVf().sourceLocation(url);
 				return org.rascalmpl.interpreter.result.ResultFactory
 						.makeResult(org.rascalmpl.interpreter.Evaluator

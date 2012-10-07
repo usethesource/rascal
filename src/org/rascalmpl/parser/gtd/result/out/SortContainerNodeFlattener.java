@@ -97,13 +97,15 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		T result = nodeConstructorFactory.createSortNode(children, production);
 		
+		if(sourceLocation != null) result = nodeConstructorFactory.addPositionInformation(result, sourceLocation); // Add location information (if available).
+		
 		result = actionExecutor.filterProduction(result, environment); // Execute the semantic actions associated with this node.
 		if(result == null){
 			actionExecutor.exitedProduction(production, true, environment); // Filtered.
 			return;
 		}
-		
-		if(sourceLocation != null) result = nodeConstructorFactory.addPositionInformation(result, sourceLocation); // Add location information (if available).
+
+		// TODO: what about if somebody build a tree without a new location?
 		
 		gatheredAlternatives.add(result);
 		actionExecutor.exitedProduction(production, false, environment); // Successful construction.

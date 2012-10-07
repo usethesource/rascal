@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JavaToRascal {
@@ -91,12 +92,11 @@ public class JavaToRascal {
 	 * 
 	 */
 	public void voidValue(String command) {
-		voidValue(command, "stdin:///");
+		voidValue(command, "stdin");
 	}
 
-	public String stringValue(String command, String location) {
-		Result<IValue> result = evaluator.eval(null, command,
-				URI.create(location));
+	public String stringValue(String command, String scheme) {
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
 		return ((IString) (result.getValue())).getValue();
 	}
 
@@ -105,12 +105,11 @@ public class JavaToRascal {
 	 * @return result of Rascal Command evaluation which has type string
 	 */
 	public String stringValue(String command) {
-		return stringValue(command, "stdin:///");
+		return stringValue(command, "stdin");
 	}
 
-	public int intValue(String command, String location) {
-		Result<IValue> result = evaluator.eval(null, command,
-				URI.create(location));
+	public int intValue(String command, String scheme) {
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
 		return ((IInteger) (result.getValue())).intValue();
 	}
 
@@ -119,12 +118,11 @@ public class JavaToRascal {
 	 * @return result of Rascal Command evaluation which has type int
 	 */
 	public int intValue(String command) {
-		return intValue(command, "stdin:///");
+		return intValue(command, "stdin");
 	}
 
-	public boolean boolValue(String command, String location) {
-		Result<IValue> result = evaluator.eval(null, command,
-				URI.create(location));
+	public boolean boolValue(String command, String scheme) {
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
 		return ((IBool) (result.getValue())).getValue();
 	}
 
@@ -133,7 +131,7 @@ public class JavaToRascal {
 	 * @return result of Rascal Command evaluation which has type boolean
 	 */
 	public boolean boolValue(String command) {
-		return boolValue(command, "stdin:///");
+		return boolValue(command, "stdin");
 	}
 
 	private Object[] _listValue(IList q) {
@@ -144,9 +142,8 @@ public class JavaToRascal {
 		return r.toArray(new Object[] {});
 	}
 
-	public Object[] listValue(String command, String location) {
-		Result<IValue> result = evaluator.eval(null, command,
-				URI.create(location));
+	public Object[] listValue(String command, String scheme) {
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
 		return _listValue((IList) (result.getValue()));
 	}
 
@@ -155,12 +152,11 @@ public class JavaToRascal {
 	 * @return result of Rascal Command evaluation which has type Object[]
 	 */
 	public Object[] listValue(String command) {
-		return listValue(command, "stdin:///");
+		return listValue(command, "stdin");
 	}
 
-	public Object eval(String command, String location) {
-		Result<IValue> result = evaluator.eval(null, command,
-				URI.create(location));
+	public Object eval(String command, String scheme) {
+		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootScheme(scheme));
 		if (result.getType().isBoolType())
 			return new Boolean(((IBool) (result.getValue())).getValue());
 		if (result.getType().isIntegerType())
@@ -181,7 +177,7 @@ public class JavaToRascal {
 	 *         Bool, String or Object[],
 	 */
 	public Object eval(String command) {
-		return eval(command, "stdin:///");
+		return eval(command, "stdin");
 	}
 
 	/**

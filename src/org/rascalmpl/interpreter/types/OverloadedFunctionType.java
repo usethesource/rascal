@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.ExternalType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -130,4 +132,31 @@ public class OverloadedFunctionType extends ExternalType {
 		return getReturnType() + " (...)";
 	}
 	
+	@Override
+	public Type compose(Type right) {
+		if(right.isVoidType())
+			return right;
+		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		if(right instanceof FunctionType) {
+			for(FunctionType ftype : this.alternatives) {
+				if(TypeFactory.getInstance().tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
+					newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(ftype.getReturnType(), ((FunctionType) right).getArgumentTypes()));
+				}
+			}
+		} else if(right instanceof OverloadedFunctionType) {
+			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
+				for(FunctionType gtype : this.alternatives) {
+					if(TypeFactory.getInstance().tupleType(ftype.getReturnType()).isSubtypeOf(gtype.getArgumentTypes())) {
+						newAlternatives.add((FunctionType) RascalTypeFactory.getInstance().functionType(gtype.getReturnType(), ftype.getArgumentTypes()));
+					}
+				}
+			}
+		} else {
+			throw new IllegalOperationException("compose", this, right);
+		}
+		if(!newAlternatives.isEmpty()) 
+			return RascalTypeFactory.getInstance().overloadedFunctionType(newAlternatives);
+		return TypeFactory.getInstance().voidType();
+	}
+
 }

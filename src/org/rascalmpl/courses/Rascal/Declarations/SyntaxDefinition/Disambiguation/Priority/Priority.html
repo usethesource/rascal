@@ -60,12 +60,12 @@
 <br/>
 
  The semantics of a priority relation <code>A > B</code> is that B will not be nested under A in the left-most or right-most position.
- Any other position of A will allow B fine.
+ Any other position of A will allow B fine. Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
  <br/>
 <br/>
 
- Note that the priority relation you define is transitively closed, so if A > B and B > C then A > C.
-
+ A finer point is that Rascal restricts the filtering of priority such that it is guaranteed that no parse errors occur at the cause of a priority. The following table defines when and where Rascal forbids a direct nesting between two productions <code>parent > child</code>, depending on at which left-most or right-most positions the parent and the child are recursive. 
+  <table><tr><th align="center"> If <code>Parent > Child</code> </th><th align="center"> Parent None: <code>E = "[" E "]"</code> </th><th align="center"> Parent Left-most: <code>E = E "*"</code> </th><th align="center">Parent  Right-most: <code>E = "*" E</code> </th><th align="center"> Parent Both: <code>E = E "*" E</code>  </th></tr><tr><td align="left"> <b>Child None:</b> <code>E = "{" E "}"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> No filter                     </td><td align="left"> No filter              </td></tr><tr><td align="left"> <b>Child Left-most:</b> <code>E = E "+"</code> </td><td align="left"> No filter        </td><td align="left"> No filter                    </td><td align="left"> Filter under right            </td><td align="left"> Filter under right     </td></tr><tr><td align="left"> <b>Child Right-most:</b> <code>E = "+" E</code></td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> No filter                     </td><td align="left"> Filter under left      </td></tr><tr><td align="left"> <b>Child Both:</b> <code>E = E "+" E</code>   </td><td align="left"> No filter        </td><td align="left"> Filter under left            </td><td align="left"> Filter under right            </td><td align="left"> Filter under left and right </td></tr></table>
 </div>
 
   	                       
@@ -79,6 +79,7 @@
   > E: Exp "*" Exp 
   > F: Exp "+" Exp;
   | bracket G: "(" Exp ")"
+  ;
 </pre> A short explanation:
  <ul><li> C and D share a group of equal priority. They are incomparable in the partial ordering. That's fine because <code>1![2]</code> is not ambiguous.</li>
 <li> Similarly A and B share a group; yet they are not recursive and so do not play any role in the priority ordering.</li>
@@ -94,13 +95,18 @@
 
   	                       
 <div id="Benefits">
-<span class="sectionHead">Benefits</span>  <ul><li> Short notation for common notation</li>
+<span class="sectionHead">Benefits</span>  <ul><li> Short notation for common expression grammars</li>
+<li> Removes ambiguity but can not introduce parse errors</li>
+<li> Allows the use of less non-terminals for the same expression grammar (typically only one), which makes parse trees simpler as well as the mapping to an abstract syntax tree more direct.</li>
 </ul>
 </div>
 
   	                       
 <div id="Pitfalls">
 <span class="sectionHead">Pitfalls</span>  <ul><li> Please do not assume that Rascal's priorities have the same semantics as SDF's priorities.</li>
+<li> When a priority does not have a filtering effect, such as in <code>E = E "+" > E "*"</code> it is usually better to use normal alternative composition: <code>E = E "+" | E "*"</code>. There is no difference in the semantics of parsing, but the latter expression is more intentional.</li>
+<li> You should not hide right or left recursion behind a nullable non-terminal, since the system will not filter the ambiguity then. Example:  E = left "a"? E "*" E > E "+" E will remain ambiguous. This should be written as: E = left ("a" E "*" E | E "*" E ) > E "+" E; (unfolding the optional such that E becomes explicitly left-most).
+</li>
 </ul>
 </div>
 
