@@ -558,6 +558,18 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+	
 	public <U extends IValue> Result<U> composeFunction(AbstractFunction that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
