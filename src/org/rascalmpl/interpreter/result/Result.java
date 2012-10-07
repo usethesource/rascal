@@ -186,19 +186,12 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	///////
+	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) throws MatchFailed {
-		return call(argTypes, argValues, null);
-	}
-
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) throws MatchFailed {
 		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return undefinedError(ADDITION_STRING, that);
-	}
-	
-	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> that) {
 		return undefinedError(ADDITION_STRING, that);
 	}
 
@@ -577,18 +570,18 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(AbstractFunction that, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(AbstractFunction that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(OverloadedFunction that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
+	public <U extends IValue> Result<U> composeFunction(ComposedFunctionResult that) {
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
-		
+	
 	protected <U extends IValue> Result<U> compareInteger(IntegerResult that) {
 		return that.undefinedError(COMPARE_STRING, this);
 	}

@@ -242,15 +242,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
-		return call(monitor, argTypes, argValues, null);
-	}
-
-	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, IValue self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues, self);
+			return call(argTypes, argValues);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -258,11 +252,11 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
-		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, self, defaultCandidates.size() <= 0);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, defaultCandidates.size() <= 0);
 
 		if (result == null && defaultCandidates.size() > 0) {
-			result = callWith(defaultCandidates, argTypes, argValues, self, true);
+			result = callWith(defaultCandidates, argTypes, argValues, true);
 		}
 
 		if (result == null) {
@@ -275,7 +269,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return result;
 	}
 
-	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, IValue self, boolean mustSucceed) {
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 
@@ -283,7 +277,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 					|| candidate.getArity() == argValues.length) {
 				try {
-					return candidate.call(argTypes, argValues, self);
+					return candidate.call(argTypes, argValues);
 				}
 				catch (MatchFailed m) {
 					// could happen if pattern dispatched
@@ -449,10 +443,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this, false);
-	}
-	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return that.addFunctionNonDeterministic(this);
 	}
@@ -471,26 +461,25 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
 		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
 	}
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
+		return right.composeFunction(this);
+	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult composeFunction(AbstractFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
 	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
-		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
-		result.setOpenRecursive(isOpenRecursive);
-		return result;
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
+		return new ComposedFunctionResult(that, this, ctx);
 	}
 
 	public List<AbstractFunction> getFunctions(){
