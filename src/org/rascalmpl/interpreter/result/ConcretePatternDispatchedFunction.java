@@ -143,7 +143,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, IValue self) {
 		IConstructor label = null;
 		
 		if (argTypes.length == 0) {
@@ -159,7 +159,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 					if ((candidate.hasVarArgs() && argValues.length >= candidate.getArity() - 1)
 							|| candidate.getArity() == argValues.length) {
 						try {
-							return candidate.call(argTypes, argValues);
+							return candidate.call(argTypes, argValues, self);
 						}
 						catch (MatchFailed m) {
 							// could happen if pattern dispatched
@@ -178,8 +178,8 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		return call(null, argTypes, argValues);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+		return call(null, argTypes, argValues, self);
 	}
 
 	@Override
@@ -198,6 +198,16 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 
 	@Override
 	public boolean isDefault() {
+		return false;
+	}
+	
+	@Override
+	public boolean isOverrides() {
+		return false;
+	}
+	
+	@Override
+	public boolean isExtends() {
 		return false;
 	}
 	

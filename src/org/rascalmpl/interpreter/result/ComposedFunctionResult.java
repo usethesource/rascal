@@ -36,6 +36,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	private final boolean isStatic;
 	private Type type;
 	
+	private boolean isOpenRecursive = false;
 	
 	public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 			U extends Result<IValue> & IExternalValue & ICallableValue> 
@@ -62,7 +63,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			}
 			this.isStatic = left.isStatic() && right.isStatic();
 		}
-
 	
 	public boolean isNonDeterministic() {
 		return false;
@@ -76,6 +76,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	@Override
 	public boolean hasVarArgs() {
 		throw new UnsupportedOperationException();
+	}
+	
+	public void setOpenRecursive(boolean isOpenRecursive) {
+		this.isOpenRecursive = isOpenRecursive;
 	}
 	
 	@Override
@@ -95,13 +99,19 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public Result<IValue> getRight() {
 		return this.right;
 	}
-	
+
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
 			IValue[] argValues) {
+		return call(monitor, argTypes, argValues, null);
+	}
+	
+	@Override
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
+			IValue[] argValues, IValue self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
-			return call(argTypes, argValues);
+			return call(argTypes, argValues, self);
 		}
 		finally {
 			ctx.getEvaluator().setMonitor(old);
@@ -110,7 +120,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
-		Result<IValue> rightResult = right.call(argTypes, argValues);
+		return call(argTypes, argValues, null);
+	}
+	
+	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+		Result<IValue> rightResult 
+			= (self == null && isOpenRecursive) ? right.call(argTypes, argValues, this) : right.call(argTypes, argValues, self);
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
 	}
 
@@ -136,22 +152,25 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
-		return right.composeFunction(this);
+		return right.composeFunction(this, false);
+	}
+		
+	@Override
+	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		return result;
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(AbstractFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		return result;
 	}
 	
 	@Override
-	public ComposedFunctionResult composeFunction(OverloadedFunction that) {
-		return new ComposedFunctionResult(that, this, ctx);
-	}
-	
-	@Override
-	public ComposedFunctionResult composeFunction(ComposedFunctionResult that) {
-		return new ComposedFunctionResult(that, this, ctx);
+	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		return result;
 	}
 
 	
