@@ -225,7 +225,9 @@ syntax Expression
 	| Negative     : "-" Expression argument 
 	| non-assoc Splice : "*" Expression argument
 	| AsType       : "[" Type type "]" Expression argument
-	> left Composition: Expression lhs "o" Expression rhs 
+	> left ( Composition: Expression lhs "o" Expression rhs
+		   | OpenRecursiveComposition: Expression lhs "¥" Expression rhs 
+		   )
 	> left ( Product: Expression lhs "*" () !>> "*" Expression rhs  
 		   | Join   : Expression lhs "join" Expression rhs 
 	       | Remainder: Expression lhs "%" Expression rhs
@@ -236,6 +238,7 @@ syntax Expression
 		   | Subtraction: Expression lhs "-" Expression rhs
 		   | AppendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | InsertBefore: Expression lhs "\>\>" Expression rhs 
+		   | OpenRecursiveAddition: Expression lhs ".+." Expression rhs
 	       )
 	> left Modulo: Expression lhs "mod" Expression rhs
 	> non-assoc ( NotIn: Expression lhs "notin" Expression rhs  
