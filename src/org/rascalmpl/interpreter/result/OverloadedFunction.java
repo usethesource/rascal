@@ -45,6 +45,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	private final List<AbstractFunction> defaultCandidates; // it should be a list to allow proper shadowing
 	private final String name;
 	private final boolean isStatic;
+	
+	private boolean isOpenRecursive = false;
+	private boolean isComposedFunctionResult = false;
 
 	public OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
 		super(type, null, ctx);
@@ -261,6 +264,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, self, defaultCandidates.size() <= 0);
 
+		if(isComposedFunctionResult && isOpenRecursive && self == null)
+			self = this;
+		
 		if (result == null && defaultCandidates.size() > 0) {
 			result = callWith(defaultCandidates, argTypes, argValues, self, true);
 		}
@@ -324,8 +330,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 				defJoined.add(cand);
 			}
 		}
-
-		return new OverloadedFunction("(" + name + "+" + other.getName() + ")", lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		OverloadedFunction result = new OverloadedFunction("(" + name + "+" + other.getName() + ")", lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		result.isComposedFunctionResult = true;
+		return result;
 	}
 
 	public OverloadedFunction add(AbstractFunction candidate) {
@@ -340,8 +347,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		else if (!candidate.isDefault() && !joined.contains(candidate)) {
 			joined.add(candidate);
 		}
-
-		return new OverloadedFunction("(" + name + "+" + candidate.getName() + ")" , lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		OverloadedFunction result = new OverloadedFunction("(" + name + "+" + candidate.getName() + ")" , lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		result.isComposedFunctionResult = true;
+		return result;
 	}
 
 	@Override
@@ -449,28 +457,53 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 	
 	@Override
+	public boolean isOpenRecursive() {
+		return isOpenRecursive;
+	}
+	
+	public void setOpenRecursive(boolean isOpenRecursive) {
+		this.isOpenRecursive = isOpenRecursive;
+	}
+	
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return right.composeFunction(this, false);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this);
+	public <U extends IValue, V extends IValue> Result<U> composeOpenRecursive(Result<V> right) {
+		return right.composeFunction(this, true);
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
-		return this.add(that);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addFunctionNonDeterministic(this, false);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> that) {
+		return that.addFunctionNonDeterministic(this, true);
+	}
+	
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		OverloadedFunction result = this.add(that);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
-		return this.join(that);
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		OverloadedFunction result = this.join(that);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	@Override

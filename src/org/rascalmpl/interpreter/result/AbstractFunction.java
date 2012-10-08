@@ -372,7 +372,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
-		return that.addFunctionNonDeterministic(this);
+		return that.addFunctionNonDeterministic(this, false);
 	}
 	
 	@Override
@@ -381,23 +381,34 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
-		return (new OverloadedFunction(this)).add(that);
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		OverloadedFunction result = (new OverloadedFunction(this)).add(that);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	@Override
-	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
-		return (new OverloadedFunction(this)).join(that);
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		OverloadedFunction result = (new OverloadedFunction(this)).join(that);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return right.composeFunction(this, false);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> composeOpenRecursive(Result<V> right) {
+		return right.composeFunction(this, true);
 	}
 		
 	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {

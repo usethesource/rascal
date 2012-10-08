@@ -78,6 +78,16 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public boolean isComposedFunctionResult() {
+		return true;
+	}
+	
+	@Override
+	public boolean isOpenRecursive() {
+		return this.isOpenRecursive;
+	}
+	
 	public void setOpenRecursive(boolean isOpenRecursive) {
 		this.isOpenRecursive = isOpenRecursive;
 	}
@@ -125,51 +135,72 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
-		Result<IValue> rightResult 
-			= (self == null && isOpenRecursive) ? right.call(argTypes, argValues, this) : right.call(argTypes, argValues, self);
+		Result<IValue> rightResult = null;
+		if(isOpenRecursive && self == null) 
+			self = this;
+		rightResult = right.call(argTypes, argValues, self);
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
 	}
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> right) {
-		return right.addFunctionNonDeterministic(this);
+		return right.addFunctionNonDeterministic(this, false);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> addOpenRecursive(Result<V> right) {
+		return right.addFunctionNonDeterministic(this, true);
 	}
 	
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(AbstractFunction that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(OverloadedFunction that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
-	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
-		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
+		ComposedFunctionResult result = new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
+		return result;
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return right.composeFunction(this, false);
 	}
-		
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> composeOpenRecursive(Result<V> right) {
+		return right.composeFunction(this, true);
+	}
+	
 	@Override
 	public ComposedFunctionResult composeFunction(AbstractFunction that, boolean isOpenRecursive) {
 		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
 		return result;
 	}
 	
 	@Override
 	public ComposedFunctionResult composeFunction(OverloadedFunction that, boolean isOpenRecursive) {
 		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
 		return result;
 	}
 	
 	@Override
 	public ComposedFunctionResult composeFunction(ComposedFunctionResult that, boolean isOpenRecursive) {
 		ComposedFunctionResult result = new ComposedFunctionResult(that, this, ctx);
+		result.setOpenRecursive(isOpenRecursive);
 		return result;
 	}
 
@@ -212,20 +243,23 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
 			Failure f1 = null;
 			ArgumentsMismatchError e1 = null;
+			if(this.isOpenRecursive() && self == null)
+				self = this;
 			try {
 				try {
-					return getRight().call(argTypes, argValues);
+					return getRight().call(argTypes, argValues, self);
 				} catch(ArgumentsMismatchError e) {
 					// try another one
 					e1 = e;
 				} catch(Failure e) {
 					// try another one
 					f1 = e;
-				}
-				return getLeft().call(argTypes, argValues);
+				}			
+				return getLeft().call(argTypes, argValues, self);
+
 			} catch(ArgumentsMismatchError e2) {
 				throw new ArgumentsMismatchError(
 						"The called signature does not match signatures in the '+' composition:\n" 
