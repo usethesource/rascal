@@ -237,6 +237,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return undefinedError(COMPOSE_STRING, right);
 	}
+
+	public <U extends IValue, V extends IValue> Result<U> composeOpenRecursive(Result<V> right) {
+		return undefinedError(COMPOSE_STRING, right);
+	}
 	
 	public <U extends IValue> Result<U> negative() {
 		return undefinedError(NEGATIVE_STRING);
@@ -565,15 +569,15 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(COMPOSE_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that) {
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(AbstractFunction that, boolean isOpenRecursive) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that) {
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(OverloadedFunction that, boolean isOpenRecursive) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
-	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that) {
+	public <U extends IValue> Result<U> addFunctionNonDeterministic(ComposedFunctionResult that, boolean isOpenRecursive) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 	
@@ -1068,7 +1072,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return inferredType;
 	}
 
-	
+	public boolean isOpenRecursive() {
+		return false;
+	}
 
-	
+	public boolean isComposedFunctionResult() {
+		return false;
+	}
 }
