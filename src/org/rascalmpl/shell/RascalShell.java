@@ -56,7 +56,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalShell {
 	private final static int LINE_LIMIT = 200;
-	private static final String SHELL_MODULE = "$shell$";
 	
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
@@ -67,7 +66,7 @@ public class RascalShell {
 	public RascalShell() throws IOException {
 		console = new ConsoleReader();
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
@@ -78,7 +77,7 @@ public class RascalShell {
 	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout) throws IOException {
 		console = new ConsoleReader(stdin, new PrintWriter(stdout));
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap);
 		importPrelude();
 		running = true;
@@ -87,7 +86,7 @@ public class RascalShell {
 	public RascalShell(InputStream stdin, PrintWriter stderr, PrintWriter stdout, List<ClassLoader> classLoaders, RascalURIResolver uriResolver) throws IOException {
 		console = new ConsoleReader(stdin, new PrintWriter(stdout));
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout, root, heap, classLoaders, uriResolver);
 		importPrelude();
 		running = true;
@@ -260,7 +259,7 @@ public class RascalShell {
 
 	private static Evaluator getDefaultEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE, heap));
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		PrintWriter stderr = new PrintWriter(System.err);
 		PrintWriter stdout = new PrintWriter(System.out);
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
