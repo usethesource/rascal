@@ -58,4 +58,9 @@ public abstract class AbstractExpandableStackNode<P> extends AbstractStackNode<P
 	public AbstractNode getResult(){
 		throw new UnsupportedOperationException();
 	}
+	
+	public final boolean isExpandable(){
+		return true;
+	}
+		
 }
