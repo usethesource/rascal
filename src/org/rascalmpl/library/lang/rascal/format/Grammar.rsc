@@ -146,7 +146,8 @@ public str prod2rascal(Production p) {
   }
 }
 
-private set[str] rascalKeywords = {"fun","rule","non-terminal","datetime","constructor","value","int","module","any","bool","public","throw","one","start","set","map","alias","throws","visit","for","tuple","assert","default","loc","dynamic","solve","try","catch","type","insert","else","notin","reified","switch","str","adt","while","case","return","anno","it","layout","data","join","parameter","bracket","import","in","false","all","real","list","fail","if","repeat","extend","append","tag","rel","assoc","non-assoc","void","test","true","bag","num","private","finally","node"};
+private set[str] rascalKeywords = { "value" , "loc" , "node" , "num" , "type" , "bag" , "int" , "rat" , "rel" , "real" , "tuple" , "str" , "bool" , "void" , "datetime" , "set" , "map" , "list" , "int" ,"break" ,"continue" ,"rat" ,"true" ,"bag" ,"num" ,"node" ,"finally" ,"private" ,"real" ,"list" ,"fail" ,"filter" ,"if" ,"tag" ,"extend" ,"append" ,"rel" ,"void" ,"non-assoc" ,"assoc" ,"test" ,"anno" ,"layout" ,"data" ,"join" ,"it" ,"bracket" ,"in" ,"import" ,"false" ,"all" ,"dynamic" ,"solve" ,"type" ,"try" ,"catch" ,"notin" ,"else" ,"insert" ,"switch" ,"return" ,"case" ,"while" ,"str" ,"throws" ,"visit" ,"tuple" ,"for" ,"assert" ,"loc" ,"default" ,"map" ,"alias" ,"any" ,"module" ,"mod" ,"bool" ,"public" ,"one" ,"throw" ,"set" ,"start" ,"datetime" ,"value" };
+
 public str reserved(str name) {
   return name in rascalKeywords ? "\\<name>" : name;   
 }
