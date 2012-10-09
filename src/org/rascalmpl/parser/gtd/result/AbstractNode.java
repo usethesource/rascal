@@ -28,8 +28,8 @@ public abstract class AbstractNode{
 	/**
 	 * Checks whether or not this node is an epsilon node.
 	 */
-	public final boolean isEpsilon(){
-		return (this instanceof EpsilonNode);
+	public boolean isEpsilon(){
+		return false;
 	}
 	
 	/**

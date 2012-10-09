@@ -319,7 +319,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			}
 		}
 
-		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction("(" + name + "+" + other.getName() + ")", lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
 	public OverloadedFunction add(AbstractFunction candidate) {
@@ -335,7 +335,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			joined.add(candidate);
 		}
 
-		return new OverloadedFunction(name, lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
+		return new OverloadedFunction("(" + name + "+" + candidate.getName() + ")" , lub(joined).lub(lub(defJoined)), joined, defJoined, ctx);
 	}
 
 	@Override
@@ -440,6 +440,26 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		}
 
 		return ResultFactory.makeResult(TF.integerType(), getValueFactory().integer(0), ctx);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addFunctionNonDeterministic(this);
+	}
+	
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
+		return this.add(that);
+	}
+
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
+		return this.join(that);
+	}
+
+	@Override
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
 	}
 
 	@Override
