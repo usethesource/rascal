@@ -202,12 +202,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 	
 	@Override
-	public boolean isOverrides() {
-		return false;
-	}
-	
-	@Override
-	public boolean isExtends() {
+	public boolean isExtend() {
 		return false;
 	}
 	

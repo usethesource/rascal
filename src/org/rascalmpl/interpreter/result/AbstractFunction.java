@@ -183,9 +183,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	public abstract boolean isDefault();
 	
-	public abstract boolean isOverrides();
-	
-	public abstract boolean isExtends();
+	public abstract boolean isExtend();
 
 	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {
