@@ -1695,6 +1695,54 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isOpenRecursiveFunctionAddition() {
+    return false;
+  }
+
+  static public class OpenRecursiveFunctionAddition extends Expression {
+    // Production: sig("OpenRecursiveFunctionAddition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public OpenRecursiveFunctionAddition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isOpenRecursiveFunctionAddition() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionOpenRecursiveFunctionAddition(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
   public boolean isSplice() {
     return false;
   }
@@ -2922,6 +2970,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasQualifiedName() {
+      return true;
+    }	
+  }
+  public boolean isOpenRecursiveComposition() {
+    return false;
+  }
+
+  static public class OpenRecursiveComposition extends Expression {
+    // Production: sig("OpenRecursiveComposition",[arg("org.rascalmpl.ast.Expression","lhs"),arg("org.rascalmpl.ast.Expression","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Expression lhs;
+    private final org.rascalmpl.ast.Expression rhs;
+  
+    public OpenRecursiveComposition(IConstructor node , org.rascalmpl.ast.Expression lhs,  org.rascalmpl.ast.Expression rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isOpenRecursiveComposition() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionOpenRecursiveComposition(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
       return true;
     }	
   }

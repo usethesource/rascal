@@ -546,7 +546,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new RascalFunction(this, __eval, null,
 					(FunctionType) RTF
 					.functionType(returnType, formals), this.getParameters()
-					.isVarArgs(), false, false, false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}
@@ -2806,7 +2806,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.getInstance();
 			return new RascalFunction(this, __eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals), this.getParameters()
-					.isVarArgs(), false, false, false, false, this.getStatements(), __eval
+					.isVarArgs(), false, false, false, this.getStatements(), __eval
 					.getCurrentEnvt(), __eval.__getAccumulators());
 
 		}

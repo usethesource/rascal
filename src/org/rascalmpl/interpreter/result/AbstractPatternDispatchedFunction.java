@@ -198,14 +198,9 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	public boolean isDefault() {
 		return false;
 	}
-	
+		
 	@Override
-	public boolean isOverrides() {
-		return false;
-	}
-	
-	@Override
-	public boolean isExtends() {
+	public boolean isExtend() {
 		return false;
 	}
 	

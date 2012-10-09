@@ -48,12 +48,7 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public boolean isOverrides() {
-		return false;
-	}
-	
-	@Override
-	public boolean isExtends() {
+	public boolean isExtend() {
 		return false;
 	}
 	

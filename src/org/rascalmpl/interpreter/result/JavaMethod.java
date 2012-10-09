@@ -60,13 +60,8 @@ public class JavaMethod extends NamedFunction {
 		return false;
 	}
 	
-	@Override 
-	public boolean isOverrides() {
-		return false;
-	}
-	
 	@Override
-	public boolean isExtends() {
+	public boolean isExtend() {
 		return false;
 	}
 	

@@ -75,8 +75,7 @@ public class RascalFunction extends NamedFunction {
 	private final Stack<Accumulator> accumulators;
 	private final boolean isDefault;
 	private final boolean isTest;
-	private final boolean isOverrides;
-	private final boolean isExtends;
+	private final boolean isExtend;
 	private final boolean isStatic;
 	private final String resourceScheme;
 	private final List<Expression> formals;
@@ -91,7 +90,7 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env),
-				varargs, isDefault(func), hasTestMod(func.getSignature()), hasOverridesModifier(func), hasExtendsModifier(func),
+				varargs, isDefault(func), hasTestMod(func.getSignature()), hasExtendModifier(func),
 				func.getBody().getStatements(), env, accumulators);
 	}
 
@@ -100,14 +99,14 @@ public class RascalFunction extends NamedFunction {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
 				(FunctionType) func.getSignature().typeOf(env), 
-				varargs, isDefault(func), hasTestMod(func.getSignature()), hasOverridesModifier(func), hasExtendsModifier(func),
+				varargs, isDefault(func), hasTestMod(func.getSignature()), hasExtendModifier(func),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
 				env, accumulators);
 	}
 
 	@SuppressWarnings("unchecked")
 	public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
-			boolean varargs, boolean isDefault, boolean isTest, boolean isOverrides, boolean isExtends,
+			boolean varargs, boolean isDefault, boolean isTest, boolean isExtend,
 			List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
 		super(ast, eval, functionType, name, varargs, env);
 		this.body = body;
@@ -119,8 +118,7 @@ public class RascalFunction extends NamedFunction {
 		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
 		this.isStatic = env.isRootScope() && eval.__getRootScope() != env;
 		this.isTest = isTest;
-		this.isOverrides = isOverrides;
-		this.isExtends = isExtends;
+		this.isExtend = isExtend;
 		
 		if (ast instanceof FunctionDeclaration) {
 			tags = parseTags((FunctionDeclaration) ast);
@@ -320,23 +318,14 @@ public class RascalFunction extends NamedFunction {
 	public boolean isDefault() {
 		return isDefault;
 	}
-	
-	private static boolean hasOverridesModifier(FunctionDeclaration func) {
-		return org.rascalmpl.semantics.dynamic.FunctionDeclaration.hasOverridesModifier(func);
-	}
-	
-	@Override
-	public boolean isOverrides() {
-		return this.isOverrides;
-	}
-	
-	private static boolean hasExtendsModifier(FunctionDeclaration func) {
+		
+	private static boolean hasExtendModifier(FunctionDeclaration func) {
 		return org.rascalmpl.semantics.dynamic.FunctionDeclaration.hasExtendsModifier(func);
 	}
 	
 	@Override
-	public boolean isExtends() {
-		return this.isExtends;
+	public boolean isExtend() {
+		return this.isExtend;
 	}
 	
 	@Override

@@ -208,6 +208,7 @@ syntax Expression
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
+	| \prev: "prev"
 	// removed >
 	| subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
 	| fieldAccess  : Expression expression "." Name field 
@@ -224,7 +225,9 @@ syntax Expression
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression argument
-	> left composition: Expression lhs "o" Expression rhs 
+	> left ( composition: Expression lhs "o" Expression rhs
+		   | openRecursiveComposition: Expression lhs "oo" Expression rhs
+		   ) 
 	> left ( product: Expression lhs "*" () !>> "*" Expression rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
@@ -232,6 +235,7 @@ syntax Expression
 	     )
 	> left intersection: Expression lhs "&" Expression rhs 
 	> left ( addition   : Expression lhs "+" Expression rhs  
+		   | openRecursiveFunctionAddition : Expression lhs "++" Expression rhs
 		   | subtraction: Expression lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 
@@ -335,7 +339,8 @@ lexical DatePart
 syntax FunctionModifier
 	= java: "java" 
 	| \test: "test" 
-	| \default: "default";
+	| \default: "default"
+	| \extend: "extend";
 
 syntax Assignment
 	= ifDefined: "?=" 
@@ -665,6 +670,7 @@ keyword RascalKeywords
 	| "start"
 	| "datetime" 
 	| "value" 
+	| "prev"
 	;
 
 syntax Type
