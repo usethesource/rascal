@@ -156,45 +156,55 @@ public class BootRascalActionExecutor extends VoidActionExecutor<IConstructor> {
 	}
 	
 	private IConstructor filterStatement(IConstructor tree, IConstructor prod) {
-		return filterArg(tree, prod, "Expression", 0, "NonEmptyBlock", "Visit");
+		return filterArg(tree, prod, "expression", 0, "nonEmptyBlock", "visit");
 	}
 
 	private IConstructor filterCommand(IConstructor tree, IConstructor prod) {
-		if (filterArg(tree, prod, "Expression", 0, "NonEmptyBlock") == null) {
+		if (filterArg(tree, prod, "expression", 0, "nonEmptyBlock") == null) {
 			return null;
 		}
 	
-		return filterArg(tree, prod, "Statement", 0, "VariableDeclaration", "FunctionDeclaration", "Visit");
+		return filterArg(tree, prod, "statement", 0, "variableDeclaration", "functionDeclaration", "visit");
 	}
 	
 	private IConstructor filterEvalCommand(IConstructor tree, IConstructor prod) {
-		if (filterArg(tree, prod, "Expression", 0, "NonEmptyBlock") == null) {
+		if (filterArg(tree, prod, "expression", 0, "nonEmptyBlock") == null) {
 			return null;
 		}
 	
-		return filterArg(tree, prod, "Statement", 0, "VariableDeclaration", "FunctionDeclaration", "Visit");
+		return filterArg(tree, prod, "statement", 0, "variableDeclaration", "functionDeclaration", "visit");
 	}
 
 	private IConstructor filterMapping(IConstructor tree, IConstructor prod) {
-		return filterArg(tree, prod, "Default", 0, "IfDefinedOtherwise");
+		return filterArg(tree, prod, "default", 0, "ifDefinedOtherwise");
 	}
 	
 	private IConstructor filterExpression(IConstructor tree, IConstructor prod) {
-		tree = filterArg(tree, prod, "Subscript", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		tree = filterArg(tree, prod, "subscript", 0, "transitiveClosure", "transitiveReflexiveClosure");
 		if (tree == null) { 
 			return null;
 		}
 		
-		tree = filterArg(tree, prod, "CallOrTree", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		tree = filterArg(tree, prod, "callOrTree", 0, "transitiveClosure", "transitiveReflexiveClosure");
 		if (tree == null) {
 			return null;
 		}
 		
-		return filterArg(tree, prod, "FieldProject", 0, "TransitiveClosure", "TransitiveReflexiveClosure");
+		tree = filterArg(tree, prod, "addition", 4, "noMatch", "match");
+		if (tree == null) {
+			return null;
+		}
+		
+		tree = filterArg(tree, prod, "product", 4, "noMatch", "match");
+		if (tree == null) {
+			return null;
+		}
+		
+		return filterArg(tree, prod, "fieldProject", 0, "transitiveClosure", "transitiveReflexiveClosure");
 	}
 
 	private IConstructor filterType(IConstructor tree, IConstructor prod) {
-		return filterArg(tree, prod, "Symbol", 0, "Nonterminal", "Labeled", "Parametrized", "Parameter");
+		return filterArg(tree, prod, "symbol", 0, "nonterminal", "labeled", "parametrized", "parameter");
 	}
 	
 	@Override
