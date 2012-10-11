@@ -294,7 +294,7 @@ public class ListPattern extends AbstractMatchingResult  {
 					for(IVarPattern vp : childVars){ // TODO: This does not profit from extra information
 						allVars.add(vp.name());
 					}
-					isListVar[nListVar] = false; // TODO: This looks wrong
+					isListVar[i] = false;
 					nListVar++;
 				} 
 			}
