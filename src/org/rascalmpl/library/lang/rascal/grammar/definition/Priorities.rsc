@@ -70,7 +70,7 @@ DoNotNest associativity(Associativity a, set[Production] alts) {
   return result + {*doNotNest(x) | x <- alts};  
 }
 
-DoNotNest priority(list[Production] levels) {
+public DoNotNest priority(list[Production] levels) {
   // collect basic filter
   ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
 
@@ -103,7 +103,7 @@ DoNotNest priority(list[Production] levels) {
           if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,crhs)) {
             result += {<father, 0, child>};
           }
-          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,crhs)) {  
+          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,crhs)) {
             result += {<father, size(lhs) - 1, child>};
           }
         }   

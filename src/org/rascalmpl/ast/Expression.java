@@ -550,54 +550,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isNoMatch() {
-    return false;
-  }
-
-  static public class NoMatch extends Expression {
-    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
-  
-    
-    private final org.rascalmpl.ast.Expression pattern;
-    private final org.rascalmpl.ast.Expression expression;
-  
-    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
-      super(node);
-      
-      this.pattern = pattern;
-      this.expression = expression;
-    }
-  
-    @Override
-    public boolean isNoMatch() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionNoMatch(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getPattern() {
-      return this.pattern;
-    }
-  
-    @Override
-    public boolean hasPattern() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
-    }
-  
-    @Override
-    public boolean hasExpression() {
-      return true;
-    }	
-  }
   public boolean isJoin() {
     return false;
   }
@@ -672,6 +624,54 @@ public abstract class Expression extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitExpressionEnumerator(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getPattern() {
+      return this.pattern;
+    }
+  
+    @Override
+    public boolean hasPattern() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getExpression() {
+      return this.expression;
+    }
+  
+    @Override
+    public boolean hasExpression() {
+      return true;
+    }	
+  }
+  public boolean isNoMatch() {
+    return false;
+  }
+
+  static public class NoMatch extends Expression {
+    // Production: sig("NoMatch",[arg("org.rascalmpl.ast.Expression","pattern"),arg("org.rascalmpl.ast.Expression","expression")])
+  
+    
+    private final org.rascalmpl.ast.Expression pattern;
+    private final org.rascalmpl.ast.Expression expression;
+  
+    public NoMatch(IConstructor node , org.rascalmpl.ast.Expression pattern,  org.rascalmpl.ast.Expression expression) {
+      super(node);
+      
+      this.pattern = pattern;
+      this.expression = expression;
+    }
+  
+    @Override
+    public boolean isNoMatch() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionNoMatch(this);
     }
   
     
@@ -923,6 +923,43 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
+  public boolean isSet() {
+    return false;
+  }
+
+  static public class Set extends Expression {
+    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")])
+  
+    
+    private final java.util.List<org.rascalmpl.ast.Expression> elements;
+  
+    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+      super(node);
+      
+      this.elements = elements;
+    }
+  
+    @Override
+    public boolean isSet() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionSet(this);
+    }
+  
+    
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getElements() {
+      return this.elements;
+    }
+  
+    @Override
+    public boolean hasElements() {
+      return true;
+    }	
+  }
   public boolean isFieldAccess() {
     return false;
   }
@@ -968,43 +1005,6 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasField() {
-      return true;
-    }	
-  }
-  public boolean isSet() {
-    return false;
-  }
-
-  static public class Set extends Expression {
-    // Production: sig("Set",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")])
-  
-    
-    private final java.util.List<org.rascalmpl.ast.Expression> elements;
-  
-    public Set(IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
-      super(node);
-      
-      this.elements = elements;
-    }
-  
-    @Override
-    public boolean isSet() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionSet(this);
-    }
-  
-    
-    @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-      return this.elements;
-    }
-  
-    @Override
-    public boolean hasElements() {
       return true;
     }	
   }
@@ -1359,54 +1359,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isRange() {
-    return false;
-  }
-
-  static public class Range extends Expression {
-    // Production: sig("Range",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","last")])
-  
-    
-    private final org.rascalmpl.ast.Expression first;
-    private final org.rascalmpl.ast.Expression last;
-  
-    public Range(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
-      super(node);
-      
-      this.first = first;
-      this.last = last;
-    }
-  
-    @Override
-    public boolean isRange() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionRange(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Expression getFirst() {
-      return this.first;
-    }
-  
-    @Override
-    public boolean hasFirst() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Expression getLast() {
-      return this.last;
-    }
-  
-    @Override
-    public boolean hasLast() {
-      return true;
-    }	
-  }
   public boolean isGetAnnotation() {
     return false;
   }
@@ -1452,6 +1404,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasName() {
+      return true;
+    }	
+  }
+  public boolean isRange() {
+    return false;
+  }
+
+  static public class Range extends Expression {
+    // Production: sig("Range",[arg("org.rascalmpl.ast.Expression","first"),arg("org.rascalmpl.ast.Expression","last")])
+  
+    
+    private final org.rascalmpl.ast.Expression first;
+    private final org.rascalmpl.ast.Expression last;
+  
+    public Range(IConstructor node , org.rascalmpl.ast.Expression first,  org.rascalmpl.ast.Expression last) {
+      super(node);
+      
+      this.first = first;
+      this.last = last;
+    }
+  
+    @Override
+    public boolean isRange() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionRange(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getFirst() {
+      return this.first;
+    }
+  
+    @Override
+    public boolean hasFirst() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Expression getLast() {
+      return this.last;
+    }
+  
+    @Override
+    public boolean hasLast() {
       return true;
     }	
   }
@@ -2105,54 +2105,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isVoidClosure() {
-    return false;
-  }
-
-  static public class VoidClosure extends Expression {
-    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
-  
-    
-    private final org.rascalmpl.ast.Parameters parameters;
-    private final java.util.List<org.rascalmpl.ast.Statement> statements;
-  
-    public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
-      super(node);
-      
-      this.parameters = parameters;
-      this.statements = statements;
-    }
-  
-    @Override
-    public boolean isVoidClosure() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionVoidClosure(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Parameters getParameters() {
-      return this.parameters;
-    }
-  
-    @Override
-    public boolean hasParameters() {
-      return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
-      return this.statements;
-    }
-  
-    @Override
-    public boolean hasStatements() {
-      return true;
-    }	
-  }
   public boolean isIfDefinedOtherwise() {
     return false;
   }
@@ -2198,6 +2150,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isVoidClosure() {
+    return false;
+  }
+
+  static public class VoidClosure extends Expression {
+    // Production: sig("VoidClosure",[arg("org.rascalmpl.ast.Parameters","parameters"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","statements")])
+  
+    
+    private final org.rascalmpl.ast.Parameters parameters;
+    private final java.util.List<org.rascalmpl.ast.Statement> statements;
+  
+    public VoidClosure(IConstructor node , org.rascalmpl.ast.Parameters parameters,  java.util.List<org.rascalmpl.ast.Statement> statements) {
+      super(node);
+      
+      this.parameters = parameters;
+      this.statements = statements;
+    }
+  
+    @Override
+    public boolean isVoidClosure() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionVoidClosure(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Parameters getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Statement> getStatements() {
+      return this.statements;
+    }
+  
+    @Override
+    public boolean hasStatements() {
       return true;
     }	
   }
@@ -3254,43 +3254,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isQualifiedName() {
-    return false;
-  }
-
-  static public class QualifiedName extends Expression {
-    // Production: sig("QualifiedName",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
-  
-    
-    private final org.rascalmpl.ast.QualifiedName qualifiedName;
-  
-    public QualifiedName(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
-      super(node);
-      
-      this.qualifiedName = qualifiedName;
-    }
-  
-    @Override
-    public boolean isQualifiedName() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionQualifiedName(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.QualifiedName getQualifiedName() {
-      return this.qualifiedName;
-    }
-  
-    @Override
-    public boolean hasQualifiedName() {
-      return true;
-    }	
-  }
   public boolean isNegative() {
     return false;
   }
@@ -3325,6 +3288,43 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasArgument() {
+      return true;
+    }	
+  }
+  public boolean isQualifiedName() {
+    return false;
+  }
+
+  static public class QualifiedName extends Expression {
+    // Production: sig("QualifiedName",[arg("org.rascalmpl.ast.QualifiedName","qualifiedName")])
+  
+    
+    private final org.rascalmpl.ast.QualifiedName qualifiedName;
+  
+    public QualifiedName(IConstructor node , org.rascalmpl.ast.QualifiedName qualifiedName) {
+      super(node);
+      
+      this.qualifiedName = qualifiedName;
+    }
+  
+    @Override
+    public boolean isQualifiedName() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionQualifiedName(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getQualifiedName() {
+      return this.qualifiedName;
+    }
+  
+    @Override
+    public boolean hasQualifiedName() {
       return true;
     }	
   }
@@ -3424,54 +3424,6 @@ public abstract class Expression extends AbstractAST {
       return true;
     }	
   }
-  public boolean isVisit() {
-    return false;
-  }
-
-  static public class Visit extends Expression {
-    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
-  
-    
-    private final org.rascalmpl.ast.Label label;
-    private final org.rascalmpl.ast.Visit visit;
-  
-    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
-      super(node);
-      
-      this.label = label;
-      this.visit = visit;
-    }
-  
-    @Override
-    public boolean isVisit() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitExpressionVisit(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Label getLabel() {
-      return this.label;
-    }
-  
-    @Override
-    public boolean hasLabel() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Visit getVisit() {
-      return this.visit;
-    }
-  
-    @Override
-    public boolean hasVisit() {
-      return true;
-    }	
-  }
   public boolean isSetAnnotation() {
     return false;
   }
@@ -3528,6 +3480,54 @@ public abstract class Expression extends AbstractAST {
   
     @Override
     public boolean hasValue() {
+      return true;
+    }	
+  }
+  public boolean isVisit() {
+    return false;
+  }
+
+  static public class Visit extends Expression {
+    // Production: sig("Visit",[arg("org.rascalmpl.ast.Label","label"),arg("org.rascalmpl.ast.Visit","visit")])
+  
+    
+    private final org.rascalmpl.ast.Label label;
+    private final org.rascalmpl.ast.Visit visit;
+  
+    public Visit(IConstructor node , org.rascalmpl.ast.Label label,  org.rascalmpl.ast.Visit visit) {
+      super(node);
+      
+      this.label = label;
+      this.visit = visit;
+    }
+  
+    @Override
+    public boolean isVisit() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionVisit(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Label getLabel() {
+      return this.label;
+    }
+  
+    @Override
+    public boolean hasLabel() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Visit getVisit() {
+      return this.visit;
+    }
+  
+    @Override
+    public boolean hasVisit() {
       return true;
     }	
   }

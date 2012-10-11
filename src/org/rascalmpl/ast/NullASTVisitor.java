@@ -501,15 +501,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionNoMatch(Expression.NoMatch x) { 
-    return null; 
-  }
-
   public T visitExpressionJoin(Expression.Join x) { 
     return null; 
   }
 
   public T visitExpressionEnumerator(Expression.Enumerator x) { 
+    return null; 
+  }
+
+  public T visitExpressionNoMatch(Expression.NoMatch x) { 
     return null; 
   }
 
@@ -533,11 +533,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionFieldAccess(Expression.FieldAccess x) { 
+  public T visitExpressionSet(Expression.Set x) { 
     return null; 
   }
 
-  public T visitExpressionSet(Expression.Set x) { 
+  public T visitExpressionFieldAccess(Expression.FieldAccess x) { 
     return null; 
   }
 
@@ -573,11 +573,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionRange(Expression.Range x) { 
+  public T visitExpressionGetAnnotation(Expression.GetAnnotation x) { 
     return null; 
   }
 
-  public T visitExpressionGetAnnotation(Expression.GetAnnotation x) { 
+  public T visitExpressionRange(Expression.Range x) { 
     return null; 
   }
 
@@ -637,11 +637,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionVoidClosure(Expression.VoidClosure x) { 
+  public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) { 
     return null; 
   }
 
-  public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) { 
+  public T visitExpressionVoidClosure(Expression.VoidClosure x) { 
     return null; 
   }
 
@@ -741,11 +741,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionQualifiedName(Expression.QualifiedName x) { 
+  public T visitExpressionNegative(Expression.Negative x) { 
     return null; 
   }
 
-  public T visitExpressionNegative(Expression.Negative x) { 
+  public T visitExpressionQualifiedName(Expression.QualifiedName x) { 
     return null; 
   }
 
@@ -757,11 +757,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionVisit(Expression.Visit x) { 
+  public T visitExpressionSetAnnotation(Expression.SetAnnotation x) { 
     return null; 
   }
 
-  public T visitExpressionSetAnnotation(Expression.SetAnnotation x) { 
+  public T visitExpressionVisit(Expression.Visit x) { 
     return null; 
   }
 

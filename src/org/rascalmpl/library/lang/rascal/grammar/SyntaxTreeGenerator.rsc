@@ -57,10 +57,10 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   }
   
   for (/p:prod(label(c,sort(name)),_,_) := g) 
-     m[name]?sigs += {sig(c, productionArgs(pkg, p))};
+     m[name]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
 
   for (/p:prod(label(c,\parameterized-sort(name,[sort(a)])),_,_) := g) 
-     m[name + "_" + a]?sigs += {sig(c, productionArgs(pkg, p))};
+     m[name + "_" + a]?sigs += {sig(capitalize(c), productionArgs(pkg, p))};
 
   for (sn <- m) 
     asts += ast(sn, m[sn]);
