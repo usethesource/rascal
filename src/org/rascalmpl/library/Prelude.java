@@ -2240,6 +2240,10 @@ public class Prelude {
 		return values.string(WordUtils.capitalize(src.getValue()));
 	}
 	
+	public IString uncapitalize(IString src) {
+		return values.string(WordUtils.uncapitalize(src.getValue()));
+	}
+	
 	public IList split(IString sep, IString src) {
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
 		IListWriter lw = values.listWriter(types.stringType());

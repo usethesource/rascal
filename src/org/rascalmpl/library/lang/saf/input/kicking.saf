@@ -1,0 +1,4 @@
+Kicking {
+  kickPower = 10
+  always [walk_towards kick_high]
+}
