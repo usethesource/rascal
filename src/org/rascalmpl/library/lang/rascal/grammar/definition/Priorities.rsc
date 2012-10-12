@@ -14,7 +14,8 @@ public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
   return {*doNotNest(g.rules[s]) | s <- g.rules}
-       + {*except(p, g) | /p:prod(_,_,_) <- g};
+       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
+       ;
 }
 
 @doc{
@@ -23,7 +24,27 @@ For every position in the production that is restricted, and for every restricti
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})}; 
+  = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})};
+  
+public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
+  switch (s) {
+    case \opt(conditional(t,cs)) : 
+      return {<p,0,q> | except(c) <- cs, /q:prod(label(c,t),_,_) := g.rules[t]?choice(s,{})};
+    case \iter-star(conditional(t,cs)) :
+      return {<p,0,q> | except(c) <- cs, /q:prod(label(c,t),_,_) := g.rules[t]?choice(s,{})};
+    case \iter(conditional(t,cs)) :
+      return {<p,0,q> | except(c) <- cs, /q:prod(label(c,t),_,_) := g.rules[t]?choice(s,{})};
+    case \iter-seps(conditional(t,cs),_) :
+      return {<p,0,q> | except(c) <- cs, /q:prod(label(c,t),_,_) := g.rules[t]?choice(s,{})};
+    case \iter-star-seps(conditional(t,cs),_) :
+      return {<p,0,q> | except(c) <- cs, /q:prod(label(c,t),_,_) := g.rules[t]?choice(s,{})};
+     // TODO: add cases for conditional separators
+     default: return {};
+  }
+  
+  return {};
+}
+
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
