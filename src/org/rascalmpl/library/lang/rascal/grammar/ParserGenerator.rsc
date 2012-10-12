@@ -289,8 +289,8 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
-  // now we get the "don't nest" relation, which is defined by associativity and priority declarations
-  dnn       = {*doNotNest(grammar.rules[nt]) | Symbol nt <- grammar.rules};
+  // now we get the "don't nest" relation, which is defined by associativity and priority declarations, and excepts
+  dnn       = doNotNest(grammar);
   
   // finally we produce a relation between item id for use in the internals of the parser
   return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
@@ -470,7 +470,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
-      exits += ["new ExceptRestriction\<IConstructor\>(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
+//      exits += ["new ExceptRestriction\<IConstructor\>(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];

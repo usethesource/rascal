@@ -16,7 +16,7 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 /**
  * A filter that is executed during expansion.
  */
-public interface IEnterFilter{
+public interface IEnterFilter {
 	/**
 	 * Checks whether or not the indicated location in the input string matches
 	 * this filter.

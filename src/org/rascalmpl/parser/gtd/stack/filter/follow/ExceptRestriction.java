@@ -15,6 +15,7 @@ import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
  * A filter that makes sure that at this position we do not have this
@@ -32,8 +33,20 @@ public class ExceptRestriction<P> implements ICompletionFilter{
 	
 	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
 		if (result instanceof AbstractContainerNode) {
-			P production = ((AbstractContainerNode<P>) result).getFirstProduction();
-			return this.production.equals(production);
+			AbstractContainerNode<P> node = (AbstractContainerNode<P>) result;
+			P production = node.getFirstProduction();
+			if (this.production.equals(production)) {
+				return true;
+			}
+			
+			ArrayList<P> others = node.getAdditionalProductions();
+			if (others != null) {
+				for (int i = 0; i < others.size(); i++) {
+					if (others.get(i).equals(this.production)) {
+						return true;
+					}
+				}
+			}
 		}
 		
 		return false;

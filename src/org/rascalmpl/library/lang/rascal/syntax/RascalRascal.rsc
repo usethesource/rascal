@@ -195,7 +195,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure expression "(" {Expression ","}* arguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -208,11 +208,10 @@ syntax Expression
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
-	// removed >
-	| subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
+	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure "[" {Expression ","}+ subscripts "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
-	| fieldProject : Expression expression "\<" {Field ","}+ fields "\>" 
+	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure "\<" {Field ","}+ fields "\>" 
 	| setAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
     | getAnnotation: Expression expression "@" Name name 
 	| is           : Expression expression "is" Name name
@@ -225,13 +224,13 @@ syntax Expression
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression argument
 	> left composition: Expression lhs "o" Expression rhs 
-	> left ( product: Expression lhs "*" () !>> "*" Expression rhs  
+	> left ( product: Expression lhs "*" () !>> "*" Expression!noMatch!match rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
 		   | division: Expression lhs "/" Expression rhs 
 	     )
 	> left intersection: Expression lhs "&" Expression rhs 
-	> left ( addition   : Expression lhs "+" Expression rhs  
+	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
 		   | subtraction: Expression lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 
@@ -486,14 +485,14 @@ start syntax Commands
 
 start syntax EvalCommand
   = declaration: Declaration declaration  
-  | statement: Statement statement 
+  | statement: Statement!variableDeclaration!functionDeclaration!visit statement 
   | \import: Import imported ;
   
 start syntax Command
-	= expression: Expression expression 
+	= expression: Expression!nonEmptyBlock expression 
 	| declaration: Declaration declaration 
 	| shell: ":" ShellCommand command 
-	| statement: Statement statement 
+	| statement: Statement!variableDeclaration!functionDeclaration!visit statement 
 	| \import: Import imported ;
 
 lexical TagString
@@ -547,7 +546,7 @@ syntax Start
 syntax Statement
 	= @breakable \assert: "assert" Expression expression ";" 
 	| @breakable assertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| @breakable expression: Expression expression ";" 
+	| @breakable expression: Expression!visit!nonEmptyBlock expression ";" 
 	| @breakable \visit: Label label Visit visit 
 	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
 	| @breakable doWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
@@ -675,7 +674,7 @@ syntax Type
 	| basic: BasicType basic 
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
-	| symbol: Sym symbol
+	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
 	;
 
 syntax Declaration
@@ -792,7 +791,7 @@ lexical PrePathChars
 	= URLChars "\<" ;
 
 syntax Mapping[&T]
-	= \default: &T from ":" &T to 
+	= \default: &T!ifDefinedOtherwise from ":" &T to 
 	;
 
 lexical MidPathChars
