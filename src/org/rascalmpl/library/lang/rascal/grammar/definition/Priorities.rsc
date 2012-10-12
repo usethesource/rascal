@@ -13,8 +13,17 @@ import lang::rascal::grammar::definition::Symbols;
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
-  return {*doNotNest(g.rules[s]) | s <- g.rules};
+  return {*doNotNest(g.rules[s]) | s <- g.rules}
+       + {*except(p, g) | /p:prod(_,_,_) <- g};
 }
+
+@doc{
+This one-liner searches a given production for "except restrictions". 
+For every position in the production that is restricted, and for every restriction it finds 
+at this position, it adds a 'do-not-nest' tuple to the result.
+}
+public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
+  = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})}; 
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
@@ -110,14 +119,14 @@ public DoNotNest priority(list[Production] levels) {
         else fail;
       }
       case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
-        if (match(l,rhs)) {
+        if (match(l,rhs), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,crhs)) {
           result += {<father, 0, child>};
         }   
         else { 
           fail;
         }
       case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
-        if (match(r,rhs)) {
+        if (match(r,rhs), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,crhs)) {
           result += {<father, size(lhs) - 1, child>};
         }   
         else { 
