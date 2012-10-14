@@ -108,7 +108,7 @@ public class ParseError extends RuntimeException{
 		sb.append(getMessage());
 		
 		sb.append("\n");
-		sb.append("At ");
+		sb.append("at ");
 		sb.append(location);
 		sb.append(" offset=");
 		sb.append(offset);
@@ -132,7 +132,7 @@ public class ParseError extends RuntimeException{
 		sb.append(getMessage());
 		
 		sb.append("\n");
-		sb.append("At ");
+		sb.append("at ");
 		sb.append(location);
 		sb.append(" offset=");
 		sb.append(offset);
