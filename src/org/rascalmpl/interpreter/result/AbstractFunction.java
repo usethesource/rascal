@@ -363,6 +363,26 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	@Override
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
+		return that.addFunctionNonDeterministic(this);
+	}
+	
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(AbstractFunction that) {
+		return (new OverloadedFunction(this)).add(that);
+	}
+
+	@Override
+	public OverloadedFunction addFunctionNonDeterministic(OverloadedFunction that) {
+		return (new OverloadedFunction(this)).join(that);
+	}
+
+	@Override
+	public ComposedFunctionResult addFunctionNonDeterministic(ComposedFunctionResult that) {
+		return new ComposedFunctionResult.NonDeterministic(that, this, ctx);
+	}
+	
+	@Override
 	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right) {
 		return right.composeFunction(this);
 	}

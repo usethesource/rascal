@@ -259,11 +259,11 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionStepRange(Expression.StepRange x);
 
-  public T visitExpressionNoMatch(Expression.NoMatch x);
-
   public T visitExpressionJoin(Expression.Join x);
 
   public T visitExpressionEnumerator(Expression.Enumerator x);
+
+  public T visitExpressionNoMatch(Expression.NoMatch x);
 
   public T visitExpressionAsType(Expression.AsType x);
 
@@ -275,9 +275,9 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionAppendAfter(Expression.AppendAfter x);
 
-  public T visitExpressionFieldAccess(Expression.FieldAccess x);
-
   public T visitExpressionSet(Expression.Set x);
+
+  public T visitExpressionFieldAccess(Expression.FieldAccess x);
 
   public T visitExpressionFieldProject(Expression.FieldProject x);
 
@@ -295,9 +295,9 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionCallOrTree(Expression.CallOrTree x);
 
-  public T visitExpressionRange(Expression.Range x);
-
   public T visitExpressionGetAnnotation(Expression.GetAnnotation x);
+
+  public T visitExpressionRange(Expression.Range x);
 
   public T visitExpressionVariableBecomes(Expression.VariableBecomes x);
 
@@ -327,9 +327,9 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionLessThanOrEq(Expression.LessThanOrEq x);
 
-  public T visitExpressionVoidClosure(Expression.VoidClosure x);
-
   public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
+
+  public T visitExpressionVoidClosure(Expression.VoidClosure x);
 
   public T visitExpressionRemainder(Expression.Remainder x);
 
@@ -379,17 +379,17 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionSplicePlus(Expression.SplicePlus x);
 
-  public T visitExpressionQualifiedName(Expression.QualifiedName x);
-
   public T visitExpressionNegative(Expression.Negative x);
+
+  public T visitExpressionQualifiedName(Expression.QualifiedName x);
 
   public T visitExpressionTransitiveReflexiveClosure(Expression.TransitiveReflexiveClosure x);
 
   public T visitExpressionReducer(Expression.Reducer x);
 
-  public T visitExpressionVisit(Expression.Visit x);
-
   public T visitExpressionSetAnnotation(Expression.SetAnnotation x);
+
+  public T visitExpressionVisit(Expression.Visit x);
 
   public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x);
 
