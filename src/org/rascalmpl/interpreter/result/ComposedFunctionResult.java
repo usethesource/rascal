@@ -111,14 +111,12 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues) {
 		return call(monitor, argTypes, argValues, null);
 	}
 	
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, IValue self) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
 			return call(argTypes, argValues, self);
@@ -134,10 +132,9 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
 		Result<IValue> rightResult = null;
-		if(isOpenRecursive && self == null) 
-			self = this;
+		if(isOpenRecursive && self == null) self = this;
 		rightResult = right.call(argTypes, argValues, self);
 		return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() });
 	}
@@ -220,7 +217,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public String toString() {
-		return left.toString() + " 'o' " + right.toString();
+		return left.toString() + (isOpenRecursive ? " 'oo' " : " 'o' ") + right.toString();
 	}
 
 	@Override
@@ -243,7 +240,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		}
 				
 		@Override
-		public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
 			Failure f1 = null;
 			ArgumentsMismatchError e1 = null;
 			if(this.isOpenRecursive() && self == null)
@@ -272,7 +269,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		
 		@Override
 		public String toString() {
-			return getLeft().toString() + " '+' " + getRight().toString();
+			return getLeft().toString() + (isOpenRecursive() ? " '++' " : " '+' ") + getRight().toString();
 		}
 
 	}

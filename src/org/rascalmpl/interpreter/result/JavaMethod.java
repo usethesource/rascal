@@ -128,7 +128,7 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
 		return call(actualTypes, actuals);
 	}
 	

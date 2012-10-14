@@ -329,7 +329,7 @@ public class RascalFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
 		Environment old = ctx.getCurrentEnvt();
 		AbstractAST oldAST = ctx.getCurrentAST();
 		Stack<Accumulator> oldAccus = ctx.getAccumulators();
@@ -339,48 +339,50 @@ public class RascalFunction extends NamedFunction {
 			Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), label);
 			ctx.setCurrentEnvt(environment);
 			
-			/*
-			 * The body of a function is parameterized by a self reference ( f = F(f) ), 
-			 * in such a way, it can be evaluated against the self argument if any:
-			 */
-			if(self != null) {
-				IMatchingResult matcher = new TypedVariablePattern(ctx, null, functionType, name);
-				matcher.initMatch(makeResult(self.getType(), self, ctx));
-				matcher.next();
-				ctx.pushEnv();
-			}	
-			/*
-			 * Self reference is passed as an argument to a formal parameter 'it' (used in case of anonymous recursive functions)
-			 */
-			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
-			if(!isAnonymous())
-				declarationEnvironment.getAllFunctions(name, functionType, functions);
-			else
-				functions.add(this);
-			IValue it = new OverloadedFunction(name, functions);
-			IMatchingResult matcher = new TypedVariablePattern(ctx, null, functionType, org.rascalmpl.interpreter.Evaluator.IT);
-			matcher.initMatch(makeResult(functionType, it, ctx));
-			matcher.next();
-			ctx.pushEnv();
-			/*
-			 * Imported modules are looked up to reference the overridden or extended function
-			 */
-			functions = new java.util.LinkedList<AbstractFunction>();
-			if(declarationEnvironment.isRootScope()) 
-				((ModuleEnvironment) declarationEnvironment).getAllImportedFunctions(name, functionType, functions);
-			IValue prev = null;
-			if(functions.size() != 0) {
-				prev = new OverloadedFunction(name, functions);
-				matcher = new TypedVariablePattern(ctx, null, functionType, org.rascalmpl.interpreter.Evaluator.PREV);
-				matcher.initMatch(makeResult(functionType, prev, ctx));
-				matcher.next();
-				ctx.pushEnv();
-			}
-			
 			IMatchingResult[] matchers = prepareFormals(ctx);
 			ctx.setAccumulators(accumulators);
 			ctx.pushEnv();
-
+			
+			/*
+			 * The body of a function is parameterized by:
+			 * - the '<name>' self reference ( e.g., f = F(f) );
+			 * - the 'it' special variable;
+			 * - the 'prev' special variable; 
+			 */
+			java.util.List<AbstractFunction> functions = new java.util.LinkedList<AbstractFunction>();
+			Result<IValue> it = self;
+			if(self == null) {
+				if(isAnonymous()) {
+					functions.add(this);
+					it = new OverloadedFunction(Names.name(org.rascalmpl.interpreter.Evaluator.IT), functions);
+				} else { 
+					declarationEnvironment.getAllFunctions(name, functions);
+					self = new OverloadedFunction(name, functions);
+					it = self;
+				}
+//			} else {
+//				declarationEnvironment.getAllFunctions(name, functions);
+//				self = self.add(new OverloadedFunction(name, functions));
+//				it = self;
+			}
+			// binding '<name>'
+			if(self != null && !isAnonymous()) {
+				ctx.pushEnv();
+				ctx.getCurrentEnvt().storeVariable(name, self);
+			}
+			// binding 'it' 
+			ctx.pushEnv();
+			ctx.getCurrentEnvt().storeVariable(org.rascalmpl.interpreter.Evaluator.IT, it );
+			// binding 'prev'
+			functions = new java.util.LinkedList<AbstractFunction>();
+			if(isExtend && declarationEnvironment.isRootScope()) 
+				((ModuleEnvironment) declarationEnvironment).getAllImportedFunctions(name, functions);
+			if(functions.size() != 0) {
+				Result<IValue> prev = new OverloadedFunction(name, functions);
+				ctx.pushEnv();
+				ctx.getCurrentEnvt().storeVariable(org.rascalmpl.interpreter.Evaluator.PREV, prev);
+			}
+			
 			Type actualTypesTuple = TF.tupleType(actualTypes);
 			if (hasVarArgs) {
 				actuals = computeVarArgsActuals(actuals, getFormals());

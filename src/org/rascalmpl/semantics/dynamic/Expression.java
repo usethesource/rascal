@@ -502,7 +502,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Result<IValue> res = null;
 				try {
 					if(this.getExpression().isPrev()) {
-						res = function.call(types, actuals, __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.Evaluator.IT).getValue());
+						res = function.call(types, actuals, __eval.getCurrentEnvt().getVariable(org.rascalmpl.interpreter.Evaluator.IT));
 					} else {
 						res = function.call(types, actuals);
 					}

@@ -3,6 +3,7 @@ module openrecursion::Tests
 import openrecursion::B;
 import openrecursion::C;
 
+
 public test bool testExtendedFib() {
 	list[int] input = [0,1,2,3,4,5,6,7,8];
 	list[int] output = [ openrecursion::B::fib(n) | int n <- input];
@@ -20,6 +21,6 @@ public test bool testAnonymousFib() {
 public test bool testFibWeird() {
 	list[int] input = [0,1,2,3,4,5,6];
 	list[int] output = [ openrecursion::C::fib(n) | int n <- input];
-	list[int] expectedOutput = [0,1,2,6,16,44,120];
+	list[int] expectedOutput = [0,1,1,3,11,53,309];
 	return output == expectedOutput;
 }

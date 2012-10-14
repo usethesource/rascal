@@ -250,7 +250,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
 	@Override
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes,
-			IValue[] argValues, IValue self) {
+			IValue[] argValues, Result<IValue> self) {
 		IRascalMonitor old = ctx.getEvaluator().setMonitor(monitor);
 		try {
 			return call(argTypes, argValues, self);
@@ -261,11 +261,12 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
+		if(isComposedFunctionResult && isOpenRecursive) 
+			if(self == null) 
+				self = this;
+		
 		Result<IValue> result = callWith(primaryCandidates, argTypes, argValues, self, defaultCandidates.size() <= 0);
-
-		if(isComposedFunctionResult && isOpenRecursive && self == null)
-			self = this;
 		
 		if (result == null && defaultCandidates.size() > 0) {
 			result = callWith(defaultCandidates, argTypes, argValues, self, true);
@@ -281,7 +282,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return result;
 	}
 
-	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, IValue self, boolean mustSucceed) {
+	private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Result<IValue> self, boolean mustSucceed) {
 		AbstractFunction failed = null;
 		Failure failure = null;
 
