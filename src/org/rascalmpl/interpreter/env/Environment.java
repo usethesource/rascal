@@ -249,25 +249,6 @@ public class Environment {
 		}
 	}
 	
-	public void getAllFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
-		if (functionEnvironment != null) {
-			List<AbstractFunction> locals = functionEnvironment.get(name);
-			
-			if (locals != null) {
-				for (AbstractFunction func : locals) {
-					if (func.getFunctionType().getReturnType().isSubtypeOf(functionType.getReturnType())
-							&& func.getFunctionType().getArgumentTypes().equivalent(functionType.getArgumentTypes())) {
-						collection.add(func);
-					}
-				}
-			}
-		}
-		
-		if (parent != null) {
-			parent.getAllFunctions(name, functionType, collection);
-		}
-	}
-
 	protected boolean isNameFlagged(QualifiedName name, int flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;

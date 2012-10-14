@@ -190,7 +190,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return call(argTypes, argValues, null);
 	}
 
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) throws MatchFailed {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) throws MatchFailed {
 		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	

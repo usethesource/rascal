@@ -143,7 +143,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, IValue self) {
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self) {
 		IConstructor label = null;
 		
 		if (argTypes.length == 0) {
@@ -178,7 +178,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self) {
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self) {
 		return call(null, argTypes, argValues, self);
 	}
 

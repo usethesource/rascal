@@ -451,20 +451,17 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-	@Override
-	public void getAllFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
-		super.getAllFunctions(name, functionType, collection);
-		
+	public void getAllImportedFunctions(String name, List<AbstractFunction> collection) {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, functionType, collection);
+			mod.getLocalPublicFunctions(name, collection);
 		}
 	}
 	
-	public void getAllImportedFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
+	public void getAllImportedFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		for (String moduleName : getImports()) {
 			ModuleEnvironment mod = getImport(moduleName);
-			mod.getLocalPublicFunctions(name, functionType, collection);
+			mod.getLocalPublicFunctions(returnType, name, collection);
 		}
 	}
 	
@@ -509,22 +506,6 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 
-	private void getLocalPublicFunctions(String name, FunctionType functionType, List<AbstractFunction> collection) {
-		if (functionEnvironment != null) {
-			List<AbstractFunction> lst = functionEnvironment.get(name);
-			
-			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (func.isPublic() 
-							&& func.getFunctionType().getReturnType().isSubtypeOf(functionType.getReturnType())
-							&& func.getFunctionType().getArgumentTypes().equivalent(functionType.getArgumentTypes())) {
-						collection.add(func);
-					}
-				}
-			}
-		}
-	}
-	
 	@Override
 	public Type abstractDataType(String name, Type... parameters) {
 		return TF.abstractDataType(typeStore, name, parameters);

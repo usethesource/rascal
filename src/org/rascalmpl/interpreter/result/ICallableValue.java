@@ -20,9 +20,9 @@ public interface ICallableValue extends IValue {
 	public int getArity();
 	public boolean hasVarArgs();
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues);
-	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, IValue self);
+	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Result<IValue> self);
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues);
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IValue self);
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Result<IValue> self);
 	public boolean isStatic();
 	
 	public IEvaluator<Result<IValue>> getEval();

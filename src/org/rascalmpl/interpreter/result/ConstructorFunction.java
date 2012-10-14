@@ -53,7 +53,7 @@ public class ConstructorFunction extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IValue self) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Result<IValue> self) {
 		if (constructorType == Factory.Tree_Appl) {
 			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, self);
 		}
