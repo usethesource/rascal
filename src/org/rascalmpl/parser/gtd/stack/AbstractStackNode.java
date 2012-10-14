@@ -155,17 +155,16 @@ public abstract class AbstractStackNode<P>{
 	/**
 	 * Checks whether this node represents a 'matchable' leaf node.
 	 */
-	public final boolean isMatchable(){
-		return (this instanceof AbstractMatchableStackNode);
+	public boolean isMatchable(){
+		return false;
 	}
 	
 	/**
 	 * Check wheterh this node represents a node which needs to be expanded in-place.
 	 */
-	public final boolean isExpandable(){
-		return (this instanceof AbstractExpandableStackNode);
+	public boolean isExpandable(){
+		return false;
 	}
-	
 	/**
 	 * Checks if this node represents a nullable leaf node.
 	 */

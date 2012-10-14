@@ -8,9 +8,9 @@ import ParseTree;
 import String;
 
 public bool match(Symbol checked, Symbol referenced) {
-  while (checked is condition || checked is label)
+  while (checked is conditional || checked is label)
     checked = checked.symbol;
-  while (referenced is condition || referenced is label)
+  while (referenced is conditional || referenced is label)
     referenced = referenced.symbol;
     
   return referenced == checked;
