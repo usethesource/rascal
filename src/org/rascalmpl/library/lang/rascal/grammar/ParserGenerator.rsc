@@ -33,6 +33,7 @@ import Exception;
 // TODO: replace this complex data structure with several simple ones
 private alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
 public anno str Symbol@prefix;
+anno int Symbol@id;
 
 @doc{Used in bootstrapping only, to generate a parser for Rascal modules without concrete syntax.}
 public str generateRootParser(str package, str name, Grammar gr) {
@@ -96,16 +97,20 @@ public str generate(str package, str name, str super, int () newItem, bool callS
     
     println("generating stubs for regular");
     gr = makeRegularStubs(gr);
-   
+    
     println("generating literals");
     gr = literals(gr);
+    
     
     println("establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
+    println("assigning unique ids to symbols");
+    gr = visit(gr) { case Symbol s => s[@id=newItem()] }
+    iprintln(gr);
+        
     println("generating item allocations");
-    //writeFile(|file:///tmp/grammarBeforeNewItems.trm|, gr);
-    newItems = generateNewItems(gr, newItem);
+    newItems = generateNewItems(gr);
     
     println("computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
@@ -289,66 +294,86 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
+  // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
+  // or except filter. They can be the fathers though. 
+  
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations, and excepts
-  dnn       = doNotNest(grammar);
+  dnn = doNotNest(grammar);
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn};
+  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
+       + {<getItemId(t, pos), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
 }
 
+private int getItemId(Symbol s, int pos) {
+  switch (s) {
+    case opt(t) : return t@id; 
+    case iter(t) : return t@id; 
+    case \iter-seps(t,ss) : if (pos == 0) return t@id; else fail;
+    case \iter-seps(t,ss) : if (pos > 0)  return ss[pos-1]@id; else fail;
+    case \iter-star-seps(t,ss) : if (pos == 0) return t@id; else fail;
+    case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1]@id; else fail;
+    case \seq(ss) : return ss[pos]@id;
+    // TODO alt
+  }  
+  
+  throw "unsupported for excepts? <s>";
+}
 private Symbol getType(Production p) = getType(p.def);
-private Symbol getType(label(str _, Symbol s)) = s;
+private Symbol getType(label(str _, Symbol s)) = getType(s);
+private Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
 private default Symbol getType(Symbol s) = s;
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
-private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g, int () newItem) {
+private map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
   
   visit (g) {
-    case Production p:prod(Symbol s,[],_) : {
-       int counter = newItem();
-       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<counter>, 0)", counter>);
-    }
+    case Production p:prod(Symbol s,[],_) : 
+       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
       for (int i <- index(lhs)) 
-        items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], newItem, i));
+        items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], i));
     }
-    case Production p:regular(Symbol s) : 
+    case Production p:regular(Symbol s) : {
+      while (s is conditional || s is label)
+        s = s.symbol;
+         
       switch(s) {
         case \iter(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-star(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem, i+1));
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         case \iter-star-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], newItem, i+1));
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         // not sure if these belong here
         case \seq(list[Symbol] elems) : {
           for (int i <- index(elems))
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, elems[i], newItem, i+1));
+            items[s]?fresh += (item(p,i+1):sym2newitem(g, elems[i], i+1));
         }
         case \opt(Symbol elem) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \alt(set[Symbol] alts) : {
           for (Symbol elem <- alts) 
-            items[s]?fresh += (item(p,0):sym2newitem(g, elem, newItem, 0));
+            items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \empty() : {
-           counter = newItem();
-           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<counter>, 0)", counter>);
+           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
         }
+      }
      }
   }
   
@@ -408,28 +433,28 @@ str generateRangeConditional(CharRange r) {
   }
 }
 
-public str generateSeparatorExpects(Grammar grammar, int() id, list[Symbol] seps) {
+public str generateSeparatorExpects(Grammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
    
-   return (sym2newitem(grammar, head(seps), id, 1).new | it + ", <sym2newitem(grammar, seps[i+1], id, i+2).new>" | int i <- index(tail(seps)));
+   return (sym2newitem(grammar, head(seps), 1).new | it + ", <sym2newitem(grammar, seps[i+1], i+2).new>" | int i <- index(tail(seps)));
 }
 
-public str generateSequenceExpects(Grammar grammar, int() id, list[Symbol] seps) {
+public str generateSequenceExpects(Grammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
    
-   return (sym2newitem(grammar, head(seps), id, 0).new | it + ", <sym2newitem(grammar, seps[i+1], id, i+1).new>" | int i <- index(tail(seps)));
+   return (sym2newitem(grammar, head(seps), 0).new | it + ", <sym2newitem(grammar, seps[i+1], i+1).new>" | int i <- index(tail(seps)));
 }
 
-public str generateAltExpects(Grammar grammar, int() id, list[Symbol] seps) {
+public str generateAltExpects(Grammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
    
-   return (sym2newitem(grammar, head(seps), id, 0).new | it + ", <sym2newitem(grammar, seps[i+1], id, 0).new>" | int i <- index(tail(seps)));
+   return (sym2newitem(grammar, head(seps), 0).new | it + ", <sym2newitem(grammar, seps[i+1], 0).new>" | int i <- index(tail(seps)));
 }
 
 public str literals2ints(list[Symbol] chars){
@@ -451,11 +476,12 @@ public str ciliterals2ints(list[Symbol] chars){
     throw "case insensitive literals not yet implemented by parser generator";
 }
 
-public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int() id, int dot){
+public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
     if (sym is label)  // ignore labels 
       sym = sym.symbol;
       
-    itemId = id();
+    println(sym);
+    itemId = sym@id;
     
     list[str] enters = [];
     list[str] exits = [];
@@ -522,27 +548,27 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int()
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
-            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, true, <filters>)",itemId>;
+            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, true, <filters>)",itemId>;
         case \iter-star(s) :
-            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s, id, 0).new>, false, <filters>)", itemId>;
+            return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, false, <filters>)", itemId>;
         case \iter-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
-            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, true, <filters>)",itemId>;
+            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, true, <filters>)",itemId>;
         }
         case \iter-star-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
-            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,id,seps)>}, false, <filters>)",itemId>;
+            return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, false, <filters>)",itemId>;
         }
         case \opt(s) : {
             reg =  regular(sym);
-            return <"new OptionalStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s, id, 0).new>, <filters>)", itemId>;
+            return <"new OptionalStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, <filters>)", itemId>;
         }
         case \alt(as) : {
             alts = [a | a <- as];
-            return <"new AlternativeStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateAltExpects(grammar, id, alts)>}, <filters>)", itemId>;
+            return <"new AlternativeStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateAltExpects(grammar,  alts)>}, <filters>)", itemId>;
         }
         case \seq(ss) : {
-            return <"new SequenceStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSequenceExpects(grammar, id, ss)>}, <filters>)", itemId>;
+            return <"new SequenceStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSequenceExpects(grammar,  ss)>}, <filters>)", itemId>;
         }
         case \char-class(list[CharRange] ranges) : 
             return <"new CharStackNode\<IConstructor\>(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
