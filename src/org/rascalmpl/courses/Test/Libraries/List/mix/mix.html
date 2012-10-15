@@ -109,14 +109,14 @@ list[value]: [3,"elephant",1,"snake",7]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_Libraries_List_mix_1:answer" id="Test/Libraries/List/mix_1_0" value="0">
-<label for="Test/Libraries/List/mix_1_0">N + M.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_mix_1:answer" id="Test/Libraries/List/mix_1_1" value="1">
-<label for="Test/Libraries/List/mix_1_1">N + M - 1.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_mix_1:answer" id="Test/Libraries/List/mix_1_4" value="4">
 <label for="Test/Libraries/List/mix_1_4">N * M.</label><br/>
+
+<input type="radio" name="Test_Libraries_List_mix_1:answer" id="Test/Libraries/List/mix_1_3" value="3">
+<label for="Test/Libraries/List/mix_1_3">M.</label><br/>
+
+<input type="radio" name="Test_Libraries_List_mix_1:answer" id="Test/Libraries/List/mix_1_0" value="0">
+<label for="Test/Libraries/List/mix_1_0">N + M.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -140,9 +140,9 @@ list[value]: [3,"elephant",1,"snake",7]
 <span id="answerFeedback_Test_Libraries_List_mix_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_mix_2:L" value="[&quot;Tibor&quot;, &quot;I&quot;]">
-<input type="hidden" name="Test_Libraries_List_mix_2:M" value="[&quot;Lavender&quot;, &quot;Slimey the Worm&quot;, &quot;Darth Sidious&quot;, &quot;W&quot;]">
-The type of <tt>mix([&quot;Tibor&quot;, &quot;I&quot;], [&quot;Lavender&quot;, &quot;Slimey the Worm&quot;, &quot;Darth Sidious&quot;, &quot;W&quot;])</tt> is <input type="text" size="30" name="Test_Libraries_List_mix_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_mix_2:L" value="[3, -3]">
+<input type="hidden" name="Test_Libraries_List_mix_2:M" value="[16, 11, 15, 1]">
+The type of <tt>mix([3, -3], [16, 11, 15, 1])</tt> is <input type="text" size="30" name="Test_Libraries_List_mix_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -166,9 +166,9 @@ The type of <tt>mix([&quot;Tibor&quot;, &quot;I&quot;], [&quot;Lavender&quot;, &
 <span id="answerFeedback_Test_Libraries_List_mix_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_mix_3:L" value="[&quot;Lavender&quot;]">
-<input type="hidden" name="Test_Libraries_List_mix_3:M" value="[&quot;Anakin Skywalker&quot;]">
-<pre class="prequestion">mix([&quot;Lavender&quot;], [&quot;Anakin Skywalker&quot;]) == <input type="text" size="30" name="Test_Libraries_List_mix_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_mix_3:L" value="[&quot;Bruno&quot;, &quot;Hoots The Owl&quot;]">
+<input type="hidden" name="Test_Libraries_List_mix_3:M" value="[&quot;C-3PO&quot;, &quot;G&quot;, &quot;Prune&quot;, &quot;Guy Smiley&quot;]">
+<pre class="prequestion">mix([&quot;Bruno&quot;, &quot;Hoots The Owl&quot;], [&quot;C-3PO&quot;, &quot;G&quot;, &quot;Prune&quot;, &quot;Guy Smiley&quot;]) == <input type="text" size="30" name="Test_Libraries_List_mix_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_mix_3:another" value="yes">

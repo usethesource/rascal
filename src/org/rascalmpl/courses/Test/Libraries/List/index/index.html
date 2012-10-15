@@ -115,14 +115,14 @@ set[int]: {3,2,1,0}
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Libraries_List_index_1:answer" id="Test/Libraries/List/index_1_3" value="3">
+<label for="Test/Libraries/List/index_1_3">One larger than the number of elements in the list.</label><br/>
+
 <input type="radio" name="Test_Libraries_List_index_1:answer" id="Test/Libraries/List/index_1_0" value="0">
 <label for="Test/Libraries/List/index_1_0">Equal to the number of elements in the list.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_index_1:answer" id="Test/Libraries/List/index_1_1" value="1">
 <label for="Test/Libraries/List/index_1_1">Depends on the number of repeated elements in the list.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_index_1:answer" id="Test/Libraries/List/index_1_2" value="2">
-<label for="Test/Libraries/List/index_1_2">One less than the number of elements in the list.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -146,8 +146,8 @@ set[int]: {3,2,1,0}
 <span id="answerFeedback_Test_Libraries_List_index_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_index_2:L" value="[-7, 17, 9, 5]">
-The type of <tt>index([-7, 17, 9, 5])</tt> is <input type="text" size="30" name="Test_Libraries_List_index_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_index_2:L" value="[0, -3, 2, -5, 0]">
+The type of <tt>index([0, -3, 2, -5, 0])</tt> is <input type="text" size="30" name="Test_Libraries_List_index_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -171,8 +171,8 @@ The type of <tt>index([-7, 17, 9, 5])</tt> is <input type="text" size="30" name=
 <span id="answerFeedback_Test_Libraries_List_index_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_index_3:L" value="[]">
-<pre class="prequestion">index([]) == <input type="text" size="30" name="Test_Libraries_List_index_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_index_3:L" value="[-7]">
+<pre class="prequestion">index([-7]) == <input type="text" size="30" name="Test_Libraries_List_index_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_index_3:another" value="yes">

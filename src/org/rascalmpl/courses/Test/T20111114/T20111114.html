@@ -93,14 +93,14 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_6" value="6">
-<label for="Test/T20111114_1_6">All keys are sorted.</label><br/>
+<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_6" value="0@6@[6,0,3]">
+<label for="Test/T20111114_1_6">All keys are sorted. </label><br/>
 
-<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_3" value="3">
-<label for="Test/T20111114_1_3">All keys should have the same type and all values should have the same type. The type of keys and values should be the same.</label><br/>
+<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_0" value="1@0@[6,0,3]">
+<label for="Test/T20111114_1_0">All keys have to be unique. </label><br/>
 
-<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_0" value="0">
-<label for="Test/T20111114_1_0">All keys have to be unique.</label><br/>
+<input type="radio" name="Test_T20111114_1:answer" id="Test/T20111114_1_3" value="2@3@[6,0,3]">
+<label for="Test/T20111114_1_3">All keys should have the same type and all values should have the same type. The type of keys and values should be the same. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -126,14 +126,14 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_3" value="3">
-<label for="Test/T20111114_2_3">All elements should have the same type.</label><br/>
+<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_5" value="0@5@[5,2,4]">
+<label for="Test/T20111114_2_5">The order of the elements is not relevant. </label><br/>
 
-<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_5" value="5">
-<label for="Test/T20111114_2_5">The order of the elements is not relevant.</label><br/>
+<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_2" value="1@2@[5,2,4]">
+<label for="Test/T20111114_2_2">The order of the elements is relevant. </label><br/>
 
-<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_0" value="0">
-<label for="Test/T20111114_2_0">All elements may have different types.</label><br/>
+<input type="radio" name="Test_T20111114_2:answer" id="Test/T20111114_2_4" value="2@4@[5,2,4]">
+<label for="Test/T20111114_2_4">The number of elements is not fixed. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -159,14 +159,17 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_2" value="2">
-<label for="Test/T20111114_3_2">Can not contain duplicates.</label><br/>
+<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_6" value="0@6@[6,7,3,1]">
+<label for="Test/T20111114_3_6">Can contain duplicates. </label><br/>
 
-<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_6" value="6">
-<label for="Test/T20111114_3_6">Can contain duplicates.</label><br/>
+<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_7" value="1@7@[6,7,3,1]">
+<label for="Test/T20111114_3_7">Has a fixed length. </label><br/>
 
-<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_5" value="5">
-<label for="Test/T20111114_3_5">Has ordered elements.</label><br/>
+<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_3" value="2@3@[6,7,3,1]">
+<label for="Test/T20111114_3_3">Is a list of tuples. </label><br/>
+
+<input type="radio" name="Test_T20111114_3:answer" id="Test/T20111114_3_1" value="3@1@[6,7,3,1]">
+<label for="Test/T20111114_3_1">Has unordered elements. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -192,14 +195,14 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_3" value="3">
-<label for="Test/T20111114_4_3">The average of the type of the elements with the smallest and the largests type.</label><br/>
+<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_1" value="0@1@[1,2,3]">
+<label for="Test/T20111114_4_1">The types of all the elements in the set. </label><br/>
 
-<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_2" value="2">
-<label for="Test/T20111114_4_2">The type of the element that was first added to the set.</label><br/>
+<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_2" value="1@2@[1,2,3]">
+<label for="Test/T20111114_4_2">The type of the element that was first added to the set. </label><br/>
 
-<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_0" value="0">
-<label for="Test/T20111114_4_0">The least upperbound of the type of all elements.</label><br/>
+<input type="radio" name="Test_T20111114_4:answer" id="Test/T20111114_4_3" value="2@3@[1,2,3]">
+<label for="Test/T20111114_4_3">The average of the type of the elements with the smallest and the largests type. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -225,14 +228,14 @@
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
-<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_2" value="2">
-<label for="Test/T20111114_5_2">Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple.</label><br/>
+<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_0" value="0@0@[0,2,4]">
+<label for="Test/T20111114_5_0">Domain returns a set of the first element of each tuple in the relation and range returns a set of the second element of each tuple. </label><br/>
 
-<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_5" value="5">
-<label for="Test/T20111114_5_5">Domain returns a set of the elements that occur in any tuple in the relation and range returns a list of those elements.</label><br/>
+<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_2" value="1@2@[0,2,4]">
+<label for="Test/T20111114_5_2">Domain returns a list of the first element of each tuple in the relation and range returns a list of the second element of each tuple. </label><br/>
 
-<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_1" value="1">
-<label for="Test/T20111114_5_1">Domain and range are only applicable to binary relations.</label><br/>
+<input type="radio" name="Test_T20111114_5:answer" id="Test/T20111114_5_4" value="2@4@[0,2,4]">
+<label for="Test/T20111114_5_4">Domain returns a list of the second element of each tuple in the relation and range returns a list of the first element of each tuple. </label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -256,8 +259,8 @@
 <span id="answerFeedback_Test_T20111114_6" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_6:A" value="[&quot;Ernie&quot;, &quot;Ailyn Vel&quot;, &quot;Blackcurrant&quot;]">
-The type of <tt>[&quot;Ernie&quot;, &quot;Ailyn Vel&quot;, &quot;Blackcurrant&quot;]</tt> is <input type="text" size="30" name="Test_T20111114_6:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_6:A" value="[-11.50138451505026800, 16.9958400801742800, -4.174194971826317200, 8.30826781828856800]">
+The type of <tt>[-11.50138451505026800, 16.9958400801742800, -4.174194971826317200, 8.30826781828856800]</tt> is <input type="text" size="30" name="Test_T20111114_6:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -281,8 +284,8 @@ The type of <tt>[&quot;Ernie&quot;, &quot;Ailyn Vel&quot;, &quot;Blackcurrant&qu
 <span id="answerFeedback_Test_T20111114_7" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_7:A" value="7">
-The type of <tt>{7, </tt><input type="text" size="30" name="Test_T20111114_7:answer" class="answerText"><tt>}</tt> is <tt>set[num]</tt><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_7:A" value="14">
+The type of <tt>{14, </tt><input type="text" size="30" name="Test_T20111114_7:answer" class="answerText"><tt>}</tt> is <tt>set[num]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -306,8 +309,8 @@ The type of <tt>{7, </tt><input type="text" size="30" name="Test_T20111114_7:ans
 <span id="answerFeedback_Test_T20111114_8" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_8:A" value="-6">
-The type of <tt>{-6, </tt><input type="text" size="30" name="Test_T20111114_8:answer" class="answerText"><tt>}</tt> is <tt>set[value]</tt><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_8:A" value="17">
+The type of <tt>{17, </tt><input type="text" size="30" name="Test_T20111114_8:answer" class="answerText"><tt>}</tt> is <tt>set[value]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -331,8 +334,8 @@ The type of <tt>{-6, </tt><input type="text" size="30" name="Test_T20111114_8:an
 <span id="answerFeedback_Test_T20111114_9" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_9:A" value="&quot;Mango&quot;">
-The type of <tt>(&quot;Mango&quot;: </tt><input type="text" size="30" name="Test_T20111114_9:answer" class="answerText"><tt>)</tt> is <tt>map[str,int]</tt><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_9:A" value="&quot;Pineapple&quot;">
+The type of <tt>(&quot;Pineapple&quot;: </tt><input type="text" size="30" name="Test_T20111114_9:answer" class="answerText"><tt>)</tt> is <tt>map[str,int]</tt><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -356,8 +359,8 @@ The type of <tt>(&quot;Mango&quot;: </tt><input type="text" size="30" name="Test
 <span id="answerFeedback_Test_T20111114_10" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_10:A" value="{&quot;Cookie Monster&quot;, &quot;R&quot;, &quot;Luke Skywalker&quot;, &quot;Slimey the Worm&quot;, &quot;Basil&quot;}">
-The type of <tt>{&quot;Cookie Monster&quot;, &quot;R&quot;, &quot;Luke Skywalker&quot;, &quot;Slimey the Worm&quot;, &quot;Basil&quot;}</tt> is <input type="text" size="30" name="Test_T20111114_10:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_T20111114_10:A" value="{-13.754512492466490800}">
+The type of <tt>{-13.754512492466490800}</tt> is <input type="text" size="30" name="Test_T20111114_10:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

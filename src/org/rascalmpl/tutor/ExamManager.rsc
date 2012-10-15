@@ -18,38 +18,63 @@ import Map;
 import IO;
 import util::Math;
 import lang::csv::IO;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import CourseModel;
 import CourseCompiler;
 import CourseManager;
                              
-
 // Compile one concept as an exam
 
-public void compileConceptAsExam(ConceptName cn){
-  file = conceptFile(cn);
-  compileConceptAsExam(file);
+
+public void main(){
+   //compileExam("AP2012/Test1");
+   //processSubmissions(examsDir + "results/" + "AP2012/Test1");
+   validateExam("AP2012/Test1");
 }
 
-loc resultDir = |file:///Users/paulklint/exam-results|;
+loc resultsDir = examsDir + "results/";
+
 str resultExtension = ".examresults";
 str eol = "/|*|/";
 
-private map[str,str] processFile(loc file){
-   res = ();
-   for(line <- readFileLines(file)){
-      if(/<key:[^\t]+>\t<val:.+><eol>$/ := line){
-         //println("key = <key>, val = <val>");
-         res[key] = val;
-      } else
-         throw "Unexpected line: <line>";
-   }
-   return res;
+public void validateExam(str cn){
+    bool leq(str a, str b){
+	    if(size(a) == size(b))
+	       return a <= b;
+	    return size(a) < size(b);
+	}
+	
+  resultsDir = examsDir + "results/" + cn;
+  scores = processSubmissions(resultsDir);
+  println(scores);
+ 
+  sortedqs = sort(toList({*domain(sc.answers) | sc <- scores}), leq);
+  
+  collectAnswers(scores);
+  //createStatistics(scores, resultsDir);
+  createReview(scores, resultsDir);
+  //createResults(scores), resultsDir;
+  //createMailing(scores, resultsDir);
+  println("ValidateExams ... done!");
 }
 
-public set[examResult] processExams(loc resultDir){
-  seen = ();
-  for(str entry <- listEntries(resultDir))
+// Process the raw submissions and evaluate all answers
+
+public set[examResult] processSubmissions(loc results){
+	private map[str,str] getExamResults(loc file){
+	   res = ();
+	   for(line <- readFileLines(file)){
+	      if(/<key:[^\t]+>\t<val:.+><eol>$/ := line){
+	         res[key] = val;
+	      } else
+	         throw "Unexpected line: <line>";
+	   }
+	   return res;
+	}
+  isExam = true;
+
+  seenStudents = ();
+  for(str entry <- listEntries(results))
       if(endsWith(entry, resultExtension)){
          timestamp = "99999999999";
          if(/_<stamp:[0-9]+>\.examresult/ := entry){
@@ -58,26 +83,20 @@ public set[examResult] processExams(loc resultDir){
          } else
            println("<entry>: no stamp found");
             
-         cur = validateExam(timestamp, processFile(resultDir + entry));
+         cur = validateExamSubmission(timestamp, getExamResults(results + entry));
          studentMail = cur.studentMail;
-         if(!seen[studentMail]?){
-            seen[studentMail] = cur;
+         if(!seenStudents[studentMail]?){
+            seenStudents[studentMail] = cur;
          } else {
-           prev = seen[studentMail];
+           prev = seenStudents[studentMail];
            if(prev.timestamp < cur.timestamp){
              println("<studentMail>: REPLACE <prev.timestamp> by <cur.timestamp>");
-             seen[studentMail] = cur;
+             seenStudents[studentMail] = cur;
            }
            println("<studentMail>: KEEP LATEST: <cur.timestamp>");
          }
        };
-  return range(seen);
-}
-
-bool leq(str a, str b){
-    if(size(a) == size(b))
-       return a <= b;
-    return size(a) < size(b);
+  return range(seenStudents);
 }
 
 str round(num n) = "<round(n, 0.1)>";
@@ -85,16 +104,6 @@ str round(num n) = "<round(n, 0.1)>";
 private list[str] sortedqs = [];
 private map[str,set[str]] goodAnswers = ();
 private map[str,set[str]] badAnswers = ();
-
-public void validateExams(){
-  scores = processExams(resultDir);
-  collectAnswers(scores);
-  createStatistics(scores);
-  createReview(scores);
-  //createResults(scores);
-  //createMailing(scores);
-  println("ValidateExams ... done!");
-}
 
 public void collectAnswers(set[examResult] scores){
   goodAnswers = ();
@@ -111,8 +120,34 @@ public void collectAnswers(set[examResult] scores){
   println("goodAnswers: <goodAnswers>
           'badAnswers: <badAnswers>");
 }
+
+void createReview(set[examResult] scores, loc results){
+  rel[str Question, num Score, str Wrong, str Expected, str Comment] reviews = {};
+ 
+  println("*** createReview ***");
+  seenAnswers = {};
+  for(sc <- scores){
+	  for(q <- sortedqs){
+	      ans = (sc.answers[q]) ? "none";
+	      if(!(sc.evaluation[q])? || sc.evaluation[q] == "fail"){
+	         if(<q, ans> notin seenAnswers){
+	          ga = (goodAnswers[q])? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
+	          println(sc.expectedAnswers[q]);
+	          if(sc.expectedAnswers[q]?)
+	             ga += sc.expectedAnswers[q];
+	          reviews += {<q, 0, ans, ga, "">};
+	          seenAnswers += {<q, ans>};
+	        }
+	      }
+	  }   
+  }
+  writeCSV(reviews, results + "Review.csv", ("separator" : ";"));
+}
+
   
-public void createStatistics(set[examResult] scores){
+public void createStatistics(set[examResult] scores, loc results){
+
+	
   allscores = [sc.score | sc <- scores];
   nstudents = size(allscores);
   npassed =  (0 | it + 1 | sc <- scores, sc.score >= 6.0);
@@ -126,9 +161,8 @@ public void createStatistics(set[examResult] scores){
   for(q <- qavg){
       qavg[q] = (100 * qavg[q]) / nstudents;
   }
-  sortedqs = sort(toList(domain(qavg)), leq);
   
-  writeFile(resultDir + "Statistics.txt",
+  writeFile(results + "Statistics.txt",
   		  "Number of students: <nstudents>
   		  'Lowest score:       <round(min(allscores))>
           'Highest score:      <round(max(allscores))>
@@ -145,36 +179,18 @@ public void createStatistics(set[examResult] scores){
   println("Written Statistics.txt");
 }
 
-void createReview(set[examResult] scores){
-  rel[str Question, num Score, str Wrong, str Expected, str Comment] reviews = {};
- 
-  println("*** createReview ***");
-  seen = {};
-  for(sc <- scores){
-	  for(q <- sortedqs){
-	      ans = (sc.answers[q])?"none";
-	      if(!sc.evaluation[q]? || sc.evaluation[q] == "fail"){
-	         if(<q, ans> notin seen){
-	          ga = goodAnswers[q]? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
-	          reviews += {<q, 0, (sc.answers[q])?"none", ga, "">};
-	          seen += {<q, ans>};
-	        }
-	      }
-	  }   
-  }
-  writeCSV(reviews, resultDir + "Review.csv", ("separator" : ";"));
-}
 
-void createResults(set[examResult] scores){
- writeFile(resultDir + "Results.csv",
+
+void createResults(set[examResult] scores, loc results){
+ writeFile(results + "Results.csv",
           "<for(sc <- scores){>
           '<sc.studentName>;<round(sc.score)><for(q <- sortedqs){>;<sc.evaluation[q]?"fail"><}><}>"
           );
   println("Written Results.csv");    
 }
 
-void createMailing(set[examResult] scores){
-writeFile(resultDir + "Mailing.sh",
+void createMailing(set[examResult] scores, loc results){
+writeFile(results + "Mailing.sh",
           "<for(sc <- scores){>
           'mail -s \"Exam Results\" <sc.studentMail> \<\<==eod==
           'Dear <sc.studentName>,

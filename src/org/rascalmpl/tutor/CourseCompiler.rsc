@@ -40,6 +40,7 @@ public Course compileCourse(ConceptName rootConcept){
    startJob("Compile <rootConcept>", 1000);
    begin = realTime();
    arbSeed(0); // Set the arb generation so that the same choices will be made for question generation.
+   isExam = false;
    concepts = ();
    warnings = [];
    conceptList = getUncachedCourseConcepts(rootConcept);
@@ -221,6 +222,17 @@ public Concept compileAndGenerateConcept(ConceptName cn, bool updateParent){
             }
 }
 
+public Concept compileExam(ConceptName conceptName){
+	prevIsExam = isExam;
+	isExam = true;
+	dir = courseDir;
+	courseDir = examsDir + "exams";
+	c = compileConcept(conceptName);
+	isExam = prevIsExam;
+	courseDir = dir;
+	return c;
+}
+
 public Concept compileConcept(ConceptName conceptName){
    
    println("compileConcept: <conceptName>");
@@ -254,11 +266,11 @@ public Concept compileConcept(ConceptName conceptName){
 	       local_warnings += "non-existing detail <detailName>";
 	   }
 	   
-	   optionsSection    = sections["Options"] ? [];
+	   //optionsSection    = sections["Options"] ? [];
 	   
-	   isExam = false;
-	   if(size(optionsSection) > 0 && /exam/ := optionsSection[0])
-	      isExam = true;
+	   //isExam = false;
+	   //if(size(optionsSection) > 0 && /exam/ := optionsSection[0])
+	   //   isExam = true;
 	 
 	   syntaxSection 	= sections["Syntax"] ? [];
 	   typesSection 	= sections["Types"] ? [];
@@ -337,11 +349,19 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 	 
    if(size(C.questions) > 0){
 	  qs = C.questions;
-	  quest_file = questFile(cn);
+	  quest_file = questFile(isExam ? examsDir + "results" : courseDir, cn);
       try {
 	       writeTextValueFile(quest_file, C.questions);
 	  }
 	  catch e: println("can not save file <quest_file>"); // do nothing
+   }
+   
+   if(isExam){
+      lock_file = lockFile(cn);
+      try {
+          writeFile(lock_file, restrictAccess());
+      }
+      catch e: println("can not write file <lock_file>"); // do nothing
    }
 }
 
@@ -349,9 +369,9 @@ public void generate(Concept C, str synopsis, str html_synopsis, str html_body){
 
 public str prelude(str courseName){
   if(isExam)
-	   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"exam.css\"/\>
-	  		 '\<script type=\"text/javascript\" src=\"jquery-1.4.2.min.js\"\>\</script\>
-	  		 '\<script type=\"text/javascript\" src=\"exam.js\"\>\</script\>";
+	   return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/exam.css\"/\>
+	  		 '\<script type=\"text/javascript\" src=\"/jquery-1.4.2.min.js\"\>\</script\>
+	  		 '\<script type=\"text/javascript\" src=\"/exam.js\"\>\</script\>";
   else
 	  return "\<link type=\"text/css\" rel=\"stylesheet\" href=\"/prelude.css\"/\>
 	  		 '\<link type=\"text/css\" rel=\"stylesheet\" href=\"/jquery.autocomplete.css\"/\>
@@ -435,6 +455,13 @@ public str editMenu(Concept C){
           + "\<span class=\"editMenuFooter\"\>Is this page unclear, or have you spotted an error? Please add a comment below and help us to improve it. "
           + "For all other questions and remarks, visit \<a href=\"http://ask.rascal-mpl.org\"\>ask.rascal-mpl.org\</a\>. \</span\>";
 }
+
+
+public str restrictAccess() =
+  "AuthType Basic
+  'AuthName \"Unpublisched exam\"
+  'AuthUserFile /srv/www/vhosts/exam.rascal-mpl.org/exampass
+  'Require user rascal";
 
 // --------------------- compile questions ---------------------------------
 
@@ -721,7 +748,6 @@ Type    +      +         +      0   ERROR
 
 // Present a Question
 
-bool isExam  = false;
 
 
 private str namePar(str q, str name) = "name=\"<escapeConcept(q)>:<name>\"";
@@ -823,9 +849,10 @@ public str showQuestion(ConceptName cpid, Question q){
       	}
       }
       
-      qform = "<for(int i <- idx){>
-              '\<input type=\"radio\" <namePar(cq,"answer")> id=\"<cq>_<i>\" value=\"<i>\"\>
-              '\<label for=\"<cq>_<i>\"\><choices[i].description>\</label\><br()><}>";
+      altcnt = 0;
+      qform = "<for(int i <- index(idx)){>
+              '\<input type=\"radio\" <namePar(cq,"answer")> id=\"<cq>_<idx[i]>\" value=\"<i>@<idx[i]>@<idx>\"\>
+              '\<label for=\"<cq>_<idx[i]>\"\><choices[idx[i]].description> \</label\><br()><}>";      
     }
     case textQuestion(cid,qid,descr,replies): {
       qdescr = descr;
@@ -946,7 +973,7 @@ public Question getQuestion(ConceptName cid, QuestionName qid){
 
   cid = unescapeConcept(cid);
   try {
-  	quest_file = (courseDir + cid + basename(cid))[extension = questExtension];
+  	quest_file = ((isExam ? examsDir + "results/" : courseDir) + cid + basename(cid))[extension = questExtension];
   	questions = readTextValueFile(#Questions, quest_file);
   
  	 for(q <- questions)

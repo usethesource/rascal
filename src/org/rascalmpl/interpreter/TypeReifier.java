@@ -167,7 +167,7 @@ public class TypeReifier {
 			return tf.dateTimeType();
 		}
 		else if (cons == Factory.Symbol_Num) {
-			return tf.nodeType();
+			return tf.numberType();
 		}
 		else if (cons == Factory.Symbol_Loc) {
 			return tf.sourceLocationType();

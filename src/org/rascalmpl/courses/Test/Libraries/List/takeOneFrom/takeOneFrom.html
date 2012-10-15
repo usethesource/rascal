@@ -76,17 +76,17 @@
 <span class="sectionHead">Examples</span>  <pre class="screen"><span class="prompt">rascal></span>import List;
 ok
 <span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;20,[10,30,40,50]>
+tuple[int,list[int]]: &lt;40,[10,20,30,50]>
+<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;40,[10,20,30,50]>
 <span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;30,[10,20,40,50]>
-<span class="prompt">rascal></span>takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;50,[10,20,30,40]>
 <span class="prompt">rascal></span>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
 <span class="prompt">rascal></span>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]>
 <span class="prompt">rascal></span>takeOneFrom([&quot;zebra&quot;, &quot;elephant&quot;, &quot;snake&quot;, &quot;owl&quot;]);
-tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
+tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]>
 </pre>
 </div>
 
@@ -114,8 +114,8 @@ tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]>
 <span id="answerFeedback_Test_Libraries_List_takeOneFrom_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_takeOneFrom_1:L" value="[17]">
-The type of <tt>takeOneFrom([17])</tt> is <input type="text" size="30" name="Test_Libraries_List_takeOneFrom_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_takeOneFrom_1:L" value="[12, -3, -10, -5]">
+The type of <tt>takeOneFrom([12, -3, -10, -5])</tt> is <input type="text" size="30" name="Test_Libraries_List_takeOneFrom_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

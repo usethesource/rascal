@@ -114,12 +114,6 @@ list[str]: ["snake","owl"]
 <input type="radio" name="Test_Libraries_List_drop_1:answer" id="Test/Libraries/List/drop_1_1" value="1">
 <label for="Test/Libraries/List/drop_1_1">1 element less that the original list.</label><br/>
 
-<input type="radio" name="Test_Libraries_List_drop_1:answer" id="Test/Libraries/List/drop_1_4" value="4">
-<label for="Test/Libraries/List/drop_1_4">n-1 elements less than the original list.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_drop_1:answer" id="Test/Libraries/List/drop_1_3" value="3">
-<label for="Test/Libraries/List/drop_1_3">n-1 elements.</label><br/>
-
 <input type="radio" name="Test_Libraries_List_drop_1:answer" id="Test/Libraries/List/drop_1_0" value="0">
 <label for="Test/Libraries/List/drop_1_0">n elements less than the original list.</label><br/>
 
@@ -145,9 +139,9 @@ list[str]: ["snake","owl"]
 <span id="answerFeedback_Test_Libraries_List_drop_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_drop_2:L" value="[&quot;Gooseberry&quot;, &quot;Joh Yowza&quot;, &quot;Telly Monster&quot;, &quot;Mumford the Magician&quot;, &quot;Gooseberry&quot;]">
-<input type="hidden" name="Test_Libraries_List_drop_2:N" value="0">
-The type of <tt>drop(0, [&quot;Gooseberry&quot;, &quot;Joh Yowza&quot;, &quot;Telly Monster&quot;, &quot;Mumford the Magician&quot;, &quot;Gooseberry&quot;])</tt> is <input type="text" size="30" name="Test_Libraries_List_drop_2:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_drop_2:L" value="[-4, 12, 2, 19, 17]">
+<input type="hidden" name="Test_Libraries_List_drop_2:N" value="2">
+The type of <tt>drop(2, [-4, 12, 2, 19, 17])</tt> is <input type="text" size="30" name="Test_Libraries_List_drop_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -171,9 +165,9 @@ The type of <tt>drop(0, [&quot;Gooseberry&quot;, &quot;Joh Yowza&quot;, &quot;Te
 <span id="answerFeedback_Test_Libraries_List_drop_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_drop_3:L" value="[-4, 12, 2, 19, 17]">
-<input type="hidden" name="Test_Libraries_List_drop_3:N" value="2">
-<pre class="prequestion">drop(2, [-4, 12, 2, 19, 17]) == <input type="text" size="30" name="Test_Libraries_List_drop_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_drop_3:L" value="[false, true, false, true]">
+<input type="hidden" name="Test_Libraries_List_drop_3:N" value="0">
+<pre class="prequestion">drop(0, [false, true, false, true]) == <input type="text" size="30" name="Test_Libraries_List_drop_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_drop_3:another" value="yes">
