@@ -708,7 +708,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		if(completionFilters != null){
 			int startLocation = node.getStartLocation();
 			for(int i = completionFilters.length - 1; i >= 0; --i){
-				if(completionFilters[i].isFiltered(input, startLocation, location, result, positionStore)){
+				if(completionFilters[i].isFiltered(input, startLocation, location, positionStore)){
 					filteredNodes.push(node, result);
 					
 					if(debugListener != null) debugListener.filteredByCompletionFilter(node, result);
