@@ -43,26 +43,49 @@ public list[Message] findCauses(Tree x, Tree y) {
     result += [info("The alternatives use the same productions", x@\loc?|dunno:///|)];
   }
   else {
-      result += [info("Production unique to the one: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];
-      result += [info("Production unique to the other: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pY - pX];
+      result += [info("Production unique to the one alternative: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];
+      result += [info("Production unique to the other alternative: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pY - pX];
   }  
+  
+  if (appl(prodX,_) := x, appl(prodY,_) := y) {
+    if (prodX == prodY) {
+    result += [info("The alternatives have the same production at the top: <alt2rascal(prodX)>", x@\loc?|dunno:///|)];
+    } 
+    else {
+      result += [info("The alternatives have different productions at the top, one has [<alt2rascal(prodX)>], while the other has [<alt2rascal(prodY)>]", x@\loc?|dunno:///|)];
+    }
+  }
   
   result += deeperCauses(x, y);
   result += reorderingCauses(x, y); 
-  vert = verticalCauses(x, y);
-  if (vert == []) {
-    result += [info("The ambiguity is horizontal (same productions at the top)", x@\loc?|dunno:///|)];
-  }
-  result += vert;
+  result += verticalCauses(x, y, pX, pY);
   
   return result;
 }
 
-public list[Message] verticalCauses(Tree x, Tree y) {
-  if (appl(p, _) := x, appl(q, _) := y, p != q) {
-    return [error("Vertical ambiguity (different productions at the top) might be solved using a prefer/avoid: <symbol2rascal(p.def)> = <prod2rascal(p)>; versus <symbol2rascal(q.def)> = <prod2rascal(q)>;", x@\loc)];
+public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+  return exceptAdvise(x, y, pX, pY)
+       + exceptAdvise(y, x, pY, pX);
+}
+
+public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+  result = [];
+  if (appl(p, argsX) := x, appl(q, argsY) := y) {
+    if (i <- index(argsX), appl(apX,_) := argsX[i], apX notin pY) {
+      labelApX = "labelX";
+      
+      if (prod(label(l,_),_,_) := apX) {
+        labelApX = l;
+      }
+      else {
+        result += [warning("You should give this production a good label [<alt2rascal(apX)>]",x@\loc?|dunno:///|)];
+      }
+       
+      result += [error("You could safely restrict the nesting of [<alt2rascal(apX)>] under [<alt2rascal(p)>] using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
+    }
+     
   }
-  return [];
+  return result;
 }
 
 public list[Message] deeperCauses(Tree x, Tree y) {
