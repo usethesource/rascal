@@ -302,23 +302,25 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   
   // finally we produce a relation between item id for use in the internals of the parser
   return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
-       + {<getItemId(t, pos), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
+       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
 }
 
-private int getItemId(Symbol s, int pos) {
+private int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
   switch (s) {
-    case opt(t) : return t@id; 
-    case iter(t) : return t@id; 
+    case \opt(t) : return t@id; 
+    case \iter(t) : return t@id;
+    case \iter-star(t) : return t@id; 
     case \iter-seps(t,ss) : if (pos == 0) return t@id; else fail;
     case \iter-seps(t,ss) : if (pos > 0)  return ss[pos-1]@id; else fail;
     case \iter-star-seps(t,ss) : if (pos == 0) return t@id; else fail;
     case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1]@id; else fail;
     case \seq(ss) : return ss[pos]@id;
-    // TODO alt
+    // note the use of the label l from the third function parameter:
+    case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa) return a@id; 
+    default: return s@id; // this should never happen, but let's make this robust
   }  
-  
-  throw "unsupported for excepts? <s>";
 }
+
 private Symbol getType(Production p) = getType(p.def);
 private Symbol getType(label(str _, Symbol s)) = getType(s);
 private Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
