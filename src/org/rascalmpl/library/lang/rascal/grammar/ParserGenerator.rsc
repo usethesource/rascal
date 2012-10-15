@@ -107,7 +107,6 @@ public str generate(str package, str name, str super, int () newItem, bool callS
  
     println("assigning unique ids to symbols");
     gr = visit(gr) { case Symbol s => s[@id=newItem()] }
-    iprintln(gr);
         
     println("generating item allocations");
     newItems = generateNewItems(gr);
@@ -321,6 +320,8 @@ private int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol
   }  
 }
 
+
+
 private Symbol getType(Production p) = getType(p.def);
 private Symbol getType(label(str _, Symbol s)) = getType(s);
 private Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
@@ -482,7 +483,6 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     if (sym is label)  // ignore labels 
       sym = sym.symbol;
       
-    println(sym);
     itemId = sym@id;
     
     list[str] enters = [];
