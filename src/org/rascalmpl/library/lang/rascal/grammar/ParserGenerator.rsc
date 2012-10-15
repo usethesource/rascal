@@ -498,7 +498,6 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
-//      exits += ["new ExceptRestriction\<IConstructor\>(<value2id(p)>)" | \except(str l) <- conds, /p:prod(label(l,def), _, _) := grammar]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
@@ -623,7 +622,7 @@ str v2i(value v) {
         case item(p:prod(Symbol u,_,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
         case label(str x,Symbol u) : return escId(x) + "_" + v2i(u);
         case layouts(str x) : return "layouts_<escId(x)>";
-        case "cons"(str x) : return "cons_<escId(x)>";
+        case conditional(Symbol s,_) : return v2i(s);
         case sort(str s)   : return "<s>";
         case \lex(str s)   : return "<s>";
         case keywords(str s)   : return "<s>";
