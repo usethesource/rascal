@@ -241,7 +241,7 @@ public str symbol2rascal(Symbol sym) {
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
     case conditional(Symbol s, {Condition c, Condition d, set[Condition] r}):
-        return symbol2rascal(conditional(conditional(s, {c}), {d, r})); 
+        return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
     case conditional(s, {delete(t)}) :
         return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 
     case conditional(s, {follow(t)}) :
