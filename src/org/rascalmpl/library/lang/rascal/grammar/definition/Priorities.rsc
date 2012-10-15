@@ -51,7 +51,6 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
       return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,t)};
     case \seq(ss) :
       return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
-     // TODO: add cases for conditional separators
      default: return {};
   }
   
