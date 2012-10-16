@@ -202,7 +202,7 @@ syntax Expression
 	| comprehension  : Comprehension comprehension 
 	| \set            : "{" {Expression ","}* elements "}" 
 	| \list           : "[" {Expression ","}* elements "]"
-	| reifyType      : "#" Type type !>> "["
+	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
