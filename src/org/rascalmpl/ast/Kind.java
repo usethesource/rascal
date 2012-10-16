@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -72,188 +72,6 @@ public abstract class Kind extends AbstractAST {
   
 
   
-  public boolean isModule() {
-    return false;
-  }
-
-  static public class Module extends Kind {
-    // Production: sig("Module",[])
-  
-    
-  
-    public Module(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isModule() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindModule(this);
-    }
-  
-    	
-  }
-  public boolean isVariable() {
-    return false;
-  }
-
-  static public class Variable extends Kind {
-    // Production: sig("Variable",[])
-  
-    
-  
-    public Variable(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isVariable() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindVariable(this);
-    }
-  
-    	
-  }
-  public boolean isAnno() {
-    return false;
-  }
-
-  static public class Anno extends Kind {
-    // Production: sig("Anno",[])
-  
-    
-  
-    public Anno(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isAnno() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindAnno(this);
-    }
-  
-    	
-  }
-  public boolean isFunction() {
-    return false;
-  }
-
-  static public class Function extends Kind {
-    // Production: sig("Function",[])
-  
-    
-  
-    public Function(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isFunction() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindFunction(this);
-    }
-  
-    	
-  }
-  public boolean isData() {
-    return false;
-  }
-
-  static public class Data extends Kind {
-    // Production: sig("Data",[])
-  
-    
-  
-    public Data(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isData() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindData(this);
-    }
-  
-    	
-  }
-  public boolean isTag() {
-    return false;
-  }
-
-  static public class Tag extends Kind {
-    // Production: sig("Tag",[])
-  
-    
-  
-    public Tag(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isTag() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindTag(this);
-    }
-  
-    	
-  }
-  public boolean isView() {
-    return false;
-  }
-
-  static public class View extends Kind {
-    // Production: sig("View",[])
-  
-    
-  
-    public View(IConstructor node ) {
-      super(node);
-      
-    }
-  
-    @Override
-    public boolean isView() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitKindView(this);
-    }
-  
-    	
-  }
   public boolean isAlias() {
     return false;
   }
@@ -302,6 +120,188 @@ public abstract class Kind extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitKindAll(this);
+    }
+  
+    	
+  }
+  public boolean isAnno() {
+    return false;
+  }
+
+  static public class Anno extends Kind {
+    // Production: sig("Anno",[])
+  
+    
+  
+    public Anno(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isAnno() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindAnno(this);
+    }
+  
+    	
+  }
+  public boolean isData() {
+    return false;
+  }
+
+  static public class Data extends Kind {
+    // Production: sig("Data",[])
+  
+    
+  
+    public Data(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isData() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindData(this);
+    }
+  
+    	
+  }
+  public boolean isFunction() {
+    return false;
+  }
+
+  static public class Function extends Kind {
+    // Production: sig("Function",[])
+  
+    
+  
+    public Function(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isFunction() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindFunction(this);
+    }
+  
+    	
+  }
+  public boolean isModule() {
+    return false;
+  }
+
+  static public class Module extends Kind {
+    // Production: sig("Module",[])
+  
+    
+  
+    public Module(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isModule() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindModule(this);
+    }
+  
+    	
+  }
+  public boolean isTag() {
+    return false;
+  }
+
+  static public class Tag extends Kind {
+    // Production: sig("Tag",[])
+  
+    
+  
+    public Tag(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isTag() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindTag(this);
+    }
+  
+    	
+  }
+  public boolean isVariable() {
+    return false;
+  }
+
+  static public class Variable extends Kind {
+    // Production: sig("Variable",[])
+  
+    
+  
+    public Variable(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isVariable() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindVariable(this);
+    }
+  
+    	
+  }
+  public boolean isView() {
+    return false;
+  }
+
+  static public class View extends Kind {
+    // Production: sig("View",[])
+  
+    
+  
+    public View(IConstructor node ) {
+      super(node);
+      
+    }
+  
+    @Override
+    public boolean isView() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitKindView(this);
     }
   
     	
