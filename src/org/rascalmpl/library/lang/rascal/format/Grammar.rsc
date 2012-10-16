@@ -103,9 +103,9 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-public str alt2rascal(Production p) {
-  return "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
-}
+public str alt2rascal(Production p:prod(_,_,_)) = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
+public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
+
 
 public str prod2rascal(Production p) {
   switch (p) {

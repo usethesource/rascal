@@ -52,11 +52,14 @@ public list[Message] findCauses(Tree x, Tree y) {
     result += [info("The alternatives have the same production at the top: <alt2rascal(prodX)>", x@\loc?|dunno:///|)];
     } 
     else {
-      result += [info("The alternatives have different productions at the top, one has [<alt2rascal(prodX)>], while the other has [<alt2rascal(prodY)>]", x@\loc?|dunno:///|)];
+      result += [info("The alternatives have different productions at the top, one has 
+                      '  <alt2rascal(prodX)>
+                      'while the other has
+                      '  <alt2rascal(prodY)>", x@\loc?|dunno:///|)];
     }
   }
   
-  result += deeperCauses(x, y);
+  result += deeperCauses(x, y, pX, pY);
   result += reorderingCauses(x, y); 
   result += verticalCauses(x, y, pX, pY);
   
@@ -88,7 +91,7 @@ public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Produc
   return result;
 }
 
-public list[Message] deeperCauses(Tree x, Tree y) {
+public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Production] pY) {
   // collect lexical trees
   rX = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := x} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := x};
   rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
@@ -148,19 +151,18 @@ public list[Message] deeperCauses(Tree x, Tree y) {
  
  
   // find parents of literals, and transfer location
-  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[_*,b,_,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
-  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[_*,b,_,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
-  overloadedLits = [info("Literal \"<l1>\" is used in both
-                     '  <alt2rascal(p1)> and
-                     '  <alt2rascal(p2)>", l1@\loc) | <p1,p2> <- polX o polY, p1 != p2
-            , l1 <- polX[p1], l2 <- (polY<1,0>)[p2], (l1@\loc).end == (l2@\loc).end];
+  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
+  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
+  overloadedLits = [info("Literal \"<l>\" is used in both
+                     '  <alt2rascal(p)> and
+                     '  <alt2rascal(q)>", l@\loc) | <p,l> <- polX, <l,q> <- polY, p != q, !(p in pY || q in pX)];
   
   if (overloadedLits != []) {
     result += info("Re-use of these literals is causing different interpretations of the same source.", x@\loc?|dunno:///|);
     result += overloadedLits;
     
-    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true /* workaround alert*/};
-    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true /* workaround alert*/};
+    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true};
+    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true};
     for (<p,i,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
       labelApX = "labelX";
       
@@ -171,7 +173,11 @@ public list[Message] deeperCauses(Tree x, Tree y) {
         result += [warning("You should give this production a good label [<alt2rascal(q)>]",x@\loc?|dunno:///|)];
       }
        
-      result += [error("You could safely restrict the nesting of [<alt2rascal(q)>] under [<alt2rascal(p)>] using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
+      result += [error("You could safely restrict the nesting of
+                       '  <alt2rascal(q)> 
+                       'under
+                       '  <alt2rascal(p)>
+                       'using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
     } 
   }
   
@@ -183,8 +189,8 @@ public list[int] yield(Tree x) {
 }
 
 public list[Message] reorderingCauses(Tree x, Tree y) {
-  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
-  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
+  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true};
+  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true};
   result = [];
   
   if (fatherChildX == fatherChildY) {
