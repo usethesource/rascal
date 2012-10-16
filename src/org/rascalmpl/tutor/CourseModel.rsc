@@ -21,8 +21,8 @@ import Exception;
 import ParseTree;
 import RascalUtils;
 
-public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
-//public loc courseDir    = |courses:///|;
+//public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
+public loc courseDir    = |courses:///|;
 /* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
  * Assumptions:
  * - Standard installation of Dropbox at ~user/Dropbox
