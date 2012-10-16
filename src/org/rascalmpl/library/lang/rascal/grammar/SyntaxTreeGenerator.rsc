@@ -84,13 +84,13 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
   ivisit = "package <pkg>;
            '
            'public interface IASTVisitor\<T\> {
-           '<for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
+           '<for (ast(sn, sigs) <- sort(asts), sig(cn, args) <- sort(sigs)) {>
            '  public T visit<sn><cn>(<sn>.<cn> x);
            '<}>
-           '<for (leaf(sn) <- asts) {>
+           '<for (leaf(sn) <- sort(asts)) {>
            '  public T visit<sn>Lexical(<sn>.Lexical x);
            '<}>
-           '<for (sn <- { a.name | a <- asts}) { >
+           '<for (sn <- { a.name | a <- sort(asts)}) { >
            '  public T visit<sn>Ambiguity(<sn>.Ambiguity x);<}>
            '}";
 
@@ -99,17 +99,17 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
   nullVisit = "package <pkg>;
               '
               'public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
-              '<for (ast(sn, sigs) <- asts, sig(cn, args) <- sigs) {>
+              '<for (ast(sn, sigs) <- sort(asts), sig(cn, args) <- sort(sigs)) {>
               '  public T visit<sn><cn>(<sn>.<cn> x) { 
               '    return null; 
               '  }
               '<}>
-              '<for (leaf(sn) <- asts) {>
+              '<for (leaf(sn) <- sort(asts)) {>
               '  public T visit<sn>Lexical(<sn>.Lexical x) { 
               '    return null; 
               '  }
               '<}>
-              '<for (sn <- {a.name | a <- asts}) {>
+              '<for (sn <- {a.name | a <- sort(asts)}) {>
               '  public T visit<sn>Ambiguity(<sn>.Ambiguity x) { 
               '    return null; 
               '  }
@@ -120,7 +120,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
 }
 
 public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
-  for (a <- asts) {
+  for (a <- sort(asts)) {
      class = classForSort(pkg, ["org.eclipse.imp.pdb.facts.IConstructor", "org.rascalmpl.interpreter.asserts.Ambiguous","org.eclipse.imp.pdb.facts.IValue","org.rascalmpl.interpreter.IEvaluator","org.rascalmpl.interpreter.env.Environment","org.rascalmpl.interpreter.result.Result"], a); 
      loggedWriteFile(outdir + "/<a.name>.java", class); 
   }
@@ -130,7 +130,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
   allArgs = { arg | /Arg arg <- ast };
   return "package <pkg>;
          '
-         '<for (i <- imports) {>
+         '<for (i <- sort(imports)) {>
          'import <i>;<}>
          '
          'public abstract class <ast.name> extends AbstractAST {
@@ -138,7 +138,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '    super();
          '  }
          '
-         '  <for (arg(typ, lab) <- allArgs) { clabel = capitalize(lab); >
+         '  <for (arg(typ, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
          '  public boolean has<clabel>() {
          '    return false;
          '  }
@@ -151,7 +151,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '
          '  <if (leaf(_) := ast) {><lexicalClass(ast.name)><}>
          '
-         '  <for (/Sig sig <- ast) { >
+         '  <for (ast is ast, Sig sig <- sort(ast.sigs)) { >
          '  public boolean is<sig.name>() {
          '    return false;
          '  }
@@ -310,10 +310,6 @@ public str construct(Sig sig) {
          '  <for (arg(_, name) <- sig.args) {>
          '  this.<name> = <name>;<}>
          '}";
-}
-
-public str capitalize(str s) {
-  return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
 }
 
 private void loggedWriteFile(loc file, str src) {
