@@ -12,7 +12,6 @@
 package org.rascalmpl.parser.gtd.stack.filter.match;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 
 /**
@@ -28,7 +27,7 @@ public class CharMatchRestriction implements ICompletionFilter{
 		this.ranges = ranges;
 	}
 	
-	public boolean isFiltered(int[] input, int start, int end, AbstractNode result, PositionStore positionStore){
+	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
 		if((end - start) != 1) return false;
 		
 		int character = input[start];

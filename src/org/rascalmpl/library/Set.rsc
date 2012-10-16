@@ -635,3 +635,50 @@ test: toString(<?>) == <H>
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(set[&T] st);
 
+@doc{ 
+Synopsis: Sort the elements of a set.
+
+Description:
+Sort the elements of a set:
+# Use the built-in ordering on values to compare list elements.
+# Give an additional `lessThanOrEqual` function that will be used to compare elements.
+
+Examples:
+<screen>
+import Set;
+import String;
+sort({10, 4, -2, 11, 100, 5});
+fruits = {"mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"};
+sort(fruits);
+sort(fruits, bool(str a, str b){ return size(a) >= size(b); });
+</screen>
+
+Questions:
+
+QChoice: Sorting a listing with $N$ elements gives a list with:
+g: N elements.
+b: N - 1 elements.
+b: N! elements.
+b: N * (N - 1) elements.
+
+QType:
+prep: import Set;
+make: L = set[arb[int,str],1,5]
+test: sort(<L>)
+
+QValue:
+prep: import Set;
+make: L = set[arb[int,str],1,5]
+expr: H = sort(<L>)
+hint: <H>
+test: sort(<L>) == <?>
+
+
+
+
+}
+public list[&T] sort(set[&T] s) =
+	sort(s, bool (&T a,&T b) { return a <= b; } );
+	
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] sort(set[&T] l, bool (&T a, &T b) lessOrEqual) ;

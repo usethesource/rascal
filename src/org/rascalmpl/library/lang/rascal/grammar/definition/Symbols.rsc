@@ -16,6 +16,7 @@ public bool match(Symbol checked, Symbol referenced) {
   return referenced == checked;
 } 
 
+public Symbol delabel(Symbol s) = visit(s) { case label(_,t) => t };
 
 public Symbol sym2symbol(Sym sym) {
   switch (sym) {
