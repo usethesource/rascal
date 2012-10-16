@@ -549,23 +549,23 @@ syntax Statement
 	| @breakable assertWithMessage: "assert" Expression expression ":" Expression message ";" 
 	| @breakable expression: Expression!visit!nonEmptyBlock expression ";" 
 	| @breakable \visit: Label label Visit visit 
-	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
+	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration body 
 	| @breakable doWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
 	| @breakable @breakable{generators} \for: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
-	| @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
-	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration thenStatement () !>> "else" 
+	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement!variableDeclaration!functionDeclaration elseStatement 
 	| @breakable \switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
 	| @breakable \fail: "fail" Target target ";" 
 	| @breakable \break: "break" Target target ";" 
 	| @breakable \continue: "continue" Target target ";" 
     | @breakable \filter: "filter" ";"
-	| @breakable \solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| @breakable \solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement!variableDeclaration!functionDeclaration body 
 	| @breakable non-assoc \try: "try" Statement body Catch+ handlers 
-	| @breakable tryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| @breakable tryFinally: "try" Statement body Catch+ handlers "finally" Statement!variableDeclaration!functionDeclaration finallyBody 
 	| nonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| emptyStatement: ";" 
 	| @breakable globalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| @breakable assignment: Assignable assignable Assignment operator Statement statement
+	| @breakable assignment: Assignable assignable Assignment operator Statement!variableDeclaration!functionDeclaration statement
 	| non-assoc  ( 
 		          @breakable \return    : "return" Statement statement  
 		        | @breakable \throw     : "throw" Statement statement 
