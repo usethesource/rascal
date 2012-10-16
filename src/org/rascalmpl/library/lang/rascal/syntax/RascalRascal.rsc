@@ -219,7 +219,7 @@ syntax Expression
 	| transitiveClosure: Expression argument "+" !>> "="
     | transitiveReflexiveClosure: Expression argument "*" !>> "=" 
 	> isDefined    : Expression argument "?" 
-	> negation     : "!" Expression argument 
+	> negation     : "!" Expression!match!noMatch argument 
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression argument
@@ -568,8 +568,8 @@ syntax Statement
 	| non-assoc  ( 
 		          @breakable \return    : "return" Statement statement  
 		        | @breakable \throw     : "throw" Statement statement 
-		        | @breakable \insert    : "insert" DataTarget dataTarget Statement statement 
-		        | @breakable \append    : "append" DataTarget dataTarget Statement statement 
+		        | @breakable \insert    : "insert" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
+		        | @breakable \append    : "append" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 	            )
     > @breakable functionDeclaration: FunctionDeclaration functionDeclaration 
 	| @breakable variableDeclaration: LocalVariableDeclaration declaration ";"
