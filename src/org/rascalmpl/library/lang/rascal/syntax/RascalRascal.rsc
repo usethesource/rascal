@@ -195,7 +195,7 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
@@ -565,7 +565,7 @@ syntax Statement
 	| nonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| emptyStatement: ";" 
 	| @breakable globalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| @breakable assignment: Assignable assignable Assignment operator Statement!variableDeclaration!functionDeclaration statement
+	| @breakable assignment: Assignable assignable Assignment operator Statement statement
 	| non-assoc  ( 
 		          @breakable \return    : "return" Statement statement  
 		        | @breakable \throw     : "throw" Statement statement 
