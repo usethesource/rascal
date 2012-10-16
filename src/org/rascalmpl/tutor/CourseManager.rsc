@@ -161,30 +161,53 @@ private bool isExam = false;
 public examResult validateExamSubmission(str timestamp, map[str,str] params){
   isExam = true;
   pm = questionParams(params);
-  //println("pm = <pm>");
   return validateAllAnswers(timestamp, pm);
 }
 
 private examResult validateAllAnswers(str timestamp, map[str,map[str,str]] paramMaps){
-  int nquestions = 0;
-  int npass = 0;
-  answers = ();
-  expectedAnswers = ();
-  res = ();
+  map[str, str] answers = ();
+  map[str, str] expectedAnswers = ();
+  map[str,num] points = ();
   for(qid <- paramMaps){
-      nquestions += 1;
       v = validateAnswer1(paramMaps[qid]);
-      answers[qid] = trim(paramMaps[qid]["answer"]) ? "";
+      if(paramMaps[qid]["answer"] ?)
+         answers[qid] = normalizeAnswer(qid, trim(paramMaps[qid]["answer"]));
+      else
+         answer[qid] = "no answer";
+         
       if(v == "pass"){
-         npass += 1;
-         res[qid] = v;
+         points[qid] = 1;
       }
       if(/fail:<expected:.*>$/ := v){
+         // remove line information from message
+         if(/^<msg:.*> at line [0-9]+, column [0-9]+$/ := expected)
+            expected = msg;
+         if(/^<msg:.*>,$/ := expected)
+            expected = msg;
          expectedAnswers[qid] = expected;
-         res[qid] = "fail";
+         points[qid] = 0;
       }
   }
-  return examResult(studentName, studentMail, studentNumber, timestamp, answers, expectedAnswers, res, npass * 10.0 / nquestions);
+  return examResult(studentName, studentMail, studentNumber, timestamp, answers, expectedAnswers, (), points, 0);
+}
+
+public str normalizeAnswer(str q, str answer){
+    if(/<cpid:^.+>_<qid:[^_]+$>/ := q){
+        cpid = replaceAll(cpid, "_", "/");
+	    q = getQuestion(cpid, qid);
+	    switch(q){
+	      case choiceQuestion(cid,qid,descr,choices): {
+		       if(/<selected:[0-9]+>@<orgSelected:[0-9]+>@<orgChoices:.*$>/ := answer){
+		       	  int c = toInt(orgSelected);
+		       	  if(good(str txt) := choices[c] || bad(str txt) := choices[c]) 
+		       	  	 return txt;
+		       } else
+		          return "Your answer was garbled: <answer>";
+	       }    
+	      default: return answer;
+	    }
+    } else
+      throw "normalizeAnswer: garbled <q>";
 }
 
 // Validate an answer, also handles the requests: "cheat" and "another"
@@ -228,7 +251,7 @@ public str validateAnswer1(map[str,str] params){
            	  int c = toInt(orgSelected);
            	  expected = [txt | int i <- index(choices), contains(orgChoices, "<i>") && good(str txt) := choices[i] ];
           	  return (good(_) := choices[c]) ? correctAnswer(cpid, qid) : 
-                                          	   wrongAnswer(cpid, qid, "Expected: <intercalate("  OR ", expected)>");
+                                          	   wrongAnswer(cpid, qid, "<intercalate("  OR ", expected)>");
            }
            return wrongAnswer(cpid, qid, "Your answer was garbled: <answer>, please try again.");
       } 

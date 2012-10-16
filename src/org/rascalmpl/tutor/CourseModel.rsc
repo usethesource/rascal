@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 
 @bootstrapParser
@@ -21,8 +22,8 @@ import Exception;
 import ParseTree;
 import RascalUtils;
 
-public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
-//public loc courseDir    = |courses:///|;
+//public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
+public loc courseDir    = |courses:///|;
 /* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
  * Assumptions:
  * - Standard installation of Dropbox at ~user/Dropbox
@@ -54,10 +55,8 @@ data Course =
 			ConceptName root,                         // Name of the root concept
 			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
-			//rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
 			list[str]  baseConcepts                  // List of baseConcepts (e.g. names that occur on path of
 			                                          // of some ConceptName)
-//			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
      );
 
 data Concept = 
@@ -126,8 +125,8 @@ data Exception = ConceptError(ConceptName cname, str cause);
 alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 
 data examResult = examResult(str studentName, str studentMail, str StudentNumber, str timestamp, 
-                             map[str,str] answers, map[str,str] expectedAnswers,
-                             map[str, str] evaluation, num score);
+                             map[str,str] answers, map[str,str] expectedAnswers, map[str,str] comments,
+                             map[str, num] points, num score);
             
 // Common utilities
 
