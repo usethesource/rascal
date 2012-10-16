@@ -197,7 +197,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    IntegerKeyedHashMap\<IntegerList\> result = <if (!isRoot) {><super>._initDontNest()<} else {>new IntegerKeyedHashMap\<IntegerList\>()<}>; 
            '    
            '    <if (true) { int i = 0;>
-           '    <for (<f,c> <- dontNest) { i += 1;>
+           '    <for (<f,c> <- sort(dontNest)) { i += 1;>
            '    <if (i % 2000 == 0) {>
            '    _initDontNest<i>(result);
            '    <if (i == 2000) {>return result;<}>
@@ -211,9 +211,9 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    IntegerMap result = <if (!isRoot) {><super>._initDontNestGroups()<} else {>new IntegerMap()<}>;
            '    int resultStoreId = result.size();
            '    
-           '    <for (<childrenIds, parentIds> <- dontNestGroups) {>
+           '    <for (<childrenIds, parentIds> <- sort(dontNestGroups)) {>
            '    ++resultStoreId;
-           '    <for (pid <- parentIds) {>
+           '    <for (pid <- sort(parentIds)) {>
            '    result.putUnsafe(<pid>, resultStoreId);<}><}>
            '      
            '    return result;
@@ -234,13 +234,13 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '  }
            '    
            '  // Production declarations
-           '	<for (p <- uniqueProductions) {>
+           '	<for (p <- sort(uniqueProductions)) {>
            '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<unmeta(p)>")>\", Factory.Production);<}>
            '    
            '  // Item declarations
-           '	<for (Symbol s <- newItems, isNonterminal(s)) {
+           '	<for (Symbol s <- sort(newItems<0>), isNonterminal(s)) {
 	           items = newItems[s];
-	           map[Production, list[Item]] alts = ();
+	           map[Production prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
 		         Production prod = item.production;
 		         if (prod in alts) {
@@ -257,7 +257,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
-           '    <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '    <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
@@ -267,7 +267,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
            '      <if (callSuper) {><super>.<value2id(s)>.init(builder);
            '      <}>
-           '      <for(Production alt <- alts) { list[Item] lhses = alts[alt]; id = value2id(alt);>
+           '      <for(Production alt <- sort(alts.prods)) { list[Item] lhses = alts[alt]; id = value2id(alt);>
            '        _init_<id>(builder);
            '      <}>
            '    }
@@ -278,7 +278,7 @@ public str generate(str package, str name, str super, int () newItem, bool callS
            '  }
            '
            '  // Parse methods    
-           '  <for (Symbol nont <- gr.rules, isNonterminal(nont)) { >
+           '  <for (Symbol nont <- sort(gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
 }  
