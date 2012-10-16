@@ -378,7 +378,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -390,7 +390,7 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ ];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
@@ -407,7 +407,7 @@ lexical RegExp
 	| Backslash ;
 
 layout LAYOUTLIST
-	= LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
+	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
 
 syntax LocalVariableDeclaration
 	= \default: Declarator declarator 
@@ -472,7 +472,8 @@ syntax PatternWithAction
 
 lexical LAYOUT
 	= Comment 
-	| [\t-\n \r \ ] 
+	// all the white space chars defined in Unicode 6.0 
+	| [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] 
 	;
 
 syntax Visit
@@ -521,7 +522,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 lexical RegExp
