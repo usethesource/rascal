@@ -60,7 +60,7 @@ public interface IActionExecutor<T>{
 	 * @param parent The parent environment.
 	 * @return The environment the flattener should use for this production.
 	 */
-	Object enteringProduction(Object production, Object parent);
+	Object enteringProduction(Object production, Object environment);
 	
 	/**
 	 * Called before entering a list production. The callee can decide whether
@@ -71,7 +71,7 @@ public interface IActionExecutor<T>{
 	 * @param parent The parent environment.
 	 * @return The environment the flattener should use for this production.
 	 */
-	Object enteringListProduction(Object production, Object parent);
+	Object enteringListProduction(Object production, Object environment);
 	
 	/**
 	 * Called before entering each node in the given production. Hereby we
