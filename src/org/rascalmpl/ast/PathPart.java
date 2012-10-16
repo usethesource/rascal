@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,18 +29,18 @@ public abstract class PathPart extends AbstractAST {
   }
 
   
-  public boolean hasPre() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.PrePathChars getPre() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasExpression() {
     return false;
   }
 
   public org.rascalmpl.ast.Expression getExpression() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasPathChars() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.PathChars getPathChars() {
     throw new UnsupportedOperationException();
   }
   public boolean hasTail() {
@@ -50,11 +50,11 @@ public abstract class PathPart extends AbstractAST {
   public org.rascalmpl.ast.PathTail getTail() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPathChars() {
+  public boolean hasPre() {
     return false;
   }
 
-  public org.rascalmpl.ast.PathChars getPathChars() {
+  public org.rascalmpl.ast.PrePathChars getPre() {
     throw new UnsupportedOperationException();
   }
 
@@ -100,43 +100,6 @@ public abstract class PathPart extends AbstractAST {
   
 
   
-  public boolean isNonInterpolated() {
-    return false;
-  }
-
-  static public class NonInterpolated extends PathPart {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.PathChars","pathChars")])
-  
-    
-    private final org.rascalmpl.ast.PathChars pathChars;
-  
-    public NonInterpolated(IConstructor node , org.rascalmpl.ast.PathChars pathChars) {
-      super(node);
-      
-      this.pathChars = pathChars;
-    }
-  
-    @Override
-    public boolean isNonInterpolated() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitPathPartNonInterpolated(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.PathChars getPathChars() {
-      return this.pathChars;
-    }
-  
-    @Override
-    public boolean hasPathChars() {
-      return true;
-    }	
-  }
   public boolean isInterpolated() {
     return false;
   }
@@ -193,6 +156,43 @@ public abstract class PathPart extends AbstractAST {
   
     @Override
     public boolean hasTail() {
+      return true;
+    }	
+  }
+  public boolean isNonInterpolated() {
+    return false;
+  }
+
+  static public class NonInterpolated extends PathPart {
+    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.PathChars","pathChars")])
+  
+    
+    private final org.rascalmpl.ast.PathChars pathChars;
+  
+    public NonInterpolated(IConstructor node , org.rascalmpl.ast.PathChars pathChars) {
+      super(node);
+      
+      this.pathChars = pathChars;
+    }
+  
+    @Override
+    public boolean isNonInterpolated() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitPathPartNonInterpolated(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.PathChars getPathChars() {
+      return this.pathChars;
+    }
+  
+    @Override
+    public boolean hasPathChars() {
       return true;
     }	
   }

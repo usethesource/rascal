@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -29,6 +29,13 @@ public abstract class Class extends AbstractAST {
   }
 
   
+  public boolean hasRanges() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.Range> getRanges() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasCharClass() {
     return false;
   }
@@ -43,13 +50,6 @@ public abstract class Class extends AbstractAST {
   public org.rascalmpl.ast.Class getCharclass() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasRhs() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Class getRhs() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasLhs() {
     return false;
   }
@@ -57,11 +57,11 @@ public abstract class Class extends AbstractAST {
   public org.rascalmpl.ast.Class getLhs() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasRanges() {
+  public boolean hasRhs() {
     return false;
   }
 
-  public java.util.List<org.rascalmpl.ast.Range> getRanges() {
+  public org.rascalmpl.ast.Class getRhs() {
     throw new UnsupportedOperationException();
   }
 
@@ -107,51 +107,77 @@ public abstract class Class extends AbstractAST {
   
 
   
-  public boolean isUnion() {
+  public boolean isBracket() {
     return false;
   }
 
-  static public class Union extends Class {
-    // Production: sig("Union",[arg("org.rascalmpl.ast.Class","lhs"),arg("org.rascalmpl.ast.Class","rhs")])
+  static public class Bracket extends Class {
+    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Class","charclass")])
   
     
-    private final org.rascalmpl.ast.Class lhs;
-    private final org.rascalmpl.ast.Class rhs;
+    private final org.rascalmpl.ast.Class charclass;
   
-    public Union(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+    public Bracket(IConstructor node , org.rascalmpl.ast.Class charclass) {
       super(node);
       
-      this.lhs = lhs;
-      this.rhs = rhs;
+      this.charclass = charclass;
     }
   
     @Override
-    public boolean isUnion() { 
+    public boolean isBracket() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitClassUnion(this);
+      return visitor.visitClassBracket(this);
     }
   
     
     @Override
-    public org.rascalmpl.ast.Class getLhs() {
-      return this.lhs;
+    public org.rascalmpl.ast.Class getCharclass() {
+      return this.charclass;
     }
   
     @Override
-    public boolean hasLhs() {
+    public boolean hasCharclass() {
       return true;
-    }
-    @Override
-    public org.rascalmpl.ast.Class getRhs() {
-      return this.rhs;
+    }	
+  }
+  public boolean isComplement() {
+    return false;
+  }
+
+  static public class Complement extends Class {
+    // Production: sig("Complement",[arg("org.rascalmpl.ast.Class","charClass")])
+  
+    
+    private final org.rascalmpl.ast.Class charClass;
+  
+    public Complement(IConstructor node , org.rascalmpl.ast.Class charClass) {
+      super(node);
+      
+      this.charClass = charClass;
     }
   
     @Override
-    public boolean hasRhs() {
+    public boolean isComplement() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitClassComplement(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Class getCharClass() {
+      return this.charClass;
+    }
+  
+    @Override
+    public boolean hasCharClass() {
       return true;
     }	
   }
@@ -181,6 +207,54 @@ public abstract class Class extends AbstractAST {
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
       return visitor.visitClassDifference(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Class getLhs() {
+      return this.lhs;
+    }
+  
+    @Override
+    public boolean hasLhs() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Class getRhs() {
+      return this.rhs;
+    }
+  
+    @Override
+    public boolean hasRhs() {
+      return true;
+    }	
+  }
+  public boolean isIntersection() {
+    return false;
+  }
+
+  static public class Intersection extends Class {
+    // Production: sig("Intersection",[arg("org.rascalmpl.ast.Class","lhs"),arg("org.rascalmpl.ast.Class","rhs")])
+  
+    
+    private final org.rascalmpl.ast.Class lhs;
+    private final org.rascalmpl.ast.Class rhs;
+  
+    public Intersection(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+      super(node);
+      
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  
+    @Override
+    public boolean isIntersection() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitClassIntersection(this);
     }
   
     
@@ -240,18 +314,18 @@ public abstract class Class extends AbstractAST {
       return true;
     }	
   }
-  public boolean isIntersection() {
+  public boolean isUnion() {
     return false;
   }
 
-  static public class Intersection extends Class {
-    // Production: sig("Intersection",[arg("org.rascalmpl.ast.Class","lhs"),arg("org.rascalmpl.ast.Class","rhs")])
+  static public class Union extends Class {
+    // Production: sig("Union",[arg("org.rascalmpl.ast.Class","lhs"),arg("org.rascalmpl.ast.Class","rhs")])
   
     
     private final org.rascalmpl.ast.Class lhs;
     private final org.rascalmpl.ast.Class rhs;
   
-    public Intersection(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
+    public Union(IConstructor node , org.rascalmpl.ast.Class lhs,  org.rascalmpl.ast.Class rhs) {
       super(node);
       
       this.lhs = lhs;
@@ -259,13 +333,13 @@ public abstract class Class extends AbstractAST {
     }
   
     @Override
-    public boolean isIntersection() { 
+    public boolean isUnion() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitClassIntersection(this);
+      return visitor.visitClassUnion(this);
     }
   
     
@@ -285,80 +359,6 @@ public abstract class Class extends AbstractAST {
   
     @Override
     public boolean hasRhs() {
-      return true;
-    }	
-  }
-  public boolean isComplement() {
-    return false;
-  }
-
-  static public class Complement extends Class {
-    // Production: sig("Complement",[arg("org.rascalmpl.ast.Class","charClass")])
-  
-    
-    private final org.rascalmpl.ast.Class charClass;
-  
-    public Complement(IConstructor node , org.rascalmpl.ast.Class charClass) {
-      super(node);
-      
-      this.charClass = charClass;
-    }
-  
-    @Override
-    public boolean isComplement() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitClassComplement(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Class getCharClass() {
-      return this.charClass;
-    }
-  
-    @Override
-    public boolean hasCharClass() {
-      return true;
-    }	
-  }
-  public boolean isBracket() {
-    return false;
-  }
-
-  static public class Bracket extends Class {
-    // Production: sig("Bracket",[arg("org.rascalmpl.ast.Class","charclass")])
-  
-    
-    private final org.rascalmpl.ast.Class charclass;
-  
-    public Bracket(IConstructor node , org.rascalmpl.ast.Class charclass) {
-      super(node);
-      
-      this.charclass = charclass;
-    }
-  
-    @Override
-    public boolean isBracket() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitClassBracket(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Class getCharclass() {
-      return this.charclass;
-    }
-  
-    @Override
-    public boolean hasCharclass() {
       return true;
     }	
   }

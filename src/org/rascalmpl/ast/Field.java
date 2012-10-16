@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -86,43 +86,6 @@ public abstract class Field extends AbstractAST {
   
 
   
-  public boolean isName() {
-    return false;
-  }
-
-  static public class Name extends Field {
-    // Production: sig("Name",[arg("org.rascalmpl.ast.Name","fieldName")])
-  
-    
-    private final org.rascalmpl.ast.Name fieldName;
-  
-    public Name(IConstructor node , org.rascalmpl.ast.Name fieldName) {
-      super(node);
-      
-      this.fieldName = fieldName;
-    }
-  
-    @Override
-    public boolean isName() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitFieldName(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Name getFieldName() {
-      return this.fieldName;
-    }
-  
-    @Override
-    public boolean hasFieldName() {
-      return true;
-    }	
-  }
   public boolean isIndex() {
     return false;
   }
@@ -157,6 +120,43 @@ public abstract class Field extends AbstractAST {
   
     @Override
     public boolean hasFieldIndex() {
+      return true;
+    }	
+  }
+  public boolean isName() {
+    return false;
+  }
+
+  static public class Name extends Field {
+    // Production: sig("Name",[arg("org.rascalmpl.ast.Name","fieldName")])
+  
+    
+    private final org.rascalmpl.ast.Name fieldName;
+  
+    public Name(IConstructor node , org.rascalmpl.ast.Name fieldName) {
+      super(node);
+      
+      this.fieldName = fieldName;
+    }
+  
+    @Override
+    public boolean isName() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitFieldName(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Name getFieldName() {
+      return this.fieldName;
+    }
+  
+    @Override
+    public boolean hasFieldName() {
       return true;
     }	
   }
