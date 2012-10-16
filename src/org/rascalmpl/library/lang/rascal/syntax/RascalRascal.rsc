@@ -565,14 +565,14 @@ syntax Statement
 	| nonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| emptyStatement: ";" 
 	| @breakable globalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| @breakable assignment: Assignable assignable Assignment operator Statement statement
+	| @breakable assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
 	| non-assoc  ( 
 		          @breakable \return    : "return" Statement statement  
 		        | @breakable \throw     : "throw" Statement statement 
 		        | @breakable \insert    : "insert" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 		        | @breakable \append    : "append" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 	            )
-    > @breakable functionDeclaration: FunctionDeclaration functionDeclaration 
+    | @breakable functionDeclaration: FunctionDeclaration functionDeclaration 
 	| @breakable variableDeclaration: LocalVariableDeclaration declaration ";"
 	; 
 	
