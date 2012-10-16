@@ -1320,6 +1320,8 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6480, -6894);
     
+    _putDontNest(result, -3797, -7155);
+    
     _putDontNest(result, -6886, -7035);
     
     _putDontNest(result, -6872, -7049);
@@ -2264,8 +2266,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6863, -7281);
     
-    _putDontNest(result, -3791, -7155);
-    
     _putDontNest(result, -6855, -7155);
     
     _putDontNest(result, -6716, -7127);
@@ -2910,9 +2910,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-7200, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-3791, resultStoreId);
-    ++resultStoreId;
-    
     result.putUnsafe(-6908, resultStoreId);
     result.putUnsafe(-6894, resultStoreId);
     result.putUnsafe(-6880, resultStoreId);
@@ -2967,6 +2964,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     result.putUnsafe(-7049, resultStoreId);
     result.putUnsafe(-7035, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-3797, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-6942, resultStoreId);
@@ -3173,7 +3173,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_ = (IConstructor) _read("prod(lit(\"alias\"),[\\char-class([range(97,97)]),\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(97,97)]),\\char-class([range(115,115)])],{})", Factory.Production);
   private static final IConstructor prod__outermost_$Strategy__lit_outermost_ = (IConstructor) _read("prod(label(\"outermost\",sort(\"Strategy\")),[lit(\"outermost\")],{})", Factory.Production);
   private static final IConstructor prod__nonAssociative_$Assoc__lit_non_assoc_ = (IConstructor) _read("prod(label(\"nonAssociative\",sort(\"Assoc\")),[lit(\"non-assoc\")],{})", Factory.Production);
-  private static final IConstructor regular__iter_star__char_class___range__9_9_range__32_32 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(9,9),range(32,32)])))", Factory.Production);
   private static final IConstructor prod__default_$Case__lit_default_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_statement_$Statement__tag__Foldable = (IConstructor) _read("prod(label(\"default\",sort(\"Case\")),[lit(\"default\"),layouts(\"LAYOUTLIST\"),lit(\":\"),layouts(\"LAYOUTLIST\"),label(\"statement\",sort(\"Statement\"))],{tag(Foldable())})", Factory.Production);
   private static final IConstructor prod__typedVariable_$Pattern__type_$Type_$layouts_LAYOUTLIST_name_$Name_ = (IConstructor) _read("prod(label(\"typedVariable\",sort(\"Pattern\")),[label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\"))],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_assert_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"assert\")],{})", Factory.Production);
@@ -3225,7 +3224,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__ifThenElse_$Expression__condition_$Expression_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_thenExp_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_elseExp_$Expression__assoc__right = (IConstructor) _read("prod(label(\"ifThenElse\",sort(\"Expression\")),[label(\"condition\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"?\"),layouts(\"LAYOUTLIST\"),label(\"thenExp\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\":\"),layouts(\"LAYOUTLIST\"),label(\"elseExp\",sort(\"Expression\"))],{assoc(right())})", Factory.Production);
   private static final IConstructor prod__set_$Comprehension__lit___123_$layouts_LAYOUTLIST_results_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___124_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125__tag__breakable___123_114_101_115_117_108_116_115_44_103_101_110_101_114_97_116_111_114_115_125 = (IConstructor) _read("prod(label(\"set\",sort(\"Comprehension\")),[lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"results\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"|\"),layouts(\"LAYOUTLIST\"),label(\"generators\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{tag(breakable(\"{results,generators}\"))})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_filter_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"filter\")],{})", Factory.Production);
-  private static final IConstructor prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_16777215__tag__category___67_111_109_109_101_110_116 = (IConstructor) _read("prod(lex(\"Comment\"),[lit(\"//\"),conditional(\\iter-star(\\char-class([range(0,9),range(11,16777215)])),{\\not-follow(\\char-class([range(9,9),range(13,13),range(32,32)])),\\end-of-line()})],{tag(category(\"Comment\"))})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_while_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"while\")],{})", Factory.Production);
   private static final IConstructor regular__iter__char_class___range__48_57_range__65_70_range__97_102 = (IConstructor) _read("regular(iter(\\char-class([range(48,57),range(65,70),range(97,102)])))", Factory.Production);
   private static final IConstructor prod__tryFinally_$Statement__lit_try_$layouts_LAYOUTLIST_body_$Statement_$layouts_LAYOUTLIST_handlers_iter_seps__$Catch__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit_finally_$layouts_LAYOUTLIST_finallyBody_$Statement__tag__breakable = (IConstructor) _read("prod(label(\"tryFinally\",sort(\"Statement\")),[lit(\"try\"),layouts(\"LAYOUTLIST\"),label(\"body\",sort(\"Statement\")),layouts(\"LAYOUTLIST\"),label(\"handlers\",\\iter-seps(sort(\"Catch\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"finally\"),layouts(\"LAYOUTLIST\"),label(\"finallyBody\",sort(\"Statement\"))],{tag(breakable())})", Factory.Production);
@@ -3248,6 +3246,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$RascalKeywords__lit_notin_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"notin\")],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_append_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"append\")],{})", Factory.Production);
   private static final IConstructor prod__void_$BasicType__lit_void_ = (IConstructor) _read("prod(label(\"void\",sort(\"BasicType\")),[lit(\"void\")],{})", Factory.Production);
+  private static final IConstructor prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288_char_class___range__39_39_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[\\char-class([range(10,10)]),\\iter-star(\\char-class([range(9,9),range(32,32),range(65,65),range(160,160),range(5760,5760),range(8192,8192),range(8239,8239),range(8287,8287),range(12288,12288)])),\\char-class([range(39,39)])],{})", Factory.Production);
   private static final IConstructor prod__givenStrategy_$Visit__strategy_$Strategy_$layouts_LAYOUTLIST_lit_visit_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_subject_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = (IConstructor) _read("prod(label(\"givenStrategy\",sort(\"Visit\")),[label(\"strategy\",sort(\"Strategy\")),layouts(\"LAYOUTLIST\"),lit(\"visit\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"subject\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\")\"),layouts(\"LAYOUTLIST\"),lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"cases\",\\iter-seps(sort(\"Case\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{})", Factory.Production);
   private static final IConstructor regular__iter_star_seps__$Sym__$layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-star-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\")]))", Factory.Production);
   private static final IConstructor prod__reifiedType_$Pattern__lit_type_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_symbol_$Pattern_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_definitions_$Pattern_$layouts_LAYOUTLIST_lit___41_ = (IConstructor) _read("prod(label(\"reifiedType\",sort(\"Pattern\")),[lit(\"type\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"symbol\",sort(\"Pattern\")),layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\"),label(\"definitions\",sort(\"Pattern\")),layouts(\"LAYOUTLIST\"),lit(\")\")],{})", Factory.Production);
@@ -3339,7 +3338,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__while_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_body_$Statement__tag__breakable = (IConstructor) _read("prod(label(\"while\",sort(\"Statement\")),[label(\"label\",sort(\"Label\")),layouts(\"LAYOUTLIST\"),lit(\"while\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"conditions\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\"),layouts(\"LAYOUTLIST\"),label(\"body\",sort(\"Statement\"))],{tag(breakable())})", Factory.Production);
   private static final IConstructor prod__$HeaderKeyword__lit_import_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"import\")],{})", Factory.Production);
   private static final IConstructor regular__iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"TypeArg\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))", Factory.Production);
-  private static final IConstructor prod__$ProtocolChars__char_class___range__124_124_$URLChars_lit___58_47_47_ = (IConstructor) _read("prod(lex(\"ProtocolChars\"),[\\char-class([range(124,124)]),lex(\"URLChars\"),conditional(lit(\"://\"),{\\not-follow(\\char-class([range(9,10),range(13,13),range(32,32)]))})],{})", Factory.Production);
   private static final IConstructor prod__$CaseInsensitiveStringConstant__lit___39_iter_star__$StringCharacter_lit___39__tag__category___67_111_110_115_116_97_110_116 = (IConstructor) _read("prod(lex(\"CaseInsensitiveStringConstant\"),[lit(\"\\'\\\\\"),\\iter-star(lex(\"StringCharacter\")),lit(\"\\'\\\\\")],{tag(category(\"Constant\"))})", Factory.Production);
   private static final IConstructor prod__toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"toplevels\",sort(\"Body\")),[label(\"toplevels\",\\iter-star-seps(sort(\"Toplevel\"),[layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__ifDefinedOrDefault_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___63_$layouts_LAYOUTLIST_defaultExpression_$Expression_ = (IConstructor) _read("prod(label(\"ifDefinedOrDefault\",sort(\"Assignable\")),[label(\"receiver\",sort(\"Assignable\")),layouts(\"LAYOUTLIST\"),lit(\"?\"),layouts(\"LAYOUTLIST\"),label(\"defaultExpression\",sort(\"Expression\"))],{})", Factory.Production);
@@ -3413,7 +3411,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__intersection_$Assignment__lit___38_61_ = (IConstructor) _read("prod(label(\"intersection\",sort(\"Assignment\")),[lit(\"&=\")],{})", Factory.Production);
   private static final IConstructor prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_ = (IConstructor) _read("prod(lit(\"non-assoc\"),[\\char-class([range(110,110)]),\\char-class([range(111,111)]),\\char-class([range(110,110)]),\\char-class([range(45,45)]),\\char-class([range(97,97)]),\\char-class([range(115,115)]),\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(99,99)])],{})", Factory.Production);
   private static final IConstructor prod__enumerator_$Expression__pattern_$Pattern_$layouts_LAYOUTLIST_lit___60_45_$layouts_LAYOUTLIST_expression_$Expression__assoc__non_assoc = (IConstructor) _read("prod(label(\"enumerator\",sort(\"Expression\")),[label(\"pattern\",sort(\"Pattern\")),layouts(\"LAYOUTLIST\"),lit(\"\\<-\"),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\"))],{assoc(\\non-assoc())})", Factory.Production);
-  private static final IConstructor prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_ = (IConstructor) _read("prod(lex(\"LAYOUT\"),[\\char-class([range(9,10),range(13,13),range(32,32)])],{})", Factory.Production);
   private static final IConstructor prod__conditional_$Replacement__replacementExpression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"conditional\",sort(\"Replacement\")),[label(\"replacementExpression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"when\"),layouts(\"LAYOUTLIST\"),label(\"conditions\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__relation_$BasicType__lit_rel_ = (IConstructor) _read("prod(label(\"relation\",sort(\"BasicType\")),[lit(\"rel\")],{})", Factory.Production);
   private static final IConstructor prod__$RealLiteral__iter__char_class___range__48_57_lit___46_iter_star__char_class___range__48_57_char_class___range__69_69_range__101_101_opt__char_class___range__43_43_range__45_45_iter__char_class___range__48_57_opt__char_class___range__68_68_range__70_70_range__100_100_range__102_102_ = (IConstructor) _read("prod(lex(\"RealLiteral\"),[iter(\\char-class([range(48,57)])),lit(\".\"),\\iter-star(\\char-class([range(48,57)])),\\char-class([range(69,69),range(101,101)]),opt(\\char-class([range(43,43),range(45,45)])),iter(\\char-class([range(48,57)])),opt(\\char-class([range(68,68),range(70,70),range(100,100),range(102,102)]))],{})", Factory.Production);
@@ -3491,7 +3488,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_ = (IConstructor) _read("prod(lit(\"bottom-up\"),[\\char-class([range(98,98)]),\\char-class([range(111,111)]),\\char-class([range(116,116)]),\\char-class([range(116,116)]),\\char-class([range(111,111)]),\\char-class([range(109,109)]),\\char-class([range(45,45)]),\\char-class([range(117,117)]),\\char-class([range(112,112)])],{})", Factory.Production);
   private static final IConstructor prod__is_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit_is_$layouts_LAYOUTLIST_name_$Name_ = (IConstructor) _read("prod(label(\"is\",sort(\"Expression\")),[label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"is\"),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_ = (IConstructor) _read("prod(lit(\"break\"),[\\char-class([range(98,98)]),\\char-class([range(114,114)]),\\char-class([range(101,101)]),\\char-class([range(97,97)]),\\char-class([range(107,107)])],{})", Factory.Production);
-  private static final IConstructor prod__$layouts_LAYOUTLIST__iter_star__$LAYOUT_ = (IConstructor) _read("prod(layouts(\"LAYOUTLIST\"),[conditional(\\iter-star(lex(\"LAYOUT\")),{\\not-follow(\\char-class([range(9,10),range(13,13),range(32,32)])),\\not-follow(lit(\"//\")),\\not-follow(lit(\"/*\"))})],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_mod_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"mod\")],{})", Factory.Production);
   private static final IConstructor prod__mid_$ProtocolTail__mid_$MidProtocolChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$ProtocolTail_ = (IConstructor) _read("prod(label(\"mid\",sort(\"ProtocolTail\")),[label(\"mid\",lex(\"MidProtocolChars\")),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),label(\"tail\",sort(\"ProtocolTail\"))],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_rat_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"rat\")],{})", Factory.Production);
@@ -3552,7 +3548,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__replacing_$PatternWithAction__pattern_$Pattern_$layouts_LAYOUTLIST_lit___61_62_$layouts_LAYOUTLIST_replacement_$Replacement_ = (IConstructor) _read("prod(label(\"replacing\",sort(\"PatternWithAction\")),[label(\"pattern\",sort(\"Pattern\")),layouts(\"LAYOUTLIST\"),lit(\"=\\>\"),layouts(\"LAYOUTLIST\"),label(\"replacement\",sort(\"Replacement\"))],{})", Factory.Production);
   private static final IConstructor prod__union_$Class__lhs_$Class_$layouts_LAYOUTLIST_lit___124_124_$layouts_LAYOUTLIST_rhs_$Class__assoc__left = (IConstructor) _read("prod(label(\"union\",sort(\"Class\")),[label(\"lhs\",sort(\"Class\")),layouts(\"LAYOUTLIST\"),lit(\"||\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Class\"))],{assoc(left())})", Factory.Production);
   private static final IConstructor regular__iter_star__$StringCharacter = (IConstructor) _read("regular(\\iter-star(lex(\"StringCharacter\")))", Factory.Production);
-  private static final IConstructor prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_ = (IConstructor) _read("prod(lex(\"StringCharacter\"),[\\char-class([range(10,10)]),\\iter-star(\\char-class([range(9,9),range(32,32)])),\\char-class([range(39,39)])],{})", Factory.Production);
   private static final IConstructor prod__$HeaderKeyword__lit_keyword_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"keyword\")],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_list_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"list\")],{})", Factory.Production);
   private static final IConstructor prod__iterSep_$Sym__lit___123_$layouts_LAYOUTLIST_symbol_$Sym_$layouts_LAYOUTLIST_sep_$Sym_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit___43_ = (IConstructor) _read("prod(label(\"iterSep\",sort(\"Sym\")),[lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"symbol\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),label(\"sep\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),lit(\"}\"),layouts(\"LAYOUTLIST\"),lit(\"+\")],{})", Factory.Production);
@@ -3605,6 +3600,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__ifThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = (IConstructor) _read("prod(label(\"ifThen\",sort(\"StringTemplate\")),[lit(\"if\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"conditions\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\"),layouts(\"LAYOUTLIST\"),lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"preStats\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),label(\"body\",sort(\"StringMiddle\")),layouts(\"LAYOUTLIST\"),label(\"postStats\",\\iter-star-seps(sort(\"Statement\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{})", Factory.Production);
   private static final IConstructor prod__empty_$DataTarget__ = (IConstructor) _read("prod(label(\"empty\",sort(\"DataTarget\")),[],{})", Factory.Production);
   private static final IConstructor prod__test_$FunctionModifier__lit_test_ = (IConstructor) _read("prod(label(\"test\",sort(\"FunctionModifier\")),[lit(\"test\")],{})", Factory.Production);
+  private static final IConstructor prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_16777215__tag__category___67_111_109_109_101_110_116 = (IConstructor) _read("prod(lex(\"Comment\"),[lit(\"//\"),conditional(\\iter-star(\\char-class([range(0,9),range(11,16777215)])),{\\not-follow(\\char-class([range(9,9),range(13,13),range(32,32),range(65,65),range(160,160),range(5760,5760),range(8192,8192),range(8239,8239),range(8287,8287),range(12288,12288)])),\\end-of-line()})],{tag(category(\"Comment\"))})", Factory.Production);
   private static final IConstructor prod__default_$Formals__formals_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"default\",sort(\"Formals\")),[label(\"formals\",\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
   private static final IConstructor prod__unInitialized_$Variable__name_$Name_ = (IConstructor) _read("prod(label(\"unInitialized\",sort(\"Variable\")),[label(\"name\",lex(\"Name\"))],{})", Factory.Production);
   private static final IConstructor prod__$RascalKeywords__lit_for_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"for\")],{})", Factory.Production);
@@ -3616,6 +3612,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__$RascalKeywords__lit_if_ = (IConstructor) _read("prod(keywords(\"RascalKeywords\"),[lit(\"if\")],{})", Factory.Production);
   private static final IConstructor prod__iterStar_$Sym__symbol_$Sym_$layouts_LAYOUTLIST_lit___42_ = (IConstructor) _read("prod(label(\"iterStar\",sort(\"Sym\")),[label(\"symbol\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),lit(\"*\")],{})", Factory.Production);
   private static final IConstructor prod__lit_history__char_class___range__104_104_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_char_class___range__111_111_char_class___range__114_114_char_class___range__121_121_ = (IConstructor) _read("prod(lit(\"history\"),[\\char-class([range(104,104)]),\\char-class([range(105,105)]),\\char-class([range(115,115)]),\\char-class([range(116,116)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(121,121)])],{})", Factory.Production);
+  private static final IConstructor prod__$LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_ = (IConstructor) _read("prod(lex(\"LAYOUT\"),[\\char-class([range(9,13),range(32,32),range(133,133),range(160,160),range(5760,5760),range(6158,6158),range(8192,8202),range(8232,8233),range(8239,8239),range(8287,8287),range(12288,12288)])],{})", Factory.Production);
   private static final IConstructor prod__listModules_$ShellCommand__lit_modules_ = (IConstructor) _read("prod(label(\"listModules\",sort(\"ShellCommand\")),[lit(\"modules\")],{})", Factory.Production);
   private static final IConstructor prod__external_$Import__lit_import_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_at_$LocationLiteral_$layouts_LAYOUTLIST_lit___59_ = (IConstructor) _read("prod(label(\"external\",sort(\"Import\")),[lit(\"import\"),layouts(\"LAYOUTLIST\"),label(\"name\",sort(\"QualifiedName\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"at\",sort(\"LocationLiteral\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{})", Factory.Production);
   private static final IConstructor prod__annotation_$Declaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_lit_anno_$layouts_LAYOUTLIST_annoType_$Type_$layouts_LAYOUTLIST_onType_$Type_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___59_ = (IConstructor) _read("prod(label(\"annotation\",sort(\"Declaration\")),[label(\"tags\",sort(\"Tags\")),layouts(\"LAYOUTLIST\"),label(\"visibility\",sort(\"Visibility\")),layouts(\"LAYOUTLIST\"),lit(\"anno\"),layouts(\"LAYOUTLIST\"),label(\"annoType\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"onType\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),lit(\"@\"),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{})", Factory.Production);
@@ -3636,6 +3633,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__post_$StringTail__post_$PostStringChars_ = (IConstructor) _read("prod(label(\"post\",sort(\"StringTail\")),[label(\"post\",lex(\"PostStringChars\"))],{})", Factory.Production);
   private static final IConstructor prod__actualsRenaming_$ImportedModule__name_$QualifiedName_$layouts_LAYOUTLIST_actuals_$ModuleActuals_$layouts_LAYOUTLIST_renamings_$Renamings_ = (IConstructor) _read("prod(label(\"actualsRenaming\",sort(\"ImportedModule\")),[label(\"name\",sort(\"QualifiedName\")),layouts(\"LAYOUTLIST\"),label(\"actuals\",sort(\"ModuleActuals\")),layouts(\"LAYOUTLIST\"),label(\"renamings\",sort(\"Renamings\"))],{})", Factory.Production);
   private static final IConstructor prod__comprehension_$Expression__comprehension_$Comprehension_ = (IConstructor) _read("prod(label(\"comprehension\",sort(\"Expression\")),[label(\"comprehension\",sort(\"Comprehension\"))],{})", Factory.Production);
+  private static final IConstructor regular__iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288 = (IConstructor) _read("regular(\\iter-star(\\char-class([range(9,9),range(32,32),range(65,65),range(160,160),range(5760,5760),range(8192,8192),range(8239,8239),range(8287,8287),range(12288,12288)])))", Factory.Production);
   private static final IConstructor prod__emptyStatement_$Statement__lit___59_ = (IConstructor) _read("prod(label(\"emptyStatement\",sort(\"Statement\")),[lit(\";\")],{})", Factory.Production);
   private static final IConstructor prod__set_$Pattern__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Pattern__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_ = (IConstructor) _read("prod(label(\"set\",sort(\"Pattern\")),[lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"elements\",\\iter-star-seps(sort(\"Pattern\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{})", Factory.Production);
   private static final IConstructor prod__nonEquals_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___33_61_$layouts_LAYOUTLIST_rhs_$Expression__assoc__non_assoc = (IConstructor) _read("prod(label(\"nonEquals\",sort(\"Expression\")),[label(\"lhs\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"!=\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Expression\"))],{assoc(\\non-assoc())})", Factory.Production);
@@ -3650,6 +3648,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__all_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_ = (IConstructor) _read("prod(label(\"all\",sort(\"Expression\")),[lit(\"all\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"generators\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\")\")],{})", Factory.Production);
   private static final IConstructor prod__parametrized_$Sym__nonterminal_$Nonterminal_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Sym__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = (IConstructor) _read("prod(label(\"parametrized\",sort(\"Sym\")),[conditional(label(\"nonterminal\",lex(\"Nonterminal\")),{follow(lit(\"[\"))}),layouts(\"LAYOUTLIST\"),lit(\"[\"),layouts(\"LAYOUTLIST\"),label(\"parameters\",\\iter-seps(sort(\"Sym\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"]\")],{})", Factory.Production);
   private static final IConstructor regular__iter_seps__$Case__$layouts_LAYOUTLIST = (IConstructor) _read("regular(\\iter-seps(sort(\"Case\"),[layouts(\"LAYOUTLIST\")]))", Factory.Production);
+  private static final IConstructor prod__$layouts_LAYOUTLIST__iter_star__$LAYOUT_ = (IConstructor) _read("prod(layouts(\"LAYOUTLIST\"),[conditional(\\iter-star(lex(\"LAYOUT\")),{\\not-follow(lit(\"//\")),\\not-follow(lit(\"/*\")),\\not-follow(\\char-class([range(9,13),range(32,32),range(133,133),range(160,160),range(5760,5760),range(6158,6158),range(8192,8202),range(8232,8233),range(8239,8239),range(8287,8287),range(12288,12288)]))})],{})", Factory.Production);
   private static final IConstructor prod__$PrePathChars__$URLChars_lit___60_ = (IConstructor) _read("prod(lex(\"PrePathChars\"),[lex(\"URLChars\"),lit(\"\\<\")],{})", Factory.Production);
   private static final IConstructor prod__$HeaderKeyword__lit_syntax_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"syntax\")],{})", Factory.Production);
   private static final IConstructor prod__lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable = (IConstructor) _read("prod(label(\"lexical\",sort(\"SyntaxDefinition\")),[lit(\"lexical\"),layouts(\"LAYOUTLIST\"),label(\"defined\",sort(\"Sym\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"production\",sort(\"Prod\")),layouts(\"LAYOUTLIST\"),lit(\";\")],{tag(Foldable())})", Factory.Production);
@@ -3662,6 +3661,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__setAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_ = (IConstructor) _read("prod(label(\"setAnnotation\",sort(\"Expression\")),[label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"[\"),layouts(\"LAYOUTLIST\"),lit(\"@\"),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),lit(\"=\"),layouts(\"LAYOUTLIST\"),label(\"value\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"]\")],{})", Factory.Production);
   private static final IConstructor prod__reifyType_$Expression__lit___35_$layouts_LAYOUTLIST_type_$Type_ = (IConstructor) _read("prod(label(\"reifyType\",sort(\"Expression\")),[lit(\"#\"),layouts(\"LAYOUTLIST\"),conditional(label(\"type\",sort(\"Type\")),{\\not-follow(lit(\"[\")),except(\"selector\")})],{})", Factory.Production);
   private static final IConstructor prod__$HeaderKeyword__lit_lexical_ = (IConstructor) _read("prod(keywords(\"HeaderKeyword\"),[lit(\"lexical\")],{})", Factory.Production);
+  private static final IConstructor prod__$ProtocolChars__char_class___range__124_124_$URLChars_lit___58_47_47_ = (IConstructor) _read("prod(lex(\"ProtocolChars\"),[\\char-class([range(124,124)]),lex(\"URLChars\"),conditional(lit(\"://\"),{\\not-follow(\\char-class([range(9,10),range(13,13),range(32,32),range(65,65),range(160,160),range(5760,5760),range(8192,8192),range(8239,8239),range(8287,8287),range(12288,12288)]))})],{})", Factory.Production);
   private static final IConstructor prod__interpolated_$StringMiddle__mid_$MidStringChars_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_tail_$StringMiddle_ = (IConstructor) _read("prod(label(\"interpolated\",sort(\"StringMiddle\")),[label(\"mid\",lex(\"MidStringChars\")),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),label(\"tail\",sort(\"StringMiddle\"))],{})", Factory.Production);
   private static final IConstructor prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_ = (IConstructor) _read("prod(lit(\"dynamic\"),[\\char-class([range(100,100)]),\\char-class([range(121,121)]),\\char-class([range(110,110)]),\\char-class([range(97,97)]),\\char-class([range(109,109)]),\\char-class([range(105,105)]),\\char-class([range(99,99)])],{})", Factory.Production);
   private static final IConstructor prod__withThrows_$Signature__modifiers_$FunctionModifiers_$layouts_LAYOUTLIST_type_$Type_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_parameters_$Parameters_$layouts_LAYOUTLIST_lit_throws_$layouts_LAYOUTLIST_exceptions_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_ = (IConstructor) _read("prod(label(\"withThrows\",sort(\"Signature\")),[label(\"modifiers\",sort(\"FunctionModifiers\")),layouts(\"LAYOUTLIST\"),label(\"type\",sort(\"Type\")),layouts(\"LAYOUTLIST\"),label(\"name\",lex(\"Name\")),layouts(\"LAYOUTLIST\"),label(\"parameters\",sort(\"Parameters\")),layouts(\"LAYOUTLIST\"),lit(\"throws\"),layouts(\"LAYOUTLIST\"),label(\"exceptions\",\\iter-seps(sort(\"Type\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")]))],{})", Factory.Production);
@@ -5953,43 +5953,43 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
       EXPECTS = builder.buildExpectArray();
     }
     
-    protected static final void _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_(ExpectBuilder<IConstructor> builder) {
-      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
-      
-      tmp[2] = new CharStackNode<IConstructor>(-2559, 2, new int[][]{{39,39}}, null, null);
-      tmp[1] = new ListStackNode<IConstructor>(-2558, 1, regular__iter_star__char_class___range__9_9_range__32_32, new CharStackNode<IConstructor>(-2557, 0, new int[][]{{9,9},{32,32}}, null, null), false, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-2556, 0, new int[][]{{10,10}}, null, null);
-      builder.addAlternative(RascalRascal.prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_, tmp);
-	}
     protected static final void _init_prod__$StringCharacter__$UnicodeEscape_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-2563, 0, "$UnicodeEscape", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-2557, 0, "$UnicodeEscape", null, null);
       builder.addAlternative(RascalRascal.prod__$StringCharacter__$UnicodeEscape_, tmp);
 	}
     protected static final void _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_16777215_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode<IConstructor>(-2566, 0, new int[][]{{0,33},{35,38},{40,59},{61,61},{63,91},{93,16777215}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-2560, 0, new int[][]{{0,33},{35,38},{40,59},{61,61},{63,91},{93,16777215}}, null, null);
       builder.addAlternative(RascalRascal.prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_16777215_, tmp);
 	}
     protected static final void _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode<IConstructor>(-2570, 1, new int[][]{{34,34},{39,39},{60,60},{62,62},{92,92},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-2569, 0, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-2564, 1, new int[][]{{34,34},{39,39},{60,60},{62,62},{92,92},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-2563, 0, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
       builder.addAlternative(RascalRascal.prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_, tmp);
+	}
+    protected static final void _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288_char_class___range__39_39_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
+      
+      tmp[2] = new CharStackNode<IConstructor>(-2570, 2, new int[][]{{39,39}}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(-2569, 1, regular__iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288, new CharStackNode<IConstructor>(-2568, 0, new int[][]{{9,9},{32,32},{65,65},{160,160},{5760,5760},{8192,8192},{8239,8239},{8287,8287},{12288,12288}}, null, null), false, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-2567, 0, new int[][]{{10,10}}, null, null);
+      builder.addAlternative(RascalRascal.prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288_char_class___range__39_39_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
-      
-        _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_char_class___range__39_39_(builder);
       
         _init_prod__$StringCharacter__$UnicodeEscape_(builder);
       
         _init_prod__$StringCharacter__char_class___range__0_33_range__35_38_range__40_59_range__61_61_range__63_91_range__93_16777215_(builder);
       
         _init_prod__$StringCharacter__lit___92_char_class___range__34_34_range__39_39_range__60_60_range__62_62_range__92_92_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116_(builder);
+      
+        _init_prod__$StringCharacter__char_class___range__10_10_iter_star__char_class___range__9_9_range__32_32_range__65_65_range__160_160_range__5760_5760_range__8192_8192_range__8239_8239_range__8287_8287_range__12288_12288_char_class___range__39_39_(builder);
       
     }
   }
@@ -6005,7 +6005,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$layouts_LAYOUTLIST__iter_star__$LAYOUT_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new ListStackNode<IConstructor>(-2587, 0, regular__iter_star__$LAYOUT, new NonTerminalStackNode<IConstructor>(-2582, 0, "$LAYOUT", null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,10},{13,13},{32,32}}), new StringFollowRestriction(new int[] {47,47}), new StringFollowRestriction(new int[] {47,42})});
+      tmp[0] = new ListStackNode<IConstructor>(-2587, 0, regular__iter_star__$LAYOUT, new NonTerminalStackNode<IConstructor>(-2582, 0, "$LAYOUT", null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,13},{32,32},{133,133},{160,160},{5760,5760},{6158,6158},{8192,8202},{8232,8233},{8239,8239},{8287,8287},{12288,12288}}), new StringFollowRestriction(new int[] {47,47}), new StringFollowRestriction(new int[] {47,42})});
       builder.addAlternative(RascalRascal.prod__$layouts_LAYOUTLIST__iter_star__$LAYOUT_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6395,125 +6395,125 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__doWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[19];
       
-      tmp[18] = new LiteralStackNode<IConstructor>(-3127, 18, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[17] = new NonTerminalStackNode<IConstructor>(-3126, 17, "$layouts_LAYOUTLIST", null, null);
-      tmp[16] = new NonTerminalStackNode<IConstructor>(-3123, 16, "$Expression", null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(-3121, 15, "$layouts_LAYOUTLIST", null, null);
-      tmp[14] = new LiteralStackNode<IConstructor>(-3119, 14, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-3118, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new LiteralStackNode<IConstructor>(-3116, 12, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-3115, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(-3113, 10, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3112, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new SeparatedListStackNode<IConstructor>(-3109, 8, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3106, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3108, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3104, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-3101, 6, "$StringMiddle", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3099, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-3096, 4, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3093, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3095, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3091, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3089, 2, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3088, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3086, 0, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new int[] {100,111}, null, null);
+      tmp[18] = new LiteralStackNode<IConstructor>(-3133, 18, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[17] = new NonTerminalStackNode<IConstructor>(-3132, 17, "$layouts_LAYOUTLIST", null, null);
+      tmp[16] = new NonTerminalStackNode<IConstructor>(-3129, 16, "$Expression", null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(-3127, 15, "$layouts_LAYOUTLIST", null, null);
+      tmp[14] = new LiteralStackNode<IConstructor>(-3125, 14, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-3124, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new LiteralStackNode<IConstructor>(-3122, 12, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-3121, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(-3119, 10, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3118, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new SeparatedListStackNode<IConstructor>(-3115, 8, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3112, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3114, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3110, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-3107, 6, "$StringMiddle", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3105, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-3102, 4, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3099, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3101, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3097, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3095, 2, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3094, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3092, 0, prod__lit_do__char_class___range__100_100_char_class___range__111_111_, new int[] {100,111}, null, null);
       builder.addAlternative(RascalRascal.prod__doWhile_$StringTemplate__lit_do_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__while_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode<IConstructor>(-3169, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(-3168, 15, "$layouts_LAYOUTLIST", null, null);
-      tmp[14] = new SeparatedListStackNode<IConstructor>(-3165, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3162, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3164, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-3160, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new NonTerminalStackNode<IConstructor>(-3157, 12, "$StringMiddle", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-3155, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new SeparatedListStackNode<IConstructor>(-3152, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3149, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3151, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3147, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(-3145, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3144, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3142, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3141, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-3138, 4, "$Expression", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3136, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3134, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3133, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3131, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
+      tmp[16] = new LiteralStackNode<IConstructor>(-3175, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(-3174, 15, "$layouts_LAYOUTLIST", null, null);
+      tmp[14] = new SeparatedListStackNode<IConstructor>(-3171, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3168, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3170, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-3166, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new NonTerminalStackNode<IConstructor>(-3163, 12, "$StringMiddle", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-3161, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(-3158, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3155, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3157, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3153, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3151, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3150, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3148, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3147, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-3144, 4, "$Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3142, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3140, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3139, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3137, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__while_$StringTemplate__lit_while_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_condition_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     protected static final void _init_prod__for_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode<IConstructor>(-3217, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(-3216, 15, "$layouts_LAYOUTLIST", null, null);
-      tmp[14] = new SeparatedListStackNode<IConstructor>(-3213, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3210, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3212, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-3208, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new NonTerminalStackNode<IConstructor>(-3205, 12, "$StringMiddle", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-3203, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new SeparatedListStackNode<IConstructor>(-3200, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3197, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3199, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3195, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(-3193, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3192, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3190, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3189, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-3186, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3180, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3182, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3183, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3185, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3178, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3176, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3175, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3173, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new int[] {102,111,114}, null, null);
+      tmp[16] = new LiteralStackNode<IConstructor>(-3223, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(-3222, 15, "$layouts_LAYOUTLIST", null, null);
+      tmp[14] = new SeparatedListStackNode<IConstructor>(-3219, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3216, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3218, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-3214, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new NonTerminalStackNode<IConstructor>(-3211, 12, "$StringMiddle", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-3209, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(-3206, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3203, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3205, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3201, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3199, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3198, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3196, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3195, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-3192, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3186, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3188, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3189, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3191, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3184, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3182, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3181, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3179, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new int[] {102,111,114}, null, null);
       builder.addAlternative(RascalRascal.prod__for_$StringTemplate__lit_for_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     protected static final void _init_prod__ifThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[29];
       
-      tmp[28] = new LiteralStackNode<IConstructor>(-3295, 28, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[27] = new NonTerminalStackNode<IConstructor>(-3294, 27, "$layouts_LAYOUTLIST", null, null);
-      tmp[26] = new SeparatedListStackNode<IConstructor>(-3291, 26, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3288, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3290, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[25] = new NonTerminalStackNode<IConstructor>(-3286, 25, "$layouts_LAYOUTLIST", null, null);
-      tmp[24] = new NonTerminalStackNode<IConstructor>(-3283, 24, "$StringMiddle", null, null);
-      tmp[23] = new NonTerminalStackNode<IConstructor>(-3281, 23, "$layouts_LAYOUTLIST", null, null);
-      tmp[22] = new SeparatedListStackNode<IConstructor>(-3278, 22, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3275, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3277, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[21] = new NonTerminalStackNode<IConstructor>(-3273, 21, "$layouts_LAYOUTLIST", null, null);
-      tmp[20] = new LiteralStackNode<IConstructor>(-3271, 20, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[19] = new NonTerminalStackNode<IConstructor>(-3270, 19, "$layouts_LAYOUTLIST", null, null);
-      tmp[18] = new LiteralStackNode<IConstructor>(-3268, 18, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
-      tmp[17] = new NonTerminalStackNode<IConstructor>(-3267, 17, "$layouts_LAYOUTLIST", null, null);
-      tmp[16] = new LiteralStackNode<IConstructor>(-3265, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(-3264, 15, "$layouts_LAYOUTLIST", null, null);
-      tmp[14] = new SeparatedListStackNode<IConstructor>(-3261, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3258, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3260, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-3256, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new NonTerminalStackNode<IConstructor>(-3253, 12, "$StringMiddle", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-3251, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new SeparatedListStackNode<IConstructor>(-3248, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3245, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3247, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3243, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(-3241, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3240, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3238, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3237, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-3234, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3228, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3230, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3231, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3233, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3226, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3224, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3223, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3221, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      tmp[28] = new LiteralStackNode<IConstructor>(-3301, 28, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[27] = new NonTerminalStackNode<IConstructor>(-3300, 27, "$layouts_LAYOUTLIST", null, null);
+      tmp[26] = new SeparatedListStackNode<IConstructor>(-3297, 26, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3294, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3296, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[25] = new NonTerminalStackNode<IConstructor>(-3292, 25, "$layouts_LAYOUTLIST", null, null);
+      tmp[24] = new NonTerminalStackNode<IConstructor>(-3289, 24, "$StringMiddle", null, null);
+      tmp[23] = new NonTerminalStackNode<IConstructor>(-3287, 23, "$layouts_LAYOUTLIST", null, null);
+      tmp[22] = new SeparatedListStackNode<IConstructor>(-3284, 22, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3281, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3283, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[21] = new NonTerminalStackNode<IConstructor>(-3279, 21, "$layouts_LAYOUTLIST", null, null);
+      tmp[20] = new LiteralStackNode<IConstructor>(-3277, 20, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[19] = new NonTerminalStackNode<IConstructor>(-3276, 19, "$layouts_LAYOUTLIST", null, null);
+      tmp[18] = new LiteralStackNode<IConstructor>(-3274, 18, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
+      tmp[17] = new NonTerminalStackNode<IConstructor>(-3273, 17, "$layouts_LAYOUTLIST", null, null);
+      tmp[16] = new LiteralStackNode<IConstructor>(-3271, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(-3270, 15, "$layouts_LAYOUTLIST", null, null);
+      tmp[14] = new SeparatedListStackNode<IConstructor>(-3267, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3264, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3266, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-3262, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new NonTerminalStackNode<IConstructor>(-3259, 12, "$StringMiddle", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-3257, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(-3254, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3251, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3253, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3249, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3247, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3246, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3244, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3243, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-3240, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3234, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3236, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3237, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3239, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3232, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3230, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3229, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3227, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
       builder.addAlternative(RascalRascal.prod__ifThenElse_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_thenString_$StringMiddle_$layouts_LAYOUTLIST_postStatsThen_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_$layouts_LAYOUTLIST_lit_else_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_elseString_$StringMiddle_$layouts_LAYOUTLIST_postStatsElse_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     protected static final void _init_prod__ifThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[17];
       
-      tmp[16] = new LiteralStackNode<IConstructor>(-3343, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[15] = new NonTerminalStackNode<IConstructor>(-3342, 15, "$layouts_LAYOUTLIST", null, null);
-      tmp[14] = new SeparatedListStackNode<IConstructor>(-3339, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3336, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3338, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-3334, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new NonTerminalStackNode<IConstructor>(-3331, 12, "$StringMiddle", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-3329, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new SeparatedListStackNode<IConstructor>(-3326, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3323, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3325, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3321, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(-3319, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3318, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3316, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3315, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-3312, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3306, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3308, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3309, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3311, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3304, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3302, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3301, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3299, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      tmp[16] = new LiteralStackNode<IConstructor>(-3349, 16, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[15] = new NonTerminalStackNode<IConstructor>(-3348, 15, "$layouts_LAYOUTLIST", null, null);
+      tmp[14] = new SeparatedListStackNode<IConstructor>(-3345, 14, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3342, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3344, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-3340, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new NonTerminalStackNode<IConstructor>(-3337, 12, "$StringMiddle", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-3335, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new SeparatedListStackNode<IConstructor>(-3332, 10, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3329, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3331, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3327, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3325, 8, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3324, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3322, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3321, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-3318, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3312, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3314, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3315, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3317, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3310, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3308, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3307, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3305, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
       builder.addAlternative(RascalRascal.prod__ifThen_$StringTemplate__lit_if_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_preStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_body_$StringMiddle_$layouts_LAYOUTLIST_postStats_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6543,14 +6543,14 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$DecimalIntegerLiteral__char_class___range__49_57_iter_star__char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new ListStackNode<IConstructor>(-3354, 1, regular__iter_star__char_class___range__48_57, new CharStackNode<IConstructor>(-3351, 0, new int[][]{{48,57}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[0] = new CharStackNode<IConstructor>(-3350, 0, new int[][]{{49,57}}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(-3360, 1, regular__iter_star__char_class___range__48_57, new CharStackNode<IConstructor>(-3357, 0, new int[][]{{48,57}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new CharStackNode<IConstructor>(-3356, 0, new int[][]{{49,57}}, null, null);
       builder.addAlternative(RascalRascal.prod__$DecimalIntegerLiteral__char_class___range__49_57_iter_star__char_class___range__48_57_, tmp);
 	}
     protected static final void _init_prod__$DecimalIntegerLiteral__lit_0_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3359, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[0] = new LiteralStackNode<IConstructor>(-3365, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
       builder.addAlternative(RascalRascal.prod__$DecimalIntegerLiteral__lit_0_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6574,7 +6574,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SeparatedListStackNode<IConstructor>(-3386, 0, regular__iter_star_seps__$Toplevel__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3383, 0, "$Toplevel", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3385, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[0] = new SeparatedListStackNode<IConstructor>(-3392, 0, regular__iter_star_seps__$Toplevel__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3389, 0, "$Toplevel", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3391, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
       builder.addAlternative(RascalRascal.prod__toplevels_$Body__toplevels_iter_star_seps__$Toplevel__$layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6593,24 +6593,24 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
       EXPECTS = builder.buildExpectArray();
     }
     
-    protected static final void _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_(ExpectBuilder<IConstructor> builder) {
-      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
-      
-      tmp[0] = new CharStackNode<IConstructor>(-3394, 0, new int[][]{{9,10},{13,13},{32,32}}, null, null);
-      builder.addAlternative(RascalRascal.prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_, tmp);
-	}
     protected static final void _init_prod__$LAYOUT__$Comment_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3398, 0, "$Comment", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3401, 0, "$Comment", null, null);
       builder.addAlternative(RascalRascal.prod__$LAYOUT__$Comment_, tmp);
+	}
+    protected static final void _init_prod__$LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
+      
+      tmp[0] = new CharStackNode<IConstructor>(-3404, 0, new int[][]{{9,13},{32,32},{133,133},{160,160},{5760,5760},{6158,6158},{8192,8202},{8232,8233},{8239,8239},{8287,8287},{12288,12288}}, null, null);
+      builder.addAlternative(RascalRascal.prod__$LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
       
-        _init_prod__$LAYOUT__char_class___range__9_10_range__13_13_range__32_32_(builder);
-      
         _init_prod__$LAYOUT__$Comment_(builder);
+      
+        _init_prod__$LAYOUT__char_class___range__9_13_range__32_32_range__133_133_range__160_160_range__5760_5760_range__6158_6158_range__8192_8202_range__8232_8233_range__8239_8239_range__8287_8287_range__12288_12288_(builder);
       
     }
   }
@@ -6626,19 +6626,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-3427, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3426, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-3423, 4, regular__iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3417, 0, "$Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3419, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3420, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3422, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3415, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3413, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3412, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3410, 0, "$QualifiedName", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
+      tmp[6] = new LiteralStackNode<IConstructor>(-3433, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3432, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-3429, 4, regular__iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3423, 0, "$Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3425, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3426, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3428, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3421, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3419, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3418, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3416, 0, "$QualifiedName", null, new ICompletionFilter[] {new StringFollowRequirement(new int[] {91})});
       builder.addAlternative(RascalRascal.prod__parametric_$UserType__name_$QualifiedName_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__name_$UserType__name_$QualifiedName_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3432, 0, "$QualifiedName", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3438, 0, "$QualifiedName", null, null);
       builder.addAlternative(RascalRascal.prod__name_$UserType__name_$QualifiedName_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6662,41 +6662,41 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__syntax_$Import__syntax_$SyntaxDefinition_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3442, 0, "$SyntaxDefinition", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3448, 0, "$SyntaxDefinition", null, null);
       builder.addAlternative(RascalRascal.prod__syntax_$Import__syntax_$SyntaxDefinition_, tmp);
 	}
     protected static final void _init_prod__default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-3455, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3454, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3451, 2, "$ImportedModule", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3449, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3447, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3461, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3460, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3457, 2, "$ImportedModule", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3455, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3453, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__default_$Import__lit_import_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-3467, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3466, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3463, 2, "$ImportedModule", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3461, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3459, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3473, 4, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3472, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3469, 2, "$ImportedModule", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3467, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3465, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
       builder.addAlternative(RascalRascal.prod__extend_$Import__lit_extend_$layouts_LAYOUTLIST_module_$ImportedModule_$layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__external_$Import__lit_import_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_at_$LocationLiteral_$layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode<IConstructor>(-3487, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3486, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-3483, 6, "$LocationLiteral", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3481, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(-3479, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3478, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3475, 2, "$QualifiedName", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3473, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3471, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3493, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3492, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-3489, 6, "$LocationLiteral", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3487, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3485, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3484, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3481, 2, "$QualifiedName", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3479, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3477, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__external_$Import__lit_import_$layouts_LAYOUTLIST_name_$QualifiedName_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_at_$LocationLiteral_$layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6724,11 +6724,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-3513, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3512, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-3509, 2, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3506, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3508, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3504, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3502, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3519, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3518, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-3515, 2, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3512, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3514, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3510, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3508, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
       builder.addAlternative(RascalRascal.prod__default_$FunctionBody__lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6750,9 +6750,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3539, 2, "$layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3536, 1, "$Command", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3534, 0, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3545, 2, "$layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3542, 1, "$Command", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3540, 0, "$layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalRascal.prod__start__$Command__$layouts_LAYOUTLIST_top_$Command_$layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6774,19 +6774,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__decimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3554, 0, "$DecimalIntegerLiteral", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3560, 0, "$DecimalIntegerLiteral", null, null);
       builder.addAlternative(RascalRascal.prod__decimalIntegerLiteral_$IntegerLiteral__decimal_$DecimalIntegerLiteral_, tmp);
 	}
     protected static final void _init_prod__octalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3560, 0, "$OctalIntegerLiteral", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3566, 0, "$OctalIntegerLiteral", null, null);
       builder.addAlternative(RascalRascal.prod__octalIntegerLiteral_$IntegerLiteral__octal_$OctalIntegerLiteral_, tmp);
 	}
     protected static final void _init_prod__hexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3566, 0, "$HexIntegerLiteral", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3572, 0, "$HexIntegerLiteral", null, null);
       builder.addAlternative(RascalRascal.prod__hexIntegerLiteral_$IntegerLiteral__hex_$HexIntegerLiteral_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6812,13 +6812,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__labeled_$Target__name_$Name_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3576, 0, "$Name", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3582, 0, "$Name", null, null);
       builder.addAlternative(RascalRascal.prod__labeled_$Target__name_$Name_, tmp);
 	}
     protected static final void _init_prod__empty_$Target__(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(-3580, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(-3586, 0);
       builder.addAlternative(RascalRascal.prod__empty_$Target__, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6842,61 +6842,61 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode<IConstructor>(-3628, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3627, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(-3624, 8, "$Prod", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3622, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3620, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3619, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-3616, 4, "$Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3614, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3612, 2, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new int[] {115,121,110,116,97,120}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3611, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3608, 0, "$Start", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(-3634, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3633, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(-3630, 8, "$Prod", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3628, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3626, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3625, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-3622, 4, "$Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3620, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3618, 2, prod__lit_syntax__char_class___range__115_115_char_class___range__121_121_char_class___range__110_110_char_class___range__116_116_char_class___range__97_97_char_class___range__120_120_, new int[] {115,121,110,116,97,120}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3617, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3614, 0, "$Start", null, null);
       builder.addAlternative(RascalRascal.prod__language_$SyntaxDefinition__start_$Start_$layouts_LAYOUTLIST_lit_syntax_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable, tmp);
 	}
     protected static final void _init_prod__keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode<IConstructor>(-3648, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3647, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-3644, 6, "$Prod", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3642, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(-3640, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3639, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3636, 2, "$Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3634, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3632, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new int[] {107,101,121,119,111,114,100}, null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3654, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3653, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-3650, 6, "$Prod", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3648, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3646, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3645, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3642, 2, "$Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3640, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3638, 0, prod__lit_keyword__char_class___range__107_107_char_class___range__101_101_char_class___range__121_121_char_class___range__119_119_char_class___range__111_111_char_class___range__114_114_char_class___range__100_100_, new int[] {107,101,121,119,111,114,100}, null, null);
       builder.addAlternative(RascalRascal.prod__keyword_$SyntaxDefinition__lit_keyword_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable, tmp);
 	}
     protected static final void _init_prod__lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new LiteralStackNode<IConstructor>(-3668, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3667, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-3664, 6, "$Prod", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3662, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(-3660, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3659, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-3656, 2, "$Sym", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3654, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3652, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new int[] {108,101,120,105,99,97,108}, null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-3674, 8, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3673, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-3670, 6, "$Prod", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3668, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-3666, 4, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3665, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-3662, 2, "$Sym", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3660, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3658, 0, prod__lit_lexical__char_class___range__108_108_char_class___range__101_101_char_class___range__120_120_char_class___range__105_105_char_class___range__99_99_char_class___range__97_97_char_class___range__108_108_, new int[] {108,101,120,105,99,97,108}, null, null);
       builder.addAlternative(RascalRascal.prod__lexical_$SyntaxDefinition__lit_lexical_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable, tmp);
 	}
     protected static final void _init_prod__layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode<IConstructor>(-3693, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-3692, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(-3689, 8, "$Prod", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-3687, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-3685, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-3684, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-3681, 4, "$Sym", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3679, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3677, 2, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new int[] {108,97,121,111,117,116}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3676, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3673, 0, "$Visibility", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(-3699, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-3698, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(-3695, 8, "$Prod", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-3693, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-3691, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-3690, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-3687, 4, "$Sym", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3685, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3683, 2, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new int[] {108,97,121,111,117,116}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3682, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3679, 0, "$Visibility", null, null);
       builder.addAlternative(RascalRascal.prod__layout_$SyntaxDefinition__vis_$Visibility_$layouts_LAYOUTLIST_lit_layout_$layouts_LAYOUTLIST_defined_$Sym_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_production_$Prod_$layouts_LAYOUTLIST_lit___59__tag__Foldable, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -6924,55 +6924,55 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__all_$Kind__lit_all_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3701, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3707, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
       builder.addAlternative(RascalRascal.prod__all_$Kind__lit_all_, tmp);
 	}
     protected static final void _init_prod__variable_$Kind__lit_variable_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3709, 0, prod__lit_variable__char_class___range__118_118_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__98_98_char_class___range__108_108_char_class___range__101_101_, new int[] {118,97,114,105,97,98,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3715, 0, prod__lit_variable__char_class___range__118_118_char_class___range__97_97_char_class___range__114_114_char_class___range__105_105_char_class___range__97_97_char_class___range__98_98_char_class___range__108_108_char_class___range__101_101_, new int[] {118,97,114,105,97,98,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__variable_$Kind__lit_variable_, tmp);
 	}
     protected static final void _init_prod__module_$Kind__lit_module_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3705, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new int[] {109,111,100,117,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3711, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new int[] {109,111,100,117,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__module_$Kind__lit_module_, tmp);
 	}
     protected static final void _init_prod__anno_$Kind__lit_anno_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3713, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new int[] {97,110,110,111}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3719, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new int[] {97,110,110,111}, null, null);
       builder.addAlternative(RascalRascal.prod__anno_$Kind__lit_anno_, tmp);
 	}
     protected static final void _init_prod__data_$Kind__lit_data_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3717, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new int[] {100,97,116,97}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3723, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new int[] {100,97,116,97}, null, null);
       builder.addAlternative(RascalRascal.prod__data_$Kind__lit_data_, tmp);
 	}
     protected static final void _init_prod__function_$Kind__lit_function_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3725, 0, prod__lit_function__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_, new int[] {102,117,110,99,116,105,111,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3731, 0, prod__lit_function__char_class___range__102_102_char_class___range__117_117_char_class___range__110_110_char_class___range__99_99_char_class___range__116_116_char_class___range__105_105_char_class___range__111_111_char_class___range__110_110_, new int[] {102,117,110,99,116,105,111,110}, null, null);
       builder.addAlternative(RascalRascal.prod__function_$Kind__lit_function_, tmp);
 	}
     protected static final void _init_prod__tag_$Kind__lit_tag_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3721, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new int[] {116,97,103}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3727, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new int[] {116,97,103}, null, null);
       builder.addAlternative(RascalRascal.prod__tag_$Kind__lit_tag_, tmp);
 	}
     protected static final void _init_prod__view_$Kind__lit_view_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3729, 0, prod__lit_view__char_class___range__118_118_char_class___range__105_105_char_class___range__101_101_char_class___range__119_119_, new int[] {118,105,101,119}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3735, 0, prod__lit_view__char_class___range__118_118_char_class___range__105_105_char_class___range__101_101_char_class___range__119_119_, new int[] {118,105,101,119}, null, null);
       builder.addAlternative(RascalRascal.prod__view_$Kind__lit_view_, tmp);
 	}
     protected static final void _init_prod__alias_$Kind__lit_alias_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3733, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new int[] {97,108,105,97,115}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3739, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new int[] {97,108,105,97,115}, null, null);
       builder.addAlternative(RascalRascal.prod__alias_$Kind__lit_alias_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7010,11 +7010,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-3799, 4, "$Expression", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3797, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-3795, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3794, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3791, 0, "$Expression", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-3805, 4, "$Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-3803, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3801, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3800, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3797, 0, "$Expression", null, null);
       builder.addAlternative(RascalRascal.prod__default_$Mapping__$Expression__from_$Expression_$layouts_LAYOUTLIST_lit___58_$layouts_LAYOUTLIST_to_$Expression_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7036,9 +7036,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(-3840, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new int[] {58,47,47}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3839, 1, "$URLChars", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3837, 0, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3846, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new int[] {58,47,47}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3845, 1, "$URLChars", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3843, 0, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
       builder.addAlternative(RascalRascal.prod__$PostProtocolChars__lit___62_$URLChars_lit___58_47_47_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7060,9 +7060,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$MidPathChars__lit___62_$URLChars_lit___60_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(-3893, 2, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3892, 1, "$URLChars", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3890, 0, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-3899, 2, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3898, 1, "$URLChars", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3896, 0, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
       builder.addAlternative(RascalRascal.prod__$MidPathChars__lit___62_$URLChars_lit___60_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7084,20 +7084,20 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3901, 0, "$UnicodeEscape", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3907, 0, "$UnicodeEscape", null, null);
       builder.addAlternative(RascalRascal.prod__$Char__$UnicodeEscape__tag__category___67_111_110_115_116_97_110_116, tmp);
 	}
     protected static final void _init_prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode<IConstructor>(-3908, 1, new int[][]{{32,32},{34,34},{39,39},{45,45},{60,60},{62,62},{91,93},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3907, 0, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-3914, 1, new int[][]{{32,32},{34,34},{39,39},{45,45},{60,60},{62,62},{91,93},{98,98},{102,102},{110,110},{114,114},{116,116}}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3913, 0, prod__lit___92__char_class___range__92_92_, new int[] {92}, null, null);
       builder.addAlternative(RascalRascal.prod__$Char__lit___92_char_class___range__32_32_range__34_34_range__39_39_range__45_45_range__60_60_range__62_62_range__91_93_range__98_98_range__102_102_range__110_110_range__114_114_range__116_116__tag__category___67_111_110_115_116_97_110_116, tmp);
 	}
     protected static final void _init_prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_16777215__tag__category___67_111_110_115_116_97_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode<IConstructor>(-3904, 0, new int[][]{{0,31},{33,33},{35,38},{40,44},{46,59},{61,61},{63,90},{94,16777215}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-3910, 0, new int[][]{{0,31},{33,33},{35,38},{40,44},{46,59},{61,61},{63,90},{94,16777215}}, null, null);
       builder.addAlternative(RascalRascal.prod__$Char__char_class___range__0_31_range__33_33_range__35_38_range__40_44_range__46_59_range__61_61_range__63_90_range__94_16777215__tag__category___67_111_110_115_116_97_110_116, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7123,8 +7123,8 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$PrePathChars__$URLChars_lit___60_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new LiteralStackNode<IConstructor>(-3917, 1, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-3916, 0, "$URLChars", null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(-3923, 1, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-3922, 0, "$URLChars", null, null);
       builder.addAlternative(RascalRascal.prod__$PrePathChars__$URLChars_lit___60_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7146,37 +7146,37 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__bottomUpBreak_$Strategy__lit_bottom_up_break_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3940, 0, prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {98,111,116,116,111,109,45,117,112,45,98,114,101,97,107}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3946, 0, prod__lit_bottom_up_break__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {98,111,116,116,111,109,45,117,112,45,98,114,101,97,107}, null, null);
       builder.addAlternative(RascalRascal.prod__bottomUpBreak_$Strategy__lit_bottom_up_break_, tmp);
 	}
     protected static final void _init_prod__bottomUp_$Strategy__lit_bottom_up_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3948, 0, prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_, new int[] {98,111,116,116,111,109,45,117,112}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3954, 0, prod__lit_bottom_up__char_class___range__98_98_char_class___range__111_111_char_class___range__116_116_char_class___range__116_116_char_class___range__111_111_char_class___range__109_109_char_class___range__45_45_char_class___range__117_117_char_class___range__112_112_, new int[] {98,111,116,116,111,109,45,117,112}, null, null);
       builder.addAlternative(RascalRascal.prod__bottomUp_$Strategy__lit_bottom_up_, tmp);
 	}
     protected static final void _init_prod__outermost_$Strategy__lit_outermost_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3944, 0, prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new int[] {111,117,116,101,114,109,111,115,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3950, 0, prod__lit_outermost__char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new int[] {111,117,116,101,114,109,111,115,116}, null, null);
       builder.addAlternative(RascalRascal.prod__outermost_$Strategy__lit_outermost_, tmp);
 	}
     protected static final void _init_prod__innermost_$Strategy__lit_innermost_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3952, 0, prod__lit_innermost__char_class___range__105_105_char_class___range__110_110_char_class___range__110_110_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new int[] {105,110,110,101,114,109,111,115,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3958, 0, prod__lit_innermost__char_class___range__105_105_char_class___range__110_110_char_class___range__110_110_char_class___range__101_101_char_class___range__114_114_char_class___range__109_109_char_class___range__111_111_char_class___range__115_115_char_class___range__116_116_, new int[] {105,110,110,101,114,109,111,115,116}, null, null);
       builder.addAlternative(RascalRascal.prod__innermost_$Strategy__lit_innermost_, tmp);
 	}
     protected static final void _init_prod__topDownBreak_$Strategy__lit_top_down_break_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3956, 0, prod__lit_top_down_break__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {116,111,112,45,100,111,119,110,45,98,114,101,97,107}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3962, 0, prod__lit_top_down_break__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_char_class___range__45_45_char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {116,111,112,45,100,111,119,110,45,98,114,101,97,107}, null, null);
       builder.addAlternative(RascalRascal.prod__topDownBreak_$Strategy__lit_top_down_break_, tmp);
 	}
     protected static final void _init_prod__topDown_$Strategy__lit_top_down_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-3960, 0, prod__lit_top_down__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_, new int[] {116,111,112,45,100,111,119,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3966, 0, prod__lit_top_down__char_class___range__116_116_char_class___range__111_111_char_class___range__112_112_char_class___range__45_45_char_class___range__100_100_char_class___range__111_111_char_class___range__119_119_char_class___range__110_110_, new int[] {116,111,112,45,100,111,119,110}, null, null);
       builder.addAlternative(RascalRascal.prod__topDown_$Strategy__lit_top_down_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7208,11 +7208,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-3999, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-3998, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-3995, 2, regular__iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3989, 0, "$TypeVar", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3991, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3992, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-3994, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-3987, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-3985, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-4005, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4004, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-4001, 2, regular__iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-3995, 0, "$TypeVar", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-3997, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-3998, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4000, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-3993, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-3991, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
       builder.addAlternative(RascalRascal.prod__default_$ModuleParameters__lit___91_$layouts_LAYOUTLIST_parameters_iter_seps__$TypeVar__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7234,403 +7234,403 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$RascalKeywords__lit_rat_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4012, 0, prod__lit_rat__char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_, new int[] {114,97,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4018, 0, prod__lit_rat__char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_, new int[] {114,97,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_rat_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_solve_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4015, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new int[] {115,111,108,118,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4021, 0, prod__lit_solve__char_class___range__115_115_char_class___range__111_111_char_class___range__108_108_char_class___range__118_118_char_class___range__101_101_, new int[] {115,111,108,118,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_solve_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_break_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4018, 0, prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {98,114,101,97,107}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4024, 0, prod__lit_break__char_class___range__98_98_char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__107_107_, new int[] {98,114,101,97,107}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_break_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_rel_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4021, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new int[] {114,101,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4027, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new int[] {114,101,108}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_rel_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_false_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4024, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {102,97,108,115,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4030, 0, prod__lit_false__char_class___range__102_102_char_class___range__97_97_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {102,97,108,115,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_false_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_any_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4027, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new int[] {97,110,121}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4033, 0, prod__lit_any__char_class___range__97_97_char_class___range__110_110_char_class___range__121_121_, new int[] {97,110,121}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_any_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_all_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4030, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4036, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_all_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_finally_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4033, 0, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new int[] {102,105,110,97,108,108,121}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4039, 0, prod__lit_finally__char_class___range__102_102_char_class___range__105_105_char_class___range__110_110_char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_char_class___range__121_121_, new int[] {102,105,110,97,108,108,121}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_finally_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_real_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4036, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new int[] {114,101,97,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4042, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new int[] {114,101,97,108}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_real_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_bool_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4039, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new int[] {98,111,111,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4045, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new int[] {98,111,111,108}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_bool_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_datetime_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4045, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new int[] {100,97,116,101,116,105,109,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4051, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new int[] {100,97,116,101,116,105,109,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_datetime_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_filter_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4042, 0, prod__lit_filter__char_class___range__102_102_char_class___range__105_105_char_class___range__108_108_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_, new int[] {102,105,108,116,101,114}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4048, 0, prod__lit_filter__char_class___range__102_102_char_class___range__105_105_char_class___range__108_108_char_class___range__116_116_char_class___range__101_101_char_class___range__114_114_, new int[] {102,105,108,116,101,114}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_filter_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_while_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4054, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4060, 0, prod__lit_while__char_class___range__119_119_char_class___range__104_104_char_class___range__105_105_char_class___range__108_108_char_class___range__101_101_, new int[] {119,104,105,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_while_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_case_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4051, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new int[] {99,97,115,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4057, 0, prod__lit_case__char_class___range__99_99_char_class___range__97_97_char_class___range__115_115_char_class___range__101_101_, new int[] {99,97,115,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_case_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_layout_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4048, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new int[] {108,97,121,111,117,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4054, 0, prod__lit_layout__char_class___range__108_108_char_class___range__97_97_char_class___range__121_121_char_class___range__111_111_char_class___range__117_117_char_class___range__116_116_, new int[] {108,97,121,111,117,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_layout_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_num_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4057, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new int[] {110,117,109}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4063, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new int[] {110,117,109}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_num_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_set_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4060, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new int[] {115,101,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4066, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new int[] {115,101,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_set_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_assoc_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4066, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new int[] {97,115,115,111,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4072, 0, prod__lit_assoc__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new int[] {97,115,115,111,99}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_assoc_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_bag_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4063, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new int[] {98,97,103}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4069, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new int[] {98,97,103}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_bag_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_for_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4069, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new int[] {102,111,114}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4075, 0, prod__lit_for__char_class___range__102_102_char_class___range__111_111_char_class___range__114_114_, new int[] {102,111,114}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_for_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_bracket_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4075, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new int[] {98,114,97,99,107,101,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4081, 0, prod__lit_bracket__char_class___range__98_98_char_class___range__114_114_char_class___range__97_97_char_class___range__99_99_char_class___range__107_107_char_class___range__101_101_char_class___range__116_116_, new int[] {98,114,97,99,107,101,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_bracket_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_continue_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4072, 0, prod__lit_continue__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_char_class___range__117_117_char_class___range__101_101_, new int[] {99,111,110,116,105,110,117,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4078, 0, prod__lit_continue__char_class___range__99_99_char_class___range__111_111_char_class___range__110_110_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_char_class___range__117_117_char_class___range__101_101_, new int[] {99,111,110,116,105,110,117,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_continue_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_visit_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4078, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new int[] {118,105,115,105,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4084, 0, prod__lit_visit__char_class___range__118_118_char_class___range__105_105_char_class___range__115_115_char_class___range__105_105_char_class___range__116_116_, new int[] {118,105,115,105,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_visit_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_return_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4093, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new int[] {114,101,116,117,114,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4099, 0, prod__lit_return__char_class___range__114_114_char_class___range__101_101_char_class___range__116_116_char_class___range__117_117_char_class___range__114_114_char_class___range__110_110_, new int[] {114,101,116,117,114,110}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_return_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_else_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4090, 0, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4096, 0, prod__lit_else__char_class___range__101_101_char_class___range__108_108_char_class___range__115_115_char_class___range__101_101_, new int[] {101,108,115,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_else_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_in_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4087, 0, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new int[] {105,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4093, 0, prod__lit_in__char_class___range__105_105_char_class___range__110_110_, new int[] {105,110}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_in_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_it_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4084, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new int[] {105,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4090, 0, prod__lit_it__char_class___range__105_105_char_class___range__116_116_, new int[] {105,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_it_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_join_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4081, 0, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new int[] {106,111,105,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4087, 0, prod__lit_join__char_class___range__106_106_char_class___range__111_111_char_class___range__105_105_char_class___range__110_110_, new int[] {106,111,105,110}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_join_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_non_assoc_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4099, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new int[] {110,111,110,45,97,115,115,111,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4105, 0, prod__lit_non_assoc__char_class___range__110_110_char_class___range__111_111_char_class___range__110_110_char_class___range__45_45_char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__111_111_char_class___range__99_99_, new int[] {110,111,110,45,97,115,115,111,99}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_non_assoc_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_if_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4096, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4102, 0, prod__lit_if__char_class___range__105_105_char_class___range__102_102_, new int[] {105,102}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_if_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_one_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4102, 0, prod__lit_one__char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_, new int[] {111,110,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4108, 0, prod__lit_one__char_class___range__111_111_char_class___range__110_110_char_class___range__101_101_, new int[] {111,110,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_one_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_str_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4105, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new int[] {115,116,114}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4111, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new int[] {115,116,114}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_str_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_node_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4108, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new int[] {110,111,100,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4114, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new int[] {110,111,100,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_node_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_catch_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4111, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new int[] {99,97,116,99,104}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4117, 0, prod__lit_catch__char_class___range__99_99_char_class___range__97_97_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new int[] {99,97,116,99,104}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_catch_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_notin_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4114, 0, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new int[] {110,111,116,105,110}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4120, 0, prod__lit_notin__char_class___range__110_110_char_class___range__111_111_char_class___range__116_116_char_class___range__105_105_char_class___range__110_110_, new int[] {110,111,116,105,110}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_notin_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_type_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4117, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new int[] {116,121,112,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4123, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new int[] {116,121,112,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_type_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_extend_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4120, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4126, 0, prod__lit_extend__char_class___range__101_101_char_class___range__120_120_char_class___range__116_116_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {101,120,116,101,110,100}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_extend_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_append_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4123, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {97,112,112,101,110,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4129, 0, prod__lit_append__char_class___range__97_97_char_class___range__112_112_char_class___range__112_112_char_class___range__101_101_char_class___range__110_110_char_class___range__100_100_, new int[] {97,112,112,101,110,100}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_append_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_data_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4126, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new int[] {100,97,116,97}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4132, 0, prod__lit_data__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__97_97_, new int[] {100,97,116,97}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_data_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_tag_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4129, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new int[] {116,97,103}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4135, 0, prod__lit_tag__char_class___range__116_116_char_class___range__97_97_char_class___range__103_103_, new int[] {116,97,103}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_tag_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_dynamic_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4132, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new int[] {100,121,110,97,109,105,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4138, 0, prod__lit_dynamic__char_class___range__100_100_char_class___range__121_121_char_class___range__110_110_char_class___range__97_97_char_class___range__109_109_char_class___range__105_105_char_class___range__99_99_, new int[] {100,121,110,97,109,105,99}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_dynamic_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_list_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4135, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new int[] {108,105,115,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4141, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new int[] {108,105,115,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_list_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_value_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4138, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new int[] {118,97,108,117,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4144, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new int[] {118,97,108,117,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_value_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__$BasicType_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4142, 0, "$BasicType", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4148, 0, "$BasicType", null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__$BasicType_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_try_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4145, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new int[] {116,114,121}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4151, 0, prod__lit_try__char_class___range__116_116_char_class___range__114_114_char_class___range__121_121_, new int[] {116,114,121}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_try_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_void_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4148, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new int[] {118,111,105,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4154, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new int[] {118,111,105,100}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_void_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_public_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4151, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new int[] {112,117,98,108,105,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4157, 0, prod__lit_public__char_class___range__112_112_char_class___range__117_117_char_class___range__98_98_char_class___range__108_108_char_class___range__105_105_char_class___range__99_99_, new int[] {112,117,98,108,105,99}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_public_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_insert_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4157, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new int[] {105,110,115,101,114,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4163, 0, prod__lit_insert__char_class___range__105_105_char_class___range__110_110_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new int[] {105,110,115,101,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_insert_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_anno_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4154, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new int[] {97,110,110,111}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4160, 0, prod__lit_anno__char_class___range__97_97_char_class___range__110_110_char_class___range__110_110_char_class___range__111_111_, new int[] {97,110,110,111}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_anno_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_assert_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4160, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new int[] {97,115,115,101,114,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4166, 0, prod__lit_assert__char_class___range__97_97_char_class___range__115_115_char_class___range__115_115_char_class___range__101_101_char_class___range__114_114_char_class___range__116_116_, new int[] {97,115,115,101,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_assert_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_loc_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4163, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new int[] {108,111,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4169, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new int[] {108,111,99}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_loc_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_import_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4166, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4172, 0, prod__lit_import__char_class___range__105_105_char_class___range__109_109_char_class___range__112_112_char_class___range__111_111_char_class___range__114_114_char_class___range__116_116_, new int[] {105,109,112,111,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_import_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_start_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4169, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4175, 0, prod__lit_start__char_class___range__115_115_char_class___range__116_116_char_class___range__97_97_char_class___range__114_114_char_class___range__116_116_, new int[] {115,116,97,114,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_start_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_test_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4172, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new int[] {116,101,115,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4178, 0, prod__lit_test__char_class___range__116_116_char_class___range__101_101_char_class___range__115_115_char_class___range__116_116_, new int[] {116,101,115,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_test_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_map_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4175, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new int[] {109,97,112}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4181, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new int[] {109,97,112}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_map_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_true_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4178, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new int[] {116,114,117,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4184, 0, prod__lit_true__char_class___range__116_116_char_class___range__114_114_char_class___range__117_117_char_class___range__101_101_, new int[] {116,114,117,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_true_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_private_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4181, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new int[] {112,114,105,118,97,116,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4187, 0, prod__lit_private__char_class___range__112_112_char_class___range__114_114_char_class___range__105_105_char_class___range__118_118_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_, new int[] {112,114,105,118,97,116,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_private_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_module_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4184, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new int[] {109,111,100,117,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4190, 0, prod__lit_module__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_char_class___range__117_117_char_class___range__108_108_char_class___range__101_101_, new int[] {109,111,100,117,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_module_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_alias_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4193, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new int[] {97,108,105,97,115}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4199, 0, prod__lit_alias__char_class___range__97_97_char_class___range__108_108_char_class___range__105_105_char_class___range__97_97_char_class___range__115_115_, new int[] {97,108,105,97,115}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_alias_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_default_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4190, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new int[] {100,101,102,97,117,108,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4196, 0, prod__lit_default__char_class___range__100_100_char_class___range__101_101_char_class___range__102_102_char_class___range__97_97_char_class___range__117_117_char_class___range__108_108_char_class___range__116_116_, new int[] {100,101,102,97,117,108,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_default_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_throws_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4187, 0, prod__lit_throws__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_char_class___range__115_115_, new int[] {116,104,114,111,119,115}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4193, 0, prod__lit_throws__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_char_class___range__115_115_, new int[] {116,104,114,111,119,115}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_throws_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_throw_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4196, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new int[] {116,104,114,111,119}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4202, 0, prod__lit_throw__char_class___range__116_116_char_class___range__104_104_char_class___range__114_114_char_class___range__111_111_char_class___range__119_119_, new int[] {116,104,114,111,119}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_throw_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_switch_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4199, 0, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new int[] {115,119,105,116,99,104}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4205, 0, prod__lit_switch__char_class___range__115_115_char_class___range__119_119_char_class___range__105_105_char_class___range__116_116_char_class___range__99_99_char_class___range__104_104_, new int[] {115,119,105,116,99,104}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_switch_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_mod_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4205, 0, prod__lit_mod__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_, new int[] {109,111,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4211, 0, prod__lit_mod__char_class___range__109_109_char_class___range__111_111_char_class___range__100_100_, new int[] {109,111,100}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_mod_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_fail_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4202, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new int[] {102,97,105,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4208, 0, prod__lit_fail__char_class___range__102_102_char_class___range__97_97_char_class___range__105_105_char_class___range__108_108_, new int[] {102,97,105,108}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_fail_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_int_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4208, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new int[] {105,110,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4214, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new int[] {105,110,116}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_int_, tmp);
 	}
     protected static final void _init_prod__$RascalKeywords__lit_tuple_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4211, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new int[] {116,117,112,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4217, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new int[] {116,117,112,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__$RascalKeywords__lit_tuple_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7784,28 +7784,28 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$NamedRegExp__lit___60_$Name_lit___62_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(-4227, 2, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4226, 1, "$Name", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-4224, 0, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-4233, 2, prod__lit___62__char_class___range__62_62_, new int[] {62}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4232, 1, "$Name", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4230, 0, prod__lit___60__char_class___range__60_60_, new int[] {60}, null, null);
       builder.addAlternative(RascalRascal.prod__$NamedRegExp__lit___60_$Name_lit___62_, tmp);
 	}
     protected static final void _init_prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode<IConstructor>(-4231, 1, new int[][]{{47,47},{60,60},{62,62},{92,92}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4230, 0, new int[][]{{92,92}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-4237, 1, new int[][]{{47,47},{60,60},{62,62},{92,92}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4236, 0, new int[][]{{92,92}}, null, null);
       builder.addAlternative(RascalRascal.prod__$NamedRegExp__char_class___range__92_92_char_class___range__47_47_range__60_60_range__62_62_range__92_92_, tmp);
 	}
     protected static final void _init_prod__$NamedRegExp__$NamedBackslash_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4235, 0, "$NamedBackslash", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4241, 0, "$NamedBackslash", null, null);
       builder.addAlternative(RascalRascal.prod__$NamedRegExp__$NamedBackslash_, tmp);
 	}
     protected static final void _init_prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_16777215_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new CharStackNode<IConstructor>(-4238, 0, new int[][]{{0,46},{48,59},{61,61},{63,91},{93,16777215}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4244, 0, new int[][]{{0,46},{48,59},{61,61},{63,91},{93,16777215}}, null, null);
       builder.addAlternative(RascalRascal.prod__$NamedRegExp__char_class___range__0_46_range__48_59_range__61_61_range__63_91_range__93_16777215_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7833,10 +7833,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[4];
       
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4286, 3, "$RegExpModifier", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-4284, 2, prod__lit___47__char_class___range__47_47_, new int[] {47}, null, null);
-      tmp[1] = new ListStackNode<IConstructor>(-4283, 1, regular__iter_star__$RegExp, new NonTerminalStackNode<IConstructor>(-4282, 0, "$RegExp", null, null), false, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-4280, 0, prod__lit___47__char_class___range__47_47_, new int[] {47}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4292, 3, "$RegExpModifier", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-4290, 2, prod__lit___47__char_class___range__47_47_, new int[] {47}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(-4289, 1, regular__iter_star__$RegExp, new NonTerminalStackNode<IConstructor>(-4288, 0, "$RegExp", null, null), false, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4286, 0, prod__lit___47__char_class___range__47_47_, new int[] {47}, null, null);
       builder.addAlternative(RascalRascal.prod__$RegExpLiteral__lit___47_iter_star__$RegExp_lit___47_$RegExpModifier_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7858,9 +7858,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new CharStackNode<IConstructor>(-4355, 2, new int[][]{{34,34}}, null, null);
-      tmp[1] = new ListStackNode<IConstructor>(-4354, 1, regular__iter_star__$StringCharacter, new NonTerminalStackNode<IConstructor>(-4353, 0, "$StringCharacter", null, null), false, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4351, 0, new int[][]{{62,62}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(-4361, 2, new int[][]{{34,34}}, null, null);
+      tmp[1] = new ListStackNode<IConstructor>(-4360, 1, regular__iter_star__$StringCharacter, new NonTerminalStackNode<IConstructor>(-4359, 0, "$StringCharacter", null, null), false, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4357, 0, new int[][]{{62,62}}, null, null);
       builder.addAlternative(RascalRascal.prod__$PostStringChars__char_class___range__62_62_iter_star__$StringCharacter_char_class___range__34_34__tag__category___67_111_110_115_116_97_110_116, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7882,9 +7882,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_iter__char_class___range__48_57_range__65_70_range__97_102_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new ListStackNode<IConstructor>(-4367, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode<IConstructor>(-4364, 0, new int[][]{{48,57},{65,70},{97,102}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
-      tmp[1] = new CharStackNode<IConstructor>(-4363, 1, new int[][]{{88,88},{120,120}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4362, 0, new int[][]{{48,48}}, null, null);
+      tmp[2] = new ListStackNode<IConstructor>(-4373, 2, regular__iter__char_class___range__48_57_range__65_70_range__97_102, new CharStackNode<IConstructor>(-4370, 0, new int[][]{{48,57},{65,70},{97,102}}, null, null), true, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})});
+      tmp[1] = new CharStackNode<IConstructor>(-4369, 1, new int[][]{{88,88},{120,120}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4368, 0, new int[][]{{48,48}}, null, null);
       builder.addAlternative(RascalRascal.prod__$HexIntegerLiteral__char_class___range__48_48_char_class___range__88_88_range__120_120_iter__char_class___range__48_57_range__65_70_range__97_102_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7906,9 +7906,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__start__$EvalCommand__$layouts_LAYOUTLIST_top_$EvalCommand_$layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4388, 2, "$layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4385, 1, "$EvalCommand", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4383, 0, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4394, 2, "$layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4391, 1, "$EvalCommand", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4389, 0, "$layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalRascal.prod__start__$EvalCommand__$layouts_LAYOUTLIST_top_$EvalCommand_$layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7930,11 +7930,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-4410, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4409, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-4406, 2, regular__iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4400, 0, "$Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4402, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4403, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4405, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4398, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-4396, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-4416, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4415, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-4412, 2, regular__iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4406, 0, "$Type", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4408, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4409, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4411, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4404, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4402, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
       builder.addAlternative(RascalRascal.prod__default_$ModuleActuals__lit___91_$layouts_LAYOUTLIST_types_iter_seps__$Type__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7956,8 +7956,8 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$PathChars__$URLChars_char_class___range__124_124_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new CharStackNode<IConstructor>(-4419, 1, new int[][]{{124,124}}, null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4418, 0, "$URLChars", null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-4425, 1, new int[][]{{124,124}}, null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4424, 0, "$URLChars", null, null);
       builder.addAlternative(RascalRascal.prod__$PathChars__$URLChars_char_class___range__124_124_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -7979,19 +7979,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__timeLiteral_$DateTimeLiteral__time_$JustTime_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4449, 0, "$JustTime", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4455, 0, "$JustTime", null, null);
       builder.addAlternative(RascalRascal.prod__timeLiteral_$DateTimeLiteral__time_$JustTime_, tmp);
 	}
     protected static final void _init_prod__dateLiteral_$DateTimeLiteral__date_$JustDate_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4455, 0, "$JustDate", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4461, 0, "$JustDate", null, null);
       builder.addAlternative(RascalRascal.prod__dateLiteral_$DateTimeLiteral__date_$JustDate_, tmp);
 	}
     protected static final void _init_prod__dateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4461, 0, "$DateAndTime", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4467, 0, "$DateAndTime", null, null);
       builder.addAlternative(RascalRascal.prod__dateAndTimeLiteral_$DateTimeLiteral__dateAndTime_$DateAndTime_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8017,109 +8017,109 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__type_$BasicType__lit_type_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4493, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new int[] {116,121,112,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4499, 0, prod__lit_type__char_class___range__116_116_char_class___range__121_121_char_class___range__112_112_char_class___range__101_101_, new int[] {116,121,112,101}, null, null);
       builder.addAlternative(RascalRascal.prod__type_$BasicType__lit_type_, tmp);
 	}
     protected static final void _init_prod__set_$BasicType__lit_set_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4497, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new int[] {115,101,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4503, 0, prod__lit_set__char_class___range__115_115_char_class___range__101_101_char_class___range__116_116_, new int[] {115,101,116}, null, null);
       builder.addAlternative(RascalRascal.prod__set_$BasicType__lit_set_, tmp);
 	}
     protected static final void _init_prod__dateTime_$BasicType__lit_datetime_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4505, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new int[] {100,97,116,101,116,105,109,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4511, 0, prod__lit_datetime__char_class___range__100_100_char_class___range__97_97_char_class___range__116_116_char_class___range__101_101_char_class___range__116_116_char_class___range__105_105_char_class___range__109_109_char_class___range__101_101_, new int[] {100,97,116,101,116,105,109,101}, null, null);
       builder.addAlternative(RascalRascal.prod__dateTime_$BasicType__lit_datetime_, tmp);
 	}
     protected static final void _init_prod__string_$BasicType__lit_str_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4501, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new int[] {115,116,114}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4507, 0, prod__lit_str__char_class___range__115_115_char_class___range__116_116_char_class___range__114_114_, new int[] {115,116,114}, null, null);
       builder.addAlternative(RascalRascal.prod__string_$BasicType__lit_str_, tmp);
 	}
     protected static final void _init_prod__bag_$BasicType__lit_bag_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4509, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new int[] {98,97,103}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4515, 0, prod__lit_bag__char_class___range__98_98_char_class___range__97_97_char_class___range__103_103_, new int[] {98,97,103}, null, null);
       builder.addAlternative(RascalRascal.prod__bag_$BasicType__lit_bag_, tmp);
 	}
     protected static final void _init_prod__rational_$BasicType__lit_rat_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4513, 0, prod__lit_rat__char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_, new int[] {114,97,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4519, 0, prod__lit_rat__char_class___range__114_114_char_class___range__97_97_char_class___range__116_116_, new int[] {114,97,116}, null, null);
       builder.addAlternative(RascalRascal.prod__rational_$BasicType__lit_rat_, tmp);
 	}
     protected static final void _init_prod__node_$BasicType__lit_node_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4521, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new int[] {110,111,100,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4527, 0, prod__lit_node__char_class___range__110_110_char_class___range__111_111_char_class___range__100_100_char_class___range__101_101_, new int[] {110,111,100,101}, null, null);
       builder.addAlternative(RascalRascal.prod__node_$BasicType__lit_node_, tmp);
 	}
     protected static final void _init_prod__real_$BasicType__lit_real_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4517, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new int[] {114,101,97,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4523, 0, prod__lit_real__char_class___range__114_114_char_class___range__101_101_char_class___range__97_97_char_class___range__108_108_, new int[] {114,101,97,108}, null, null);
       builder.addAlternative(RascalRascal.prod__real_$BasicType__lit_real_, tmp);
 	}
     protected static final void _init_prod__int_$BasicType__lit_int_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4525, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new int[] {105,110,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4531, 0, prod__lit_int__char_class___range__105_105_char_class___range__110_110_char_class___range__116_116_, new int[] {105,110,116}, null, null);
       builder.addAlternative(RascalRascal.prod__int_$BasicType__lit_int_, tmp);
 	}
     protected static final void _init_prod__tuple_$BasicType__lit_tuple_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4533, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new int[] {116,117,112,108,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4539, 0, prod__lit_tuple__char_class___range__116_116_char_class___range__117_117_char_class___range__112_112_char_class___range__108_108_char_class___range__101_101_, new int[] {116,117,112,108,101}, null, null);
       builder.addAlternative(RascalRascal.prod__tuple_$BasicType__lit_tuple_, tmp);
 	}
     protected static final void _init_prod__map_$BasicType__lit_map_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4529, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new int[] {109,97,112}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4535, 0, prod__lit_map__char_class___range__109_109_char_class___range__97_97_char_class___range__112_112_, new int[] {109,97,112}, null, null);
       builder.addAlternative(RascalRascal.prod__map_$BasicType__lit_map_, tmp);
 	}
     protected static final void _init_prod__value_$BasicType__lit_value_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4549, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new int[] {118,97,108,117,101}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4555, 0, prod__lit_value__char_class___range__118_118_char_class___range__97_97_char_class___range__108_108_char_class___range__117_117_char_class___range__101_101_, new int[] {118,97,108,117,101}, null, null);
       builder.addAlternative(RascalRascal.prod__value_$BasicType__lit_value_, tmp);
 	}
     protected static final void _init_prod__loc_$BasicType__lit_loc_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4545, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new int[] {108,111,99}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4551, 0, prod__lit_loc__char_class___range__108_108_char_class___range__111_111_char_class___range__99_99_, new int[] {108,111,99}, null, null);
       builder.addAlternative(RascalRascal.prod__loc_$BasicType__lit_loc_, tmp);
 	}
     protected static final void _init_prod__num_$BasicType__lit_num_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4541, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new int[] {110,117,109}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4547, 0, prod__lit_num__char_class___range__110_110_char_class___range__117_117_char_class___range__109_109_, new int[] {110,117,109}, null, null);
       builder.addAlternative(RascalRascal.prod__num_$BasicType__lit_num_, tmp);
 	}
     protected static final void _init_prod__list_$BasicType__lit_list_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4537, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new int[] {108,105,115,116}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4543, 0, prod__lit_list__char_class___range__108_108_char_class___range__105_105_char_class___range__115_115_char_class___range__116_116_, new int[] {108,105,115,116}, null, null);
       builder.addAlternative(RascalRascal.prod__list_$BasicType__lit_list_, tmp);
 	}
     protected static final void _init_prod__relation_$BasicType__lit_rel_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4553, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new int[] {114,101,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4559, 0, prod__lit_rel__char_class___range__114_114_char_class___range__101_101_char_class___range__108_108_, new int[] {114,101,108}, null, null);
       builder.addAlternative(RascalRascal.prod__relation_$BasicType__lit_rel_, tmp);
 	}
     protected static final void _init_prod__void_$BasicType__lit_void_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4557, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new int[] {118,111,105,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4563, 0, prod__lit_void__char_class___range__118_118_char_class___range__111_111_char_class___range__105_105_char_class___range__100_100_, new int[] {118,111,105,100}, null, null);
       builder.addAlternative(RascalRascal.prod__void_$BasicType__lit_void_, tmp);
 	}
     protected static final void _init_prod__bool_$BasicType__lit_bool_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-4561, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new int[] {98,111,111,108}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-4567, 0, prod__lit_bool__char_class___range__98_98_char_class___range__111_111_char_class___range__111_111_char_class___range__108_108_, new int[] {98,111,111,108}, null, null);
       builder.addAlternative(RascalRascal.prod__bool_$BasicType__lit_bool_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8175,61 +8175,61 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[11];
       
-      tmp[10] = new LiteralStackNode<IConstructor>(-4614, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-4613, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(-4610, 8, "$Expression", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-4608, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-4606, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4605, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-4602, 4, "$Signature", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4600, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4597, 2, "$Visibility", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4595, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4592, 0, "$Tags", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(-4620, 10, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-4619, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(-4616, 8, "$Expression", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-4614, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-4612, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4611, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-4608, 4, "$Signature", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4606, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4603, 2, "$Visibility", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4601, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4598, 0, "$Tags", null, null);
       builder.addAlternative(RascalRascal.prod__expression_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_125, tmp);
 	}
     protected static final void _init_prod__abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-4633, 6, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4632, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-4629, 4, "$Signature", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4627, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4624, 2, "$Visibility", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4622, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4619, 0, "$Tags", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-4639, 6, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4638, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-4635, 4, "$Signature", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4633, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4630, 2, "$Visibility", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4628, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4625, 0, "$Tags", null, null);
       builder.addAlternative(RascalRascal.prod__abstract_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___59_, tmp);
 	}
     protected static final void _init_prod__default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-4653, 6, "$FunctionBody", null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4651, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-4648, 4, "$Signature", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4646, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4643, 2, "$Visibility", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4641, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4638, 0, "$Tags", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-4659, 6, "$FunctionBody", null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4657, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-4654, 4, "$Signature", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4652, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4649, 2, "$Visibility", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4647, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4644, 0, "$Tags", null, null);
       builder.addAlternative(RascalRascal.prod__default_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_body_$FunctionBody__tag__Foldable, tmp);
 	}
     protected static final void _init_prod__conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_44_99_111_110_100_105_116_105_111_110_115_125(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[15];
       
-      tmp[14] = new LiteralStackNode<IConstructor>(-4695, 14, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
-      tmp[13] = new NonTerminalStackNode<IConstructor>(-4694, 13, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new SeparatedListStackNode<IConstructor>(-4691, 12, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4685, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4687, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4688, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4690, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-4683, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new LiteralStackNode<IConstructor>(-4681, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-4680, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new NonTerminalStackNode<IConstructor>(-4677, 8, "$Expression", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-4675, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new LiteralStackNode<IConstructor>(-4673, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4672, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-4669, 4, "$Signature", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4667, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4664, 2, "$Visibility", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4662, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4659, 0, "$Tags", null, null);
+      tmp[14] = new LiteralStackNode<IConstructor>(-4701, 14, prod__lit___59__char_class___range__59_59_, new int[] {59}, null, null);
+      tmp[13] = new NonTerminalStackNode<IConstructor>(-4700, 13, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new SeparatedListStackNode<IConstructor>(-4697, 12, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4691, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4693, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4694, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4696, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-4689, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new LiteralStackNode<IConstructor>(-4687, 10, prod__lit_when__char_class___range__119_119_char_class___range__104_104_char_class___range__101_101_char_class___range__110_110_, new int[] {119,104,101,110}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-4686, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new NonTerminalStackNode<IConstructor>(-4683, 8, "$Expression", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-4681, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-4679, 6, prod__lit___61__char_class___range__61_61_, new int[] {61}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4678, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-4675, 4, "$Signature", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4673, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4670, 2, "$Visibility", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4668, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4665, 0, "$Tags", null, null);
       builder.addAlternative(RascalRascal.prod__conditional_$FunctionDeclaration__tags_$Tags_$layouts_LAYOUTLIST_visibility_$Visibility_$layouts_LAYOUTLIST_signature_$Signature_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit_when_$layouts_LAYOUTLIST_conditions_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___59__tag__Foldable_tag__breakable___123_101_120_112_114_101_115_115_105_111_110_44_99_111_110_100_105_116_105_111_110_115_125, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8257,13 +8257,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__nAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-4752, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4751, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-4748, 4, regular__iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4742, 0, "$TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4744, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4745, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4747, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4740, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-4738, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4737, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4734, 0, "$Name", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-4758, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4757, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-4754, 4, regular__iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4748, 0, "$TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4750, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4751, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4753, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4746, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-4744, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4743, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4740, 0, "$Name", null, null);
       builder.addAlternative(RascalRascal.prod__nAryConstructor_$Variant__name_$Name_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8285,9 +8285,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-4773, 2, "$layouts_LAYOUTLIST", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4770, 1, "$PreModule", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4768, 0, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-4779, 2, "$layouts_LAYOUTLIST", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4776, 1, "$PreModule", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4774, 0, "$layouts_LAYOUTLIST", null, null);
       builder.addAlternative(RascalRascal.prod__start__$PreModule__$layouts_LAYOUTLIST_top_$PreModule_$layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8309,9 +8309,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-4841, 2, regular__iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4835, 0, "$Variable", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4837, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4838, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4840, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4833, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4830, 0, "$Type", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-4847, 2, regular__iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4841, 0, "$Variable", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4843, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4844, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4846, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4839, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4836, 0, "$Type", null, null);
       builder.addAlternative(RascalRascal.prod__default_$Declarator__type_$Type_$layouts_LAYOUTLIST_variables_iter_seps__$Variable__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8333,13 +8333,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-4915, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-4914, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-4911, 4, regular__iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4905, 0, "$TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4907, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4908, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4910, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-4903, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-4901, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-4900, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-4897, 0, "$BasicType", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-4921, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-4920, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-4917, 4, regular__iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-4911, 0, "$TypeArg", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-4913, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-4914, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-4916, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-4909, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-4907, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-4906, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-4903, 0, "$BasicType", null, null);
       builder.addAlternative(RascalRascal.prod__default_$StructuredType__basicType_$BasicType_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_arguments_iter_seps__$TypeArg__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8361,27 +8361,27 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[9];
       
-      tmp[8] = new OptionalStackNode<IConstructor>(-4944, 8, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4943, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4936, 0, new int[][]{{44,44},{46,46}}, null, null), new CharStackNode<IConstructor>(-4937, 1, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4942, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4941, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4938, 0, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4940, 1, regular__opt__char_class___range__48_57, new CharStackNode<IConstructor>(-4939, 0, new int[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
-      tmp[7] = new CharStackNode<IConstructor>(-4935, 7, new int[][]{{48,57}}, null, null);
-      tmp[6] = new CharStackNode<IConstructor>(-4934, 6, new int[][]{{48,53}}, null, null);
-      tmp[5] = new LiteralStackNode<IConstructor>(-4933, 5, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(-4932, 4, new int[][]{{48,57}}, null, null);
-      tmp[3] = new CharStackNode<IConstructor>(-4931, 3, new int[][]{{48,53}}, null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-4930, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(-4929, 1, new int[][]{{48,57}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4928, 0, new int[][]{{48,50}}, null, null);
+      tmp[8] = new OptionalStackNode<IConstructor>(-4950, 8, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4949, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4942, 0, new int[][]{{44,44},{46,46}}, null, null), new CharStackNode<IConstructor>(-4943, 1, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4948, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4947, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4944, 0, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4946, 1, regular__opt__char_class___range__48_57, new CharStackNode<IConstructor>(-4945, 0, new int[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
+      tmp[7] = new CharStackNode<IConstructor>(-4941, 7, new int[][]{{48,57}}, null, null);
+      tmp[6] = new CharStackNode<IConstructor>(-4940, 6, new int[][]{{48,53}}, null, null);
+      tmp[5] = new LiteralStackNode<IConstructor>(-4939, 5, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(-4938, 4, new int[][]{{48,57}}, null, null);
+      tmp[3] = new CharStackNode<IConstructor>(-4937, 3, new int[][]{{48,53}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-4936, 2, prod__lit___58__char_class___range__58_58_, new int[] {58}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-4935, 1, new int[][]{{48,57}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4934, 0, new int[][]{{48,50}}, null, null);
       builder.addAlternative(RascalRascal.prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_lit___58_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_, tmp);
 	}
     protected static final void _init_prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new OptionalStackNode<IConstructor>(-4961, 6, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4960, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4953, 0, new int[][]{{44,44},{46,46}}, null, null), new CharStackNode<IConstructor>(-4954, 1, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4959, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4958, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4955, 0, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4957, 1, regular__opt__char_class___range__48_57, new CharStackNode<IConstructor>(-4956, 0, new int[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
-      tmp[5] = new CharStackNode<IConstructor>(-4952, 5, new int[][]{{48,57}}, null, null);
-      tmp[4] = new CharStackNode<IConstructor>(-4951, 4, new int[][]{{48,53}}, null, null);
-      tmp[3] = new CharStackNode<IConstructor>(-4950, 3, new int[][]{{48,57}}, null, null);
-      tmp[2] = new CharStackNode<IConstructor>(-4949, 2, new int[][]{{48,53}}, null, null);
-      tmp[1] = new CharStackNode<IConstructor>(-4948, 1, new int[][]{{48,57}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4947, 0, new int[][]{{48,50}}, null, null);
+      tmp[6] = new OptionalStackNode<IConstructor>(-4967, 6, regular__opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4966, 0, regular__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4959, 0, new int[][]{{44,44},{46,46}}, null, null), new CharStackNode<IConstructor>(-4960, 1, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4965, 2, regular__opt__seq___char_class___range__48_57_opt__char_class___range__48_57, new SequenceStackNode<IConstructor>(-4964, 0, regular__seq___char_class___range__48_57_opt__char_class___range__48_57, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4961, 0, new int[][]{{48,57}}, null, null), new OptionalStackNode<IConstructor>(-4963, 1, regular__opt__char_class___range__48_57, new CharStackNode<IConstructor>(-4962, 0, new int[][]{{48,57}}, null, null), null, null)}, null, null), null, null)}, null, null), null, null);
+      tmp[5] = new CharStackNode<IConstructor>(-4958, 5, new int[][]{{48,57}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(-4957, 4, new int[][]{{48,53}}, null, null);
+      tmp[3] = new CharStackNode<IConstructor>(-4956, 3, new int[][]{{48,57}}, null, null);
+      tmp[2] = new CharStackNode<IConstructor>(-4955, 2, new int[][]{{48,53}}, null, null);
+      tmp[1] = new CharStackNode<IConstructor>(-4954, 1, new int[][]{{48,57}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4953, 0, new int[][]{{48,50}}, null, null);
       builder.addAlternative(RascalRascal.prod__$TimePartNoTZ__char_class___range__48_50_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_char_class___range__48_53_char_class___range__48_57_opt__seq___char_class___range__44_44_range__46_46_char_class___range__48_57_opt__seq___char_class___range__48_57_opt__char_class___range__48_57_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -8405,15 +8405,15 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new SequenceStackNode<IConstructor>(-4988, 0, regular__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4980, 0, new int[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new int[][]{{65,90},{95,95},{97,122}})}, null), new ListStackNode<IConstructor>(-4984, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(-4981, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})})}, null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {114,97,116}), new StringMatchRestriction(new int[] {105,110}), new StringMatchRestriction(new int[] {105,109,112,111,114,116}), new StringMatchRestriction(new int[] {99,111,110,116,105,110,117,101}), new StringMatchRestriction(new int[] {97,108,108}), new StringMatchRestriction(new int[] {102,97,108,115,101}), new StringMatchRestriction(new int[] {97,110,110,111}), new StringMatchRestriction(new int[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new int[] {100,97,116,97}), new StringMatchRestriction(new int[] {106,111,105,110}), new StringMatchRestriction(new int[] {108,97,121,111,117,116}), new StringMatchRestriction(new int[] {105,116}), new StringMatchRestriction(new int[] {115,119,105,116,99,104}), new StringMatchRestriction(new int[] {99,97,115,101}), new StringMatchRestriction(new int[] {114,101,116,117,114,110}), new StringMatchRestriction(new int[] {115,116,114}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {115,111,108,118,101}), new StringMatchRestriction(new int[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new int[] {110,111,116,105,110}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {105,110,115,101,114,116}), new StringMatchRestriction(new int[] {116,121,112,101}), new StringMatchRestriction(new int[] {116,114,121}), new StringMatchRestriction(new int[] {99,97,116,99,104}), new StringMatchRestriction(new int[] {110,117,109}), new StringMatchRestriction(new int[] {110,111,100,101}), new StringMatchRestriction(new int[] {109,111,100}), new StringMatchRestriction(new int[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new int[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new int[] {116,114,117,101}), new StringMatchRestriction(new int[] {98,97,103}), new StringMatchRestriction(new int[] {118,111,105,100}), new StringMatchRestriction(new int[] {97,115,115,111,99}), new StringMatchRestriction(new int[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new int[] {116,101,115,116}), new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {114,101,97,108}), new StringMatchRestriction(new int[] {108,105,115,116}), new StringMatchRestriction(new int[] {102,97,105,108}), new StringMatchRestriction(new int[] {114,101,108}), new StringMatchRestriction(new int[] {97,112,112,101,110,100}), new StringMatchRestriction(new int[] {101,120,116,101,110,100}), new StringMatchRestriction(new int[] {116,97,103}), new StringMatchRestriction(new int[] {111,110,101}), new StringMatchRestriction(new int[] {116,104,114,111,119}), new StringMatchRestriction(new int[] {115,101,116}), new StringMatchRestriction(new int[] {115,116,97,114,116}), new StringMatchRestriction(new int[] {97,110,121}), new StringMatchRestriction(new int[] {109,111,100,117,108,101}), new StringMatchRestriction(new int[] {105,110,116}), new StringMatchRestriction(new int[] {112,117,98,108,105,99}), new StringMatchRestriction(new int[] {98,111,111,108}), new StringMatchRestriction(new int[] {118,97,108,117,101}), new StringMatchRestriction(new int[] {98,114,101,97,107}), new StringMatchRestriction(new int[] {102,105,108,116,101,114}), new StringMatchRestriction(new int[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new int[] {97,115,115,101,114,116}), new StringMatchRestriction(new int[] {108,111,99}), new StringMatchRestriction(new int[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new int[] {116,104,114,111,119,115}), new StringMatchRestriction(new int[] {116,117,112,108,101}), new StringMatchRestriction(new int[] {102,111,114}), new StringMatchRestriction(new int[] {118,105,115,105,116}), new StringMatchRestriction(new int[] {97,108,105,97,115}), new StringMatchRestriction(new int[] {109,97,112})});
+      tmp[0] = new SequenceStackNode<IConstructor>(-4994, 0, regular__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new CharStackNode<IConstructor>(-4986, 0, new int[][]{{65,90},{95,95},{97,122}}, new IEnterFilter[] {new CharPrecedeRestriction(new int[][]{{65,90},{95,95},{97,122}})}, null), new ListStackNode<IConstructor>(-4990, 1, regular__iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(-4987, 0, new int[][]{{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{48,57},{65,90},{95,95},{97,122}})})}, null, new ICompletionFilter[] {new StringMatchRestriction(new int[] {114,97,116}), new StringMatchRestriction(new int[] {105,110}), new StringMatchRestriction(new int[] {105,109,112,111,114,116}), new StringMatchRestriction(new int[] {99,111,110,116,105,110,117,101}), new StringMatchRestriction(new int[] {97,108,108}), new StringMatchRestriction(new int[] {102,97,108,115,101}), new StringMatchRestriction(new int[] {97,110,110,111}), new StringMatchRestriction(new int[] {98,114,97,99,107,101,116}), new StringMatchRestriction(new int[] {100,97,116,97}), new StringMatchRestriction(new int[] {106,111,105,110}), new StringMatchRestriction(new int[] {108,97,121,111,117,116}), new StringMatchRestriction(new int[] {105,116}), new StringMatchRestriction(new int[] {115,119,105,116,99,104}), new StringMatchRestriction(new int[] {99,97,115,101}), new StringMatchRestriction(new int[] {114,101,116,117,114,110}), new StringMatchRestriction(new int[] {115,116,114}), new StringMatchRestriction(new int[] {119,104,105,108,101}), new StringMatchRestriction(new int[] {115,111,108,118,101}), new StringMatchRestriction(new int[] {100,121,110,97,109,105,99}), new StringMatchRestriction(new int[] {110,111,116,105,110}), new StringMatchRestriction(new int[] {101,108,115,101}), new StringMatchRestriction(new int[] {105,110,115,101,114,116}), new StringMatchRestriction(new int[] {116,121,112,101}), new StringMatchRestriction(new int[] {116,114,121}), new StringMatchRestriction(new int[] {99,97,116,99,104}), new StringMatchRestriction(new int[] {110,117,109}), new StringMatchRestriction(new int[] {110,111,100,101}), new StringMatchRestriction(new int[] {109,111,100}), new StringMatchRestriction(new int[] {112,114,105,118,97,116,101}), new StringMatchRestriction(new int[] {102,105,110,97,108,108,121}), new StringMatchRestriction(new int[] {116,114,117,101}), new StringMatchRestriction(new int[] {98,97,103}), new StringMatchRestriction(new int[] {118,111,105,100}), new StringMatchRestriction(new int[] {97,115,115,111,99}), new StringMatchRestriction(new int[] {110,111,110,45,97,115,115,111,99}), new StringMatchRestriction(new int[] {116,101,115,116}), new StringMatchRestriction(new int[] {105,102}), new StringMatchRestriction(new int[] {114,101,97,108}), new StringMatchRestriction(new int[] {108,105,115,116}), new StringMatchRestriction(new int[] {102,97,105,108}), new StringMatchRestriction(new int[] {114,101,108}), new StringMatchRestriction(new int[] {97,112,112,101,110,100}), new StringMatchRestriction(new int[] {101,120,116,101,110,100}), new StringMatchRestriction(new int[] {116,97,103}), new StringMatchRestriction(new int[] {111,110,101}), new StringMatchRestriction(new int[] {116,104,114,111,119}), new StringMatchRestriction(new int[] {115,101,116}), new StringMatchRestriction(new int[] {115,116,97,114,116}), new StringMatchRestriction(new int[] {97,110,121}), new StringMatchRestriction(new int[] {109,111,100,117,108,101}), new StringMatchRestriction(new int[] {105,110,116}), new StringMatchRestriction(new int[] {112,117,98,108,105,99}), new StringMatchRestriction(new int[] {98,111,111,108}), new StringMatchRestriction(new int[] {118,97,108,117,101}), new StringMatchRestriction(new int[] {98,114,101,97,107}), new StringMatchRestriction(new int[] {102,105,108,116,101,114}), new StringMatchRestriction(new int[] {100,97,116,101,116,105,109,101}), new StringMatchRestriction(new int[] {97,115,115,101,114,116}), new StringMatchRestriction(new int[] {108,111,99}), new StringMatchRestriction(new int[] {100,101,102,97,117,108,116}), new StringMatchRestriction(new int[] {116,104,114,111,119,115}), new StringMatchRestriction(new int[] {116,117,112,108,101}), new StringMatchRestriction(new int[] {102,111,114}), new StringMatchRestriction(new int[] {118,105,115,105,116}), new StringMatchRestriction(new int[] {97,108,105,97,115}), new StringMatchRestriction(new int[] {109,97,112})});
       builder.addAlternative(RascalRascal.prod__$Name__seq___char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__48_57_range__65_90_range__95_95_range__97_122_, tmp);
 	}
     protected static final void _init_prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new ListStackNode<IConstructor>(-4996, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(-4993, 0, new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
-      tmp[1] = new CharStackNode<IConstructor>(-4992, 1, new int[][]{{65,90},{95,95},{97,122}}, null, null);
-      tmp[0] = new CharStackNode<IConstructor>(-4991, 0, new int[][]{{92,92}}, null, null);
+      tmp[2] = new ListStackNode<IConstructor>(-5002, 2, regular__iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122, new CharStackNode<IConstructor>(-4999, 0, new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{45,45},{48,57},{65,90},{95,95},{97,122}})});
+      tmp[1] = new CharStackNode<IConstructor>(-4998, 1, new int[][]{{65,90},{95,95},{97,122}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(-4997, 0, new int[][]{{92,92}}, null, null);
       builder.addAlternative(RascalRascal.prod__$Name__char_class___range__92_92_char_class___range__65_90_range__95_95_range__97_122_iter_star__char_class___range__45_45_range__48_57_range__65_90_range__95_95_range__97_122_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
@@ -9194,7 +9194,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$ProtocolChars__char_class___range__124_124_$URLChars_lit___58_47_47_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(-5797, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new int[] {58,47,47}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,10},{13,13},{32,32}})});
+      tmp[2] = new LiteralStackNode<IConstructor>(-5797, 2, prod__lit___58_47_47__char_class___range__58_58_char_class___range__47_47_char_class___range__47_47_, new int[] {58,47,47}, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,10},{13,13},{32,32},{65,65},{160,160},{5760,5760},{8192,8192},{8239,8239},{8287,8287},{12288,12288}})});
       tmp[1] = new NonTerminalStackNode<IConstructor>(-5794, 1, "$URLChars", null, null);
       tmp[0] = new CharStackNode<IConstructor>(-5792, 0, new int[][]{{124,124}}, null, null);
       builder.addAlternative(RascalRascal.prod__$ProtocolChars__char_class___range__124_124_$URLChars_lit___58_47_47_, tmp);
@@ -9326,7 +9326,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_16777215__tag__category___67_111_109_109_101_110_116(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new ListStackNode<IConstructor>(-5940, 1, regular__iter_star__char_class___range__0_9_range__11_16777215, new CharStackNode<IConstructor>(-5937, 0, new int[][]{{0,9},{11,16777215}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,9},{13,13},{32,32}}), new AtEndOfLineRequirement()});
+      tmp[1] = new ListStackNode<IConstructor>(-5940, 1, regular__iter_star__char_class___range__0_9_range__11_16777215, new CharStackNode<IConstructor>(-5937, 0, new int[][]{{0,9},{11,16777215}}, null, null), false, null, new ICompletionFilter[] {new CharFollowRestriction(new int[][]{{9,9},{13,13},{32,32},{65,65},{160,160},{5760,5760},{8192,8192},{8239,8239},{8287,8287},{12288,12288}}), new AtEndOfLineRequirement()});
       tmp[0] = new LiteralStackNode<IConstructor>(-5936, 0, prod__lit___47_47__char_class___range__47_47_char_class___range__47_47_, new int[] {47,47}, null, null);
       builder.addAlternative(RascalRascal.prod__$Comment__lit___47_47_iter_star__char_class___range__0_9_range__11_16777215__tag__category___67_111_109_109_101_110_116, tmp);
 	}
