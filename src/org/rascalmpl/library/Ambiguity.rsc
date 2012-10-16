@@ -156,13 +156,22 @@ public list[Message] deeperCauses(Tree x, Tree y) {
             , l1 <- polX[p1], l2 <- (polY<1,0>)[p2], (l1@\loc).end == (l2@\loc).end];
   
   if (overloadedLits != []) {
-    result += info("Overloaded literals may be solved by semantic actions that filter certain nestings", x@\loc?|dunno:///|);
+    result += info("Re-use of these literals is causing different interpretations of the same source.", x@\loc?|dunno:///|);
     result += overloadedLits;
     
-    fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
-    fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
-    for (<p,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
-      result += error("A semantic action filtering <alt2rascal(q)> as a direct child of <alt2rascal(p)> would solve the ambiguity.", x@\loc?|dunno:///|);
+    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true /* workaround alert*/};
+    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true /* workaround alert*/};
+    for (<p,i,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
+      labelApX = "labelX";
+      
+      if (prod(label(l,_),_,_) := q) {
+        labelApX = l;
+      }
+      else {
+        result += [warning("You should give this production a good label [<alt2rascal(q)>]",x@\loc?|dunno:///|)];
+      }
+       
+      result += [error("You could safely restrict the nesting of [<alt2rascal(q)>] under [<alt2rascal(p)>] using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
     } 
   }
   

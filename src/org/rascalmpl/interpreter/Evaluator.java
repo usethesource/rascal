@@ -110,7 +110,8 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
-import org.rascalmpl.parser.uptr.action.BootRascalActionExecutor;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.Recoverer;
 import org.rascalmpl.uri.CWDURIResolver;
@@ -850,10 +851,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree;
 		
 		if (noBacktickOutsideStringConstant(command)) {
-			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
 			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		} else {
-			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			tree = (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
@@ -873,10 +874,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		IConstructor tree;
 		
 		if (noBacktickOutsideStringConstant(command)) {
-			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
 			tree = (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		} else {
-			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			tree = (IConstructor) rp.parse(Parser.START_COMMANDS, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
@@ -926,11 +927,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		
 		if (!command.contains("`")) {
-			IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 			return (IConstructor) new RascalRascal().parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
 		
-		IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+		IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 		IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
 		return (IConstructor) rp.parse(Parser.START_COMMAND, location, command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 	}
@@ -942,11 +943,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			__setInterrupt(false);
 			
 			if (!commands.contains("`")) {
-				IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+				IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 				return (IConstructor) new RascalRascal().parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 			}
 
-			IActionExecutor<IConstructor> actionExecutor = new BootRascalActionExecutor();
+			IActionExecutor<IConstructor> actionExecutor = new NoActionExecutor();
 			IGTD<IConstructor, IConstructor, ISourceLocation> rp = getRascalParser(getCurrentModuleEnvironment(), location);
 			return (IConstructor) rp.parse(Parser.START_COMMANDS, location, commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		}
@@ -1294,7 +1295,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		
 		__setInterrupt(false);
-		IActionExecutor<IConstructor> actionExecutor =  new BootRascalActionExecutor();
+		IActionExecutor<IConstructor> actionExecutor =  new NoActionExecutor();
 
 		IConstructor prefix = (IConstructor) new RascalRascal().parse(Parser.START_PRE_MODULE, location, data, actionExecutor, new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
 		return getBuilder().buildModule((IConstructor) TreeAdapter.getArgs(prefix).get(1));
@@ -1355,7 +1356,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private IConstructor parseModule(char[] data, URI location, ModuleEnvironment env, boolean declareImportsAndSyntax){
 		__setInterrupt(false);
-		IActionExecutor<IConstructor> actions = new BootRascalActionExecutor();
+		IActionExecutor<IConstructor> actions = new NoActionExecutor();
 
 		startJob("Parsing", 10);
 		event("Pre-parsing: " + location);
