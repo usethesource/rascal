@@ -81,10 +81,16 @@ public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Produc
         labelApX = l;
       }
       else {
-        result += [warning("You should give this production a good label [<alt2rascal(apX)>]",x@\loc?|dunno:///|)];
+        result += [warning("You should give this production a good label: 
+                           '  <alt2rascal(apX)>]",x@\loc?|dunno:///|)];
       }
        
-      result += [error("You could safely restrict the nesting of [<alt2rascal(apX)>] under [<alt2rascal(p)>] using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
+      result += [error("To fix this issue, you could restrict the nesting of
+                       '  <alt2rascal(apX)>
+                       'under
+                       '  <alt2rascal(p)>
+                       'using the ! operator on argument <i/2>: !<labelApX>
+                       'However, you should realize that you are introducing a restriction that makes the language smaller",x@\loc?|dunno:///|)];
     }
      
   }
