@@ -43,29 +43,61 @@ public list[Message] findCauses(Tree x, Tree y) {
     result += [info("The alternatives use the same productions", x@\loc?|dunno:///|)];
   }
   else {
-      result += [info("Production unique to the one: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];
-      result += [info("Production unique to the other: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pY - pX];
+      result += [info("Production unique to the one alternative: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pX - pY];
+      result += [info("Production unique to the other alternative: <alt2rascal(p)>;", x@\loc?|dunno:///|) | p <- pY - pX];
   }  
   
-  result += deeperCauses(x, y);
-  result += reorderingCauses(x, y); 
-  vert = verticalCauses(x, y);
-  if (vert == []) {
-    result += [info("The ambiguity is horizontal (same productions at the top)", x@\loc?|dunno:///|)];
+  if (appl(prodX,_) := x, appl(prodY,_) := y) {
+    if (prodX == prodY) {
+    result += [info("The alternatives have the same production at the top: <alt2rascal(prodX)>", x@\loc?|dunno:///|)];
+    } 
+    else {
+      result += [info("The alternatives have different productions at the top, one has 
+                      '  <alt2rascal(prodX)>
+                      'while the other has
+                      '  <alt2rascal(prodY)>", x@\loc?|dunno:///|)];
+    }
   }
-  result += vert;
+  
+  result += deeperCauses(x, y, pX, pY);
+  result += reorderingCauses(x, y); 
+  result += verticalCauses(x, y, pX, pY);
   
   return result;
 }
 
-public list[Message] verticalCauses(Tree x, Tree y) {
-  if (appl(p, _) := x, appl(q, _) := y, p != q) {
-    return [error("Vertical ambiguity (different productions at the top) might be solved using a prefer/avoid: <symbol2rascal(p.def)> = <prod2rascal(p)>; versus <symbol2rascal(q.def)> = <prod2rascal(q)>;", x@\loc)];
-  }
-  return [];
+public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+  return exceptAdvise(x, y, pX, pY)
+       + exceptAdvise(y, x, pY, pX);
 }
 
-public list[Message] deeperCauses(Tree x, Tree y) {
+public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+  result = [];
+  if (appl(p, argsX) := x, appl(q, argsY) := y) {
+    if (i <- index(argsX), appl(apX,_) := argsX[i], apX notin pY) {
+      labelApX = "labelX";
+      
+      if (prod(label(l,_),_,_) := apX) {
+        labelApX = l;
+      }
+      else {
+        result += [warning("You should give this production a good label: 
+                           '  <alt2rascal(apX)>]",x@\loc?|dunno:///|)];
+      }
+       
+      result += [error("To fix this issue, you could restrict the nesting of
+                       '  <alt2rascal(apX)>
+                       'under
+                       '  <alt2rascal(p)>
+                       'using the ! operator on argument <i/2>: !<labelApX>
+                       'However, you should realize that you are introducing a restriction that makes the language smaller",x@\loc?|dunno:///|)];
+    }
+     
+  }
+  return result;
+}
+
+public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Production] pY) {
   // collect lexical trees
   rX = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := x} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := x};
   rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
@@ -125,21 +157,33 @@ public list[Message] deeperCauses(Tree x, Tree y) {
  
  
   // find parents of literals, and transfer location
-  polX = {<p,l[@\loc=t@\loc]> | /t:appl(p,[_*,b,_,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
-  polY = {<l[@\loc=t@\loc],p> | /t:appl(p,[_*,b,_,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
-  overloadedLits = [info("Literal \"<l1>\" is used in both
-                     '  <alt2rascal(p1)> and
-                     '  <alt2rascal(p2)>", l1@\loc) | <p1,p2> <- polX o polY, p1 != p2
-            , l1 <- polX[p1], l2 <- (polY<1,0>)[p2], (l1@\loc).end == (l2@\loc).end];
+  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
+  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
+  overloadedLits = [info("Literal \"<l>\" is used in both
+                     '  <alt2rascal(p)> and
+                     '  <alt2rascal(q)>", l@\loc) | <p,l> <- polX, <l,q> <- polY, p != q, !(p in pY || q in pX)];
   
   if (overloadedLits != []) {
-    result += info("Overloaded literals may be solved by semantic actions that filter certain nestings", x@\loc?|dunno:///|);
+    result += info("Re-use of these literals is causing different interpretations of the same source.", x@\loc?|dunno:///|);
     result += overloadedLits;
     
-    fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
-    fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
-    for (<p,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
-      result += error("A semantic action filtering <alt2rascal(q)> as a direct child of <alt2rascal(p)> would solve the ambiguity.", x@\loc?|dunno:///|);
+    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true};
+    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true};
+    for (<p,i,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
+      labelApX = "labelX";
+      
+      if (prod(label(l,_),_,_) := q) {
+        labelApX = l;
+      }
+      else {
+        result += [warning("You should give this production a good label [<alt2rascal(q)>]",x@\loc?|dunno:///|)];
+      }
+       
+      result += [error("You could safely restrict the nesting of
+                       '  <alt2rascal(q)> 
+                       'under
+                       '  <alt2rascal(p)>
+                       'using the ! operator on argument <i/2>: !<labelApX>",x@\loc?|dunno:///|)];
     } 
   }
   
@@ -151,8 +195,8 @@ public list[int] yield(Tree x) {
 }
 
 public list[Message] reorderingCauses(Tree x, Tree y) {
-  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true /* workaround alert*/};
-  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true /* workaround alert*/};
+  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true};
+  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true};
   result = [];
   
   if (fatherChildX == fatherChildY) {

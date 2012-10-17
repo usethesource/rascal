@@ -708,7 +708,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		if(completionFilters != null){
 			int startLocation = node.getStartLocation();
 			for(int i = completionFilters.length - 1; i >= 0; --i){
-				if(completionFilters[i].isFiltered(input, startLocation, location, result, positionStore)){
+				if(completionFilters[i].isFiltered(input, startLocation, location, positionStore)){
 					filteredNodes.push(node, result);
 					
 					if(debugListener != null) debugListener.filteredByCompletionFilter(node, result);
@@ -1244,7 +1244,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	protected T buildResult(AbstractNode result, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IActionExecutor<T> actionExecutor){
 		FilteringTracker filteringTracker = new FilteringTracker();
 		// Invoke the forest flattener, a.k.a. "the bulldozer".
-		Object rootEnvironment = actionExecutor.createRootEnvironment();
+		Object rootEnvironment = actionExecutor != null ? actionExecutor.createRootEnvironment() : null;
 		T parseResult = null;
 		try {
 			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker, actionExecutor, rootEnvironment);

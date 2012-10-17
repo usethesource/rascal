@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 
 @bootstrapParser
@@ -21,9 +22,21 @@ import Exception;
 import ParseTree;
 import RascalUtils;
 
+//public loc courseDir    = |file:///Users/paulklint/Documents/workspace/rascal/src/org/rascalmpl/courses|;
 public loc courseDir    = |courses:///|;
-public loc courseDirSVN = |courses:///.svn|;
-public str remoteLoc = "remote-loc.value";
+/* The processing of exams is organized by sharing information between the server and the user (teacher) via dropbox.
+ * Assumptions:
+ * - Standard installation of Dropbox at ~user/Dropbox
+ * - Exams for each course reside in a separate subdirectory,e.g., ~user/Dropbox/RascalExams/AP2012/exams
+ * - Each exam has name, e.g. Test1
+ * - The html for the exam reside in ~user/Dropbox/RascalExams/AP2012/exams/Test1/Test1.html
+ * - The submitted results reside in ~user/Dropbox/RascalExams/AP2012/results/Test1/Test1.html
+*/
+
+public loc examsDir        = |home:///Dropbox/RascalExams/|; 
+public bool isExam  = false;
+
+public str remoteLoc      = "remote-loc.value";
 public str remoteConcepts = "remote-concepts.value";
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
@@ -42,10 +55,8 @@ data Course =
 			ConceptName root,                         // Name of the root concept
 			list[str] warnings,                       // List of course compiler warnings
 			map[ConceptName,Concept] concepts,        // Mapping ConceptNames to their description
-			//rel[ConceptName,ConceptName] refinements, // Tree structure of concept refinements
 			list[str]  baseConcepts                  // List of baseConcepts (e.g. names that occur on path of
 			                                          // of some ConceptName)
-//			map[str,ConceptName] related              // Mapping abbreviated concept names to full ConceptNames
      );
 
 data Concept = 
@@ -114,8 +125,8 @@ data Exception = ConceptError(ConceptName cname, str cause);
 alias VarEnv = map[str, tuple[RascalType rtype, str rval]];
 
 data examResult = examResult(str studentName, str studentMail, str StudentNumber, str timestamp, 
-                             map[str,str] answers, map[str,str] expectedAnswers,
-                             map[str, str] evaluation, num score);
+                             map[str,str] answers, map[str,str] expectedAnswers, map[str,str] comments,
+                             map[str, num] points, num score);
             
 // Common utilities
 
@@ -185,8 +196,12 @@ public loc htmlFile(ConceptName cn){
   return (courseDir + cn + (basename(cn) + ".html")).top;
 }
 
-public loc questFile(ConceptName cn){
-  return (courseDir + cn + (basename(cn) + ".quest")).top;
+public loc questFile(loc dir, ConceptName cn){
+  return (dir + cn + (basename(cn) + ".quest")).top;
+}
+
+public loc lockFile(ConceptName cn){
+  return (examsDir + "exams/" + cn + "/locked.htaccess").top;
 }
 
 // Escape concept name for use as HTML id.
@@ -522,7 +537,7 @@ public list[loc] crawlFiles(loc dir, str suffix){
 
 public list[ConceptName] crawlConcepts(ConceptName root){ 
   dir = courseDir + root;
-  //println("crawlConcepts: <dir>, <listEntries(dir)>");
+  println("crawlConcepts: <dir>");
   list[ConceptName] res = [root];
  
   for( str entry <- listEntries(dir) ){

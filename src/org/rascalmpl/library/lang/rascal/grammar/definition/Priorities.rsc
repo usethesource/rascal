@@ -6,6 +6,7 @@ import Grammar;
 import Set;
 import List;
 import IO;
+import util::Maybe;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
@@ -13,8 +14,49 @@ import lang::rascal::grammar::definition::Symbols;
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
-  return {*doNotNest(g.rules[s]) | s <- g.rules};
+  return {*doNotNest(g.rules[s]) | s <- g.rules}
+       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
+       ;
 }
+
+@doc{
+This one-liner searches a given production for "except restrictions". 
+For every position in the production that is restricted, and for every restriction it finds 
+at this position, it adds a 'do-not-nest' tuple to the result.
+}
+public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
+  = { <p, i, q>  | i <- index(lhs), conditional(s, {_*,except(c)}) := delabel(lhs[i]), /q:prod(label(c,s),_,_) := g.rules[s]?choice(s,{})};
+  
+public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
+  Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
+  
+  switch (s) {
+    case \opt(conditional(t,cs)) : 
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+    case \iter-star(conditional(t,cs)) :
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+    case \iter(conditional(t,cs)) :
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+    case \iter-seps(conditional(t,cs),ss) :
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+    case \iter-seps(_,ss) :
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+    case \iter-star-seps(conditional(t,cs),ss) :
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+    case \iter-star-seps(_,ss) :
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};       
+    case \alt(as) :
+      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,t)};
+    case \seq(ss) :
+      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
+     default: return {};
+  }
+  
+  return {};
+}
+
 
 public DoNotNest doNotNest(Production p) {
   switch (p) {
@@ -110,14 +152,14 @@ public DoNotNest priority(list[Production] levels) {
         else fail;
       }
       case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
-        if (match(l,rhs)) {
+        if (match(l,rhs), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,crhs)) {
           result += {<father, 0, child>};
         }   
         else { 
           fail;
         }
       case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
-        if (match(r,rhs)) {
+        if (match(r,rhs), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,crhs)) {
           result += {<father, size(lhs) - 1, child>};
         }   
         else { 

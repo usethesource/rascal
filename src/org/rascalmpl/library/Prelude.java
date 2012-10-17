@@ -1108,6 +1108,43 @@ public class Prelude {
 		return writer.done();
 	}
 	
+	public IList sort(ISet l, IValue cmpv){
+		final ICallableValue cmp = (ICallableValue) cmpv;
+		final IValue[] argArr = new IValue[2]; // this creates less garbage
+		FunctionType ftype = (FunctionType) cmpv.getType();
+		Type argTypes = ftype.getArgumentTypes();
+		final Type[] typeArr = 
+				new Type[] {argTypes.getFieldType(0),argTypes.getFieldType(1)};
+		
+		IValue[] tmpArr = new IValue[l.size()];
+		int i = 0;
+		for(IValue elem : l){
+			tmpArr[i++] = elem;
+		}
+		Comparator<IValue> cmpj = new Comparator<IValue>() {
+
+			@Override
+			public int compare(IValue lhs, IValue rhs) {
+				if(lhs == rhs){
+					return 0;
+				} else {
+					argArr[0] = lhs;
+					argArr[1] = rhs;
+					Result<IValue> res = cmp.call(typeArr,argArr);
+					boolean leq = ((IBool)res.getValue()).getValue();
+					return leq ? -1 : 1;
+				}
+			}
+		};
+		Arrays.sort(tmpArr,cmpj);
+		
+		IListWriter writer = values.listWriter(l.getElementType());
+		for(IValue v : tmpArr){
+			writer.append(v);
+		}
+		return writer.done();
+	}
+	
 	private IList makeUpTill(int from,int len){
 		IListWriter writer = values.listWriter(types.integerType());
 		for(int i = from ; i < len; i++){
