@@ -7,12 +7,13 @@
  *
  * Contributors: Jurgen Vinju
  */
-package org.rascalmpl.test;
 
-import org.junit.runner.RunWith;
-import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
-import org.rascalmpl.test.infrastructure.RascalModuleTest;
+package org.rascalmpl.test.infrastructure;
 
-@RunWith(RascalJUnitTestRunner.class)
-@RascalModuleTest({"ExpressionGrammars"})
-public class TestModule { }
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RascalJUnitTestPrefix {
+	public abstract String value();
+}
