@@ -7,13 +7,12 @@
  *
  * Contributors: Jurgen Vinju
  */
+package org.rascalmpl.test;
 
-package org.rascalmpl.test.infrastructure;
+import org.junit.runner.RunWith;
+import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
+import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-@Retention(RetentionPolicy.RUNTIME)
-public @interface RascalModuleTest {
-	public abstract String[] value();
-}
+@RunWith(RascalJUnitTestRunner.class)
+@RascalJUnitTestPrefix("lang::rascal::tests")
+public class RunRascalTestModules { }
