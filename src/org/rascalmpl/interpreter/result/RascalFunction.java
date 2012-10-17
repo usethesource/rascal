@@ -58,7 +58,6 @@ import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
-import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.staticErrors.MissingReturnError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedTypeError;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFailError;
@@ -320,7 +319,7 @@ public class RascalFunction extends NamedFunction {
 	}
 		
 	private static boolean hasExtendModifier(FunctionDeclaration func) {
-		return org.rascalmpl.semantics.dynamic.FunctionDeclaration.hasExtendsModifier(func);
+		return org.rascalmpl.semantics.dynamic.FunctionDeclaration.hasExtendModifier(func);
 	}
 	
 	@Override
@@ -360,10 +359,12 @@ public class RascalFunction extends NamedFunction {
 					self = new OverloadedFunction(name, functions);
 					it = self;
 				}
+
 //			} else {
 //				declarationEnvironment.getAllFunctions(name, functions);
 //				self = self.add(new OverloadedFunction(name, functions));
 //				it = self;
+
 			}
 			// binding '<name>'
 			if(self != null && !isAnonymous()) {
