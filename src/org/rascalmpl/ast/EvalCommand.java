@@ -17,9 +17,9 @@ package org.rascalmpl.ast;
 
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -36,18 +36,18 @@ public abstract class EvalCommand extends AbstractAST {
   public org.rascalmpl.ast.Declaration getDeclaration() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasStatement() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.Statement getStatement() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasImported() {
     return false;
   }
 
   public org.rascalmpl.ast.Import getImported() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasStatement() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Statement getStatement() {
     throw new UnsupportedOperationException();
   }
 
@@ -93,6 +93,43 @@ public abstract class EvalCommand extends AbstractAST {
   
 
   
+  public boolean isDeclaration() {
+    return false;
+  }
+
+  static public class Declaration extends EvalCommand {
+    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
+  
+    
+    private final org.rascalmpl.ast.Declaration declaration;
+  
+    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
+      super(node);
+      
+      this.declaration = declaration;
+    }
+  
+    @Override
+    public boolean isDeclaration() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitEvalCommandDeclaration(this);
+    }
+  
+    
+    @Override
+    public org.rascalmpl.ast.Declaration getDeclaration() {
+      return this.declaration;
+    }
+  
+    @Override
+    public boolean hasDeclaration() {
+      return true;
+    }	
+  }
   public boolean isImport() {
     return false;
   }
@@ -164,43 +201,6 @@ public abstract class EvalCommand extends AbstractAST {
   
     @Override
     public boolean hasStatement() {
-      return true;
-    }	
-  }
-  public boolean isDeclaration() {
-    return false;
-  }
-
-  static public class Declaration extends EvalCommand {
-    // Production: sig("Declaration",[arg("org.rascalmpl.ast.Declaration","declaration")])
-  
-    
-    private final org.rascalmpl.ast.Declaration declaration;
-  
-    public Declaration(IConstructor node , org.rascalmpl.ast.Declaration declaration) {
-      super(node);
-      
-      this.declaration = declaration;
-    }
-  
-    @Override
-    public boolean isDeclaration() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitEvalCommandDeclaration(this);
-    }
-  
-    
-    @Override
-    public org.rascalmpl.ast.Declaration getDeclaration() {
-      return this.declaration;
-    }
-  
-    @Override
-    public boolean hasDeclaration() {
       return true;
     }	
   }

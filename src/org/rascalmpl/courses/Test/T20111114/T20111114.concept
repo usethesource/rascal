@@ -17,7 +17,8 @@ This test assesses basic Rascal skills. In each exercise you have to select a ch
 
 When your are done, press the submit button at the bottom of the page.
 
-You pass when you have at least 60% of the questions right.
+You pass when you have at least 60% of the questions right. Answers are processed semi-automatically:
+each wrong answer is reviewed separately by a human expert.
 
 Important:
 * Fill in your name, email address and student number. __These fields are required.__

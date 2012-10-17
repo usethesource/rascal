@@ -14,10 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -195,47 +195,42 @@ syntax Expression
 	| \visit          : Label label Visit visit 
 	| reducer        : "(" Expression init "|" Expression result "|" {Expression ","}+ generators ")" 
 	| reifiedType    : "type" "(" Expression symbol "," Expression definitions ")"  
-	| callOrTree     : Expression expression "(" {Expression ","}* arguments ")"
+	| callOrTree     : Expression!transitiveClosure!transitiveReflexiveClosure!isDefined expression "(" {Expression ","}* arguments ")"
 	| literal        : Literal literal 
 	| \any            : "any" "(" {Expression ","}+ generators ")" 
 	| \all            : "all" "(" {Expression ","}+ generators ")" 
 	| comprehension  : Comprehension comprehension 
 	| \set            : "{" {Expression ","}* elements "}" 
 	| \list           : "[" {Expression ","}* elements "]"
-	| reifyType      : "#" Type type !>> "["
+	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
 	| \tuple          : "\<" {Expression ","}+ elements "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
-	| \prev : [A-Z a-z _] !<< "prev" !>> [A-Z a-z _]
-	// removed >
-	| subscript    : Expression expression "[" {Expression ","}+ subscripts "]" 
+	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure "[" {Expression ","}+ subscripts "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
-	| fieldProject : Expression expression "\<" {Field ","}+ fields "\>" 
+	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure "\<" {Field ","}+ fields "\>" 
 	| setAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
     | getAnnotation: Expression expression "@" Name name 
 	| is           : Expression expression "is" Name name
 	| has          : Expression expression "has" Name name
-	| transitiveClosure: Expression argument "+" !>> [= +]
+	| transitiveClosure: Expression argument "+" !>> "="
     | transitiveReflexiveClosure: Expression argument "*" !>> "=" 
 	> isDefined    : Expression argument "?" 
-	> negation     : "!" Expression argument 
+	> negation     : "!" Expression!match!noMatch argument 
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression argument
-	> left ( composition: Expression lhs "o" Expression rhs
-	       | openRecursiveComposition: Expression lhs "oo" Expression rhs
-	       ) 
-	> left ( product: Expression lhs "*" () !>> "*" Expression rhs  
+	> left composition: Expression lhs "o" Expression rhs 
+	> left ( product: Expression lhs "*" () !>> "*" Expression!noMatch!match rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
 		   | division: Expression lhs "/" Expression rhs 
 	     )
 	> left intersection: Expression lhs "&" Expression rhs 
-	> left ( addition   : Expression lhs "+" Expression rhs  
-	   | openRecursiveAddition: Expression lhs "++" Expression rhs
+	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
 		   | subtraction: Expression lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 
@@ -339,8 +334,7 @@ lexical DatePart
 syntax FunctionModifier
 	= java: "java" 
 	| \test: "test" 
-	| \default: "default"
-	| \extend: "extend";
+	| \default: "default";
 
 syntax Assignment
 	= ifDefined: "?=" 
@@ -384,7 +378,7 @@ lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
 	| ![\" \' \< \> \\]
-	| [\n][\ \t]* [\'] // margin 
+	| [\n][\ \t \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
 lexical JustTime
@@ -396,7 +390,7 @@ lexical MidStringChars
 	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
-	= [|] URLChars "://" !>> [\t-\n \r \ ];
+	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000];
 
 lexical RegExpModifier
 	= [d i m s]* ;
@@ -413,7 +407,7 @@ lexical RegExp
 	| Backslash ;
 
 layout LAYOUTLIST
-	= LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
+	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
 
 syntax LocalVariableDeclaration
 	= \default: Declarator declarator 
@@ -478,7 +472,8 @@ syntax PatternWithAction
 
 lexical LAYOUT
 	= Comment 
-	| [\t-\n \r \ ] 
+	// all the white space chars defined in Unicode 6.0 
+	| [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] 
 	;
 
 syntax Visit
@@ -491,14 +486,14 @@ start syntax Commands
 
 start syntax EvalCommand
   = declaration: Declaration declaration  
-  | statement: Statement statement 
+  | statement: Statement!variableDeclaration!functionDeclaration!visit statement 
   | \import: Import imported ;
   
 start syntax Command
-	= expression: Expression expression 
+	= expression: Expression!nonEmptyBlock expression 
 	| declaration: Declaration declaration 
 	| shell: ":" ShellCommand command 
-	| statement: Statement statement 
+	| statement: Statement!variableDeclaration!functionDeclaration!visit statement 
 	| \import: Import imported ;
 
 lexical TagString
@@ -527,7 +522,7 @@ syntax StringLiteral
 
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r] $ // the restriction helps with parsing speed
+	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 lexical RegExp
@@ -552,32 +547,32 @@ syntax Start
 syntax Statement
 	= @breakable \assert: "assert" Expression expression ";" 
 	| @breakable assertWithMessage: "assert" Expression expression ":" Expression message ";" 
-	| @breakable expression: Expression expression ";" 
+	| @breakable expression: Expression!visit!nonEmptyBlock expression ";" 
 	| @breakable \visit: Label label Visit visit 
-	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement body 
+	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration body 
 	| @breakable doWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
 	| @breakable @breakable{generators} \for: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
-	| @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement () !>> "else" 
-	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement elseStatement 
+	| @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration thenStatement () !>> "else" 
+	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement!variableDeclaration!functionDeclaration elseStatement 
 	| @breakable \switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
 	| @breakable \fail: "fail" Target target ";" 
 	| @breakable \break: "break" Target target ";" 
 	| @breakable \continue: "continue" Target target ";" 
     | @breakable \filter: "filter" ";"
-	| @breakable \solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement body 
+	| @breakable \solve: "solve" "(" {QualifiedName ","}+ variables Bound bound ")" Statement!variableDeclaration!functionDeclaration body 
 	| @breakable non-assoc \try: "try" Statement body Catch+ handlers 
-	| @breakable tryFinally: "try" Statement body Catch+ handlers "finally" Statement finallyBody 
+	| @breakable tryFinally: "try" Statement body Catch+ handlers "finally" Statement!variableDeclaration!functionDeclaration finallyBody 
 	| nonEmptyBlock: Label label "{" Statement+ statements "}" 
 	| emptyStatement: ";" 
 	| @breakable globalDirective: "global" Type type {QualifiedName ","}+ names ";" 
-	| @breakable assignment: Assignable assignable Assignment operator Statement statement
+	| @breakable assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
 	| non-assoc  ( 
 		          @breakable \return    : "return" Statement statement  
 		        | @breakable \throw     : "throw" Statement statement 
-		        | @breakable \insert    : "insert" DataTarget dataTarget Statement statement 
-		        | @breakable \append    : "append" DataTarget dataTarget Statement statement 
+		        | @breakable \insert    : "insert" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
+		        | @breakable \append    : "append" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 	            )
-    > @breakable functionDeclaration: FunctionDeclaration functionDeclaration 
+    | @breakable functionDeclaration: FunctionDeclaration functionDeclaration 
 	| @breakable variableDeclaration: LocalVariableDeclaration declaration ";"
 	; 
 	
@@ -670,7 +665,6 @@ keyword RascalKeywords
 	| "start"
 	| "datetime" 
 	| "value" 
-	| "prev"
 	;
 
 syntax Type
@@ -681,7 +675,7 @@ syntax Type
 	| basic: BasicType basic 
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
-	| symbol: Sym symbol
+	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
 	;
 
 syntax Declaration
@@ -798,7 +792,7 @@ lexical PrePathChars
 	= URLChars "\<" ;
 
 syntax Mapping[&T]
-	= \default: &T from ":" &T to 
+	= \default: &T!ifDefinedOtherwise from ":" &T to 
 	;
 
 lexical MidPathChars

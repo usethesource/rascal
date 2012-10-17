@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -25,8 +24,6 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
 

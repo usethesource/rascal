@@ -137,8 +137,8 @@ public void hello() {
 <span id="answerFeedback_Test_1" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_1:L" value="[8]">
-The type of <tt>permutations([8])</tt> is <input type="text" size="30" name="Test_1:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_1:L" value="[3, 9, 19, -14, -8]">
+The type of <tt>permutations([3, 9, 19, -14, -8])</tt> is <input type="text" size="30" name="Test_1:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -162,8 +162,8 @@ The type of <tt>permutations([8])</tt> is <input type="text" size="30" name="Tes
 <span id="answerFeedback_Test_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_2:L" value="[&quot;Lime&quot;, &quot;Raspberry&quot;, &quot;Cayenne&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Jabba the Hut&quot;]">
-<pre class="prequestion">size(permutations([&quot;Lime&quot;, &quot;Raspberry&quot;, &quot;Cayenne&quot;, &quot;Countess Darling Von Darling&quot;, &quot;Jabba the Hut&quot;])) == <input type="text" size="30" name="Test_2:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_2:L" value="[&quot;X&quot;]">
+<pre class="prequestion">size(permutations([&quot;X&quot;])) == <input type="text" size="30" name="Test_2:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_2:another" value="yes">
@@ -186,8 +186,8 @@ The type of <tt>permutations([8])</tt> is <input type="text" size="30" name="Tes
 <span id="answerFeedback_Test_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3:L" value="[&quot;Peppermint&quot;, &quot;Obi-Wan Kenobi&quot;]">
-<pre class="prequestion">permutations([&quot;Peppermint&quot;, &quot;Obi-Wan Kenobi&quot;]) == <input type="text" size="30" name="Test_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_3:L" value="[-13, 17, 7]">
+<pre class="prequestion">permutations([-13, 17, 7]) == <input type="text" size="30" name="Test_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_3:another" value="yes">
@@ -211,9 +211,9 @@ The type of <tt>permutations([8])</tt> is <input type="text" size="30" name="Tes
  Fill in the missing operator.
 <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4:B" value="15">
-<input type="hidden" name="Test_4:A" value="[91, 61, 19, 54]">
-<pre class="prequestion">[91, 61, 19, 54] <input type="text" size="30" name="Test_4:answer" class="answerText"> 15 == [91,61,19,54,15]</pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_4:B" value="78">
+<input type="hidden" name="Test_4:A" value="[74, 69, 34]">
+<pre class="prequestion">[74, 69, 34] <input type="text" size="30" name="Test_4:answer" class="answerText"> 78 == [74,69,34,78]</pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_4:another" value="yes">
@@ -236,9 +236,9 @@ The type of <tt>permutations([8])</tt> is <input type="text" size="30" name="Tes
 <span id="answerFeedback_Test_5" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_5:A" value="{&quot;K&quot;, &quot;Guy Smiley&quot;, &quot;Mandarin&quot;}">
-<input type="hidden" name="Test_5:B" value="{&quot;Bruno&quot;, &quot;Han Solo&quot;, &quot;Mint&quot;}">
-The type of <tt>{&quot;K&quot;, &quot;Guy Smiley&quot;, &quot;Mandarin&quot;} &gt; {&quot;Bruno&quot;, &quot;Han Solo&quot;, &quot;Mint&quot;}</tt> is <input type="text" size="30" name="Test_5:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_5:A" value="{$2091-03-04T04:49:33.154+0100, $2001-06-04T22:15:00.792+0200, $2082-04-05T02:35:28.484+0200, $2000-10-05T07:16:13.233+0200}">
+<input type="hidden" name="Test_5:B" value="{$2077-10-03, $2075-10-06, $2088-11-04T06:57:25.556+0100, $2014-05-05}">
+The type of <tt>{$2091-03-04T04:49:33.154+0100, $2001-06-04T22:15:00.792+0200, $2082-04-05T02:35:28.484+0200, $2000-10-05T07:16:13.233+0200} &gt; {$2077-10-03, $2075-10-06, $2088-11-04T06:57:25.556+0100, $2014-05-05}</tt> is <input type="text" size="30" name="Test_5:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -262,8 +262,8 @@ The type of <tt>{&quot;K&quot;, &quot;Guy Smiley&quot;, &quot;Mandarin&quot;} &g
 <span id="answerFeedback_Test_6" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_6:A" value="13">
-<pre class="prequestion">2 * 13 == <input type="text" size="30" name="Test_6:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_6:A" value="17">
+<pre class="prequestion">2 * 17 == <input type="text" size="30" name="Test_6:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_6:another" value="yes">
@@ -286,8 +286,8 @@ The type of <tt>{&quot;K&quot;, &quot;Guy Smiley&quot;, &quot;Mandarin&quot;} &g
 <span id="answerFeedback_Test_7" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_7:A" value="{19.3936616079923600, 15.16730071489920400, 17.64996717928457600}">
-The type of <tt>{19.3936616079923600, 15.16730071489920400, 17.64996717928457600}</tt> is <input type="text" size="30" name="Test_7:answer" class="answerText"><br/>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_7:A" value="{&quot;Emperor Palpatine&quot;, &quot;Cinnamon&quot;, &quot;V&quot;}">
+The type of <tt>{&quot;Emperor Palpatine&quot;, &quot;Cinnamon&quot;, &quot;V&quot;}</tt> is <input type="text" size="30" name="Test_7:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>

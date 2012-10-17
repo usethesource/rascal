@@ -106,14 +106,14 @@ list[str]: ["zebra","elephant","owl"]
 <br/>
 
 <form method="GET" action="validate" class="answerForm">
+<input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_1" value="1">
+<label for="Test/Libraries/List/delete_1_1">Decreases with the number of occurrences of the deleted element.</label><br/>
+
 <input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_0" value="0">
 <label for="Test/Libraries/List/delete_1_0">Decreases by one.</label><br/>
 
 <input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_3" value="3">
 <label for="Test/Libraries/List/delete_1_3">Increases by one.</label><br/>
-
-<input type="radio" name="Test_Libraries_List_delete_1:answer" id="Test/Libraries/List/delete_1_2" value="2">
-<label for="Test/Libraries/List/delete_1_2">Stays the same.</label><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -137,9 +137,9 @@ list[str]: ["zebra","elephant","owl"]
 <span id="answerFeedback_Test_Libraries_List_delete_2" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_2:L" value="[true, false, true, false, false, true]">
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_2:L" value="[&quot;Sy Snootles&quot;, &quot;Joh Yowza&quot;, &quot;Joh Yowza&quot;, &quot;C-3PO&quot;, &quot;Orange&quot;, &quot;Saffron&quot;]">
 <input type="hidden" name="Test_Libraries_List_delete_2:I" value="2">
-The type of <tt>delete([true, false, true, false, false, true], 2)</tt> is <input type="text" size="30" name="Test_Libraries_List_delete_2:answer" class="answerText"><br/>
+The type of <tt>delete([&quot;Sy Snootles&quot;, &quot;Joh Yowza&quot;, &quot;Joh Yowza&quot;, &quot;C-3PO&quot;, &quot;Orange&quot;, &quot;Saffron&quot;], 2)</tt> is <input type="text" size="30" name="Test_Libraries_List_delete_2:answer" class="answerText"><br/>
 
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
@@ -163,9 +163,9 @@ The type of <tt>delete([true, false, true, false, false, true], 2)</tt> is <inpu
 <span id="answerFeedback_Test_Libraries_List_delete_3" class="answerFeedback"></span>
  <br/>
 
-<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_3:L" value="[false, false, true, true]">
-<input type="hidden" name="Test_Libraries_List_delete_3:I" value="2">
-<pre class="prequestion">delete([false, false, true, true], 2) == <input type="text" size="30" name="Test_Libraries_List_delete_3:answer" class="answerText"></pre>
+<form method="GET" action="validate" class="answerForm"><input type="hidden" name="Test_Libraries_List_delete_3:L" value="[-7, -2, 15, -20]">
+<input type="hidden" name="Test_Libraries_List_delete_3:I" value="1">
+<pre class="prequestion">delete([-7, -2, 15, -20], 1) == <input type="text" size="30" name="Test_Libraries_List_delete_3:answer" class="answerText"></pre>
 <input type="submit" value="Give answer" class="answerSubmit">
 </form>
 <form method="GET" action="validate" class="anotherForm"><input type="hidden" name="Test_Libraries_List_delete_3:another" value="yes">

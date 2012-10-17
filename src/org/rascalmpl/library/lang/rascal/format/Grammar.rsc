@@ -25,7 +25,7 @@ import Set;
 import List;
 import String;
 import ValueIO;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import Relation;
 
 public void definition2disk(loc prefix, GrammarDefinition def) {
@@ -103,9 +103,9 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-public str alt2rascal(Production p) {
-  return "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
-}
+public str alt2rascal(Production p:prod(_,_,_)) = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> = <prod2rascal(p)>";
+public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
+
 
 public str prod2rascal(Production p) {
   switch (p) {
@@ -178,6 +178,7 @@ public str attr2mod(Attr a) {
     case \assoc(\assoc()): return "assoc";
     case \bracket(): return "bracket";
     case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
+    case \tag(str x()) : return "@<x>";
     case \tag(value x) : return "/*<x>*/";
     default : return "/*<a>*/";
   }
@@ -241,7 +242,7 @@ public str symbol2rascal(Symbol sym) {
     case complement(lhs):
      	return "!<symbol2rascal(lhs)>";
     case conditional(Symbol s, {Condition c, Condition d, set[Condition] r}):
-        return symbol2rascal(conditional(conditional(s, {c}), {d, r})); 
+        return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
     case conditional(s, {delete(t)}) :
         return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 
     case conditional(s, {follow(t)}) :
@@ -270,34 +271,6 @@ public str symbol2rascal(Symbol sym) {
   
   throw "symbol2rascal: missing case <sym>";
 }
-
-/*
-test symbol2rascal(lit("abc")) == "\"abc\"";
-test symbol2rascal(lit("\\\n")) == "\"\\\\\\n\"";
-test symbol2rascal(sort("ABC")) == "ABC";
-test symbol2rascal(cilit("abc")) == "\"abc\"";
-test symbol2rascal(label("abc",sort("ABC"))) == "ABC abc";
-test symbol2rascal(\parameterized-sort("A", [sort("B")])) == "A[[B]]";
-test symbol2rascal(\parameterized-sort("A", [sort("B"), sort("C")])) == "A[[B, C]]";
-test symbol2rascal(opt(sort("A"))) == "A?";
-test symbol2rascal(\char-class([range(97,97)])) == "[a]";
-test symbol2rascal(\iter-star-seps(sort("A"),[\layout()])) == "A*";
-test symbol2rascal(\iter-seps(sort("A"),[\layout()])) == "A+";
-test symbol2rascal(opt(\iter-star-seps(sort("A"),[\layout()]))) == "A*?";
-test symbol2rascal(opt(\iter-seps(sort("A"),[\layout()]))) == "A+?";
-test symbol2rascal(\iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()])) == "{A \"x\"}*";
-test symbol2rascal(\iter-seps(sort("A"),[\layout(),lit("x"),\layout()])) == "{A \"x\"}+";
-test symbol2rascal(opt(\iter-star-seps(sort("A"),[\layout(),lit("x"),\layout()]))) == "{A \"x\"}*?";
-test symbol2rascal(opt(\iter-seps(sort("A"),[\layout(),lit("x"),\layout()]))) == "{A \"x\"}+?";
-test symbol2rascal(\iter-star(sort("A"))) == "A*";
-test symbol2rascal(\iter(sort("A"))) == "A+";
-test symbol2rascal(opt(\iter-star(sort("A")))) == "A*?";
-test symbol2rascal(opt(\iter(sort("A")))) == "A+?";
-test symbol2rascal(\iter-star-seps(sort("A"),[lit("x")])) == "{A \"x\"}*";
-test symbol2rascal(\iter-seps(sort("A"),[lit("x")])) == "{A \"x\"}+";
-test symbol2rascal(opt(\iter-star-seps(sort("A"),[lit("x")]))) == "{A \"x\"}*?";
-test symbol2rascal(opt(\iter-seps(sort("A"),[lit("x")]))) == "{A \"x\"}+?";
-*/
 
 public str iterseps2rascal(Symbol sym, list[Symbol] seps, str iter){
   separators = "<for(sp <- seps){><symbol2rascal(sp)><}>";
@@ -334,10 +307,3 @@ public str range2rascal(CharRange r) {
     default: throw "range2rascal: missing case <r>";
   }
 }
-
-/*
-test range2rascal(range(97,97))  == "a";
-test range2rascal(range(97,122)) == "a-z";
-test range2rascal(range(10,10))  == "\\n";
-test range2rascal(range(34,34))  == "\\\"";
-*/
