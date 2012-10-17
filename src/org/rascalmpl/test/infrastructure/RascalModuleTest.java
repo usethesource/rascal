@@ -5,10 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
+ * Contributors: Jurgen Vinju
+ */
 
- *   * Davy Landman  - Davy.Landman@cwi.nl - CWI
-*******************************************************************************/
 package org.rascalmpl.test.infrastructure;
 
 import java.lang.annotation.Retention;
