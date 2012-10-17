@@ -22,39 +22,51 @@ import analysis::graphs::Graph;
 import CourseModel;
 import CourseCompiler;
 import CourseManager;
-                             
-// Compile one concept as an exam
+import ValueIO;
 
-
-public void main(){
-   //compileExam("AP2012/Test1");
-   //processSubmissions(examsDir + "results/" + "AP2012/Test1");
-   validateExam("AP2012/Test1");
-}
+import Type;
 
 loc resultsDir = examsDir + "results/";
-
 str resultExtension = ".examresults";
 str eol = "/|*|/";
 
+private str examConceptName = "";
+private set[examResult] scores = {};        // all scores for all students
+private list[str] sortedqs = [];            // sorted list of question names
+private map[str,set[str]] goodAnswers = (); // harvested good answers
+private map[str,set[str]] badAnswers = ();  // harvested bad answers
+
+
+// Start validation of an exam
+public void main(){
+   validateExam("AP2012/Test1");
+}
+
 public void validateExam(str cn){
-    bool leq(str a, str b){
-	    if(size(a) == size(b))
-	       return a <= b;
-	    return size(a) < size(b);
-	}
+  bool leq(str a, str b) = (size(a) == size(b)) ? a <= b : size(a) < size(b);
 	
+  examConceptName = cn;
   resultsDir = examsDir + "results/" + cn;
   scores = processSubmissions(resultsDir);
   println(scores);
  
   sortedqs = sort(toList({*domain(sc.answers) | sc <- scores}), leq);
   
-  collectAnswers(scores);
-  //createStatistics(scores, resultsDir);
-  createReview(scores, resultsDir);
-  //createResults(scores), resultsDir;
-  //createMailing(scores, resultsDir);
+  collectAnswers();
+  createReview();
+ 
+  println("1. Review the results in <resultsDir + "Reviews.csv">");
+  println("2. Save changes in <resultsDir + "Reviews.csv">");
+  println("3. Call validateExam2(\"<cn>\") to complete processing of this exam");
+}
+
+public void validateExam2(str cn){
+  resultsDir = examsDir + "results/" + cn;
+
+  scores = update();
+  createStatistics();
+  createResults();
+  createMailing();
   println("ValidateExams ... done!");
 }
 
@@ -73,7 +85,7 @@ public set[examResult] processSubmissions(loc results){
 	}
   isExam = true;
 
-  seenStudents = ();
+  seenResults = ();
   for(str entry <- listEntries(results))
       if(endsWith(entry, resultExtension)){
          timestamp = "99999999999";
@@ -85,33 +97,27 @@ public set[examResult] processSubmissions(loc results){
             
          cur = validateExamSubmission(timestamp, getExamResults(results + entry));
          studentMail = cur.studentMail;
-         if(!seenStudents[studentMail]?){
-            seenStudents[studentMail] = cur;
+         if(!seenResults[studentMail]?){
+            seenResults[studentMail] = cur;
          } else {
-           prev = seenStudents[studentMail];
+           prev = seenResults[studentMail];
            if(prev.timestamp < cur.timestamp){
              println("<studentMail>: REPLACE <prev.timestamp> by <cur.timestamp>");
-             seenStudents[studentMail] = cur;
+             seenResults[studentMail] = cur;
            }
            println("<studentMail>: KEEP LATEST: <cur.timestamp>");
          }
        };
-  return range(seenStudents);
+  return range(seenResults);
 }
 
-str round(num n) = "<round(n, 0.1)>";
-
-private list[str] sortedqs = [];
-private map[str,set[str]] goodAnswers = ();
-private map[str,set[str]] badAnswers = ();
-
-public void collectAnswers(set[examResult] scores){
+public void collectAnswers(){
   goodAnswers = ();
   badAnswers = ();
   
   for(sc <- scores){
-      for(q <- sc.evaluation)
-          if(sc.evaluation[q] == "pass")
+      for(q <- sc.points)
+          if(sc.points[q] > 0)
             goodAnswers[q] = (goodAnswers[q] ? {}) + {sc.answers[q]};
           else
             badAnswers[q] = (badAnswers[q] ? {}) + {sc.answers[q]};
@@ -121,33 +127,60 @@ public void collectAnswers(set[examResult] scores){
           'badAnswers: <badAnswers>");
 }
 
-void createReview(set[examResult] scores, loc results){
-  rel[str Question, num Score, str Wrong, str Expected, str Comment] reviews = {};
+alias reviewType = tuple[str Question, num Score, str Wrong, str Expected, str Comment];
+
+void createReview(){
+  set[reviewType] reviews = {};
  
   println("*** createReview ***");
   seenAnswers = {};
   for(sc <- scores){
 	  for(q <- sortedqs){
 	      ans = (sc.answers[q]) ? "none";
-	      if(!(sc.evaluation[q])? || sc.evaluation[q] == "fail"){
+	      if(!(sc.points[q])? || sc.points[q] == 0){
 	         if(<q, ans> notin seenAnswers){
 	          ga = (goodAnswers[q])? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
 	          println(sc.expectedAnswers[q]);
 	          if(sc.expectedAnswers[q]?)
 	             ga += sc.expectedAnswers[q];
-	          reviews += {<q, 0, ans, ga, "">};
+	          reviews += {<q, 0.0, ans, ga, "">};
 	          seenAnswers += {<q, ans>};
 	        }
 	      }
 	  }   
   }
-  writeCSV(reviews, results + "Review.csv", ("separator" : ";"));
+  writeCSV(reviews, resultsDir + "Review.csv", ("separator" : ";"));
 }
 
+public set[examResult] update(){
+  reviews = readCSV(#set[reviewType], resultsDir + "Review.csv", ("separator" : ";"));
+  println("reviews = <typeOf(reviews)>: <reviews>");
   
-public void createStatistics(set[examResult] scores, loc results){
+  rmap = (rev.Question + rev.Wrong : rev | rev <- reviews, rev.Score != 0);
+  nquestions = size(sortedqs);
+  uscores = for(sc <- scores){
+              score = 0.0;
+              points = sc.points;
+              comments = sc.comments;
+	          for(q <- sortedqs){
+	             ans = (sc.answers[q]) ? "none";
+	             if(rmap[q + ans]?){
+	                review = rmap[q + ans];
+	                points[q] = review.Score;
+	                comments[q] = review.Comment;
+	             }
+	             score += points[q];
+	          }
+	          append examResult(sc.studentName, sc.studentMail, sc.StudentNumber, sc.timestamp, 
+                                sc.answers, sc.expectedAnswers, comments, points, 10.0 * score / nquestions);
+	       };
+  scores = toSet(uscores);
+  println("updated scores: <scores>");
+  return scores;
+}
 
-	
+public void createStatistics(){
+
   allscores = [sc.score | sc <- scores];
   nstudents = size(allscores);
   npassed =  (0 | it + 1 | sc <- scores, sc.score >= 6.0);
@@ -155,23 +188,23 @@ public void createStatistics(set[examResult] scores, loc results){
   // Compute averages per question
   qavg = ();
   for(sc <- scores){
-      for(q <- sc.evaluation)
-          qavg[q] ? 0.0 += (sc.evaluation[q] == "pass") ? 1 : 0;
+      for(q <- sc.points)
+          qavg[q] ? 0.0 += (sc.points[q] > 0) ? 1 : 0;
   }
   for(q <- qavg){
       qavg[q] = (100 * qavg[q]) / nstudents;
   }
   
-  writeFile(results + "Statistics.txt",
+  writeFile(resultsDir + "Statistics.txt",
   		  "Number of students: <nstudents>
-  		  'Lowest score:       <round(min(allscores))>
-          'Highest score:      <round(max(allscores))>
-          'Average score:      <round((0 | it + n | num n <- allscores)/nstudents)>
+  		  'Lowest score:       <round(min(allscores), 0.1)>
+          'Highest score:      <round(max(allscores), 0.1)>
+          'Average score:      <round((0 | it + n | num n <- allscores)/nstudents, 0.1)>
           'Passed:             <npassed>
-          'Percentage passed:  <round(npassed*100.0/nstudents)>
+          'Percentage passed:  <round(npassed*100.0/nstudents, 0.1)>
           '
           'Average score per question:
-          '<for(q <- sortedqs){><q>:\t<round(qavg[q])>\n<}>
+          '<for(q <- sortedqs){><q>:\t<round(qavg[q], 0.1)>\n<}>
           '
           'Good/bad answers per question:
           '<for(q <- sortedqs){><q>:\n\tgood:<goodAnswers[q]?"{}">\n\tbad:<badAnswers[q]?"{}">\n<}>
@@ -179,30 +212,26 @@ public void createStatistics(set[examResult] scores, loc results){
   println("Written Statistics.txt");
 }
 
-
-
-void createResults(set[examResult] scores, loc results){
- writeFile(results + "Results.csv",
+void createResults(){
+ writeFile(resultsDir + "Results.csv",
           "<for(sc <- scores){>
-          '<sc.studentName>;<round(sc.score)><for(q <- sortedqs){>;<sc.evaluation[q]?"fail"><}><}>"
+          '<sc.studentName>;<round(sc.score, 0.1)><for(q <- sortedqs){>;<sc.points[q]?"fail"><}><}>"
           );
   println("Written Results.csv");    
 }
 
-void createMailing(set[examResult] scores, loc results){
-writeFile(results + "Mailing.sh",
+void createMailing(){
+writeFile(resultsDir + "Mailing.sh",
           "<for(sc <- scores){>
           'mail -s \"Exam Results\" <sc.studentMail> \<\<==eod==
           'Dear <sc.studentName>,
           '
-          '<sc.score >= 6.0 ? "Congratulations you have passed the exam!" : "Unfortunately you did not pass this exam.">
+          '<sc.score >= 6.0 ? "Congratulations you have passed this exam!" :  "Unfortunately you did not pass this exam.">
+          'Grade: <round(sc.score, 0.1)>
           '
           'The scores for individual questions are:
-          '<for(q <- sortedqs){><q>:\t<sc.evaluation[q]?"fail">\n<}>
-          '
-          'Detailed summary of failed questions:
-          '<for(q <- sortedqs){><suggestGoodAnswer(sc,q, goodAnswers)><}>
-          '
+          '<for(q <- sortedqs){><q>: \t<sc.points[q]?"fail">\n<}>
+          '<summaryWrongAnswers(sc, goodAnswers)>
           'Best regards,
           '
           'The Rascal Team
@@ -212,15 +241,27 @@ writeFile(results + "Mailing.sh",
    println("Written Mailing.sh");
 }
 
+str summaryWrongAnswers(examResult sc, map[str,set[str]] goodAnswers){
+  s = "<for(q <- sortedqs){><suggestGoodAnswer(sc,q, goodAnswers)><}>";
+  return s == "" ? "" : "Detailed summary of questions you have not answered correctly:\n<s>";
+}
+
 str suggestGoodAnswer(examResult sc, str q, map[str,set[str]] goodAnswers){
-  if(sc.evaluation[q]? && sc.evaluation[q] == "pass")
+  if(sc.points[q]? && sc.points[q] == 1)
      return "";
      
-  ans = "<q>: Your (incorrect) answer: <sc.answers[q]?"no answer given">\n";
+  ans = "\n<q>:\n\nYour (incorrect) answer: <sc.answers[q]?"no answer given">\n";
+   
+  comment = sc.comments[q] ? "";
+  if(comment != "")
+     comment = "\nComment: <comment>";
     
-  if(sc.expectedAnswers[q]?)
-     return "<ans>Expected answer is <sc.expectedAnswers[q]>\n";
+  if(sc.expectedAnswers[q]? && goodAnswers[q]? && sc.expectedAnswers[q] notin goodAnswers[q])
+     ans += "\nFeedback: <sc.expectedAnswers[q]>\n";
+ 
   if(goodAnswers[q]?)
-     return "<ans>Set of possible good answers: <goodAnswers[q]>\n";
-  return "<ans>No correct answers available";
+     ans += "\nSuggested good answer(s): <intercalate(" OR ", toList(goodAnswers[q]))>\n";
+     
+  return  ans + comment;
+  //return "<ans>No correct answers available\n<comment>\n";
 }
