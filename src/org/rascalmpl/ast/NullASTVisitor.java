@@ -517,7 +517,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitExpressionOpenRecursiveAddition(Expression.OpenRecursiveAddition x) { 
+    return null; 
+  }
+
+  public T visitExpressionOpenRecursiveComposition(Expression.OpenRecursiveComposition x) { 
+    return null; 
+  }
+
   public T visitExpressionOr(Expression.Or x) { 
+    return null; 
+  }
+
+  public T visitExpressionPrev(Expression.Prev x) { 
     return null; 
   }
 
@@ -642,6 +654,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitFunctionModifierDefault(FunctionModifier.Default x) { 
+    return null; 
+  }
+
+  public T visitFunctionModifierExtend(FunctionModifier.Extend x) { 
     return null; 
   }
 
