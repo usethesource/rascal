@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,7 +57,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.CharSetUtils;
 import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IBool;
@@ -863,13 +863,24 @@ public class Prelude {
 		} 
 	}
 	
+	public ISet charsets() {
+		ISetWriter w = values.setWriter();
+		for (String s : Charset.availableCharsets().keySet()) {
+			w.insert(values.string(s));
+		}
+		return w.done();
+	}
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
+	  return readFile(sloc, values.string("UTF8"), ctx);	
+	}
+	
+	public IValue readFile(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder(1024 * 1024);
 		
 		InputStreamReader in = null;
 		try{
-			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), "utf8");
+			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue());
 			char[] buf = new char[4096];
 			int count;
 
@@ -936,10 +947,18 @@ public class Prelude {
 		writeFile(sloc, V, false, ctx);
 	}
 	
+	public void writeFile(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx) {
+		writeFile(sloc, charset, V, false, ctx);
+	}
+	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
+		 writeFile(sloc, values.string("UTF8"), V, append, ctx);
+	}
+	
+	private void writeFile(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
 		OutputStreamWriter out = null;
 		try{
-			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), "UTF8");
+			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
 			
 			for(IValue elem : V){
 				if (elem.getType().isStringType()) {
@@ -972,12 +991,16 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
+	  return readFileLines(sloc, values.string("UTF8"), ctx);	
+	}
+	
+	public IList readFileLines(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStream stream = ctx.getResolverRegistry().getInputStream(sloc.getURI());
-			in = new BufferedReader(new InputStreamReader(stream));
+			InputStreamReader stream = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue());
+			in = new BufferedReader(stream);
 			java.lang.String line;
 			
 			int i = 0;
