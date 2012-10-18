@@ -17,8 +17,8 @@ syntax True
   = "true"
   | bracket "(" True ")"
   | "not" False f
-  > left ( True lt "and" True rt
-         | True lt "or" True rt
+  > left True lt "and" True rt
+  > left ( True lt "or" True rt
          | False lf "or" True rt
          | True lt "or" False rf
          )
@@ -32,7 +32,7 @@ syntax False
   > left ( False lf "and" False rf
          | True  lt "and" False rf
          | False lf "and" True  rt
-         | False lf "or" False  rf
          )
+  > False lf "or" False  rf
   ;
   

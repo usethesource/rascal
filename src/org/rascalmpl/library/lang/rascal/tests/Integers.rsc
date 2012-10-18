@@ -37,3 +37,5 @@ public test bool transEq(int i, int j, int k) = (i == j && j == k) ==> i == k;
 public test bool reflexEq(int i) = i == i;
 
 public test bool commEq(int i, int j) = i == j <==> j == i;
+
+public test bool plusMinStable(int a, int b, int c, int d) = (a - b) + (c - d) == (a + c) - (b + d);

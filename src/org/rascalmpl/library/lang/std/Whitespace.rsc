@@ -6,6 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 module lang::std::Whitespace
 
-lexical Whitespace = [\ \t\n\f\r]; 
+/* all the white space chars defined in Unicode 6.0 */ 
+lexical Whitespace 
+  = [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000]
+  ; 
