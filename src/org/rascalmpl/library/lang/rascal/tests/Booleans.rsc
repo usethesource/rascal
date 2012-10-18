@@ -8,4 +8,4 @@ public test bool and(bool b) { if ((false && b) == false, (b && false) == false,
 
 public test bool not(bool b) = !!b == b;
 
-public test bool not() = (not(true) == false) && (not(false) == true);
+public test bool not() = (!true == false) && (!false == true);
