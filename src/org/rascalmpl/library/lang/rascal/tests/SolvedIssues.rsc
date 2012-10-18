@@ -3,7 +3,7 @@
 In this test module we collect test cases that are associated with bugs from the past.
 This is just to make sure the bugs are not re-introduced accidentally.
 }
-module lang::rascal::tests::Regression
+module lang::rascal::tests::SolvedIssues
 
 import lang::rascal::syntax::RascalRascal;
 import ParseTree;

@@ -56,6 +56,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.CharSetUtils;
 import org.apache.commons.lang.WordUtils;
 import org.eclipse.imp.pdb.facts.IBool;
@@ -866,10 +867,10 @@ public class Prelude {
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder(1024 * 1024);
 		
-		InputStream in = null;
+		InputStreamReader in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
-			byte[] buf = new byte[4096];
+			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), "utf8");
+			char[] buf = new char[4096];
 			int count;
 
 			while((count = in.read(buf)) != -1){
@@ -936,17 +937,17 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-		OutputStream out = null;
+		OutputStreamWriter out = null;
 		try{
-			out = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append);
+			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), "UTF8");
 			
 			for(IValue elem : V){
-				if (elem.getType().isStringType()){
-					out.write(((IString) elem).getValue().toString().getBytes());
+				if (elem.getType().isStringType()) {
+					out.append(((IString) elem).getValue());
 				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
-					out.write(TreeAdapter.yield((IConstructor) elem).getBytes());
+					out.append(TreeAdapter.yield((IConstructor) elem));
 				}else{
-					out.write(elem.toString().getBytes());
+					out.append(elem.toString());
 				}
 			}
 		}catch(FileNotFoundException fnfex){
