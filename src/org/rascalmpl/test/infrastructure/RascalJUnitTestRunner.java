@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
+import junit.framework.TestFailure;
+
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -32,46 +34,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalJUnitTestRunner extends Runner {
-	private final class Listener implements ITestResultListener {
-		private final RunNotifier notifier;
-		private final Description module;
-		private int current = 0;
-		private int count = 0;
-
-		private Listener(RunNotifier notifier, Description module) {
-			this.notifier = notifier;
-			this.module = module;
-		}
-
-		@Override
-		public void start(int count) {
-			this.current = 0;
-			this.count = count;
-
-			if (current < count) {
-				notifier.fireTestStarted(module.getChildren().get(current));
-			}
-		}
-
-		@Override
-		public void report(boolean successful, String test, ISourceLocation loc,
-				String message) {
-			if (!successful) {
-				notifier.fireTestFailure(new Failure(module.getChildren().get(current), new Exception(message)));
-			}
-
-			notifier.fireTestFinished(module.getChildren().get(current));
-			current++;
-			if (current < count) {
-				notifier.fireTestStarted(module.getChildren().get(current));
-			}
-		}
-
-		@Override
-		public void done() {
-		}
-	}
-
 	private static Evaluator evaluator;
 	private static GlobalEnvironment heap;
 	private static ModuleEnvironment root;
@@ -134,11 +96,52 @@ public class RascalJUnitTestRunner extends Runner {
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
-			final Description module = mod;
-			TestEvaluator runner = new TestEvaluator(evaluator, new Listener(notifier, module));
-			runner.test(module.getDisplayName());
+			TestEvaluator runner = new TestEvaluator(evaluator, new Listener(notifier, mod));
+			runner.test(mod.getDisplayName());
 		}
 		
 		notifier.fireTestRunFinished(new Result());
+	}
+
+	private final class Listener implements ITestResultListener {
+		private final RunNotifier notifier;
+		private final Description module;
+		private int current = 0;
+		private int count = 0;
+	
+		private Listener(RunNotifier notifier, Description module) {
+			this.notifier = notifier;
+			this.module = module;
+		}
+	
+		@Override
+		public void start(int count) {
+			this.current = 0;
+			this.count = count;
+	
+			if (current < count) {
+				notifier.fireTestStarted(module.getChildren().get(current));
+			}
+		}
+	
+		@Override
+		public void report(boolean successful, String test, ISourceLocation loc,
+				String message) {
+			if (!successful) {
+				notifier.fireTestFailure(new Failure(module.getChildren().get(current), new Exception(loc + " : " + message)));
+			}
+			else {
+				notifier.fireTestFinished(module.getChildren().get(current));
+			}
+			
+			current++;
+			if (current < count) {
+				notifier.fireTestStarted(module.getChildren().get(current));
+			}
+		}
+	
+		@Override
+		public void done() {
+		}
 	}
 }
