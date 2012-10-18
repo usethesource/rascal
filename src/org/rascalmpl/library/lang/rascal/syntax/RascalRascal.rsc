@@ -231,7 +231,7 @@ syntax Expression
 	     )
 	> left intersection: Expression lhs "&" Expression rhs 
 	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
-		   | subtraction: Expression lhs "-" Expression rhs
+		   | subtraction: Expression!transitiveClosure!transitiveReflexiveClosure lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
 		   | insertBefore: Expression lhs "\>\>" Expression rhs 
 	       )
