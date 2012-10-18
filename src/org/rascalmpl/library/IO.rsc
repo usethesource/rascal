@@ -29,6 +29,10 @@ Append a textual representation of some values to an existing or a newly created
 public java void appendToFile(loc file, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@doc{returns all available character sets}
+@javaClass{org.rascalmpl.library.Prelude}
+public java set[str] charsets();
+
 @doc{
 Synopsis: Print a value and return true.
 
@@ -379,6 +383,11 @@ The second version of `readFile` with a string argument is __deprecated__.
 public java str readFile(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java str readFile(loc file, str charset)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
 @deprecated{Use @see str readFile(loc file)}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFile(str filename)
@@ -405,6 +414,11 @@ Also see [readFile].
 public java list[str] readFileLines(loc file)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java list[str] readFileLines(loc file, str charset)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
 @doc{Write a textual representation of some values to a file
    * If a value is a simple string, the quotes are removed and the contents are de-escaped.
    * If a value has a non-terminal type, the parse tree is unparsed to produce a value.
@@ -424,6 +438,11 @@ Write a textual representation of some values to a file:
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
 public java void writeFile(loc file, value V...)
+throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses URI Resolver Registry}
+public java void writeFile(loc file, str charset, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{
