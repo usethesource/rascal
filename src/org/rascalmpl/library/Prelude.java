@@ -872,10 +872,10 @@ public class Prelude {
 	}
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFile(sloc, values.string("UTF8"), ctx);	
+	  return readFileEnc(sloc, values.string("UTF8"), ctx);	
 	}
 	
-	public IValue readFile(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder(1024 * 1024);
 		
 		InputStreamReader in = null;
@@ -947,16 +947,25 @@ public class Prelude {
 		writeFile(sloc, V, false, ctx);
 	}
 	
-	public void writeFile(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx) {
-		writeFile(sloc, charset, V, false, ctx);
+	public void writeFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx) {
+		writeFileEnc(sloc, charset, V, false, ctx);
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-		 writeFile(sloc, values.string("UTF8"), V, append, ctx);
+		 writeFileEnc(sloc, values.string("UTF8"), V, append, ctx);
 	}
 	
-	private void writeFile(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
+	public IBool canEncode(IString charset) {
+		return values.bool(Charset.forName(charset.getValue()).canEncode());
+	}
+	
+	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
 		OutputStreamWriter out = null;
+		
+		if (!Charset.forName(charset.getValue()).canEncode()) {
+		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
+		}
+		
 		try{
 			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
 			
@@ -991,10 +1000,10 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
-	  return readFileLines(sloc, values.string("UTF8"), ctx);	
+	  return readFileLinesEnc(sloc, values.string("UTF8"), ctx);	
 	}
 	
-	public IList readFileLines(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
+	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;

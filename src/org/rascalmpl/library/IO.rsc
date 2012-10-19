@@ -33,6 +33,11 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] charsets();
 
+@doc{returns whether this charset can be used for encoding (use with writeFile)}
+@javaClass{org.rascalmpl.library.Prelude}
+public java set[str] canEncode(str charset);
+
+
 @doc{
 Synopsis: Print a value and return true.
 
@@ -385,7 +390,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
-public java str readFile(loc file, str charset)
+public java str readFileEnc(loc file, str charset)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @deprecated{Use @see str readFile(loc file)}
@@ -416,7 +421,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
-public java list[str] readFileLines(loc file, str charset)
+public java list[str] readFileLinesEnc(loc file, str charset)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{Write a textual representation of some values to a file
@@ -442,7 +447,7 @@ throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses URI Resolver Registry}
-public java void writeFile(loc file, str charset, value V...)
+public java void writeFileEnc(loc file, str charset, value V...)
 throws UnsupportedScheme(loc file), PathNotFound(loc file), IO(str msg);
 
 @doc{

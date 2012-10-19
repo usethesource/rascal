@@ -1,6 +1,7 @@
 module lang::rascal::tests::Lists
 
 import List;
+import Boolean;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
