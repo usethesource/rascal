@@ -20,7 +20,6 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
 
   solve(todo) {  
     for (cond <- todo, !(cond in done)) {
-      println("expanding cond <cond>");
       todo -= {cond};
       
       if (cond has symbol, keywords(str name) := cond.symbol || meta(keywords(str name)) := cond.symbol) {
