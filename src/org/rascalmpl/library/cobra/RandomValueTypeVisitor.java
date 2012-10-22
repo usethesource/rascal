@@ -183,21 +183,21 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 	@Override
 	public IValue visitDateTime(Type type) {
 		Calendar cal = Calendar.getInstance();
-		int milliOffset = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int milliOffset = stRandom.nextInt(1000) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.MILLISECOND, milliOffset);
-		int second = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int second = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.SECOND, second);
-		int minute = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int minute = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.MINUTE, minute);
-		int hour = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int hour = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.HOUR_OF_DAY, hour);
-		int day = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int day = stRandom.nextInt(30) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.DAY_OF_MONTH, day);
-		int month = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.MONTH, month);
 		int year = stRandom.nextInt(9999) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.YEAR, year);
-
+		
 		return vf.datetime(cal.getTimeInMillis());
 	}
 
