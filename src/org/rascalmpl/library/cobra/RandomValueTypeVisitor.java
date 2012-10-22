@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -253,8 +254,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-		throw new Throw(vf.string("Can't handle Node."),
-				(ISourceLocation) null, null);
+		ITuple tup = (ITuple) visitTuple(type);
+		IValue[] args = new IValue[tup.arity()];
+		for (int i = 0; i < tup.arity(); i++) {
+			args[i] = tup.get(i);
+		}
+		IString str = (IString) visitString(type);
+		return vf.node(str.getValue(), args);
 	}
 
 	@Override
