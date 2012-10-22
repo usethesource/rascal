@@ -182,23 +182,23 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitDateTime(Type type) {
-		// TODO: this is a rough sketch of how to get correct random datetimes
-		// there may be some off-by-one errors in here.
 		Calendar cal = Calendar.getInstance();
-		int year = stRandom.nextInt(9999);
-		cal.set(Calendar.YEAR, year);
-		int month = stRandom.nextInt(cal.getActualMaximum(Calendar.MONTH));
-		cal.set(Calendar.MONTH, month);
-		int day = stRandom.nextInt(cal.getActualMaximum(Calendar.DAY_OF_MONTH));  
-		cal.set(Calendar.DAY_OF_MONTH, day);
-		int hour = stRandom.nextInt(cal.getActualMaximum(Calendar.HOUR_OF_DAY));
-		cal.set(Calendar.HOUR_OF_DAY, hour);
-		int minute = stRandom.nextInt(cal.getActualMaximum(Calendar.MINUTE));
-		cal.set(Calendar.MINUTE, minute);
-		int second = stRandom.nextInt(cal.getActualMaximum(Calendar.SECOND));
-		cal.set(Calendar.SECOND, second);
-		int milli = stRandom.nextInt(cal.getActualMaximum(Calendar.MILLISECOND));
-		return vf.datetime(year, month, day, hour, minute, second, milli);
+		int milliOffset = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.MILLISECOND, milliOffset);
+		int second = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.SECOND, second);
+		int minute = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.MINUTE, minute);
+		int hour = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.HOUR_OF_DAY, hour);
+		int day = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.DAY_OF_MONTH, day);
+		int month = stRandom.nextInt() * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.MONTH, month);
+		int year = stRandom.nextInt(9999) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.YEAR, year);
+
+		return vf.datetime(cal.getTimeInMillis());
 	}
 
 	@Override
