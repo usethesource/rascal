@@ -35,17 +35,17 @@ public class Arbitrary {
 	public IValue arbDateTime() {
 		Calendar cal = Calendar.getInstance();
 		int milliOffset = random.nextInt(1000) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.MILLISECOND, milliOffset);
+		cal.roll(Calendar.MILLISECOND, milliOffset);
 		int second = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.SECOND, second);
+		cal.roll(Calendar.SECOND, second);
 		int minute = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.MINUTE, minute);
+		cal.roll(Calendar.MINUTE, minute);
 		int hour = random.nextInt(60) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.HOUR_OF_DAY, hour);
+		cal.roll(Calendar.HOUR_OF_DAY, hour);
 		int day = random.nextInt(30) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.DAY_OF_MONTH, day);
+		cal.roll(Calendar.DAY_OF_MONTH, day);
 		int month = random.nextInt(12) * (random.nextBoolean() ? -1 : 1);
-		cal.add(Calendar.MONTH, month);
+		cal.roll(Calendar.MONTH, month);
 		
 		// make sure we do not go over the 4 digit year limit, which breaks things
 		int year = random.nextInt(5000) * (random.nextBoolean() ? -1 : 1);
