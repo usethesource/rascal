@@ -90,11 +90,11 @@ public class ParserGenerator {
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
 			IConstructor grammar = getGrammar(monitor, name, definition);
-			debugOutput(grammar.toString(), "/tmp/grammar.trm");
+			debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
 			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
-			debugOutput(classString.getValue(), "/tmp/parser.java");
+			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.event("Compiling generated java code: " + name, 30);
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		}  catch (ClassCastException e) {
@@ -120,7 +120,7 @@ public class ParserGenerator {
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for Rascal parser:" + name, 10);
 			IString classString = (IString) evaluator.call(monitor, "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
-			debugOutput(classString.getValue(), "/tmp/metaParser.java");
+			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/metaParser.java");
 			monitor.event("compiling generated java code: " + name, 10);
 			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
 		}  catch (ClassCastException e) {
