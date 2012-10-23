@@ -69,8 +69,8 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 	@Override
 	protected <U extends IValue> Result<U> compareDateTime(DateTimeResult that) {
 		checkDateTimeComparison(that);
-		return makeIntegerResult(that.value.getInstant() == this.value.getInstant() ? 0 : 
-			(that.value.getInstant() < this.value.getInstant() ? -1 : 1));
+		
+		return makeIntegerResult(that.value.compareTo(this.value));
 	}
 
 	

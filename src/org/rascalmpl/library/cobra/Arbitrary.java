@@ -46,7 +46,9 @@ public class Arbitrary {
 		cal.add(Calendar.DAY_OF_MONTH, day);
 		int month = random.nextInt(12) * (random.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.MONTH, month);
-		int year = random.nextInt(9999) * (random.nextBoolean() ? -1 : 1);
+		
+		// make sure we do not go over the 4 digit year limit, which breaks things
+		int year = random.nextInt(5000) * (random.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.YEAR, year);
 		
 		return values.datetime(cal.getTimeInMillis());

@@ -196,7 +196,9 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 		cal.add(Calendar.DAY_OF_MONTH, day);
 		int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.MONTH, month);
-		int year = stRandom.nextInt(9999) * (stRandom.nextBoolean() ? -1 : 1);
+		
+		// make sure we do not go over the 4 digit year limit, which breaks things
+		int year = stRandom.nextInt(5000) * (stRandom.nextBoolean() ? -1 : 1);
 		cal.add(Calendar.YEAR, year);
 		
 		return vf.datetime(cal.getTimeInMillis());
