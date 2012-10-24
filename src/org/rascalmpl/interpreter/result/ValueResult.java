@@ -281,7 +281,20 @@ public class ValueResult extends ElementResult<IValue> {
 			return aResult.compare(bResult);
 		}
 		catch (UnsupportedOperationError e) {
-			return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
+			// to just compare type names based on names of types alphabetically
+			// would be unsound because of non-transitivity. This is because values under type
+			// num are ordered regardless of their actual type; then
+			// node < real < int could happen, while node > int.
+			
+			if (a.getType().isSubtypeOf(getTypeFactory().numberType())) {
+				return makeIntegerResult(-1);
+			}
+			else if (b.getType().isSubtypeOf(getTypeFactory().numberType())) {
+				return makeIntegerResult(1);
+			}
+			else {
+				return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
+			}
 		}
 	}
 }
