@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -862,14 +863,25 @@ public class Prelude {
 		} 
 	}
 	
+	public ISet charsets() {
+		ISetWriter w = values.setWriter();
+		for (String s : Charset.availableCharsets().keySet()) {
+			w.insert(values.string(s));
+		}
+		return w.done();
+	}
 	
 	public IValue readFile(ISourceLocation sloc, IEvaluatorContext ctx){
+	  return readFileEnc(sloc, values.string("UTF8"), ctx);	
+	}
+	
+	public IValue readFileEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		StringBuilder result = new StringBuilder(1024 * 1024);
 		
-		InputStream in = null;
+		InputStreamReader in = null;
 		try{
-			in = ctx.getResolverRegistry().getInputStream(sloc.getURI());
-			byte[] buf = new byte[4096];
+			in = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()), charset.getValue());
+			char[] buf = new char[4096];
 			int count;
 
 			while((count = in.read(buf)) != -1){
@@ -935,18 +947,35 @@ public class Prelude {
 		writeFile(sloc, V, false, ctx);
 	}
 	
+	public void writeFileEnc(ISourceLocation sloc, IString charset, IList V, IEvaluatorContext ctx) {
+		writeFileEnc(sloc, charset, V, false, ctx);
+	}
+	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IEvaluatorContext ctx){
-		OutputStream out = null;
+		 writeFileEnc(sloc, values.string("UTF8"), V, append, ctx);
+	}
+	
+	public IBool canEncode(IString charset) {
+		return values.bool(Charset.forName(charset.getValue()).canEncode());
+	}
+	
+	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append, IEvaluatorContext ctx){
+		OutputStreamWriter out = null;
+		
+		if (!Charset.forName(charset.getValue()).canEncode()) {
+		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
+		}
+		
 		try{
-			out = ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append);
+			out = new OutputStreamWriter(ctx.getResolverRegistry().getOutputStream(sloc.getURI(), append), charset.getValue());
 			
 			for(IValue elem : V){
-				if (elem.getType().isStringType()){
-					out.write(((IString) elem).getValue().toString().getBytes());
+				if (elem.getType().isStringType()) {
+					out.append(((IString) elem).getValue());
 				}else if (elem.getType().isSubtypeOf(Factory.Tree)) {
-					out.write(TreeAdapter.yield((IConstructor) elem).getBytes());
+					out.append(TreeAdapter.yield((IConstructor) elem));
 				}else{
-					out.write(elem.toString().getBytes());
+					out.append(elem.toString());
 				}
 			}
 		}catch(FileNotFoundException fnfex){
@@ -971,12 +1000,16 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IEvaluatorContext ctx){
+	  return readFileLinesEnc(sloc, values.string("UTF8"), ctx);	
+	}
+	
+	public IList readFileLinesEnc(ISourceLocation sloc, IString charset, IEvaluatorContext ctx){
 		IListWriter w = types.listType(types.stringType()).writer(values);
 		
 		BufferedReader in = null;
 		try{
-			InputStream stream = ctx.getResolverRegistry().getInputStream(sloc.getURI());
-			in = new BufferedReader(new InputStreamReader(stream));
+			InputStreamReader stream = new InputStreamReader(ctx.getResolverRegistry().getInputStream(sloc.getURI()),charset.getValue());
+			in = new BufferedReader(stream);
 			java.lang.String line;
 			
 			int i = 0;
