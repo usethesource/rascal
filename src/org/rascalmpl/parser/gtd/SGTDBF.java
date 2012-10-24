@@ -1112,7 +1112,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		stacksToExpand.push(rootNode);
 		lookAheadChar = (input.length > 0) ? input[0] : 0;
 		
-		if(debugListener != null) debugListener.shifting(location, input);
+		if(debugListener != null) debugListener.shifting(location, input, positionStore);
 		
 		expand();
 		
@@ -1133,7 +1133,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					unmatchableMidProductionNodes.dirtyClear();
 					filteredNodes.dirtyClear();
 					
-					if(debugListener != null) debugListener.shifting(location, input);
+					if(debugListener != null) debugListener.shifting(location, input, positionStore);
 				}
 				
 				// Reduce-expand loop.
