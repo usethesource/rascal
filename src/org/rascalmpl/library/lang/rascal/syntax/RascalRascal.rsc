@@ -567,8 +567,8 @@ syntax Statement
 	| @breakable globalDirective: "global" Type type {QualifiedName ","}+ names ";" 
 	| @breakable assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
 	| non-assoc  ( 
-		          @breakable \return    : "return" Statement statement  
-		        | @breakable \throw     : "throw" Statement statement 
+		          @breakable \return    : "return" Statement!functionDeclaration!variableDeclaration statement  
+		        | @breakable \throw     : "throw" Statement!functionDeclaration!variableDeclaration statement 
 		        | @breakable \insert    : "insert" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 		        | @breakable \append    : "append" DataTarget dataTarget Statement!functionDeclaration!variableDeclaration statement 
 	            )
