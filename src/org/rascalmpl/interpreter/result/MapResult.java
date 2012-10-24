@@ -241,9 +241,23 @@ public class MapResult extends ElementResult<IMap> {
 		if (left.isEqual(right)) {
 			return makeIntegerResult(0);
 		}
-		if (left.isSubMap(left)) {
+		if (left.isSubMap(right)) {
 			return makeIntegerResult(-1);
 		}
+		if (right.isSubMap(left)) {
+			return makeIntegerResult(1);
+		}
+		
+		// so they are disjoint and incomparable, but we do need an ordering
+		if (left.size() < right.size()) {
+			return makeIntegerResult(-1);
+		}
+		else if (left.size() > right.size()) {
+			return makeIntegerResult(1);
+		}
+		
+		 // so they are the same size, now we convert to a set (TODO: implement this)
+		
 		return makeIntegerResult(1);
 	}
 	
