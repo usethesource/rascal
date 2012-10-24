@@ -283,9 +283,9 @@ public class RationalResult extends ElementResult<IRational> {
 	
 	@Override
 	protected <U extends IValue> Result<U> compareReal(RealResult that) {
-		// note: reversed arguments
-		return widenToReal().compare(that);
+		return that.compare(widenToReal());
 	}
+	
 	
 	@Override
 	protected <U extends IValue> Result<U> compareNumber(NumberResult that) {
@@ -389,8 +389,7 @@ public class RationalResult extends ElementResult<IRational> {
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanReal(RealResult that) {
-		// note reversed args: we need that > this
-		return that.greaterThan(widenToReal());
+		return widenToReal().greaterThan(this);
 	}
 	
 	@Override
