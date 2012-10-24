@@ -100,8 +100,7 @@ public class QuickCheck {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
 			} catch (Throwable e) {
-				out.println(formals.getArity() > 0 ? "failed with " + Arrays.toString(values) : "failed");
-				out.println(e.getMessage());
+				out.println(formals.getArity() > 0 ? "failed with " + Arrays.toString(values) : "failed, due to " + e.getMessage());
 				return false;
 			}
 
