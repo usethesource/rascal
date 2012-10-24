@@ -19,13 +19,15 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   todo = conds;
 
   solve(todo) {  
-    for (cond <- todo) {
+    for (cond <- todo, !(cond in done)) {
       todo -= {cond};
       
-      if (cond has symbol, keywords(name) := cond.symbol || meta(keywords(name)) := cond.symbol) {
-        if (name in names) continue;
+      if (cond has symbol, keywords(str name) := cond.symbol || meta(keywords(str name)) := cond.symbol) {
+        if (name in names) {
+          continue;
+        }
         names += {name};
-        todo += {cond[symbol=s] | choice(_, alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+        todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
       }
       else {
         done += cond;

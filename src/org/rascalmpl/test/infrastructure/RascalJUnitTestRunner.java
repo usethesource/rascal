@@ -10,7 +10,11 @@
 
 package org.rascalmpl.test.infrastructure;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+
+import junit.framework.TestFailure;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -21,6 +25,7 @@ import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -34,8 +39,8 @@ public class RascalJUnitTestRunner extends Runner {
 	private static ModuleEnvironment root;
 	private static PrintWriter stderr;
 	private static PrintWriter stdout;
-	private String module;
 	private Description desc;
+	private String prefix;
 
 	static{
 		heap = new GlobalEnvironment();
@@ -50,63 +55,93 @@ public class RascalJUnitTestRunner extends Runner {
 	}
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
-		this(clazz.getAnnotation(RascalModuleTest.class).value()[0]);
+		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
 	}
 	
-	public RascalJUnitTestRunner(String module) {
-		this.module = module;
-		evaluator.doImport(new NullRascalMonitor(), module);
+	public RascalJUnitTestRunner(String prefix) {
+		this.prefix = prefix;
 	}
 	
 	@Override
 	public Description getDescription() {
-		Description desc = Description.createSuiteDescription(module);
-		for (AbstractFunction f : heap.getModule(module).getTests()) {
-			desc.addChild(Description.createTestDescription(getClass(), f.getName()));
-		}
+		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
-		return desc;
+		
+		try {
+			String[] modules = evaluator.getResolverRegistry().listEntries(URI.create("rascal:///" + prefix.replaceAll("::", "/")));
+			
+			for (String module : modules) {
+				if (!module.endsWith(".rsc")) {
+					continue;
+				}
+				String name = prefix + "::" + module.replaceFirst(".rsc", "");
+				evaluator.doImport(new NullRascalMonitor(), name);
+				Description modDesc = Description.createSuiteDescription(name);
+				desc.addChild(modDesc);
+				
+				for (AbstractFunction f : heap.getModule(name).getTests()) {
+					modDesc.addChild(Description.createTestDescription(getClass(), f.getName()));
+				}
+			}
+			
+		
+			return desc;
+		} catch (IOException e) {
+			throw new RuntimeException("could not create test suite", e);
+		}
 	}
 
 	@Override
 	public void run(final RunNotifier notifier) {
-		notifier.fireTestRunStarted(Description.createTestDescription(getClass(), module));
-		evaluator.doImport(new NullRascalMonitor(), module);
+		notifier.fireTestRunStarted(desc);
 
-		evaluator.setTestResultListener(new ITestResultListener() {
-			int current = 0;
-			int count;
-			
-			@Override
-			public void start(int count) {
-				this.count = count;
-				
-				notifier.fireTestRunStarted(desc);
-				if (current < count) {
-				  notifier.fireTestStarted(desc.getChildren().get(current));
-				}
-			}
-			
-			@Override
-			public void report(boolean successful, String test, ISourceLocation loc,
-					String message) {
-				if (!successful) {
-					notifier.fireTestFailure(new Failure(desc.getChildren().get(current), new Exception(message)));
-				}
-				
-				notifier.fireTestFinished(desc.getChildren().get(current));
-				current++;
-				if (current < count) {
-					notifier.fireTestStarted(desc.getChildren().get(current));
-				}
-			}
-			
-			@Override
-			public void done() {
-				notifier.fireTestRunFinished(new Result());
-			}
-		});
+		for (Description mod : desc.getChildren()) {
+			TestEvaluator runner = new TestEvaluator(evaluator, new Listener(notifier, mod));
+			runner.test(mod.getDisplayName());
+		}
 		
-		evaluator.runTests(new NullRascalMonitor());
+		notifier.fireTestRunFinished(new Result());
+	}
+
+	private final class Listener implements ITestResultListener {
+		private final RunNotifier notifier;
+		private final Description module;
+		private int current = 0;
+		private int count = 0;
+	
+		private Listener(RunNotifier notifier, Description module) {
+			this.notifier = notifier;
+			this.module = module;
+		}
+	
+		@Override
+		public void start(int count) {
+			this.current = 0;
+			this.count = count;
+	
+			if (current < count) {
+				notifier.fireTestStarted(module.getChildren().get(current));
+			}
+		}
+	
+		@Override
+		public void report(boolean successful, String test, ISourceLocation loc,
+				String message) {
+			if (!successful) {
+				notifier.fireTestFailure(new Failure(module.getChildren().get(current), new Exception(loc + " : " + message)));
+			}
+			else {
+				notifier.fireTestFinished(module.getChildren().get(current));
+			}
+			
+			current++;
+			if (current < count) {
+				notifier.fireTestStarted(module.getChildren().get(current));
+			}
+		}
+	
+		@Override
+		public void done() {
+		}
 	}
 }

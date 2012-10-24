@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.cobra;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -181,7 +183,25 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitDateTime(Type type) {
-		return vf.datetime(stRandom.nextLong());
+		Calendar cal = Calendar.getInstance();
+		int milliOffset = stRandom.nextInt(1000) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.MILLISECOND, milliOffset);
+		int second = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.SECOND, second);
+		int minute = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.MINUTE, minute);
+		int hour = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.HOUR_OF_DAY, hour);
+		int day = stRandom.nextInt(30) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.DAY_OF_MONTH, day);
+		int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.roll(Calendar.MONTH, month);
+		
+		// make sure we do not go over the 4 digit year limit, which breaks things
+		int year = stRandom.nextInt(5000) * (stRandom.nextBoolean() ? -1 : 1);
+		cal.add(Calendar.YEAR, year);
+		
+		return vf.datetime(cal.getTimeInMillis());
 	}
 
 	@Override
@@ -236,8 +256,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue> {
 
 	@Override
 	public IValue visitNode(Type type) {
-		throw new Throw(vf.string("Can't handle Node."),
-				(ISourceLocation) null, null);
+		ITuple tup = (ITuple) visitTuple(type);
+		IValue[] args = new IValue[tup.arity()];
+		for (int i = 0; i < tup.arity(); i++) {
+			args[i] = tup.get(i);
+		}
+		IString str = (IString) visitString(type);
+		return vf.node(str.getValue(), args);
 	}
 
 	@Override
