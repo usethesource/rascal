@@ -166,6 +166,8 @@ public class Recoverer implements IRecoverer<IConstructor>{
 			IConstructor parentProduction = node.getParentProduction();
 			if(isRobust(parentProduction)){
 				productions.add(parentProduction);
+				
+				if(ProductionAdapter.isList(parentProduction)) return; // Don't follow productions in lists productions, since they are 'cyclic'.
 			}
 		}
 		 
