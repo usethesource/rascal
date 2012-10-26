@@ -229,7 +229,7 @@ syntax Expression
 	       | remainder: Expression lhs "%" Expression rhs
 		   | division: Expression lhs "/" Expression rhs 
 	     )
-	> left intersection: Expression lhs "&" Expression rhs 
+	> left intersection: Expression lhs "&" !>> "&" Expression rhs 
 	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
 		   | subtraction: Expression!transitiveClosure!transitiveReflexiveClosure lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
