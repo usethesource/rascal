@@ -479,7 +479,7 @@ public abstract class AbstractStackNode<P>{
 			}
 			
 			if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
-				addPrefix(new Link(null, predecessorResult), edgesMap.size());
+				addPrefix(new Link(null, predecessorResult), edgesMapSize);
 				edgesMap.add(edgesMapToAdd.getKey(0), edgesMapToAdd.getValue(0));
 			}else{ // The predecessor has prefixes.
 				for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
@@ -550,7 +550,71 @@ public abstract class AbstractStackNode<P>{
 	/**
 	 * This method is a specialized version of 'updateNode'.
 	 * 
-	 * Specifically, this is a part of the hidden-right-recursion fix.
+	 * Specifically, this is a part of the hidden-right-recursion fix
+	 * (for non-nullable predecessor nodes).
+	 * 
+	 * It merges stacks and keeps track of which ones get merged
+	 * (the returned number indicated how many edge sets were added and
+	 * may need to be propagated forward).
+	 */
+	@SuppressWarnings("unchecked")
+	public int updateOvertakenNode(AbstractStackNode<P> predecessor, AbstractNode result){
+		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
+		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
+		
+		// Initialize the prefixes map.
+		int edgesMapSize = edgesMap.size();
+		int possibleMaxSize = edgesMapSize + edgesMapSize;
+		if(prefixesMap == null){
+			prefixesMap = new ArrayList[possibleMaxSize];
+		}else{
+			if(prefixesMap.length < possibleMaxSize){
+				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
+				prefixesMap = new ArrayList[possibleMaxSize];
+				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+			}
+		}
+		
+		int nrOfAddedEdges = 0;
+		if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
+			// Prefix not present, add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
+			addPrefix(new Link(null, result), edgesMapSize);
+			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
+			nrOfAddedEdges = 1;
+		}else{ // The predecessor has prefixes.
+			int fromIndex = edgesMapToAdd.size() - edgesMapSize;
+			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
+				int startLocation = edgesMapToAdd.getKey(i);
+				
+				// Prefix not present, add it.
+				int index = edgesMap.findKey(startLocation);
+				ArrayList<Link> prefixes;
+				if(index == -1){ // No prefix set for the given start location is present yet.
+					index = edgesMap.size();
+					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
+					
+					prefixes = new ArrayList<Link>(1);
+					prefixesMap[index] = prefixes;
+					
+					++nrOfAddedEdges;
+				}else{ // A prefix set for the given start location is present.
+					prefixes = prefixesMap[index];
+				}
+				
+				// Add the prefix to the prefix set.
+				prefixes.add(new Link(prefixesMapToAdd[i], result));
+			}
+		}
+		
+		return nrOfAddedEdges;
+	}
+	
+	/**
+	 * This method is a specialized version of 'updateNode'.
+	 * 
+	 * Specifically, this is a part of the hidden-right-recursion fix
+	 * (for nullable predecessor nodes).
+	 * 
 	 * It merges stacks and keeps track of which ones get merged
 	 * (the returned number indicated how many edge sets were added and
 	 * may need to be propagated forward).
@@ -558,7 +622,7 @@ public abstract class AbstractStackNode<P>{
 	 * of the parser's implementation.
 	 */
 	@SuppressWarnings("unchecked")
-	public int updateOvertakenNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
+	public int updateOvertakenNullableNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
 		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
@@ -581,7 +645,7 @@ public abstract class AbstractStackNode<P>{
 			if(touched.contains(startLocation)) return 0; // Prefix present, abort.
 			
 			// Prefix not present, add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
-			addPrefix(new Link(null, result), edgesMap.size());
+			addPrefix(new Link(null, result), edgesMapSize);
 			edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
 			touched.add(startLocation);
 			nrOfAddedEdges = 1;

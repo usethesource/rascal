@@ -168,7 +168,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
 						// Encountered a stack 'overtake'.
-						propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult(), node.getEdges().size());
+						if(node.getStartLocation() != location){
+							propagateEdgesAndPrefixes(node, result, alternative, alternative.getResult());
+						}else{
+							propagateEdgesAndPrefixesForNullable(node, result, alternative, alternative.getResult(), node.getEdges().size());
+						}
 						return alternative;
 					}
 				}else{
@@ -177,7 +181,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						int resultStoreId = getResultStoreId(alternative.getId());
 						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 							// Encountered a stack 'overtake'.
-							propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
+							if(node.getStartLocation() != location){
+								propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
+							}else{
+								propagateEdgesAndPrefixesForNullable(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
+							}
 							return alternative;
 						}
 					}
@@ -368,7 +376,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				nextNextAlternative = nextNextAlternativeEntry.value1;
 				if(nextNextAlternative.isMatchable()){
 					if(nextNextAlternative.isEmptyLeafNode()){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
+						propagateEdgesAndPrefixesForNullable(next, nextResult, nextNextAlternative, nextNextAlternative.getResult(), nrOfAddedEdges);
 					}else{
 						nextNextAlternative.updateNode(next, nextResult);
 						
@@ -378,7 +386,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					EdgesSet<P> nextNextAlternativeEdgesSet = nextNextAlternative.getIncomingEdges();
 					int resultStoreId = getResultStoreId(nextNextAlternative.getId());
 					if(nextNextAlternativeEdgesSet != null && nextNextAlternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
-						propagateEdgesAndPrefixes(next, nextResult, nextNextAlternative, nextNextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges);
+						propagateEdgesAndPrefixesForNullable(next, nextResult, nextNextAlternative, nextNextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges);
 					}else{
 						nextNextAlternative.updateNode(next, nextResult);
 						
@@ -446,14 +454,34 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Part of the hidden-right-recursion fix.
 	 * Inserts missing prefixes and triggers reductions where necessary.
 	 */
-	private void propagateEdgesAndPrefixes(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult, int potentialNewEdges){
+	private void propagateEdgesAndPrefixes(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult){
+		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult);
+
+		if(debugListener != null) debugListener.propagated(node, nodeResult, next);
+		
+		if(nrOfAddedEdges == 0) return;
+		
+		if(next.isEndNode()){
+			propagateReductions(node, nodeResult, next, nextResult, nrOfAddedEdges);
+		}
+		
+		if(next.hasNext()){
+			propagatePrefixes(next, nextResult, nrOfAddedEdges);
+		}
+	}
+	
+	/**
+	 * Part of the hidden-right-recursion fix.
+	 * Inserts missing prefixes and triggers reductions where necessary (specific for nullable nodes).
+	 */
+	private void propagateEdgesAndPrefixesForNullable(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult, int potentialNewEdges){
 		IntegerList touched = propagatedPrefixes.findValue(node.getId());
 		if(touched == null){
 			touched = new IntegerList();
 			propagatedPrefixes.add(node.getId(), touched);
 		}
 		
-		int nrOfAddedEdges = next.updateOvertakenNode(node, nodeResult, potentialNewEdges, touched);
+		int nrOfAddedEdges = next.updateOvertakenNullableNode(node, nodeResult, potentialNewEdges, touched);
 
 		if(debugListener != null) debugListener.propagated(node, nodeResult, next);
 		
