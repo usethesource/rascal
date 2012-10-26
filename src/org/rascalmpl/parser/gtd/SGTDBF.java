@@ -330,7 +330,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		for(int i = edgesMap.size() - 1; i >= fromIndex; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
+			// We know we haven't been here before.
 			touched.add(startLocation);
 			
 			ArrayList<Link> edgePrefixes = new ArrayList<Link>();
@@ -529,6 +529,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			touched = new IntegerList();
 			propagatedReductions.add(node.getId(), touched);
 		}
+		int initialSize = touched.size();
 		
 		IntegerObjectList<EdgesSet<P>> edgesMap = node.getEdges();
 		ArrayList<Link>[] prefixesMap = node.getPrefixesMap();
@@ -546,7 +547,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		for(int i = edgesMap.size() - 1; i >= 0; --i){
 			int startLocation = edgesMap.getKey(i);
 			
-			if(touched.contains(startLocation)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
+			if(touched.containsBefore(startLocation, initialSize)) continue; // Prevent duplicate reductions (artifact of the hidden-right-recursion fix).
 			touched.add(startLocation);
 			
 			Link resultLink = new Link((prefixesMap != null) ? prefixesMap[i] : null, result);
