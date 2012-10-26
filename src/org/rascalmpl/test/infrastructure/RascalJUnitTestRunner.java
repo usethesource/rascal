@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import junit.framework.TestFailure;
-
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;

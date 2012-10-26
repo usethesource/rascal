@@ -10,8 +10,6 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
