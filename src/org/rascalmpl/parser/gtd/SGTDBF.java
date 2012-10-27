@@ -611,6 +611,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			
 			stacksWithNonTerminalsToReduce.push(edge, resultStore);
 			
+			if(debugListener != null) debugListener.reduced(edge);
+			
 			for(int j = edgeSet.size() - 1; j >= 1; --j){
 				edge = edgeSet.get(j);
 				stacksWithNonTerminalsToReduce.push(edge, resultStore);
