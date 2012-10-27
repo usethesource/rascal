@@ -88,7 +88,7 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 		out.println(String.format("Expanding: %s", node));
 		
 		if(verbose){
-			out.println("Part of the following production(s):");
+			out.println("\tPart of the following production(s):");
 			printProductions(node, true);
 		}
 	}
@@ -105,7 +105,7 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 		out.println(String.format("Moving: %s", node));
 		
 		if(verbose){
-			out.println("Part of the following production(s):");
+			out.println("\tPart of the following production(s):");
 			printProductions(node, true);
 		}
 	}
@@ -114,7 +114,7 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 		out.println(String.format("Progressed: %s to %s", node, next));
 		
 		if(verbose){
-			out.println("Part of the following production(s):");
+			out.println("\tPart of the following production(s):");
 			printProductions(next, true);
 		}
 	}
@@ -123,7 +123,7 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 		out.println(String.format("Propagated prefixes from %s to %s", node, next));
 		
 		if(verbose){
-			out.println("Part of the following production(s):");
+			out.println("\tPart of the following production(s):");
 			printProductions(next, true);
 		}
 	}
@@ -134,6 +134,11 @@ public class DebugLogger implements IDebugListener<IConstructor>{
 
 	public void reduced(AbstractStackNode<IConstructor> parent){
 		out.println(String.format("Reduced to: %s", parent));
+		
+		if(verbose){
+			out.println(String.format("\tPart of the following production(s) (Dot position: %d):", parent.getDot()));
+			printProductions(parent, true);
+		}
 	}
 
 	public void filteredByNestingRestriction(AbstractStackNode<IConstructor> parent){
