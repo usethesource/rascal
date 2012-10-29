@@ -475,10 +475,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Inserts missing prefixes and triggers reductions where necessary (specific for nullable nodes).
 	 */
 	private void propagateEdgesAndPrefixesForNullable(AbstractStackNode<P> node, AbstractNode nodeResult, AbstractStackNode<P> next, AbstractNode nextResult, int potentialNewEdges){
-		IntegerList touched = propagatedPrefixes.findValue(node.getId());
+		IntegerList touched = propagatedPrefixes.findValue(next.getId());
 		if(touched == null){
 			touched = new IntegerList();
-			propagatedPrefixes.add(node.getId(), touched);
+			propagatedPrefixes.add(next.getId(), touched);
 		}
 		
 		int nrOfAddedEdges = next.updateOvertakenNullableNode(node, nodeResult, potentialNewEdges, touched);

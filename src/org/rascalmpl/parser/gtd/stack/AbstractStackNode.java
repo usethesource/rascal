@@ -577,7 +577,6 @@ public abstract class AbstractStackNode<P>{
 		
 		int nrOfAddedEdges = 0;
 		if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
-			// Prefix not present, add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
 			addPrefix(new Link(null, result), edgesMapSize);
 			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
@@ -641,13 +640,9 @@ public abstract class AbstractStackNode<P>{
 		
 		int nrOfAddedEdges = 0;
 		if(prefixesMapToAdd == null){ // The predecessor was the first node in the alternative, so the prefix of this node is just the predecessor's result.
-			int startLocation = predecessor.getStartLocation();
-			if(touched.contains(startLocation)) return 0; // Prefix present, abort.
-			
-			// Prefix not present, add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
+			// A prefix is not yet present, so add it. As it's the first and only possible nullable prefix, it's guaranteed that there aren't any prefixes for the current start location present yet.
 			addPrefix(new Link(null, result), edgesMapSize);
-			edgesMap.add(startLocation, edgesMapToAdd.getValue(0));
-			touched.add(startLocation);
+			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
 			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
