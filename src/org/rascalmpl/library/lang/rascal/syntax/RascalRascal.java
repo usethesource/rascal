@@ -1110,7 +1110,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6956, -7023);
     
-    _putDontNest(result, -6956, -6318);
+    _putDontNest(result, -6956, -6342);
     
     _putDontNest(result, -6956, -6307);
     
@@ -2080,7 +2080,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6676, -6823);
     
-    _putDontNest(result, -6676, -6318);
+    _putDontNest(result, -6676, -6342);
     
     _putDontNest(result, -6676, -6307);
     
@@ -2150,7 +2150,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6651, -6805);
     
-    _putDontNest(result, -6651, -6318);
+    _putDontNest(result, -6651, -6342);
     
     _putDontNest(result, -6651, -6307);
     
@@ -2282,69 +2282,69 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6553, -6823);
     
-    _putDontNest(result, -6521, -7286);
+    _putDontNest(result, -6533, -7286);
     
-    _putDontNest(result, -6521, -7264);
+    _putDontNest(result, -6533, -7264);
     
-    _putDontNest(result, -6521, -7250);
+    _putDontNest(result, -6533, -7250);
     
-    _putDontNest(result, -6521, -7236);
+    _putDontNest(result, -6533, -7236);
     
-    _putDontNest(result, -6521, -7222);
+    _putDontNest(result, -6533, -7222);
     
-    _putDontNest(result, -6521, -7205);
+    _putDontNest(result, -6533, -7205);
     
-    _putDontNest(result, -6521, -7191);
+    _putDontNest(result, -6533, -7191);
     
-    _putDontNest(result, -6521, -7177);
+    _putDontNest(result, -6533, -7177);
     
-    _putDontNest(result, -6521, -7160);
+    _putDontNest(result, -6533, -7160);
     
-    _putDontNest(result, -6521, -7146);
+    _putDontNest(result, -6533, -7146);
     
-    _putDontNest(result, -6521, -7132);
+    _putDontNest(result, -6533, -7132);
     
-    _putDontNest(result, -6521, -7115);
+    _putDontNest(result, -6533, -7115);
     
-    _putDontNest(result, -6521, -7101);
+    _putDontNest(result, -6533, -7101);
     
-    _putDontNest(result, -6521, -7085);
+    _putDontNest(result, -6533, -7085);
     
-    _putDontNest(result, -6521, -7071);
+    _putDontNest(result, -6533, -7071);
     
-    _putDontNest(result, -6521, -7054);
+    _putDontNest(result, -6533, -7054);
     
-    _putDontNest(result, -6521, -7040);
+    _putDontNest(result, -6533, -7040);
     
-    _putDontNest(result, -6521, -7023);
+    _putDontNest(result, -6533, -7023);
     
-    _putDontNest(result, -6521, -7009);
+    _putDontNest(result, -6533, -7009);
     
-    _putDontNest(result, -6521, -6995);
+    _putDontNest(result, -6533, -6995);
     
-    _putDontNest(result, -6521, -6979);
+    _putDontNest(result, -6533, -6979);
     
-    _putDontNest(result, -6521, -6964);
+    _putDontNest(result, -6533, -6964);
     
-    _putDontNest(result, -6521, -6946);
+    _putDontNest(result, -6533, -6946);
     
-    _putDontNest(result, -6521, -6930);
+    _putDontNest(result, -6533, -6930);
     
-    _putDontNest(result, -6521, -6910);
+    _putDontNest(result, -6533, -6910);
     
-    _putDontNest(result, -6521, -6896);
+    _putDontNest(result, -6533, -6896);
     
-    _putDontNest(result, -6521, -6882);
+    _putDontNest(result, -6533, -6882);
     
-    _putDontNest(result, -6521, -6865);
+    _putDontNest(result, -6533, -6865);
     
-    _putDontNest(result, -6521, -6851);
+    _putDontNest(result, -6533, -6851);
     
-    _putDontNest(result, -6521, -6842);
+    _putDontNest(result, -6533, -6842);
     
-    _putDontNest(result, -6521, -6833);
+    _putDontNest(result, -6533, -6833);
     
-    _putDontNest(result, -6521, -6823);
+    _putDontNest(result, -6533, -6823);
     
     _putDontNest(result, -6496, -7286);
     
@@ -2474,137 +2474,139 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -6482, -6823);
     
-    _putDontNest(result, -6453, -7286);
+    _putDontNest(result, -6336, -7286);
     
-    _putDontNest(result, -6453, -7264);
+    _putDontNest(result, -6336, -7264);
     
-    _putDontNest(result, -6453, -7250);
+    _putDontNest(result, -6336, -7250);
     
-    _putDontNest(result, -6453, -7236);
+    _putDontNest(result, -6336, -7236);
     
-    _putDontNest(result, -6453, -7222);
+    _putDontNest(result, -6336, -7222);
     
-    _putDontNest(result, -6453, -7205);
+    _putDontNest(result, -6336, -7205);
     
-    _putDontNest(result, -6453, -7191);
+    _putDontNest(result, -6336, -7191);
     
-    _putDontNest(result, -6453, -7177);
+    _putDontNest(result, -6336, -7177);
     
-    _putDontNest(result, -6453, -7160);
+    _putDontNest(result, -6336, -7160);
     
-    _putDontNest(result, -6453, -7146);
+    _putDontNest(result, -6336, -7146);
     
-    _putDontNest(result, -6453, -7132);
+    _putDontNest(result, -6336, -7132);
     
-    _putDontNest(result, -6453, -7115);
+    _putDontNest(result, -6336, -7115);
     
-    _putDontNest(result, -6453, -7101);
+    _putDontNest(result, -6336, -7101);
     
-    _putDontNest(result, -6453, -7085);
+    _putDontNest(result, -6336, -7085);
     
-    _putDontNest(result, -6453, -7071);
+    _putDontNest(result, -6336, -7071);
     
-    _putDontNest(result, -6453, -7054);
+    _putDontNest(result, -6336, -7054);
     
-    _putDontNest(result, -6453, -7040);
+    _putDontNest(result, -6336, -7040);
     
-    _putDontNest(result, -6453, -7023);
+    _putDontNest(result, -6336, -7023);
     
-    _putDontNest(result, -6453, -7009);
+    _putDontNest(result, -6336, -7009);
     
-    _putDontNest(result, -6453, -6995);
+    _putDontNest(result, -6336, -6995);
     
-    _putDontNest(result, -6453, -6979);
+    _putDontNest(result, -6336, -6979);
     
-    _putDontNest(result, -6453, -6964);
+    _putDontNest(result, -6336, -6964);
     
-    _putDontNest(result, -6453, -6946);
+    _putDontNest(result, -6336, -6946);
     
-    _putDontNest(result, -6453, -6930);
+    _putDontNest(result, -6336, -6930);
     
-    _putDontNest(result, -6453, -6910);
+    _putDontNest(result, -6336, -6910);
     
-    _putDontNest(result, -6453, -6896);
+    _putDontNest(result, -6336, -6896);
     
-    _putDontNest(result, -6453, -6882);
+    _putDontNest(result, -6336, -6882);
     
-    _putDontNest(result, -6453, -6865);
+    _putDontNest(result, -6336, -6865);
     
-    _putDontNest(result, -6453, -6851);
+    _putDontNest(result, -6336, -6851);
     
-    _putDontNest(result, -6453, -6842);
+    _putDontNest(result, -6336, -6842);
     
-    _putDontNest(result, -6453, -6833);
+    _putDontNest(result, -6336, -6833);
     
-    _putDontNest(result, -6453, -6823);
+    _putDontNest(result, -6336, -6823);
     
-    _putDontNest(result, -6453, -6318);
+    _putDontNest(result, -6314, -7286);
     
-    _putDontNest(result, -6453, -6307);
+    _putDontNest(result, -6314, -7264);
     
-    _putDontNest(result, -6312, -7286);
+    _putDontNest(result, -6314, -7250);
     
-    _putDontNest(result, -6312, -7264);
+    _putDontNest(result, -6314, -7236);
     
-    _putDontNest(result, -6312, -7250);
+    _putDontNest(result, -6314, -7222);
     
-    _putDontNest(result, -6312, -7236);
+    _putDontNest(result, -6314, -7205);
     
-    _putDontNest(result, -6312, -7222);
+    _putDontNest(result, -6314, -7191);
     
-    _putDontNest(result, -6312, -7205);
+    _putDontNest(result, -6314, -7177);
     
-    _putDontNest(result, -6312, -7191);
+    _putDontNest(result, -6314, -7160);
     
-    _putDontNest(result, -6312, -7177);
+    _putDontNest(result, -6314, -7146);
     
-    _putDontNest(result, -6312, -7160);
+    _putDontNest(result, -6314, -7132);
     
-    _putDontNest(result, -6312, -7146);
+    _putDontNest(result, -6314, -7115);
     
-    _putDontNest(result, -6312, -7132);
+    _putDontNest(result, -6314, -7101);
     
-    _putDontNest(result, -6312, -7115);
+    _putDontNest(result, -6314, -7085);
     
-    _putDontNest(result, -6312, -7101);
+    _putDontNest(result, -6314, -7071);
     
-    _putDontNest(result, -6312, -7085);
+    _putDontNest(result, -6314, -7054);
     
-    _putDontNest(result, -6312, -7071);
+    _putDontNest(result, -6314, -7040);
     
-    _putDontNest(result, -6312, -7054);
+    _putDontNest(result, -6314, -7023);
     
-    _putDontNest(result, -6312, -7040);
+    _putDontNest(result, -6314, -7009);
     
-    _putDontNest(result, -6312, -7023);
+    _putDontNest(result, -6314, -6995);
     
-    _putDontNest(result, -6312, -7009);
+    _putDontNest(result, -6314, -6979);
     
-    _putDontNest(result, -6312, -6995);
+    _putDontNest(result, -6314, -6964);
     
-    _putDontNest(result, -6312, -6979);
+    _putDontNest(result, -6314, -6946);
     
-    _putDontNest(result, -6312, -6964);
+    _putDontNest(result, -6314, -6930);
     
-    _putDontNest(result, -6312, -6946);
+    _putDontNest(result, -6314, -6910);
     
-    _putDontNest(result, -6312, -6930);
+    _putDontNest(result, -6314, -6896);
     
-    _putDontNest(result, -6312, -6910);
+    _putDontNest(result, -6314, -6882);
     
-    _putDontNest(result, -6312, -6896);
+    _putDontNest(result, -6314, -6865);
     
-    _putDontNest(result, -6312, -6882);
+    _putDontNest(result, -6314, -6851);
     
-    _putDontNest(result, -6312, -6865);
+    _putDontNest(result, -6314, -6842);
     
-    _putDontNest(result, -6312, -6851);
+    _putDontNest(result, -6314, -6833);
     
-    _putDontNest(result, -6312, -6842);
+    _putDontNest(result, -6314, -6823);
     
-    _putDontNest(result, -6312, -6833);
+    _putDontNest(result, -6314, -6805);
     
-    _putDontNest(result, -6312, -6823);
+    _putDontNest(result, -6314, -6342);
+    
+    _putDontNest(result, -6314, -6307);
     
     _putDontNest(result, -6301, -7286);
     
@@ -2696,7 +2698,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     _putDontNest(result, -1738, -6645);
     
-    _putDontNest(result, -1738, -6358);
+    _putDontNest(result, -1738, -6382);
     
     _putDontNest(result, -1688, -1611);
     
@@ -2821,37 +2823,44 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
     ++resultStoreId;
     
-    result.putUnsafe(-7869, resultStoreId);
-    result.putUnsafe(-7847, resultStoreId);
-    result.putUnsafe(-7833, resultStoreId);
+    result.putUnsafe(-2094, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-3799, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-6796, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7270, resultStoreId);
     result.putUnsafe(-7256, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-3799, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-2094, resultStoreId);
+    result.putUnsafe(-467, resultStoreId);
+    result.putUnsafe(-443, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-1143, resultStoreId);
     result.putUnsafe(-1119, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-6796, resultStoreId);
+    result.putUnsafe(-7869, resultStoreId);
+    result.putUnsafe(-7847, resultStoreId);
+    result.putUnsafe(-7833, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-467, resultStoreId);
-    result.putUnsafe(-443, resultStoreId);
+    result.putUnsafe(-451, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-1738, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7264, resultStoreId);
     result.putUnsafe(-7242, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-1738, resultStoreId);
+    result.putUnsafe(-1127, resultStoreId);
+    result.putUnsafe(-1105, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-1829, resultStoreId);
@@ -2862,11 +2871,19 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-1369, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-1127, resultStoreId);
-    result.putUnsafe(-1105, resultStoreId);
+    result.putUnsafe(-7250, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-451, resultStoreId);
+    result.putUnsafe(-1113, resultStoreId);
+    result.putUnsafe(-1099, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-7819, resultStoreId);
+    result.putUnsafe(-7805, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-5780, resultStoreId);
+    result.putUnsafe(-2087, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7855, resultStoreId);
@@ -2875,22 +2892,16 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-7813, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-7819, resultStoreId);
-    result.putUnsafe(-7805, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-7250, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-5780, resultStoreId);
-    result.putUnsafe(-2087, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-1113, resultStoreId);
-    result.putUnsafe(-1099, resultStoreId);
-    ++resultStoreId;
-    
     result.putUnsafe(-1022, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-175, resultStoreId);
+    ++resultStoreId;
+    
+    result.putUnsafe(-7236, resultStoreId);
+    result.putUnsafe(-7228, resultStoreId);
+    result.putUnsafe(-7222, resultStoreId);
+    result.putUnsafe(-7214, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7791, resultStoreId);
@@ -2903,15 +2914,6 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-7557, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-7236, resultStoreId);
-    result.putUnsafe(-7228, resultStoreId);
-    result.putUnsafe(-7222, resultStoreId);
-    result.putUnsafe(-7214, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-175, resultStoreId);
-    ++resultStoreId;
-    
     result.putUnsafe(-7160, resultStoreId);
     ++resultStoreId;
     
@@ -2921,13 +2923,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-1545, resultStoreId);
     ++resultStoreId;
     
+    result.putUnsafe(-7146, resultStoreId);
+    result.putUnsafe(-7132, resultStoreId);
+    ++resultStoreId;
+    
     result.putUnsafe(-7205, resultStoreId);
     result.putUnsafe(-7191, resultStoreId);
     result.putUnsafe(-7177, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-7146, resultStoreId);
-    result.putUnsafe(-7132, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7152, resultStoreId);
@@ -2947,13 +2949,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-7040, resultStoreId);
     ++resultStoreId;
     
+    result.putUnsafe(-7023, resultStoreId);
+    ++resultStoreId;
+    
     result.putUnsafe(-7107, resultStoreId);
     result.putUnsafe(-7091, resultStoreId);
     result.putUnsafe(-7077, resultStoreId);
     result.putUnsafe(-7063, resultStoreId);
-    ++resultStoreId;
-    
-    result.putUnsafe(-7023, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-7046, resultStoreId);
@@ -2971,10 +2973,10 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-6964, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-6946, resultStoreId);
+    result.putUnsafe(-6956, resultStoreId);
     ++resultStoreId;
     
-    result.putUnsafe(-6956, resultStoreId);
+    result.putUnsafe(-6946, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-6979, resultStoreId);
@@ -3013,18 +3015,18 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     result.putUnsafe(-6762, resultStoreId);
     result.putUnsafe(-6587, resultStoreId);
     result.putUnsafe(-6553, resultStoreId);
-    result.putUnsafe(-6521, resultStoreId);
+    result.putUnsafe(-6533, resultStoreId);
     result.putUnsafe(-6496, resultStoreId);
     result.putUnsafe(-6482, resultStoreId);
-    result.putUnsafe(-6312, resultStoreId);
+    result.putUnsafe(-6336, resultStoreId);
     result.putUnsafe(-6301, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-6676, resultStoreId);
-    result.putUnsafe(-6453, resultStoreId);
     ++resultStoreId;
     
     result.putUnsafe(-6651, resultStoreId);
+    result.putUnsafe(-6314, resultStoreId);
       
     return result;
   }
@@ -3355,7 +3357,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   private static final IConstructor prod__string_$Literal__stringLiteral_$StringLiteral_ = (IConstructor) _read("prod(label(\"string\",sort(\"Literal\")),[label(\"stringLiteral\",sort(\"StringLiteral\"))],{})", Factory.Production);
   private static final IConstructor prod__structured_$Type__structured_$StructuredType_ = (IConstructor) _read("prod(label(\"structured\",sort(\"Type\")),[label(\"structured\",sort(\"StructuredType\"))],{})", Factory.Production);
   private static final IConstructor prod__subscript_$Assignable__receiver_$Assignable_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscript_$Expression_$layouts_LAYOUTLIST_lit___93_ = (IConstructor) _read("prod(label(\"subscript\",sort(\"Assignable\")),[label(\"receiver\",sort(\"Assignable\")),layouts(\"LAYOUTLIST\"),lit(\"[\"),layouts(\"LAYOUTLIST\"),label(\"subscript\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\"]\")],{})", Factory.Production);
-  private static final IConstructor prod__subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = (IConstructor) _read("prod(label(\"subscript\",sort(\"Expression\")),[conditional(label(\"expression\",sort(\"Expression\")),{except(\"transitiveReflexiveClosure\"),except(\"transitiveClosure\")}),layouts(\"LAYOUTLIST\"),lit(\"[\"),layouts(\"LAYOUTLIST\"),label(\"subscripts\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"]\")],{})", Factory.Production);
+  private static final IConstructor prod__subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_ = (IConstructor) _read("prod(label(\"subscript\",sort(\"Expression\")),[conditional(label(\"expression\",sort(\"Expression\")),{except(\"transitiveReflexiveClosure\"),except(\"transitiveClosure\"),except(\"isDefined\")}),layouts(\"LAYOUTLIST\"),lit(\"[\"),layouts(\"LAYOUTLIST\"),label(\"subscripts\",\\iter-seps(sort(\"Expression\"),[layouts(\"LAYOUTLIST\"),lit(\",\"),layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"]\")],{})", Factory.Production);
   private static final IConstructor prod__subtraction_$Assignment__lit___45_61_ = (IConstructor) _read("prod(label(\"subtraction\",sort(\"Assignment\")),[lit(\"-=\")],{})", Factory.Production);
   private static final IConstructor prod__subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left = (IConstructor) _read("prod(label(\"subtraction\",sort(\"Expression\")),[label(\"lhs\",conditional(sort(\"Expression\"),{except(\"transitiveReflexiveClosure\"),except(\"transitiveClosure\")})),layouts(\"LAYOUTLIST\"),lit(\"-\"),layouts(\"LAYOUTLIST\"),label(\"rhs\",sort(\"Expression\"))],{assoc(left())})", Factory.Production);
   private static final IConstructor prod__switch_$Statement__label_$Label_$layouts_LAYOUTLIST_lit_switch_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_cases_iter_seps__$Case__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125__tag__breakable = (IConstructor) _read("prod(label(\"switch\",sort(\"Statement\")),[label(\"label\",sort(\"Label\")),layouts(\"LAYOUTLIST\"),lit(\"switch\"),layouts(\"LAYOUTLIST\"),lit(\"(\"),layouts(\"LAYOUTLIST\"),label(\"expression\",sort(\"Expression\")),layouts(\"LAYOUTLIST\"),lit(\")\"),layouts(\"LAYOUTLIST\"),lit(\"{\"),layouts(\"LAYOUTLIST\"),label(\"cases\",\\iter-seps(sort(\"Case\"),[layouts(\"LAYOUTLIST\")])),layouts(\"LAYOUTLIST\"),lit(\"}\")],{tag(breakable())})", Factory.Production);
@@ -6911,13 +6913,13 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__all_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-6398, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-6397, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-6394, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6388, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6390, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6391, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6393, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6386, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-6384, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6383, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-6381, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-6422, 6, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-6421, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-6418, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6412, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6414, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6415, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6417, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6410, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-6408, 2, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6407, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-6405, 0, prod__lit_all__char_class___range__97_97_char_class___range__108_108_char_class___range__108_108_, new int[] {97,108,108}, null, null);
       builder.addAlternative(RascalRascal.prod__all_$Expression__lit_all_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_generators_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_, tmp);
 	}
     protected static final void _init_prod__and_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___38_38_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
@@ -6967,11 +6969,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-6542, 4, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6541, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-6538, 2, "$Expression", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6536, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-6534, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-6528, 4, prod__lit___41__char_class___range__41_41_, new int[] {41}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6527, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-6524, 2, "$Expression", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6522, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-6520, 0, prod__lit___40__char_class___range__40_40_, new int[] {40}, null, null);
       builder.addAlternative(RascalRascal.prod__bracket_$Expression__lit___40_$layouts_LAYOUTLIST_expression_$Expression_$layouts_LAYOUTLIST_lit___41__bracket, tmp);
 	}
     protected static final void _init_prod__callOrTree_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___40_$layouts_LAYOUTLIST_arguments_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
@@ -7013,7 +7015,7 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__comprehension_$Expression__comprehension_$Comprehension_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6347, 0, "$Comprehension", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6371, 0, "$Comprehension", null, null);
       builder.addAlternative(RascalRascal.prod__comprehension_$Expression__comprehension_$Comprehension_, tmp);
 	}
     protected static final void _init_prod__division_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___47_$layouts_LAYOUTLIST_rhs_$Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
@@ -7059,11 +7061,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__fieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new NonTerminalStackNode<IConstructor>(-6529, 4, "$Name", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6527, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-6525, 2, prod__lit___46__char_class___range__46_46_, new int[] {46}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6524, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6521, 0, "$Expression", null, null);
+      tmp[4] = new NonTerminalStackNode<IConstructor>(-6541, 4, "$Name", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6539, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-6537, 2, prod__lit___46__char_class___range__46_46_, new int[] {46}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6536, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6533, 0, "$Expression", null, null);
       builder.addAlternative(RascalRascal.prod__fieldAccess_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___46_$layouts_LAYOUTLIST_field_$Name_, tmp);
 	}
     protected static final void _init_prod__fieldProject_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___60_$layouts_LAYOUTLIST_fields_iter_seps__$Field__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_(ExpectBuilder<IConstructor> builder) {
@@ -7255,17 +7257,17 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__list_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-6342, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6341, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-6338, 2, regular__iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6332, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6334, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6335, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6337, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6330, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-6328, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-6366, 4, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6365, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-6362, 2, regular__iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6356, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6358, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6359, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6361, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6354, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-6352, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
       builder.addAlternative(RascalRascal.prod__list_$Expression__lit___91_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__literal_$Expression__literal_$Literal_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6323, 0, "$Literal", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6347, 0, "$Literal", null, null);
       builder.addAlternative(RascalRascal.prod__literal_$Expression__literal_$Literal_, tmp);
 	}
     protected static final void _init_prod__map_$Expression__lit___40_$layouts_LAYOUTLIST_mappings_iter_star_seps__$Mapping__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___41_(ExpectBuilder<IConstructor> builder) {
@@ -7451,11 +7453,11 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
       
-      tmp[4] = new LiteralStackNode<IConstructor>(-6377, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6376, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new SeparatedListStackNode<IConstructor>(-6373, 2, regular__iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6367, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6369, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6370, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6372, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6365, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(-6363, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-6401, 4, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6400, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new SeparatedListStackNode<IConstructor>(-6397, 2, regular__iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6391, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6393, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6394, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6396, 3, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6389, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-6387, 0, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
       builder.addAlternative(RascalRascal.prod__set_$Expression__lit___123_$layouts_LAYOUTLIST_elements_iter_star_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     protected static final void _init_prod__setAnnotation_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_lit___64_$layouts_LAYOUTLIST_name_$Name_$layouts_LAYOUTLIST_lit___61_$layouts_LAYOUTLIST_value_$Expression_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
@@ -7487,31 +7489,31 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__stepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[13];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(-6402, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6404, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-6406, 2, "$Expression", null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6409, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new LiteralStackNode<IConstructor>(-6410, 4, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-6412, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[6] = new NonTerminalStackNode<IConstructor>(-6414, 6, "$Expression", null, null);
-      tmp[7] = new NonTerminalStackNode<IConstructor>(-6417, 7, "$layouts_LAYOUTLIST", null, null);
-      tmp[8] = new LiteralStackNode<IConstructor>(-6418, 8, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new int[] {46,46}, null, null);
-      tmp[9] = new NonTerminalStackNode<IConstructor>(-6420, 9, "$layouts_LAYOUTLIST", null, null);
-      tmp[10] = new NonTerminalStackNode<IConstructor>(-6422, 10, "$Expression", null, null);
-      tmp[11] = new NonTerminalStackNode<IConstructor>(-6425, 11, "$layouts_LAYOUTLIST", null, null);
-      tmp[12] = new LiteralStackNode<IConstructor>(-6426, 12, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(-6426, 0, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6428, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-6430, 2, "$Expression", null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6433, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new LiteralStackNode<IConstructor>(-6434, 4, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-6436, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[6] = new NonTerminalStackNode<IConstructor>(-6438, 6, "$Expression", null, null);
+      tmp[7] = new NonTerminalStackNode<IConstructor>(-6441, 7, "$layouts_LAYOUTLIST", null, null);
+      tmp[8] = new LiteralStackNode<IConstructor>(-6442, 8, prod__lit___46_46__char_class___range__46_46_char_class___range__46_46_, new int[] {46,46}, null, null);
+      tmp[9] = new NonTerminalStackNode<IConstructor>(-6444, 9, "$layouts_LAYOUTLIST", null, null);
+      tmp[10] = new NonTerminalStackNode<IConstructor>(-6446, 10, "$Expression", null, null);
+      tmp[11] = new NonTerminalStackNode<IConstructor>(-6449, 11, "$layouts_LAYOUTLIST", null, null);
+      tmp[12] = new LiteralStackNode<IConstructor>(-6450, 12, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
       builder.addAlternative(RascalRascal.prod__stepRange_$Expression__lit___91_$layouts_LAYOUTLIST_first_$Expression_$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_second_$Expression_$layouts_LAYOUTLIST_lit___46_46_$layouts_LAYOUTLIST_last_$Expression_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-6470, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-6469, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-6466, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6460, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6462, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6463, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6465, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6458, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-6456, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6455, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6453, 0, "$Expression", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-6331, 6, prod__lit___93__char_class___range__93_93_, new int[] {93}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-6330, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-6327, 4, regular__iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6321, 0, "$Expression", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6323, 1, "$layouts_LAYOUTLIST", null, null), new LiteralStackNode<IConstructor>(-6324, 2, prod__lit___44__char_class___range__44_44_, new int[] {44}, null, null), new NonTerminalStackNode<IConstructor>(-6326, 3, "$layouts_LAYOUTLIST", null, null)}, true, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6319, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-6317, 2, prod__lit___91__char_class___range__91_91_, new int[] {91}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6316, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6314, 0, "$Expression", null, null);
       builder.addAlternative(RascalRascal.prod__subscript_$Expression__expression_$Expression_$layouts_LAYOUTLIST_lit___91_$layouts_LAYOUTLIST_subscripts_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___93_, tmp);
 	}
     protected static final void _init_prod__subtraction_$Expression__lhs_$Expression_$layouts_LAYOUTLIST_lit___$layouts_LAYOUTLIST_rhs_$Expression__assoc__left(ExpectBuilder<IConstructor> builder) {
@@ -7535,9 +7537,9 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__transitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___42_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(-6318, 2, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {61})});
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6315, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6312, 0, "$Expression", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-6342, 2, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, new ICompletionFilter[] {new StringFollowRestriction(new int[] {61})});
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6339, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6336, 0, "$Expression", null, null);
       builder.addAlternative(RascalRascal.prod__transitiveReflexiveClosure_$Expression__argument_$Expression_$layouts_LAYOUTLIST_lit___42_, tmp);
 	}
     protected static final void _init_prod__tuple_$Expression__lit___60_$layouts_LAYOUTLIST_elements_iter_seps__$Expression__$layouts_LAYOUTLIST_lit___44_$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___62_(ExpectBuilder<IConstructor> builder) {
@@ -7553,21 +7555,21 @@ public class RascalRascal extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     protected static final void _init_prod__visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(-6358, 2, "$Visit", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6356, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6353, 0, "$Label", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(-6382, 2, "$Visit", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6380, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6377, 0, "$Label", null, null);
       builder.addAlternative(RascalRascal.prod__visit_$Expression__label_$Label_$layouts_LAYOUTLIST_visit_$Visit_, tmp);
 	}
     protected static final void _init_prod__voidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[7];
       
-      tmp[6] = new LiteralStackNode<IConstructor>(-6446, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
-      tmp[5] = new NonTerminalStackNode<IConstructor>(-6445, 5, "$layouts_LAYOUTLIST", null, null);
-      tmp[4] = new SeparatedListStackNode<IConstructor>(-6442, 4, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6439, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6441, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
-      tmp[3] = new NonTerminalStackNode<IConstructor>(-6437, 3, "$layouts_LAYOUTLIST", null, null);
-      tmp[2] = new LiteralStackNode<IConstructor>(-6435, 2, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(-6434, 1, "$layouts_LAYOUTLIST", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(-6431, 0, "$Parameters", null, null);
+      tmp[6] = new LiteralStackNode<IConstructor>(-6470, 6, prod__lit___125__char_class___range__125_125_, new int[] {125}, null, null);
+      tmp[5] = new NonTerminalStackNode<IConstructor>(-6469, 5, "$layouts_LAYOUTLIST", null, null);
+      tmp[4] = new SeparatedListStackNode<IConstructor>(-6466, 4, regular__iter_star_seps__$Statement__$layouts_LAYOUTLIST, new NonTerminalStackNode<IConstructor>(-6463, 0, "$Statement", null, null), (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{new NonTerminalStackNode<IConstructor>(-6465, 1, "$layouts_LAYOUTLIST", null, null)}, false, null, null);
+      tmp[3] = new NonTerminalStackNode<IConstructor>(-6461, 3, "$layouts_LAYOUTLIST", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(-6459, 2, prod__lit___123__char_class___range__123_123_, new int[] {123}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(-6458, 1, "$layouts_LAYOUTLIST", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(-6455, 0, "$Parameters", null, null);
       builder.addAlternative(RascalRascal.prod__voidClosure_$Expression__parameters_$Parameters_$layouts_LAYOUTLIST_lit___123_$layouts_LAYOUTLIST_statements_iter_star_seps__$Statement__$layouts_LAYOUTLIST_$layouts_LAYOUTLIST_lit___125_, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
