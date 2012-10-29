@@ -14,8 +14,6 @@ package org.rascalmpl.tutor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

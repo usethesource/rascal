@@ -19,6 +19,7 @@ package org.rascalmpl.interpreter.debug;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -103,9 +104,10 @@ public final class DebugHandler implements IDebugHandler {
 	
 	@Override
 	public void suspended(IEvaluator<?> evaluator, AbstractAST currentAST) {
-		
+		if (Display.getDefault().getThread().equals(Thread.currentThread())) {
+			return;
+		}
 		if(isSuspendRequested()) {
-			
 			updateSuspensionState(evaluator, currentAST);
 			getEventTrigger().fireSuspendByClientRequestEvent();			
 		
