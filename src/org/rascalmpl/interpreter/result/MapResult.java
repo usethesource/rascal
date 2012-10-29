@@ -237,7 +237,7 @@ public class MapResult extends ElementResult<IMap> {
 		// Note reversed args
 		IMap left = that.getValue();
 		IMap right = this.getValue();
-		// TODO: this is not right; they can be disjoint
+		
 		if (left.isEqual(right)) {
 			return makeIntegerResult(0);
 		}
@@ -248,17 +248,8 @@ public class MapResult extends ElementResult<IMap> {
 			return makeIntegerResult(1);
 		}
 		
-		// so they are disjoint and incomparable, but we do need an ordering
-		if (left.size() < right.size()) {
-			return makeIntegerResult(-1);
-		}
-		else if (left.size() > right.size()) {
-			return makeIntegerResult(1);
-		}
-		
-		 // so they are the same size, now we convert to a set (TODO: implement this)
-		
-		return makeIntegerResult(1);
+		 // so they are incomparable
+		return makeIntegerResult(0);
 	}
 	
 	@Override

@@ -13,3 +13,7 @@ public bool notAmb(Tree t) = /amb(_) !:= t;
 public test bool amb1() = notAmb(parse(#Expression, "1 + -1"));
 
 public test bool amb2() = notAmb(parse(#Command,"\"1\" + 2"));
+
+public test bool emptySetEquals(set[value] x, set[value] y) = x - x == y - y;
+
+public test bool emptySetEquals(map[value,value] x, map[value,value] y) = x - x == y - y;
