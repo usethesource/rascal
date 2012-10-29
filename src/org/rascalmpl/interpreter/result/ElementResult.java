@@ -181,18 +181,18 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			return 1;
 		}
 		
-		SortedSet<IValue> leftSet = sortedSet(left.iterator(), ctx);
-		SortedSet<IValue> rightSet = sortedSet(right.iterator(), ctx);
-		Comparator<? super IValue> comparator = leftSet.comparator();
-	
-		while (!leftSet.isEmpty()) {
-			compare = comparator.compare(leftSet.last(), rightSet.last());
-			if (compare != 0) {
-				return compare;
-			}
-			leftSet = leftSet.headSet(leftSet.last());
-			rightSet = rightSet.headSet(rightSet.last());
-		}
+//		SortedSet<IValue> leftSet = sortedSet(left.iterator(), ctx);
+//		SortedSet<IValue> rightSet = sortedSet(right.iterator(), ctx);
+//		Comparator<? super IValue> comparator = leftSet.comparator();
+//	
+//		while (!leftSet.isEmpty()) {
+//			compare = comparator.compare(leftSet.last(), rightSet.last());
+//			if (compare != 0) {
+//				return compare;
+//			}
+//			leftSet = leftSet.headSet(leftSet.last());
+//			rightSet = rightSet.headSet(rightSet.last());
+//		}
 		return 0;
 	}
 	

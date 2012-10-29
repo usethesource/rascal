@@ -12,9 +12,9 @@ public str compile(Program prog)
   = intercalate("\n", [ compile(s) | s <- prog.statements]);
 	
 	
-public str compile(jumpAlways(l)) = "J_<l>";
-public str compile(jumpSet(l)) = "J1<l>";
-public str compile(jumpUnset(l)) = "J0<l>";
+public str compile(jumpAlways(int l)) = "J_<l>";
+public str compile(jumpSet(int l)) = "J1<l>";
+public str compile(jumpUnset(int l)) = "J0<l>";
 public str compile(writeSet()) = "W1";
 public str compile(writeUnset()) = "W0";
 public str compile(moveForward()) = "MF";
