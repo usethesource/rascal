@@ -208,7 +208,7 @@ syntax Expression
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
-	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure "[" {Expression ","}+ subscripts "]" 
+	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure "\<" {Field ","}+ fields "\>" 
