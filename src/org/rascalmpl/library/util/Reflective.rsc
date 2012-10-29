@@ -38,5 +38,9 @@ public java Tree parseCommands(str commands, loc location);
 public java Tree parseModule(str moduleContent, loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to get back the parse tree for the given commands}
+public java Tree parseFullModule(str moduleContent, loc location);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name into a source location}
 public java loc getModuleLocation(str modulePath);
