@@ -27,9 +27,9 @@ public class ValueIOTests extends TestFramework {
 		boolean success = false;
 		try{
 			prepare("import ValueIO;");
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, " + exp + ");");
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file:///tmp/xxx|) && N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -38,7 +38,7 @@ public class ValueIOTests extends TestFramework {
 	}
 	
 	public void removeTempFile(){
-		new File("/tmp/xxx").delete();
+		new File(System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx").delete();
 	}
 	
 	@Test public void binBool() { assertTrue(binaryWriteRead("bool", "true")); }
@@ -67,8 +67,8 @@ public class ValueIOTests extends TestFramework {
 			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
 			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, " + exp + ");");
-			assertTrue(runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file:///tmp/xxx|) && N == " + exp + ";}"));
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == " + exp + ";}"));
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -79,10 +79,10 @@ public class ValueIOTests extends TestFramework {
 		try{
 			prepare("data Maybe[&T] = none() | some(&T t);");
 			prepareMore("import ValueIO;");
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, none());");
-			assertTrue(runTestInSameEvaluator("{ Maybe[void] N := readBinaryValueFile(#Maybe[value],|file:///tmp/xxx|) && N == none();}"));
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, some(1));");
-			assertTrue(runTestInSameEvaluator("{ Maybe[int] N := readBinaryValueFile(#Maybe[int], |file:///tmp/xxx|) && N == some(1);}"));
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, none());");
+			assertTrue(runTestInSameEvaluator("{ Maybe[void] N := readBinaryValueFile(#Maybe[value],|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == none();}"));
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, some(1));");
+			assertTrue(runTestInSameEvaluator("{ Maybe[int] N := readBinaryValueFile(#Maybe[int], |file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == some(1);}"));
 
 		}finally{
 			// Clean up.
@@ -94,8 +94,8 @@ public class ValueIOTests extends TestFramework {
 		try {
 			prepare("alias X[&T] = list[&T];");
 			prepareMore("import ValueIO;");
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, [1]);");
-			assertTrue(runTestInSameEvaluator("{X[int] N := readBinaryValueFile(#X[int],|file:///tmp/xxx|) && N == [1];}"));
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, [1]);");
+			assertTrue(runTestInSameEvaluator("{X[int] N := readBinaryValueFile(#X[int],|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == [1];}"));
 	
 		}
 		finally {
@@ -107,8 +107,8 @@ public class ValueIOTests extends TestFramework {
 		try {
 			prepare("alias X = int;");
 			prepareMore("import ValueIO;");
-			prepareMore("writeBinaryValueFile(|file:///tmp/xxx|, 1);");
-			assertTrue(runTestInSameEvaluator("{int N := readBinaryValueFile(#X, |file:///tmp/xxx|) && N == 1;}"));
+			prepareMore("writeBinaryValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, 1);");
+			assertTrue(runTestInSameEvaluator("{int N := readBinaryValueFile(#X, |file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == 1;}"));
 		}
 		finally {
 			removeTempFile();
@@ -118,9 +118,9 @@ public class ValueIOTests extends TestFramework {
 		boolean success = false;
 		try{
 			prepare("import ValueIO;");
-			prepareMore("writeTextValueFile(|file:///tmp/xxx|, " + exp + ");");
+			prepareMore("writeTextValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file:///tmp/xxx|) && N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -154,8 +154,8 @@ public class ValueIOTests extends TestFramework {
 			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
 			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
-			prepareMore("writeTextValueFile(|file:///tmp/xxx|, " + exp + ");");
-			assertTrue(runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file:///tmp/xxx|) && N == " + exp + ";}"));
+			prepareMore("writeTextValueFile(|file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|, " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readTextValueFile(#" + type + ", |file://" + System.getProperty("java.io.tmpdir").replace("\\", "/") + "/xxx|) && N == " + exp + ";}"));
 		}finally{
 			// Clean up.
 			removeTempFile();
