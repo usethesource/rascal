@@ -10,7 +10,7 @@ import ParseTree;
 public void main() {
 	for (/file(f) <- crawl(|std:///|), endsWith(f.path, ".rsc")) {
 		try {
-			t = parseModule(readFile(f), f);
+			t = parseFullModule(readFile(f), f);
 			if (/amb(_) := t) {
 				println("Ambiguity found while parsing: <f>");	
 			}
