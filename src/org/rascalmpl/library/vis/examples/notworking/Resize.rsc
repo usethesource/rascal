@@ -7,7 +7,7 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
-module vis::examples::Resize
+module vis::examples::notworking::Resize
 
 import vis::Figure;
 import vis::Render;
@@ -84,7 +84,7 @@ public void recursiveThing(){
 	render(vcat([makeRecThing(slice(allColors,0,d)),colorStack]));
 }
 
-public overlayResize(){
+public void overlayResize() {
 	render(overlay([box(hshrink(0.3),fillColor("red"),left()),box(hshrink(0.2),right(),fillColor("green")),box(shrink(0.1),fillColor("orange"))]));
 }
 

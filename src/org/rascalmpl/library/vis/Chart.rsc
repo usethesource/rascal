@@ -123,8 +123,8 @@ private Figure ytick(num n){
 
 // X-axis
 
-public Figure xaxis(str title, num length, num start, num incr, num end, num scale){
-   ticks = grid( [ xtick(n) | num n <- [start, (start + incr) .. end]],
+public Figure xaxis(str title, num length, num \start, num incr, num end, num scale){
+   ticks = grid( [ xtick(n) | num n <- [\start, (\start + incr) .. end]],
                  gap(incr * scale), width(length), vcenter() 
                );
    
@@ -137,9 +137,9 @@ public Figure xaxis(str title, num length, num start, num incr, num end, num sca
 
 // Y-axis
 
-public Figure yaxis(str title, num length, num start, num incr, num end, num scale){
+public Figure yaxis(str title, num length, num \start, num incr, num end, num scale){
 
-   ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. start]],
+   ticks = grid( [ ytick(n) | num n <- [end, (end - incr) .. \start]],
                  gap(incr * scale), width(1), right()
                );
    
