@@ -1,4 +1,4 @@
-module lang::rascal::tests::ParsingRegressionTests
+module lang::rascal::syntax::tests::ParsingRegressionTests
 
 import util::Reflective;
 import IO;

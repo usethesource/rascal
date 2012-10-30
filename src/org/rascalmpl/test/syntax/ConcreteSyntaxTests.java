@@ -13,7 +13,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.test.functionality;
+package org.rascalmpl.test.syntax;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

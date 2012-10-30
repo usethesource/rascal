@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
@@ -29,6 +30,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalJUnitTestRunner extends Runner {
@@ -60,13 +62,17 @@ public class RascalJUnitTestRunner extends Runner {
 		this.prefix = prefix;
 	}
 	
+	static protected String computeTestName(String name, ISourceLocation loc) {
+		return name + ":" + loc.getEndLine();
+	}
+	
 	@Override
 	public Description getDescription() {
 		Description desc = Description.createSuiteDescription(prefix);
 		this.desc = desc;
 		
 		try {
-			String[] modules = evaluator.getResolverRegistry().listEntries(URI.create("rascal:///" + prefix.replaceAll("::", "/")));
+			String[] modules = evaluator.getResolverRegistry().listEntries(URIUtil.create("rascal", "", "/" + prefix.replaceAll("::", "/")));
 			
 			for (String module : modules) {
 				if (!module.endsWith(".rsc")) {
@@ -78,13 +84,15 @@ public class RascalJUnitTestRunner extends Runner {
 				desc.addChild(modDesc);
 				
 				for (AbstractFunction f : heap.getModule(name).getTests()) {
-					modDesc.addChild(Description.createTestDescription(getClass(), f.getName()));
+					modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
 				}
 			}
 			
 		
 			return desc;
 		} catch (IOException e) {
+			throw new RuntimeException("could not create test suite", e);
+		} catch (URISyntaxException e) {
 			throw new RuntimeException("could not create test suite", e);
 		}
 	}
@@ -104,37 +112,39 @@ public class RascalJUnitTestRunner extends Runner {
 	private final class Listener implements ITestResultListener {
 		private final RunNotifier notifier;
 		private final Description module;
-		private int current = 0;
-		private int count = 0;
 	
 		private Listener(RunNotifier notifier, Description module) {
 			this.notifier = notifier;
 			this.module = module;
 		}
 	
+		private Description getDescription(String name, ISourceLocation loc) {
+			String testName = computeTestName(name, loc);
+			
+			for (Description child : module.getChildren()) {
+				if (child.getMethodName().equals(testName)) {
+					return child;
+				}
+			}
+			
+			throw new IllegalArgumentException(name + " test was never registered");
+		}
+
+		
 		@Override
 		public void start(int count) {
-			this.current = 0;
-			this.count = count;
-	
-			if (current < count) {
-				notifier.fireTestStarted(module.getChildren().get(current));
-			}
 		}
 	
 		@Override
-		public void report(boolean successful, String test, ISourceLocation loc,
-				String message) {
+		public void report(boolean successful, String test, ISourceLocation loc,	String message) {
+			Description desc = getDescription(test, loc);
+			notifier.fireTestStarted(desc);
+			
 			if (!successful) {
-				notifier.fireTestFailure(new Failure(module.getChildren().get(current), new Exception(loc + " : " + message)));
+				notifier.fireTestFailure(new Failure(desc, new Exception(loc + " : " + message)));
 			}
 			else {
-				notifier.fireTestFinished(module.getChildren().get(current));
-			}
-			
-			current++;
-			if (current < count) {
-				notifier.fireTestStarted(module.getChildren().get(current));
+				notifier.fireTestFinished(desc);
 			}
 		}
 	

@@ -7,12 +7,12 @@
  *
  * Contributors: Jurgen Vinju
  */
-package org.rascalmpl.test;
+package org.rascalmpl.test.syntax;
 
 import org.junit.runner.RunWith;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 
 @RunWith(RascalJUnitTestRunner.class)
-@RascalJUnitTestPrefix("lang::rascal::tests")
-public class RunRascalTestModules { }
+@RascalJUnitTestPrefix("lang::rascal::syntax::tests")
+public class RunRascalSyntaxTestModules { }

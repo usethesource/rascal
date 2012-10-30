@@ -1,4 +1,4 @@
-module lang::rascal::tests::ExpressionGrammars
+module lang::rascal::syntax::tests::ExpressionGrammars
 
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 lexical Num = [0-9]+;
