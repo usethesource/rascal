@@ -77,7 +77,7 @@ public tuple[list[str], set[Message]] checkCond(a:and(c1, c2), set[Message] errs
   return <ns, errs>;
 } 
 
-public tuple[list[str], set[Message]] checkCond(o:or(c1, c2), set[Message] errs) {
+public tuple[list[str], set[Message]] checkCond(or(c1, c2), set[Message] errs) {
   <ns1, errs> = checkCond(c1, errs);
   <ns2, errs> = checkCond(c2, errs);
   return <ns1 + ns2, errs>;
