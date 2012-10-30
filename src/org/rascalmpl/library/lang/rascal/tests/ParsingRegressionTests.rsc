@@ -18,7 +18,7 @@ public bool hasAmb(Tree x) = /a:amb(_) := x;
 public bool testModule(loc f) {
   println(f);
   try {
-    if (hasAmb(removeConcreteSyntax(parseFullModule(readFile(f), f)))) {
+    if (hasAmb(removeConcreteSyntax(parseModule(f)))) {
       println("Ambiguity found while parsing: <f>");
     }
     else {
@@ -32,8 +32,7 @@ public bool testModule(loc f) {
   return false;
 }
 
-public bool testStandardLibrary() = (true | testModule(f) && it | /file(f) <- crawl(|std:///|), endsWith(f.path, ".rsc"));
+public test bool StandardLibrary() = (true | testModule(f) && it | /file(f) <- crawl(|std:///|), endsWith(f.path, ".rsc"));
 
-public bool testTutor() = (true | testModule(f) && it | /file(f) <- crawl(|tutor:///|), endsWith(f.path, ".rsc"));
+public test bool testTutor() = (true | testModule(f) && it | /file(f) <- crawl(|tutor:///|), endsWith(f.path, ".rsc"));
 
-public bool testEclipseLibrary() = (true | testModule(f) && it | /file(f) <- crawl(|eclipse-std:///|), endsWith(f.path, ".rsc"));
