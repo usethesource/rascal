@@ -65,17 +65,14 @@ public class Reflective {
 	}
 
 	private Evaluator getPrivateEvaluator(IEvaluatorContext ctx) {
-		if (cachedEvaluator == null) {
+		if (cachedEvaluator == null || robin++ > maxCacheRounds) {
+			robin = 0;
 			IEvaluator<?> callingEval = ctx.getEvaluator();
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
 			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
 		}
 		
-		if (robin++ > maxCacheRounds) {
-			robin = 0;
-			cachedEvaluator.__getHeap().clear();
-		}
 		return cachedEvaluator;
 	}
 	
