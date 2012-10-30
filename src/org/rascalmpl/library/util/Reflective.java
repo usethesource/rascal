@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -26,12 +27,13 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Reflective {
+	private final IValueFactory values;
 
 	public Reflective(IValueFactory values){
 		super();
+		this.values = values;
 	}
 
 	public IConstructor getModuleGrammar(ISourceLocation loc, IEvaluatorContext ctx) {
@@ -50,19 +52,22 @@ public class Reflective {
 		return evaluator.parseCommands(evaluator.getMonitor(), str.getValue(), loc.getURI());
 	}
 	
-	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
-		IEvaluator<?> evaluator = ctx.getEvaluator();
-		return evaluator.parseModuleWithoutIncludingExtends(evaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), new ModuleEnvironment("___parseModule___", ctx.getHeap()));
+	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
+		try {
+			return ctx.getEvaluator().parseModule(ctx.getEvaluator().getMonitor(), loc.getURI(), null);
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
 	}
 	
-	public IValue parseFullModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		IEvaluator<?> callingEval = ctx.getEvaluator();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
 		Evaluator ownEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
 		return ownEvaluator.parseModule(callingEval.getMonitor(), str.getValue().toCharArray(), loc.getURI(), null);
 	}
-
+	
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
 		URI uri = ctx.getEvaluator().getRascalResolver().resolve(URI.create("rascal://" + modulePath.getValue()));
 		if (uri == null) throw RuntimeExceptionFactory.moduleNotFound(modulePath, ctx.getCurrentAST(), null);
