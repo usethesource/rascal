@@ -53,10 +53,16 @@ public class RecursiveTestSuite extends Suite {
 				className = className.substring(className.indexOf(root.getName())); // remove the part of the path which is just the subdir of the project.
 				try {
 					Class<?> currentClass = Class.forName(className);
-					for (Method m: currentClass.getMethods()) {
-						if (m.isAnnotationPresent(Test.class)) {
-							result.add(currentClass);
-							break;
+					
+					if (currentClass.isAnnotationPresent(RascalJUnitTestPrefix.class)) {
+						result.add(currentClass);
+					}
+					else {
+						for (Method m: currentClass.getMethods()) {
+							if (m.isAnnotationPresent(Test.class)) {
+								result.add(currentClass);
+								break;
+							}
 						}
 					}
 				} catch (ClassNotFoundException e) {

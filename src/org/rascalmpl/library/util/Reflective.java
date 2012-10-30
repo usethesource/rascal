@@ -30,6 +30,9 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class Reflective {
 	private final IValueFactory values;
+	private Evaluator cachedEvaluator;
+	private int robin = 0;
+	private static final int maxCacheRounds = 5;
 
 	public Reflective(IValueFactory values){
 		super();
@@ -54,18 +57,31 @@ public class Reflective {
 	
 	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
 		try {
-			return ctx.getEvaluator().parseModule(ctx.getEvaluator().getMonitor(), loc.getURI(), null);
+			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
+			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc.getURI(), null);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
+
+	private Evaluator getPrivateEvaluator(IEvaluatorContext ctx) {
+		if (cachedEvaluator == null) {
+			IEvaluator<?> callingEval = ctx.getEvaluator();
+			GlobalEnvironment heap = new GlobalEnvironment();
+			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
+			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
+		}
+		
+		if (robin++ > maxCacheRounds) {
+			robin = 0;
+			cachedEvaluator.__getHeap().clear();
+		}
+		return cachedEvaluator;
+	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
-		IEvaluator<?> callingEval = ctx.getEvaluator();
-		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("___full_module_parser___", heap));
-		Evaluator ownEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
-		return ownEvaluator.parseModule(callingEval.getMonitor(), str.getValue().toCharArray(), loc.getURI(), null);
+		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
+		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc.getURI(), null);
 	}
 	
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
