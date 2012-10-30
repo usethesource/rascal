@@ -133,6 +133,7 @@ public class RascalJUnitTestRunner extends Runner {
 		
 		@Override
 		public void start(int count) {
+			notifier.fireTestRunStarted(module);
 		}
 	
 		@Override
@@ -150,6 +151,7 @@ public class RascalJUnitTestRunner extends Runner {
 	
 		@Override
 		public void done() {
+			notifier.fireTestRunFinished(new Result());
 		}
 	}
 }
