@@ -17,6 +17,7 @@ import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.gtd.util.BitSet;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
@@ -48,6 +49,10 @@ public abstract class AbstractStackNode<P>{
 	
 	// The production (specific to end nodes only)
 	private P alternativeProduction;
+	
+	// Hidden-right-recursion related
+	private BitSet propagatedPrefixes;
+	private IntegerList propagatedReductions;
 	
 	protected AbstractStackNode(int id, int dot){
 		super();
@@ -621,7 +626,7 @@ public abstract class AbstractStackNode<P>{
 	 * of the parser's implementation.
 	 */
 	@SuppressWarnings("unchecked")
-	public int updateOvertakenNullableNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges, IntegerList touched){
+	public int updateOvertakenNullableNode(AbstractStackNode<P> predecessor, AbstractNode result, int potentialNewEdges){
 		IntegerObjectList<EdgesSet<P>> edgesMapToAdd = predecessor.edgesMap;
 		ArrayList<Link>[] prefixesMapToAdd = predecessor.prefixesMap;
 		
@@ -630,11 +635,19 @@ public abstract class AbstractStackNode<P>{
 		int possibleMaxSize = edgesMapSize + potentialNewEdges;
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
+			
+			propagatedPrefixes = new BitSet();
 		}else{
 			if(prefixesMap.length < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
 				prefixesMap = new ArrayList[possibleMaxSize];
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
+			}
+			
+			if(propagatedPrefixes == null){
+				propagatedPrefixes = new BitSet();
+			}else{
+				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
 		}
 		
@@ -648,21 +661,23 @@ public abstract class AbstractStackNode<P>{
 			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
 			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
 				int startLocation = edgesMapToAdd.getKey(i);
-				if(touched.contains(startLocation)) continue; // Prefix present, abort.
 				
 				// Prefix not present, add it.
 				int index = edgesMap.findKey(startLocation);
+				
 				ArrayList<Link> prefixes;
 				if(index == -1){ // No prefix set for the given start location is present yet.
 					index = edgesMap.size();
 					edgesMap.add(startLocation, edgesMapToAdd.getValue(i));
-					touched.add(startLocation);
+					propagatedPrefixes.set(index);
 					
 					prefixes = new ArrayList<Link>(1);
 					prefixesMap[index] = prefixes;
 					
 					++nrOfAddedEdges;
 				}else{ // A prefix set for the given start location is present.
+					if(propagatedPrefixes.isSet(index)) continue; // Prefix present, abort.
+					
 					prefixes = prefixesMap[index];
 				}
 				
@@ -703,6 +718,16 @@ public abstract class AbstractStackNode<P>{
 	 */
 	public ArrayList<Link>[] getPrefixesMap(){
 		return prefixesMap;
+	}
+	
+	/**
+	 * Returns the list of start location for which the results have already
+	 * been propagated (hidden-right-recursion specific).
+	 */
+	public IntegerList getPropagatedReductions(){
+		if(propagatedReductions == null) propagatedReductions = new IntegerList();
+		
+		return propagatedReductions;
 	}
 	
 	// Matchables.
