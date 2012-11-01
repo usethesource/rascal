@@ -72,7 +72,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	protected int lookAheadChar;
 	
-	private final HashMap<String, Method> methodCache;
+	private final HashMap<String, AbstractStackNode<P>[]> expectCache;
 	
 	private final IntegerObjectList<AbstractStackNode<P>> sharedLastExpects;
 	
@@ -108,7 +108,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		location = 0;
 		
-		methodCache = new HashMap<String, Method>();
+		expectCache = new HashMap<String, AbstractStackNode<P>[]>();
 		
 		sharedLastExpects = new IntegerObjectList<AbstractStackNode<P>>();
 		
@@ -124,28 +124,29 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	@SuppressWarnings("unchecked")
 	protected AbstractStackNode<P>[] invokeExpects(AbstractStackNode<P> nonTerminal){
 		String name = nonTerminal.getName();
-		Method method = methodCache.get(name);
-		if(method == null){
+		AbstractStackNode<P>[] expects = expectCache.get(name);
+		if(expects == null){
 			try{
-				method = getClass().getMethod(name);
+				Method method = getClass().getMethod(name);
 				try{
 					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
 				}catch(SecurityException sex){
 					// Ignore this if it happens.
 				}
+				
+				expects = (AbstractStackNode<P>[]) method.invoke(this);
 			}catch(NoSuchMethodException nsmex){
 				throw new UndeclaredNonTerminalException(name, getClass());
+			}catch(IllegalAccessException iaex){
+				throw new RuntimeException(iaex);
+			}catch(InvocationTargetException itex){
+				throw new RuntimeException(itex.getTargetException());
 			}
-			methodCache.putUnsafe(name, method);
+			
+			expectCache.putUnsafe(name, expects);
 		}
 		
-		try{
-			return (AbstractStackNode<P>[]) method.invoke(this);
-		}catch(IllegalAccessException iaex){
-			throw new RuntimeException(iaex);
-		}catch(InvocationTargetException itex){
-			throw new RuntimeException(itex.getTargetException());
-		} 
+		 return expects;
 	}
 	
 	/**
