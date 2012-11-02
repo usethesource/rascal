@@ -56,6 +56,13 @@ public class IntegerList{
 		return false;
 	}
 	
+	public boolean containsBefore(int integer, int limit){
+		for(int i = limit - 1; i >= 0; --i){
+			if(data[i] == integer) return true;
+		}
+		return false;
+	}
+	
 	public int size(){
 		return size;
 	}

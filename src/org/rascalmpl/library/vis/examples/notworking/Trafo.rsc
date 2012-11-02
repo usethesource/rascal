@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-module vis::examples::Trafo
+module vis::examples::notworking::Trafo
 
 import vis::Figure;
 import vis::Render;
@@ -149,5 +149,5 @@ public void rot10(){
    render(scale(0.5, 2.0, box(size(50,70))));
  }
  
- */
+ 
  

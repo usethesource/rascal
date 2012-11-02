@@ -110,22 +110,29 @@ public class URIUtil {
 	 */
 	public static URI fixUnicode(URI uri) throws URISyntaxException {
 		return new URI(uri.toASCIIString());
+	}	
+	
+	private static String getCorrectAuthority(URI uri) {
+		if (uri.getAuthority() == null)
+			return "";
+		return uri.getAuthority();
 	}
 	
 	public static URI changeScheme(URI uri, String newScheme) throws URISyntaxException {
-		return create(newScheme, uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
+		return create(newScheme, getCorrectAuthority(uri), uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
 	public static URI changeAuthority(URI uri, String newAuthority) throws URISyntaxException {
-		return create(uri.getScheme(), newAuthority, uri.getPath(), uri.getQuery(), uri.getFragment());
+		return create(uri.getScheme(), newAuthority == null ? "" : newAuthority, uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
 	public static URI changePath(URI uri, String newPath) throws URISyntaxException {
-		return create(uri.getScheme(), uri.getAuthority(), newPath, uri.getQuery(), uri.getFragment());
+		return create(uri.getScheme(), getCorrectAuthority(uri), newPath, uri.getQuery(), uri.getFragment());
 	}
+
 	public static URI changeQuery(URI uri, String newQuery) throws URISyntaxException {
-		return create(uri.getScheme(), uri.getAuthority(), uri.getPath(), newQuery, uri.getFragment());
+		return create(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), newQuery, uri.getFragment());
 	}
 	public static URI changeFragment(URI uri, String newFragment) throws URISyntaxException {
-		return create(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), newFragment);
+		return create(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), uri.getQuery(), newFragment);
 	}
 	
 	/* special server-authority URI constructors */

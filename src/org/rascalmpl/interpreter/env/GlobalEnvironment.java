@@ -56,6 +56,8 @@ public class GlobalEnvironment {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
 		locationModules.clear();
+		objectParsersForModules.clear();
+		rascalParsersForModules.clear();
 	}
 	
 	/**

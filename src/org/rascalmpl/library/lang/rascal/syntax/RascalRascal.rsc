@@ -208,10 +208,10 @@ syntax Expression
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
-	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure "[" {Expression ","}+ subscripts "]" 
+	| subscript    : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "[" {Expression ","}+ subscripts "]" 
 	| fieldAccess  : Expression expression "." Name field 
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
-	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure "\<" {Field ","}+ fields "\>" 
+	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
 	| setAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
     | getAnnotation: Expression expression "@" Name name 
 	| is           : Expression expression "is" Name name
@@ -222,14 +222,14 @@ syntax Expression
 	> negation     : "!" Expression!match!noMatch argument 
 	| negative     : "-" Expression argument 
 	| non-assoc splice : "*" Expression argument
-	| asType       : "[" Type type "]" Expression argument
+	| asType       : "[" Type type "]" Expression!match!noMatch argument
 	> left composition: Expression lhs "o" Expression rhs 
 	> left ( product: Expression lhs "*" () !>> "*" Expression!noMatch!match rhs  
 		   | \join   : Expression lhs "join" Expression rhs 
 	       | remainder: Expression lhs "%" Expression rhs
 		   | division: Expression lhs "/" Expression rhs 
 	     )
-	> left intersection: Expression lhs "&" Expression rhs 
+	> left intersection: Expression lhs "&" !>> "&" Expression rhs 
 	> left ( addition   : Expression lhs "+" Expression!noMatch!match rhs  
 		   | subtraction: Expression!transitiveClosure!transitiveReflexiveClosure lhs "-" Expression rhs
 		   | appendAfter: Expression lhs "\<\<" !>> "=" Expression rhs
@@ -404,7 +404,10 @@ lexical RegExp
 	| "\<" Name "\>" 
 	| [\\] [/ \< \> \\] 
 	| "\<" Name ":" NamedRegExp* "\>" 
-	| Backslash ;
+	| Backslash 
+	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	;
+	
 
 layout LAYOUTLIST
 	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
@@ -497,7 +500,7 @@ start syntax Command
 	| \import: Import imported ;
 
 lexical TagString
-	= "{" ( ![{}] | ("\\" [{}]) | TagString)* contents "}";
+	= "\\" !<< "{" ( ![{}] | ("\\" [{}]) | TagString)* contents "\\" !<< "}";
 
 syntax ProtocolTail
 	= mid: MidProtocolChars mid Expression expression ProtocolTail tail 
@@ -525,8 +528,6 @@ lexical Comment
 	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u2000A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
-lexical RegExp
-	= @category="MetaVariable" [\<]  Expression expression [\>] ;
 
 syntax Renamings
 	= \default: "renaming" {Renaming ","}+ renamings ;
@@ -598,7 +599,8 @@ syntax Bound
 	| empty: ;
 
 keyword RascalKeywords
-	= "int"
+	= "o"
+	| "int"
 	| "break"
 	| "continue"
 	| "rat" 

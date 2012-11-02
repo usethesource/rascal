@@ -1,4 +1,4 @@
-package org.rascalmpl.test.functionality;
+package org.rascalmpl.test.syntax;
 
 import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
